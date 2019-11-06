@@ -12,7 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.sequoiacm.config.tools.SchAdmin;
+import com.sequoiacm.config.tools.ConfAdmin;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
@@ -43,7 +43,7 @@ public class ScmSubscribeImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchAdmin.checkHelpArgs(args);
+        ConfAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
 
         String configName = cl.getOptionValue(OPT_LONG_CONFIG);

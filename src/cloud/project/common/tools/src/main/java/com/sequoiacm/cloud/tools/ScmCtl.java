@@ -19,8 +19,8 @@ import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 public class ScmCtl {
     private static Logger logger = LoggerFactory.getLogger(ScmCtl.class.getName());
     public static String helpMsg = "usage: scmctl <subcommand> [options] [args]" + "\r\n"
-            + "Type 'scmctl help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'scmctl --version' to see the program version" + "\r\n" + "\r\n"
+            + "Type 'scmcloudctl help [subcommand]' for help on a specific subcommand" + "\r\n"
+            + "Type 'scmcloudctl --version' to see the program version" + "\r\n" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tstart" + "\r\n" + "\tstop" + "\r\n" + "\tlist"
             + "\r\n" + "\thelp";
 
@@ -36,8 +36,8 @@ public class ScmCtl {
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err.println("create  " + args[0]
-                        + " subcommand instance failed,stack trace:");
+                System.err
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }

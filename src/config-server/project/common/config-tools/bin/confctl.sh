@@ -13,7 +13,7 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
-MAINCLASS="com.sequoiacm.config.tools.SchCtl"
+MAINCLASS="com.sequoiacm.config.tools.ConfCtl"
 CSPATH=$(pwd)
 JARPATH=$(./bin/findToolsJar.sh)
 if [ $? -ne 0 ]; then

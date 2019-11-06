@@ -1,7 +1,7 @@
 package com.sequoiacm.config.tools.command;
 
-import com.sequoiacm.config.tools.SchAdmin;
-import com.sequoiacm.config.tools.SchCtl;
+import com.sequoiacm.config.tools.ConfAdmin;
+import com.sequoiacm.config.tools.ConfCtl;
 import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
 
@@ -16,23 +16,23 @@ public class ScmHelpToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        if (tool.equals(SchCtl.class)) {
-            SchCtl.checkHelpArgs(args);
+        if (tool.equals(ConfCtl.class)) {
+            ConfCtl.checkHelpArgs(args);
             if (args.length >= 1) {
-                SchCtl.printHelp(args[0], isFullHelp);
+                ConfCtl.printHelp(args[0], isFullHelp);
             }
             else {
-                System.out.println(SchCtl.helpMsg);
+                System.out.println(ConfCtl.helpMsg);
                 System.exit(ScmExitCode.SUCCESS);
             }
         }
-        else if (tool.equals(SchAdmin.class)) {
-            SchAdmin.checkHelpArgs(args);
+        else if (tool.equals(ConfAdmin.class)) {
+            ConfAdmin.checkHelpArgs(args);
             if (args.length >= 1) {
-                SchAdmin.printHelp(args[0], isFullHelp);
+                ConfAdmin.printHelp(args[0], isFullHelp);
             }
             else {
-                System.out.println(SchAdmin.helpMsg);
+                System.out.println(ConfAdmin.helpMsg);
                 System.exit(ScmExitCode.SUCCESS);
             }
         }
@@ -45,11 +45,11 @@ public class ScmHelpToolImpl implements ScmTool {
 
     @Override
     public void printHelp(boolean isFullHelp) throws ScmToolsException {
-        if (tool.equals(SchCtl.class)) {
-            System.out.println(SchCtl.helpMsg);
+        if (tool.equals(ConfCtl.class)) {
+            System.out.println(ConfCtl.helpMsg);
         }
-        else if (tool.equals(SchAdmin.class)) {
-            System.out.println(SchAdmin.helpMsg);
+        else if (tool.equals(ConfAdmin.class)) {
+            System.out.println(ConfAdmin.helpMsg);
         }
         else {
             throw new ScmToolsException("Unkonw tool's class", ScmExitCode.COMMON_UNKNOW_ERROR);

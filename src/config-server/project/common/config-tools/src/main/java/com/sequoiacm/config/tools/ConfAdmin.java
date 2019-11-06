@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.config.tools.command.ScmCreateNodeToolImpl;
+import com.sequoiacm.config.tools.command.ScmHelpToolImpl;
 import com.sequoiacm.config.tools.command.ScmListSubscribersImpl;
 import com.sequoiacm.config.tools.command.ScmSubscribeImpl;
 import com.sequoiacm.config.tools.command.ScmTool;
@@ -14,11 +15,11 @@ import com.sequoiacm.config.tools.common.ScmCommon;
 import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
 
-public class SchAdmin {
-    private static Logger logger = LoggerFactory.getLogger(SchAdmin.class.getName());
+public class ConfAdmin {
+    private static Logger logger = LoggerFactory.getLogger(ConfAdmin.class.getName());
     public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
-            + "Type 'schadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'schadmin --version' to see the program version" + "\r\n"
+            + "Type 'confadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
+            + "Type 'confadmin --version' to see the program version" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tsubscribe" + "\r\n"
             + "\tunsubscribe" + "\r\n" + "\tlistsubscribers" + "\r\n" + "\thelp";
 
@@ -35,7 +36,7 @@ public class SchAdmin {
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
                 System.err
-                .println("create  " + args[0] + " subcommand instance failed,stack trace:");
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }
@@ -134,6 +135,12 @@ public class SchAdmin {
         }
         else if (toolName.equals("listsubscribers")) {
             instance = new ScmListSubscribersImpl();
+        }
+        else if (toolName.equals("help")) {
+            instance = new ScmHelpToolImpl(ConfAdmin.class, false);
+        }
+        else if (toolName.equals("helpfull")) {
+            instance = new ScmHelpToolImpl(ConfAdmin.class, true);
         }
         else {
 

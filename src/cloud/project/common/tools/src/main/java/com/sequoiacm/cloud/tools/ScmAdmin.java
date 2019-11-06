@@ -2,10 +2,14 @@ package com.sequoiacm.cloud.tools;
 
 import java.util.Arrays;
 
-import com.sequoiacm.cloud.tools.command.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.cloud.tools.command.ScmCleanSysTableToolImpl;
+import com.sequoiacm.cloud.tools.command.ScmCreateNodeToolImpl;
+import com.sequoiacm.cloud.tools.command.ScmCreateUserToolmpl;
+import com.sequoiacm.cloud.tools.command.ScmHelpToolImpl;
+import com.sequoiacm.cloud.tools.command.ScmTool;
 import com.sequoiacm.cloud.tools.common.ScmCommon;
 import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.cloud.tools.exception.ScmToolsException;
@@ -13,11 +17,10 @@ import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 public class ScmAdmin {
     private static Logger logger = LoggerFactory.getLogger(ScmAdmin.class.getName());
     public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
-            + "Type 'scmadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'scmadmin --version' to see the program version" + "\r\n"
-            + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n"
-            + "\tcleansystable" + "\r\n"
-            + "\tcreateuser" + "\r\n"+ "\thelp";
+            + "Type 'scmcloudadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
+            + "Type 'scmcloudadmin --version' to see the program version" + "\r\n"
+            + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tcleansystable"
+            + "\r\n" + "\tcreateuser" + "\r\n" + "\thelp";
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -31,8 +34,8 @@ public class ScmAdmin {
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err.println("create  " + args[0]
-                        + " subcommand instance failed,stack trace:");
+                System.err
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }
@@ -123,7 +126,7 @@ public class ScmAdmin {
         if (toolName.equals("createnode")) {
             instance = new ScmCreateNodeToolImpl();
         }
-        else if(toolName.equals("createuser")) {
+        else if (toolName.equals("createuser")) {
             instance = new ScmCreateUserToolmpl();
         }
         else if (toolName.equals("cleansystable")) {

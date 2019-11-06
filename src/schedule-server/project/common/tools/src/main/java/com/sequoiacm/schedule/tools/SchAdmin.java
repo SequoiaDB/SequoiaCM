@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.schedule.tools.command.ScmCreateNodeToolImpl;
+import com.sequoiacm.schedule.tools.command.ScmHelpToolImpl;
 import com.sequoiacm.schedule.tools.command.ScmTool;
 import com.sequoiacm.schedule.tools.common.ScmCommon;
 import com.sequoiacm.schedule.tools.exception.ScmExitCode;
@@ -30,8 +31,8 @@ public class SchAdmin {
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err.println("create  " + args[0]
-                        + " subcommand instance failed,stack trace:");
+                System.err
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }
@@ -121,6 +122,12 @@ public class SchAdmin {
         ScmTool instance = null;
         if (toolName.equals("createnode")) {
             instance = new ScmCreateNodeToolImpl();
+        }
+        else if (toolName.equals("help")) {
+            instance = new ScmHelpToolImpl(SchAdmin.class, false);
+        }
+        else if (toolName.equals("helpfull")) {
+            instance = new ScmHelpToolImpl(SchAdmin.class, true);
         }
         else {
 

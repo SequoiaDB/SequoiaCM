@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.sequoiacm.config.tools.SchAdmin;
+import com.sequoiacm.config.tools.ConfAdmin;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
 import com.sequoiacm.config.tools.common.SubscribersPrinter;
@@ -33,7 +33,7 @@ public class ScmListSubscribersImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchAdmin.checkHelpArgs(args);
+        ConfAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String configUrl = cl.getOptionValue(OPT_LONG_URL);
 

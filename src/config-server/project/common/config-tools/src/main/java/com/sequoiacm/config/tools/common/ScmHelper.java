@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.config.tools.SchCtl;
+import com.sequoiacm.config.tools.ConfCtl;
 import com.sequoiacm.config.tools.element.ScmNodeType;
 import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
@@ -47,7 +47,7 @@ public class ScmHelper {
     }
 
     public static void configToolsLog(String logFile) throws ScmToolsException {
-        InputStream is = SchCtl.class.getClassLoader().getResourceAsStream(logFile);
+        InputStream is = ConfCtl.class.getClassLoader().getResourceAsStream(logFile);
         try {
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configure = new JoranConfigurator();
