@@ -1,5 +1,8 @@
 package com.sequoiacm.infrastructure.config.core.msg.node;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.bson.BSONObject;
 
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
@@ -7,6 +10,8 @@ import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverter;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
@@ -51,10 +56,21 @@ public class NodeBsonConverter implements BsonConverter {
     }
 
     @Override
-    public ConfigFilter convertToConfigFilter(BSONObject configFilter) {
-        String hostName = BsonUtils.getString(configFilter, ScmRestArgDefine.NODE_CONF_NODEHOSTNAME);
-        int port=BsonUtils.getInteger(configFilter, ScmRestArgDefine.NODE_CONF_NODEPORT);
-        return new NodeFilter(hostName, port);
+    public ConfigFilter convertToConfigFilter(BSONObject configFilter) throws ScmConfigException {
+        String hostName = BsonUtils.getString(configFilter,
+                ScmRestArgDefine.NODE_CONF_NODEHOSTNAME);
+        int port = BsonUtils.getInteger(configFilter, ScmRestArgDefine.NODE_CONF_NODEPORT);
+        String hostIp;
+        try {
+            InetAddress addr = InetAddress.getByName(hostName);
+            hostIp = addr.getHostAddress();
+        }
+        catch (UnknownHostException e) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "host name is not exist in hosts file, please check hosts file: hostName="
+                            + hostName);
+        }
+        return new NodeFilter(hostName, hostIp, port);
     }
 
     @Override

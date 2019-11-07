@@ -2,17 +2,21 @@ package com.sequoiacm.infrastructure.config.core.msg.node;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 
+import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
 
 public class NodeFilter implements ConfigFilter {
 
     private String hostName;
+    private String hostIp;
     private Integer port;
 
-    public NodeFilter(String hostName, int port) {
+    public NodeFilter(String hostName, String hostIp, Integer port) {
         this.hostName = hostName;
+        this.hostIp = hostIp;
         this.port = port;
     }
 
@@ -24,15 +28,32 @@ public class NodeFilter implements ConfigFilter {
         return port;
     }
 
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
+    }
+
     @Override
     public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
+        BasicBSONList hostList = new BasicBSONList();
         if (hostName != null) {
-            obj.put(ScmRestArgDefine.NODE_CONF_NODEHOSTNAME, hostName);
+            hostList.add(hostName);
         }
+        if (hostIp != null) {
+            hostList.add(hostIp);
+
+        }
+
+        BasicBSONObject hostSet = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_IN,
+                hostList);
+        BasicBSONObject hostFilter = new BasicBSONObject(ScmRestArgDefine.NODE_CONF_NODEHOSTNAME,
+                hostSet);
         if (port != null) {
-            obj.put(ScmRestArgDefine.NODE_CONF_NODEPORT, port);
+            hostFilter.put(ScmRestArgDefine.NODE_CONF_NODEPORT, port);
         }
-        return obj;
+        return hostFilter;
     }
 }

@@ -1,5 +1,8 @@
 package com.sequoiacm.config.framework.node.dao;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.node.NodeConfig;
+import com.sequoiacm.infrastructure.config.core.msg.node.NodeFilter;
 import com.sequoiacm.infrastructure.config.core.msg.node.NodeNotifyOption;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
@@ -51,6 +55,32 @@ public class CreateNodeDao {
         try {
             transaction = metasource.createTransaction();
             TableDao contentServerTableDao = nodeMetaService.getContentServerTableDao(transaction);
+            // host format: ip or hostname
+            String host = config.getHostName();
+            NodeFilter nodeFilter = null;
+            try {
+                InetAddress addr = InetAddress.getByName(host);
+                String hostName = addr.getHostName();
+                String hostIp = addr.getHostAddress();
+                // host is ip and ip/hostname is not exist
+                if (hostName.equals(hostIp)) {
+                    throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                            "host ip is not exist in hosts file, please check hosts file: host="
+                                    + host);
+                }
+                nodeFilter = new NodeFilter(hostName, hostIp, config.getPort());
+            }
+            catch (UnknownHostException e) {
+                // host is hostname and ip/hostname is not exist
+                throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                        "host name is not exist in hosts file, please check hosts file: host="
+                                + host);
+            }
+
+            if (contentServerTableDao.count(nodeFilter.toBSONObject()) != 0) {
+                throw new ScmConfigException(ScmConfError.NODE_EXIST,
+                        "node is already exist: filter=" + nodeFilter.toBSONObject());
+            }
 
             int nodeId = contentServerTableDao.generateId();
             config.setId(nodeId);
@@ -61,7 +91,7 @@ public class CreateNodeDao {
             catch (MetasourceException e) {
                 if (e.getError() == ScmConfError.METASOURCE_RECORD_EXIST) {
                     throw new ScmConfigException(ScmConfError.NODE_EXIST,
-                            "node exist:nodeName=" + config.getName(), e);
+                            "node is already exist:nodeName=" + config.getName(), e);
                 }
                 throw e;
             }
@@ -100,5 +130,4 @@ public class CreateNodeDao {
         NodeNotifyOption notifycation = new NodeNotifyOption(nodeName, 1, EventType.CREATE);
         return new ScmConfEventBase(ScmConfigNameDefine.NODE, notifycation);
     }
-
 }
