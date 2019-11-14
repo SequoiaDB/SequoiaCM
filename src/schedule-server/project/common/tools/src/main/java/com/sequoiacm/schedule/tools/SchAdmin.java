@@ -14,7 +14,7 @@ import com.sequoiacm.schedule.tools.exception.ScmToolsException;
 
 public class SchAdmin {
     private static Logger logger = LoggerFactory.getLogger(SchAdmin.class.getName());
-    public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
+    public final static String helpMsg = "usage: schadmin <subcommand> [options] [args]" + "\r\n"
             + "Type 'schadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
             + "Type 'schadmin --version' to see the program version" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\thelp";

@@ -16,9 +16,9 @@ import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 
 public class ScmAdmin {
     private static Logger logger = LoggerFactory.getLogger(ScmAdmin.class.getName());
-    public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
-            + "Type 'scmcloudadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'scmcloudadmin --version' to see the program version" + "\r\n"
+    public final static String helpMsg = "usage: scmcloudadmin <subcommand> [options] [args]"
+            + "\r\n" + "Type 'scmcloudadmin help [subcommand]' for help on a specific subcommand"
+            + "\r\n" + "Type 'scmcloudadmin --version' to see the program version" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tcleansystable"
             + "\r\n" + "\tcreateuser" + "\r\n" + "\thelp";
 

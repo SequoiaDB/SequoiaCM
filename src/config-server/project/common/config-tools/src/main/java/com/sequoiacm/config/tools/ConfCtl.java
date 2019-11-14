@@ -18,7 +18,7 @@ import com.sequoiacm.config.tools.exception.ScmToolsException;
 
 public class ConfCtl {
     private static Logger logger = LoggerFactory.getLogger(ConfCtl.class.getName());
-    public static String helpMsg = "usage: scmctl <subcommand> [options] [args]" + "\r\n"
+    public static String helpMsg = "usage: confctl <subcommand> [options] [args]" + "\r\n"
             + "Type 'confctl help [subcommand]' for help on a specific subcommand" + "\r\n"
             + "Type 'confctl --version' to see the program version" + "\r\n" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tstart" + "\r\n" + "\tstop" + "\r\n" + "\tlist"

@@ -17,7 +17,7 @@ import com.sequoiacm.config.tools.exception.ScmToolsException;
 
 public class ConfAdmin {
     private static Logger logger = LoggerFactory.getLogger(ConfAdmin.class.getName());
-    public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
+    public final static String helpMsg = "usage: confadmin <subcommand> [options] [args]" + "\r\n"
             + "Type 'confadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
             + "Type 'confadmin --version' to see the program version" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tsubscribe" + "\r\n"

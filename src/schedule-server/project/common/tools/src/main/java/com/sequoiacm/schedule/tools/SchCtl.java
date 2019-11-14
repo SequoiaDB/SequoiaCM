@@ -18,7 +18,7 @@ import com.sequoiacm.schedule.tools.exception.ScmToolsException;
 
 public class SchCtl {
     private static Logger logger = LoggerFactory.getLogger(SchCtl.class.getName());
-    public static String helpMsg = "usage: scmctl <subcommand> [options] [args]" + "\r\n"
+    public static String helpMsg = "usage: schctl <subcommand> [options] [args]" + "\r\n"
             + "Type 'schctl help [subcommand]' for help on a specific subcommand" + "\r\n"
             + "Type 'schctl --version' to see the program version" + "\r\n" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tstart" + "\r\n" + "\tstop" + "\r\n" + "\tlist"
@@ -36,8 +36,8 @@ public class SchCtl {
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err.println("create  " + args[0]
-                        + " subcommand instance failed,stack trace:");
+                System.err
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }

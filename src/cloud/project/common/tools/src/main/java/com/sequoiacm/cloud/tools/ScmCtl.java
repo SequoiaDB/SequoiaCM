@@ -18,7 +18,7 @@ import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 
 public class ScmCtl {
     private static Logger logger = LoggerFactory.getLogger(ScmCtl.class.getName());
-    public static String helpMsg = "usage: scmctl <subcommand> [options] [args]" + "\r\n"
+    public static String helpMsg = "usage: scmcloudctl <subcommand> [options] [args]" + "\r\n"
             + "Type 'scmcloudctl help [subcommand]' for help on a specific subcommand" + "\r\n"
             + "Type 'scmcloudctl --version' to see the program version" + "\r\n" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tstart" + "\r\n" + "\tstop" + "\r\n" + "\tlist"
