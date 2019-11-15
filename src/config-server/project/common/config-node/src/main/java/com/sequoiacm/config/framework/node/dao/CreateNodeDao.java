@@ -65,16 +65,16 @@ public class CreateNodeDao {
                 // host is ip and ip/hostname is not exist
                 if (hostName.equals(hostIp)) {
                     throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                            "host ip is not exist in hosts file, please check hosts file: host="
-                                    + host);
+                            "the host ip does not exist in hosts file for the config service, please check hosts file: configServer="
+                                    + InetAddress.getLocalHost().toString() + ", hostIp=" + host);
                 }
                 nodeFilter = new NodeFilter(hostName, hostIp, config.getPort());
             }
             catch (UnknownHostException e) {
                 // host is hostname and ip/hostname is not exist
                 throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                        "host name is not exist in hosts file, please check hosts file: host="
-                                + host);
+                        "the host name does not exist in hosts file for the config service, please check hosts file: configServer="
+                                + InetAddress.getLocalHost().toString() + ", hostName=" + host);
             }
 
             if (contentServerTableDao.count(nodeFilter.toBSONObject()) != 0) {

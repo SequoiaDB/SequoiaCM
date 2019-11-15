@@ -66,9 +66,16 @@ public class NodeBsonConverter implements BsonConverter {
             hostIp = addr.getHostAddress();
         }
         catch (UnknownHostException e) {
-            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                    "host name is not exist in hosts file, please check hosts file: hostName="
-                            + hostName);
+            try {
+                InetAddress addr = InetAddress.getLocalHost();
+                throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                        "the host name does not exist in hosts file for the config service, please check hosts file:configServer="
+                                + addr.toString() + ", hostName=" + hostName);
+            }
+            catch (UnknownHostException e1) {
+                throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                        "get config service host failed", e1);
+            }
         }
         return new NodeFilter(hostName, hostIp, port);
     }
