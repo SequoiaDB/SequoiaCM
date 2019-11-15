@@ -42,9 +42,10 @@ public class ScmExecutorWrapper {
                     + ScmCommon.APPLICATION_PROPERTIES;
             String loggingConfig = nodeConfPath + File.separator + ScmCommon.LOGCONF_NAME;
 
-            String errorLogPath = ".." + File.separator + "log" + File.separator
-                    + ScmCommon.SCM_LOG_DIR_NAME + File.separator + port + File.separator
-                    + ScmCommon.ERROR_LOG_FILE_NAME;
+            String logPath = ".." + File.separator + "log" + File.separator
+                    + ScmCommon.SCM_LOG_DIR_NAME + File.separator + port;
+            String errorLogPath = logPath + File.separator + ScmCommon.ERROR_LOG_FILE_NAME;
+            ScmCommon.createDir(logPath);
 
             Properties sysPro = PropertiesUtil.loadProperties(
                     nodeConfPath + File.separator + ScmCommon.APPLICATION_PROPERTIES);

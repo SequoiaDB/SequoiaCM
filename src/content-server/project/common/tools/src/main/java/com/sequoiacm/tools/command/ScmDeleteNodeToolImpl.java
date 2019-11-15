@@ -124,17 +124,13 @@ public class ScmDeleteNodeToolImpl implements ScmTool {
     }
 
     private void deleteFile(File dirFile) throws ScmToolsException {
-        if (!dirFile.exists()) {
-            throw new ScmToolsException(
-                    "delete file failed,file is not exist: filePath=" + dirFile.getPath(),
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-        if (!dirFile.isFile()) {
-            for (File subfile : dirFile.listFiles()) {
-                deleteFile(subfile);
+        if (dirFile.exists()) {
+            if (!dirFile.isFile()) {
+                for (File subfile : dirFile.listFiles()) {
+                    deleteFile(subfile);
+                }
             }
+            dirFile.delete();
         }
-        dirFile.delete();
     }
-
 }

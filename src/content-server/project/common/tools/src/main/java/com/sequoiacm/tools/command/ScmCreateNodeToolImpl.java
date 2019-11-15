@@ -182,9 +182,6 @@ public class ScmCreateNodeToolImpl implements ScmTool {
             createConfFile(log4jConfPath);
             isNeedRollBackLog4jConf = true;
 
-            String logOutputPath = ".." + File.separator + "log" + File.separator
-                    + ScmCommon.SCM_LOG_DIR_NAME + File.separator + port;
-            ScmCommon.createDir(logOutputPath);
             createDefaultConf(mainSdb, port, sysConfPath, log4jConfPath);
 
             BSONObject serverRec = new BasicBSONObject();
