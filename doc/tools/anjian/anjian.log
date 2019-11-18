@@ -1,0 +1,18 @@
+线程	时间	脚本位置	消息
+0	13:18:43		启动脚本：执行chm.q，创建线程：2636
+2636	13:18:43	执行chm.q，第9行：	Event: 分辨率:1920 * 1080
+2636	13:18:43	执行chm.q，第31行：	Event: start init
+2636	13:18:43	执行chm.q，第35行：	Event: Find winCHM
+2636	13:18:45	执行chm.q，第46行：	Event: Get config path: F:\scm\doc\tools\controller\..\..\build\output\SequoiaCM_usermanuals_v2.0.wcp
+2636	13:18:45	执行chm.q，第53行：	Event: start task
+2636	13:18:45	执行chm.q，第70行：	Event: start winCHM
+2636	13:18:47	执行chm.q，第110行：	Event: Start build chm
+2636	13:18:53	执行chm.q，第121行：	Event: Click build button.
+2636	13:18:56	执行chm.q，第142行：	Event: Click start button.
+2636	13:19:04	执行chm.q，第146行：	Event: Wait for building windows.
+2636	13:19:04	执行chm.q，第159行：	Event: Building chm...
+2636	13:19:04	执行chm.q，第161行：	395002
+2636	13:19:10	执行chm.q，第185行：	Event: build chm complete.
+2636	13:19:10	执行chm.q，第100行：	Event: End of build, close winCHM
+2636	13:19:10	执行chm.q，第18行：	Event: Success to build chm.
+2636	13:19:10		已停止日志记录

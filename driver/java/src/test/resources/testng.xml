@@ -1,0 +1,25 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<!--this xml is for ci, please don't modify it-->
+<!--testcase for function test, which can be excuted concurrently-->
+
+<suite name="driver" verbose="1" parallel="classes" thread-count="1">  
+   <parameter name="URL" value="192.168.31.207:8080/rootsite" />
+   <parameter name="USER" value="admin"/>
+   <parameter name="PASSWORD" value="admin"/>
+   <parameter name="WORKSPACENAME" value="ws_default" />
+   <parameter name="DATADIRECTORY" value="E:\work\contentmanager\trunk\tmp"/>
+   
+   <parameter name="SDBURL" value="192.168.20.56:50000"/>
+   <parameter name="SDBUSER" value=""/>
+   <parameter name="SDBPASSWD" value=""/>
+
+   <test name="sequoiacm-base">
+      <classes>
+         <class name="com.sequoiacm.client.core.breakpointfile.TestScmBreakpointFileUpload">
+            <methods>
+               <include name="testCreateBreakpointFileByStream"/>
+            </methods>
+         </class> <!-- com.sequoiacm.client.core.breakpointfile.TestScmBreakpointFileUpload -->
+      </classes>
+   </test> <!-- sequoiacm-base -->
+</suite>

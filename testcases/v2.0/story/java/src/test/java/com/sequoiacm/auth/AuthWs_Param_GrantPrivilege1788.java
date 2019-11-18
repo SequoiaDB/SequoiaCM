@@ -1,0 +1,201 @@
+
+package com.sequoiacm.auth;
+
+import java.io.IOException;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmRole;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.client.core.ScmUserPasswordType;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
+import com.sequoiacm.client.element.privilege.ScmResource;
+import com.sequoiacm.client.element.privilege.ScmResourceFactory;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.WsWrapper;
+
+/**
+ * @Description:SCM-1788 :: grantPrivilege参数校验
+ * @author fanyu
+ * @Date:2018年6月11日
+ * @version:1.0
+ */
+public class AuthWs_Param_GrantPrivilege1788 extends TestScmBase {
+    private SiteWrapper site;
+    private WsWrapper wsp;
+    private ScmSession sessionA;
+    private String username = "AuhtWs_1788";
+    private String rolename = "1788";
+    private String passwd = "1788";
+    private ScmUser user;
+    private ScmRole role;
+    private ScmResource rs;
+
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws InterruptedException, IOException {
+	try {
+	    site = ScmInfo.getBranchSite();
+	    wsp = ScmInfo.getWs();
+	    sessionA = TestScmTools.createSession(site);
+	    cleanEnv();
+	    prepare();
+	} catch (ScmException e) {
+	    e.printStackTrace();
+	    Assert.fail(e.getMessage());
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testSSInexist() {
+	ScmSession session = null;
+	try {
+	    session = TestScmTools.createSession(site);
+	    session.close();
+	    ScmFactory.Role.grantPrivilege(session, role, rs, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.SESSION_CLOSED) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testSSIsNull() throws ScmException {
+	ScmSession session = null;
+	try {
+	    ScmFactory.Role.grantPrivilege(session, role, rs, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.INVALID_ARGUMENT) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	} finally {
+	    if (session != null) {
+		session.close();
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testRoleInexist() throws ScmException {
+	String rolename = "ROLE_1788_0";
+	ScmRole role = null;
+	try {
+	    role = ScmFactory.Role.createRole(sessionA, rolename, null);
+	    ScmFactory.Role.deleteRole(sessionA, role);
+	    ScmFactory.Role.grantPrivilege(sessionA, role, rs, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.PRIVILEGE_GRANT_FAILED) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testRoleIsNull() throws ScmException {
+	try {
+	    ScmFactory.Role.grantPrivilege(sessionA, role, rs, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.INVALID_ARGUMENT) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testRsIsInexist() throws ScmException {
+	ScmResource rs = null;
+	String rsName = "ws_rs";
+	try {
+	    rs = ScmResourceFactory.createWorkspaceResource(rsName);
+	    ScmFactory.Role.grantPrivilege(sessionA, role, rs, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.WORKSPACE_NOT_EXIST) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testRsIsNull() throws ScmException {
+	try {
+	    ScmFactory.Role.grantPrivilege(sessionA, role, null, ScmPrivilegeType.READ);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.INVALID_ARGUMENT) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testPriNoEmue() throws ScmException {
+	try {
+	    ScmFactory.Role.grantPrivilege(sessionA, role, rs, "test");
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.PRIVILEGE_GRANT_FAILED) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+	try {
+	    ScmFactory.Role.deleteRole(sessionA, role);
+	    ScmFactory.User.deleteUser(sessionA, user);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    Assert.fail(e.getMessage());
+	} finally {
+	    if (sessionA != null) {
+		sessionA.close();
+	    }
+	}
+    }
+
+    private void cleanEnv() {
+	try {
+	    ScmFactory.Role.deleteRole(sessionA, rolename);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+	try {
+	    ScmFactory.User.deleteUser(sessionA, username);
+	} catch (ScmException e) {
+	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
+		e.printStackTrace();
+		Assert.fail(e.getMessage());
+	    }
+	}
+    }
+
+    private void prepare() {
+	try {
+	    user = ScmFactory.User.createUser(sessionA, username, ScmUserPasswordType.LOCAL, passwd);
+	    role = ScmFactory.Role.createRole(sessionA, rolename, null);
+	    rs = ScmResourceFactory.createWorkspaceResource(wsp.getName());
+	} catch (ScmException e) {
+	    e.printStackTrace();
+	    Assert.fail(e.getMessage());
+	}
+    }
+}

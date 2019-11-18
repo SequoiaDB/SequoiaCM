@@ -1,0 +1,848 @@
+{
+    "contents": [{
+        "id": 1482451849,
+        "dir": "SequoiaCM_Intro",
+        "cn": "SequoiaCM 简介",
+        "en": "SequoiaCM Intro",
+        "contents": [{
+            "id": 1482472725,
+            "file": "sequoiacm_intro",
+            "cn": "产品介绍",
+            "en": "Product Introduction"
+        },
+        {
+            "id": 1482472731,
+            "file": "overall_arch",
+            "cn": "整体架构",
+            "en": "Overall Architecture"
+        }]
+    },
+    {
+        "id": 1551174398,
+        "dir": "Quick_Start",
+        "cn": "快速入门",
+        "en": "Quick Start",
+        "contents": [{
+            "id": 1551174435,
+            "file": "install_requirement",
+            "cn": "软硬件配置要求",
+            "en": "Install Requirement"
+        },
+        {
+            "id": 1551174548,
+            "file": "deploy",
+            "cn": "快速部署",
+            "en": "Quick Deploy"
+        },
+        {
+            "id": 1551174587,
+            "file": "java_environment_to_build",
+            "cn": "开发环境搭建",
+            "en": "Java Environment To Build"
+        }]
+    },
+    {
+        "id": 1501487557,
+        "dir": "Development",
+        "cn": "开发指南",
+        "en": "Development",
+        "contents": [{
+            "id": 1501487716,
+            "dir": "Java_Driver",
+            "cn": "Java驱动",
+            "en": "Java Driver",
+            "contents": [{
+                "id": 1535328213,
+                "file": "Readme",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1535329102,
+                "file": "session_operation",
+                "cn": "会话操作",
+                "en": "Session Operation"
+            },
+            {
+                "id": 1543824427,
+                "file": "workspace_operation",
+                "cn": "工作区操作",
+                "en": "Workspace Operation"
+            },
+            {
+                "id": 1535329103,
+                "file": "priority_operation",
+                "cn": "权限操作",
+                "en": "Priority Operation"
+            },
+            {
+                "id": 1551174984,
+                "file": "file_operation",
+                "cn": "文件操作",
+                "en": "File Operation"
+            },
+            {
+                "id": 1535329104,
+                "file": "directory_operation",
+                "cn": "目录操作",
+                "en": "Directory Operation"
+            },
+            {
+                "id": 1535329105,
+                "file": "batch_operation",
+                "cn": "批次操作",
+                "en": "Batch Operation"
+            },
+            {
+                "id": 1551419780,
+                "file": "break_file_operation",
+                "cn": "断点文件操作",
+                "en": "Break File Operation"
+            },
+            {
+                "id": 1535329106,
+                "file": "file_metadata_operation",
+                "cn": "文件元数据操作",
+                "en": "File Metadata Operation"
+            },
+            {
+                "id": 1551419798,
+                "file": "file_version_operation",
+                "cn": "文件版本操作",
+                "en": "File Version Operation"
+            },
+            {
+                "id": 1551174983,
+                "file": "transfer_clean_operation",
+                "cn": "迁移清理操作",
+                "en": "Transfer And Clean Operation"
+            },
+            {
+                "id": 1543824426,
+                "file": "schedule_operation",
+                "cn": "任务调度操作",
+                "en": "Schedule Operation"
+            },
+            {
+                "id": 1546930812,
+                "file": "reload_conf_opration",
+                "cn": "动态修改配置操作",
+                "en": "Refresh Configurations"
+            },
+            {
+                "id": 1551419807,
+                "file": "resource_monitoring_operation",
+                "cn": "资源监控操作",
+                "en": "Resource Monitoring Operation"
+            },
+            {
+                "id": 1536738830,
+                "file": "session_mgr_operation",
+                "cn": "会话池操作",
+                "en": "Session Manager Operation"
+            }]
+        }]
+    },
+    {
+        "id": 1482452072,
+        "dir": "Architecture",
+        "cn": "系统架构",
+        "en": "Architecture",
+        "contents": [{
+            "id": 1482472578,
+            "file": "overview",
+            "cn": "概述",
+            "en": "Overview"
+        },
+        {
+            "id": 1482472588,
+            "dir": "Microservice",
+            "cn": "微服务",
+            "en": "Microservice",
+            "contents": [{
+                "id": 1482472611,
+                "file": "service_center",
+                "cn": "注册中心",
+                "en": "Service Center"
+            },
+            {
+                "id": 1482472621,
+                "file": "gateway",
+                "cn": "网关服务",
+                "en": "Gateway"
+            },
+            {
+                "id": 1534820535,
+                "file": "auth_service",
+                "cn": "认证服务",
+                "en": "Auth Service"
+            },
+            {
+                "id": 1534820575,
+                "file": "admin_service",
+                "cn": "监控服务",
+                "en": "Admin Service"
+            },
+            {
+                "id": 1534820576,
+                "file": "contentserver",
+                "cn": "内容服务",
+                "en": "ContentServer"
+            },
+            {
+                "id": 1534820578,
+                "file": "schedule_server",
+                "cn": "调度服务",
+                "en": "Schedule Service"
+            },
+            {
+                "id": 1534820577,
+                "file": "config_server",
+                "cn": "配置服务",
+                "en": "Config Service"
+            }]
+        },
+        {
+            "id": 1551229574,
+            "dir": "Bussiness_Concept",
+            "cn": "业务概念",
+            "en": "Bussiness Concept",
+            "contents": [{
+                "id": 1551229802,
+                "file": "site",
+                "cn": "站点",
+                "en": "Site"
+            },
+            {
+                "id": 1551229803,
+                "file": "workspace",
+                "cn": "工作区",
+                "en": "Workspace"
+            },
+            {
+                "id": 1551229804,
+                "file": "file",
+                "cn": "文件",
+                "en": "File"
+            },
+            {
+                "id": 1551229805,
+                "file": "directory",
+                "cn": "目录",
+                "en": "Directory"
+            },
+            {
+                "id": 1551229806,
+                "file": "batch",
+                "cn": "批次",
+                "en": "Batch"
+            }]
+        },
+        {
+            "id": 1535329939,
+            "file": "priority",
+            "cn": "权限模型",
+            "en": "Priority"
+        },
+        {
+            "id": 1535329942,
+            "file": "site_network",
+            "cn": "站点网络模型",
+            "en": "Site Network"
+        },
+        {
+            "id": 1535329943,
+            "file": "cross_site_read_file",
+            "cn": "跨站点读文件",
+            "en": "Cross Site Read File"
+        },
+        {
+            "id": 1535329944,
+            "file": "background_task",
+            "cn": "后台任务",
+            "en": "Background Task"
+        },
+        {
+            "id": 1535329941,
+            "file": "schedule_principle",
+            "cn": "调度原理",
+            "en": "Schedule Principle"
+        },
+        {
+            "id": 1535329945,
+            "file": "data_storage",
+            "cn": "数据存储",
+            "en": "Data Storage"
+        },
+        {
+            "id": 1535329940,
+            "file": "config_manage",
+            "cn": "配置管理",
+            "en": "Config Manage"
+        }]
+    },
+    {
+        "id": 1551230427,
+        "dir": "Maintainance",
+        "cn": "运维指南",
+        "en": "Maintainance",
+        "contents": [{
+            "id": 1500856657,
+            "dir": "Tools",
+            "cn": "系统工具",
+            "en": "Tools",
+            "contents": [{
+                "id": 1500964439,
+                "file": "Readme",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1541142591,
+                "file": "system_init_script",
+                "cn": "系统初始化工具",
+                "en": "System Initialization Script"
+            },
+            {
+                "id": 1535328019,
+                "dir": "Scmcloudadmin",
+                "cn": "cloud管理工具",
+                "en": "Scmcloudadmin",
+                "contents": [{
+                    "id": 1540964124,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540964405,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                },
+                {
+                    "id": 1540964428,
+                    "file": "createuser",
+                    "cn": "createuser",
+                    "en": "createuser"
+                },
+                {
+                    "id": 1540964437,
+                    "file": "cleansystable",
+                    "cn": "cleansystable",
+                    "en": "cleansystable"
+                }]
+            },
+            {
+                "id": 1535328128,
+                "dir": "Scmcloudctl",
+                "cn": "cloud节点控制工具",
+                "en": "Scmcloudctl",
+                "contents": [{
+                    "id": 1540964563,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540964565,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1540964593,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1540964605,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
+            {
+                "id": 1541141609,
+                "file": "cloud_deploy_script",
+                "cn": "cloud服务部署工具",
+                "en": "Cloud Deployment Script"
+            },
+            {
+                "id": 1500856662,
+                "dir": "Scmadmin",
+                "cn": "内容服务管理工具",
+                "en": "Scmadmin",
+                "contents": [{
+                    "id": 1540964819,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540964834,
+                    "file": "encrypt",
+                    "cn": "encrypt",
+                    "en": "encrypt"
+                },
+                {
+                    "id": 1540964846,
+                    "file": "createsite",
+                    "cn": "createsite",
+                    "en": "createsite"
+                },
+                {
+                    "id": 1569190404,
+                    "file": "deletesite",
+                    "cn": "deletesite",
+                    "en": "deletesite"
+                },
+                {
+                    "id": 1540964859,
+                    "file": "listsite",
+                    "cn": "listsite",
+                    "en": "listsite"
+                },
+                {
+                    "id": 1540965279,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                },
+                  {
+                    "id": 1569190426,
+                    "file": "deletenode",
+                    "cn": "deletenode",
+                    "en": "deletenode"
+                },
+                {
+                    "id": 1540965296,
+                    "file": "createws",
+                    "cn": "createws",
+                    "en": "createws"
+                },
+                {
+                    "id": 1540965308,
+                    "file": "deletews",
+                    "cn": "deletews",
+                    "en": "deletews"
+                },
+                {
+                    "id": 1540965330,
+                    "file": "alterws",
+                    "cn": "alterws",
+                    "en": "alterws"
+                },
+                {
+                    "id": 1540965345,
+                    "file": "listws",
+                    "cn": "listws",
+                    "en": "listws"
+                },
+                {
+                    "id": 1540965357,
+                    "file": "createuser",
+                    "cn": "createuser",
+                    "en": "createuser"
+                },
+                {
+                    "id": 1540965370,
+                    "file": "deleteuser",
+                    "cn": "deleteuser",
+                    "en": "deleteuser"
+                },
+                {
+                    "id": 1540965380,
+                    "file": "listuser",
+                    "cn": "listuser",
+                    "en": "listuser"
+                },
+                {
+                    "id": 1540965398,
+                    "file": "attachrole",
+                    "cn": "attachrole",
+                    "en": "attachrole"
+                },
+                {
+                    "id": 1540965420,
+                    "file": "createrole",
+                    "cn": "createrole",
+                    "en": "createrole"
+                },
+                {
+                    "id": 1540965431,
+                    "file": "deleterole",
+                    "cn": "deleterole",
+                    "en": "deleterole"
+                },
+                {
+                    "id": 1540965439,
+                    "file": "listrole",
+                    "cn": "listrole",
+                    "en": "listrole"
+                },
+                {
+                    "id": 1540965447,
+                    "file": "grantrole",
+                    "cn": "grantrole",
+                    "en": "grantrole"
+                },
+                {
+                    "id": 1540965455,
+                    "file": "revokerole",
+                    "cn": "revokerole",
+                    "en": "revokerole"
+                },
+                {
+                    "id": 1540965468,
+                    "file": "listprivilege",
+                    "cn": "listprivilege",
+                    "en": "listprivilege"
+                },
+                {
+                    "id": 1540965482,
+                    "file": "resetpassword",
+                    "cn": "resetpassword",
+                    "en": "resetpassword"
+                }]
+            },
+            {
+                "id": 1500856852,
+                "dir": "Scmctl",
+                "cn": "内容服务节点管理工具",
+                "en": "Scmctl",
+                "contents": [{
+                    "id": 1540965705,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540965714,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1540965726,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1540965734,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                },
+                {
+                    "id": 1540965745,
+                    "file": "reloadbizconf",
+                    "cn": "reloadbizconf",
+                    "en": "reloadbizconf"
+                }]
+            },
+            {
+                "id": 1541141864,
+                "file": "contentserver_deploy_script",
+                "cn": "内容服务部署工具",
+                "en": "ContentServer Deployment Script"
+            },
+            {
+                "id": 1535328593,
+                "dir": "Schadmin",
+                "cn": "调度服务管理工具",
+                "en": "Schadmin",
+                "contents": [{
+                    "id": 1540965931,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540965944,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                }]
+            },
+            {
+                "id": 1535328622,
+                "dir": "Schctl",
+                "cn": "调度服务节点管理工具",
+                "en": "Schctl",
+                "contents": [{
+                    "id": 1540966099,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540966107,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1540966115,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1540966123,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
+            {
+                "id": 1541142077,
+                "file": "schedule_deploy_script",
+                "cn": "调度服务部署工具",
+                "en": "Schedule Deployment Script"
+            },
+            {
+                "id": 1535328929,
+                "dir": "Confadmin",
+                "cn": "配置服务管理工具",
+                "en": "Confadmin",
+                "contents": [{
+                    "id": 1540966263,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540966270,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                },
+                {
+                    "id": 1540966277,
+                    "file": "subscribe",
+                    "cn": "subscribe",
+                    "en": "subscribe"
+                },
+                {
+                    "id": 1540966285,
+                    "file": "unsubscribe",
+                    "cn": "unsubscribe",
+                    "en": "unsubscribe"
+                },
+                {
+                    "id": 1540966292,
+                    "file": "listsubscribers",
+                    "cn": "listsubscribers",
+                    "en": "listsubscribers"
+                }]
+            },
+            {
+                "id": 1535328930,
+                "dir": "Confctl",
+                "cn": "配置服务节点管理工具",
+                "en": "Confctl",
+                "contents": [{
+                    "id": 1540966371,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "概述"
+                },
+                {
+                    "id": 1540966380,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1540966387,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1540966395,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
+            {
+                "id": 1541142147,
+                "file": "config_deploy_script",
+                "cn": "配置服务部署工具",
+                "en": "config Deployment Script"
+            }]
+        },
+        {
+            "id": 1551230885,
+            "dir": "Expand",
+            "cn": "扩容",
+            "en": "Expand",
+            "contents": [{
+                "id": 1551230886,
+                "file": "add_host",
+                "cn": "增加机器",
+                "en": "Add Host"
+            },
+            {
+                "id": 1551230887,
+                "file": "add_node",
+                "cn": "增加节点",
+                "en": "Add Node"
+            }]
+        },
+        {
+            "id": 1551230895,
+            "dir": "Node_Config",
+            "cn": "节点配置",
+            "en": "Node Config",
+            "contents": [{
+                "id": 1534820688,
+                "file": "Readme",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1534820715,
+                "file": "cloud",
+                "cn": "Cloud 节点",
+                "en": "Cloud"
+            },
+            {
+                "id": 1534820721,
+                "file": "contentserver",
+                "cn": "内容服务节点",
+                "en": "ContentServer"
+            },
+            {
+                "id": 1534820775,
+                "file": "schedule",
+                "cn": "调度服务节点",
+                "en": "Schedule"
+            },
+            {
+                "id": 1534820805,
+                "file": "config",
+                "cn": "配置服务节点",
+                "en": "Config"
+            }]
+        },
+        {
+            "id": 1551231248,
+            "dir": "Diaglog",
+            "cn": "诊断日志",
+            "en": "Diaglog",
+            "contents": [{
+                "id": 1551231249,
+                "file": "cluster_log",
+                "cn": "集群日志",
+                "en": "Cluster Log"
+            },
+            {
+                "id": 1551231250,
+                "file": "audit_log",
+                "cn": "审计日志",
+                "en": "Audit Log"
+            }]
+        }]
+    },
+    {
+            "id": 1551174689,
+            "dir": "Kubernetes",
+            "cn": "Kubernetes",
+            "en": "Kubernetes",
+            "contents": [{
+                "id": 1551147699,
+                "file": "overview",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1551147799,
+                "dir": "Kubernetes_Deploy",
+                "cn": "Kubernetes部署",
+                "en": "Kubernetes Deploy",
+                "contents": [{
+                    "id": 1552247699,
+                    "file": "require",
+                    "cn": "环境要求",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1582147699,
+                    "file": "online_deploy",
+                    "cn": "在线部署",
+                    "en": "Online"
+                },
+                {
+                    "id": 1662247699,
+                    "file": "offline_deploy",
+                    "cn": "离线部署",
+                    "en": "Offline"
+                }]
+            },
+            {
+                "id": 1532147799,
+                "dir": "SequoiaCM_Deploy",
+                "cn": "SequoiaCM部署",
+                "en": "SequoiaCM Deploy",
+                "contents": [{
+                    "id": 1546247699,
+                    "file": "require",
+                    "cn": "环境要求",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1552797699,
+                    "file": "online_deploy",
+                    "cn": "在线部署",
+                    "en": "Online"
+                },
+                {
+                    "id": 1545647699,
+                    "file": "offline_deploy",
+                    "cn": "离线部署",
+                    "en": "Offline"
+                },
+                {
+                    "id": 1545656799,
+                    "file": "config",
+                    "cn": "部署配置",
+                    "en": "Config"
+                }]
+            }]
+    },
+    {
+        "id": 1551231472,
+        "dir": "Manual",
+        "cn": "参考手册",
+        "en": "Manual",
+        "contents": [{
+            "id": 1551231473,
+            "file": "error_code",
+            "cn": "错误码",
+            "en": "Error Code"
+        },
+        {
+            "id": 1551231474,
+            "dir": "Api",
+            "cn": "API",
+            "en": "API",
+            "contents": [{
+                "id": 1551231475,
+                "file": "java_api",
+                "cn": "Java API",
+                "en": "Java API"
+            }]
+        }]
+    },
+    {
+        "id": 1482801419,
+        "file": "release_note",
+        "cn": "版本信息",
+        "en": "Releases"
+    }]
+}

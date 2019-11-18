@@ -1,0 +1,79 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<!--this xml is for ci, please don't modify it -->
+<!--testcase for function test, which can be excuted concurrently -->
+<suite name="scm_story_serial" verbose="1" parallel="classes" thread-count="1">
+   <parameter name="FORCECLEAR" value="false" />
+   <parameter name="DATADIR" value="/tmp/ci_cm" />
+   <parameter name="NTPSERVER" value="192.168.20.11" />
+   <parameter name="LOCALHOSTNAME" value="localhost" />
+   
+   <parameter name="SSHUSER" value="root" />
+   <parameter name="SSHPASSWD" value="jenkins" />
+   
+   <parameter name="MAINSDBURL" value="mainSiteHostName:11810" />
+   <parameter name="SDBUSER" value="sdbadmin" />
+   <parameter name="SDBPASSWD" value="sequoiadb" />
+   
+   <parameter name="GATEWAYS" value="GATEWAYURLS"/>
+   <parameter name="ROOTSITESVCNAME" value="rootsite"/>
+   <parameter name="SCMUSER" value="admin" />
+   <parameter name="SCMPASSWD" value="admin" />
+   <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
+    <parameter name="CLOUDDISKUSERNAME" value="admin" />
+   
+   <parameter name="LDAPUSER" value="ldapadmin" />
+   <parameter name="LDAPPASSWD" value="admin" />
+   <listeners> 
+          <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
+   </listeners>
+
+   <test name="parralclass" preserve-order="true">
+      
+      <method-selectors>
+         <method-selector>
+            <script language="beanshell">
+               <![CDATA[
+               groups.containsKey("XXXX")||groups.isEmpty();
+               ]]>
+            </script>
+         </method-selector>
+      </method-selectors>
+      
+      <packages>
+			<package name="com.sequoiacm.autocreatelobcs.serial" />
+			<package name="com.sequoiacm.reloadconf.serial" />
+			<package name="com.sequoiacm.scmfile.serial" />
+			
+			<!--only one task is allowed under a ws -->
+			<!--task-->
+ 			<package name="com.sequoiacm.task" />
+			<package name="com.sequoiacm.task.concurrent" />
+ 			<package name="com.sequoiacm.scheduletask" />
+			<package name="com.sequoiacm.scheduletask.concurrent" />
+			<!--version-->
+         	<package name="com.sequoiacm.version.serial" />
+			<!--session-->
+ 			<package name="com.sequoiacm.session.serial" />
+			<!--drivernetpool-->
+			<package name="com.sequoiacm.drivernetpool.serial" />
+			<!--rest-->
+			<package name="com.sequoiacm.rest.serial" />
+			<!--batch-->
+            <package name="com.sequoiacm.batch.serial" />
+			<!--auth-->
+           	<package name="com.sequoiacm.auth.serial" />
+         	<!--ws-->
+         	<package name="com.sequoiacm.workspace.serial" />
+			<!--monitor-->
+			<package name="com.sequoiacm.monitor" />
+			<!--config-->
+			<package name="com.sequoiacm.config"/>
+            <package name="com.sequoiacm.config.concurrent"/>
+			<!--audit-->
+			<package name="com.sequoiacm.audit"/>
+			 <!--big file-->
+            <package name="com.sequoiacm.bigfile"/>
+      </packages>
+   </test>
+
+</suite>

@@ -1,0 +1,15 @@
+{
+    "om-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8081",
+            "scm.omserver.gateway": "''",
+            "scm.omserver.readTimeout": "5000",
+            "scm.omserver.onlyConnectLocalRegionServer": "false",
+            "scm.omserver.sessionKeepAliveTime": "900",
+            "scm.omserver.cacheRefreshIntreval": "180"
+        }
+    ]
+	
+	
+}

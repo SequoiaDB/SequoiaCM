@@ -1,0 +1,93 @@
+package com.sequoiacm.datasource.metadata;
+
+import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.exception.ScmError;
+import org.bson.BSONObject;
+
+import java.util.Date;
+
+public abstract class ScmLocation {
+    private int siteId;
+
+    public abstract String getType();
+
+    public ScmLocation(BSONObject record) throws ScmDatasourceException {
+        try {
+            siteId = (int)record.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
+        }
+        catch (Exception e) {
+            throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,
+                    "get site id failed:fieldName="
+                            + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, e);
+        }
+    }
+
+    protected ScmShardingType getShardingType(String shardingType) throws ScmDatasourceException {
+        if (shardingType.equals(ScmShardingType.YEAR.getName())) {
+            return ScmShardingType.YEAR;
+        }
+        else if (shardingType.equals(ScmShardingType.MONTH.getName())) {
+            return ScmShardingType.MONTH;
+        }
+        else if (shardingType.equals(ScmShardingType.NONE.getName())) {
+            return ScmShardingType.NONE;
+        }
+        else if (shardingType.equals(ScmShardingType.QUARTER.getName())) {
+            return ScmShardingType.QUARTER;
+        }
+        else {
+            throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,
+                    "unreconigzed shardingType:type=" + shardingType);
+        }
+    }
+
+    protected String getShardingStr(ScmShardingType type, Date createDate) {
+        StringBuilder sb = new StringBuilder();
+        switch (type) {
+            case YEAR:
+                sb.append(CommonHelper.getCurrentYear(createDate));
+                break;
+
+            case MONTH:
+                sb.append(CommonHelper.getCurrentYearMonth(createDate));
+                break;
+
+            case QUARTER:
+                sb.append(CommonHelper.getCurrentYear(createDate));
+                String month = CommonHelper.getCurrentMonth(createDate);
+                sb.append(CommonHelper.getQuarter(month));
+                break;
+
+            default:
+                // default do nothing
+                break;
+        }
+
+        return sb.toString();
+    }
+
+    public int getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(int siteId) {
+        this.siteId = siteId;
+    }
+
+    @Override
+    public boolean equals(Object right) {
+        if (right == this) {
+            return true;
+        }
+
+        if (!(right instanceof ScmLocation)) {
+            return false;
+        }
+
+        ScmLocation r = (ScmLocation)right;
+        return siteId == r.siteId;
+    }
+}

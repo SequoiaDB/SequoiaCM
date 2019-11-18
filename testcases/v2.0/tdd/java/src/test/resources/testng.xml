@@ -1,0 +1,59 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<!--this xml is for ci, please don't modify it-->
+<!--testcase for function test, which can be excuted concurrently-->
+<suite name="driver" verbose="1" parallel="classes" thread-count="1">
+   <!-- mainsite's content server and sdb -->
+   <parameter name="SITE1" value="1" />
+   <parameter name="SERVER1" value="server1ip:server1port" />
+   <parameter name="SDB1" value="sdb1ip:sdb1port"/>
+   
+   <!-- site2's content server and sdb -->
+   <parameter name="SITE2" value="2" />
+   <parameter name="SERVER2" value="server2ip:server2port" />
+   <parameter name="SDB2" value="sdb2ip:sdb2port"/>
+   
+   <!-- site3's content server and sdb -->
+   <parameter name="SITE3" value="3" />
+   <parameter name="SERVER3" value="server3ip:server3port" />
+   <parameter name="SDB3" value="sdb3ip:sdb3port"/>
+   
+   <parameter name="USERNAME" value="admin"/>
+   <parameter name="PASSWORD" value="admin"/>
+   <parameter name="SDBUSERNAME" value="sdbadmin"/>
+   <parameter name="SDBPASSWORD" value="sequoiadb"/>
+
+   <parameter name="WORKSPACENAME" value="ws_default"/>
+   <parameter name="DATADIRECTORY" value="/tmp/ci_cm"/>
+   
+   <listeners> 
+          <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
+   </listeners>
+   
+   <test name="parralclass" preserve-order="true">
+   <packages>
+         <package name="com.sequoiacm.cleantask"/>
+         <package name="com.sequoiacm.count"/>
+         <package name="com.sequoiacm.file"/>
+         <package name="com.sequoiacm.file.seek"/>
+         <package name="com.sequoiacm.directory.file"/>
+         <package name="com.sequoiacm.directory"/>
+         <package name="com.sequoiacm.batch"/>
+         <package name="com.sequoiacm.physicaldelete"/>
+         <package name="com.sequoiacm.session"/>
+         <package name="com.sequoiacm.transfertask"/>
+         <package name="com.sequoiacm.schedule"/>
+         <package name="com.sequoiadb.cachefile"/>
+         <package name="com.sequoiadb.transferfile"/>
+         <package name="com.sequoiacm.metadata"/>
+         <package name="com.sequoiacm.fileversion.schdule" />
+         <package name="com.sequoiacm.fileversion" />
+         <package name="com.sequoiacm.fileversion.task" />
+         <package name="com.sequoiacm.workspace" />
+         <package name="com.sequoiacm.privilege" />
+         <package name="com.sequoiacm.config"/>
+      </packages>
+      <classes>
+         <class name="com.sequoiadb.cachefile.CacheFile" />
+      </classes>
+   </test>
+</suite>

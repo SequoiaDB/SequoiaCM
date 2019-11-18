@@ -1,0 +1,170 @@
+{
+    "gateway": [
+        {
+            "hostname":"localhost",
+            "server.port": "8080",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "spring.zipkin.enabled": "false",
+            "scm.jvm.options":"''"
+        }
+    ],
+    "serviceCenter": [
+        {
+            "hostname":"localhost",
+            "server.port": "8800",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "scm.jvm.options":"''"
+        }
+    ],
+    "authServer": [
+        {
+            "hostname":"localhost",
+            "server.port": "8810",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "spring.zipkin.enabled": "false",
+            "scm.store.sequoiadb.urls": "localhost:11810",
+            "scm.store.sequoiadb.username": "sdbadmin",
+            "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
+            "scm.auth.token.enabled": "true",
+            "scm.auth.token.allowAnyValue": "true",
+            "scm.auth.token.tokenValue": "token123",
+            "spring.ldap.urls": "",
+            "spring.ldap.username": "", 
+            "spring.ldap.password": "",
+            "spring.ldap.base": "",
+            "spring.ldap.usernameAttribute": "uid",
+            "scm.audit.userType.TOKEN":"ALL",
+            "scm.jvm.options":"''"
+        }
+    ],
+    "adminServer": [
+        {
+            "hostname":"localhost",
+            "server.port": "8900",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "scm.jvm.options":"''",
+            "spring.zipkin.enabled": "true",
+            "scm.store.sequoiadb.urls": "localhost:11810",
+            "scm.store.sequoiadb.username": "sdbadmin",
+            "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
+            "scm.statistics.job.firstTime": "00:00:00",
+            "scm.statistics.job.period": "1d"
+        }
+    ],
+    "config-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8190",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "zuul.routes.api-a.path": "/**",
+            "spring.zipkin.enabled": "false",
+            "spring.application.name": "config-server",
+            "scm.zookeeper.urls": "localhost:2181",
+            "scm.store.sequoiadb.urls": "localhost:11810",
+            "scm.store.sequoiadb.username": "sdbadmin",
+            "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd"
+        }
+    ],
+    "schedule-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8180",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "zuul.routes.api-a.path": "/**",
+            "spring.zipkin.enabled": "false",
+            "spring.application.name": "schedule-server",
+            "scm.zookeeper.urls": "localhost:2181",
+            "scm.store.sequoiadb.urls": "localhost:11810",
+            "scm.store.sequoiadb.username": "sdbadmin",
+            "scm.store.sequoiadb.password": "/home/mount/scm/contentserver/sdb.passwd",
+            "scm.audit.userType.TOKEN":"ALL",
+            "scm.jvm.options": "' '"
+        }
+    ],
+    "cloud-disk-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8370",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "cloud-disk-server.id": "111111",
+            "cloud-disk-server.url": "https://10.3.0.36/VRVEIS/docman/EDocSecWebService.asmx",
+            "scm.jvm.options": "''",
+            "cloud-disk.test.model": "false",
+            "cloud-disk.test.url" : "http://localhost:9000/disk"
+        }
+    ],
+    "virtual-cloud-disk-server": [
+        {
+            "server.port" : "9000",
+            "spring.application.name" : "cloud-disk-server",
+            "spring.http.multipart.max-file-size" : "1200Mb",
+            "spring.http.multipart.max-requestSize" : "1200Mb",
+            "spring.http.encoding.force" : "true",
+            "spring.http.encoding.charset" : "utf-8",
+            "spring.http.encoding.enabled" : "true",
+            "server.tomcat.uri-encoding" : "utf-8",
+            "eureka.client.registerWithEureka" : "false",
+            "eureka.client.fetchRegistry" : "false",
+            "scm.cloud.disk.user.admin" : "admin",
+            "scm.cloud.disk.user.test" : "password",
+            "scm.cloud.disk.diskPath" : "CloudDisk",
+            "scm.cloud.disk.db.urls" : "192.168.20.70:11810",
+            "scm.cloud.disk.db.username" : "''",
+            "scm.cloud.disk.db.password" : "''",
+            "scm.cloud.disk.db.connectTimeout" : "500",
+            "scm.cloud.disk.db.maxAutoConnectRetryTime" : "0",
+            "scm.cloud.disk.db.sourceMaxCount" : "500",
+            "scm.cloud.disk.db.sourceDeltaIncCount" : "20",
+            "scm.cloud.disk.db.sourceMaxIdleCount" : "20",
+            "scm.cloud.disk.db.sourceKeepAliveTimeout" : "0",
+            "scm.cloud.disk.db.sourcecheckInterval" : "60000",
+            "scm.cloud.disk.db.sourceValidateConnection" : "true" ,
+            "scm.cloud.disk.db.sourceSyncCoordInterval" : "0 ",
+            "scm.cloud.disk.business.check" : "false",
+            "scm.cloud.disk.business.id" : "111",
+            "logging.level.CloudDiskController" : "INFO",
+            "logging.level.RestExceptionHandler" : "INFO",
+            "logging.path" : "log",
+            "logging.file" : "./log/clouddisk.log",
+            "logging.pattern.level" : "INFO" 
+        }
+    ],
+    "om-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8081",
+            "scm.omserver.gateway": "''",
+            "scm.omserver.readTimeout": "5000",
+            "scm.omserver.onlyConnectLocalRegionServer": "false",
+            "scm.omserver.sessionKeepAliveTime": "900",
+            "scm.omserver.cacheRefreshIntreval": "180"
+        }
+    ],
+    "zookeeper-server": [
+        {
+            "server": "localhost:2888:3888",
+            "clientPort": 2181,
+            "myid":1,
+            "deploy": true
+        }
+    ],
+    "audit": {
+        "auditurl":"localhost:11810",
+        "audituser":"sdbadmin",
+        "auditpassword":"/home/linyoubin/scm/scm-cloud/sdb.passwd"
+    }
+}

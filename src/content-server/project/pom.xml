@@ -1,0 +1,303 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sequoiacm-content</artifactId>
+    <name>SequoiaCM Content Parent</name>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.sequoiadb</groupId>
+        <artifactId>sequoiacm-parent</artifactId>
+        <version>3.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+
+    <modules>
+        <module>./common/common</module>
+        <module>./common/metasources</module>
+        <module>./common/datasources/sequoiadb</module>
+        <module>./common/datasources/base</module>
+        <module>./common/datasources/hbase</module>
+        <module>./common/datasources/ceph_s3</module>
+        <module>./common/datasources/ceph_swift</module>
+        <module>./common/datasources/hdfs</module>
+        <module>../../../driver/java/</module>
+        <module>./common/tools</module>
+        <module>./server/contentserver</module>
+        <module>./common/assembly</module>
+    </modules>
+
+    <properties>
+
+        <!-- scm project version -->
+        <scmdriver.version>${project.version}</scmdriver.version>
+        <scmcommon.version>${project.version}</scmcommon.version>
+        <sequoiacm-version>${project.version}</sequoiacm-version>
+
+        <sequoiacm-content-metasource.version>${project.version}</sequoiacm-content-metasource.version>
+        <sequoiacm-content-datasource-base.version>${project.version}</sequoiacm-content-datasource-base.version>
+        <sequoiacm-content-datasource-sdb.version>${project.version}</sequoiacm-content-datasource-sdb.version>
+        <sequoiacm-content-datasource-ceph-s3.version>${project.version}</sequoiacm-content-datasource-ceph-s3.version>
+        <sequoiacm-content-datasource-ceph-swift.version>${project.version}</sequoiacm-content-datasource-ceph-swift.version>
+        <sequoiacm-content-datasource-hbase.version>${project.version}</sequoiacm-content-datasource-hbase.version>
+        <sequoiacm-content-datasource-hdfs.version>${project.version}</sequoiacm-content-datasource-hdfs.version>
+        <sequoiacm-content-tools.version>${project.version}</sequoiacm-content-tools.version>
+        <sequoiacm-content-server.version>${project.version}</sequoiacm-content-server.version>
+
+        <!-- compiler settings properties -->
+        <java_source_version>1.7</java_source_version>
+        <java_target_version>1.7</java_target_version>
+        <file_encoding>UTF-8</file_encoding>
+
+        <!-- dependencies version -->
+        <sdbdriver.version>3.0.1</sdbdriver.version>
+        <sdbdriver.jdk6.version>3.0.1</sdbdriver.jdk6.version>
+        <junit.version>4.12</junit.version>
+        <slf4j-api.version>1.7.25</slf4j-api.version>
+        <jdk-tools.version>1.7</jdk-tools.version>
+        <hbase-client.version>1.1.12</hbase-client.version>
+        <aws-sdk-s3.version>1.9.20</aws-sdk-s3.version>
+        <java-swift.version>0.9.17</java-swift.version>
+        <testng.version>6.13.1</testng.version>
+        <commons-cli.version>1.4</commons-cli.version>
+        <spring-boot.version>1.5.14.RELEASE</spring-boot.version>
+        <logback.version>1.2.3</logback.version>
+        <fastjson.version>1.2.47</fastjson.version>
+        <httpclient.version>4.5.5</httpclient.version>
+        <httpmime.version>4.5.5</httpmime.version>
+        <hadoop-hdfs.version>2.5.2</hadoop-hdfs.version>
+        <scm-infrastructure.version>${project.version}</scm-infrastructure.version>
+        <jcl-over-slf4j.version>1.7.5</jcl-over-slf4j.version>
+        <scm-cloud.version>${project.version}</scm-cloud.version>
+        <gson.version>2.8.4</gson.version>
+        <scm-config.version>${project.version}</scm-config.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiadb-driver</artifactId>
+                <version>${sdbdriver.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiadb-driver-jdk6</artifactId>
+                <version>${sdbdriver.jdk6.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-driver</artifactId>
+                <version>${scmdriver.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-common</artifactId>
+                <version>${scmcommon.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-base</artifactId>
+                <version>${sequoiacm-content-datasource-base.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-sdb</artifactId>
+                <version>${sequoiacm-content-datasource-sdb.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-hbase</artifactId>
+                <version>${sequoiacm-content-datasource-hbase.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-hdfs</artifactId>
+                <version>${sequoiacm-content-datasource-hdfs.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-ceph-s3</artifactId>
+                <version>${sequoiacm-content-datasource-ceph-s3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-datasource-ceph-swift</artifactId>
+                <version>${sequoiacm-content-datasource-ceph-swift.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-metasource</artifactId>
+                <version>${sequoiacm-content-metasource.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-tools</artifactId>
+                <version>${sequoiacm-content-tools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-content-server</artifactId>
+                <version>${sequoiacm-content-server.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>${commons-cli.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.javaswift</groupId>
+                <artifactId>joss</artifactId>
+                <version>${java-swift.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop-hdfs.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop-hdfs.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>${aws-sdk-s3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpmime.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-audit</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-lock</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-common</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-strategy</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-security-auth</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-config-client</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-monitor-collector</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-feign</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-server-common</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+</project>

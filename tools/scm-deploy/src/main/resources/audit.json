@@ -1,0 +1,23 @@
+{
+     "collection_spaces":[
+            {
+                "name": "SCMAUDIT",
+                "options": {
+                }
+            }
+        ],
+    "collections": [
+        {
+            "csName": "SCMAUDIT",
+            "clName": "AUDIT_LOG_EVENT",
+            "options":{
+                "IsMainCL": true,
+                "ShardingKey": {
+                    "time": 1
+                },
+                "ShardingType": "range"
+            }
+        }
+    ]
+}
+   

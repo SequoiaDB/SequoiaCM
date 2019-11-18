@@ -1,0 +1,44 @@
+<assembly
+        xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>release</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <dependencySets>
+        <!-- package hdfs runtime dependencies to /lib/hdfs -->
+        <dependencySet>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <outputDirectory>/hdfs</outputDirectory>
+            <includes>
+                <include>com.sequoiadb:sequoiacm-content-datasource-hdfs</include>
+                <include>org.apache.hadoop:hadoop-common</include>
+                <include>org.apache.hadoop:hadoop-hdfs</include>
+            </includes>
+
+            <excludes>
+
+                <!-- exclude hdfs log4j -->
+                <exclude>org.slf4j:slf4j-log4j12</exclude>
+                <exclude>com.sequoiadb:sequoiacm-content-common</exclude>
+                <exclude>com.sequoiadb:sequoiadb-driver</exclude>
+                <exclude>com.sequoiadb:sequoiacm-content-datasource-base</exclude>
+            </excludes>
+
+        </dependencySet>
+
+        <!-- package hdfs system dependencies to /lib/hdfs -->
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>/hdfs</outputDirectory>
+            <scope>system</scope>
+            <includes>
+                <include>jdk.tools:jdk.tools</include>
+            </includes>
+        </dependencySet>
+
+    </dependencySets>
+</assembly>

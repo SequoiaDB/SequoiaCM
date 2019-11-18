@@ -1,0 +1,50 @@
+package com.sequoiacm.config.server.module;
+
+public class ScmUpdateConfPropsResult {
+    // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_SERVICE)
+    private String serviceName;
+
+    // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_INSTANCE)
+    private String instanceUrl;
+
+    // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_MESSAGE)
+    private String errorMessage;
+
+    public ScmUpdateConfPropsResult(String serviceName, String instance) {
+        super();
+        this.serviceName = serviceName;
+        this.instanceUrl = instance;
+    }
+
+    public ScmUpdateConfPropsResult(String serviceName, String instance, String message) {
+        super();
+        this.serviceName = serviceName;
+        this.instanceUrl = instance;
+        this.errorMessage = message;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getInstanceUrl() {
+        return instanceUrl;
+    }
+
+    public void setInstanceUrl(String instance) {
+        this.instanceUrl = instance;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String message) {
+        this.errorMessage = message;
+    }
+
+}

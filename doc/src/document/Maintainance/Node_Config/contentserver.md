@@ -1,0 +1,65 @@
+
+公共配置
+
+|配置项| 类型| 说明|
+|------|-----|-----|
+|详见[公共配置][public_config]|||
+
+SequoiaCM 配置
+
+|配置项                     |类型   |说明                                    |
+|---------------------------|-------|----------------------------------------|
+|spring.application.name|str|内容服务节点的服务名，即所属的站点名|
+|scm.server.transferCheckLength |num    |迁移任务，在某个文件迁移过程中，每迁移多少数据检查一次任务状态，默认值：10485760，单位：字节|
+|scm.server.transferConnectTimeout|num  |迁移任务，源节点与目标节点建立连接的超时时间，默认值：3000，单位：毫秒|
+|scm.server.transferReadTimeout|num |迁移任务，源节点与目标节点建立连接后，源节点的读超时，默认值：120000，单位：毫秒|
+|scm.server.listInstanceCheckInterval|num|内容服务节点在处理list请求时，每列取多少个对象检查一次与客户端的连接状态（检查状态的同时，会对该连接执行 flush ），默认值：2000|
+|scm.audit.mask|str|审计日志操作配置，控制对不同操作命令记录审计日志。默认为空，不记录任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|
+|scm.audit.userMask|str|审计日志用户配置，默认为空，不记录任何用户的审计日志。支持的配置详见[审计用户类型掩码列表][audit_log]|
+|scm.audit.user.xxx|str|审计日志操作配置，控制具体用户对不同操作命令记录审计日志。默认为空，不记录用户名为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|
+|scm.audit.userType.xxx|str|审计日志操作配置，控制用户类型对不同操作命令记录审计日志。默认为空，不记录用户类型为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|
+|scm.privilege.heartbeat.interval|num|内容服务节点查询鉴权服务更新自身权限信息的心跳间隔，默认值：10000，单位：毫秒|
+|scm.conf.version.siteHeartbeat|num|内容服务节点请求查询配置服务site版本号的心跳间隔，默认值：180000，单位：毫秒|
+|scm.conf.version.nodeHeartbeat|num|内容服务节点请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|
+|scm.conf.version.workspaceHeartbeat|num|内容服务节点请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|
+|scm.conf.version.metaDataHeartbeat|num|内容服务节点请求查询配置服务metaData版本号的心跳间隔，默认值：180000，单位：毫秒|
+|scm.rootsite.meta.url          |str    |内容服务节点的元数据服务地址（sequoiadb的协调节点地址列表：ip1:port2,ip2:port2）|
+|scm.rootsite.meta.user         |str    |内容服务节点的元数据服务用户名（sequoiadb的用户名），默认用户名为空|
+|scm.rootsite.meta.password     |str    |内容服务节点的元数据服务密码文件路径（sequoiadb的密码），默认密码为空|
+|scm.sdb.connectTimeout     |num    |内容服务节点与sdb建立连接的超时时长，默认值：10000，单位：毫秒|
+|scm.sdb.maxAutoConnectRetryTime|num    |内容服务节点与sdb建立连接的重试时长，默认值：15000，单位：毫秒|
+|scm.sdb.socketTimeout            |num    |内容服务节点与sdb的socket连接超时时长，默认值：0（不设置超时），单位：毫秒|
+|scm.sdb.useNagle                |boolean|内容服务节点与sdb的连接是否使用nagle，默认值：false            |
+|scm.sdb.useSSL                    |boolean|内容服务节点与sdb的连接是否使用ssl，默认值：false                |
+|scm.sdb.maxConnectionNum       |num    |内容服务节点的sdb连接池的最大连接数，默认值：500|
+|scm.sdb.deltaIncCount          |num    |内容服务节点的sdb连接池的每次增长的连接数，默认值：10|
+|scm.sdb.maxIdleNum             |num    |内容服务节点的sdb连接池的最大空闲连接数，默认值：10|
+|scm.sdb.keepAliveTime          |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：0（不清除空闲连接），单位：毫秒|
+|scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：60000，单位：毫秒|
+|scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|
+|scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
+|scm.zookeeper.clientNum|num|内容服务节点zookeeper的client数量，默认值：10|
+|scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
+|scm.zookeeper.cleanJobResidualTime|num|内容服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
+|scm.jvm.options                |str    |配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
+
+
+ > **Note:**
+ >
+ > * 节点配置文件路径：\<内容服务安装目录\>/conf/contentserver/\<节点端口号\>/application.properties
+ >
+ > * scm.audit.user.xxx  xxx 表示用户的用户名，该配置项设置具体用户审计操作类型
+ >
+ > * scm.audit.userType.xxx  xxx 表示用户类型，该配置项设置用户类型审计操作类型，支持值详见[审计用户类型掩码列表][audit_log]
+ >
+ > * 审计日志多种方式配置详见[审计配置][audit_log]
+ >
+
+[public_config]:Maintainance/Node_Config/Readme.md
+[audit_log]:Maintainance/Diaglog/audit_log.md
+
+
+
+
+
+     

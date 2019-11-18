@@ -1,0 +1,9 @@
+{
+    "zookeeper-server": [
+        {
+            "server": "localhost:2888:3888",
+            "clientPort": 2181,
+            "myid":1
+        }
+    ]
+}

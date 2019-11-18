@@ -1,0 +1,8 @@
+*.pyc
+.project
+.classpath
+.settings/
+target/
+deploy/
+!/script/deploy/
+!/tools/scm-deploy/src/main/java/com/sequoiacm/deploy/

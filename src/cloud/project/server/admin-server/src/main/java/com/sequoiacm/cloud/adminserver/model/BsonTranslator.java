@@ -1,0 +1,61 @@
+package com.sequoiacm.cloud.adminserver.model;
+
+import org.bson.BSONObject;
+
+import com.sequoiacm.cloud.adminserver.common.FieldName;
+
+public class BsonTranslator {
+    public static final class ContentServer {
+        public static ContentServerInfo fromBSONObject(BSONObject obj) {
+            ContentServerInfo cs = new ContentServerInfo();
+            cs.setId((int) obj.get(FieldName.ContentServer.FIELD_ID));
+            cs.setName((String) obj.get(FieldName.ContentServer.FIELD_NAME));
+            cs.setHostname((String) obj.get(FieldName.ContentServer.FIELD_HOST_NAME));
+            cs.setPort((int) obj.get(FieldName.ContentServer.FIELD_PORT));
+            cs.setSiteId((int) obj.get(FieldName.ContentServer.FIELD_SITE_ID));
+            return cs;
+        }
+    }
+    
+    public static final class Site {
+        public static SiteInfo fromBSONObject(BSONObject obj) {
+            SiteInfo site = new SiteInfo();
+            site.setId((int) obj.get(FieldName.Site.FIELD_ID));
+            site.setName((String) obj.get(FieldName.Site.FIELD_NAME));
+            site.setRoot((boolean) obj.get(FieldName.Site.FIELD_ROOT_FLAG));
+            return site;
+        }
+    }
+    
+    public static final class Traffic {
+        public static TrafficInfo fromBSONObject(BSONObject obj) {
+            TrafficInfo traffic = new TrafficInfo();
+            traffic.setType((String) obj.get(FieldName.Traffic.FIELD_TYPE)); 
+            traffic.setWorkspaceName((String) obj.get(FieldName.Traffic.FIELD_WORKSPACE_NAME));
+            traffic.setTraffic((long) obj.get(FieldName.Traffic.FIELD_TRAFFIC));
+            traffic.setRecordTime((long) obj.get(FieldName.Traffic.FIELD_RECORD_TIME));
+            return traffic;
+        }
+    }
+    
+    public static final class FileDelta {
+        public static FileDeltaInfo fromBSONObject(BSONObject obj) {
+            FileDeltaInfo fileDelta = new FileDeltaInfo();
+            fileDelta.setWorkspaceName((String) obj.get(FieldName.FileDelta.FIELD_WORKSPACE_NAME));
+            fileDelta.setCountDelta((long) obj.get(FieldName.FileDelta.FIELD_COUNT_DELTA));
+            fileDelta.setSizeDelta((long) obj.get(FieldName.FileDelta.FIELD_SIZE_DELTA));
+            fileDelta.setRecordTime((long) obj.get(FieldName.FileDelta.FIELD_RECORD_TIME));
+            return fileDelta;
+        }
+    }
+
+    public static final class Workspace {
+        public static WorkspaceInfo fromBSONObject(BSONObject obj) {
+            WorkspaceInfo workspace = new WorkspaceInfo();
+            workspace.setId((int) obj.get(FieldName.Workspace.FIELD_ID));
+            workspace.setName((String) obj.get(FieldName.Workspace.FIELD_NAME));
+
+            return workspace;
+        }
+    }
+}

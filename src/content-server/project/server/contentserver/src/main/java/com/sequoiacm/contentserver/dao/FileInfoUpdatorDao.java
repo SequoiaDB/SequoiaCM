@@ -1,0 +1,284 @@
+package com.sequoiacm.contentserver.dao;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.contentserver.common.ScmArgumentChecker;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
+import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
+import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.contentserver.lock.ScmLockManager;
+import com.sequoiacm.contentserver.lock.ScmLockPath;
+import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
+import com.sequoiacm.contentserver.metadata.MetaDataManager;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+
+public class FileInfoUpdatorDao {
+    private static final Logger logger = LoggerFactory.getLogger(FileInfoUpdatorDao.class);
+    private ScmWorkspaceInfo ws;
+    private BSONObject updator;
+    private ScmMetaService metaService;
+    private String fileId;
+    private int majorVersion;
+    private int minorVersion;
+    private String user;
+
+    public FileInfoUpdatorDao(String user, ScmWorkspaceInfo ws, String fileId, int majorVersion,
+            int minorVersion, BSONObject updator) throws ScmServerException {
+        this.ws = ws;
+        this.updator = updator;
+        this.fileId = fileId;
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+        this.user = user;
+        this.metaService = ScmContentServer.getInstance().getMetaService();
+    }
+
+    public BSONObject updateInfo() throws ScmServerException {
+        checkUpdateInfoObj(updator);
+
+        // add modify user and time
+        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
+        Date updateTime = new Date();
+        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, updateTime.getTime());
+
+        logger.info("updating file:wsName=" + ws.getName() + ",fileId=" + fileId + ",version="
+                + ScmSystemUtils.getVersionStr(majorVersion, minorVersion) + ",new="
+                + updator.toString());
+
+        if (updator.containsField(FieldName.FIELD_CLFILE_DIRECTORY_ID)) {
+            moveFile();
+        }
+        else if (updator.containsField(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH)) {
+            String moveToPath = (String) updator
+                    .get(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+            BSONObject parentDir = metaService.getDirByPath(ws.getName(), moveToPath);
+            if (parentDir == null) {
+                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
+                        "directory not exist:path=" + moveToPath);
+            }
+            updator.removeField(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+            updator.put(FieldName.FIELD_CLFILE_DIRECTORY_ID,
+                    parentDir.get(FieldName.FIELD_CLDIR_ID));
+            moveFile();
+        }
+        else if (updator.containsField(FieldName.FIELD_CLFILE_NAME)) {
+            rename();
+        }
+        else if (updator.containsField(FieldName.FIELD_CLFILE_FILE_CLASS_ID)
+                || updator.containsField(FieldName.FIELD_CLFILE_PROPERTIES)
+                || MetaDataManager.getInstence().isUpdateSingleClassProperty(updator,
+                        FieldName.FIELD_CLFILE_PROPERTIES)) {
+            updateClassProperties();
+        }
+        else {
+            // update other property
+            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+        }
+        return updator;
+    }
+
+    private void updateClassProperties() throws ScmServerException, ScmInvalidArgumentException {
+        String classIdKey = FieldName.FIELD_CLFILE_FILE_CLASS_ID;
+        String propertiesKey = FieldName.FIELD_CLFILE_PROPERTIES;
+
+        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
+        ScmLock wLock = null;
+
+        try {
+            wLock = writeLock(lockPath);
+            BSONObject file = metaService.getFileInfo(ws.getMetaLocation(), ws.getName(), fileId,
+                    majorVersion, minorVersion);
+            if (file != null) {
+                String classId = (String) file.get(classIdKey);
+                MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updator,
+                        classIdKey, propertiesKey, classId);
+
+                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            }
+        }
+        finally {
+            unlock(wLock, lockPath);
+        }
+    }
+
+    private void rename() throws ScmServerException {
+        String fileName = (String) updator.get(FieldName.FIELD_CLFILE_NAME);
+        if (!ScmArgChecker.File.checkFileName(fileName)) {
+            throw new ScmInvalidArgumentException("invalid arg:newFileName=" + fileName);
+        }
+        BSONObject file = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
+                fileId);
+        if (file == null) {
+            throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
+                    + majorVersion + ",minorVersion=" + minorVersion);
+        }
+        checkExistDir(fileName, (String) file.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID));
+        metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+    }
+
+    private void moveFile() throws ScmServerException {
+        String parentDirId = (String) updator.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+
+        // updator only have one properties now,
+        String fileName = (String) updator.get(FieldName.FIELD_CLFILE_NAME);
+        if (fileName == null) {
+            BSONObject file = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
+                    fileId);
+            if (file == null) {
+                throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
+                        + majorVersion + ",minorVersion=" + minorVersion);
+            }
+            fileName = (String) file.get(FieldName.FIELD_CLFILE_NAME);
+        }
+
+        checkExistDir(fileName, parentDirId);
+
+        BSONObject parentDirMatcher = new BasicBSONObject();
+        parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentDirId);
+
+        ScmLockPath lockPath = ScmLockPathFactory.createDirLockPath(ws.getName(), parentDirId);
+        ScmLock rLock = null;
+        if (!parentDirId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
+            rLock = readLock(lockPath);
+        }
+        try {
+            if (metaService.getDirCount(ws.getName(), parentDirMatcher) <= 0) {
+                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
+                        "parent directory not exist:id=" + parentDirId);
+            }
+            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+        }
+        finally {
+            unlock(rLock, lockPath);
+        }
+
+    }
+
+    private void unlock(ScmLock lock, ScmLockPath lockPath) {
+        try {
+            if (lock != null) {
+                lock.unlock();
+            }
+        }
+        catch (Exception e) {
+            logger.warn("failed to unlock:path={}", lockPath, e);
+        }
+    }
+
+    private ScmLock readLock(ScmLockPath lockPath) throws ScmServerException {
+        return ScmLockManager.getInstance().acquiresReadLock(lockPath);
+    }
+
+    private ScmLock writeLock(ScmLockPath lockPath) throws ScmServerException {
+        return ScmLockManager.getInstance().acquiresWriteLock(lockPath);
+    }
+
+    private void checkExistDir(String name, String parentDirId) throws ScmServerException {
+        BSONObject existDirMatcher = new BasicBSONObject();
+        existDirMatcher.put(FieldName.FIELD_CLDIR_NAME, name);
+        existDirMatcher.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, parentDirId);
+        long dirCount = metaService.getDirCount(ws.getName(), existDirMatcher);
+        if (dirCount > 0) {
+            throw new ScmServerException(ScmError.DIR_EXIST,
+                    "a directory with the same name exists:name=" + name + ",parentDirectoryId="
+                            + parentDirId);
+        }
+    }
+
+    private void checkUpdateInfoObj(BSONObject updateInfoObj) throws ScmServerException {
+        // only one properties now.
+        Set<String> objFields = updateInfoObj.keySet();
+        if (objFields.size() != 1) {
+            if (objFields.size() != 2) {
+                throw new ScmInvalidArgumentException(
+                        "invlid argument,updates only one properties at a time:updator="
+                                + updateInfoObj);
+            }
+
+            // key number = 2
+            if (!objFields.contains(FieldName.FIELD_CLFILE_PROPERTIES)
+                    || !objFields.contains(FieldName.FIELD_CLFILE_FILE_CLASS_ID)) {
+                // must contain id and properties
+                throw new ScmInvalidArgumentException(
+                        "invlid argument,updates only classId and properties at a time:updator="
+                                + updateInfoObj);
+            }
+        }
+
+        Set<String> availableFields = new HashSet<>();
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        availableFields.add(FieldName.FIELD_CLFILE_NAME);
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        availableFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        availableFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+        availableFields.add(FieldName.FIELD_CLFILE_PROPERTIES);
+        availableFields.add(FieldName.FIELD_CLFILE_TAGS);
+
+        for (String field : objFields) {
+            // SEQUOIACM-312
+            // {class_properties.key:value}
+            if (field.startsWith(FieldName.FIELD_CLFILE_PROPERTIES + ".")) {
+                String subKey = field.substring((FieldName.FIELD_CLFILE_PROPERTIES + ".").length());
+                MetaDataManager.getInstence().validateKeyFormat(subKey,
+                        FieldName.FIELD_CLFILE_PROPERTIES);
+            }
+            else if (!availableFields.contains(field)) {
+                throw new ScmOperationUnsupportedException(
+                        "field can't be modified:fieldName=" + field);
+            }
+        }
+
+        // value type is string. and can't be null
+        Set<String> valueCheckStringFields = new HashSet<>();
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_NAME);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        valueCheckStringFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+
+        for (String field : valueCheckStringFields) {
+            if (updateInfoObj.containsField(field)) {
+                ScmMetaSourceHelper.checkExistString(updateInfoObj, field);
+            }
+        }
+
+        // value type is bson, check the format
+        String fieldName = FieldName.FIELD_CLFILE_PROPERTIES;
+        if (updateInfoObj.containsField(fieldName)) {
+            BSONObject classValue = (BSONObject) updateInfoObj.get(fieldName);
+            updateInfoObj.put(fieldName,
+                    ScmArgumentChecker.checkAndCorrectClass(classValue, fieldName));
+        }
+        fieldName = FieldName.FIELD_CLFILE_TAGS;
+        if (updateInfoObj.containsField(fieldName)) {
+            BSONObject tagsValue = (BSONObject) updateInfoObj.get(fieldName);
+            updateInfoObj.put(fieldName,
+                    ScmArgumentChecker.checkAndCorrectTags(tagsValue, fieldName));
+        }
+    }
+}

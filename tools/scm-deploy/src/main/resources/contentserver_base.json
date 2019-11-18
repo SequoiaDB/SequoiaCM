@@ -1,0 +1,50 @@
+{  
+    "sites": [
+        {
+            "name": "RootSiteTemplate",
+            "isRoot": true,
+            "meta": {
+                "url": "localhost:11810",
+                "user": "sdbadmin",
+                "password": "/home/mount/scm/contentserver/sdb.passwd"
+            },
+            "data": {
+                "type": "",
+                "url": "",
+                "user": "",
+                "password": ""
+            }
+        }
+    ],
+    "nodes":[
+        {
+            "node": [
+                {
+                    "name": "rootNode",
+                    "url": "localhost:15000",
+                    "siteName": "rootSite",
+                    "customProperties":{
+                        "eureka.client.register-with-eureka": "true",
+                        "eureka.client.fetch-registry": "true",
+                        "eureka.client.prefer-same-zone-eureka": "true",
+                        "spring.zipkin.enabled": "false",
+                        "scm.zookeeper.urls": "localhost:2181",
+                        "scm.jvm.options": "''",
+                        "scm.audit.userClass.TOKEN":"ALL",
+                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                     }
+                }
+            ]
+        }
+    ],
+    "audit": {
+            "auditurl":"localhost:11810",
+            "audituser":"sdbadmin",
+            "auditpassword":"/home/mount/scm/contentserver/sdb.passwd"
+   },
+    "gateway": {
+            "url":"localhost:8080",
+            "user":"admin",
+            "password":"admin"
+   }
+}

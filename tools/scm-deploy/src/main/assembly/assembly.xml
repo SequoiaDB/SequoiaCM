@@ -1,0 +1,54 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>deploy</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <includes>
+                <include>deploy.cfg</include>
+                <include>workspaces.json</include>
+            </includes>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <includes>
+                <include>deploy_zk.py</include>
+            </includes>
+            <outputDirectory>bin</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <excludes>
+                <exclude>deploy.cfg</exclude>
+                <exclude>workspaces.json</exclude>
+                <exclude>deploy_zk.py</exclude>
+            </excludes>
+            <outputDirectory>bindata</outputDirectory>
+        </fileSet>
+        
+        <fileSet>
+            <directory>${project.basedir}/command-${packageType}</directory>
+            <outputDirectory>command</outputDirectory>
+        </fileSet>
+
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>true</useProjectArtifact>
+            <includes>
+                <include>com.sequoiadb:sequoiacm-deploy</include>
+            </includes>
+            <outputDirectory>bin</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

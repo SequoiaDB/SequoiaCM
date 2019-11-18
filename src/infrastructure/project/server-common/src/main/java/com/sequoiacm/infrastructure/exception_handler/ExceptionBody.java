@@ -1,0 +1,76 @@
+package com.sequoiacm.infrastructure.exception_handler;
+
+import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class ExceptionBody {
+    private long timestamp;
+    private int status;
+    private String error;
+    private String exception;
+    private String message;
+    private String path;
+
+    @JsonIgnore
+    private HttpStatus httpStatus;
+
+    public ExceptionBody(HttpStatus httpStatus, int errorCode, String errorCodeDesc,
+            String message) {
+        this.httpStatus = httpStatus;
+        this.timestamp = System.currentTimeMillis();
+        this.status = errorCode;
+        this.error = errorCodeDesc;
+        this.message = message;
+    }
+
+    public ExceptionBody(int errorCode, String errorCodeDesc, String message) {
+        this(HttpStatus.INTERNAL_SERVER_ERROR, errorCode, errorCodeDesc, message);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public String getException() {
+        return exception;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    void setPath(String path) {
+        this.path = path;
+    }
+
+    void setException(String exception) {
+        this.exception = exception;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public String toJson() {
+        return String.format(
+                "{\"timestamp\":%d,\"status\":%d,\"error\":\"%s\",\"exception\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                timestamp, status, error, exception, message, path);
+    }
+}

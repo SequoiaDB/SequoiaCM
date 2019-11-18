@@ -1,0 +1,145 @@
+package com.sequoiacm.asynctask.concurrent;
+
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @Description: SCM-2403 ::目标站点存在残留文件，并发迁移和跨中心读
+ * @author fanyu
+ * @Date:2019年02月28日
+ * @version:1.0
+ */
+
+public class AsyncTransferAndReadCacheFile_whenLobRemain2414 extends TestScmBase {
+	private boolean runSuccess = false;
+	private final int fileSize = 10 * 1024 * 1024;
+	private ScmId fileId = null;
+	private File localPath = null;
+	private String filePath = null;
+	private String remainFilePath = null;
+	private String fileName = "file2414";
+	private ScmSession sessionA = null;
+	private ScmWorkspace wsA = null;
+	private List<SiteWrapper> branceSites = null;
+    private WsWrapper wsp = null;
+
+	@BeforeClass(alwaysRun = true)
+	private void setUp() throws Exception {
+		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
+		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
+		remainFilePath = localPath + File.separator + "localFile_" + fileSize/2 + ".txt";
+		// ready file
+		TestTools.LocalFile.removeFile(localPath);
+		TestTools.LocalFile.createDir(localPath.toString());
+		TestTools.LocalFile.createFile(filePath, fileSize);
+		TestTools.LocalFile.createFile(remainFilePath, fileSize/2);
+		branceSites = ScmInfo.getBranchSites(2);
+		wsp = ScmInfo.getWs();
+		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(fileName).get();
+		ScmFileUtils.cleanFile(wsp, cond);
+		// login in
+		sessionA = TestScmTools.createSession(branceSites.get(0));
+		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
+		prepareFiles();
+		//make remain
+		TestSdbTools.Lob.putLob(ScmInfo.getRootSite(),wsp,fileId,filePath);
+		TestSdbTools.Lob.putLob(branceSites.get(1),wsp,fileId,remainFilePath);
+	}
+
+	@Test(groups = {"fourSite"})
+	private void test() throws Exception {
+		TransferThread transferThd = new TransferThread();
+		transferThd.start();
+		ReadThread readThd = new ReadThread();
+		readThd.start();
+		Assert.assertEquals(transferThd.isSuccess(), true, transferThd.getErrorMsg());
+		Assert.assertEquals(readThd.isSuccess(), true, readThd.getErrorMsg());
+		//check result
+		SiteWrapper[] expSiteList = { ScmInfo.getRootSite(),branceSites.get(0),branceSites.get(1) };
+		ScmTaskUtils.waitAsyncTaskFinished(wsA, fileId, expSiteList.length);
+		ScmFileUtils.checkMetaAndData(wsp,fileId, expSiteList, localPath, filePath);
+		runSuccess = true;
+	}
+
+	@AfterClass(alwaysRun = true)
+	private void tearDown() throws ScmException {
+		try {
+			if (runSuccess || TestScmBase.forceClear) {
+				ScmFactory.File.deleteInstance(wsA, fileId, true);
+				TestTools.LocalFile.removeFile(localPath);
+			}
+		}  finally {
+			if (sessionA != null) {
+				sessionA.close();
+			}
+		}
+	}
+
+	private class TransferThread extends TestThreadBase {
+		@Override
+		public void exec() throws Exception {
+			ScmSession sessionA = null;
+			try {
+				sessionA = TestScmTools.createSession(branceSites.get(0));
+				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
+				ScmFactory.File.asyncTransfer(ws, fileId);
+			} finally {
+				if (sessionA != null) {
+					sessionA.close();
+				}
+			}
+		}
+	}
+
+	private class ReadThread extends TestThreadBase {
+		@Override
+		public void exec() throws Exception {
+			ScmSession sessionA = null;
+			OutputStream fos = null;
+			ScmInputStream sis = null;
+			try {
+				sessionA = TestScmTools.createSession(branceSites.get(1));
+				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
+				ScmFile scmfile = ScmFactory.File.getInstance(ws, fileId);
+				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
+						Thread.currentThread().getId());
+				fos = new FileOutputStream(new File(downloadPath));
+				sis = ScmFactory.File.createInputStream(scmfile);
+				sis.read(fos);
+			} finally {
+				if (fos != null) {
+					fos.close();
+				}
+				if (sis != null) {
+					sis.close();
+				}
+				if (sessionA != null) {
+					sessionA.close();
+				}
+			}
+		}
+	}
+
+	private void prepareFiles() throws Exception {
+		ScmFile scmfile = ScmFactory.File.createInstance(wsA);
+		scmfile.setContent(filePath);
+		scmfile.setFileName(fileName+"_"+UUID.randomUUID());
+		scmfile.setAuthor(fileName);
+		fileId = scmfile.save();
+	}
+}

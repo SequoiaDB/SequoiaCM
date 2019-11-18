@@ -1,0 +1,100 @@
+{
+      "url": "192.168.31.15:8080/rootsite",
+      "userName": "admin",
+      "password": "admin",   
+      "workspaces": [
+        {
+            "name": "ws_default",
+            "description": "'default sharding workspace'",
+            "meta": {
+                "site": "rootSite",
+                "domain": "domain1",
+                "meta_sharding_type": "year"
+            },
+            "data": [
+                {
+                    "site": "rootSite",
+                    "domain": "domain2"
+                },
+                {
+                    "site": "branchSite1",
+                    "domain": "domain2"
+                },
+                {
+                    "site": "branchSite2",
+                    "domain": "domain2"
+                }
+            ]
+        },
+        {
+            "name": "ws_month",
+            "description": "'month sharding workspace'",
+            "meta": {
+                "site": "rootSite",
+                "domain": "domain1",
+                "meta_sharding_type": "month"
+            },
+            "data": [
+                {
+                    "site": "rootSite",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "month"
+                    }
+                },
+                {
+                    "site": "branchSite1",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "month"
+                    }
+                },
+                {
+                    "site": "branchSite2",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "month"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "ws_none",
+            "description": "'none sharding workspace'",
+            "meta": {
+                "site": "rootSite",
+                "domain": "domain1",
+                "meta_sharding_type": "month"
+            },
+            "data": [
+                {
+                    "site": "rootSite",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "none"
+                    }
+                },
+                {
+                    "site": "branchSite1",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "none"
+                    }
+                },
+                {
+                    "site": "branchSite2",
+                    "domain": "domain2",
+                    "data_sharding_type":{
+                        "collection": "month",
+                        "collection_space": "none"
+                    }
+                }
+            ]
+        }
+    ]
+}

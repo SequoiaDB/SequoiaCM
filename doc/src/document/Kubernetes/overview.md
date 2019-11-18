@@ -1,0 +1,1 @@
+SequoiaCM 支持以容器的形式运行在 Kubernetes 平台上。本章主要介绍部署步骤。

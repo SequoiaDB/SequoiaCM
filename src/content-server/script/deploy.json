@@ -1,0 +1,124 @@
+{
+    "sites": [
+        {
+            "name": "rootSite",
+            "isRoot": true,
+            "meta": {
+                "url": "localhost:11810",
+                "user": "sdbadmin",
+                "password": "/home/mount/scm/contentserver/sdb.passwd"
+            },
+            "data": {
+                "type": "sequoiadb",
+                "url": "localhost:11810",
+                "user": "sdbadmin",
+                "password": "/home/mount/scm/contentserver/sdb.passwd"
+            }
+        },
+        {
+            "name": "branchSite1",
+            "data": {
+                "type": "sequoiadb",
+                "url": "localhost:11840",
+                "user": "sdbadmin",
+                "password": "/home/mount/scm/contentserver/sdb.passwd"
+            }
+        },
+        {
+            "name": "branchSite2",
+            "data": {
+                "type": "sequoiadb",
+                "url": "localhost:11870",
+                "user": "sdbadmin",
+                "password": "/home/mount/scm/contentserver/sdb.passwd"
+            }
+        }
+    ],
+
+    "nodes":[
+        {
+            "node": [
+                {
+                    "name": "rootNode",
+                    "url": "localhost:15000",
+                    "siteName": "rootSite",
+                    "customProperties":{
+                        "eureka.instance.metadata-map.zone": "zone1",
+                        "eureka.client.register-with-eureka": "true",
+                        "eureka.client.fetch-registry": "true",
+                        "eureka.client.prefer-same-zone-eureka": "true",
+                        "eureka.client.region": "beijing",
+                        "eureka.client.availability-zones.beijing": "zone1",
+                        "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
+                        "spring.zipkin.enabled": "false",
+                        "spring.zipkin.base-url": "http://localhost:8890",
+                        "scm.zookeeper.urls": "localhost:2181",
+                        "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
+                        "scm.audit.userClass.TOKEN":"ALL",
+                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                     }
+                }
+            ]
+        },
+        {
+            "node": [
+                {
+                    "name": "branch1Node",
+                    "url": "localhost:15100",
+                    "siteName": "branchSite1",
+                    "customProperties":{
+                        "eureka.instance.metadata-map.zone": "zone1",
+                        "eureka.client.register-with-eureka": "true",
+                        "eureka.client.fetch-registry": "true",
+                        "eureka.client.prefer-same-zone-eureka": "true",
+                        "eureka.client.region": "beijing",
+                        "eureka.client.availability-zones.beijing": "zone1",
+                        "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
+                        "spring.zipkin.enabled": "false",
+                        "spring.zipkin.base-url": "http://localhost:8890",
+                        "scm.zookeeper.urls": "localhost:2181",
+                        "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
+                        "scm.audit.userType.TOKEN":"ALL",
+                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+
+                     }
+                }
+            ]
+        },
+        {
+            "node": [
+                {
+                    "name": "branchNode2",
+                    "url": "localhost:15200",
+                    "siteName": "branchSite2",
+                    "customProperties":{
+                        "eureka.instance.metadata-map.zone": "zone1",
+                        "eureka.client.register-with-eureka": "true",
+                        "eureka.client.fetch-registry": "true",
+                        "eureka.client.prefer-same-zone-eureka": "true",
+                        "eureka.client.region": "beijing",
+                        "eureka.client.availability-zones.beijing": "zone1",
+                        "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
+                        "spring.zipkin.enabled": "false",
+                        "spring.zipkin.base-url": "http://localhost:8890",
+                        "scm.zookeeper.urls": "localhost:2181",
+                        "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
+                        "scm.audit.userClass.TOKEN":"ALL",
+                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                     }
+                }
+            ]
+        }
+    ],
+    "audit": {
+            "auditurl":"localhost:11810",
+            "audituser":"sdbadmin",
+            "auditpassword":"/home/mount/scm/contentserver/sdb.passwd"
+   },
+    "gateway": {
+            "url":"localhost:8080",
+            "user":"admin",
+            "password":"admin"
+   }
+
+}

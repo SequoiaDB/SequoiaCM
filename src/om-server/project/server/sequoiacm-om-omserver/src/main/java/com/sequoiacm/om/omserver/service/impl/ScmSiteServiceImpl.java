@@ -1,0 +1,61 @@
+package com.sequoiacm.om.omserver.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sequoiacm.om.omserver.config.ScmOmServerConfig;
+import com.sequoiacm.om.omserver.exception.ScmInternalException;
+import com.sequoiacm.om.omserver.exception.ScmOmServerError;
+import com.sequoiacm.om.omserver.exception.ScmOmServerException;
+import com.sequoiacm.om.omserver.module.OmSiteInfo;
+import com.sequoiacm.om.omserver.module.OmCacheWrapper;
+import com.sequoiacm.om.omserver.service.ScmSiteService;
+import com.sequoiacm.om.omserver.session.ScmOmSession;
+
+@Service
+public class ScmSiteServiceImpl implements ScmSiteService {
+
+    private Map<Integer, OmCacheWrapper<OmSiteInfo>> sitesCache = new HashMap<>();
+    private long siteCacheTTL;
+
+    @Autowired
+    public ScmSiteServiceImpl(ScmOmServerConfig config) {
+        this.siteCacheTTL = config.getCacheRefreshIntreval() * 1000;
+    }
+
+    @Override
+    public String getSiteById(ScmOmSession session, int id)
+            throws ScmInternalException, ScmOmServerException {
+        OmCacheWrapper<OmSiteInfo> cache = sitesCache.get(id);
+        if (cache != null && !cache.isExpire(siteCacheTTL)) {
+            return cache.getCache().getName();
+        }
+
+        OmSiteInfo site = refreshCacheAndGet(session, id);
+        if (site == null) {
+            throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
+                    "site not exist:siteId=" + id);
+        }
+        return site.getName();
+    }
+
+    private OmSiteInfo refreshCacheAndGet(ScmOmSession session, int siteId)
+            throws ScmOmServerException, ScmInternalException {
+        Map<Integer, OmCacheWrapper<OmSiteInfo>> sitesCache = new HashMap<>();
+        List<OmSiteInfo> sitesInfo = session.getSiteDao().listSite();
+        OmSiteInfo ret = null;
+        for (OmSiteInfo siteInfo : sitesInfo) {
+            if (siteId == siteInfo.getId()) {
+                ret = siteInfo;
+            }
+            sitesCache.put(siteInfo.getId(), new OmCacheWrapper<OmSiteInfo>(siteInfo));
+        }
+        this.sitesCache = sitesCache;
+        return ret;
+    }
+
+}

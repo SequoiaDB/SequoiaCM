@@ -1,0 +1,51 @@
+{
+    "url": "localhost:8080/branchsite1",
+    "adminUser": "admin",
+    "adminPassword": "admin",
+    "roles": [
+        {
+            "name": "ROLE_ws_default",
+            "resources": [
+                {
+                    "resourceType": "workspace",
+                    "resource": "ws_default",
+                    "privilege": "ALL"
+                }
+            ]
+        },
+        {
+            "name": "ROLE_ws_month",
+            "resources": [
+                {
+                    "resourceType": "workspace",
+                    "resource": "ws_month",
+                    "privilege": "ALL"
+                }
+            ]
+        },
+        {
+            "name": "ROLE_ws_none",
+            "resources": [
+                {
+                    "resourceType": "workspace",
+                    "resource": "ws_none",
+                    "privilege": "ALL"
+                }
+            ]
+        }
+    ],
+    "newUsers": [
+        {
+            "name": "scmUser",
+            "password": "scmPassword",
+            "roles": ["ROLE_ws_default", "ROLE_ws_month", "ROLE_ws_none"]
+        }
+    ],
+    "oldUsers": [
+        {
+            "name": "admin",
+            "password": "admin",
+            "roles": ["ROLE_ws_default", "ROLE_ws_month", "ROLE_ws_none"]
+        }
+    ]
+}

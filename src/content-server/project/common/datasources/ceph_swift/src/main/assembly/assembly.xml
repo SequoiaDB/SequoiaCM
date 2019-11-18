@@ -1,0 +1,30 @@
+<assembly 
+    xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>release</id>  
+    <formats>
+        <format>dir</format>  
+    </formats>  
+    
+    <dependencySets>
+      <!-- package aws-s3 runtime dependencies to /lib/aws-s3 -->
+      <dependencySet>
+           <useTransitiveFiltering>true</useTransitiveFiltering>
+           <outputDirectory>/ceph_swift</outputDirectory>
+           <scope>runtime</scope>
+           <includes>
+             <include>org.javaswift:joss</include>
+             <include>com.sequoiadb:sequoiacm-content-datasource-ceph-swift</include>
+           </includes>
+           
+           <excludes>
+                <exclude>com.sequoiadb:sequoiacm-content-common</exclude>
+                <exclude>com.sequoiadb:sequoiadb-driver</exclude>
+                <exclude>com.sequoiadb:sequoiacm-content-datasource-base</exclude>
+           </excludes>
+      </dependencySet>
+      
+    </dependencySets>
+</assembly>

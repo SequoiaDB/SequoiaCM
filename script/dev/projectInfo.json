@@ -1,0 +1,108 @@
+{
+	"scmProject": {
+		"parentPomPath": "../../src/pom.xml",
+		"modules": [{
+			"name": "infrastructure",
+			"modulePomPath": "../../src/infrastructure/project/pom.xml"
+		},
+		{
+			"name": "cloud",
+			"modulePomPath": "../../src/cloud/project/pom.xml"
+		},
+		{
+			"name": "contentserver",
+			"modulePomPath": "../../src/content-server/project/pom.xml"
+		},
+		{
+			"name": "schedule-server",
+			"modulePomPath": "../../src/schedule-server/project/pom.xml"
+		},
+		{
+			"name": "config-server",
+			"modulePomPath": "../../src/config-server/project/pom.xml"
+		},
+		{
+			"name": "driver",
+			"modulePomPath": "../../driver/java/pom.xml"
+		},
+		{
+			"name": "om-server",
+			"modulePomPath": "../../src/om-server/project/pom.xml"
+		},
+		{
+			"name": "deploy",
+			"modulePomPath": "../../tools/scm-deploy/pom.xml"
+		}]
+	},
+	"releasePackage": [{
+		"name": "sequoiacm",
+		"type": "new_dir",
+		"childs": [{
+			"name": "package",
+			"type": "new_dir",
+			"childs": [{
+				"type": "copy",
+				"src": "../../src/cloud/project/common/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/content-server/project/common/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/schedule-server/project/common/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/config-server/project/common/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/om-server/project/common/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../thirdparty/zookeeper/zookeeper-*.tar.gz"
+			}]
+		},
+		{
+			"name": "driver",
+			"type": "new_dir",
+			"childs": [{
+				"type": "copy",
+				"src": "../../driver/java/target/*-release.tar.gz"
+			}]
+		},
+		{
+			"type": "copy",
+			"src": "../../script/deploy/sequoiacm/scm.py"
+		},
+		{
+			"type": "copy",
+			"src": "../../script/deploy/sequoiacm/README.md"
+		},
+		{
+			"type": "copy",
+			"src": "../../tools/scm-deploy/target/sequoiacm-deploy"
+		}]
+	}],
+	"scmTestProject": {
+		"libPath": "../../testcases/v2.0/testcase-base/lib/",
+		"copyDependencies": ["../../driver/java/target/sequoiacm-driver-*-release/sequoiacm-driver-*/*"],
+		"modules": [{
+			"name": "tdd",
+			"modulePomPath": "../../testcases/v2.0/tdd/java/pom.xml",
+			"testNgXmlPath": "../../testcases/v2.0/tdd/java/src/test/resources/testng.xml"
+		},
+		{
+			"name": "story",
+			"modulePomPath": "../../testcases/v2.0/story/java/pom.xml",
+			"testNgXmlPath": "../../testcases/v2.0/story/java/src/test/resources/testng.xml"
+		},
+		{
+			"name": "sdv",
+			"modulePomPath": "../../testcases/v2.0/sdv/java/pom.xml",
+			"testNgXmlPath": "../../testcases/v2.0/sdv/java/src/test/resources/testng.xml"
+		}]
+	}
+}

@@ -1,0 +1,182 @@
+
+package com.sequoiacm.directory.concurrent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import com.sequoiacm.client.core.ScmDirectory;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestThreadBase;
+import com.sequoiacm.testcommon.WsWrapper;
+
+/**
+ * @Description: SCM-1170 :: 创建文件夹和删除其父文件夹并发
+ * @author fanyu
+ * @Date:2018年4月27日
+ * @version:1.0
+ */
+public class CreateDirAndDeletePaDir1170 extends TestScmBase {
+	private boolean runSuccess;
+	private ScmSession session;
+	private ScmWorkspace ws;
+	private SiteWrapper site;
+	private WsWrapper wsp;
+	private String dirBasePath = "/CreateDirAndDeletePaDir1170";
+	private String fullPath1 = dirBasePath;
+	private String fullPath2 = dirBasePath + "/CreateDir";
+
+	@BeforeClass(alwaysRun = true)
+	private void setUp() {
+		try {
+			site = ScmInfo.getSite();
+			wsp = ScmInfo.getWs();
+			session = TestScmTools.createSession(site);
+			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+			deleteDir(ws, fullPath2);
+			ScmFactory.Directory.createInstance(ws, fullPath1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test(groups = { "oneSite", "twoSite", "fourSite" })
+	private void test() {
+		DeletePaDir dThread = new DeletePaDir();
+		CreateDir cThread = new CreateDir();
+		dThread.start();
+		cThread.start();
+		boolean dflag = dThread.isSuccess();
+		boolean cflag = dThread.isSuccess();
+		Assert.assertEquals(dflag, true, dThread.getErrorMsg());
+		Assert.assertEquals(cflag, true, dThread.getErrorMsg());
+
+		// check
+		BSONObject expBSON = new BasicBSONObject();
+		expBSON.put("name", "CreateDir");
+		expBSON.put("path", fullPath2 + "/");
+		expBSON.put("wsName", wsp.getName());
+		expBSON.put("paName", "CreateDirAndDeletePaDir1170");
+		check(fullPath2, expBSON);
+		runSuccess = true;
+	}
+
+	@AfterClass(alwaysRun = true)
+	private void tearDown() throws Exception {
+		try {
+			if (runSuccess || TestScmBase.forceClear) {
+				deleteDir(ws, fullPath2);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	private class DeletePaDir extends TestThreadBase {
+		@Override
+		public void exec() {
+			ScmSession session = null;
+			try {
+				session = TestScmTools.createSession(site);
+				ScmWorkspace ws =  ScmFactory.Workspace.getWorkspace(wsp.getName(),session);
+				ScmFactory.Directory.deleteInstance(ws, fullPath1);
+			} catch (ScmException e) {
+				if (e.getError() != ScmError.DIR_NOT_EMPTY) {
+					e.printStackTrace();
+					Assert.fail(e.getMessage());
+				}
+			}finally{
+				if(session != null){
+					session.close();
+				}
+			}
+		}
+	}
+
+	private class CreateDir extends TestThreadBase {
+		public void exec() {
+			ScmSession session = null;
+			try {
+				session = TestScmTools.createSession(site);
+				ScmWorkspace ws =  ScmFactory.Workspace.getWorkspace(wsp.getName(),session);
+				ScmFactory.Directory.createInstance(ws, fullPath2);
+			} catch (ScmException e) {
+				if (e.getError() != ScmError.DIR_NOT_FOUND) {
+					e.printStackTrace();
+					Assert.fail(e.getMessage());
+				}
+			}finally{
+				if(session != null){
+					session.close();
+				}
+			}
+		}
+	}
+
+	private void check(String path, BSONObject expBSON) {
+		try {
+			ScmDirectory dir = ScmFactory.Directory.getInstance(ws, path);
+			Assert.assertEquals(dir.getName(), expBSON.get("name"));
+			Assert.assertEquals(dir.getPath(), expBSON.get("path"));
+			Assert.assertEquals(dir.getUpdateUser(), TestScmBase.scmUserName);
+			Assert.assertEquals(dir.getUser(), TestScmBase.scmUserName);
+			Assert.assertEquals(dir.getWorkspaceName(), expBSON.get("wsName"));
+			Assert.assertNotNull(dir.getCreateTime());
+			Assert.assertNotNull(dir.getUpdateTime());
+			Assert.assertEquals(dir.getParentDirectory().getName(), expBSON.get("paName"));
+		} catch (ScmException e) {
+			if (e.getError() != ScmError.DIR_NOT_FOUND) {
+				e.printStackTrace();
+				Assert.fail(e.getMessage());
+			}
+		}
+	}
+
+	private void deleteDir(ScmWorkspace ws, String dirPath) {
+		List<String> pathList = getSubPaths(dirPath);
+		for (int i = pathList.size() - 1; i >= 0; i--) {
+			try {
+				ScmFactory.Directory.deleteInstance(ws, pathList.get(i));
+			} catch (ScmException e) {
+				if (e.getError() != ScmError.DIR_NOT_FOUND
+						&& e.getError() != ScmError.DIR_NOT_EMPTY) {
+					e.printStackTrace();
+					Assert.fail(e.getMessage());
+				}
+			}
+		}
+	}
+
+	private List<String> getSubPaths(String path) {
+		String ele = "/";
+		String[] arry = path.split("/");
+		List<String> pathList = new ArrayList<String>();
+		for (int i = 1; i < arry.length; i++) {
+			ele = ele + arry[i];
+			pathList.add(ele);
+			ele = ele + "/";
+		}
+		return pathList;
+	}
+}

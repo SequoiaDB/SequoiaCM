@@ -1,0 +1,275 @@
+package com.sequoiacm.tools.command;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sequoiacm.client.common.ScmType.SessionType;
+import com.sequoiacm.client.core.ScmConfigOption;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.element.ScmProcessInfo;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.tools.ScmCtl;
+import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.tools.exception.ScmExitCode;
+import com.sequoiacm.tools.exception.ScmToolsException;
+import com.sequoiacm.tools.exec.ScmExecutorWrapper;
+
+public class ScmStartToolImpl implements ScmTool {
+    public final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
+
+    public int TIME_WAIT_PROCESS_STATUS_NORMAL = 50000; // 50s
+    private final String OPT_SHORT_ALL = "a";
+    private final String OPT_LONG_ALL = "all";
+    private final String OPT_SHORT_PORT = "p";
+    private final String OPT_LONG_PORT = "port";
+    private final String OPT_SHORT_I = "I";
+    private final String OPT_SHORT_TIME_OUT = "t";
+    private final String OPT_LONG_TIME_OUT = "timeout";
+    // private final String OPT_LONG_OPTION = "option";
+    private ScmExecutorWrapper executor;
+    private int success = 0;
+    private static Logger logger = LoggerFactory.getLogger(ScmStartToolImpl.class);
+    private ScmHelpGenerator hp;
+    private Options options;
+
+    public ScmStartToolImpl() throws ScmToolsException {
+        options = new Options();
+        hp = new ScmHelpGenerator();
+        options.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true,
+                false));
+
+        options.addOption(hp.createOpt(OPT_SHORT_ALL, OPT_LONG_ALL, "start all node.", false,
+                false, false));
+
+        options.addOption(hp.createOpt(OPT_SHORT_TIME_OUT, OPT_LONG_TIME_OUT,
+                "sets the starting timeout in seconds, default:50", false, true, false));
+
+        // options.addOption(Option.builder().longOpt(OPT_LONG_OPTION).hasArgs().build());
+        // hp.addOptHelp("--" + OPT_LONG_OPTION + " arg",
+        // "start scm with extra options(--" + OPT_LONG_OPTION
+        // + " 'extra option string'),\nexec 'java -h' for more options help");
+        options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
+
+        executor = new ScmExecutorWrapper();
+
+    }
+
+    @Override
+    public void process(String[] args) throws ScmToolsException {
+        ScmCtl.checkHelpArgs(args);
+        CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
+        if (commandLine.hasOption(OPT_SHORT_PORT) && commandLine.hasOption(OPT_SHORT_ALL)
+                || !commandLine.hasOption(OPT_SHORT_PORT) && !commandLine.hasOption(OPT_SHORT_ALL)) {
+            logger.error("Invalid arg:please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT);
+            throw new ScmToolsException("please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT,
+                    ScmExitCode.INVALID_ARG);
+        }
+        String contentServerJarFile = ScmCommon.getContentServerJarName();
+        File f = new File(contentServerJarFile);
+        if (!f.exists()) {
+            logger.error("Can't find " + ScmCommon.getContenserverAbsolutePath()
+            + contentServerJarFile);
+            throw new ScmToolsException("Can't find " + ScmCommon.getContenserverAbsolutePath()
+            + contentServerJarFile, ScmExitCode.FILE_NOT_FIND);
+        }
+
+        if (commandLine.hasOption(OPT_SHORT_TIME_OUT)) {
+            resetTimeout(commandLine);
+        }
+
+        Map<Integer, String> needStartMap = new HashMap<Integer, String>();
+        // -p
+        if (commandLine.hasOption(OPT_SHORT_PORT)) {
+            String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
+            try {
+                int port = ScmCommon.convertStrToInt(portString);
+                String confPath = executor.getNodeConfPath(port);
+                needStartMap.put(port, confPath);
+            }
+            catch (ScmToolsException e) {
+                e.printErrorMsg();
+                logger.error("Failed to start " + portString, e);
+                System.out.println("Total:1;Success:0;Failed:1");
+                throw new ScmToolsException(e.getExitCode());
+            }
+        }
+
+        // -a
+        else if (commandLine.hasOption(OPT_SHORT_ALL)) {
+            needStartMap.putAll(executor.getAllNode());
+            if (needStartMap.size() <= 0) {
+                System.out.println("Can't find any node in conf path");
+                System.out.println("Total:0;Success:0;Failed:0");
+                logger.info("Can't find any node in conf path,start all node success");
+                return;
+            }
+        }
+
+        List<Integer> checkList = new ArrayList<>();
+        startNodes(needStartMap, checkList);
+
+        // check start res
+        boolean startRes = isStartSuccess(checkList);
+        logger.info("Total:" + needStartMap.size() + ";Success:" + success + ";Failed:"
+                + (needStartMap.size() - success));
+        System.out.println("Total:" + needStartMap.size() + ";Success:" + success + ";Failed:"
+                + (needStartMap.size() - success));
+        if (!startRes || needStartMap.size() - success > 0) {
+            throw new ScmToolsException(ScmExitCode.COMMON_UNKNOW_ERROR);
+        }
+    }
+
+    private void resetTimeout(CommandLine commandLine) throws ScmToolsException {
+        int shortestTimeout = 5; // 5s
+        String timeOut = commandLine.getOptionValue(OPT_SHORT_TIME_OUT);
+        TIME_WAIT_PROCESS_STATUS_NORMAL = ScmCommon.convertStrToInt(timeOut);
+        if (TIME_WAIT_PROCESS_STATUS_NORMAL < shortestTimeout) {
+            logger.warn("rewrite timeout from {}s as {}s", TIME_WAIT_PROCESS_STATUS_NORMAL,
+                    shortestTimeout);
+            TIME_WAIT_PROCESS_STATUS_NORMAL = shortestTimeout;
+        }
+
+        TIME_WAIT_PROCESS_STATUS_NORMAL = TIME_WAIT_PROCESS_STATUS_NORMAL * 1000;
+    }
+
+    private void startNodes(Map<Integer, String> needStartMap, List<Integer> checkList) {
+        for (Integer key : needStartMap.keySet()) {
+            try {
+                int pid = executor.getNodePid(key);
+                if (pid == -1) {
+                    executor.startNode(key);
+                    checkList.add(key);
+                }
+                else {
+                    String status = getNodeRunningStatus(key);
+                    if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
+                        System.out.println("Success:sequoiacm(" + key + ") is already started ("
+                                + pid + ")");
+                        logger.info("Success:sequoiacm(" + key + ") is already started (" + pid
+                                + ")");
+                        success++;
+                    }
+                    else {
+                        System.out.println("Failed:sequoiacm(" + key + ") is already started ("
+                                + pid + "),but node status is not normal");
+                        logger.info("Failed:sequoiacm(" + key + ") is already started (" + pid
+                                + "),but node status is not normal:" + status);
+                    }
+                }
+            }
+            catch (ScmToolsException e) {
+                logger.error(e.getMessage() + ",errorCode:" + e.getExitCode(), e);
+                e.printErrorMsg();
+            }
+        }
+    }
+
+    private boolean isStartSuccess(List<Integer> checkList) throws ScmToolsException {
+        long timeStamp = System.currentTimeMillis();
+        boolean rc = true;
+        Map<Integer, String> port2Status = new HashMap<>();
+        while (true) {
+            boolean isPidExist = false;
+            Iterator<Integer> it = checkList.iterator();
+            while (it.hasNext()) {
+                int p = it.next();
+                try {
+                    int pid = executor.getNodePid(p);
+                    if (pid != -1) {
+                        isPidExist = true;
+                        String runningStatus = getNodeRunningStatus(p);
+                        if (runningStatus
+                                .equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
+                            System.out.println("Success:sequoiacm(" + p
+                                    + ") is successfully started (" + pid + ")");
+                            logger.info("Success:sequoiacm(" + p + ") is successfully started ("
+                                    + pid + ")");
+                            success++;
+                            it.remove();
+                            port2Status.remove(p);
+                        }
+                        else {
+                            port2Status.put(p, runningStatus);
+                        }
+                    }
+                    else {
+                        port2Status.put(p, "can not find pid");
+                    }
+                }
+                catch (ScmToolsException e) {
+                    e.printErrorMsg();
+                    logger.error("check node status failed,port:" + p, e);
+                    it.remove();
+                    rc = false;
+                }
+            }
+            if (checkList.size() <= 0) {
+                return rc;
+            }
+
+            if (!isPidExist && System.currentTimeMillis() - timeStamp > TIME_WAIT_PROCESS_RUNNING) {
+                break;
+            }
+
+            if (isPidExist
+                    && System.currentTimeMillis() - timeStamp > TIME_WAIT_PROCESS_STATUS_NORMAL) {
+                break;
+            }
+
+            ScmCommon.sleep(200);
+        }
+
+        for (Entry<Integer, String> entry : port2Status.entrySet()) {
+            logger.error("failed to start node(" + entry.getKey() + "),timeout,node status:"
+                    + entry.getValue());
+            System.out.println("Failed:sequoiacm(" + entry.getKey() + ") failed to start");
+        }
+
+        return false;
+    }
+
+    private String getNodeRunningStatus(int port) {
+        ScmSession ss = null;
+        try {
+            ss = ScmFactory.Session.createSession(SessionType.NOT_AUTH_SESSION,
+                    new ScmConfigOption("localhost:" + port));
+        }
+        catch (Exception e) {
+            return "failed to connect,error=" + e.toString() + ", stacktrace:"+Arrays.toString(e.getStackTrace());
+        }
+
+        try {
+            ScmProcessInfo processInfo = ScmSystem.ProcessInfo.getProcessInfo(ss);
+            if(processInfo.getRunningStatus() == null) {
+                return "runningStatus is null";
+            }
+            return processInfo.getRunningStatus();
+        }
+        catch (Exception e) {
+            return "failed to get node status,error=" + e.toString() + ", stacktrace:"+Arrays.toString(e.getStackTrace());
+        }
+        finally {
+            ss.close();
+        }
+    }
+
+    @Override
+    public void printHelp(boolean isFullHelp) {
+        hp.printHelp(isFullHelp);
+    }
+}

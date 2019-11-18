@@ -1,0 +1,15 @@
+步骤1:
+用4个空格取代Tab键：
+打开Eclipse -> Window -> Preferences -> General -> Editors -> Text Editors -> 勾选Insert spaces for tabs，并且在Displayed tab width栏中填4，点击Apply。
+
+
+
+步骤2:
+打开Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> import
+选中  codetemplates_scm.xml  后导入，点击Apply。
+
+
+模板生效后，自动对即将编写的代码生效。
+若想对已有代码生效，需要对已有代码格式化。选中代码区域后Ctrl + Shift + F，或者右键 Source -> Format。
+
+

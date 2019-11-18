@@ -1,0 +1,65 @@
+{
+    "checked_list": [
+        {
+            "key": "ribbon.MaxAutoRetries",
+            "type": "integer",
+            "min": 0
+        },
+        {
+            "key": "ribbon.MaxAutoRetriesNextServer",
+            "type": "integer",
+            "min": 0
+        },
+        {
+            "key": "ribbon.ConnectTimeout",
+            "type": "integer"
+        },
+        {
+            "key": "ribbon.ReadTimeout",
+            "type": "integer"
+        },
+        {
+            "key": "hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds",
+            "type": "integer"
+        },
+       
+        {
+            "key": "eureka.client.prefer-same-zone-eureka",
+            "type": "boolean"
+        },
+        {
+            "key": "spring.zipkin.enabled",
+            "type": "boolean"
+        },
+        {
+            "key": "hystrix.command.default.execution.timeout.enabled",
+            "type": "boolean"
+            
+        },
+        {
+            "key": "ribbon.OkToRetryOnAllOperations",
+            "type": "boolean"
+        }
+    ],
+    
+    "forbidden_list": [
+        {
+            "key": "spring.application.name"
+        },
+        {
+            "key": "eureka.client.register-with-eureka"
+        },
+        {
+            "key": "eureka.instance.metadata-map.region"
+        },
+        {
+            "key": "eureka.client.region"
+        },
+        {
+            "key": "server.port"
+        },
+        {
+            "key": "eureka.client.fetch-registry"
+        }
+    ]
+}

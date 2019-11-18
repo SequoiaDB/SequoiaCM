@@ -1,0 +1,145 @@
+{
+    "collection_spaces":[
+        {
+            "name": "SCMSYSTEM",
+            "options": {
+            }
+        }
+    ],
+    "collections": [
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "SITE",
+            "options":{
+            
+            },
+            "indexes": [
+                {
+                    "name": "idx_site_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                },
+                {
+                    "name": "idx_site_name",
+                    "indexDef": {
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "CONTENTSERVER",                     
+            "indexes": [
+                {
+                    "name": "idx_server_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                },
+                {
+                    "name": "idx_server_name",
+                    "indexDef": {
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                },
+                {
+                    "name": "idx_server_url",
+                    "indexDef": {
+                        "host_name": 1,
+                        "port": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "TASK",                     
+            "indexes": [
+                {
+                    "name": "idx_task_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "SCHEDULE"                    
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "STRATEGY"                    
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "WORKSPACE",                     
+            "indexes": [
+                {
+                    "name": "idx_workspace_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                },
+                {
+                    "name": "idx_workspace_name",
+                    "indexDef": {
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "SUBSCRIBERS",
+            "indexes": [
+                {
+                    "name": "idx_config_service",
+                    "indexDef": {
+                        "config_name": 1,
+                        "service_name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "CONF_VERSION",
+            "indexes": [
+                {
+                    "name": "idx_type_name",
+                    "indexDef": {
+                        "business_type": 1,
+                        "business_name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "DATA_TABLE_NAME_HISTORY"
+        }
+    ]
+}
