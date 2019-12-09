@@ -134,14 +134,16 @@ public abstract class ScmDirectory {
      *
      * @param condition
      *            query condition.
-     * @param orderby
-     *            the ordered rule, never sort if null.
      * @param skip
      *            skip the the specified amount of files, never skip if this
      *            parameter is 0.
      * @param limit
      *            return the specified amount of files, when limit is -1, return
      *            all the files.
+     * @param orderby
+     *            the condition for sort, include: key is a property of
+     *            {@link ScmAttributeName.File}, value is -1(descending) or
+     *            1(ascending)
      * @return cursor
      * @throws ScmException
      *             if error happens.

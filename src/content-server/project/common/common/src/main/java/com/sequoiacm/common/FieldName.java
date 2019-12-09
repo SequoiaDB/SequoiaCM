@@ -89,6 +89,9 @@ public class FieldName {
     public static final String FIELD_CLUSER_USERNAME = "user"; // string, user1
     public static final String FIELD_CLUSER_PASSWORD = "password"; // string,
                                                                    // passwd1
+    // CL_ROLE
+    public static final String FIELD_CLROLE_ROLENAME = "roleName"; // string,
+    public static final String FIELD_CLROLE_DESCRIPTION = "description"; // string,
 
     // CL_SESSION
     public static final String FIELD_CLSESSION_ID = "id"; // string, session1

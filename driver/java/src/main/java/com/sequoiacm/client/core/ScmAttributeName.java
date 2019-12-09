@@ -14,6 +14,51 @@ public class ScmAttributeName {
     }
 
     /**
+     * Attribute of ScmWorkspace
+     *
+     * @since 3.1
+     */
+    public static class Workspace {
+        private Workspace() {
+        }
+
+        /**
+         * Workspace id
+         */
+        public static final String ID = FieldName.FIELD_CLWORKSPACE_ID;
+
+        /**
+         * Workspace name
+         */
+        public static final String NAME = FieldName.FIELD_CLWORKSPACE_NAME;
+
+        /**
+         * Workspace create user
+         */
+        public static final String CREATEUSER = FieldName.FIELD_CLWORKSPACE_CREATEUSER;
+
+        /**
+         * Workspace create time
+         */
+        public static final String CREATETIME = FieldName.FIELD_CLWORKSPACE_CREATETIME;
+
+        /**
+         * Workspace update user
+         */
+        public static final String UPDATEUSER = FieldName.FIELD_CLWORKSPACE_UPDATEUSER;
+
+        /**
+         * Workspace update time
+         */
+        public static final String UPDATETIME = FieldName.FIELD_CLWORKSPACE_UPDATETIME;
+
+        /**
+         * Workspace description
+         */
+        public static final String DESCRIPTION = FieldName.FIELD_CLWORKSPACE_DESCRIPTION;
+    }
+
+    /**
      * Attribute of ScmUser
      *
      * @since 3.0
@@ -36,6 +81,26 @@ public class ScmAttributeName {
          * Has role
          */
         public static final String HAS_ROLE = "has_role";
+    }
+
+    /**
+     * Attribute of ScmRole
+     *
+     * @since 3.1
+     */
+    public static class Role {
+        private Role() {
+        }
+
+        /**
+         * Role name
+         */
+        public static final String ROLE_NAME = FieldName.FIELD_CLROLE_ROLENAME;
+
+        /**
+         * Role description
+         */
+        public static final String DESCRIPTION = FieldName.FIELD_CLROLE_DESCRIPTION;
     }
 
     /**

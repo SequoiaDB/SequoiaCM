@@ -127,12 +127,44 @@ public class ScmFactory {
             return innerGetInstance(ws, fileId.get(), null, majorVersion, minorVersion);
         }
 
+        /**
+         * Acquires an object of the ScmFile class by between the specified
+         * workspace and the specified filePath.
+         * 
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param filePath
+         *            The path of the file.
+         * @return An object of the ScmFile type.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.0
+         */
         public static ScmFile getInstanceByPath(ScmWorkspace ws, String filePath)
                 throws ScmException {
             checkArgNotNull("filePath", filePath);
             return innerGetInstance(ws, null, filePath, -1, -1);
         }
 
+        /**
+         * Acquires an object of the ScmFile class by between the specified
+         * filePath from the specified workspace and the specified version.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param filePath
+         *            The path of the file.
+         * @param majorVersion
+         *            The major version of the file.
+         * @param minorVersion
+         *            The minor version of the file.
+         * @return An object of the ScmFile type.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.0
+         */
         public static ScmFile getInstanceByPath(ScmWorkspace ws, String filePath, int majorVersion,
                 int minorVersion) throws ScmException {
             checkArgNotNull("filePath", filePath);
@@ -253,7 +285,9 @@ public class ScmFactory {
          * @param fileCondition
          *            The condition of query files.
          * @param orderby
-         *            the ordered rule, never sort if null.
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.File}, value is -1(descending) or
+         *            1(ascending)
          * @param skip
          *            skip the the specified amount of files, never skip if this
          *            parameter is 0.
@@ -263,7 +297,7 @@ public class ScmFactory {
          * @return A cursor to traverse
          * @throws ScmException
          *             if error happens
-         * @since 2.1
+         * @since 3.1
          */
         public static ScmCursor<ScmFileBasicInfo> listInstance(ScmWorkspace ws, ScopeType scope,
                 BSONObject fileCondition, BSONObject orderby, long skip, long limit)
@@ -669,6 +703,20 @@ public class ScmFactory {
             return c;
         }
 
+        /**
+         * Acquires ScmDirectory instance's count which matches between the
+         * specified workspace and query condition.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param condition
+         *            The condition of query directory.
+         * @return count of instance
+         * @throws ScmException
+         *             if error happens
+         * @since 3.1
+         */
         public static long countInstance(ScmWorkspace ws, BSONObject condition)
                 throws ScmException {
             checkArgNotNull("workspace", ws);
@@ -763,10 +811,11 @@ public class ScmFactory {
          * @param condition
          *            The condition of query batches.
          * @param orderBy
-         *            the condition for sort, include: key is db's collection
-         *            properties, value is -1(descending) or 1(ascending)
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Batch}, value is -1(descending) or
+         *            1(ascending)
          * @param skip
-         *            skip to the first number Record
+         *            skip to the first number record
          * @param limit
          *            return the total records of query, when value is -1,
          *            return all records
@@ -810,6 +859,20 @@ public class ScmFactory {
             ws.getSession().getDispatcher().deleteBatch(ws.getName(), id.get());
         }
 
+        /**
+         * Acquires ScmBatchInfo instance's count which matches between the
+         * specified workspace and query condition.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param condition
+         *            The condition of query batch.
+         * @return count of instance
+         * @throws ScmException
+         *             if error happens
+         * @since 3.1
+         */
         public static long countInstance(ScmWorkspace ws, BSONObject condition)
                 throws ScmException {
             checkArgNotNull("workspace", ws);
@@ -1276,6 +1339,16 @@ public class ScmFactory {
             session.getDispatcher().deleteSession(sessionId);
         }
 
+        /**
+         * Acquires the count of the ScmSession instance
+         *
+         * @param session
+         *            the session
+         * @return the count of session instance
+         * @throws ScmException
+         *             if error happens
+         * @since 3.1
+         */
         public static long countSessions(ScmSession session) throws ScmException {
             checkArgNotNull("session", session);
             long countSessions = session.getDispatcher().countSessions();
@@ -1511,10 +1584,11 @@ public class ScmFactory {
          * @param session
          *            the session
          * @param orderBy
-         *            the condition for sort, include: key is db's collection
-         *            properties, value is -1(descending) or 1(ascending)
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Role}, value is -1(descending) or
+         *            1(ascending)
          * @param skip
-         *            skip to the first number Record
+         *            skip to the first number record
          * @param limit
          *            return the total records of query, when value is -1,
          *            return all records
@@ -1953,8 +2027,9 @@ public class ScmFactory {
          * @param ss
          *            session object
          * @param orderBy
-         *            the condition for sort, include: key is db's collection
-         *            properties, value is -1(descending) or 1(ascending)
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Workspace}, value is
+         *            -1(descending) or 1(ascending)
          * @param skip
          *            skip to the first number Record
          * @param limit
