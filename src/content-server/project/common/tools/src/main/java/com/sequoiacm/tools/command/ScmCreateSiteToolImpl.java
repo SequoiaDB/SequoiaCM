@@ -66,7 +66,7 @@ public class ScmCreateSiteToolImpl implements ScmTool {
                 false, false, true));
 
         options.addOption(hp.createOpt(null, OPT_LONG_DSTYPE,
-                "data datasource type of new site, arg:[ 1 | 2 | 3 | 4 | 5 | 6 | 7 ],\n1:sequoiadb, 2:hbase, 3:ceph-s3, 4:ceph-swift, 5:hdfs, default:1.",
+                "data datasource type of new site, arg:[ 1 | 2 | 3 | 4 | 5 ],\n1:sequoiadb, 2:hbase, 3:ceph-s3, 4:ceph-swift, 5:hdfs, default:1.",
                 false, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_DSURL,
                 "data datasource url of new sdb site, eg:'hostName1:port1,\nhostName2:port2'.\n",

@@ -39,7 +39,7 @@
         <module>./server/admin-server</module>
         <module>./server/service-trace</module>
         <module>./common/tools</module>
-        <module>./common/assembly</module>
+        <module>./assembly</module>
     </modules>
 
     <dependencyManagement>

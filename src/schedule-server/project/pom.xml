@@ -33,7 +33,7 @@
     <modules>
         <module>./server/schedule-server</module>
         <module>./common/tools</module>
-        <module>./common/assembly</module>
+        <module>./assembly</module>
     </modules>
 
     <dependencyManagement>

@@ -42,23 +42,23 @@
 			"type": "new_dir",
 			"childs": [{
 				"type": "copy",
-				"src": "../../src/cloud/project/common/assembly/target/*-release.tar.gz"
+				"src": "../../src/cloud/project/assembly/target/*-release.tar.gz"
 			},
 			{
 				"type": "copy",
-				"src": "../../src/content-server/project/common/assembly/target/*-release.tar.gz"
+				"src": "../../src/content-server/project/assembly/target/*-release.tar.gz"
 			},
 			{
 				"type": "copy",
-				"src": "../../src/schedule-server/project/common/assembly/target/*-release.tar.gz"
+				"src": "../../src/schedule-server/project/assembly/target/*-release.tar.gz"
 			},
 			{
 				"type": "copy",
-				"src": "../../src/config-server/project/common/assembly/target/*-release.tar.gz"
+				"src": "../../src/config-server/project/assembly/target/*-release.tar.gz"
 			},
 			{
 				"type": "copy",
-				"src": "../../src/om-server/project/common/assembly/target/*-release.tar.gz"
+				"src": "../../src/om-server/project/assembly/target/*-release.tar.gz"
 			},
 			{
 				"type": "copy",

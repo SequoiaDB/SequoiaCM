@@ -9,7 +9,7 @@
     <modules>
         <module>./server/sequoiacm-om-omserver</module>
         <module>./common/sequoiacm-om-tools</module>
-        <module>./common/assembly</module>
+        <module>./assembly</module>
     </modules>
 
     <properties>

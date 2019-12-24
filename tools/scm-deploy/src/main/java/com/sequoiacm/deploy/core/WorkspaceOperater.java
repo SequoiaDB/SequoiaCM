@@ -126,7 +126,7 @@ public class WorkspaceOperater {
     }
 
     private String createWorkspace(ScmSession ss, BSONObject wsBSON) throws Exception {
-        logger.info("Creating workspace success:{}", BsonUtils.getStringChecked(wsBSON, "name"));
+        logger.info("Creating workspace:{}", BsonUtils.getStringChecked(wsBSON, "name"));
         Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmCommon.querySite(ss);
         ScmWorkspaceConf conf = new ScmWorkspaceConf();
         // name

@@ -1,0 +1,134 @@
+<assembly
+        xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>${project.version}-release</id>
+    <formats>
+        <format>dir</format>
+        <format>tar.gz</format>
+    </formats>
+
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <fileSets>
+        <!-- copy tools/bin -->
+        <fileSet>
+            <directory>${project.basedir}/../common/tools/bin</directory>
+            <excludes>
+                <exclude>scmcreatemeta.sh</exclude>
+            </excludes>
+            <outputDirectory>bin</outputDirectory>
+        </fileSet>
+
+        <!-- copy tool's lib -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/tools/target/sequoiacm-content-tools-${project.version}-release/sequoiacm-content-tools-${project.version}/lib/
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>
+
+        <!-- empty directory -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/assembly</directory>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+            <outputDirectory>log</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/main/assembly</directory>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+            <outputDirectory>conf/scm/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/main/assembly</directory>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+            <outputDirectory>doc/</outputDirectory>
+        </fileSet>
+
+        <!-- copy contentserver/resources/ -->
+        <fileSet>
+            <directory>${project.basedir}/../common/server/contentserver/src/main/resources</directory>
+            <excludes>
+                <exclude>application.properties</exclude>
+            </excludes>
+            <outputDirectory>conf/samples/</outputDirectory>
+        </fileSet>
+        <!-- copy lib/hbase -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/datasources/hbase/target/sequoiacm-content-datasource-hbase-${project.version}-release/sequoiacm-content-datasource-hbase-${project.version}/hbase
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>lib/hbase</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_s3 -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/datasources/ceph_s3/target/sequoiacm-content-datasource-ceph-s3-${project.version}-release/sequoiacm-content-datasource-ceph-s3-${project.version}/ceph_s3
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>lib/ceph_s3</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_swift -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/datasources/ceph_swift/target/sequoiacm-content-datasource-ceph-swift-${project.version}-release/sequoiacm-content-datasource-ceph-swift-${project.version}/ceph_swift
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>lib/ceph_swift</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/hdfs -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/datasources/hdfs/target/sequoiacm-content-datasource-hdfs-${project.version}-release/sequoiacm-content-datasource-hdfs-${project.version}/hdfs
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>lib/hdfs</outputDirectory>
+        </fileSet>
+        
+         <fileSet>
+            <directory>${project.basedir}/../../script/</directory>
+            <includes>
+                <include>deploy.py</include>
+                <include>deploy.json</include>
+                <include>system.py</include>
+                <include>system.json</include>
+                <include>createworkspaces.py</include>
+                <include>workspaces.json</include>
+                <include>createusers.py</include>
+                <include>users.json</include>
+            </includes>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>true</useProjectArtifact>
+            <outputDirectory>lib/</outputDirectory>
+            <includes>
+                <include>com.sequoiadb:sequoiacm-content-tools</include>
+                <include>com.sequoiadb:sequoiacm-content-server</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

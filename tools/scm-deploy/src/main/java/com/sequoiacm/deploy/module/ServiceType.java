@@ -15,11 +15,7 @@ public enum ServiceType {
     GATEWAY("gateway", true, InstallPackType.CLOUD, 4),
     CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, 5),
     ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, 10),
-  //  TRACE_SERVER("service-trace", false, InstallPackType.CLOUD, 10),
-    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10),
-
-    VIRTUAL_CLOUD_DISK("virtual-cloud-disk", false, InstallPackType.VIRTUAL_CLOUD_DISK, 10),
-    CLOUD_DISK_SERVER("cloud-disk-server", false, InstallPackType.CLOUD_DISK, 11);
+    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10);
 
     private static List<ServiceType> typeSortByPriority;
     private static List<ServiceType> requiredServiceType;

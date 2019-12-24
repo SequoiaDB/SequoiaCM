@@ -44,14 +44,14 @@ Hbase 数据站点：
 |data_sharding_type|str     |指定数据的 Sharding 策略，默认 Sharding 策略为 'month'                                  |否      |
 |hbase_namespace|str        |指定一个已存在的 namespace，文件数据表将在该 namespace 下建立，默认使用 hbase 内置 namespace：'default'|否      |   
 
-Hbase-transwarp/Ceph_Swift 数据站点：
+Ceph_Swift 数据站点：
 
 |Key            |Value Type |描述                                                                                    |是否必填|
 |---------------|-----------|----------------------------------------------------------------------------------------|--------|
 |site           |str        |站点的名字                                                                              |是      |
 |data_sharding_type|str     |指定数据的 Sharding 策略，默认 Sharding 策略为 'month'                                  |否      |
 
-Hdfs/Hdfs-transwarp 数据站点：
+Hdfs 数据站点：
 
 |Key            |Value Type |描述                                                                                    |是否必填|
 |---------------|-----------|----------------------------------------------------------------------------------------|--------|

@@ -160,6 +160,7 @@ public class Ssh implements Closeable {
         try {
 
             channel = session.openChannel("exec");
+
             logger.debug("executing command, remoteHost:{}, command:{}, expectedExitCode:{}", host,
                     command, Arrays.toString(expectExitCode));
             ((ChannelExec) channel).setCommand(command);
@@ -192,6 +193,9 @@ public class Ssh implements Closeable {
             List<Integer> expectExitCode) throws IOException, JSchException {
         StringBuffer stdoutBf = new StringBuffer();
         StringBuffer stderrBf = new StringBuffer();
+        if (isNeedSendPasswd) {
+            ((ChannelExec) channel).setPty(true);
+        }
         InputStream er = ((ChannelExec) channel).getErrStream();
         InputStream in = channel.getInputStream();
         OutputStream os = channel.getOutputStream();
@@ -229,21 +233,30 @@ public class Ssh implements Closeable {
             try {
                 Thread.sleep(200);
             }
-            catch (Exception e) {
+            catch (InterruptedException e) {
+                throw new IOException(
+                        "failed to wait for the execution to complete, cause by interrupt", e);
             }
+        }
+
+        String stderr = stderrBf.toString();
+        String stdout = stdoutBf.toString();
+        if (isNeedSendPasswd && stdout.length() >= password.length()) {
+            // we have setTTY, the password that we send will occur in stdout,
+            // remove it.
+            stdout = stdout.substring(password.length()).trim();
         }
 
         int exitStatus = channel.getExitStatus();
         if (!expectExitCode.contains(exitStatus)) {
             throw new IOException("failed to execute command, remoteHost:" + host + ", command:"
-                    + command + ", stderror:" + stderrBf.toString() + ", stdout:"
-                    + stdoutBf.toString() + ", exitCode:" + exitStatus + ", expectExitCode:"
-                    + expectExitCode);
+                    + command + ", stderror:" + stderr + ", stdout:" + stdout + ", exitCode:"
+                    + exitStatus + ", expectExitCode:" + expectExitCode);
         }
         logger.debug("execute command success, remoteHost:" + host + ", command:" + command
-                + ", stderror:" + stderrBf.toString() + ", stdout:" + stdoutBf.toString()
-                + ", exitCode=" + exitStatus + ", expectExitCode:" + expectExitCode);
-        return new SshExecRes(exitStatus, stdoutBf.toString(), stderrBf.toString());
+                + ", stderror:" + stderr + ", stdout:" + stdout + ", exitCode=" + exitStatus
+                + ", expectExitCode:" + expectExitCode);
+        return new SshExecRes(exitStatus, stdout, stderr);
     }
 
     @Override

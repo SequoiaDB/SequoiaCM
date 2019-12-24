@@ -28,7 +28,7 @@
         <module>./common/config-site</module>
         <module>./common/config-node</module>
         <module>./server/config-server</module>
-        <module>./common/assembly</module>
+        <module>./assembly</module>
     </modules>
 
     <properties>

@@ -18,7 +18,7 @@ needArchiveRelease = False
 archiveReleasePath = rootDir + "archive-target" + os.sep + 'sequoiacm-3.0.0-release.tar.gz'
 compileTestModule = None
 runTestModule = None
-compileArgs = ""
+compileRelease = False
 
 
 def display(exit_code):
@@ -26,7 +26,7 @@ def display(exit_code):
     print("")
     print(" --help | -h       : print help message")
     print(" --compile | -c    : option value: all " + " ".join(scmProjectUtil.getScmModules()))
-    print(" --compileArgs     : custom options of compile sequoiacm, e.g: --compileArgs=\"-DpackageType=dev -D...\"")
+    print(" --release         : compile release sequoiacm")
     print(" --compileTest     : option value: all " + " ".join(scmProjectUtil.getTestModules()))
     print(" --runTest         : run test by testng.xml, test module: all " + " ".join(scmProjectUtil.getTestModules()))
     print(" --archive | -a    : archive scm project, package a tar.gz file")
@@ -34,9 +34,9 @@ def display(exit_code):
     sys.exit(exit_code)
 
 def parse_command():
-    global compileScmModule, needArchiveRelease, archiveReleasePath, compileTestModule, runTestModule, compileArgs
+    global compileScmModule, needArchiveRelease, archiveReleasePath, compileTestModule, runTestModule, compileRelease
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "compile=", "compileArgs=", "archive", "tar-path=", "compileTest=", "runTest="])
+        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "compile=", "release", "archive", "tar-path=", "compileTest=", "runTest="])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)
@@ -46,8 +46,6 @@ def parse_command():
             display(0)
         elif name in ("-c","--compile"):
             compileScmModule = value
-        elif name in ("--compileArgs"):
-            compileArgs = value
         elif name in ("-a","--archive"):
             needArchiveRelease = True;
         elif name in ("-t","--tar-path"):
@@ -56,9 +54,15 @@ def parse_command():
             compileTestModule = value
         elif name in ("--runTest"):
             runTestModule = value
+        elif name in ("--release"):
+            compileRelease = True
 
             
 def compileScm():
+    compileArgs = ""
+    if compileRelease:
+        compileArgs = "-DpackageType=release"
+    
     if compileScmModule == "all":
         scmProjectUtil.compileScm(compileArgs)
     else:
