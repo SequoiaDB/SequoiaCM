@@ -93,4 +93,9 @@ public class ScmDirPath {
         return path.split(PATH_SPILT).length;
     }
 
+    @Override
+    public String toString() {
+        return "dirpath=" + path.toString() + ", level=" + getLevel();
+    }
+
 }

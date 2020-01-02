@@ -36,21 +36,12 @@ import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 public class DirOperator {
     private static final Logger logger = LoggerFactory.getLogger(DirOperator.class);
     private static final int CACHE_DIR_LEVEL = 3;
-    private static DirOperator dirOperator;
-    private ScmMetaService metaService;
+    private static DirOperator dirOperator = new DirOperator();
 
-    private DirOperator() throws ScmServerException {
-        this.metaService = ScmContentServer.getInstance().getMetaService();
+    private DirOperator() {
     }
 
-    public static DirOperator getInstance() throws ScmServerException {
-        if (dirOperator == null) {
-            synchronized (DirOperator.class) {
-                if (dirOperator == null) {
-                    dirOperator = new DirOperator();
-                }
-            }
-        }
+    public static DirOperator getInstance() {
         return dirOperator;
     }
 
@@ -82,7 +73,7 @@ public class DirOperator {
     private DirInfo _getDirByPath(ScmWorkspaceInfo ws, String dirPathStr)
             throws ScmServerException {
         ScmDirPath dirPath = new ScmDirPath(dirPathStr);
-
+        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
         // no query cache
         int currentDirLevel = dirPath.getLevel();
         if (!enableCache() || dirPath.isRootDir() || currentDirLevel < CACHE_DIR_LEVEL) {
@@ -101,7 +92,8 @@ public class DirOperator {
                 currentPath = dirPath.getPathByLevel(currentDirLevel);
                 continue;
             }
-            DirInfo dbDirInfo = getDirInfoById(dirCache.getWsName(), cacheDirInfo.getId());
+            DirInfo dbDirInfo = getDirInfoById(metaService, dirCache.getWsName(),
+                    cacheDirInfo.getId());
 
             if (dbDirInfo.getVersion() == cacheDirInfo.getVersion()) {
                 if (dbDirInfo.getDirBson() == null) {
@@ -142,16 +134,18 @@ public class DirOperator {
             // start dir level is 2, not query root dir
             currentDirLevel = 2;
         }
-        return getDirFromMetaSource(dirCache, dirPath, currentDirLevel, parentId, firstVersion);
+        return getDirFromMetaSource(metaService, dirCache, dirPath, currentDirLevel, parentId,
+                firstVersion);
     }
 
-    private DirInfo getDirFromMetaSource(ScmDirCache dirCache, ScmDirPath tragetDirPath,
-            int dirLevel, String parentId, long firstVersion) throws ScmServerException {
+    private DirInfo getDirFromMetaSource(ScmMetaService metaService, ScmDirCache dirCache,
+            ScmDirPath tragetDirPath, int dirLevel, String parentId, long firstVersion)
+            throws ScmServerException {
         BSONObject dirBson = null;
         while (dirLevel <= tragetDirPath.getLevel()) {
             String dirName = tragetDirPath.getNamebyLevel(dirLevel);
             if (firstVersion == ScmDirCache.DEFAULT_VERSION) {
-                firstVersion = getDBVersion(dirCache.getWsName());
+                firstVersion = getDBVersion(metaService, dirCache.getWsName());
             }
             dirBson = metaService.getDirInfo(dirCache.getWsName(), parentId, dirName);
 
@@ -171,7 +165,7 @@ public class DirOperator {
         return new DirInfo(dirBson, firstVersion);
     }
 
-    private long getDBVersion(String wsName) throws ScmServerException {
+    private long getDBVersion(ScmMetaService metaService, String wsName) throws ScmServerException {
         BSONObject dirBson = metaService.getDirInfo(wsName, CommonDefine.Directory.SCM_ROOT_DIR_ID);
         return (long) dirBson.get(FieldName.FIELD_CLDIR_VERSION);
     }
@@ -181,6 +175,7 @@ public class DirOperator {
             return CommonDefine.Directory.SCM_ROOT_DIR_NAME;
         }
 
+        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
         // no query cache
         if (!enableCache()) {
             return metaService.getPathByDirId(ws.getName(), id);
@@ -188,15 +183,15 @@ public class DirOperator {
         ScmDirCache dirCache = ws.getDirCache();
 
         LinkedList<DirInfo> dirRecordList = new LinkedList<DirInfo>();
-        String path = getPathAndRecordDirs(dirCache, id, dirRecordList);
+        String path = getPathAndRecordDirs(metaService, dirCache, id, dirRecordList);
         return generatePathByDirs(dirCache, path, dirRecordList);
     }
 
-    private String getPathAndRecordDirs(ScmDirCache dirCache, String id,
+    private String getPathAndRecordDirs(ScmMetaService metaService, ScmDirCache dirCache, String id,
             LinkedList<DirInfo> dirRecordList) throws ScmServerException {
         String path = CommonDefine.Directory.SCM_DIR_SEP;
         while (!id.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
-            DirInfo dbDirInfo = getDirInfoById(dirCache.getWsName(), id);
+            DirInfo dbDirInfo = getDirInfoById(metaService, dirCache.getWsName(), id);
             long dbVersion = dbDirInfo.getVersion();
             BSONObject dbDirBson = dbDirInfo.getDirBson();
 
@@ -216,7 +211,7 @@ public class DirOperator {
                     dirRecordList.addFirst(dbDirInfo);
                     id = (String) dbDirBson.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID);
                     dirCache.checkClear(dbVersion);
-                    recordPathDirs(dirCache, id, dirRecordList);
+                    recordPathDirs(metaService, dirCache, id, dirRecordList);
                     break;
                 }
             }
@@ -226,10 +221,10 @@ public class DirOperator {
         return path;
     }
 
-    private void recordPathDirs(ScmDirCache dirCache, String id, LinkedList<DirInfo> dirRecordList)
-            throws ScmServerException {
+    private void recordPathDirs(ScmMetaService metaService, ScmDirCache dirCache, String id,
+            LinkedList<DirInfo> dirRecordList) throws ScmServerException {
         while (!id.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
-            DirInfo dbDirInfo = getDirInfoById(dirCache.getWsName(), id);
+            DirInfo dbDirInfo = getDirInfoById(metaService, dirCache.getWsName(), id);
             long dbVersion = dbDirInfo.getVersion();
             BSONObject dbDirBson = dbDirInfo.getDirBson();
 
@@ -266,6 +261,7 @@ public class DirOperator {
     public void rename(ScmWorkspaceInfo ws, String id, BSONObject updator)
             throws ScmServerException {
         try {
+            ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
             String newName = (String) updator.get(FieldName.FIELD_CLDIR_NAME);
             long newVersion = metaService.updateDir(ws.getName(), id, updator);
             renameDirCache(getCache(ws), id, newName, newVersion);
@@ -295,6 +291,7 @@ public class DirOperator {
         ScmLock globalDirWLock = null;
 
         try {
+            ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
             if (!destParentDirID.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
                 // this lock for check move option
                 globalDirWLock = writeLock(globalDirLockPath);
@@ -360,6 +357,7 @@ public class DirOperator {
     }
 
     public void delete(ScmWorkspaceInfo ws, String id, String path) throws ScmServerException {
+        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
         MetaRelAccessor relAccessor = metaService.getMetaSource().getRelAccessor(ws.getName(),
                 null);
 
@@ -406,7 +404,7 @@ public class DirOperator {
         parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentID);
         ScmLockPath lockPath = ScmLockPathFactory.createDirLockPath(ws.getName(), parentID);
         ScmLock rLock = null;
-
+        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
         if (!parentID.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
             rLock = readLock(lockPath);
         }
@@ -456,7 +454,8 @@ public class DirOperator {
         }
     }
 
-    private DirInfo getDirInfoById(String wsName, String id) throws ScmServerException {
+    private DirInfo getDirInfoById(ScmMetaService metaService, String wsName, String id)
+            throws ScmServerException {
         // id:{$in : [ 000000000000000000000000 , targetId ]}
         List<String> idList = new ArrayList<String>();
         idList.add(CommonDefine.Directory.SCM_ROOT_DIR_ID);
