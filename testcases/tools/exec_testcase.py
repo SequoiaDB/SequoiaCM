@@ -167,15 +167,10 @@ def parseHostInfo( arrhostinfo ):
 #copy SCM_INSTALL_DIR/lib to testcase dir testcases/v2.0/story/java/lib
 def copyRelyJar( scminstalldir ):
     displayInfo("Begin to copy scm related jar and testng related jar")
-    os.system("rm -rf "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib;");
-    os.system("cp -rf "+scminstalldir+"/lib "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base")
-    os.system("cp "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/tools/*.jar "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib")
+    os.system("rm -rf "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib/*driver.jar;");
     os.chdir(scminstalldir+"/driver")
-    for file in glob.glob("sequoiacm-driver*.tar.gz"):
-       os.system("tar -zxvf "+file);
-       arr = file.split('-release')
-       os.system("cp -rf "+scminstalldir+"/driver/"+arr[0]+"/*.jar " +os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib")
-       os.system("cp -rf "+scminstalldir+"/driver/"+arr[0]+"/lib " +os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base")
+    for file in glob.glob("sequoiacm-driver*"):
+       os.system("cp -rf "+file+"/*.jar " +os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib")
     
     displayInfo("End copy scm related jar and testng related jar")
     
@@ -191,7 +186,7 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             continue
         destgroup = ''
         gatewayurls=SCMCLOUD_GATEWAYS
-        if int(scmdeploymode) == 3:
+        if int(scmdeploymode) == 4:
             hostNum = 2    
             destgroup = 'fourSite'
         elif int(scmdeploymode) == 2:
@@ -295,7 +290,7 @@ def distributeTestcase(scmdeploymode, controlhost, controlhostuser, controlhostp
     elif scmdeploymode == '2':
         needTestcaseHostNum = 1
         exechostlist = [mainsitehost]
-    elif scmdeploymode == '3':
+    elif scmdeploymode == '4':
         needTestcaseHostNum = 1
         exechostlist = [ mainsitehost]
     else : 
