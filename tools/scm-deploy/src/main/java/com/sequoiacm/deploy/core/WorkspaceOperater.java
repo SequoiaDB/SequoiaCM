@@ -148,41 +148,41 @@ public class WorkspaceOperater {
 
     private void grantWsAllPriToUser(ScmSession ss, List<String> wss) throws Exception {
         for (String wsName : wss) {
-            ScmWorkspace ws = tryGetWorkspace(ss, wsName);
             ScmRole role = null;
             try {
-                role = ScmFactory.Role.createRole(ss, "ROLE_" + ws.getName(), "");
+                role = ScmFactory.Role.createRole(ss, "ROLE_" + wsName, "");
             }
             catch (ScmException e1) {
                 if (e1.getError() == ScmError.NETWORK_IO) {
                     throw e1;
                 }
                 try {
-                    role = ScmFactory.Role.getRole(ss, "ROLE_" + ws.getName());
+                    role = ScmFactory.Role.getRole(ss, "ROLE_" + wsName);
                 }
                 catch (Exception e2) {
-                    logger.debug("create role failed, get role failed:{}", "ROLE_" + ws.getName(),
-                            e2);
+                    logger.debug("create role failed, get role failed:{}", "ROLE_" + wsName, e2);
                     throw e1;
                 }
             }
-            ScmFactory.Role.grantPrivilege(ss, role,
-                    ScmResourceFactory.createWorkspaceResource(ws.getName()), ScmPrivilegeType.ALL);
+            grantWsAllPrivWithRetry(ss, role, wsName);
             ScmUser user = ScmFactory.User.getUser(ss, ss.getUser());
             ScmFactory.User.alterUser(ss, user, new ScmUserModifier().addRole(role));
-            logger.info("Grant privilege success:ws={}, user={} privilege={}", ws.getName(),
-                    ss.getUser(), ScmPrivilegeType.ALL);
+            logger.info("Grant privilege success:ws={}, user={} privilege={}", wsName, ss.getUser(),
+                    ScmPrivilegeType.ALL);
         }
     }
 
-    private ScmWorkspace tryGetWorkspace(ScmSession ss, String wsName) throws Exception {
+    private void grantWsAllPrivWithRetry(ScmSession ss, ScmRole role, String wsName)
+            throws Exception {
         logger.info("Waiting for workspace ready:wsName={}, timeout={}ms", wsName,
                 commonConfig.getWaitServiceReadyTimeout());
         long startTime = System.currentTimeMillis();
         Exception lastException;
         while (true) {
             try {
-                return ScmFactory.Workspace.getWorkspace(wsName, ss);
+                ScmFactory.Role.grantPrivilege(ss, role,
+                        ScmResourceFactory.createWorkspaceResource(wsName), ScmPrivilegeType.ALL);
+                return;
             }
             catch (ScmException e) {
                 if (e.getError() != ScmError.WORKSPACE_NOT_EXIST) {
