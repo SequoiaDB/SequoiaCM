@@ -35,82 +35,78 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class ReloadConfFromMainCenter308 extends TestScmBase {
-	private static String fileName = "ReloadConfFromMainCenter308";
-	private static SiteWrapper site = null;
-	private static NodeWrapper node =  null;
-	private static WsWrapper wsp = null;
+    private static String fileName = "ReloadConfFromMainCenter308";
+    private static SiteWrapper site = null;
+    private static NodeWrapper node = null;
+    private static WsWrapper wsp = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		wsp = ScmInfo.getWs();
-		site = ScmInfo.getSite();
-		node = site.getNode();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        wsp = ScmInfo.getWs();
+        site = ScmInfo.getSite();
+        node = site.getNode();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testReloadBizConfFromMainCenter() throws Exception {
-		ScmSession session = null;
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(node.getHost()+":"+node.getRestPort());
-			session = ScmFactory.Session.createSession(SessionType.NOT_AUTH_SESSION, scOpt);
-			List<BSONObject> list = ScmSystem.Configuration.reloadBizConf(ServerScope.ALL_SITE, node.getSiteId(),
-					session);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testReloadBizConfFromMainCenter() throws Exception {
+        ScmSession session = null;
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    node.getHost() + ":" + node.getRestPort() );
+            session = ScmFactory.Session
+                    .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
+            List< BSONObject > list = ScmSystem.Configuration
+                    .reloadBizConf( ServerScope.ALL_SITE, node.getSiteId(),
+                            session );
 
-			// check results
-			List<NodeWrapper> expNodeList = ScmInfo.getNodeList();
-			String errStr = "reloadBizConf failed, actual infoList after reloadBizConf: \n" + list
-					+ "expect nodeInfo: \n" + expNodeList;
+            // check results
+            List< NodeWrapper > expNodeList = ScmInfo.getNodeList();
+            String errStr = "reloadBizConf failed, actual infoList after " +
+                    "reloadBizConf: \n" + list + "expect nodeInfo: \n" +
+                    expNodeList;
 
-			Assert.assertEquals(list.size(), expNodeList.size(), errStr);
+            Assert.assertEquals( list.size(), expNodeList.size(), errStr );
 
-			// compare node id
-			List<Integer> serverIdList = new ArrayList<>();
-			for (int i = 0; i < list.size(); i++) {
-				Object errormsg = list.get(i).get("errormsg");
-				Assert.assertEquals(errormsg, "", errStr);
-				
-				int nodeId = (int) list.get(i).get("server_id");
-				serverIdList.add(nodeId);
-			}
-			Collections.sort(serverIdList);
-			for (int i = 0; i < list.size(); i++) {
-				int actNodeId = serverIdList.get(i);
-				int expNodeId = expNodeList.get(i).getId();
-				Assert.assertEquals(actNodeId, expNodeId, errStr);
-			}
+            // compare node id
+            List< Integer > serverIdList = new ArrayList<>();
+            List< Integer > expServerIdList = new ArrayList<>();
+            for ( int i = 0; i < list.size(); i++ ) {
+                Object errormsg = list.get( i ).get( "errormsg" );
+                Assert.assertEquals( errormsg, "", errStr );
+                int nodeId = ( int ) list.get( i ).get( "server_id" );
+                serverIdList.add( nodeId );
+                expServerIdList.add( expNodeList.get( i ).getId() );
+            }
+            Collections.sort( serverIdList );
+            Collections.sort( expServerIdList );
+            Assert.assertEquals( serverIdList, expServerIdList );
+            this.bizOperator();
+        } finally {
+            if ( session != null )
+                session.close();
+        }
+    }
 
-			this.bizOperator();
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null)
-				session.close();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-	}
+    private void bizOperator() throws ScmException {
+        ScmSession session = null;
+        ScmWorkspace ws = null;
+        try {
+            session = TestScmTools.createSession();
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-	private void bizOperator() {
-		ScmSession session = null;
-		ScmWorkspace ws = null;
-		try {
-			session = TestScmTools.createSession();
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName + "_" + UUID.randomUUID() );
+            ScmId fileId = file.save();
 
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(fileName+"_"+UUID.randomUUID());
-			ScmId fileId = file.save();
-
-			ScmFactory.File.deleteInstance(ws, fileId, true);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null)
-				session.close();
-		}
-	}
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+        }finally {
+            if ( session != null )
+                session.close();
+        }
+    }
 
 }
