@@ -84,13 +84,13 @@ public class ScmAuthUtils extends TestScmBase {
                 int maxTimes = defaultTimeOut / sleepTime;
                 while ( maxTimes-- > 0 ) {
                     try {
+                        Thread.sleep( sleepTime );
                         //the newWS used to check privilege come into effect
                         ScmFactory.File.deleteInstance( newWS, fileId, true );
                         ScmFactory.Directory.deleteInstance( ws, dirPath );
                         return;
                     } catch ( ScmException e ) {
                         if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
-                            Thread.sleep( sleepTime );
                             logger.warn( username + " has tried " + (
                                     defaultTimeOut / sleepTime - maxTimes )
                                     + " times." + "version1 = " + version1
@@ -98,7 +98,8 @@ public class ScmAuthUtils extends TestScmBase {
                                     .getMeta( ss ).getVersion() );
                         } else {
                             logger.error(
-                                    "failed to wait privilege come into effect,version1 = "
+                                    "failed to wait privilege come into " +
+                                            "effect,version1 = "
                                             + version1 + ",version2 = "
                                             + ScmFactory.Privilege.getMeta( ss )
                                             .getVersion() + ",fileId = "
@@ -108,7 +109,8 @@ public class ScmAuthUtils extends TestScmBase {
                     }
                 }
                 throw new Exception(
-                        "privilege did not come into effect, timeout.version1 = "
+                        "privilege did not come into effect, timeout.version1" +
+                                " = "
                                 + version1 + ",version2 = "
                                 + ScmFactory.Privilege.getMeta( ss )
                                 .getVersion() + ",fileId = " + fileId );
