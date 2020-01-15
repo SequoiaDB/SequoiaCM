@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
     private static final int defaultTimeOut = 1 * 30 * 1000; // 0.5min
-    private static final int sleepTime = 1 * 1000;  // 1s
+    private static final int sleepTime = 1 * 1000;  // 10s
 
     /**
      * check privilege is effect by wsp

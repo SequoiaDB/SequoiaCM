@@ -1,21 +1,21 @@
 package com.sequoiacm.testcommon;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Parameters;
-
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.scmutils.ScmImexportUtils;
+import org.apache.log4j.Logger;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestScmBase {
-    private static final Logger logger = Logger.getLogger(TestScmBase.class);
+    private static final Logger logger = Logger.getLogger( TestScmBase.class );
 
     protected static boolean forceClear;
     protected static String dataDirectory;
@@ -40,18 +40,19 @@ public class TestScmBase {
     protected static String ldapUserName;
     protected static String ldapPassword;
 
-    @Parameters({"FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
-            "SSHUSER", "SSHPASSWD",
-            "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "CLOUDDISKUSERNAME",
-            "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH"})
+    @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
+            "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
+            "CLOUDDISKUSERNAME", "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
-    public static void initSuite(boolean FORCECLEAR, String DATADIR, String NTPSERVER, String LOCALHOSTNAME,
-                                 String SSHUSER, String SSHPASSWD,
-                                 String MAINSDBURL, String SDBUSER, String SDBPASSWD,
-                                 String GATEWAYS, String ROOTSITESVCNAME, String SCMUSER, String SCMPASSWD, String CLOUDDISKUSERNAME,
-                                 String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH) throws ScmException {
+    public static void initSuite( boolean FORCECLEAR, String DATADIR,
+            String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
+            String SSHPASSWD, String MAINSDBURL, String SDBUSER,
+            String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
+            String SCMUSER, String SCMPASSWD, String CLOUDDISKUSERNAME,
+            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH )
+            throws ScmException {
 
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
@@ -65,7 +66,7 @@ public class TestScmBase {
         sdbUserName = SDBUSER;
         sdbPassword = SDBPASSWD;
 
-        gateWayList = parseInfo(GATEWAYS);
+        gateWayList = parseInfo( GATEWAYS );
 
         rootSiteServiceName = ROOTSITESVCNAME;
         scmUserName = SCMUSER;
@@ -80,64 +81,90 @@ public class TestScmBase {
         ScmSession session = null;
         try {
             List<String> urlList = new ArrayList<String>();
-            for (String gateWay : gateWayList) {
-                urlList.add(gateWay + "/" + ROOTSITESVCNAME);
+            for ( String gateWay : gateWayList ) {
+                urlList.add( gateWay + "/" + ROOTSITESVCNAME );
             }
-            logger.info("gateWay info \n" + gateWayList);
+            logger.info( "gateWay info \n" + gateWayList );
             try {
-                for (String url : urlList) {
-                    checkSiteIsOk(url);
+                for ( String url : urlList ) {
+                    checkSiteIsOk( url );
                 }
-            } catch (Exception e) {
+            } catch ( Exception e ) {
                 e.printStackTrace();
             }
-            ScmConfigOption scOpt = new ScmConfigOption(urlList, TestScmBase.scmUserName, TestScmBase.scmPassword);
-            session = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-            ScmInfo.refresh(session);
-        } catch (ScmException e) {
+            ScmConfigOption scOpt = new ScmConfigOption( urlList,
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
+            session = ScmFactory.Session
+                    .createSession( SessionType.AUTH_SESSION, scOpt );
+            ScmInfo.refresh( session );
+        } catch ( ScmException e ) {
             e.printStackTrace();
             throw e;
         } finally {
-            if (null != session) {
+            if ( null != session ) {
                 session.close();
             }
         }
+        prepareUDCTable();
     }
 
-    private static List<String> parseInfo(String infos) {
+    private static List<String> parseInfo( String infos ) {
         List<String> infoList = new ArrayList<String>();
-        if (infos.contains(",")) {
-            String[] infoArr = infos.split(",");
-            for (String info : infoArr) {
-                infoList.add(info);
+        if ( infos.contains( "," ) ) {
+            String[] infoArr = infos.split( "," );
+            for ( String info : infoArr ) {
+                infoList.add( info );
             }
         } else {
-            infoList.add(infos);
+            infoList.add( infos );
         }
         return infoList;
     }
 
-    private static void checkSiteIsOk(String url) throws Exception {
+    private static void checkSiteIsOk( String url ) throws Exception {
         int i = 0;
         int tryNum = 6;
         int interval = 10 * 1000;
-        ScmConfigOption scOpt = new ScmConfigOption(url, TestScmBase.scmUserName, TestScmBase.scmPassword);
-        for (; i < tryNum; i++) {
+        ScmConfigOption scOpt = new ScmConfigOption( url,
+                TestScmBase.scmUserName, TestScmBase.scmPassword );
+        for ( ; i < tryNum; i++ ) {
             ScmSession session = null;
             try {
-                session = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
+                session = ScmFactory.Session
+                        .createSession( SessionType.AUTH_SESSION, scOpt );
                 break;
-            } catch (ScmException e) {
-                if (ScmError.HTTP_NOT_FOUND != e.getError() || i == tryNum - 1) {
+            } catch ( ScmException e ) {
+                if ( ScmError.HTTP_NOT_FOUND != e.getError()
+                        || i == tryNum - 1 ) {
                     e.printStackTrace();
                     throw e;
                 }
-                Thread.sleep(interval);
+                Thread.sleep( interval );
             } finally {
-                if (session != null) {
+                if ( session != null ) {
                     session.close();
                 }
             }
         }
+    }
+
+    private static void prepareUDCTable() {
+        //create udc table
+        TestSdbTools
+                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
+                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
+                        ScmImexportUtils.BATCH_CL );
+        TestSdbTools
+                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
+                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
+                        ScmImexportUtils.BATCH_FILE_CL );
+        TestSdbTools
+                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
+                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
+                        ScmImexportUtils.BATCH_CL_DOWNLOAD );
+        TestSdbTools
+                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
+                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
+                        ScmImexportUtils.BATCH_FILE_CL_DOWNLOAD );
     }
 }
