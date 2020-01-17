@@ -13,7 +13,7 @@ ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace("test_ws", session);
 // 创建批次"Batch"，并设置自定义标签
 ScmBatch batch = ScmFactory.Batch.createInstance(workspace);
 ScmTags tags = new ScmTags();
-tags.addTag("tagKey", "tagValue");
+tags.addTag("tagValue");
 batch.setName("Batch");
 batch.setTags(tags);
 batch.save();
