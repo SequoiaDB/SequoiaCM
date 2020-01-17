@@ -1,4 +1,3 @@
-
 package com.sequoiacm.task.concurrent;
 
 import java.io.File;
@@ -47,145 +46,158 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class Transfer_stopRunningTask440 extends TestScmBase {
-	private boolean runSuccess = false;
+    private final String authorName = "case440";
+    private final int fileSize = 1024 * 1024;
+    private final int fileNum = 50;
+    private boolean runSuccess = false;
+    private ScmSession sessionM = null; // mainCenter
+    private ScmSession sessionA = null; // subCenterA
+    private ScmSession sessionB = null; // subCenterB
+    private ScmWorkspace ws1 = null;
+    private ScmWorkspace ws2 = null;
+    private List<ScmId> fileIdList = new ArrayList<ScmId>();
+    private File localPath = null;
+    private String filePath = null;
 
-	private ScmSession sessionM = null; // mainCenter
-	private ScmSession sessionA = null; // subCenterA
-	private ScmSession sessionB = null; // subCenterB
-	private ScmWorkspace ws1 = null;
-	private ScmWorkspace ws2 = null;
-	
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private final String authorName = "case440";
-	private final int fileSize = 1024 * 1024;
-	private final int fileNum = 50;
-	private File localPath = null;
-	private String filePath = null;
-	
-	private Date expStopTime = null;
-	private ScmId taskId1 = null;
-	private ScmId taskId2 = null;
-	
-	private SiteWrapper rootSite = null;
-	private List<SiteWrapper> branceSiteList = new ArrayList<SiteWrapper>();
-	private List<WsWrapper> ws_TList = new ArrayList<WsWrapper>();
+    private Date expStopTime = null;
+    private ScmId taskId1 = null;
+    private ScmId taskId2 = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-			for (int i = 0; i < fileNum; i++) {
-				TestTools.LocalFile.createFile(filePath, fileSize + i);
-			}
-			
-			rootSite = ScmInfo.getRootSite();
-			branceSiteList = ScmInfo.getBranchSites(2);
-			ws_TList = ScmInfo.getWss(2);
-			
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_TList.get(0), cond);
-			ScmFileUtils.cleanFile(ws_TList.get(1), cond);
-			
-			sessionM = TestScmTools.createSession(rootSite);
-			sessionA = TestScmTools.createSession(branceSiteList.get(0));
-			sessionB = TestScmTools.createSession(branceSiteList.get(1));
-			ws1 = ScmFactory.Workspace.getWorkspace(ws_TList.get(0).getName(), sessionA);
-			ws2 = ScmFactory.Workspace.getWorkspace(ws_TList.get(1).getName(), sessionA);
+    private SiteWrapper rootSite = null;
+    private List<SiteWrapper> branceSiteList = new ArrayList<SiteWrapper>();
+    private List<WsWrapper> ws_TList = new ArrayList<WsWrapper>();
 
-			prepareFiles(ws1);
-			prepareFiles(ws2);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File(
+                TestScmBase.dataDirectory + File.separator + TestTools
+                        .getClassName() );
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
+            for ( int i = 0; i < fileNum; i++ ) {
+                TestTools.LocalFile.createFile( filePath, fileSize + i );
+            }
 
-	@Test(groups = { "fourSite" })
-	private void testTransfer() throws Exception {
-		ScmQueryBuilder basicCond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName);
+            rootSite = ScmInfo.getRootSite();
+            branceSiteList = ScmInfo.getBranchSites( 2 );
+            ws_TList = ScmInfo.getWss( 2 );
 
-		BSONObject cond1 = basicCond.and(ScmAttributeName.File.TITLE).is(ws1.getName()).get();
-		taskId1 = ScmSystem.Task.startTransferTask(ws1, cond1);
-		ScmSystem.Task.stopTask(sessionB, taskId1);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_TList.get( 0 ), cond );
+            ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
-		BSONObject cond2 = basicCond.and(ScmAttributeName.File.TITLE).is(ws2.getName()).get();
-		taskId2 = ScmSystem.Task.startTransferTask(ws2, cond2);
-		ScmSystem.Task.stopTask(sessionB, taskId2);
+            sessionM = TestScmTools.createSession( rootSite );
+            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            ws1 = ScmFactory.Workspace
+                    .getWorkspace( ws_TList.get( 0 ).getName(), sessionA );
+            ws2 = ScmFactory.Workspace
+                    .getWorkspace( ws_TList.get( 1 ).getName(), sessionA );
 
-		waitTaskStop(taskId1);
-		waitTaskStop(taskId2);
+            prepareFiles( ws1 );
+            prepareFiles( ws2 );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-		checkTaskAttr(sessionA, taskId1);
-		checkTaskAttr(sessionA, taskId2);
-		
-		runSuccess = true;
-	}
+    @Test(groups = { "fourSite" })
+    private void testTransfer() throws Exception {
+        ScmQueryBuilder basicCond = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (int i = 0; i < fileIdList.size(); i++) {
-					ScmId fileId = fileIdList.get(i);
-					if (i < fileIdList.size() / 2) {
-						ScmFactory.File.deleteInstance(ws1, fileId, true);
-					} else {
-						ScmFactory.File.deleteInstance(ws2, fileId, true);
-					}
-				}
-				TestSdbTools.Task.deleteMeta(taskId1);
-				TestSdbTools.Task.deleteMeta(taskId2);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionM != null) {
-				sessionM.close();
-			}
-			if (sessionA != null) {
-				sessionA.close();
-			}
-			if (sessionB != null) {
-				sessionB.close();
-			}
-		}
-	}
+        BSONObject cond1 = basicCond.and( ScmAttributeName.File.TITLE )
+                .is( ws1.getName() ).get();
+        taskId1 = ScmSystem.Task.startTransferTask( ws1, cond1 );
+        ScmSystem.Task.stopTask( sessionB, taskId1 );
 
-	private void prepareFiles(ScmWorkspace ws) throws Exception {
-		for (int i = 0; i < fileNum; ++i) {
-			ScmFile scmfile = ScmFactory.File.createInstance(ws);
-			scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-			scmfile.setAuthor(authorName);
-			scmfile.setTitle(ws.getName()); // 3 workspaces
-			scmfile.setContent(filePath);
-			fileIdList.add(scmfile.save());
-		}
-	}
+        BSONObject cond2 = basicCond.and( ScmAttributeName.File.TITLE )
+                .is( ws2.getName() ).get();
+        taskId2 = ScmSystem.Task.startTransferTask( ws2, cond2 );
+        ScmSystem.Task.stopTask( sessionB, taskId2 );
 
-	private void waitTaskStop(ScmId taskId) throws ScmException {
-		Date stopTime = null;
-		while (stopTime == null) {
-			stopTime = ScmSystem.Task.getTask(sessionA, taskId).getStopTime();
-		}
-	}
+        waitTaskStop( taskId1 );
+        waitTaskStop( taskId2 );
 
-	private void checkTaskAttr(ScmSession session, ScmId taskId) throws ScmException {
-		ScmTask task = ScmSystem.Task.getTask(session, taskId);
-		Assert.assertEquals(task.getRunningFlag(), CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL); // 4:
-																								
-		Date actStopTime = null;
-		while (null == actStopTime) {
-			actStopTime = ScmSystem.Task.getTask(session, taskId).getStopTime();
-		}
-		expStopTime = new Date();
+        checkTaskAttr( sessionA, taskId1 );
+        checkTaskAttr( sessionA, taskId2 );
 
-		long acceptableOffset = 100000; // 100s
-		if (Math.abs(actStopTime.getTime() - expStopTime.getTime()) > acceptableOffset) {
-			Assert.fail("actStopTime: " + actStopTime + ", expStopTime: " + expStopTime + ", stopTime is not reasonable");
+        runSuccess = true;
+    }
 
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( int i = 0; i < fileIdList.size(); i++ ) {
+                    ScmId fileId = fileIdList.get( i );
+                    if ( i < fileIdList.size() / 2 ) {
+                        ScmFactory.File.deleteInstance( ws1, fileId, true );
+                    } else {
+                        ScmFactory.File.deleteInstance( ws2, fileId, true );
+                    }
+                }
+                TestSdbTools.Task.deleteMeta( taskId1 );
+                TestSdbTools.Task.deleteMeta( taskId2 );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionB != null ) {
+                sessionB.close();
+            }
+        }
+    }
+
+    private void prepareFiles( ScmWorkspace ws ) throws Exception {
+        for ( int i = 0; i < fileNum; ++i ) {
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+            scmfile.setAuthor( authorName );
+            scmfile.setTitle( ws.getName() ); // 3 workspaces
+            scmfile.setContent( filePath );
+            fileIdList.add( scmfile.save() );
+        }
+    }
+
+    private void waitTaskStop( ScmId taskId ) throws ScmException {
+        Date stopTime = null;
+        while ( stopTime == null ) {
+            stopTime = ScmSystem.Task.getTask( sessionA, taskId ).getStopTime();
+        }
+    }
+
+    private void checkTaskAttr( ScmSession session, ScmId taskId )
+            throws ScmException {
+        ScmTask task = ScmSystem.Task.getTask( session, taskId );
+        Assert.assertEquals( task.getRunningFlag(),
+                CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ); // 4:
+
+        Date actStopTime = null;
+        while ( null == actStopTime ) {
+            actStopTime = ScmSystem.Task.getTask( session, taskId )
+                    .getStopTime();
+        }
+        expStopTime = new Date();
+
+        long acceptableOffset = 180*1000; // 3m
+        if ( Math.abs( actStopTime.getTime() - expStopTime.getTime() )
+                > acceptableOffset ) {
+            Assert.fail( "actStopTime: " + actStopTime + ", expStopTime: "
+                    + expStopTime + ", stopTime is not reasonable" );
+
+        }
+    }
 }
