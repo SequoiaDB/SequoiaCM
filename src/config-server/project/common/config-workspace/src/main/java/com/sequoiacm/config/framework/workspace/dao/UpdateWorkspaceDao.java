@@ -88,7 +88,7 @@ public class UpdateWorkspaceDao {
 
             ScmConfEvent event = createEvent(wsConfig, removeLocationId, newVersion);
             opRes.setConfig(wsConfig);
-            opRes.setEvent(event);
+            opRes.addEvent(event);
 
             transaction.commit();
 

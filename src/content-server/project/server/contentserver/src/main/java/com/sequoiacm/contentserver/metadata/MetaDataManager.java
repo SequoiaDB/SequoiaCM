@@ -60,7 +60,6 @@ public class MetaDataManager {
         logger.info("refresh metaData cache:wsName={}", wsName);
         WSClassInfo wsClassInfo = queryWorkspaceClassInfo(metaService, wsName);
         metadataInfo.put(wsName, wsClassInfo);
-
     }
 
     public void removeMetaDataByWsName(String wsName) {

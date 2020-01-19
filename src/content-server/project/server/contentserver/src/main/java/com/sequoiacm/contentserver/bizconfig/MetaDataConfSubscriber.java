@@ -40,7 +40,12 @@ public class MetaDataConfSubscriber implements ScmConfSubscriber {
     public void processNotify(NotifyOption notification) throws Exception {
         logger.info("receive notification:" + notification);
         MetaDataNotifyOption metadataNotify = (MetaDataNotifyOption) notification;
-        MetaDataManager.getInstence().reloadMetaDataByWsName(metadataNotify.getWsName());
+        if (metadataNotify.getEventType() == EventType.DELTE) {
+            MetaDataManager.getInstence().removeMetaDataByWsName(metadataNotify.getWsName());
+        }
+        else {
+            MetaDataManager.getInstence().reloadMetaDataByWsName(metadataNotify.getWsName());
+        }
     }
 
     @Override

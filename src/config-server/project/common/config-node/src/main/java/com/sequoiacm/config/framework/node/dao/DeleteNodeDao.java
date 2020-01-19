@@ -10,6 +10,7 @@ import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.node.metasource.NodeMetaService;
 import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
+import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
@@ -44,25 +45,32 @@ public class DeleteNodeDao {
 
     private NodeConfig deleteMeta(NodeFilter filter) throws ScmConfigException {
         Transaction transaction = null;
+        MetaCursor nodeCursor = null;
         try {
             transaction = metasource.createTransaction();
             TableDao nodeTable = nodeMetaService.getContentServerTableDao(transaction);
+            nodeCursor = nodeTable.query(filter.toBSONObject(), null, null);
+            if (nodeCursor.hasNext()) {
+                BSONObject nodeBson = nodeCursor.getNext();
+                if (nodeCursor.hasNext()) {
+                    BSONObject secondNode = nodeCursor.getNext();
+                    throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                            "have two specified content to delete, please check node table and hosts file: firstNode="
+                                    + nodeBson + ", secondNode=" + secondNode);
+                }
 
-            transaction.begin();
-            BSONObject nodeBson = nodeTable.queryOne(filter.toBSONObject(), null, null);
-            if (nodeBson != null) {
                 NodeConfig nodeConfig = (NodeConfig) new NodeBsonConverter()
                         .convertToConfig(nodeBson);
-
                 // checkIsDelete(nodeTable, nodeConfig, transaction);
 
+                transaction.begin();
                 nodeTable.delete(nodeBson);
                 versionDao.deleteVersion(ScmConfigNameDefine.NODE, nodeConfig.getName(),
                         transaction);
                 transaction.commit();
                 return nodeConfig;
             }
-            throw new ScmConfigException(ScmConfError.NODE_EXIST,
+            throw new ScmConfigException(ScmConfError.NODE_NOT_EXIST,
                     "content node is not exist: filter=" + filter.toBSONObject());
         }
         catch (ScmConfigException e) {
@@ -81,6 +89,9 @@ public class DeleteNodeDao {
         finally {
             if (transaction != null) {
                 transaction.close();
+            }
+            if (nodeCursor != null) {
+                nodeCursor.close();
             }
         }
     }
@@ -127,7 +138,7 @@ public class DeleteNodeDao {
         ScmConfOperateResult opRes = new ScmConfOperateResult();
         opRes.setConfig(nodeConfig);
         NotifyOption notifycation = new NodeNotifyOption(nodeConfig.getName(), -1, EventType.DELTE);
-        opRes.setEvent(new ScmConfEventBase(ScmConfigNameDefine.NODE, notifycation));
+        opRes.addEvent(new ScmConfEventBase(ScmConfigNameDefine.NODE, notifycation));
         return opRes;
     }
 

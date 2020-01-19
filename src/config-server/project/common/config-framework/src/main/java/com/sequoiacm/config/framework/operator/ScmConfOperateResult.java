@@ -1,11 +1,14 @@
 package com.sequoiacm.config.framework.operator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
 public class ScmConfOperateResult {
     private Config config;
-    private ScmConfEvent event;
+    private List<ScmConfEvent> events = new ArrayList<>();
 
     public ScmConfOperateResult() {
 
@@ -13,24 +16,23 @@ public class ScmConfOperateResult {
 
     public ScmConfOperateResult(Config config, ScmConfEvent e) {
         this.config = config;
-        this.event = e;
+        this.events.add(e);
     }
 
     public Config getConfig() {
         return config;
     }
 
-    public ScmConfEvent getEvent() {
-        return event;
+    public List<ScmConfEvent> getEvent() {
+        return events;
     }
 
     public void setConfig(Config config) {
         this.config = config;
     }
 
-    public void setEvent(ScmConfEvent event) {
-        this.event = event;
+    public void addEvent(ScmConfEvent event) {
+        events.add(event);
     }
-
 
 }

@@ -20,6 +20,7 @@ import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataNotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceNotifyOption;
 
@@ -79,10 +80,19 @@ public class DeleteWorkspaceDao {
             logger.warn("failed to delete workspace meta table:ws={}", filter.getWsName(), e);
         }
 
-        ScmConfEvent event = createEvent(filter);
-        opRes.setEvent(event);
+        ScmConfEvent wsEvent = createWorkspaceDeleteEvent(filter);
+        ScmConfEvent metaDataEvent = createMetaDataDeleteEvent(filter);
+
+        opRes.addEvent(metaDataEvent);
+        opRes.addEvent(wsEvent);
 
         return opRes;
+    }
+
+    private ScmConfEvent createMetaDataDeleteEvent(WorkspaceFilter filter) {
+        MetaDataNotifyOption notifycation = new MetaDataNotifyOption(filter.getWsName(),
+                EventType.DELTE, null);
+        return new ScmConfEventBase(ScmConfigNameDefine.META_DATA, notifycation);
     }
 
     private void modifyDataTableNameHistory(WorkspaceFilter filter) {
@@ -101,7 +111,7 @@ public class DeleteWorkspaceDao {
         }
     }
 
-    private ScmConfEvent createEvent(WorkspaceFilter filter) {
+    private ScmConfEvent createWorkspaceDeleteEvent(WorkspaceFilter filter) {
         WorkspaceNotifyOption notifycation = new WorkspaceNotifyOption(filter.getWsName(), null,
                 EventType.DELTE);
         return new ScmConfEventBase(ScmConfigNameDefine.WORKSPACE, notifycation);

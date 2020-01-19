@@ -108,7 +108,7 @@ public class DeleteSiteDao {
         ScmConfOperateResult opRes = new ScmConfOperateResult();
         opRes.setConfig(siteConfig);
         NotifyOption siteNotify = new SiteNotifyOption(siteConfig.getName(), -1, EventType.DELTE);
-        opRes.setEvent(new ScmConfEventBase(ScmConfigNameDefine.SITE, siteNotify));
+        opRes.addEvent(new ScmConfEventBase(ScmConfigNameDefine.SITE, siteNotify));
         return opRes;
     }
 

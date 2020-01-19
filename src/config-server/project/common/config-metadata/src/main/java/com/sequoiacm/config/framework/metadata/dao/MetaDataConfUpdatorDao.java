@@ -106,7 +106,7 @@ public class MetaDataConfUpdatorDao {
                         updator.getWsName(), t);
                 ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.META_DATA,
                         new MetaDataNotifyOption(updator.getWsName(), EventType.UPDATE, version));
-                opRes.setEvent(event);
+                opRes.addEvent(event);
             }
 
             t.commit();
@@ -163,7 +163,7 @@ public class MetaDataConfUpdatorDao {
                         updator.getWsName(), t);
                 ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.META_DATA,
                         new MetaDataNotifyOption(updator.getWsName(), EventType.UPDATE, version));
-                opRes.setEvent(event);
+                opRes.addEvent(event);
             }
             t.commit();
             return opRes;

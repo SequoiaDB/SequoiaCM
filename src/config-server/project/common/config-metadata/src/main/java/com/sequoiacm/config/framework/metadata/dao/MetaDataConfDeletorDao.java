@@ -65,8 +65,8 @@ public class MetaDataConfDeletorDao {
             Integer version = versionDao.increaseVersion(ScmConfigNameDefine.META_DATA,
                     classFilter.getWsName(), t);
             ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.META_DATA,
-                    new MetaDataNotifyOption(classFilter.getWsName(), EventType.DELTE, version));
-            opRes.setEvent(event);
+                    new MetaDataNotifyOption(classFilter.getWsName(), EventType.UPDATE, version));
+            opRes.addEvent(event);
             t.commit();
             return opRes;
         }
