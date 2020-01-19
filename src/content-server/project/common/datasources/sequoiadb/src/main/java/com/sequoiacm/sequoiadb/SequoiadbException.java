@@ -36,7 +36,7 @@ public class SequoiadbException extends ScmDatasourceException {
 
     private void setScmError() {
         // data not exist
-        if (dbError == SDBError.SDB_DMS_EXIST.getErrorCode()
+        if (dbError == SDBError.SDB_DMS_NOTEXIST.getErrorCode()
                 || dbError == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()
                 || dbError == SDBError.SDB_FNE.getErrorCode()) {
             scmError = ScmError.DATA_NOT_EXIST;
