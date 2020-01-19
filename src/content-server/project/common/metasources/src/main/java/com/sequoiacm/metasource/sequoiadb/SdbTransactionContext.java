@@ -3,6 +3,7 @@ package com.sequoiacm.metasource.sequoiadb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
@@ -29,8 +30,7 @@ public class SdbTransactionContext implements TransactionContext {
             isBegin = true;
         }
         catch (BaseException e) {
-            throw new SdbMetasourceException(e.getErrorCode(),
-                    "failed to begin transaction", e);
+            throw new SdbMetasourceException(e.getErrorCode(), "failed to begin transaction", e);
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
@@ -50,12 +50,16 @@ public class SdbTransactionContext implements TransactionContext {
             isBegin = false;
         }
         catch (BaseException e) {
-            throw new SdbMetasourceException(e.getErrorCode(),
+            SdbMetasourceException msEx = new SdbMetasourceException(e.getErrorCode(),
                     "failed to commit transaction", e);
+            msEx.setScmError(ScmError.COMMIT_UNCERTAIN_STATE);
+            throw msEx;
         }
         catch (Exception e) {
-            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+            SdbMetasourceException msEx = new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "failed to commit transaction", e);
+            msEx.setScmError(ScmError.COMMIT_UNCERTAIN_STATE);
+            throw msEx;
         }
     }
 

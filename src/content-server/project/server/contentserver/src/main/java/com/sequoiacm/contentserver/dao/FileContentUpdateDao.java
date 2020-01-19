@@ -54,11 +54,11 @@ public class FileContentUpdateDao {
     public BSONObject updateContent(String breakpointFileName) throws ScmServerException {
         ScmLockPath breakpointFilelockPath = ScmLockPathFactory.createBPLockPath(ws.getName(),
                 breakpointFileName);
-        ScmLock breakpointFileXLock = ScmLockManager.getInstance().acquiresLock(
-                breakpointFilelockPath);
+        ScmLock breakpointFileXLock = ScmLockManager.getInstance()
+                .acquiresLock(breakpointFilelockPath);
         try {
-            BreakpointFile breakpointFile = contentserver.getMetaService().getBreakpointFile(
-                    ws.getName(), breakpointFileName);
+            BreakpointFile breakpointFile = contentserver.getMetaService()
+                    .getBreakpointFile(ws.getName(), breakpointFileName);
             if (breakpointFile == null) {
                 // TODO:错误码为断点文件不存在
                 throw new ScmInvalidArgumentException(String.format(
@@ -118,6 +118,12 @@ public class FileContentUpdateDao {
             return updateMeta(createDate.getTime(), dataId, dataWriter.getSize(),
                     contentserver.getLocalSite(), null);
         }
+        catch (ScmServerException e) {
+            if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
+                rollbackData(dataInfo);
+            }
+            throw e;
+        }
         catch (Exception e) {
             rollbackData(dataInfo);
             throw e;
@@ -136,8 +142,8 @@ public class FileContentUpdateDao {
             }
         }
         catch (IOException e) {
-            throw new ScmServerException(ScmError.FILE_IO, "update file content failed:ws="
-                    + ws.getName() + ",fileId=" + fileId, e);
+            throw new ScmServerException(ScmError.FILE_IO,
+                    "update file content failed:ws=" + ws.getName() + ",fileId=" + fileId, e);
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
@@ -148,20 +154,20 @@ public class FileContentUpdateDao {
     private void rollbackData(ScmDataInfo dataInfo) {
         // delete lob
         try {
-            ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory()
-                    .createDeletor(ScmContentServer.getInstance().getLocalSite(), ws.getName(),
-                            ws.getDataLocation(), ScmContentServer.getInstance().getDataService(),
-                            dataInfo);
+            ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
+                    ScmContentServer.getInstance().getLocalSite(), ws.getName(),
+                    ws.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    dataInfo);
             deletor.delete();
         }
         catch (Exception e) {
-            logger.warn(
-                    "rollback file data failed:wsName=" + ws.getName() + ",fileId="
-                            + dataInfo.getId(), e);
+            logger.warn("rollback file data failed:wsName=" + ws.getName() + ",fileId="
+                    + dataInfo.getId(), e);
         }
     }
 
-    // insert historyRec, update currentFileRec, delete breakFileRec, return updated info
+    // insert historyRec, update currentFileRec, delete breakFileRec, return
+    // updated info
     private BSONObject updateMeta(long createTime, String dataId, long dataSize, int siteId,
             String breakFileName) throws ScmServerException {
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
@@ -172,8 +178,8 @@ public class FileContentUpdateDao {
             BSONObject newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId,
                     dataSize, createTime);
             if (breakFileName == null) {
-                contentserver.getMetaService().addNewFileVersion(ws.getName(),
-                        ws.getMetaLocation(), fileId, historyRec, newVersionUpdator);
+                contentserver.getMetaService().addNewFileVersion(ws.getName(), ws.getMetaLocation(),
+                        fileId, historyRec, newVersionUpdator);
             }
             else {
                 contentserver.getMetaService().breakpointFileToNewVersionFile(ws.getName(),
@@ -244,24 +250,21 @@ public class FileContentUpdateDao {
     }
 
     private BSONObject getCurrentFileAndCheckVersion() throws ScmServerException {
-        BSONObject destFile = contentserver.getMetaService().getCurrentFileInfo(
-                ws.getMetaLocation(), ws.getName(), fileId);
+        BSONObject destFile = contentserver.getMetaService()
+                .getCurrentFileInfo(ws.getMetaLocation(), ws.getName(), fileId);
         if (destFile == null) {
-            throw new ScmFileNotFoundException("file not exist:ws=" + ws.getName() + ", fileId="
-                    + fileId);
+            throw new ScmFileNotFoundException(
+                    "file not exist:ws=" + ws.getName() + ", fileId=" + fileId);
         }
         if (clientMajorVersion != -1 && clientMinorVersion != -1) {
             int currentMajorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
             int currentMinorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
             if (clientMajorVersion != currentMajorVersion
                     || clientMinorVersion != currentMinorVersion) {
-                throw new ScmServerException(ScmError.FILE_VERSION_MISMATCHING,
-                        "clientFileVersion="
-                                + ScmSystemUtils.getVersionStr(clientMajorVersion,
-                                        clientMinorVersion)
-                                + ",currentFileVersion="
-                                + ScmSystemUtils.getVersionStr(currentMajorVersion,
-                                        currentMinorVersion));
+                throw new ScmServerException(ScmError.FILE_VERSION_MISMATCHING, "clientFileVersion="
+                        + ScmSystemUtils.getVersionStr(clientMajorVersion, clientMinorVersion)
+                        + ",currentFileVersion="
+                        + ScmSystemUtils.getVersionStr(currentMajorVersion, currentMinorVersion));
             }
         }
         return destFile;

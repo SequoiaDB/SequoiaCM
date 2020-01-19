@@ -160,17 +160,6 @@ public class FileCreatorDao implements IFileCreatorDao {
 
     @Override
     public void processException() {
-        // try delete meta record
-        try {
-            ScmContentServer.getInstance().getMetaService().deleteCurrentFile(
-                    wsInfo.getMetaLocation(), wsInfo.getName(), getFileId(), majorVersion,
-                    minorVersion);
-        }
-        catch (Exception e) {
-            logger.warn("delete file meta failed:siteId=" + siteId + ",wsName=" + wsInfo.getName()
-                    + ",fileId=" + dataInfo.getId(), e);
-        }
-
         // delete lob
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(

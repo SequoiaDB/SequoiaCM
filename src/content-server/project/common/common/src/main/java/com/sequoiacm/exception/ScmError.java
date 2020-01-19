@@ -22,6 +22,7 @@ public enum ScmError {
     NO_OPERAND_FOR_KEY(-131, "No operand for key"),
     SESSION_CLOSED(-132, "Session has been Closed"),
     NETWORK_IO(-133, "Network IO Exception"),
+    COMMIT_UNCERTAIN_STATE(-134, "Transaction Commit Uncertain State"),
 
     // business related error 2xx
     SERVER_RELOAD_CONF_FAILED(-201, "Reload configure failed"),

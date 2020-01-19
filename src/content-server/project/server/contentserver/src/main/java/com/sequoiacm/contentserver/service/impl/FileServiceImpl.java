@@ -306,9 +306,12 @@ public class FileServiceImpl implements IFileService {
                             userDetail, existFileId);
                 }
                 return fileDao.insert();
-               
+
             }
-            fileDao.processException();
+            if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
+                // rollback lob
+                fileDao.processException();
+            }
             throw e;
         }
         catch (Exception e) {
