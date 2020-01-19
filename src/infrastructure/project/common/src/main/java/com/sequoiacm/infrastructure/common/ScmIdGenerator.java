@@ -3,6 +3,7 @@ package com.sequoiacm.infrastructure.common;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -79,7 +80,7 @@ public class ScmIdGenerator {
         private static final Logger logger = LoggerFactory.getLogger(FileId.class);
 
         private static boolean isInit = false;
-        private static AtomicInteger serial = new AtomicInteger();
+        private static AtomicInteger serial = new AtomicInteger(new Random().nextInt());
 
         private static byte clusterId = 0;
         private static short contentServerId = 0;
