@@ -49,14 +49,20 @@ public class PropertiesDefine {
     public static String PROPERTY_JVM_OPTIONS = "scm.jvm.options";
 
     // ************************scm process info*******************
-    public static final String PROPERTY_SCM_VERSION = "SCM-Version"; //keep consistent in manifest file
-    public static final String PROPERTY_SCM_COMPILE_TIME = "Build-Time"; //keep consistent in manifest file
-    public static final String PROPERTY_SCM_REVISION = "SCM-Revision"; //keep consistent in manifest file
+    // keep consistent in manifest file
+    public static final String PROPERTY_SCM_VERSION = "SCM-Version";
+    // keep consistent in manifest file
+    public static final String PROPERTY_SCM_COMPILE_TIME = "Build-Time";
+    // keep consistent in manifest file
+    public static final String PROPERTY_SCM_REVISION = "SCM-Revision";
     public static final String PROPERTY_SCM_STATUS = "Node-Status";
     public static final String PROPERTY_SCM_START_TIME = "Start-Time";
 
-    //*************************spring properties*******************
+    // *************************spring properties*******************
     public static String PROPERTY_SCM_SPRING_APP_NAME = "spring.application.name";
     public static String PROPERTY_SCM_EUREKA_METADATA_IS_ROOTSITE = "eureka.instance.metadata-map.isRootSiteInstance";
 
+    // *************************directory cache*******************
+    public static final String PROPERTY_DIR_CACHE_ENABLE = "scm.dir.cache.enable";
+    public static final String PROPERTY_DIR_CACHE_MAXSIZE = "scm.dir.cache.maxSize";
 }

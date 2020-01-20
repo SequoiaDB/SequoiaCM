@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
@@ -78,6 +79,7 @@ public class DirController {
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
             String dirPath = request.getRequestURI().substring(ignoreStr.length());
             dirPath = RestUtils.urlDecode(dirPath);
+            dirPath = ScmSystemUtils.formatDirPath(dirPath);
             // check priority before search
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
                     dirPath, ScmPrivilegeDefine.READ, "get dir path info by path");
@@ -131,6 +133,7 @@ public class DirController {
             authMessage += " by parentId=" + parentId + " and Name=" + name;
         }
         else if (path != null) {
+            path = ScmSystemUtils.formatDirPath(path);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspaceName, path,
                     ScmPrivilegeDefine.CREATE, "create dir by path");
             newDir = dirService.createDirByPath(user, workspaceName, path);
@@ -157,6 +160,7 @@ public class DirController {
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
             dirPath = request.getRequestURI().substring(ignoreStr.length());
             dirPath = RestUtils.urlDecode(dirPath);
+            dirPath = ScmSystemUtils.formatDirPath(dirPath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
                     dirPath, ScmPrivilegeDefine.DELETE, "delete dir by path");
             auditMessage += " by path=" + dirPath;
@@ -194,6 +198,7 @@ public class DirController {
             ignoreStr = "rename";
             dirPath = dirPath.substring(0, dirPath.lastIndexOf(ignoreStr));
             dirPath = RestUtils.urlDecode(dirPath);
+            dirPath = ScmSystemUtils.formatDirPath(dirPath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
                     dirPath, ScmPrivilegeDefine.DELETE, "delete source when rename dir by path");
 
@@ -247,6 +252,7 @@ public class DirController {
             ignoreStr = "move";
             dirPath = dirPath.substring(0, dirPath.lastIndexOf(ignoreStr));
             dirPath = RestUtils.urlDecode(dirPath);
+            dirPath = ScmSystemUtils.formatDirPath(dirPath);
 
             if (null != parent_directory_id) {
                 ScmFileServicePriv.getInstance().checkDirPriorityByOldDirAndNewParentId(
@@ -255,6 +261,7 @@ public class DirController {
                 auditMessage += ", parent_directory_id" + parent_directory_id;
             }
             else {
+                parent_directory_path = ScmSystemUtils.formatDirPath(parent_directory_path);
                 ScmFileServicePriv.getInstance().checkDirPriorityByOldDirAndNewParentDir(
                         auth.getName(), workspace_name, dirPath, parent_directory_path,
                         ScmPrivilegeDefine.CREATE, "create target when move dir by path");
@@ -283,6 +290,7 @@ public class DirController {
                 auditMessage += ", parent_directory_id" + parent_directory_id;
             }
             else {
+                parent_directory_path = ScmSystemUtils.formatDirPath(parent_directory_path);
                 ScmFileServicePriv.getInstance().checkDirPriorityByOldIdAndNewParentDir(
                         auth.getName(), workspace_name, dirService, dirId, parent_directory_path,
                         ScmPrivilegeDefine.CREATE, "create target when move dir by path");

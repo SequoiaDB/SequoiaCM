@@ -95,8 +95,22 @@ public class FileServiceImpl implements IFileService {
             int minorVersion) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
-        BSONObject fileInfo = contentServer.getMetaService().getFileInfoByPath(ws, filePath,
-                majorVersion, minorVersion);
+        String fileName = ScmSystemUtils.basename(filePath);
+        String parentDirPath = ScmSystemUtils.dirname(filePath);
+        BSONObject fileInfo = null;
+        try {
+            BSONObject parentDir = dirService.getDirInfoByPath(workspaceName, parentDirPath);
+
+            String parentDirId = (String) parentDir.get(FieldName.FIELD_CLDIR_ID);
+            fileInfo = contentServer.getMetaService().getFileInfo(ws, parentDirId, fileName,
+                    majorVersion, minorVersion);
+        }
+        catch (ScmServerException e) {
+            // DIR_NOT_FOUND ==> FILE_NOT_FOUND
+            if (e.getError() != ScmError.DIR_NOT_FOUND) {
+                throw e;
+            }
+        }
         if (fileInfo == null) {
             throw new ScmFileNotFoundException("file not exist:workspace=" + workspaceName
                     + ",filePath=" + filePath + ",version="

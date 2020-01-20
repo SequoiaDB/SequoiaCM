@@ -16,7 +16,6 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_META_OPTIONS = "meta_options";
     public static final String FIELD_CLWORKSPACE_META_CS_OPTIONS = "collection_space";
 
-
     // CL_FILE & CL_FILE_HISTORY (file & document)
     public static final String FIELD_CLFILE_ID = "id"; // string, fileid
     public static final String FIELD_CLFILE_DIRECTORY_ID = "directory_id"; // string,
@@ -33,6 +32,7 @@ public class FieldName {
     public static final String FIELD_CLDIR_ID = "id";
     public static final String FIELD_CLDIR_NAME = "name";
     public static final String FIELD_CLDIR_USER = "user";
+    public static final String FIELD_CLDIR_VERSION = "version";
     public static final String FIELD_CLDIR_CREATE_TIME = "create_time";
     public static final String FIELD_CLDIR_UPDATE_TIME = "update_time";
     public static final String FIELD_CLDIR_UPDATE_USER = "update_user";
@@ -68,15 +68,16 @@ public class FieldName {
     public static final String FIELD_CLSITE_SITE_NAME = "name";
     public static final String FIELD_CLSITE_SITE_ROOT_SITE_FLAG = "root_site_flag";
     public static final String FIELD_CLSITE_SITE_DATA = "data";
-    public static final String FIELD_CLSITE_SITE_DATA_TYPE = "type";//type:sequoiadb/hbase
+    public static final String FIELD_CLSITE_SITE_DATA_TYPE = "type";// type:sequoiadb/hbase
     public static final String FIELD_CLSITE_SITE_DATA_USER = "user";
     public static final String FIELD_CLSITE_SITE_DATA_PASSWORD = "password";
-    public static final String FIELD_CLSITE_SITE_DATA_URL= "url";
-    public static final String FIELD_CLSITE_SITE_DATA_CONF= "configuration"; //for hdfs|hbase
+    public static final String FIELD_CLSITE_SITE_DATA_URL = "url";
+    public static final String FIELD_CLSITE_SITE_DATA_CONF = "configuration"; // for
+                                                                              // hdfs|hbase
     public static final String FIELD_CLSITE_SITE_META = "meta";
     public static final String FIELD_CLSITE_SITE_META_USER = "user";
     public static final String FIELD_CLSITE_SITE_META_PASSWORD = "password";
-    public static final String FIELD_CLSITE_SITE_META_URL= "url";
+    public static final String FIELD_CLSITE_SITE_META_URL = "url";
 
     // CL_CONTENT_SERVER
     public static final String FIELD_CLCONTENT_SERVER_ID = "id";

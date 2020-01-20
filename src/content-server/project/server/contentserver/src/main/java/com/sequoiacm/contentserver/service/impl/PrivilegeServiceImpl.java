@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import org.bson.BSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
@@ -8,6 +8,7 @@ import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.DirResource;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
+import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IPrivilegeService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
@@ -18,6 +19,8 @@ import com.sequoiacm.infrastructure.security.privilege.impl.ScmWsAllResource;
 
 @Service
 public class PrivilegeServiceImpl implements IPrivilegeService {
+    @Autowired
+    private IDirService dirService;
 
     private IResource checkResource(String resourceType, String resource)
             throws ScmServerException {
@@ -27,9 +30,9 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
                     "unkown resource type:resource_type=" + resourceType);
         }
 
-        IResource r = b.fromStringFormat(resource);
+        IResource r = b.fromStringFormat(resource, true);
         if (null == r) {
-            throw new ScmInvalidArgumentException("unkown resource:resource=" + resource);
+            throw new ScmInvalidArgumentException("unknown resource:resource=" + resource);
         }
 
         if (ScmWsAllResource.TYPE == b.getResourceType()) {
@@ -42,15 +45,9 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     "workspace is not exist:resource=" + resource);
         }
-
         if (DirResource.RESOURCE_TYPE.equals(resourceType)) {
             DirResource d = (DirResource) r;
-            BSONObject destDir = contentserver.getMetaService().getDirByPath(d.getWorkspace(),
-                    d.getDirectory());
-            if (null == destDir) {
-                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
-                        "directory is not exist:resource=" + resource);
-            }
+            dirService.getDirInfoByPath(d.getWorkspace(), d.getDirectory());
         }
 
         return r;
@@ -59,7 +56,6 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
     @Override
     public void grant(String token, ScmUser user, String roleName, String resourceType,
             String resource, String privilege) throws ScmServerException {
-
         IResource r = checkResource(resourceType, resource);
         try {
             ScmFileServicePriv.getInstance().grant(token, user, roleName, r, privilege);

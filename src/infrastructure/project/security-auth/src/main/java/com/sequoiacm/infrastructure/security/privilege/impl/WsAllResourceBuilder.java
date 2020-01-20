@@ -27,4 +27,9 @@ public class WsAllResourceBuilder implements IResourceBuilder {
         return ScmResourceTypeDefine.TYPE_WS_ALL;
     }
 
+    @Override
+    public IResource fromStringFormat(String resource, boolean isNeedFormat) {
+        return fromStringFormat(resource);
+    }
+
 }

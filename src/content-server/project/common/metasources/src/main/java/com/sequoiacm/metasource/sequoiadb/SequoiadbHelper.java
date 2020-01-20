@@ -32,6 +32,7 @@ public class SequoiadbHelper {
     public static final String SEQUOIADB_MODIFIER_SET = "$set";
     public static final String SEQUOIADB_MODIFIER_REPLACE = "$replace";
     public static final String SEQUOIADB_MODIFIER_UNSET = "$unset";
+    public static final String SEQUOIADB_MODIFIER_INC = "$inc";
 
     public static final String SEQUOIADB_CATALOG_NAME_FIELD = "Name";
     public static final String SEQUOIADB_CATALOG_MAINCL_FIELD = "MainCLName";
@@ -57,8 +58,9 @@ public class SequoiadbHelper {
         }
         catch (BaseException e) {
             if (e.getErrorCode() != SDBError.SDB_DMS_EXIST.getErrorCode()) {
-                throw new SdbMetasourceException(e.getErrorCode(), "csName=" + csName + ",clName="
-                        + clName + ",options=" + options.toString(), e);
+                throw new SdbMetasourceException(e.getErrorCode(),
+                        "csName=" + csName + ",clName=" + clName + ",options=" + options.toString(),
+                        e);
             }
             else {
                 // SDB_DMS_EXIST, success do nothing here.
@@ -107,9 +109,10 @@ public class SequoiadbHelper {
         }
         catch (BaseException e) {
             if (e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()) {
-                throw new SdbMetasourceException(e.getErrorCode(), "create index failed:table="
-                        + csName + "." + clName + ",indexName=" + indexName + ",indexDef="
-                        + indexDef, e);
+                throw new SdbMetasourceException(e.getErrorCode(),
+                        "create index failed:table=" + csName + "." + clName + ",indexName="
+                                + indexName + ",indexDef=" + indexDef,
+                        e);
             }
             else {
                 // SDB_ERRORCODE_SDB_IXM_REDEF, success do nothing here.
@@ -148,8 +151,8 @@ public class SequoiadbHelper {
 
     public static BSONObject dollarSiteNotInList(int siteId) {
         BSONObject listSiteId = new BasicBSONObject();
-        String listSiteKey = FieldName.FIELD_CLFILE_FILE_SITE_LIST + "."
-                + SEQUOIADB_MATCHER_DOLLAR0 + "." + FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID;
+        String listSiteKey = FieldName.FIELD_CLFILE_FILE_SITE_LIST + "." + SEQUOIADB_MATCHER_DOLLAR0
+                + "." + FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID;
 
         // {"site_list.$0.site_id" : siteId}
         listSiteId.put(listSiteKey, siteId);

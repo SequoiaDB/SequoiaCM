@@ -3,8 +3,6 @@ package com.sequoiacm.contentserver.metasourcemgr;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -15,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.checksum.ChecksumType;
+import com.sequoiacm.contentserver.cache.ScmDirPath;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
-import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -57,13 +55,13 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
+import com.sequoiadb.base.DBQuery;
 
 public class ScmMetaService {
     private static final Logger logger = LoggerFactory.getLogger(ScmMetaService.class);
 
     private int siteId;
     private MetaSource metasource;
-    private Map<String, BSONObject> rootDirMap = new ConcurrentHashMap<>();
     private BreakpointFileBsonConverter breakpointFileBsonConverter = new BreakpointFileBsonConverter();
     private MetadataAttrBsonConverter metadataAttrBsonConverter = new MetadataAttrBsonConverter();
     private MetadataClassBsonConverter metadataClassBsonConverter = new MetadataClassBsonConverter();
@@ -375,18 +373,9 @@ public class ScmMetaService {
         }
     }
 
-    public BSONObject getFileInfoByPath(ScmWorkspaceInfo wsInfo, String filePath, int majorVersion,
-            int minorVersion) throws ScmServerException {
+    public BSONObject getFileInfo(ScmWorkspaceInfo wsInfo, String parentDirId, String fileName,
+            int majorVersion, int minorVersion) throws ScmServerException {
         try {
-            String fileName = ScmSystemUtils.basename(filePath);
-            String parentDirPath = filePath.substring(0, filePath.lastIndexOf(fileName));
-
-            BSONObject parentDir = getDirByPath(wsInfo.getName(), parentDirPath);
-            if (parentDir == null) {
-                return null;
-            }
-            String parentDirId = (String) parentDir.get(FieldName.FIELD_CLDIR_ID);
-
             BSONObject relClMatcher = new BasicBSONObject();
             relClMatcher.put(FieldName.FIELD_CLREL_DIRECTORY_ID, parentDirId);
             relClMatcher.put(FieldName.FIELD_CLREL_FILENAME, fileName);
@@ -403,10 +392,9 @@ public class ScmMetaService {
             throw e;
         }
         catch (Exception e) {
-            throw new ScmSystemException(
-                    "getFileInfo failed:siteId=" + siteId + ",filePath=" + filePath + ",version="
-                            + ScmSystemUtils.getVersionStr(majorVersion, minorVersion),
-                    e);
+            throw new ScmSystemException("getFileInfo failed:siteId=" + siteId + ",parentId="
+                    + parentDirId + ",fileName=" + fileName + ",version="
+                    + ScmSystemUtils.getVersionStr(majorVersion, minorVersion), e);
         }
     }
 
@@ -941,6 +929,58 @@ public class ScmMetaService {
         }
     }
 
+    public long updateDir(String wsName, String dirId, BSONObject updator)
+            throws ScmServerException, ScmMetasourceException {
+        TransactionContext context = null;
+        try {
+            context = createTransactionContext();
+            beginTransaction(context);
+            MetaDirAccessor dirAccessor = metasource.getDirAccessor(wsName, context);
+            dirAccessor.updateDirInfo(dirId, updator);
+            long newVersion = dirAccessor.updateVersion();
+            commitTransaction(context);
+            return newVersion;
+        }
+        catch (ScmMetasourceException e) {
+            rollbackTransaction(context);
+            throw e;
+        }
+        catch (Exception e) {
+            rollbackTransaction(context);
+            throw new ScmSystemException("updateDir failed:siteId=" + siteId + ", dirId=" + dirId
+                    + ", updator=" + updator, e);
+        }
+        finally {
+            closeTransactionContext(context);
+        }
+    }
+
+    public long deleteDir(String wsName, String dirId)
+            throws ScmServerException, ScmMetasourceException {
+        TransactionContext context = null;
+        try {
+            context = createTransactionContext();
+            beginTransaction(context);
+            MetaDirAccessor dirAccessor = metasource.getDirAccessor(wsName, context);
+            dirAccessor.delete(dirId);
+            long newVersion = dirAccessor.updateVersion();
+            commitTransaction(context);
+            return newVersion;
+        }
+        catch (ScmMetasourceException e) {
+            rollbackTransaction(context);
+            throw e;
+        }
+        catch (Exception e) {
+            rollbackTransaction(context);
+            throw new ScmSystemException("deleteDir failed:siteId=" + siteId + ", dirId=" + dirId,
+                    e);
+        }
+        finally {
+            closeTransactionContext(context);
+        }
+    }
+
     public long getDirCount(String wsName, BSONObject matcher) throws ScmServerException {
         try {
             MetaDirAccessor accessor = metasource.getDirAccessor(wsName);
@@ -957,9 +997,6 @@ public class ScmMetaService {
     }
 
     public BSONObject getRootDir(String wsName) throws ScmServerException {
-        if (rootDirMap.get(wsName) != null) {
-            return rootDirMap.get(wsName);
-        }
         try {
             BSONObject rootMatcher = new BasicBSONObject();
             rootMatcher.put(FieldName.FIELD_CLDIR_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
@@ -968,7 +1005,6 @@ public class ScmMetaService {
             if (rootDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND, "root directory not exist");
             }
-            rootDirMap.put(wsName, rootDir);
             return rootDir;
         }
         catch (ScmServerException e) {
@@ -980,25 +1016,25 @@ public class ScmMetaService {
         }
     }
 
-    public BSONObject getDirByPath(String wsName, String path) throws ScmServerException {
-        if (!path.startsWith("/")) {
-            throw new ScmInvalidArgumentException("path must start with '/':" + path);
-        }
+    public BSONObject getDirByPath(String wsName, ScmDirPath path) throws ScmServerException {
         try {
-            BSONObject rootDir = getRootDir(wsName);
-            String[] dirNameArr = path.split("/");
-            List<String> dirNameList = removeEmptyElement(dirNameArr);
-            if (dirNameList.isEmpty()) {
+            if (path.isRootDir()) {
+                BSONObject rootDir = getRootDir(wsName);
                 return rootDir;
             }
 
             MetaDirAccessor dirAccessor = metasource.getDirAccessor(wsName);
 
-            BSONObject destDir = rootDir;
+            BSONObject destDir = null;
+            String parentId = CommonDefine.Directory.SCM_ROOT_DIR_ID;
             BSONObject matcher = new BasicBSONObject();
-            for (String dirName : dirNameList) {
-                matcher.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID,
-                        destDir.get(FieldName.FIELD_CLDIR_ID));
+            int level = path.getLevel();
+            for (int i = 2; i <= level; i++) {
+                if (destDir != null) {
+                    parentId = (String) destDir.get(FieldName.FIELD_CLDIR_ID);
+                }
+                String dirName = path.getNamebyLevel(i);
+                matcher.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, parentId);
                 matcher.put(FieldName.FIELD_CLDIR_NAME, dirName);
                 destDir = ScmMetaSourceHelper.queryOne(dirAccessor, matcher);
                 if (destDir == null) {
@@ -1037,16 +1073,6 @@ public class ScmMetaService {
 
     }
 
-    private List<String> removeEmptyElement(String[] elementArr) {
-        List<String> resList = new ArrayList<>();
-        for (String element : elementArr) {
-            if (!element.equals("")) {
-                resList.add(element);
-            }
-        }
-        return resList;
-    }
-
     public BSONObject getDirInfo(String wsName, String dirId) throws ScmServerException {
         try {
             MetaDirAccessor accessor = metasource.getDirAccessor(wsName);
@@ -1061,6 +1087,39 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException(
                     "count directory failed:siteId=" + siteId + ",directoryID=" + dirId, e);
+        }
+    }
+
+    public BSONObject getDirInfo(String wsName, String parentId, String dirName)
+            throws ScmServerException {
+        try {
+            MetaDirAccessor accessor = metasource.getDirAccessor(wsName);
+            BSONObject matcher = new BasicBSONObject();
+            matcher.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, parentId);
+            matcher.put(FieldName.FIELD_CLDIR_NAME, dirName);
+            return ScmMetaSourceHelper.queryOne(accessor, matcher);
+        }
+        catch (ScmServerException e) {
+            throw new ScmServerException(e.getError(), "count directory failed:siteId=" + siteId
+                    + ",parentDirId=" + parentId + ",dirName=" + dirName, e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("count directory failed:siteId=" + siteId + ",parentDirId="
+                    + parentId + ",dirName=" + dirName, e);
+        }
+    }
+
+    public MetaCursor queryDirInfo(String wsName, BSONObject filter) throws ScmServerException {
+        MetaDirAccessor dirAccessor = metasource.getDirAccessor(wsName);
+        MetaCursor cursor = null;
+        try {
+            cursor = dirAccessor.query(filter, null, null, 0, 2, DBQuery.FLG_QUERY_WITH_RETURNDATA);
+            return cursor;
+        }
+        catch (ScmMetasourceException e) {
+            ScmSystemUtils.closeResource(cursor);
+            throw new ScmServerException(e.getScmError(),
+                    "queryDirInfo failed:workspace=" + wsName + ",filter=" + filter, e);
         }
     }
 

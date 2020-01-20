@@ -22,6 +22,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 
 public class ScmContentServer {
@@ -201,6 +202,7 @@ public class ScmContentServer {
             initBizConf();
             initSiteMgr();
             initWorkspaceInfo();
+            checkAndAmendDirVersion();
             logger.info(
                     "server init success:rootSiteId={},mySiteId={},myServerId={},myHostname={},myPort={}",
                     bizConf.getRootSiteId(), bizConf.getMyServer().getSite().getId(),
@@ -214,6 +216,19 @@ public class ScmContentServer {
         catch (Exception e) {
             clear();
             throw new ScmSystemException("init contentServer failed", e);
+        }
+    }
+
+    private void checkAndAmendDirVersion() throws ScmServerException {
+        List<String> wsNames = getWorkspaceNames();
+        for (String wsName : wsNames) {
+            try {
+                getMetaService().getMetaSource().getDirAccessor(wsName).checkAndAmendVersion();
+            }
+            catch (ScmMetasourceException e) {
+                throw new ScmServerException(e.getScmError(),
+                        "check and amend directory version failed, wsName=" + wsName, e);
+            }
         }
     }
 

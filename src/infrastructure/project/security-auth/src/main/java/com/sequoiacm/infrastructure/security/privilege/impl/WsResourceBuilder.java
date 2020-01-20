@@ -26,4 +26,9 @@ public class WsResourceBuilder implements IResourceBuilder {
     public IResource fromStringFormat(String resource) {
         return new ScmWorkspaceResource(resource);
     }
+
+    @Override
+    public IResource fromStringFormat(String resource, boolean isNeedFormat) {
+        return fromStringFormat(resource);
+    }
 }

@@ -8,4 +8,6 @@ public interface IResourceBuilder {
     public IResource fromStringFormat(String resource);
 
     public String getResourceType();
+
+    public IResource fromStringFormat(String resource, boolean isNeedFormat);
 }

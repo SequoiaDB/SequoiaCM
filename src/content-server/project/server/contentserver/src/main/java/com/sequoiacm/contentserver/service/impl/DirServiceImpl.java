@@ -9,13 +9,14 @@ import org.springframework.stereotype.Service;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DirCreatorDao;
+import com.sequoiacm.contentserver.dao.DirOperator;
 import com.sequoiacm.contentserver.dao.DirUpdatorDao;
 import com.sequoiacm.contentserver.dao.DireDeletorDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
@@ -51,9 +52,8 @@ public class DirServiceImpl implements IDirService {
     @Override
     public BSONObject getDirInfoByPath(String wsName, String dirPath) throws ScmServerException {
         try {
-            ScmContentServer contentserver = ScmContentServer.getInstance();
-            contentserver.getWorkspaceInfoChecked(wsName);
-            BSONObject destDir = contentserver.getMetaService().getDirByPath(wsName, dirPath);
+            ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+            BSONObject destDir = DirOperator.getInstance().getDirByPath(ws, dirPath);
             if (destDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "directory not exist:path=" + dirPath);
@@ -72,9 +72,8 @@ public class DirServiceImpl implements IDirService {
     @Override
     public String getDirPathById(String wsName, String dirId) throws ScmServerException {
         try {
-            ScmContentServer contentserver = ScmContentServer.getInstance();
-            contentserver.getWorkspaceInfoChecked(wsName);
-            String path = contentserver.getMetaService().getPathByDirId(wsName, dirId);
+            ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+            String path = DirOperator.getInstance().getPathById(ws, dirId);
             return path;
         }
         catch (ScmServerException e) {
@@ -127,23 +126,8 @@ public class DirServiceImpl implements IDirService {
     public BSONObject createDirByPath(String user, String wsName, String path)
             throws ScmServerException {
         try {
-            String name = ScmSystemUtils.basename(path);
-            if (!ScmArgChecker.Directory.checkDirectoryName(name)) {
-                throw new ScmInvalidArgumentException("invalid directory name:name=" + name);
-            }
-
-            String paerntDirPath = path.substring(0, path.lastIndexOf(name));
-            ScmContentServer contentserver = ScmContentServer.getInstance();
-            BSONObject parentDir = contentserver.getMetaService().getDirByPath(wsName,
-                    paerntDirPath);
-            if (parentDir == null) {
-                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
-                        "directory not exist:path=" + paerntDirPath);
-            }
-            String parentId = (String) parentDir.get(FieldName.FIELD_CLDIR_ID);
-
             DirCreatorDao dao = new DirCreatorDao(user, wsName);
-            return dao.createDirByPidAndName(parentId, name);
+            return dao.createDirByPath(path);
         }
         catch (ScmServerException e) {
             throw e;

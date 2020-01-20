@@ -13,7 +13,7 @@ public class DirResource implements IResource {
         this.dirName = formatDir(dirName);
     }
 
-    public static String formatDir(String directory) {
+    private static String formatDir(String directory) {
         if (null == directory || directory.isEmpty()) {
             return "/";
         }

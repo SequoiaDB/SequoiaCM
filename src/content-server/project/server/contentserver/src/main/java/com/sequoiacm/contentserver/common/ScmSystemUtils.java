@@ -16,6 +16,7 @@ import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
@@ -232,18 +233,19 @@ public class ScmSystemUtils {
     }
 
     public static String dirname(String path) throws ScmInvalidArgumentException {
-        while (path.length() > 1 && path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
+        if (path.equals(CommonDefine.Directory.SCM_DIR_SEP)) {
+            return CommonDefine.Directory.SCM_DIR_SEP;
         }
 
-        int index = path.lastIndexOf("/");
-        if (index > 0) {
-            return path.substring(0, index);
+        int startIndex = path.length();
+        for (int index = path.length() - 1; index >= 0; index--) {
+            if (path.charAt(index) == CommonDefine.Directory.SCM_DIR_SEP_CHAR) {
+                if (index != startIndex - 1) {
+                    return path.substring(0, index + 1);
+                }
+                startIndex = index;
+            }
         }
-        else if (index == 0) {
-            return path;
-        }
-
         throw new ScmInvalidArgumentException("invlid path,path is not valid:path=" + path);
     }
 
@@ -265,10 +267,17 @@ public class ScmSystemUtils {
     }
 
     public static String basename(String path) throws ScmServerException {
-        String[] eles = path.split("/");
-        for (int i = eles.length - 1; i >= 0; i--) {
-            if (eles[i].length() > 0) {
-                return eles[i];
+        if (path.equals(CommonDefine.Directory.SCM_DIR_SEP)) {
+            return CommonDefine.Directory.SCM_DIR_SEP;
+        }
+
+        int startIndex = path.length();
+        for (int index = path.length() - 1; index >= 0; index--) {
+            if (path.charAt(index) == CommonDefine.Directory.SCM_DIR_SEP_CHAR) {
+                if (index != startIndex - 1) {
+                    return path.substring(index + 1, startIndex);
+                }
+                startIndex = index;
             }
         }
         throw new ScmInvalidArgumentException("invlid path,path is root dir:path=" + path);
@@ -310,13 +319,79 @@ public class ScmSystemUtils {
             logger.warn("failed to consume resource", e);
         }
         finally {
-            try {
-                is.close();
-            }
-            catch (Exception e) {
-                logger.warn("close resource failed", e);
-            }
+            closeResource(is);
         }
+    }
+
+    public static String formatDirPath(String path) throws ScmInvalidArgumentException {
+        int index = checkPath(path);
+        if (index != path.length()) {
+            return formatPath(path, index, true);
+        }
+        if (!path.endsWith(CommonDefine.Directory.SCM_DIR_SEP)) {
+            return path + CommonDefine.Directory.SCM_DIR_SEP;
+        }
+        return path;
+    }
+
+    public static String formatFilePath(String path) throws ScmInvalidArgumentException {
+        int index = checkPath(path);
+        if (index != path.length()) {
+            return formatPath(path, index, false);
+        }
+        if (path.endsWith(CommonDefine.Directory.SCM_DIR_SEP)) {
+            return path.substring(0, path.length() - 1);
+        }
+        return path;
+    }
+
+    // return error index or path length
+    private static int checkPath(String path) throws ScmInvalidArgumentException {
+        if (!path.startsWith(CommonDefine.Directory.SCM_DIR_SEP)) {
+            throw new ScmInvalidArgumentException("path must start with '/':" + path);
+        }
+        int index = 1;
+        int startIndex = 0;
+        while (index < path.length()) {
+            char tmpChar = path.charAt(index);
+            if (tmpChar == CommonDefine.Directory.SCM_DIR_SEP_CHAR) {
+                if (index == startIndex + 1) {
+                    return index;
+                }
+                startIndex = index;
+            }
+            index++;
+        }
+        return index;
+    }
+
+    private static String formatPath(String path, int index, boolean needSepSuffix) {
+        StringBuilder newPath = new StringBuilder(path.substring(0, index));
+        boolean sepSuffix = true;
+        while (index < path.length()) {
+            char tmpChar = path.charAt(index);
+            if (tmpChar != CommonDefine.Directory.SCM_DIR_SEP_CHAR) {
+                newPath.append(tmpChar);
+                sepSuffix = false;
+            }
+            else {
+                if (!sepSuffix) {
+                    newPath.append(CommonDefine.Directory.SCM_DIR_SEP_CHAR);
+                    sepSuffix = true;
+                }
+            }
+            index++;
+        }
+        if (needSepSuffix && !sepSuffix) {
+            newPath.append(CommonDefine.Directory.SCM_DIR_SEP_CHAR);
+            return newPath.toString();
+        }
+
+        if (!needSepSuffix && sepSuffix) {
+            return newPath.substring(0, newPath.length() - 1);
+        }
+        return newPath.toString();
+
     }
 
     public static void main(String[] args) throws ScmServerException {

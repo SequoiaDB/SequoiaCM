@@ -5,9 +5,11 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaDirAccessor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
@@ -55,7 +57,7 @@ public class SdbDirAccessor extends SdbMetaAccessor implements MetaDirAccessor {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "update directory failed:table=" + getCsName() + "." + getClName() + ",dirId="
                             + id,
-                            e);
+                    e);
         }
     }
 
@@ -75,7 +77,66 @@ public class SdbDirAccessor extends SdbMetaAccessor implements MetaDirAccessor {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "delete directory failed:table=" + getCsName() + "." + getClName() + ",dirId="
                             + id,
-                            e);
+                    e);
+        }
+    }
+
+    @Override
+    public long updateVersion() throws SdbMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject();
+            matcher.put(FieldName.FIELD_CLDIR_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
+
+            BSONObject updator = new BasicBSONObject();
+            BSONObject incFieldName = new BasicBSONObject();
+            incFieldName.put(FieldName.FIELD_CLDIR_VERSION, 1);
+            updator.put(SequoiadbHelper.SEQUOIADB_MODIFIER_INC, incFieldName);
+            BSONObject dirBson = super.queryAndUpdate(matcher, updator, null, true);
+            if (dirBson == null) {
+                new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                        "update and query version failed:table=" + getCsName() + "." + getClName());
+            }
+            long version = (long) dirBson.get(FieldName.FIELD_CLDIR_VERSION);
+            return version;
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("update version failed:table={}.{}", getCsName(), getClName());
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update version failed:table=" + getCsName() + "." + getClName(), e);
+        }
+
+    }
+
+    @Override
+    public void checkAndAmendVersion() throws ScmMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject();
+            matcher.put(FieldName.FIELD_CLDIR_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
+            matcher.put(FieldName.FIELD_CLDIR_VERSION,
+                    new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MATCHER_ISNULL, 1));
+
+            BSONObject updator = new BasicBSONObject();
+            updator.put(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
+                    new BasicBSONObject(FieldName.FIELD_CLDIR_VERSION, 1L));
+            boolean isSuccuess = super.updateAndCheck(matcher, updator);
+            if (isSuccuess) {
+                logger.info("directory version not exist, amend version success:table={}.{}",
+                        getCsName(), getClName());
+            }
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("check and amend directory version failed,:table={}.{}", getCsName(),
+                    getClName());
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "check and amend directory version failed:table=" + getCsName() + "."
+                            + getClName(),
+                    e);
         }
     }
 }

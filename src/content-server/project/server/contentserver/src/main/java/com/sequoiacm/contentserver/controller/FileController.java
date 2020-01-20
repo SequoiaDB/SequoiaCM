@@ -90,6 +90,7 @@ public class FileController {
             String ignoreStr = "/api/v1/files/path";
             String filePath = request.getRequestURI().substring(ignoreStr.length());
             filePath = RestUtils.urlDecode(filePath);
+            filePath = ScmSystemUtils.formatFilePath(filePath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspaceName,
                     filePath, ScmPrivilegeDefine.READ, "get file by path");
             file = fileService.getFileInfoByPath(workspaceName, filePath, version.getMajorVersion(),

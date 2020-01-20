@@ -42,6 +42,8 @@ SequoiaCM 配置
 |scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
 |scm.zookeeper.cleanJobResidualTime|num|内容服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
 |scm.jvm.options                |str    |配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
+|scm.dir.cache.enable           |boolean|内容服务节点是否开启目录缓存,默认值为：true|
+|scm.dir.cache.maxSize          |num    |内容服务节点目录最大缓存记录数,默认值为：10000|
 
 
  > **Note:**

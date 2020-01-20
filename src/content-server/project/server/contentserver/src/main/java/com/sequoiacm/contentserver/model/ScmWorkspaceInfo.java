@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.mapping.ScmWorkspaceObj;
+import com.sequoiacm.contentserver.cache.ScmDirCache;
+import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
@@ -40,6 +42,7 @@ public class ScmWorkspaceInfo {
     private ScmLocation dataLocation;
     private Map<Integer, BSONObject> dataInfoMap = new LinkedHashMap<>();
     private BSONObject wsBson;
+    private ScmDirCache dirCache;
 
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
         try {
@@ -56,7 +59,8 @@ public class ScmWorkspaceInfo {
             BSONObject metaShardingType = new BasicBSONObject();
             metaShardingType.put(FieldName.FIELD_CLWORKSPACE_META_SHARDING_TYPE,
                     wsObj.getMetaShardingType());
-            this.metaLocation = new SdbMetaSourceLocation(wsObj.getMetaLocation(), metaShardingType);
+            this.metaLocation = new SdbMetaSourceLocation(wsObj.getMetaLocation(),
+                    metaShardingType);
 
             for (BSONObject dataLocationObj : wsObj.getDataLocation()) {
                 int siteId = getSiteId(dataLocationObj);
@@ -69,6 +73,9 @@ public class ScmWorkspaceInfo {
             }
 
             checkWorkspace(bizConf);
+            if (PropertiesUtils.enableDirCache()) {
+                dirCache = new ScmDirCache(name, PropertiesUtils.getDirCacheMaxSize());
+            }
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -87,24 +94,21 @@ public class ScmWorkspaceInfo {
         if (metaLocation.getSiteId() != rootSiteId) {
             logger.error("meta site must be root site:wsName=" + name + ",metaSite="
                     + metaLocation.getSiteId() + ",rootSite=" + rootSiteId);
-            throw new ScmInvalidArgumentException(
-                    "meta site must be root site:wsName=" + name + ",metaSite="
-                            + metaLocation.getSiteId() + ",rootSite=" + rootSiteId);
+            throw new ScmInvalidArgumentException("meta site must be root site:wsName=" + name
+                    + ",metaSite=" + metaLocation.getSiteId() + ",rootSite=" + rootSiteId);
         }
 
-
         if (null == dataLocation && bizConf.getLocateSiteId() == rootSiteId) {
-            //i am root site, this ws does not contain my datalocation
-            throw new ScmInvalidArgumentException(
-                    "root site data location is null:wsName=" + name + ",site="
-                            + bizConf.getLocateSiteId());
+            // i am root site, this ws does not contain my datalocation
+            throw new ScmInvalidArgumentException("root site data location is null:wsName=" + name
+                    + ",site=" + bizConf.getLocateSiteId());
         }
     }
 
     private ScmLocation createSdbDataLocation(ScmSite siteInfo, BSONObject dataLocationObj,
             BSONObject defaultSdbShardingType, BSONObject defaultSdbDataOptions)
-                    throws  ScmDatasourceException {
-        //do not modify dataLocation,
+            throws ScmDatasourceException {
+        // do not modify dataLocation,
         BasicBSONObject newDataLocationObj = new BasicBSONObject();
         newDataLocationObj.putAll(dataLocationObj);
 
@@ -116,7 +120,6 @@ public class ScmWorkspaceInfo {
         if (!newDataLocationObj.containsField(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS)) {
             newDataLocationObj.put(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS, defaultSdbDataOptions);
         }
-
 
         return new SdbDataLocation(newDataLocationObj);
 
@@ -135,12 +138,11 @@ public class ScmWorkspaceInfo {
 
     private ScmLocation createDataLocation(ScmBizConf bizConf, BSONObject dataLocationObj,
             BSONObject defaultSdbShardingType, BSONObject defaultSdbDataOptions)
-                    throws ScmServerException {
+            throws ScmServerException {
         int siteId = getSiteId(dataLocationObj);
         ScmSite siteInfo = bizConf.getSiteInfo(siteId);
         if (null == siteInfo) {
-            throw new ScmInvalidArgumentException(
-                    "site is not exist:siteId=" + siteId);
+            throw new ScmInvalidArgumentException("site is not exist:siteId=" + siteId);
         }
 
         try {
@@ -155,11 +157,11 @@ public class ScmWorkspaceInfo {
         }
         catch (NoClassDefFoundError e) {
             logger.error("create dataLocation failed:location=" + dataLocationObj);
-            throw new ScmSystemException(
-                    "create dataLocation failed:location=" + dataLocationObj, e);
-        } catch (ScmDatasourceException e) {
-            throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),
-                    e.getMessage(), e);
+            throw new ScmSystemException("create dataLocation failed:location=" + dataLocationObj,
+                    e);
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR), e.getMessage(), e);
         }
     }
 
@@ -209,5 +211,9 @@ public class ScmWorkspaceInfo {
 
     public String getUpdateUser() {
         return updateUser;
+    }
+
+    public ScmDirCache getDirCache() {
+        return dirCache;
     }
 }

@@ -43,6 +43,7 @@ public class PropertiesUtils {
     private static PrivilegeHeartBeatConfig privilegeHeartBeatConfig;
     private static ScmAuditConfig auditConfig;
     private static ConfVersionConfig versionConfig;
+    private static DirCacheConfig dirCacheConfig;
 
     @Autowired
     public void setRootSiteMetaConfig(RootSiteMetaConfig rootSiteMetaConfig) {
@@ -72,6 +73,11 @@ public class PropertiesUtils {
     @Autowired
     public void setAuditConfig(ScmAuditConfig auditConfig) {
         PropertiesUtils.auditConfig = auditConfig;
+    }
+
+    @Autowired
+    public void setDirCacheConfig(DirCacheConfig dirCacheConfig) {
+        PropertiesUtils.dirCacheConfig = dirCacheConfig;
     }
 
     @Autowired
@@ -136,6 +142,10 @@ public class PropertiesUtils {
 
         // privilege
         appProperties.add(PropertiesDefine.PROPERTY_PRIVILEGE_HBINTERVAL);
+
+        // directory cache
+        appProperties.add(PropertiesDefine.PROPERTY_DIR_CACHE_ENABLE);
+        appProperties.add(PropertiesDefine.PROPERTY_DIR_CACHE_MAXSIZE);
     }
 
     private static String getAppProperty(String key) {
@@ -205,6 +215,12 @@ public class PropertiesUtils {
             // privilege
             case PropertiesDefine.PROPERTY_PRIVILEGE_HBINTERVAL:
                 return String.valueOf(getPrivilegeHeartBeatInterval());
+
+            // directory cache
+            case PropertiesDefine.PROPERTY_DIR_CACHE_ENABLE:
+                return String.valueOf(enableDirCache());
+            case PropertiesDefine.PROPERTY_DIR_CACHE_MAXSIZE:
+                return String.valueOf(getDirCacheMaxSize());
         }
 
         return null;
@@ -354,13 +370,21 @@ public class PropertiesUtils {
     public static long getWorkspaceVersionHeartbeat() {
         return versionConfig.getWorkspaceHeartbeat();
     }
-    
+
     public static long getSiteVersionHeartbeat() {
         return versionConfig.getSiteHeartbeat();
     }
 
     public static long getMetaDataVersionHearbeat() {
         return versionConfig.getMetaDataHeartbeat();
+    }
+
+    public static int getDirCacheMaxSize() {
+        return dirCacheConfig.getMaxSize();
+    }
+
+    public static boolean enableDirCache() {
+        return dirCacheConfig.isEnable();
     }
 
     public static long getNodeVersionHeartbeat() {

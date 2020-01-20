@@ -9,6 +9,7 @@ public class RootDirEntity {
     private String id = "000000000000000000000000";
     private String name = "/";
     private String pid = "-1";
+    private long version = 1L;
     private long createTime = 0;
     private String createUser = "";
 
@@ -22,6 +23,7 @@ public class RootDirEntity {
         rec.put(FieldName.FIELD_CLDIR_ID, id);
         rec.put(FieldName.FIELD_CLDIR_NAME, name);
         rec.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, pid);
+        rec.put(FieldName.FIELD_CLDIR_VERSION, version);
         rec.put(FieldName.FIELD_CLDIR_CREATE_TIME, createTime);
         rec.put(FieldName.FIELD_CLDIR_UPDATE_TIME, createTime);
         rec.put(FieldName.FIELD_CLDIR_USER, createUser);

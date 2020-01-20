@@ -236,6 +236,12 @@ public abstract class SdbMetaAccessor implements MetaAccessor {
     @Override
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
             long limit) throws SdbMetasourceException {
+        return query(matcher, selector, orderBy, skip, limit, 0);
+    }
+
+    @Override
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
+            long limit, int flag) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         SdbMetaCursor sdbCursor = null;
         DBCursor cursor = null;
@@ -248,8 +254,7 @@ public abstract class SdbMetaAccessor implements MetaAccessor {
                 throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
                         "getCollection failed:cl=" + getCsName() + "." + getClName());
             }
-
-            cursor = cl.query(matcher, selector, orderBy, null, skip, limit);
+            cursor = cl.query(matcher, selector, orderBy, null, skip, limit, flag);
             sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
         }
         catch (SdbMetasourceException e) {
@@ -354,6 +359,12 @@ public abstract class SdbMetaAccessor implements MetaAccessor {
     // return an matching record (old), and update all matching records.
     BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint)
             throws SdbMetasourceException {
+        return queryAndUpdate(matcher, updator, hint, false);
+    }
+
+    // return an matching record (old|new), and update all matching records.
+    BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
+            boolean returnNew) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
         try {
@@ -365,7 +376,7 @@ public abstract class SdbMetaAccessor implements MetaAccessor {
                         "getCollection failed:cl=" + getCsName() + "." + getClName());
             }
             cursor = cl.queryAndUpdate(matcher, null, null, hint, updator, 0, -1,
-                    DBQuery.FLG_QUERY_WITH_RETURNDATA, false);
+                    DBQuery.FLG_QUERY_WITH_RETURNDATA, returnNew);
             BSONObject ret = null;
             while (cursor.hasNext()) {
                 ret = cursor.getNext();

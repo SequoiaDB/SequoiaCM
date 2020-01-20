@@ -68,7 +68,8 @@ public class FileInfoUpdatorDao {
         else if (updator.containsField(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH)) {
             String moveToPath = (String) updator
                     .get(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
-            BSONObject parentDir = metaService.getDirByPath(ws.getName(), moveToPath);
+            moveToPath = ScmSystemUtils.formatDirPath(moveToPath);
+            BSONObject parentDir = DirOperator.getInstance().getDirByPath(ws, moveToPath);
             if (parentDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "directory not exist:path=" + moveToPath);

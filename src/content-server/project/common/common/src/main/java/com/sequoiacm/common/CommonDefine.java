@@ -361,6 +361,7 @@ public class CommonDefine {
         public static final String SCM_ROOT_DIR_NAME = "/";
         public static final String SCM_ROOT_DIR_PARENT_ID = "-1";
         public static final String SCM_DIR_SEP = SCM_ROOT_DIR_NAME;
+        public static final char SCM_DIR_SEP_CHAR = '/';
 
         public static final String SCM_REST_ARG_NAME = "name";
         public static final String SCM_REST_ARG_WORKSPACE_NAME = "workspace_name";

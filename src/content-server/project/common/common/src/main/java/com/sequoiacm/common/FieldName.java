@@ -208,6 +208,7 @@ public class FieldName {
     public static final String FIELD_CLDIR_UPDATE_TIME = "update_time";
     public static final String FIELD_CLDIR_UPDATE_USER = "update_user";
     public static final String FIELD_CLDIR_PARENT_DIRECTORY_ID = "parent_directory_id";
+    public static final String FIELD_CLDIR_VERSION = "version";
 
     public static final String FIELD_CLBREAKPOINTFILE_FILE_NAME = "file_name";
 
