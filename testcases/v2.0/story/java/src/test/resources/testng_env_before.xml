@@ -19,7 +19,6 @@
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-   <parameter name="CLOUDDISKUSERNAME" value="admin" />
    
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />   

@@ -1,18 +1,18 @@
 package com.sequoiacm.testcommon;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Parameters;
+
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.scmutils.ScmImexportUtils;
-import org.apache.log4j.Logger;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Parameters;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
@@ -29,28 +29,29 @@ public class TestScmBase {
     protected static String sdbUserName;
     protected static String sdbPassword;
 
-    protected static List<String> gateWayList;
+    protected static List< String > gateWayList;
 
     protected static String rootSiteServiceName;
     protected static String scmUserName;
     protected static String scmPassword;
     protected static String scmPasswordPath;
-    protected static String cloudDiskUserName;
 
     protected static String ldapUserName;
     protected static String ldapPassword;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
-            "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-            "CLOUDDISKUSERNAME", "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
+                        "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER",
+                        "SDBPASSWD",
+                        "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
+                        "LDAPUSER", "LDAPPASSWD",
+                        "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String CLOUDDISKUSERNAME,
+            String SCMUSER, String SCMPASSWD,
             String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH )
             throws ScmException {
 
@@ -72,7 +73,6 @@ public class TestScmBase {
         scmUserName = SCMUSER;
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
-        cloudDiskUserName = CLOUDDISKUSERNAME;
 
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
@@ -80,7 +80,7 @@ public class TestScmBase {
         // initialize scmInfo
         ScmSession session = null;
         try {
-            List<String> urlList = new ArrayList<String>();
+            List< String > urlList = new ArrayList< String >();
             for ( String gateWay : gateWayList ) {
                 urlList.add( gateWay + "/" + ROOTSITESVCNAME );
             }
@@ -105,11 +105,10 @@ public class TestScmBase {
                 session.close();
             }
         }
-        prepareUDCTable();
     }
 
-    private static List<String> parseInfo( String infos ) {
-        List<String> infoList = new ArrayList<String>();
+    private static List< String > parseInfo( String infos ) {
+        List< String > infoList = new ArrayList< String >();
         if ( infos.contains( "," ) ) {
             String[] infoArr = infos.split( "," );
             for ( String info : infoArr ) {
@@ -146,25 +145,5 @@ public class TestScmBase {
                 }
             }
         }
-    }
-
-    private static void prepareUDCTable() {
-        //create udc table
-        TestSdbTools
-                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
-                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
-                        ScmImexportUtils.BATCH_CL );
-        TestSdbTools
-                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
-                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
-                        ScmImexportUtils.BATCH_FILE_CL );
-        TestSdbTools
-                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
-                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
-                        ScmImexportUtils.BATCH_CL_DOWNLOAD );
-        TestSdbTools
-                .createCSCL( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
-                        TestScmBase.sdbPassword, ScmImexportUtils.CS_NAME,
-                        ScmImexportUtils.BATCH_FILE_CL_DOWNLOAD );
     }
 }
