@@ -13,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.config.tools.ConfAdmin;
+import com.sequoiacm.config.tools.common.RestErrorHandler;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
@@ -37,8 +38,8 @@ public class ScmSubscribeImpl implements ScmTool {
                 hp.createOpt(OPT_SHORT_CONFIG, OPT_LONG_CONFIG, "config name.", true, true, false));
         ops.addOption(hp.createOpt(OPT_SHORT_SERVICE, OPT_LONG_SERVICE, "service name.", true, true,
                 false));
-        ops.addOption(hp.createOpt(OPT_SHORT_URL, OPT_LONG_URL, "config server url.", true,
-                true, false));
+        ops.addOption(
+                hp.createOpt(OPT_SHORT_URL, OPT_LONG_URL, "config server url.", true, true, false));
     }
 
     @Override
@@ -54,13 +55,15 @@ public class ScmSubscribeImpl implements ScmTool {
         factory.setConnectTimeout(10000);
         factory.setReadTimeout(10000);
         RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setErrorHandler(new RestErrorHandler());
         String subscribeUrl = "http://" + configUrl + "/internal/v1/subscribe/" + configName;
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(ScmRestArgDefine.SERVICE_NAME, serviceName);
         HttpEntity<MultiValueMap<String, String>> subscribeEntity = new HttpEntity<>(params,
                 new HttpHeaders());
         restTemplate.exchange(subscribeUrl, HttpMethod.POST, subscribeEntity, String.class);
-        System.out.println("subscribe successfully:configName=" +configName + ",serviceName=" + serviceName);
+        System.out.println(
+                "subscribe successfully:configName=" + configName + ",serviceName=" + serviceName);
         logger.info("subscribe successfully:configName={},serviceName={}", configName, serviceName);
     }
 

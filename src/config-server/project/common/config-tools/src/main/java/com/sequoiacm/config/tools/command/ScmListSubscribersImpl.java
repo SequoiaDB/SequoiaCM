@@ -11,6 +11,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.config.tools.ConfAdmin;
+import com.sequoiacm.config.tools.common.RestErrorHandler;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
 import com.sequoiacm.config.tools.common.SubscribersPrinter;
@@ -41,6 +42,7 @@ public class ScmListSubscribersImpl implements ScmTool {
         factory.setConnectTimeout(10000);
         factory.setReadTimeout(10000);
         RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setErrorHandler(new RestErrorHandler());
         String subscribeUrl = "http://" + configUrl + "/internal/v1/subscribe";
         ResponseEntity<String> resp = restTemplate.getForEntity(subscribeUrl, String.class);
         BasicBSONList respObj = (BasicBSONList) JSON.parse(resp.getBody());

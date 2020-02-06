@@ -8,6 +8,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.config.tools.ConfAdmin;
+import com.sequoiacm.config.tools.common.RestErrorHandler;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
@@ -49,6 +50,7 @@ public class ScmUnsubscribeImpl implements ScmTool {
         factory.setConnectTimeout(10000);
         factory.setReadTimeout(10000);
         RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setErrorHandler(new RestErrorHandler());
         String deleteUrl = "http://" + configUrl + "/internal/v1/subscribe/" + configName + "?"
                 + ScmRestArgDefine.SERVICE_NAME + "=" + serviceName;
         restTemplate.delete(deleteUrl);

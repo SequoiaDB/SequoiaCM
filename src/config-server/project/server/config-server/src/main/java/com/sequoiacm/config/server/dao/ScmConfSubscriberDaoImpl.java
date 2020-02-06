@@ -32,6 +32,8 @@ public class ScmConfSubscriberDaoImpl implements ScmConfSubscriberDao {
 
     @Override
     public void createSubscriber(String configName, String serviceName) throws ScmConfigException {
+        // make sure configName is valid.
+        frameworkMgr.getConfOperator(configName);
         try {
             TableDao dao = metasource.getSubscribersTable();
             BSONObject record = new BasicBSONObject();
