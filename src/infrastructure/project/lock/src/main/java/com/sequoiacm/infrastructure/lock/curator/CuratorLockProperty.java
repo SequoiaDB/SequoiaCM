@@ -1,6 +1,6 @@
 package com.sequoiacm.infrastructure.lock.curator;
 
-class CuratorLockProperty {
+public class CuratorLockProperty {
     // Curator Lock properties
     public static final long LOCK_WAITTIME = 500;
     public static final long TRYLOCK_WAITTIME = 100;
@@ -15,4 +15,7 @@ class CuratorLockProperty {
     
     public static final int SESSIONTIMEOUTMS = 60000;
     public static final int CONNECTIONTIMEOUTMS = 10000;
+    
+    public static final int ZK_CONNECTION_TIMEOUTMS = 3000;
+    public static final String LOCK_PATH_SEPERATOR = "/";
 }

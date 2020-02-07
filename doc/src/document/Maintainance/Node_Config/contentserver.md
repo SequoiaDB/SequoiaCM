@@ -39,8 +39,10 @@ SequoiaCM 配置
 |scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
 |scm.zookeeper.clientNum|num|内容服务节点zookeeper的client数量，默认值：10|
-|scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
-|scm.zookeeper.cleanJobResidualTime|num|内容服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
+|scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper残留节点的任务周期，默认值：120000 (2min)，单位：毫秒|
+|scm.zookeeper.cleanJobResidualTime|num|内容服务节点将存在超过多久的zookeeper节点作为残留节点，默认值：180000 (3min)，单位：毫秒|
+|scm.zookeeper.clenaJobChildThreshold|num|内容服务节点zookeeper节点的子节点阈值，子节点数量超过阈值，清理残留子节点，默认值：1000|
+|scm.zookeeper.clenaJobCountThreshold|num|内容服务节点清理任务计数阈值，任务执行次数达到阈值，清理全部残留节点，默认值：720| 
 |scm.jvm.options                |str    |配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
 |scm.dir.cache.enable           |boolean|内容服务节点是否开启目录缓存,默认值为：true|
 |scm.dir.cache.maxSize          |num    |内容服务节点目录最大缓存记录数,默认值为：10000|

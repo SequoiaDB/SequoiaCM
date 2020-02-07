@@ -23,8 +23,9 @@ public class ScmCuratorVote implements ScmVote {
     public ScmCuratorVote(String zookeeperUrl, String votePath, String id,
             ScmLeaderAction leaderAction, ScmNotLeaderAction notLeaderAction) throws Exception {
         try {
-            client = CuratorFrameworkFactory.newClient(zookeeperUrl, new ExponentialBackoffRetry(
-                    1000, 3));
+            client = CuratorFrameworkFactory.builder().dontUseContainerParents()
+                    .connectString(zookeeperUrl).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                    .build();
             latch = new LeaderLatch(client, votePath, id);
             listener = new ScmCuratorVoteListener(leaderAction, notLeaderAction);
             latch.addListener(listener);

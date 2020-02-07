@@ -18,6 +18,8 @@ public class ZkConfig {
     private int clientTimeout = CommonDefine.DefaultValue.ZK_CLIENT_TIMEOUT;
     private long cleanJobPeriod = CommonDefine.DefaultValue.ZK_CLEANJOB_PERIOD;
     private long cleanJobResidualTime = CommonDefine.DefaultValue.ZK_CLEANJOB_RESIDUAL;
+    private int clenaJobChildThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_CHILDNUM_THRESHOLD;
+    private int clenaJobCountThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_COUNT_THRESHOLD;
 
     public long getCleanJobPeriod() {
         return cleanJobPeriod;
@@ -92,5 +94,31 @@ public class ZkConfig {
             return;
         }
         this.lockTimeout = lockTimeout;
+    }
+
+    public int getClenaJobChildThreshold() {
+        return clenaJobChildThreshold;
+    }
+
+    public void setClenaJobChildThreshold(int clenaJobChildThreshold) {
+        if (clenaJobChildThreshold < 10 && clenaJobChildThreshold > 10000) {
+            logger.warn("Invalid clenaJobChildThreshold value: " + clenaJobChildThreshold
+                    + ", set to default value: " + this.clenaJobChildThreshold);
+            return;
+        }
+        this.clenaJobChildThreshold = clenaJobChildThreshold;
+    }
+
+    public int getClenaJobCountThreshold() {
+        return clenaJobCountThreshold;
+    }
+
+    public void setClenaJobCountThreshold(int clenaJobCountThreshold) {
+        if (clenaJobCountThreshold <= 0) {
+            logger.warn("Invalid clenaJobCountThreshold value: " + clenaJobCountThreshold
+                    + ", set to default value: " + this.clenaJobCountThreshold);
+            return;
+        }
+        this.clenaJobCountThreshold = clenaJobCountThreshold;
     }
 }

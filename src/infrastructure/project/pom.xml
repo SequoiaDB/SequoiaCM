@@ -19,12 +19,13 @@
     <properties>
         <commons-cli.version>1.4</commons-cli.version>
         <slf4j-api.version>1.7.5</slf4j-api.version>
+        <slf4j-log4j12.version>1.7.5</slf4j-log4j12.version>
         <slf4j-simple.version>1.6.4</slf4j-simple.version>
         <logback.version>1.2.3</logback.version>
         <sequoiadb.driver.version>3.0.1</sequoiadb.driver.version>
-        <curator-recipes.version>4.0.1</curator-recipes.version>
+        <curator-recipes.version>2.11.1</curator-recipes.version>
         <quartz-scheduler.version>2.2.2</quartz-scheduler.version>
-        <zookeeper.version>3.4.12</zookeeper.version>
+        <zookeeper.version>3.5.5</zookeeper.version>
         <junit.version>4.12</junit.version>
         <testng.version>6.13.1</testng.version>
 
@@ -65,6 +66,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-api.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j-api.version}</version>
             </dependency>
 

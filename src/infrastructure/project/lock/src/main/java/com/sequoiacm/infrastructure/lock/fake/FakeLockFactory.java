@@ -21,11 +21,7 @@ public class FakeLockFactory implements LockFactory {
     }
 
     @Override
-    public void clearNode(String[] lockPath) {
-    }
+    public void startCleanJob(long period, long maxResidualTime, int maxChildNum, int cleanCount) {
 
-    @Override
-    public void startCleanJob(long period, long maxResidualTime) {
     }
-
 }

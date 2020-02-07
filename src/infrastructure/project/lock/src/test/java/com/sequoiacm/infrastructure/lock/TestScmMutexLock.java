@@ -12,12 +12,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
+import com.sequoiacm.infrastructure.lock.curator.CuratorLockTools;
+import com.sequoiacm.infrastructure.lock.curator.CuratorZKCleaner;
 
 public class TestScmMutexLock {
     public static final long SMALLSLEEPTIME = 1000;
     public static final long LOCK_WAITTIME = 500;
 
-    private static String zkConnStr = "192.168.20.92:2181,192.168.20.922222:2181";
+    private static String zkConnStr = "192.168.20.70:2181,192.168.20.922222:2181";
     private static String[] lockPath = { "ws", "dir", "bat", "file" };
     private static CuratorLockFactory lockFactoryImpl;
     private static List<Integer> resultList;
@@ -26,7 +28,7 @@ public class TestScmMutexLock {
     private static boolean isLocked;
 
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws Exception {
         resultList = new ArrayList<Integer>();
         try {
             lockFactoryImpl = new CuratorLockFactory(zkConnStr, 5);
@@ -34,7 +36,8 @@ public class TestScmMutexLock {
         catch (Exception e) {
             e.printStackTrace();
         }
-        lockFactoryImpl.clearNode(lockPath);
+        CuratorZKCleaner.getInstance().clearResidualNode(lockFactoryImpl.getCuratorClient(),
+                CuratorLockTools.getLockPath(lockPath), 0);
     }
 
     @Before
@@ -113,15 +116,17 @@ public class TestScmMutexLock {
             Assert.assertEquals(myListTwo.get(m), TestScmMutexLock.resultList.get(m));
         }
 
-//        // CuratorLockProperty.smallSleepTime <
-//        // CuratorLockProperty.lock_waitTime
-//        Assert.assertNotNull(TestScmMutexLock.resultList);
-//        Assert.assertEquals(myListOne.size(), TestScmMutexLock.resultList.size());
-//        if (TestScmMutexLock.isLocked) {
-//            for (int m = 0; m < myListOne.size(); m++) {
-//                Assert.assertEquals(myListOne.get(m), TestScmMutexLock.resultList.get(m));
-//            }
-//        }
+        // // CuratorLockProperty.smallSleepTime <
+        // // CuratorLockProperty.lock_waitTime
+        // Assert.assertNotNull(TestScmMutexLock.resultList);
+        // Assert.assertEquals(myListOne.size(),
+        // TestScmMutexLock.resultList.size());
+        // if (TestScmMutexLock.isLocked) {
+        // for (int m = 0; m < myListOne.size(); m++) {
+        // Assert.assertEquals(myListOne.get(m),
+        // TestScmMutexLock.resultList.get(m));
+        // }
+        // }
     }
 
     /**
@@ -159,15 +164,15 @@ public class TestScmMutexLock {
             Assert.assertEquals(myListTwo.get(m), TestScmMutexLock.resultList.get(m));
         }
 
-//        // CuratorLockProperty.smallSleepTime <
-//        // CuratorLockProperty.tryLock_waitTime
-//         Assert.assertNotNull(TestScmMutexLock.resultList);
-//         Assert.assertEquals(myListOne.size(),TestScmMutexLock.resultList.size());
-//         if(TestScmMutexLock.isLocked){
-//         for (int m=0;m<myListOne.size();m++) {
-//         Assert.assertEquals(myListOne.get(m),TestScmMutexLock.resultList.get(m));
-//         }
-//         }
+        // // CuratorLockProperty.smallSleepTime <
+        // // CuratorLockProperty.tryLock_waitTime
+        // Assert.assertNotNull(TestScmMutexLock.resultList);
+        // Assert.assertEquals(myListOne.size(),TestScmMutexLock.resultList.size());
+        // if(TestScmMutexLock.isLocked){
+        // for (int m=0;m<myListOne.size();m++) {
+        // Assert.assertEquals(myListOne.get(m),TestScmMutexLock.resultList.get(m));
+        // }
+        // }
     }
 
     /* Define Implement Thread */

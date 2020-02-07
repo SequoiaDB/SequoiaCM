@@ -1,6 +1,5 @@
 package com.sequoiacm.config.server;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import com.sequoiacm.config.framework.lock.LockConfig;
 import com.sequoiacm.config.framework.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
@@ -28,9 +28,10 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 @ComponentScan(basePackages = { "com.sequoiacm.config.server", "com.sequoiacm.config.framework" })
 public class ScmConfigApplication implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(ScmConfigApplication.class);
+
     @Autowired
     AppConfig appConfig;
-    
+
     @Autowired
     ScmConfClient confClient;
 
@@ -47,14 +48,13 @@ public class ScmConfigApplication implements ApplicationRunner {
         }
 
         LockConfig lockConfig = appConfig.getLockConfig();
-        ScmLockManager.getInstance().init(lockConfig.getUrls(), lockConfig.getClientNum(),
-                lockConfig.getCleanJobPeriod(), lockConfig.getCleanJobResidualTime());
-        
+        ScmLockManager.getInstance().init(lockConfig);
+
         confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
 
         // TODO: use IP + port for contentserverId
         ScmIdGenerator.FileId.init(0, 102);
-        
+
     }
-    
+
 }

@@ -46,7 +46,6 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-common</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

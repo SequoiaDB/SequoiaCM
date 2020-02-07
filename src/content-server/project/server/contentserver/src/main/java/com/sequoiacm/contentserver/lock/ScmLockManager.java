@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.lock;
 
 import java.util.Arrays;
 
+import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +28,36 @@ public class ScmLockManager {
     private ScmLockManager() {
     }
 
-    public void init() throws Exception {
-        innerFactory = new CuratorLockFactory(PropertiesUtils.getZKConnUrl(),
-                PropertiesUtils.getZkClientNum());
+    public boolean init() throws ScmServerException {
+        try {
+            synchronized (ScmLockManager.class) {
+                if (innerFactory == null) {
+                    innerFactory = new CuratorLockFactory(PropertiesUtils.getZKConnUrl(),
+                            PropertiesUtils.getZkClientNum());
+                    innerFactory.startCleanJob(PropertiesUtils.getZKCleanJobPeriod(),
+                            PropertiesUtils.getZKCleanJobResidual(),
+                            PropertiesUtils.getClenaJobChildThreshold(),
+                            PropertiesUtils.getClenaJobCountThreshold());
+                }
+            }
+        }
+        catch (ConnectionLossException e) {
+            closeLockFactory();
+            logger.warn("zookeeper connection loss, failed to init lock manager", e);
+            return false;
+        }
+        catch (Exception e) {
+            closeLockFactory();
+            throw new ScmLockException("failed to init lock manager", e);
+        }
+        return true;
+    }
 
-        logger.info("starting lock clean job:period={},maxResidualTime={}",
-                PropertiesUtils.getZKCleanJobPeriod(), PropertiesUtils.getZKCleanJobResidual());
-        innerFactory.startCleanJob(PropertiesUtils.getZKCleanJobPeriod(),
-                PropertiesUtils.getZKCleanJobResidual());
+    private void closeLockFactory() {
+        if (innerFactory != null) {
+            innerFactory.close();
+            innerFactory = null;
+        }
     }
 
     // public ScmReadWriteLock createReadWriteLock(ScmLockPath lockPath) throws
@@ -50,43 +73,49 @@ public class ScmLockManager {
 
     public ScmLock acquiresReadLock(ScmLockPath lockPath) throws ScmServerException {
         try {
+            checkAndInit();
             ScmLock readLock = innerFactory.createReadWriteLock(lockPath.getPath()).readLock();
             readLock.lock();
             return readLock;
         }
         catch (Exception e) {
-            throw new ScmLockException("failed to acquires readlock:locakPath="
-                    + Arrays.toString(lockPath.getPath()), e);
+            throw new ScmLockException(
+                    "failed to acquires readlock:locakPath=" + Arrays.toString(lockPath.getPath()),
+                    e);
         }
     }
 
     public ScmLock acquiresWriteLock(ScmLockPath lockPath) throws ScmServerException {
         try {
+            checkAndInit();
             ScmLock writeLock = innerFactory.createReadWriteLock(lockPath.getPath()).writeLock();
             writeLock.lock();
             return writeLock;
         }
         catch (Exception e) {
-            throw new ScmLockException("failed to acquires writelock:locakPath="
-                    + Arrays.toString(lockPath.getPath()), e);
+            throw new ScmLockException(
+                    "failed to acquires writelock:locakPath=" + Arrays.toString(lockPath.getPath()),
+                    e);
         }
     }
 
     public ScmLock acquiresLock(ScmLockPath lockPath) throws ScmServerException {
         try {
+            checkAndInit();
             ScmLock lock = innerFactory.createLock(lockPath.getPath());
             lock.lock();
             return lock;
         }
         catch (Exception e) {
-            throw new ScmLockException("failed to acquires lock:locakPath="
-                    + Arrays.toString(lockPath.getPath()), e);
+            throw new ScmLockException(
+                    "failed to acquires lock:locakPath=" + Arrays.toString(lockPath.getPath()), e);
         }
     }
 
     // return the lock if success, else return null
     public ScmLock tryAcquiresLock(ScmLockPath lockPath) throws ScmServerException {
         try {
+            checkAndInit();
             ScmLock lock = innerFactory.createLock(lockPath.getPath());
             if (lock.tryLock()) {
                 return lock;
@@ -94,8 +123,17 @@ public class ScmLockManager {
             return null;
         }
         catch (Exception e) {
-            throw new ScmServerException(ScmError.LOCK_ERROR, "try acquires lock failed:locakPath="
-                    + Arrays.toString(lockPath.getPath()), e);
+            throw new ScmServerException(ScmError.LOCK_ERROR,
+                    "try acquires lock failed:locakPath=" + Arrays.toString(lockPath.getPath()), e);
+        }
+    }
+
+    private void checkAndInit() throws ScmServerException {
+        if (innerFactory == null) {
+            boolean initSuccess = init();
+            if (!initSuccess) {
+                throw new ScmLockException("failed to init lock manager");
+            }
         }
     }
 }

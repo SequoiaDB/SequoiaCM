@@ -330,6 +330,14 @@ public class PropertiesUtils {
         return zkConfig.getCleanJobResidualTime();
     }
 
+    public static int getClenaJobChildThreshold() {
+        return zkConfig.getClenaJobChildThreshold();
+    }
+
+    public static int getClenaJobCountThreshold() {
+        return zkConfig.getClenaJobCountThreshold();
+    }
+
     // *********************** privilege ******************************
     public static int getPrivilegeHeartBeatInterval() {
         return privilegeHeartBeatConfig.getInterval();

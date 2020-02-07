@@ -32,7 +32,6 @@ import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.common.ScheduleStrategyMgr;
-import com.sequoiacm.schedule.core.ScheduleLockFactory;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
@@ -123,12 +122,12 @@ public class ScheduleApplication implements ApplicationRunner {
         // subscribe ws conig
         confClient.subscribeWithAsyncRetry(new ScmWorkspaceConfSubscriber(
                 localInstance.getServiceId(), config.getWorkspaceHeartbeat()));
-        //subscribe site config
-        confClient.subscribeWithAsyncRetry(new ScmSiteConfSubscriber(
-                localInstance.getServiceId(), config.getSiteHeartbeat()));
+        // subscribe site config
+        confClient.subscribeWithAsyncRetry(
+                new ScmSiteConfSubscriber(localInstance.getServiceId(), config.getSiteHeartbeat()));
         // subscribe node config
-        confClient.subscribeWithAsyncRetry(new ScmNodeConfSubscriber(
-                localInstance.getServiceId(), config.getSreverNodeHeartbeat()));
+        confClient.subscribeWithAsyncRetry(new ScmNodeConfSubscriber(localInstance.getServiceId(),
+                config.getSreverNodeHeartbeat()));
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao);
@@ -139,7 +138,7 @@ public class ScheduleApplication implements ApplicationRunner {
                 config.getRevoteInitialInterval(), config.getRevoteMaxInterval(),
                 config.getRevoteIntervalMultiplier());
 
-        ScheduleLockFactory.getInstance().init(config.getZookeeperUrl(), 4);
+        // ScheduleLockFactory.getInstance().init(config.getZookeeperUrl(), 4);
 
         // init strategy
         List<BSONObject> strategyList = ScheduleServer.getInstance().getAllStrategy();
