@@ -60,10 +60,10 @@ public class ScmListToolImpl implements ScmTool {
             ScmNodeInfo node = port2Node.get(port);
             if (node != null) {
                 String confPath = node.getConfPath();
-                Integer pidInteger = runningNodes.get(confPath).getPid();
-                if (pidInteger != null) {
+                ScmNodeProcessInfo runningNodeInfo = runningNodes.get(confPath);
+                if (runningNodeInfo != null) {
                     nodeList.add(node);
-                    pidList.add(pidInteger.toString());
+                    pidList.add(runningNodeInfo.getPid() + "");
                 }
                 else if (!printRunningOnly) {
                     nodeList.add(node);
