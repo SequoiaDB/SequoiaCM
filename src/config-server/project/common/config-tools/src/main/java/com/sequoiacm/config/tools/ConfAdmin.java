@@ -124,6 +124,7 @@ public class ConfAdmin {
 
     private static ScmTool getInstanceByToolName(String toolName) throws ScmToolsException {
         ScmTool instance = null;
+        ScmCommon.setLogAndProperties(ScmCommon.SCM_ADMIN_LOG_PATH, ScmCommon.LOG_FILE_ADMIN);
         if (toolName.equals("createnode")) {
             instance = new ScmCreateNodeToolImpl();
         }

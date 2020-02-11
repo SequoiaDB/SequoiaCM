@@ -10,12 +10,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.config.tools.ConfAdmin;
 import com.sequoiacm.config.tools.common.RestErrorHandler;
 import com.sequoiacm.config.tools.common.ScmCommandUtil;
 import com.sequoiacm.config.tools.common.ScmHelpGenerator;
+import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.config.tools.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
@@ -61,7 +64,19 @@ public class ScmSubscribeImpl implements ScmTool {
         params.add(ScmRestArgDefine.SERVICE_NAME, serviceName);
         HttpEntity<MultiValueMap<String, String>> subscribeEntity = new HttpEntity<>(params,
                 new HttpHeaders());
-        restTemplate.exchange(subscribeUrl, HttpMethod.POST, subscribeEntity, String.class);
+        try {
+            restTemplate.exchange(subscribeUrl, HttpMethod.POST, subscribeEntity, String.class);
+        }
+        catch (ResourceAccessException e) {
+            logger.error("failed to connect to config server:{}", configUrl, e);
+            throw new ScmToolsException("failed to connect to config server:" + configUrl,
+                    ScmExitCode.IO_ERROR);
+        }
+        catch (RestClientException e) {
+            logger.error("config server failed to do subscribe", e);
+            throw new ScmToolsException("config server failed to do subscribe",
+                    ScmExitCode.SYSTEM_ERROR);
+        }
         System.out.println(
                 "subscribe successfully:configName=" + configName + ",serviceName=" + serviceName);
         logger.info("subscribe successfully:configName={},serviceName={}", configName, serviceName);

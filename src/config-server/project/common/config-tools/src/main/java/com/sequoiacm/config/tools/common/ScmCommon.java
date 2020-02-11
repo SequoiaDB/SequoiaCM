@@ -30,6 +30,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 public class ScmCommon {
     public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
     public static final String LOG_FILE_CREATEWS = "logback_createws.xml";
+    public static final String LOG_FILE_ADMIN = "logback_admin.xml";
     public static final String LOG_FILE_STARTNODE = "logback_start.xml";
     public static final String LOG_FILE_STOPNODE = "logback_stop.xml";
     public static final String LOG_FILE_GENERATE_META = "logback_generatemeta.xml";
@@ -39,6 +40,8 @@ public class ScmCommon {
     public static final String APPLICATION_PROPERTIES = "application.properties";
 
     public static final String LOGCONF_NAME = "logback.xml";
+    public static final String SCM_ADMIN_LOG_PATH = "." + File.separator + "log" + File.separator
+            + "admin" + File.separator + "admin.log";
     public static final String START_LOG_PATH = "." + File.separator + "log" + File.separator
             + "start.log";
     public static final String GENERATE_META_LOG_PATH = "." + File.separator + "log"
