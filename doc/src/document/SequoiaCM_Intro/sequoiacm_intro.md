@@ -7,14 +7,3 @@
 + 支持灵活的权限控制
 + 实现文件数据的生命周期控制
 + 提供批次、目录的文件管理能力
-
-
-使用场景
-----
-+ [非结构化数据管理平台][unstructed_data_management]
-+ [分布式影像平台][image_data_management]
-+ [内容管理云平台][content_management]
-
-[unstructed_data_management]:http://solution.sequoiadb.com/cn/Detail-cat_id-5-id-26
-[image_data_management]:http://solution.sequoiadb.com/cn/Detail-cat_id-5-id-27
-[content_management]:http://solution.sequoiadb.com/cn/Detail-cat_id-5-id-28
