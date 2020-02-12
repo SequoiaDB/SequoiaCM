@@ -298,12 +298,6 @@
                 "en": "Overview"
             },
             {
-                "id": 1541142591,
-                "file": "system_init_script",
-                "cn": "系统初始化工具",
-                "en": "System Initialization Script"
-            },
-            {
                 "id": 1535328019,
                 "dir": "Scmcloudadmin",
                 "cn": "cloud管理工具",

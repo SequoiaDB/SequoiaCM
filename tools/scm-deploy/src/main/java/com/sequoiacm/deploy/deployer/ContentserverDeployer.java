@@ -104,7 +104,7 @@ public class ContentserverDeployer extends ServiceDeployerBase {
         env.put("JAVA_HOME", hostInfo.getJavaHome());
         env.put("PATH", "$JAVA_HOME/bin:$PATH");
         String deploy = "python " + serviceRemoteInstallPath
-                + "/deploy.py --createnode --noinitcscl  -c " + deployJsonFileRemotePath;
+                + "/deploy.py --createnode  -c " + deployJsonFileRemotePath;
         ssh.sudoSuExec(super.getDeployInfoMgr().getInstallConfig().getInstallUser(), deploy, env);
     }
 

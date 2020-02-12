@@ -12,7 +12,6 @@ NEED_CREATESITE = 0
 NEED_CREATEWS = 0
 NEDD_CREATNODE = 0
 NEED_CREATEUSER = 0
-NO_INIT_CSCL = 0
 
 rootDir = sys.path[0]
 
@@ -91,13 +90,6 @@ def get_ds_type(s):
         'hdfs_transwarp' :7
     }
     return m.get(s, 1)
-
-
-def scm_clearcscl():
-    command("python " + rootDir + os.sep + "system.py --drop-cl" )
-    
-def init_systemcscl():
-    command("python " + rootDir + os.sep + "system.py --create" )
 
 def scm_global_mdsurl(sites_conf):
     global mdsurlSetCMD
@@ -219,12 +211,10 @@ def start_node(port=0):
     scm_ctl(cmd)
 
 def deploy_scm(config):
-    global NEED_CREATESITE,NEED_CREATEWS,NEDD_CREATNODE,NO_INIT_CSCL
+    global NEED_CREATESITE,NEED_CREATEWS,NEDD_CREATNODE
     
     if NEED_CREATESITE == 1:
         if 'sites' in config:
-            if NO_INIT_CSCL ==0:
-                init_systemcscl()
             create_sites(config['sites'], config['gateway'])
     if NEDD_CREATNODE == 1:
         if 'nodes' in config:
@@ -236,7 +226,6 @@ def displayHelp(name):
     print("")
     print("Options:")
     print("\t-h, --help    print help information")
-    print("\t--clearcscl   clear relative cs $ cl, default is False'")
     print("\t--createsite  createsite, default is False")
     print("\t--createnode  createnode, default is False")
     print("\t--createws    createws, default is False, default execute script './createworkspaces.py'")
@@ -248,12 +237,11 @@ def displayHelp(name):
 
 
 def main(argv):
-    global NEED_CREATESITE,NEED_CREATEWS,NEDD_CREATNODE,SCM_BIN_PATH,dry_run,NEED_CREATEUSER,NO_INIT_CSCL
+    global NEED_CREATESITE,NEED_CREATEWS,NEDD_CREATNODE,SCM_BIN_PATH,dry_run,NEED_CREATEUSER
     config = rootDir + os.sep +  "deploy.json"
-    clearcscl = False
     start = False
     try:
-        opts, args = getopt.getopt(argv[1:],"h:c:b:s",["help", "clearcscl", "createsite", "createws", "createnode", "createuser", "start", "conf=", "bin=", "dryrun", "noinitcscl"])
+        opts, args = getopt.getopt(argv[1:],"h:c:b:s",["help", "createsite", "createws", "createnode", "createuser", "start", "conf=", "bin=", "dryrun"])
     except getopt.GetoptError:
         displayHelp(argv[0])
         sys.exit(2)
@@ -261,8 +249,6 @@ def main(argv):
         if opt in ("-h","--help"):
             displayHelp(argv[0])
             sys.exit(0)
-        elif opt == "--clearcscl":
-            clearcscl = True
         elif opt  == "--createsite":
             NEED_CREATESITE = 1
         elif opt  == "--createws":
@@ -279,12 +265,8 @@ def main(argv):
             NEED_CREATEUSER = 1
         elif opt in ("-s", "--start"):
             start = True
-        elif opt in ("--noinitcscl"):
-            NO_INIT_CSCL = 1
     conf = load_config(config)
     scm_global_mdsurl(conf['sites'])
-    if clearcscl:
-        scm_clearcscl()
     deploy_scm(conf)
     if start:
         start_node()

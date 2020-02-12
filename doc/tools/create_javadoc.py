@@ -11,7 +11,7 @@ TOOLS_PATH = sys.path[0]
 GIT_ROOT_PATH = TOOLS_PATH + os.sep + ".." + os.sep + ".." 
 superParentPom = GIT_ROOT_PATH + os.sep + "src" + os.sep +"pom.xml"
 infrastructureParentPom = GIT_ROOT_PATH + os.sep + "src" + os.sep + "infrastructure" + os.sep + "project" + os.sep + "pom.xml"
-genVerScriptPath = GIT_ROOT_PATH + os.sep + 'script' + os.sep +  "genVer.py"
+genVerScriptPath = GIT_ROOT_PATH + os.sep + 'script' + os.sep +  'dev' + os.sep + "genVer.py"
 javaDriverPath = GIT_ROOT_PATH + os.sep + 'driver' + os.sep + 'java'
 
 def modifyFile(file, oldValue, newValue) :
