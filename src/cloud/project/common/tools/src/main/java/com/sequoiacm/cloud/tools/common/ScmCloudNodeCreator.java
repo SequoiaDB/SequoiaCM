@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.cloud.tools.ScmCtl;
-import com.sequoiacm.cloud.tools.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.cloud.tools.element.ScmNodeType;
 import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.cloud.tools.exception.ScmToolsException;
@@ -44,7 +43,9 @@ public class ScmCloudNodeCreator {
     public void create() throws ScmToolsException {
         String portStr = prop.getProperty(ScmToolsDefine.PROPERTIES.SERVER_PORT);
         if (portStr == null) {
-            portStr = loadDefaultPort();
+            throw new ScmToolsException(
+                    "port is not specified:key=" + ScmToolsDefine.PROPERTIES.SERVER_PORT,
+                    ScmExitCode.INVALID_ARG);
         }
         int port = convertStr2Port(portStr);
         if (port > 65535 || port < 0) {
@@ -58,34 +59,6 @@ public class ScmCloudNodeCreator {
         }
         createNodeByType(type, port);
         System.out.println("Create node success: " + type + "(" + port + ")");
-    }
-
-    private String loadDefaultPort() throws ScmToolsException {
-        String resourcefile = type.getName() + "." + ScmToolsDefine.FILE_NAME.APP_PROPS;
-        InputStream is = ScmCreateNodeToolImpl.class.getClassLoader()
-                .getResourceAsStream(resourcefile);
-        if (is == null) {
-            throw new ScmToolsException("missing resource file:" + resourcefile,
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-        String port;
-        try {
-            Properties p = new Properties();
-            p.load(is);
-            port = p.getProperty(ScmToolsDefine.PROPERTIES.SERVER_PORT);
-        }
-        catch (IOException e) {
-            throw new ScmToolsException("load resource file failed:" + resourcefile,
-                    ScmExitCode.IO_ERROR, e);
-        }
-        catch (Exception e) {
-            throw new ScmToolsException("load resource file failed:" + resourcefile,
-                    ScmExitCode.SYSTEM_ERROR, e);
-        }
-        finally {
-            close(is);
-        }
-        return port;
     }
 
     private void createNodeByType(ScmNodeType type, int port) throws ScmToolsException {

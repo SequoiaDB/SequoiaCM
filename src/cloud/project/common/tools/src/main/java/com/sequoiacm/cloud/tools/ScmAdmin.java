@@ -7,10 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.cloud.tools.command.ScmCleanSysTableToolImpl;
 import com.sequoiacm.cloud.tools.command.ScmCreateNodeToolImpl;
-import com.sequoiacm.cloud.tools.command.ScmCreateUserToolmpl;
 import com.sequoiacm.cloud.tools.command.ScmHelpToolImpl;
 import com.sequoiacm.cloud.tools.command.ScmTool;
 import com.sequoiacm.cloud.tools.common.ScmCommon;
+import com.sequoiacm.cloud.tools.common.ScmHelper;
+import com.sequoiacm.cloud.tools.common.ScmToolsDefine;
 import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 
@@ -20,7 +21,7 @@ public class ScmAdmin {
             + "\r\n" + "Type 'scmcloudadmin help [subcommand]' for help on a specific subcommand"
             + "\r\n" + "Type 'scmcloudadmin --version' to see the program version" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tcleansystable"
-            + "\r\n" + "\tcreateuser" + "\r\n" + "\thelp";
+            + "\r\n" + "\thelp";
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -123,11 +124,9 @@ public class ScmAdmin {
 
     private static ScmTool getInstanceByToolName(String toolName) throws ScmToolsException {
         ScmTool instance = null;
+        ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.ADMIN_LOG_CONF);
         if (toolName.equals("createnode")) {
             instance = new ScmCreateNodeToolImpl();
-        }
-        else if (toolName.equals("createuser")) {
-            instance = new ScmCreateUserToolmpl();
         }
         else if (toolName.equals("cleansystable")) {
             instance = new ScmCleanSysTableToolImpl();

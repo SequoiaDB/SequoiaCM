@@ -1,19 +1,20 @@
 package com.sequoiacm.cloud.tools.common;
 
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.Sequoiadb;
+import java.util.Properties;
+
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
+import com.sequoiacm.cloud.tools.exception.ScmToolsException;
+import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.Sequoiadb;
 
 class AuthServerTableCreator extends AuthServerTableProcessor implements ScmSysTableCreator {
     private final static Logger logger = LoggerFactory.getLogger(AuthServerTableCreator.class);
 
-    AuthServerTableCreator(Properties properties) {
+    AuthServerTableCreator(Properties properties) throws ScmToolsException {
         super(properties);
     }
 
@@ -47,7 +48,8 @@ class AuthServerTableCreator extends AuthServerTableProcessor implements ScmSysT
             System.out.println("Creating collection: " + CL_PRIV_ROLE_RESOURCE_REL);
             logger.info("Creating collection: " + CL_PRIV_ROLE_RESOURCE_REL);
             createCollectionIfNotExist(sysCS, CL_PRIV_ROLE_RESOURCE_REL);
-        } finally {
+        }
+        finally {
             releaseConnection(sdb);
         }
     }

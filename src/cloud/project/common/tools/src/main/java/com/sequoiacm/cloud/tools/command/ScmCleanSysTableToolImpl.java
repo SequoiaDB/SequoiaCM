@@ -10,6 +10,7 @@ import com.sequoiacm.cloud.tools.common.ScmHelpGenerator;
 import com.sequoiacm.cloud.tools.common.ScmSysTableCleaner;
 import com.sequoiacm.cloud.tools.common.ScmSysTableProcessorFactory;
 import com.sequoiacm.cloud.tools.element.ScmNodeType;
+import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 
 public class ScmCleanSysTableToolImpl implements ScmTool {
@@ -44,8 +45,7 @@ public class ScmCleanSysTableToolImpl implements ScmTool {
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String nodeTypeStr = cl.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE);
 
-        ScmNodeType nodeType = ScmNodeType.getNodeTypeByStr(nodeTypeStr);
-
+        
         String sdbUrl = cl.getOptionValue(OPT_LONG_SDB_URL);
         String sdbUser = cl.hasOption(OPT_LONG_SDB_USER) ? cl.getOptionValue(OPT_LONG_SDB_USER)
                 : "";
@@ -53,11 +53,13 @@ public class ScmCleanSysTableToolImpl implements ScmTool {
                 ? cl.getOptionValue(OPT_LONG_SDB_PWD_FILE)
                 : "";
 
+        ScmNodeType nodeType = ScmNodeType.getNodeTypeByStr(nodeTypeStr);
         ScmSysTableCleaner sysTableCleaner = ScmSysTableProcessorFactory
                 .getSysTableCleaner(nodeType, sdbUrl, sdbUser, sdbPwdFile);
-        if (sysTableCleaner != null) {
-            sysTableCleaner.clean();
+        if (sysTableCleaner == null) {
+            throw new ScmToolsException("unknown type:" + nodeTypeStr, ScmExitCode.INVALID_ARG);
         }
+        sysTableCleaner.clean();
     }
 
     @Override

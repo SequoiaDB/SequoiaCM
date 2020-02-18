@@ -110,13 +110,6 @@ cloud 安装包下的 deploy.py 提供 Cloud 服务的部署功能，deploy.py �
             "scm.statistics.job.period": "1d"
         }
     ],
-    "user": {
-        "username": "scmUser",
-        "password": "scmPassword",
-        "authServerUrl": "localhost:8810",
-        "adminUsername": "admin",
-        "adminPassword": "admin"
-    },
     "audit": {
         "auditurl":"localhost:11810",
         "audituser":"sdbadmin",
@@ -131,8 +124,6 @@ cloud 安装包下的 deploy.py 提供 Cloud 服务的部署功能，deploy.py �
 >  * gateway、serviceCenter、authServer、serviceTrace、adminServer 字段用于描述指定服务实例的配置，这些字段的值是一个 JSON 数组，表示一组服务实例的配置，hostname 字段表示部署到哪台主机，其它为节点配置，所有支持的配置及含义可以参考 [cloud 节点配置][cloud_config]
 >
 >  * deploy.py 目前只支持部署本机站点，所以 deploy.py 将会跳过 hostname 为非本机的节点配置。用户可以规划好配置文件后，拷贝到各个需要部署节点的机器上，分别执行 deploy.py。
->
->  * user 字段用于配置一个新用户，不需要创建用户可以省略该字段，username 表示新用户的用户名，password 表示新用户的密码，authServerUrl 表示一个 authServer 实例的地址，adminUsername 表示管理员用户名，adminPassword 表示管理员密码
 >
 >  * audit 字段表示 cloud 服务节点的审计配置，其中 auditurl 表示审计日志的入库地址（SequoiaDB），audituser 表示用户名，auditpassword 表示密码文件（密码文件通过 [encrypt 命令][encrypt_tool]生成）
 >

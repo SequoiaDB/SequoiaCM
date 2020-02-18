@@ -27,6 +27,7 @@ public class ScmToolsDefine {
         // ***********tools log conf*************
         public static final String START_LOG_CONF = "logback_start.xml";
         public static final String STOP_LOG_CONF = "logback_stop.xml";
+        public static final String ADMIN_LOG_CONF = "logback_admin.xml";
 
     }
 

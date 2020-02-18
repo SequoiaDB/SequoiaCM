@@ -12,7 +12,7 @@ import com.sequoiadb.base.Sequoiadb;
 class AdminServerTableCreator extends AdminServerTableProcessor implements ScmSysTableCreator {
     private final static Logger logger = LoggerFactory.getLogger(AdminServerTableCreator.class);
 
-    AdminServerTableCreator(Properties properties) {
+    AdminServerTableCreator(Properties properties) throws ScmToolsException {
         super(properties);
     }
 
@@ -29,7 +29,8 @@ class AdminServerTableCreator extends AdminServerTableProcessor implements ScmSy
             System.out.println("Creating collection: " + CL_FILE_DELTA);
             logger.info("Creating collection: " + CL_FILE_DELTA);
             createCollectionIfNotExist(sysCS, CL_FILE_DELTA);
-        } finally {
+        }
+        finally {
             releaseConnection(sdb);
         }
     }

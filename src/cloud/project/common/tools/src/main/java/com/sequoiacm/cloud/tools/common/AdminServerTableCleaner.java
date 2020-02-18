@@ -10,7 +10,8 @@ import com.sequoiadb.base.Sequoiadb;
 class AdminServerTableCleaner extends AdminServerTableProcessor implements ScmSysTableCleaner {
     private final static Logger logger = LoggerFactory.getLogger(AdminServerTableCreator.class);
 
-    AdminServerTableCleaner(String sdbUrl, String username, String passwordFile) {
+    AdminServerTableCleaner(String sdbUrl, String username, String passwordFile)
+            throws ScmToolsException {
         super(sdbUrl, username, passwordFile);
     }
 
@@ -32,7 +33,8 @@ class AdminServerTableCleaner extends AdminServerTableProcessor implements ScmSy
             logger.info("Dropping collection: " + CL_FILE_DELTA);
             dropCollectionIfExists(sysCS, CL_FILE_DELTA);
 
-        } finally {
+        }
+        finally {
             releaseConnection(sdb);
         }
     }

@@ -18,10 +18,8 @@ scmcloudadmin 提供 Cloud 服务配置管理功能
 |子命令    |描述             |
 |----------|----------------|
 |[createnode][create_node]|创建 Cloud 服务节点  |
-|[createuser][create_user]|创建 SequoiaCM 用户|
 |[cleansystable][clean_systable]|清理系统表|
 
 [create_node]:Maintainance/Tools/Scmcloudadmin/createnode.md
-[create_user]:Maintainance/Tools/Scmcloudadmin/createuser.md
 [clean_systable]:Maintainance/Tools/Scmcloudadmin/cleansystable.md
 

@@ -315,12 +315,6 @@
                     "en": "createnode"
                 },
                 {
-                    "id": 1540964428,
-                    "file": "createuser",
-                    "cn": "createuser",
-                    "en": "createuser"
-                },
-                {
                     "id": 1540964437,
                     "file": "cleansystable",
                     "cn": "cleansystable",

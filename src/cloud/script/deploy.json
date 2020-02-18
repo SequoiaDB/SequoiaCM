@@ -92,13 +92,6 @@
             "scm.statistics.job.period": "1d"
         }
     ],
-    "user": {
-        "username": "scmUser",
-        "password": "scmPassword",
-        "authServerUrl": "localhost:8810",
-        "adminUsername": "admin",
-        "adminPassword": "admin"
-    },
     "audit": {
         "auditurl":"localhost:11810",
         "audituser":"sdbadmin",

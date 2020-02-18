@@ -68,18 +68,6 @@ def create_node(node_type, auditconf, config):
         cmd += ' -D'+key+'='+config[key]
     scm_admin(cmd)
 
-
-def create_user(conf):
-    if 'user' in conf: 
-        user_config = conf['user']
-        cmd = 'createuser --username ' + user_config['username'] +\
-              ' --password ' + user_config['password'] + \
-              ' --auth-url ' + user_config['authServerUrl']
-        if 'adminUsername' in user_config and 'adminPassword' in user_config:
-            cmd += ' --admin-user ' + user_config['adminUsername'] + \
-                   ' --admin-password ' + user_config['adminPassword']
-        scm_admin(cmd)
-
 def hostAdaptor(hostname):
     local_hostname = socket.gethostname()
     local_hostip = socket.gethostbyname(local_hostname)
@@ -143,10 +131,9 @@ def main(argv):
 
     config = root_dir + os.sep + "deploy.json"
     start = False
-    only_createuser = False
     try:
         opts, args = getopt.getopt(argv[1:], "hc:b:s",
-                                   ["help", "conf=", "bin=", "start", "cleansystable", "dryrun", "only-createuser"])
+                                   ["help", "conf=", "bin=", "start", "cleansystable", "dryrun"])
     except getopt.GetoptError:
         print_help(argv[0])
         sys.exit(2)
@@ -164,13 +151,8 @@ def main(argv):
             dry_run = True
         elif opt == "--cleansystable":
             clean_systable = True
-        elif opt == "--only-createuser":
-            only_createuser = True
     conf = load_config(config)
-    
-    if only_createuser:
-        create_user(conf)
-        return
+
     
     deploy_scm(conf)
     if start:

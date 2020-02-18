@@ -2,8 +2,9 @@ package com.sequoiacm.cloud.tools.common;
 
 import java.util.Properties;
 
-import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
+import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
@@ -22,17 +23,25 @@ abstract class ScmSysTableProcessor {
     private final static String FIELD_SDB_USERNAME = "scm.store.sequoiadb.username";
     private final static String FIELD_SDB_PASSWORD = "scm.store.sequoiadb.password";
 
-
-    protected ScmSysTableProcessor(String sdbUrl, String username, String password) {
-        Assert.hasText(sdbUrl, "Invalid SequoiaDB URL");
+    protected ScmSysTableProcessor(String sdbUrl, String username, String password)
+            throws ScmToolsException {
+        if (!StringUtils.hasText(sdbUrl)) {
+            throw new ScmToolsException("sdb url is empty or not specified",
+                    ScmExitCode.INVALID_ARG);
+        }
         this.sdbUrl = sdbUrl;
         this.username = username;
         this.password = password;
     }
 
-    protected ScmSysTableProcessor(Properties properties) {
-        this(properties.getProperty(FIELD_SDB_URLS), properties.getProperty(FIELD_SDB_USERNAME),
-                properties.getProperty(FIELD_SDB_PASSWORD));
+    protected ScmSysTableProcessor(Properties properties) throws ScmToolsException {
+        this.sdbUrl = properties.getProperty(FIELD_SDB_URLS);
+        if (!StringUtils.hasText(this.sdbUrl)) {
+            throw new ScmToolsException("sdb url is empty or not specified:key=" + FIELD_SDB_URLS,
+                    ScmExitCode.INVALID_ARG);
+        }
+        this.username = properties.getProperty(FIELD_SDB_USERNAME);
+        this.password = properties.getProperty(FIELD_SDB_PASSWORD);
     }
 
     protected Sequoiadb getConnection() throws ScmToolsException {

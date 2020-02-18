@@ -2,6 +2,8 @@ package com.sequoiacm.cloud.tools.common;
 
 import java.util.Properties;
 
+import com.sequoiacm.cloud.tools.exception.ScmToolsException;
+
 abstract class AuthServerTableProcessor extends ScmSysTableProcessor {
 
     final static String CL_SESSIONS = "SESSIONS";
@@ -11,11 +13,12 @@ abstract class AuthServerTableProcessor extends ScmSysTableProcessor {
     final static String CL_PRIV_RESOURCE = "PRIV_RESOURCE";
     final static String CL_PRIV_ROLE_RESOURCE_REL = "PRIV_ROLE_RESOURCE_REL";
 
-    protected AuthServerTableProcessor(String sdbUrl, String username, String passwordFile) {
+    protected AuthServerTableProcessor(String sdbUrl, String username, String passwordFile)
+            throws ScmToolsException {
         super(sdbUrl, username, passwordFile);
     }
 
-    protected AuthServerTableProcessor(Properties properties) {
+    protected AuthServerTableProcessor(Properties properties) throws ScmToolsException {
         super(properties);
     }
 }

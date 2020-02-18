@@ -22,7 +22,7 @@ public final class ScmSysTableProcessorFactory {
     }
 
     public static ScmSysTableCleaner getSysTableCleaner(ScmNodeType nodeType, String sdbUrl,
-            String sdbUser, String sdbPwdFile) {
+            String sdbUser, String sdbPwdFile) throws ScmToolsException {
         switch (nodeType) {
             case AUTH_SERVER:
                 return new AuthServerTableCleaner(sdbUrl, sdbUser, sdbPwdFile);

@@ -10,7 +10,8 @@ import com.sequoiadb.base.Sequoiadb;
 class AuthServerTableCleaner extends AuthServerTableProcessor implements ScmSysTableCleaner {
     private final static Logger logger = LoggerFactory.getLogger(AuthServerTableCreator.class);
 
-    AuthServerTableCleaner(String sdbUrl, String sdbUser, String sdbPwdFile) {
+    AuthServerTableCleaner(String sdbUrl, String sdbUser, String sdbPwdFile)
+            throws ScmToolsException {
         super(sdbUrl, sdbUser, sdbPwdFile);
     }
 
@@ -47,7 +48,8 @@ class AuthServerTableCleaner extends AuthServerTableProcessor implements ScmSysT
             System.out.println("Dropping collection: " + CL_PRIV_ROLE_RESOURCE_REL);
             logger.info("Dropping collection: " + CL_PRIV_ROLE_RESOURCE_REL);
             dropCollectionIfExists(sysCS, CL_PRIV_ROLE_RESOURCE_REL);
-        } finally {
+        }
+        finally {
             releaseConnection(sdb);
         }
     }
