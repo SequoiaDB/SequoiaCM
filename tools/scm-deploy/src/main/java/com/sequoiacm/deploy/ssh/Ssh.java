@@ -34,6 +34,7 @@ public class Ssh implements Closeable {
     private boolean isNeedMakeScpTmpDir;
     private String scpTmpPath;
     private SshConfig sshConfig;
+    private boolean isRootUser;
 
     Ssh(SshMgr sshMgr, String host, int port, String username, String password, SshConfig sshConfig)
             throws IOException {
@@ -42,6 +43,7 @@ public class Ssh implements Closeable {
         this.host = host;
         this.port = port;
         this.username = username;
+        this.isRootUser = username.equals("root");
         this.isNeedMakeScpTmpDir = true;
         this.password = password;
         this.sshMgr = sshMgr;
@@ -85,11 +87,10 @@ public class Ssh implements Closeable {
         String command = "echo -e '#!/bin/bash \n . " + sshConfig.getEnvFile()
                 + " > /dev/null \n echo $" + key
                 + "' > ./searchEnv.sh && /bin/bash ./searchEnv.sh && rm ./searchEnv.sh";
-        command = "sudo -S -p '' " + command;
-        SshExecRes res = internalExec(command, true);
+        SshExecRes res = internalSudoExec(command);
         String envValue = res.getStdOut();
         if (envValue == null || envValue.trim().length() == 0) {
-            throw new IllegalArgumentException("JAVA_HOME not define, host=" + host
+            throw new IllegalArgumentException("env " + key + " not define, host=" + host
                     + ", searchPath=" + sshConfig.getEnvFile());
         }
 
@@ -150,8 +151,16 @@ public class Ssh implements Closeable {
     }
 
     public int sudoExec(String command, Integer... expectExitCode) throws IOException {
+        return internalSudoExec(command, expectExitCode).getExitCode();
+    }
+
+    private SshExecRes internalSudoExec(String command, Integer... expectExitCode)
+            throws IOException {
+        if (isRootUser) {
+            return internalExec(command, false, expectExitCode);
+        }
         command = "sudo -S -p '' " + command;
-        return internalExec(command, true, expectExitCode).getExitCode();
+        return internalExec(command, true, expectExitCode);
     }
 
     private SshExecRes internalExec(String command, boolean isNeedSendPasswd,
@@ -241,7 +250,8 @@ public class Ssh implements Closeable {
 
         String stderr = stderrBf.toString();
         String stdout = stdoutBf.toString();
-        if (isNeedSendPasswd && stdout.length() >= password.length()) {
+        if (isNeedSendPasswd && stdout.length() >= password.length()
+                && stdout.startsWith(password)) {
             // we have setTTY, the password that we send will occur in stdout,
             // remove it.
             stdout = stdout.substring(password.length()).trim();
