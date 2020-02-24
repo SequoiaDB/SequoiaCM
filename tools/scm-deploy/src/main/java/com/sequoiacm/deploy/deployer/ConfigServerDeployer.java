@@ -10,6 +10,7 @@ import com.sequoiacm.deploy.core.ScmPasswordFileSender;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.NodeInfo;
 import com.sequoiacm.deploy.module.ServiceType;
+
 @Deployer
 public class ConfigServerDeployer extends ServiceDeployerBase {
 
@@ -51,6 +52,7 @@ public class ConfigServerDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/confctl.sh start -p " + node.getPort();
+        return serviceInstallPath + "/bin/confctl.sh start --timeout "
+                + getWaitServiceReadyTimeout() + " -p " + node.getPort();
     }
 }

@@ -1,3 +1,4 @@
+
 package com.sequoiacm.deploy.deployer;
 
 import org.bson.BSONObject;
@@ -10,6 +11,7 @@ import com.sequoiacm.deploy.core.ScmPasswordFileSender;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.NodeInfo;
 import com.sequoiacm.deploy.module.ServiceType;
+
 @Deployer
 public class ScheduleServerDeployer extends ServiceDeployerBase {
 
@@ -61,6 +63,7 @@ public class ScheduleServerDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/schctl.sh start -p " + node.getPort();
+        return serviceInstallPath + "/bin/schctl.sh start --timeout " + getWaitServiceReadyTimeout()
+                + " -p " + node.getPort();
     }
 }

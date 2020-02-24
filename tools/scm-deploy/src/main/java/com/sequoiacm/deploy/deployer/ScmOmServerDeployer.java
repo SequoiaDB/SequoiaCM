@@ -12,6 +12,7 @@ import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.DeployJsonDefine;
 import com.sequoiacm.deploy.module.NodeInfo;
 import com.sequoiacm.deploy.module.ServiceType;
+
 @Deployer
 public class ScmOmServerDeployer extends ServiceDeployerBase {
 
@@ -50,6 +51,7 @@ public class ScmOmServerDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/omctl.sh start -p " + node.getPort();
+        return serviceInstallPath + "/bin/omctl.sh start --timeout " + getWaitServiceReadyTimeout()
+                + " -p " + node.getPort();
     }
 }

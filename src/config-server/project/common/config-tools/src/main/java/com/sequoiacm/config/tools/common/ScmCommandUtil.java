@@ -79,4 +79,15 @@ public class ScmCommandUtil {
         return false;
     }
 
+    public static int getTimeout(CommandLine commandLine, String timeoutOptName)
+            throws ScmToolsException {
+        int shortestTimeout = 5; // 5s
+        String timeOutStr = commandLine.getOptionValue(timeoutOptName);
+        int timeout = ScmCommon.convertStrToInt(timeOutStr);
+        if (timeout < shortestTimeout) {
+            timeout = shortestTimeout;
+        }
+        return timeout * 1000;
+    }
+
 }

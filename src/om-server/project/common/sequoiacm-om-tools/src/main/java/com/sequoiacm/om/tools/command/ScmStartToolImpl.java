@@ -27,12 +27,13 @@ import com.sequoiacm.om.tools.exception.ScmToolsException;
 import com.sequoiacm.om.tools.exec.ScmExecutorWrapper;
 
 public class ScmStartToolImpl implements ScmTool {
-    public final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
-    public final int TIME_WAIT_PROCESS_STATUS_NORMAL = 50000; // 50s
+    private final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
+    private int waitProcessTimeout = 50000; // 50s
 
     private final String OPT_SHORT_PORT = "p";
     private final String OPT_LONG_PORT = "port";
     private final String OPT_SHORT_I = "I";
+    private final String OPT_LONG_TIMEOUT = "timeout";
     // private final String OPT_LONG_OPTION = "option";
     private ScmExecutorWrapper executor;
     private int success = 0;
@@ -44,12 +45,14 @@ public class ScmStartToolImpl implements ScmTool {
     public ScmStartToolImpl() throws ScmToolsException {
         options = new Options();
         hp = new ScmHelpGenerator();
-        options.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true,
-                false));
+        options.addOption(
+                hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
 
         ScmCommandUtil.addTypeOption(options, hp, false, true);
 
         options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
+        options.addOption(hp.createOpt(null, OPT_LONG_TIMEOUT,
+                "sets the starting timeout in seconds, default:50", false, true, false));
 
         executor = new ScmExecutorWrapper();
 
@@ -66,11 +69,16 @@ public class ScmStartToolImpl implements ScmTool {
         if (commandLine.hasOption(OPT_SHORT_PORT)
                 && commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)
                 || !commandLine.hasOption(OPT_SHORT_PORT)
-                && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
+                        && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
             logger.error("Invalid arg:please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -"
                     + OPT_SHORT_PORT);
-            throw new ScmToolsException("please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE
-                    + " or -" + OPT_SHORT_PORT, ScmExitCode.INVALID_ARG);
+            throw new ScmToolsException(
+                    "please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -" + OPT_SHORT_PORT,
+                    ScmExitCode.INVALID_ARG);
+        }
+
+        if (commandLine.hasOption(OPT_LONG_TIMEOUT)) {
+            waitProcessTimeout = ScmCommandUtil.getTimeout(commandLine, OPT_LONG_TIMEOUT);
         }
 
         Map<Integer, ScmNodeInfo> needStartMap = new HashMap<Integer, ScmNodeInfo>();
@@ -148,9 +156,8 @@ public class ScmStartToolImpl implements ScmTool {
                     }
                     else {
                         System.out
-                                .println("Failed:" + needStartMap.get(key)
-                                        + " is already started (" + pid
-                                        + "),but node status is not normal");
+                                .println("Failed:" + needStartMap.get(key) + " is already started ("
+                                        + pid + "),but node status is not normal");
                         logger.info("Failed:" + needStartMap.get(key) + " is already started ("
                                 + pid + "),but node status is not normal:" + status);
                     }
@@ -179,10 +186,10 @@ public class ScmStartToolImpl implements ScmTool {
                         isPidExist = true;
                         String runningStatus = getNodeRunningStatus(node.getPort(), restTemplate);
                         if (runningStatus.equals("UP")) {
-                            System.out.println("Suscess:" + node + " is successfully started ("
-                                    + pid + ")");
-                            logger.info("Suscess:" + node + " is successfully started (" + pid
-                                    + ")");
+                            System.out.println(
+                                    "Suscess:" + node + " is successfully started (" + pid + ")");
+                            logger.info(
+                                    "Suscess:" + node + " is successfully started (" + pid + ")");
                             success++;
                             it.remove();
                             port2Status.remove(node);
@@ -210,8 +217,7 @@ public class ScmStartToolImpl implements ScmTool {
                 break;
             }
 
-            if (isPidExist
-                    && System.currentTimeMillis() - timeStamp > TIME_WAIT_PROCESS_STATUS_NORMAL) {
+            if (isPidExist && System.currentTimeMillis() - timeStamp > waitProcessTimeout) {
                 break;
             }
 
