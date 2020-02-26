@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.sequoiacm.om.tools.SchCtl;
+import com.sequoiacm.om.tools.OmCtl;
 import com.sequoiacm.om.tools.common.ScmCommandUtil;
 import com.sequoiacm.om.tools.common.ScmCommon;
 import com.sequoiacm.om.tools.common.ScmHelpGenerator;
@@ -64,7 +64,7 @@ public class ScmStartToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchCtl.checkHelpArgs(args);
+        OmCtl.checkHelpArgs(args);
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_PORT)
                 && commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)

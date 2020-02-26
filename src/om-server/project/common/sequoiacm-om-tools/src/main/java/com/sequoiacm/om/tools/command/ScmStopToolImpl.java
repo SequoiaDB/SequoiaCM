@@ -11,7 +11,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.om.tools.SchCtl;
+import com.sequoiacm.om.tools.OmCtl;
 import com.sequoiacm.om.tools.common.ScmCommandUtil;
 import com.sequoiacm.om.tools.common.ScmCommon;
 import com.sequoiacm.om.tools.common.ScmHelpGenerator;
@@ -48,7 +48,7 @@ public class ScmStopToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchCtl.checkHelpArgs(args);
+        OmCtl.checkHelpArgs(args);
         executor = new ScmExecutorWrapper();
 
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);

@@ -6,18 +6,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.om.tools.command.ScmCreateNodeToolImpl;
+import com.sequoiacm.om.tools.command.ScmHelpToolImpl;
 import com.sequoiacm.om.tools.command.ScmTool;
 import com.sequoiacm.om.tools.common.ScmCommon;
 import com.sequoiacm.om.tools.exception.ScmExitCode;
 import com.sequoiacm.om.tools.exception.ScmToolsException;
 
-public class SchAdmin {
-    private static Logger logger = LoggerFactory.getLogger(SchAdmin.class.getName());
-    public final static String helpMsg = "usage: scmadmin <subcommand> [options] [args]" + "\r\n"
-            + "Type 'schadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'schadmin --version' to see the program version" + "\r\n"
-            + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\tsubscribe" + "\r\n"
-            + "\tunsubscribe" + "\r\n" + "\tlistsubscribers" + "\r\n" + "\thelp";
+public class OmAdmin {
+    private static Logger logger = LoggerFactory.getLogger(OmAdmin.class.getName());
+    public final static String helpMsg = "usage: omadmin <subcommand> [options] [args]" + "\r\n"
+            + "Type 'omadmin help [subcommand]' for help on a specific subcommand" + "\r\n"
+            + "Type 'omadmin --version' to see the program version" + "\r\n"
+            + "Available subcommands:" + "\r\n" + "\tcreatenode" + "\r\n" + "\thelp";
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -122,6 +122,12 @@ public class SchAdmin {
         ScmTool instance = null;
         if (toolName.equals("createnode")) {
             instance = new ScmCreateNodeToolImpl();
+        }
+        else if (toolName.equals("help")) {
+            instance = new ScmHelpToolImpl(OmAdmin.class, false);
+        }
+        else if (toolName.equals("helpfull")) {
+            instance = new ScmHelpToolImpl(OmAdmin.class, true);
         }
         else {
 

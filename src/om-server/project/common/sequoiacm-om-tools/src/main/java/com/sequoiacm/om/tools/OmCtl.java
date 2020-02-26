@@ -16,11 +16,11 @@ import com.sequoiacm.om.tools.common.ScmToolsDefine;
 import com.sequoiacm.om.tools.exception.ScmExitCode;
 import com.sequoiacm.om.tools.exception.ScmToolsException;
 
-public class SchCtl {
-    private static Logger logger = LoggerFactory.getLogger(SchCtl.class.getName());
-    public static String helpMsg = "usage: scmctl <subcommand> [options] [args]" + "\r\n"
-            + "Type 'schctl help [subcommand]' for help on a specific subcommand" + "\r\n"
-            + "Type 'schctl --version' to see the program version" + "\r\n" + "\r\n"
+public class OmCtl {
+    private static Logger logger = LoggerFactory.getLogger(OmCtl.class.getName());
+    public static String helpMsg = "usage: omctl <subcommand> [options] [args]" + "\r\n"
+            + "Type 'omctl help [subcommand]' for help on a specific subcommand" + "\r\n"
+            + "Type 'omctl --version' to see the program version" + "\r\n" + "\r\n"
             + "Available subcommands:" + "\r\n" + "\tstart" + "\r\n" + "\tstop" + "\r\n" + "\tlist"
             + "\r\n" + "\thelp";
 
@@ -36,8 +36,8 @@ public class SchCtl {
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err.println("create  " + args[0]
-                        + " subcommand instance failed,stack trace:");
+                System.err
+                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
                 e.printStackTrace();
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }
@@ -139,10 +139,10 @@ public class SchCtl {
             instance = new ScmListToolImpl();
         }
         else if (toolName.equals("help")) {
-            instance = new ScmHelpToolImpl(SchCtl.class, false);
+            instance = new ScmHelpToolImpl(OmCtl.class, false);
         }
         else if (toolName.equals("helpfull")) {
-            instance = new ScmHelpToolImpl(SchCtl.class, true);
+            instance = new ScmHelpToolImpl(OmCtl.class, true);
         }
         else {
             // TODO:

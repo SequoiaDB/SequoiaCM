@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import com.sequoiacm.om.tools.SchCtl;
+import com.sequoiacm.om.tools.OmCtl;
 import com.sequoiacm.om.tools.common.ScmCommandUtil;
 import com.sequoiacm.om.tools.common.ScmCommon;
 import com.sequoiacm.om.tools.common.ScmHelpGenerator;
@@ -35,7 +35,7 @@ public class ScmListToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchCtl.checkHelpArgs(args);
+        OmCtl.checkHelpArgs(args);
 
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
         Map<Integer, ScmNodeInfo> port2Node = executor.getAllNode();

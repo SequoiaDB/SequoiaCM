@@ -15,7 +15,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.om.tools.SchCtl;
+import com.sequoiacm.om.tools.OmCtl;
 import com.sequoiacm.om.tools.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.om.tools.element.ScmNodeType;
 import com.sequoiacm.om.tools.exception.ScmExitCode;
@@ -113,7 +113,7 @@ public class ScmCloudNodeCreator {
 
     private void createConf(String sampleConf, String outputConfPath, Properties modifier)
             throws ScmToolsException {
-        InputStream is = SchCtl.class.getClassLoader().getResourceAsStream(sampleConf);
+        InputStream is = OmCtl.class.getClassLoader().getResourceAsStream(sampleConf);
         if (is == null) {
             logger.error("missing resource file:" + sampleConf);
             throw new ScmToolsException("missing resource file:" + sampleConf,

@@ -8,7 +8,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.om.tools.SchAdmin;
+import com.sequoiacm.om.tools.OmAdmin;
 import com.sequoiacm.om.tools.common.ScmCloudNodeCreator;
 import com.sequoiacm.om.tools.common.ScmCommandUtil;
 import com.sequoiacm.om.tools.common.ScmHelpGenerator;
@@ -37,7 +37,7 @@ public class ScmCreateNodeToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        SchAdmin.checkHelpArgs(args);
+        OmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String nodeType = cl.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE);
 

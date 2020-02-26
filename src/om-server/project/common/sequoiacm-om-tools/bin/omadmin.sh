@@ -13,7 +13,7 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
-MAINCLASS="com.sequoiacm.om.tools.SchAdmin"
+MAINCLASS="com.sequoiacm.om.tools.OmAdmin"
 CSPATH=$(pwd)
 JARPATH=$(./bin/findToolsJar.sh)
 if [ $? -ne 0 ]; then

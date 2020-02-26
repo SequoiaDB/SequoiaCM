@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
-import com.sequoiacm.om.tools.SchCtl;
+import com.sequoiacm.om.tools.OmCtl;
 import com.sequoiacm.om.tools.element.ScmNodeType;
 import com.sequoiacm.om.tools.exception.ScmExitCode;
 import com.sequoiacm.om.tools.exception.ScmToolsException;
@@ -148,7 +148,7 @@ public class ScmCommon {
     // }
 
     public static void configToolsLog(String logFile) throws ScmToolsException {
-        InputStream is = SchCtl.class.getClassLoader().getResourceAsStream(logFile);
+        InputStream is = OmCtl.class.getClassLoader().getResourceAsStream(logFile);
         try {
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configure = new JoranConfigurator();
