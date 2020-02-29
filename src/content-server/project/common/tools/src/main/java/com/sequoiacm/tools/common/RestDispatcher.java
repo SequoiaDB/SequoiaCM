@@ -82,7 +82,9 @@ public class RestDispatcher {
             handleException(resp);
         }
         catch (Exception e) {
-            throw new ScmToolsException("create content node failed:" + nodeConf,
+            logger.error("failed to create node: {}", nodeConf, e);
+            throw new ScmToolsException(
+                    "failed to create node:" + nodeConf + ", cause by:" + e.getMessage(),
                     ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
@@ -109,8 +111,9 @@ public class RestDispatcher {
             handleException(resp);
         }
         catch (Exception e) {
-            throw new ScmToolsException("delete content node failed: port=" + port,
-                    ScmExitCode.SCM_REQUEST_ERROR, e);
+            logger.error("failed to delete node: {}:{}", hostName, port, e);
+            throw new ScmToolsException("failed to  delete node: " + hostName + ":" + port
+                    + ", cause by:" + e.getMessage(), ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
             ScmCommon.closeResource(resp);
@@ -134,7 +137,9 @@ public class RestDispatcher {
             handleException(resp);
         }
         catch (Exception e) {
-            throw new ScmToolsException("delete site failed: sitename=" + siteName,
+            logger.error("failed to delete site:{}", siteName, e);
+            throw new ScmToolsException(
+                    "failed to delete site: " + siteName + ", cause by:" + e.getMessage(),
                     ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
@@ -158,8 +163,10 @@ public class RestDispatcher {
             handleException(resp);
         }
         catch (Exception e) {
-            throw new ScmToolsException("create site failed:" + siteConf.toBsonObject(),
-                    ScmExitCode.SCM_REQUEST_ERROR, e);
+            logger.error("failed to create site:{}", siteConf.toBsonObject(), e);
+            throw new ScmToolsException(
+                    "failed to create site:" + siteConf.getName() + ", cause by:" + e.getMessage(),
+                    ScmExitCode.SCM_REQUEST_ERROR);
         }
         finally {
             ScmCommon.closeResource(resp);
@@ -168,8 +175,7 @@ public class RestDispatcher {
 
     }
 
-    private void handleException(CloseableHttpResponse response)
-            throws IOException, ScmToolsException {
+    private void handleException(CloseableHttpResponse response) throws Exception {
         int httpStatusCode = response.getStatusLine().getStatusCode();
 
         // 2xx Success
@@ -191,8 +197,7 @@ public class RestDispatcher {
                 message = BsonUtils.getString(error, "message");
             }
         }
-
-        throw new ScmToolsException(message, errcode);
+        throw new Exception(message + ", errorcode=" + errcode);
     }
 
     private String getErrorResponse(CloseableHttpResponse resp) throws IOException {
