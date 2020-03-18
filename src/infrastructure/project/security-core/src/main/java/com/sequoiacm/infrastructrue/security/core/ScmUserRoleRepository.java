@@ -26,6 +26,8 @@ public interface ScmUserRoleRepository {
 
     ScmUser findUserByName(String userName);
 
+    ScmUser findUserByAccesskey(String accessKey);
+    
     ScmUser findUserById(String userId);
 
     List<ScmUser> findUsersByRoleName(String roleName);

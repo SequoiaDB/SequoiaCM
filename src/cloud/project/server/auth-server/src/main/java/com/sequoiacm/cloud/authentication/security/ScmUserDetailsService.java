@@ -22,4 +22,12 @@ public class ScmUserDetailsService implements UserDetailsService {
         }
         return user;
     }
+
+    public UserDetails loadUserByAccesskey(String accessKey) {
+        ScmUser user = repository.findUserByAccesskey(accessKey);
+        if (user == null) {
+            throw new UsernameNotFoundException("Accesskey: " + accessKey);
+        }
+        return user;
+    }
 }

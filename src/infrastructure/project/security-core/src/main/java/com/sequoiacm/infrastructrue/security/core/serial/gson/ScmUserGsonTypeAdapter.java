@@ -30,6 +30,7 @@ public class ScmUserGsonTypeAdapter extends ScmGsonTypeAdapter<String, ScmUser> 
         out.name(ScmUser.JSON_FIELD_USERNAME).value(value.getUsername());
         out.name(ScmUser.JSON_FIELD_PASSWORD_TYPE).value(value.getPasswordType().name());
         out.name(ScmUser.JSON_FIELD_ENABLED).value(value.isEnabled());
+        out.name(ScmUser.JSON_FIELD_ACCESS_KEY).value(value.getAccesskey());
         writeArray(out, ScmUser.JSON_FIELD_ROLES, value.getAuthorities());
         out.endObject();
 

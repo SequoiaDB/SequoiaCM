@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -21,6 +20,7 @@ import com.sequoiacm.cloud.authentication.security.ScmAuthenticationFailureHandl
 import com.sequoiacm.cloud.authentication.security.ScmAuthenticationSuccessHandler;
 import com.sequoiacm.cloud.authentication.security.ScmLogoutSuccessHandler;
 import com.sequoiacm.cloud.authentication.security.ScmUserDetailsService;
+import com.sequoiacm.cloud.authentication.security.SignatureInfoDetailSource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
@@ -51,9 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     ScmUserRoleRepository userRoleRepository() {
 
         return new SequoiadbScmUserRoleRepository(sequoiadbDatasource,
-                collectionConfig.getCollectionSpaceName(),
-                collectionConfig.getUserCollectionName(), collectionConfig.getRoleCollectionName(),
-                passwordEncoder());
+                collectionConfig.getCollectionSpaceName(), collectionConfig.getUserCollectionName(),
+                collectionConfig.getRoleCollectionName(), passwordEncoder());
     }
 
     @Bean
@@ -68,9 +67,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     ScmAuthenticationConfigurer scmAuthenticationConfigurer() {
-        return new ScmAuthenticationConfigurer<AuthenticationManagerBuilder, UserDetailsService>(
-                scmUserDetailsService(), ldapTemplate, new AuthenticationOptions(ldapConfig, tokenConfig))
-                .passwordEncoder(passwordEncoder());
+        return new ScmAuthenticationConfigurer<AuthenticationManagerBuilder>(
+                scmUserDetailsService(), ldapTemplate,
+                new AuthenticationOptions(ldapConfig, tokenConfig))
+                        .passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -81,21 +81,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().httpBasic().disable().formLogin()
-        .successHandler(new ScmAuthenticationSuccessHandler(audit))
-        .failureHandler(new ScmAuthenticationFailureHandler()).permitAll().and().logout()
-        .logoutSuccessHandler(new ScmLogoutSuccessHandler(audit)).and().exceptionHandling()
-        .authenticationEntryPoint(new Http401UnauthorizedEntryPoint()).and().requestCache()
-        .requestCache(new NullRequestCache()).and().authorizeRequests()
+                .authenticationDetailsSource(new SignatureInfoDetailSource())
+                .successHandler(new ScmAuthenticationSuccessHandler(audit))
+                .failureHandler(new ScmAuthenticationFailureHandler()).permitAll().and().logout()
+                .logoutSuccessHandler(new ScmLogoutSuccessHandler(audit)).and().exceptionHandling()
+                .authenticationEntryPoint(new Http401UnauthorizedEntryPoint()).and().requestCache()
+                .requestCache(new NullRequestCache()).and().authorizeRequests()
 
-        .antMatchers(HttpMethod.GET, "/api/**/resources/**").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/**/roles/**").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/**/privileges/**").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/**/relations/**").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/**/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/resources/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/roles/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/privileges/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/relations/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/users/**").permitAll()
 
-        .antMatchers(HttpMethod.POST, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
-        .antMatchers(HttpMethod.DELETE, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
-        .antMatchers(HttpMethod.PUT, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
-        .antMatchers(HttpMethod.GET, "/api/**").authenticated().anyRequest().permitAll();
+                .antMatchers(HttpMethod.POST, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
+                .antMatchers(HttpMethod.DELETE, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
+                .antMatchers(HttpMethod.PUT, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
+                .antMatchers(HttpMethod.GET, "/api/**").authenticated().anyRequest().permitAll();
     }
 }

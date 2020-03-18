@@ -7,19 +7,22 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class ScmAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, U extends UserDetailsService>
-        extends UserDetailsAwareConfigurer<B, U> {
+public class ScmAuthenticationConfigurer<B extends ProviderManagerBuilder<B>>
+        extends UserDetailsAwareConfigurer<B, UserDetailsService> {
     private ScmAuthenticationProvider provider;
-    private final U userDetailsService;
 
-    public ScmAuthenticationConfigurer(U userDetailsService, LdapTemplate ldapTemplate, AuthenticationOptions authenticationOptions) {
+    private UserDetailsService userDetailsService;
+
+    public ScmAuthenticationConfigurer(ScmUserDetailsService userDetailsService,
+            LdapTemplate ldapTemplate, AuthenticationOptions authenticationOptions) {
         this.userDetailsService = userDetailsService;
-        provider = new ScmAuthenticationProvider(ldapTemplate, authenticationOptions);
-        provider.setUserDetailsService(userDetailsService);
+        provider = new ScmAuthenticationProvider(ldapTemplate, authenticationOptions,
+                userDetailsService);
     }
 
     @SuppressWarnings("unchecked")
-    public ScmAuthenticationConfigurer withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+    public ScmAuthenticationConfigurer withObjectPostProcessor(
+            ObjectPostProcessor<?> objectPostProcessor) {
         addObjectPostProcessor(objectPostProcessor);
         return this;
     }
@@ -43,7 +46,9 @@ public class ScmAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, U 
         builder.authenticationProvider(provider);
     }
 
-    public U getUserDetailsService() {
+    @Override
+    public UserDetailsService getUserDetailsService() {
         return userDetailsService;
     }
+
 }

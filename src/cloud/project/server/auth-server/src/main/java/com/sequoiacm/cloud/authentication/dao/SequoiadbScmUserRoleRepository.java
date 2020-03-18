@@ -19,6 +19,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
+import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiadb.base.SequoiadbDatasource;
 
 public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
@@ -31,12 +32,15 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
     private static final String FIELD_USER_PASSWORD = "password";
     private static final String FIELD_USER_ENABLED = "enabled";
     private static final String FIELD_USER_ROLES = "roles";
+    private static final String FIELD_USER_ACCESSKEY = "accesskey";
+    private static final String FIELD_USER_SECRETKEY = "secretkey";
 
     private static final String FIELD_ROLE_ID = "_id";
     private static final String FIELD_ROLE_NAME = "roleName";
     private static final String FIELD_ROLE_DESCRIPTION = "description";
 
     private static final String USER_NAME_INDEX = "username_index";
+    private static final String ACCESSKEY_INDEX = "accesskey_index";
     private static final String ROLE_NAME_INDEX = "role_name_index";
 
     private final String collectionSpaceName;
@@ -63,16 +67,21 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
         ensureIndexes();
     }
 
-
-
     private void ensureIndexes() {
         ensureUsernameIndex();
         ensureRoleNameIndex();
+        ensureAccesskeyIndex();
     }
 
     private void ensureUsernameIndex() {
         BSONObject def = new BasicBSONObject(FIELD_USER_NAME, 1);
         template.collection(collectionSpaceName, userCollectionName).ensureIndex(USER_NAME_INDEX,
+                def, true);
+    }
+
+    private void ensureAccesskeyIndex() {
+        BSONObject def = new BasicBSONObject(FIELD_USER_ACCESSKEY, 1);
+        template.collection(collectionSpaceName, userCollectionName).ensureIndex(ACCESSKEY_INDEX,
                 def, true);
     }
 
@@ -113,7 +122,33 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
             }
             builder.roles(roles);
         }
+        if (obj.containsField(FIELD_USER_ACCESSKEY)) {
+            builder.accesskey((String) obj.get(FIELD_USER_ACCESSKEY));
+        }
+        String encrptedSecretkey = (String) obj.get(FIELD_USER_SECRETKEY);
+        if (encrptedSecretkey != null) {
+            builder.secretkey(decryptScretkey(encrptedSecretkey));
+        }
+
         return builder.build();
+    }
+
+    private String encryptSecretkey(String src) {
+        try {
+            return ScmPasswordMgr.getInstance().encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, src);
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("failed to encrypt secretkey", e);
+        }
+    }
+
+    private String decryptScretkey(String encrypt) {
+        try {
+            return ScmPasswordMgr.getInstance().decrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, encrypt);
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("failed to decrypt secretkey", e);
+        }
     }
 
     private BSONObject userToBSONObj(ScmUser user) {
@@ -123,6 +158,12 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
         obj.put(FIELD_USER_PASSWORD_TYPE, user.getPasswordType().name());
         obj.put(FIELD_USER_PASSWORD, user.getPassword());
         obj.put(FIELD_USER_ENABLED, user.isEnabled());
+        if (user.getAccesskey() != null) {
+            obj.put(FIELD_USER_ACCESSKEY, user.getAccesskey());
+        }
+        if (user.getSecretkey() != null) {
+            obj.put(FIELD_USER_SECRETKEY, encryptSecretkey(user.getSecretkey()));
+        }
         BasicBSONList roles = new BasicBSONList();
         for (ScmRole role : user.getAuthorities()) {
             roles.add(role.getRoleId());
@@ -339,6 +380,17 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
             users.add(user);
         }
         return users;
+    }
+
+    @Override
+    public ScmUser findUserByAccesskey(String accessKey) {
+        BSONObject matcher = new BasicBSONObject(FIELD_USER_ACCESSKEY, accessKey);
+        BSONObject obj = template.collection(collectionSpaceName, userCollectionName)
+                .findOne(matcher);
+        if (obj == null) {
+            return null;
+        }
+        return bsonToUser(obj);
     }
 
 }

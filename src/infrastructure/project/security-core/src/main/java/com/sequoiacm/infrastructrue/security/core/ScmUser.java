@@ -29,6 +29,7 @@ public class ScmUser implements UserDetails, CredentialsContainer {
     public static final String JSON_FIELD_PASSWORD = "password";
     public static final String JSON_FIELD_ENABLED = "enabled";
     public static final String JSON_FIELD_ROLES = "roles";
+    public static final String JSON_FIELD_ACCESS_KEY = "accesskey";
 
     private String userId;
     private String username;
@@ -37,11 +38,16 @@ public class ScmUser implements UserDetails, CredentialsContainer {
     private Set<ScmRole> roles;
     private boolean enabled;
 
+    private String secretkey;
+
+    private String accesskey;
+
     ScmUser() {
     }
 
     public ScmUser(String userId, String username, String password,
-            ScmUserPasswordType passwordType, boolean enabled, Collection<ScmRole> roles) {
+            ScmUserPasswordType passwordType, boolean enabled, Collection<ScmRole> roles,
+            String accessKey, String secretKey) {
         if (userId == null || "".equals(userId)) {
             throw new IllegalArgumentException("Cannot pass null or empty userId to constructor");
         }
@@ -54,7 +60,8 @@ public class ScmUser implements UserDetails, CredentialsContainer {
             throw new IllegalArgumentException("Cannot pass null passwordType to constructor");
         }
 
-        if (passwordType == ScmUserPasswordType.LOCAL && (password == null || "".equals(password))) {
+        if (passwordType == ScmUserPasswordType.LOCAL
+                && (password == null || "".equals(password))) {
             throw new IllegalArgumentException("Cannot pass null or empty password to constructor");
         }
 
@@ -69,6 +76,8 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         else {
             this.roles = Collections.emptySet();
         }
+        this.accesskey = accessKey;
+        this.secretkey = secretKey;
     }
 
     @Override
@@ -135,6 +144,7 @@ public class ScmUser implements UserDetails, CredentialsContainer {
     @Override
     public void eraseCredentials() {
         password = null;
+        secretkey = null;
     }
 
     @Override
@@ -158,6 +168,8 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         sb.append("Username: ").append(this.username).append(", ");
         sb.append("PasswordType: ").append(this.passwordType.name()).append(", ");
         sb.append("Password: [PROTECTED], ");
+        sb.append("Accesskey: ").append(this.accesskey).append(", ");
+        sb.append("Secretkey: [PROTECTED], ");
         sb.append("Enabled: ").append(this.enabled).append(", ");
         sb.append("Roles: [");
         if (null != roles && !roles.isEmpty()) {
@@ -192,8 +204,8 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         return sortedAuthorities;
     }
 
-    private static class AuthorityComparator<T extends GrantedAuthority> implements Comparator<T>,
-    Serializable {
+    private static class AuthorityComparator<T extends GrantedAuthority>
+            implements Comparator<T>, Serializable {
         private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
         @Override
@@ -216,8 +228,20 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         }
     }
 
+    public String getAccesskey() {
+        return accesskey;
+    }
+
+    public String getSecretkey() {
+        return secretkey;
+    }
+
     public static ScmUserBuilder withUsername(String username) {
         return new ScmUserBuilder().username(username);
+    }
+
+    public static ScmUserBuilder copyFrom(ScmUser user) {
+        return new ScmUserBuilder(user);
     }
 
     /**
@@ -232,8 +256,21 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         private ScmUserPasswordType passwordType;
         private List<ScmRole> authorities;
         private boolean disabled;
+        private String accesskey;
+        private String secretkey;
 
         private ScmUserBuilder() {
+        }
+
+        private ScmUserBuilder(ScmUser src) {
+            userId = src.userId;
+            username = src.username;
+            password = src.password;
+            passwordType = src.passwordType;
+            authorities = new ArrayList<>(src.roles);
+            disabled = !src.enabled;
+            accesskey = src.accesskey;
+            secretkey = src.secretkey;
         }
 
         private ScmUserBuilder username(String username) {
@@ -263,8 +300,8 @@ public class ScmUser implements UserDetails, CredentialsContainer {
         public ScmUserBuilder roles(ScmRole... roles) {
             List<ScmRole> authorities = new ArrayList<>(roles.length);
             for (ScmRole role : roles) {
-                Assert.isTrue(role.getRoleName().startsWith("ROLE_"), role.getRoleName()
-                        + " should start with 'ROLE_'");
+                Assert.isTrue(role.getRoleName().startsWith("ROLE_"),
+                        role.getRoleName() + " should start with 'ROLE_'");
                 authorities.add(role);
             }
             return roles(authorities);
@@ -288,8 +325,19 @@ public class ScmUser implements UserDetails, CredentialsContainer {
             return this;
         }
 
+        public ScmUserBuilder accesskey(String accesskey) {
+            this.accesskey = accesskey;
+            return this;
+        }
+
+        public ScmUserBuilder secretkey(String secretkey) {
+            this.secretkey = secretkey;
+            return this;
+        }
+
         public ScmUser build() {
-            return new ScmUser(userId, username, password, passwordType, !disabled, authorities);
+            return new ScmUser(userId, username, password, passwordType, !disabled, authorities,
+                    accesskey, secretkey);
         }
     }
 }

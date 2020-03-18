@@ -33,25 +33,26 @@ public class ScmUserJsonSerializer extends StdSerializer<ScmUser> {
         gen.writeStringField(ScmUser.JSON_FIELD_USERNAME, value.getUsername());
         gen.writeStringField(ScmUser.JSON_FIELD_PASSWORD_TYPE, value.getPasswordType().name());
         gen.writeBooleanField(ScmUser.JSON_FIELD_ENABLED, value.isEnabled());
+        gen.writeStringField(ScmUser.JSON_FIELD_ACCESS_KEY, value.getAccesskey());
         gen.writeFieldName(ScmUser.JSON_FIELD_ROLES);
         String tmp = mapper.writeValueAsString(value.getAuthorities());
         gen.writeRawValue(tmp);
         gen.writeEndObject();
     }
 
-    //    public static void main(String[] args) throws JsonProcessingException {
-    //        ScmUserJsonSerializer s = new ScmUserJsonSerializer();
-    //        ScmUser v = ScmUser.withUsername("name").userId("uid")
-    //                .passwordType(ScmUserPasswordType.TOKEN)
-    //                .roles(ScmRole.withRoleName("ROLE_rname").roleId("rid").build()).build();
+    // public static void main(String[] args) throws JsonProcessingException {
+    // ScmUserJsonSerializer s = new ScmUserJsonSerializer();
+    // ScmUser v = ScmUser.withUsername("name").userId("uid")
+    // .passwordType(ScmUserPasswordType.TOKEN)
+    // .roles(ScmRole.withRoleName("ROLE_rname").roleId("rid").build()).build();
     //
-    //        ObjectMapper mapper;
-    //        SimpleModule module = new SimpleModule();
-    //        module.addSerializer(ScmUser.class, new ScmUserGsonTypeAdapter());
-    //        module.addSerializer(ScmRole.class, new ScmRoleGsonTypeAdapter());
-    //        mapper = new ObjectMapper();
-    //        mapper.registerModule(module);
+    // ObjectMapper mapper;
+    // SimpleModule module = new SimpleModule();
+    // module.addSerializer(ScmUser.class, new ScmUserGsonTypeAdapter());
+    // module.addSerializer(ScmRole.class, new ScmRoleGsonTypeAdapter());
+    // mapper = new ObjectMapper();
+    // mapper.registerModule(module);
     //
-    //        System.out.println(mapper.writeValueAsString(v));
-    //    }
+    // System.out.println(mapper.writeValueAsString(v));
+    // }
 }

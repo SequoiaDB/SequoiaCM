@@ -18,8 +18,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.sequoiacm.cloud.authentication.controller.SequoiadbSessionGsonTypeAdapter;
 import com.sequoiacm.cloud.authentication.controller.SequoiadbSessionJsonSerializer;
+import com.sequoiacm.cloud.authentication.controller.SignatureInfoGsonTypeAdapter;
 import com.sequoiacm.cloud.authentication.exception.RestException;
 import com.sequoiacm.cloud.authentication.exception.RestExceptionJsonSerializer;
+import com.sequoiacm.infrastructrue.security.core.AccesskeyInfo;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivMeta;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivMetaSerializer;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
@@ -30,6 +32,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmRoleJsonSerializer;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserJsonSerializer;
+import com.sequoiacm.infrastructrue.security.core.serial.gson.AccesskeyInfoGsonTypeAdapter;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmGsonHttpMessageConverter;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmPrivMetaGsonTypeAdapter;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmPrivilegeGsonTypeAdapter;
@@ -78,17 +81,25 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
                 .registerTypeAdapter(ScmPrivMeta.class, new ScmPrivMetaGsonTypeAdapter())
                 .registerTypeAdapter(ScmResource.class, new ScmResourceGsonTypeAdapter())
                 .registerTypeAdapter(SequoiadbSession.class, new SequoiadbSessionGsonTypeAdapter())
-                //                .registerTypeAdapter(RestException.class, new RestExceptionGsonTypeAdapter())
+                .registerTypeAdapter(AccesskeyInfo.class, new AccesskeyInfoGsonTypeAdapter())
+                // .registerTypeAdapter(RestException.class, new
+                // RestExceptionGsonTypeAdapter())
                 .build();
-        //        ScmGsonHttpMessageConverter converter = ScmGsonHttpMessageConverter.start()
-        //                .registerTypeAdapter(ScmUser.class, new ScmUserGsonTypeAdapter())
-        //                .registerTypeAdapter(ScmRole.class, new ScmRoleGsonTypeAdapter())
-        //                .registerTypeAdapter(ScmPrivilege.class, new ScmPrivilegeGsonTypeAdapter())
-        //                .registerTypeAdapter(ScmPrivMeta.class, new ScmPrivMetaGsonTypeAdapter())
-        //                .registerTypeAdapter(ScmResource.class, new ScmResourceGsonTypeAdapter())
-        //                .registerTypeAdapter(SequoiadbSession.class, new SequoiadbSessionGsonTypeAdapter())
-        //                .registerTypeAdapter(RestException.class, new RestExceptionGsonTypeAdapter())
-        //                .build();
+        // ScmGsonHttpMessageConverter converter =
+        // ScmGsonHttpMessageConverter.start()
+        // .registerTypeAdapter(ScmUser.class, new ScmUserGsonTypeAdapter())
+        // .registerTypeAdapter(ScmRole.class, new ScmRoleGsonTypeAdapter())
+        // .registerTypeAdapter(ScmPrivilege.class, new
+        // ScmPrivilegeGsonTypeAdapter())
+        // .registerTypeAdapter(ScmPrivMeta.class, new
+        // ScmPrivMetaGsonTypeAdapter())
+        // .registerTypeAdapter(ScmResource.class, new
+        // ScmResourceGsonTypeAdapter())
+        // .registerTypeAdapter(SequoiadbSession.class, new
+        // SequoiadbSessionGsonTypeAdapter())
+        // .registerTypeAdapter(RestException.class, new
+        // RestExceptionGsonTypeAdapter())
+        // .build();
 
         converters.add(converter);
 
@@ -105,10 +116,11 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         super.configureMessageConverters(converters);
         configScmGsonConverter(converters);
     }
-    
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         // for controller parameter (@RquesParam), JSON => Object
         registry.addConverter(new BSONObjectConverter());
+        registry.addConverter(new SignatureInfoGsonTypeAdapter());
     }
 }
