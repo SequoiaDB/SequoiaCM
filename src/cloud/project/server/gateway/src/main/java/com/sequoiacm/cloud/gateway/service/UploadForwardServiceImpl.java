@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.ChunkedOutputStream;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.config.RequestConfig;
@@ -101,7 +102,7 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
     @Override
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
-            HttpServletResponse clientResp) throws IOException {
+            HttpServletResponse clientResp, boolean chunked) throws IOException {
         ServiceInstance instance = loadBalancerClient.choose(targetService);
         if (instance == null) {
             throw new IllegalArgumentException("unknown service:" + targetService);
@@ -114,7 +115,9 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         try {
             // build forward request
             clientInputstream = clientReq.getInputStream();
-            HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream, clientReq);
+            HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream, clientReq,
+                    chunked);
+            forwardReq.addHeader("x-forwarded-prefix", "/" + targetService);
             logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
 
             // forward
@@ -165,7 +168,7 @@ public class UploadForwardServiceImpl implements UploadForwardService {
     }
 
     private HttpRequest buildForwardRequest(String targetServiceApi, InputStream clientBody,
-            HttpServletRequest clientReq) {
+            HttpServletRequest clientReq, boolean chunked) {
         RequestBuilder forwardReqBuilder = RequestBuilder.create(clientReq.getMethod());
         forwardReqBuilder.setUri(targetServiceApi);
 
@@ -208,14 +211,15 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         }
 
         // add client request body.
-        InputStreamEntity isEntity = new InputStremEntityWithLargeBuffer(clientBody);
+        InputStreamEntity isEntity = new InputStremEntityWithLargeBuffer(clientBody,
+                clientReq.getContentLengthLong());
         if (contentType == null) {
             isEntity.setContentType("binary/octet-stream");
         }
         else {
             isEntity.setContentType(contentType);
         }
-        isEntity.setChunked(true);
+        isEntity.setChunked(chunked);
         forwardReqBuilder.setEntity(isEntity);
         return forwardReqBuilder.build();
     }
@@ -226,7 +230,11 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         clientResp.setStatus(forwardStatus);
 
         // the caller of this method will release forwardResp.
-        InputStream forwardRespBody = forwardResp.getEntity().getContent();
+        InputStream forwardRespBody = null;
+        HttpEntity body = forwardResp.getEntity();
+        if (body != null) {
+            forwardRespBody = body.getContent();
+        }
 
         // do not close clientOuputStream in finally block, if occur exception,
         // spring will take over it.
@@ -243,7 +251,9 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         copyHeaderFromForwardResp(clientResp, forwardResp);
 
         // transfer body
-        transfer(forwardRespBody, encodeOutputStream);
+        if (forwardRespBody != null) {
+            transfer(forwardRespBody, encodeOutputStream);
+        }
         encodeOutputStream.close();
     }
 
@@ -335,8 +345,8 @@ class UploadForwardConnectionCleaner extends ScmTimerTask {
 class InputStremEntityWithLargeBuffer extends InputStreamEntity {
     private static int bufferSize = 1024 * 1024;
 
-    public InputStremEntityWithLargeBuffer(InputStream instream) {
-        super(instream);
+    public InputStremEntityWithLargeBuffer(InputStream instream, long len) {
+        super(instream, len);
     }
 
     public static void resetBufferSize(int bufferSize) {

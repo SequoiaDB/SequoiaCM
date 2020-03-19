@@ -16,7 +16,9 @@ public enum ServiceType {
     GATEWAY("gateway", true, InstallPackType.CLOUD, 4),
     CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, 5),
     ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, 10),
-    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10);
+    //  TRACE_SERVER("service-trace", false, InstallPackType.CLOUD, 10),
+    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10),
+    S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, 10);
 
 
     private static List<ServiceType> typeSortByPriority;

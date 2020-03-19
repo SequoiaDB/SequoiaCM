@@ -86,13 +86,14 @@ public class DirServiceImpl implements IDirService {
     }
 
     @Override
-    public MetaCursor getDirList(String wsName, BSONObject condition) throws ScmServerException {
+    public MetaCursor getDirList(String wsName, BSONObject condition, BSONObject orderby, long skip,
+            long limit) throws ScmServerException {
         try {
             ScmContentServer cs = ScmContentServer.getInstance();
             cs.getWorkspaceInfoChecked(wsName);
             MetaDirAccessor dirAccessor = cs.getMetaService().getMetaSource()
                     .getDirAccessor(wsName);
-            return dirAccessor.query(condition, null, null);
+            return dirAccessor.query(condition, null, orderby, skip, limit);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),

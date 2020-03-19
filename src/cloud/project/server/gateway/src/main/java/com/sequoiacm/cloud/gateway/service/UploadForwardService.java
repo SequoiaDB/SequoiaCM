@@ -6,6 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UploadForwardService {
-    public void forward(String targetService, String targetApi, HttpServletRequest clientReq, HttpServletResponse clientResp)
-            throws IOException;
+    public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
+            HttpServletResponse clientResp, boolean chunked) throws IOException;
 }

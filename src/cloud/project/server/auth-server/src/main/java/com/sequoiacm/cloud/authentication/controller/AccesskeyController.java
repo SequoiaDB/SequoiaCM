@@ -111,7 +111,7 @@ public class AccesskeyController {
 
                 String serverSideSignatrue = SignUtil.sign(signatureInfo.getAlgothm(),
                         signatureInfo.getSecretKeyPrefix() + targetUser.getSecretkey(),
-                        signatureInfo.getStringToSign());
+                        signatureInfo.getStringToSign(), signatureInfo.getSignatureEncoder());
                 if (!serverSideSignatrue.equals(signatureInfo.getSignature())) {
                     logger.error("incorrect signature:{}", signatureInfo);
                     throw new BadRequestException("Incorrect signature");

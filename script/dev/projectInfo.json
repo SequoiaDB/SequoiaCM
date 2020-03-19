@@ -26,6 +26,10 @@
 			"modulePomPath": "../../driver/java/pom.xml"
 		},
 		{
+			"name": "s3",
+			"modulePomPath": "../../src/s3/project/pom.xml"
+		},
+		{
 			"name": "om-server",
 			"modulePomPath": "../../src/om-server/project/pom.xml"
 		},
@@ -68,9 +72,13 @@
 				"type": "copy",
 				"src": "../../thirdparty/zookeeper/zookeeper-*.tar.gz"
 			},
-            {
+			{
 				"type": "copy",
 				"src": "../../src/mq/project/assembly/target/*-release.tar.gz"
+			},
+            {
+				"type": "copy",
+				"src": "../../src/s3/project/assembly/target/*-release.tar.gz"
 			}]
 		},
 		{

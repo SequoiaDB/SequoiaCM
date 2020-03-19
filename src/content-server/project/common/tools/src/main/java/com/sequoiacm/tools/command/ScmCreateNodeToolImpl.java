@@ -287,6 +287,8 @@ public class ScmCreateNodeToolImpl implements ScmTool {
         modifier.put(PropertiesDefine.PROPERTY_SCM_SPRING_APP_NAME, mySiteInfo.getName());
         modifier.put(PropertiesDefine.PROPERTY_SCM_EUREKA_METADATA_IS_ROOTSITE,
                 mySiteInfo.isRootSite() + "");
+        modifier.put(PropertiesDefine.PROPERTY_SCM_EUREKA_METADATA_SITE_ID,
+                mySiteInfo.getId() + "");
 
         // put custom props
         if (customProp != null) {

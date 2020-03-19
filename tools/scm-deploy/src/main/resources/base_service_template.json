@@ -176,6 +176,14 @@
             "scm.store.sequoiadb.password": "/home/scm/sdb.passwd"
         }
     ],
+    "s3-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8002",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "scm.s3.region.defaultRegion": "ws_default"
+        }
+    ],
     "audit": {
         "auditurl":"localhost:11810",
         "audituser":"sdbadmin",

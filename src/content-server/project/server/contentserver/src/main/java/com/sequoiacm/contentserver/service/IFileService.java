@@ -17,7 +17,7 @@ public interface IFileService {
      * condition, int scope) throws ScmServerException;
      */
     MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit) throws ScmServerException;
+            BSONObject orderby, long skip, long limit, BSONObject select) throws ScmServerException;
 
     BSONObject uploadFile(String workspaceName, String username, InputStream is,
             BSONObject fileInfo) throws ScmServerException;

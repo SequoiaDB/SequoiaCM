@@ -16,7 +16,8 @@ public interface IDirService {
      * public void getDirList(PrintWriter writer, String wsName, BSONObject
      * condition) throws ScmServerException;
      */
-    public MetaCursor getDirList(String wsName, BSONObject condition) throws ScmServerException;
+    public MetaCursor getDirList(String wsName, BSONObject condition, BSONObject orderby, long skip,
+            long limit) throws ScmServerException;
 
     public long reanmeDirById(String user, String wsName, String dirId, String newName)
             throws ScmServerException;

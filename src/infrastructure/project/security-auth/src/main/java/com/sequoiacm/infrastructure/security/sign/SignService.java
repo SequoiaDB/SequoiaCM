@@ -2,6 +2,7 @@ package com.sequoiacm.infrastructure.security.sign;
 
 import org.bson.BSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -15,6 +16,10 @@ public interface SignService {
     public Response login(@RequestParam(RestField.SIGNATURE_INFO) BSONObject signatureInfo)
             throws ScmFeignException;
 
+    @PostMapping("/login")
+    public Response login(@RequestParam(RestField.USERNAME) String username,
+            @RequestParam(RestField.PASSWORD) String password) throws ScmFeignException;
+
     @GetMapping("/internal/v1/secretkey")
     public BSONObject getSecretkey(@RequestParam(RestField.ACCESSKEY) String accesskey)
             throws ScmFeignException;
@@ -24,6 +29,10 @@ public interface SignService {
             @RequestParam(RestField.USERNAME) String username,
             @RequestParam(RestField.PASSWORD) String password,
             @RequestParam(RestField.SIGNATURE_INFO) BSONObject signatureInfo)
+            throws ScmFeignException;
+
+    @GetMapping("/api/v1/users/{username}")
+    public BSONObject findUser(@PathVariable(value = "username") String name)
             throws ScmFeignException;
 
 }

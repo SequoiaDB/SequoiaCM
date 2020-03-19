@@ -311,6 +311,7 @@ public class CommonDefine {
         public static final String FILE_SKIP = "skip";
         public static final String FILE_LIMIT = "limit";
         public static final String FILE_ORDERBY = "orderby";
+        public static final String FILE_SELECTOR = "selector";
 
         public static final String FILE_UPLOAD_CONFIG = "upload_config";
         public static final String FILE_IS_OVERWRITE = "is_overwrite";

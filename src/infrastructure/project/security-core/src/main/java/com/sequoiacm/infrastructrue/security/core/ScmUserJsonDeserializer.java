@@ -76,11 +76,13 @@ public class ScmUserJsonDeserializer extends StdDeserializer<ScmUser> {
         Boolean enable = (Boolean) obj.get(ScmUser.JSON_FIELD_ENABLED);
         Assert.notNull(enable, "missing filed:obj=" + obj
                 + ",field=" + ScmUser.JSON_FIELD_ENABLED);
+        
+        String accesskey = (String) obj.get(ScmUser.JSON_FIELD_ACCESS_KEY);
 
         ScmUser user = ScmUser.withUsername(userName).userId(userId)
                 .passwordType(ScmUserPasswordType.valueOf(pwdType))
                 .disabled(!enable.booleanValue()).roles(roles)
-                .password(password).build();
+                .password(password).accesskey(accesskey).build();
 
         if (!hasPassword) {
             user.eraseCredentials();

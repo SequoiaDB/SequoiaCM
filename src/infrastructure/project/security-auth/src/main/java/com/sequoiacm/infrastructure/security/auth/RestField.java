@@ -17,6 +17,7 @@ public final class RestField {
     public static final String SIGNATURE_INFO_ALGOTHM = "algothm";
     public static final String SIGNATURE_INFO_ACCESSKEY = "accesskey";
     public static final String SIGNATURE_INFO_SINAGTURE = "signature";
+    public static final String SIGNATURE_INFO_SINAGTURE_ENCODER = "signature_encoder";
     public static final String SIGNATURE_INFO_SECREKEY_PREFIX = "secretkey_prefix";
     public static final String SIGNATURE_INFO_STRING_TO_SIGN = "string_to_sign";
 

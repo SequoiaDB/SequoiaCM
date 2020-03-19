@@ -15,6 +15,7 @@ public class SignatureInfo {
     private String secretKeyPrefix = "";
     private String algothm = "HmacSHA256";
     private String accessKey;
+    private String signatureEncoder = "base64";
     private String signature = "";
     private List<String> stringToSign = Collections.emptyList();
 
@@ -23,6 +24,8 @@ public class SignatureInfo {
         this.accessKey = BsonUtils.getStringChecked(bson, RestField.SIGNATURE_INFO_ACCESSKEY);
         this.signature = BsonUtils.getStringOrElse(bson, RestField.SIGNATURE_INFO_SINAGTURE,
                 signature);
+        this.signatureEncoder = BsonUtils.getStringOrElse(bson,
+                RestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
         this.secretKeyPrefix = BsonUtils.getStringOrElse(bson,
                 RestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
         BasicBSONList bsonArr = BsonUtils.getArray(bson, RestField.SIGNATURE_INFO_STRING_TO_SIGN);
@@ -35,12 +38,17 @@ public class SignatureInfo {
     }
 
     public SignatureInfo(String algothm, String accessKey, String secretKeyPrefix, String signature,
-            List<String> stringToSign) {
+            String signatureEncoder, List<String> stringToSign) {
         this.algothm = algothm;
         this.accessKey = accessKey;
         this.signature = signature;
         this.stringToSign = stringToSign;
         this.secretKeyPrefix = secretKeyPrefix;
+        this.signatureEncoder = signatureEncoder;
+    }
+
+    public String getSignatureEncoder() {
+        return signatureEncoder;
     }
 
     public String getAccessKey() {
@@ -77,6 +85,7 @@ public class SignatureInfo {
         bson.put(RestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
         bson.put(RestField.SIGNATURE_INFO_SINAGTURE, signature);
         bson.put(RestField.SIGNATURE_INFO_STRING_TO_SIGN, stringToSign);
+        bson.put(RestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
         return bson;
     }
 

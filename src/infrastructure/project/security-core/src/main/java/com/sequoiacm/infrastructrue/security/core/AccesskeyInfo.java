@@ -2,11 +2,15 @@ package com.sequoiacm.infrastructrue.security.core;
 
 import org.bson.BSONObject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 
 public class AccesskeyInfo {
+    @JsonIgnore
     public static final String JSON_FIELD_ACCESSKEY = "accesskey";
+    @JsonIgnore
     public static final String JSON_FIELD_SECRETKEY = "secretkey";
+    @JsonIgnore
     public static final String JSON_FIELD_USERNAME = "username";
     private String accesskey;
     private String secretkey;

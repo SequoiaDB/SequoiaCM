@@ -61,6 +61,7 @@ public class PropertiesDefine {
     // *************************spring properties*******************
     public static String PROPERTY_SCM_SPRING_APP_NAME = "spring.application.name";
     public static String PROPERTY_SCM_EUREKA_METADATA_IS_ROOTSITE = "eureka.instance.metadata-map.isRootSiteInstance";
+    public static String PROPERTY_SCM_EUREKA_METADATA_SITE_ID = "eureka.instance.metadata-map.siteId";
 
     // *************************directory cache*******************
     public static final String PROPERTY_DIR_CACHE_ENABLE = "scm.dir.cache.enable";

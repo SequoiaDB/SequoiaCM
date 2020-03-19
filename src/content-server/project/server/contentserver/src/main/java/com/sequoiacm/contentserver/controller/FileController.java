@@ -171,12 +171,13 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_ORDERBY, required = false) BSONObject orderby,
             @RequestParam(value = CommonDefine.RestArg.FILE_SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = CommonDefine.RestArg.FILE_LIMIT, required = false, defaultValue = "-1") long limit,
+            @RequestParam(value = CommonDefine.RestArg.FILE_SELECTOR, required = false) BSONObject select,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspace_name,
                 ScmPrivilegeDefine.LOW_LEVEL_READ, "list files");
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby, skip,
-                limit);
+                limit, select);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
         String message = "list file ";
         if (null != condition) {

@@ -32,7 +32,23 @@ public class UploadForwardController {
             String targetApi = uri.substring(("/zuul/" + targetService).length());
             logger.debug("forward file upload:targetService={},targetApi={}", targetService,
                     targetApi);
-            service.forward(targetService, targetApi, clientReq, clientResp);
+            service.forward(targetService, targetApi, clientReq, clientResp, true);
+        }
+        finally {
+            ReqRecorder.getInstance().addRecord(System.currentTimeMillis() - before);
+        }
+    }
+
+    @RequestMapping(value = "/s3/**", method = { RequestMethod.POST, RequestMethod.GET,
+            RequestMethod.HEAD, RequestMethod.DELETE, RequestMethod.PUT })
+    public void forwardS3Upload(HttpServletRequest clientReq, HttpServletResponse clientResp)
+            throws IOException {
+        long before = System.currentTimeMillis();
+        try {
+            String uri = clientReq.getRequestURI();
+            String targetApi = uri.substring(("/s3").length());
+            logger.debug("forward s3 req:targetApi={}", targetApi);
+            service.forward("s3", targetApi, clientReq, clientResp, false);
         }
         finally {
             ReqRecorder.getInstance().addRecord(System.currentTimeMillis() - before);

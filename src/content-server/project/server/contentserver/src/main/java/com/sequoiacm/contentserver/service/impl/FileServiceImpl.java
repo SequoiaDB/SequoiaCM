@@ -121,20 +121,22 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit) throws ScmServerException {
+            BSONObject orderby, long skip, long limit, BSONObject selector)
+            throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
 
         try {
-            BSONObject selector = new BasicBSONObject();
-            selector.put(FieldName.FIELD_CLFILE_ID, null);
-            selector.put(FieldName.FIELD_CLFILE_NAME, null);
-            selector.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, null);
-            selector.put(FieldName.FIELD_CLFILE_MINOR_VERSION, null);
-            selector.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, null);
-            selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
-            selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
-
+            if (selector == null) {
+                selector = new BasicBSONObject();
+                selector.put(FieldName.FIELD_CLFILE_ID, null);
+                selector.put(FieldName.FIELD_CLFILE_NAME, null);
+                selector.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, null);
+                selector.put(FieldName.FIELD_CLFILE_MINOR_VERSION, null);
+                selector.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, null);
+                selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
+                selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
+            }
             if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
                 return contentServer.getMetaService().queryCurrentFile(ws.getMetaLocation(),
                         workspaceName, condition, selector, orderby, skip, limit);

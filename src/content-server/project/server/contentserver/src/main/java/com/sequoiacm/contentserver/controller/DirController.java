@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
-import org.bson.util.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -316,25 +315,20 @@ public class DirController {
     }
 
     @RequestMapping(value = "/directories", method = RequestMethod.GET)
-    public void listDir(String workspace_name, String filter, HttpServletResponse response,
-            Authentication auth) throws ScmServerException {
-        RestUtils.checkWorkspaceName(workspace_name);
-        BSONObject condition;
-        if (filter != null) {
-            try {
-                condition = (BSONObject) JSON.parse(filter);
-            }
-            catch (Exception e) {
-                throw new ScmInvalidArgumentException("failed to parse filter:filter=" + filter, e);
-            }
-        }
-        else {
+    public void listDir(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
+            @RequestParam(value = CommonDefine.RestArg.FILE_LIMIT, required = false, defaultValue = "-1") int limit,
+            @RequestParam(value = CommonDefine.RestArg.FILE_SKIP, required = false, defaultValue = "0") int skip,
+            @RequestParam(value = CommonDefine.RestArg.FILE_ORDERBY, required = false) BSONObject orderby,
+            HttpServletResponse response, Authentication auth) throws ScmServerException {
+        RestUtils.checkWorkspaceName(workspaceName);
+        if (condition == null) {
             condition = new BasicBSONObject();
         }
-        audit.info(ScmAuditType.DIR_DQL, auth, workspace_name, 0,
+        audit.info(ScmAuditType.DIR_DQL, auth, workspaceName, 0,
                 "list directory, condition=" + condition.toString());
         response.setHeader("Content-Type", "application/json;charset=utf-8");
-        MetaCursor cursor = dirService.getDirList(workspace_name, condition);
+        MetaCursor cursor = dirService.getDirList(workspaceName, condition, orderby, skip, limit);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 
@@ -345,6 +339,7 @@ public class DirController {
             @RequestParam(value = CommonDefine.RestArg.FILE_LIMIT, required = false, defaultValue = "-1") int limit,
             @RequestParam(value = CommonDefine.RestArg.FILE_SKIP, required = false, defaultValue = "0") int skip,
             @RequestParam(value = CommonDefine.RestArg.FILE_ORDERBY, required = false) BSONObject orderby,
+            @RequestParam(value = CommonDefine.RestArg.FILE_SELECTOR, required = false) BSONObject selector,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
 
@@ -367,7 +362,7 @@ public class DirController {
                         + matcher.toString());
 
         MetaCursor cursor = fileService.getFileList(workspaceName, matcher,
-                CommonDefine.Scope.SCOPE_CURRENT, orderby, skip, limit);
+                CommonDefine.Scope.SCOPE_CURRENT, orderby, skip, limit, selector);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 

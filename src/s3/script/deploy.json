@@ -1,0 +1,14 @@
+{
+    "s3-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8002",
+            "eureka.instance.metadata-map.zone": "zone1",
+            "eureka.client.prefer-same-zone-eureka": "true",
+            "eureka.client.region": "beijing",
+            "eureka.client.availability-zones.beijing": "zone1",
+            "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
+            "scm.s3.region.defaultRegion": "ws_default"
+        }
+    ]
+}
