@@ -34,7 +34,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
-    private static final int defaultTimeOut = 1 * 30 * 1000; // 0.5min
+    private static final int defaultTimeOut = 10 * 1000; // 10s
     private static final int sleepTime = 200;  // 200ms
     private static RestTemplate rest;
 
@@ -96,14 +96,14 @@ public class ScmAuthUtils extends TestScmBase {
             }
             int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
             newSS = TestScmTools.createSession( site, username, password );
-            for ( int i = scmDirs.size() - 1; i >= 0; i-- ) {
-                int maxTimes = defaultTimeOut / sleepTime;
+            int maxTimes = defaultTimeOut / sleepTime;
+            for ( int i = scmDirs.size()-1; i >= 0; i-- ) {
                 while ( maxTimes-- > 0 ) {
                     try {
                         //the newWS used to check privilege come into effect
                         deleteScmDirByRest( newSS, nodeList.get( i ),
                                 wsName, scmDirs.get( i ) );
-                        return;
+                        break;
                     } catch ( ScmException e ) {
                         Thread.sleep( sleepTime );
                         if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
@@ -125,13 +125,17 @@ public class ScmAuthUtils extends TestScmBase {
                         }
                     }
                 }
-                throw new Exception(
-                        "privilege did not come into effect, timeout.version1" +
-                                " = "
-                                + version1 + ",version2 = "
-                                + ScmFactory.Privilege.getMeta( ss )
-                                .getVersion() + ",scmDirid = " + scmDirs.get(
-                                i ).getId() );
+                if ( maxTimes == -1 ) {
+                    throw new Exception(
+                            "privilege did not come into effect, timeout" +
+                                    ".version1" + " = "
+                                    + version1 + ",version2 = "
+                                    + ScmFactory.Privilege.getMeta( ss )
+                                    .getVersion() + ",scmDirid = " +
+                                    scmDirs.get(
+                                            i ).getId() );
+                }
+                maxTimes = defaultTimeOut / sleepTime;
             }
         } finally {
             if ( ss != null ) {
@@ -144,8 +148,8 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     private static void deleteScmDirByRest( ScmSession session,
-            NodeWrapper node,
-            String wsName, ScmDirectory scmDirectory ) throws ScmException {
+            NodeWrapper node, String wsName, ScmDirectory scmDirectory )
+            throws ScmException {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add( "x-auth-token", session.getSessionId() );
         HttpEntity entity = new HttpEntity<>( new LinkedMultiValueMap<>(),
