@@ -27,6 +27,7 @@ import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.NodeWrapper;
+import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
@@ -49,9 +50,13 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * check privilege is effect by wsp
-     *
-     * @author huangxiaoni
+     * @Description: 检查主站点和传进来site的节点权限
+     * @param site 站点对象
+     * @param username scm用户名
+     * @param password scm用户密码
+     * @param role scm角色
+     * @param wsp 工作区对象
+     * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
             String password, ScmRole role, WsWrapper wsp ) throws Exception {
@@ -59,94 +64,121 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * check privilege is effect by wsName
-     *
-     * @author huangxiaoni
+     * @Description: 检查主站点和传进来site的节点权限
+     * @param site 站点对象
+     * @param username scm用户名
+     * @param password scm用户密码
+     * @param role scm角色
+     * @param wsName 工作区名
+     * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
             String password, ScmRole role, String wsName )
             throws Exception {
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        List< NodeWrapper > nodeWrappers = new ArrayList<>();
+        nodeWrappers.addAll( site.getNodes() );
+        if ( site.getSiteId() != rootSite.getSiteId() ) {
+            nodeWrappers.addAll( rootSite.getNodes() );
+        }
         ScmSession ss = null;
-        ScmSession newSS = null;
+        List< ScmDirectory > scmDirs = new ArrayList<>();
         try {
-            // login
             ss = TestScmTools.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
-
-            ScmUser user = ScmFactory.User.getUser( ss, username );
-            Assert.assertTrue( user.hasRole( role ) );
-
-            //create scm dir
-            List< NodeWrapper > nodeList = site.getNodes();
-            List< ScmDirectory > scmDirs = new ArrayList<>();
-            String dirPath =
-                    "/ScmAuthUtils" + "_" + username + "_" + UUID.randomUUID();
-            for ( int i = 0; i < nodeList.size(); i++ ) {
+            for ( int i = 0; i < nodeWrappers.size(); i++ ) {
+                String dirPath = "/ScmAuthUtils" + "_" + username + "_" +
+                        UUID.randomUUID();
                 ScmDirectory dir = ScmFactory.Directory
                         .createInstance( ws, dirPath );
-                if ( i == 0 ) {
-                    ScmResource resource = ScmResourceFactory
-                            .createDirectoryResource( wsName, dirPath );
-                    // grant privilege
-                    ScmFactory.Role.grantPrivilege( ss, role, resource,
-                            ScmPrivilegeType.DELETE );
-                }
+                ScmResource resource = ScmResourceFactory
+                        .createDirectoryResource( wsName, dirPath );
+                // grant privilege
+                ScmFactory.Role.grantPrivilege( ss, role, resource,
+                        ScmPrivilegeType.DELETE );
                 scmDirs.add( dir );
-                dirPath = dirPath + "/" + i;
             }
-            int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
-            newSS = TestScmTools.createSession( site, username, password );
-            int maxTimes = defaultTimeOut / sleepTime;
-            for ( int i = scmDirs.size()-1; i >= 0; i-- ) {
-                while ( maxTimes-- > 0 ) {
-                    try {
-                        //the newWS used to check privilege come into effect
-                        deleteScmDirByRest( newSS, nodeList.get( i ),
-                                wsName, scmDirs.get( i ) );
-                        break;
-                    } catch ( ScmException e ) {
-                        Thread.sleep( sleepTime );
-                        if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
-                            logger.warn( username + " has tried " + (
-                                    defaultTimeOut / sleepTime - maxTimes )
-                                    + " times." + "version1 = " + version1
-                                    + ",version2 = " + ScmFactory.Privilege
-                                    .getMeta( ss ).getVersion() );
-                        } else {
-                            logger.error(
-                                    "failed to wait privilege come into " +
-                                            "effect,version1 = "
-
-                                            + version1 + ",version2 = "
-                                            + ScmFactory.Privilege.getMeta( ss )
-                                            .getVersion() + ",scmDir = "
-                                            + scmDirs.get( i ).getId() );
-                            throw e;
-                        }
-                    }
-                }
-                if ( maxTimes == -1 ) {
-                    throw new Exception(
-                            "privilege did not come into effect, timeout" +
-                                    ".version1" + " = "
-                                    + version1 + ",version2 = "
-                                    + ScmFactory.Privilege.getMeta( ss )
-                                    .getVersion() + ",scmDirid = " +
-                                    scmDirs.get(
-                                            i ).getId() );
-                }
-                maxTimes = defaultTimeOut / sleepTime;
-            }
+            ScmUser user = ScmFactory.User.getUser( ss, username );
+            Assert.assertTrue( user.hasRole( role ) );
         } finally {
             if ( ss != null ) {
                 ss.close();
             }
+        }
+
+        ScmSession newSS = null;
+        try {
+            // login
+            //the newSS used to check privilege come into effect
+            newSS = TestScmTools.createSession( site, username, password );
+            for ( int i = 0; i < nodeWrappers.size(); i++ ) {
+                checkNodePriority( newSS, wsName,nodeWrappers.get( i ),scmDirs.get(
+                        i ) );
+            }
+        } finally {
             if ( newSS != null ) {
                 newSS.close();
             }
         }
     }
 
+    /**
+     * @Description: 检查单个节点权限
+     * @param ss scm会话
+     * @param wsName 工作名
+     * @param node 需要检测的节点对象
+     * @param scmDirectory 文件夹
+     * @throws Exception
+     */
+    private static void checkNodePriority( ScmSession ss, String wsName, NodeWrapper
+            node, ScmDirectory scmDirectory ) throws Exception {
+        int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
+        int maxTimes = ScmAuthUtils.defaultTimeOut / ScmAuthUtils.sleepTime;
+        while ( maxTimes-- > 0 ) {
+            try {
+                ScmAuthUtils.deleteScmDirByRest( ss, node,
+                        wsName, scmDirectory );
+                break;
+            } catch ( ScmException e ) {
+                Thread.sleep( ScmAuthUtils.sleepTime );
+                if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
+                    ScmAuthUtils.logger.warn( ss.getUser() + " has tried " + (
+                            ScmAuthUtils.defaultTimeOut /
+                                    ScmAuthUtils.sleepTime - maxTimes )
+                            + " times." + "version1 = " + version1
+                            + ",version2 = " + ScmFactory.Privilege
+                            .getMeta( ss ).getVersion() );
+                } else {
+                    ScmAuthUtils.logger.error(
+                            "failed to wait privilege come into " +
+                                    "effect,version1 = "
+                                    + version1 + ",version2 = "
+                                    + ScmFactory.Privilege.getMeta( ss )
+                                    .getVersion() + ",scmDir = "
+                                    + scmDirectory.getId() );
+                    throw e;
+                }
+            }
+        }
+        if ( maxTimes == -1 ) {
+            throw new Exception(
+                    "privilege did not come into effect, timeout" +
+                            ".version1" + " = "
+                            + version1 + ",version2 = "
+                            + ScmFactory.Privilege.getMeta( ss )
+                            .getVersion() + ",scmDirid = " +
+                            scmDirectory.getId() );
+        }
+    }
+
+    /**
+     * @Description: 为了检查权限，连接rest删除文件夹
+     * @param session scm会话
+     * @param node 需要检测的节点对象
+     * @param wsName 工作区名
+     * @param scmDirectory 文件夹
+     * @throws ScmException
+     */
     private static void deleteScmDirByRest( ScmSession session,
             NodeWrapper node, String wsName, ScmDirectory scmDirectory )
             throws ScmException {
