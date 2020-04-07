@@ -36,7 +36,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
     private static final int defaultTimeOut = 10 * 1000; // 10s
-    private static final int sleepTime = 200;  // 200ms
+    private static final int sleepTime = 1000;  // 1s
     private static RestTemplate rest;
 
     static {
@@ -136,11 +136,11 @@ public class ScmAuthUtils extends TestScmBase {
         int maxTimes = ScmAuthUtils.defaultTimeOut / ScmAuthUtils.sleepTime;
         while ( maxTimes-- > 0 ) {
             try {
+                Thread.sleep( ScmAuthUtils.sleepTime );
                 ScmAuthUtils.deleteScmDirByRest( ss, node,
                         wsName, scmDirectory );
                 break;
             } catch ( ScmException e ) {
-                Thread.sleep( ScmAuthUtils.sleepTime );
                 if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
                     ScmAuthUtils.logger.warn( ss.getUser() + " has tried " + (
                             ScmAuthUtils.defaultTimeOut /
