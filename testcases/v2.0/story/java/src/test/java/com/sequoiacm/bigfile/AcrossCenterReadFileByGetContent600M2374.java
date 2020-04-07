@@ -1,21 +1,32 @@
 package com.sequoiacm.bigfile;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmQueryBuilder;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Description:跨中心读取600文件
@@ -25,10 +36,10 @@ import java.util.List;
  */
 
 public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
+    private final int branSitesNum = 2;
     private boolean runSuccess = false;
     private SiteWrapper rootSite = null;
-    private List<SiteWrapper> branSites = null;
-    private final int branSitesNum = 2;
+    private List< SiteWrapper > branSites = null;
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
@@ -40,22 +51,25 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-        filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-        TestTools.LocalFile.removeFile(localPath);
-        TestTools.LocalFile.createDir(localPath.toString());
-        TestTools.LocalFile.createFile(filePath, fileSize);
-        System.out.println("fileSize = " + new File(filePath).length());
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        System.out.println( "fileSize = " + new File( filePath ).length() );
         rootSite = ScmInfo.getRootSite();
-        branSites = ScmInfo.getBranchSites(branSitesNum);
+        branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession(branSites.get(0));
-        ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-        BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(name).get();
-        ScmFileUtils.cleanFile(wsp, cond);
+        session = TestScmTools.createSession( branSites.get( 0 ) );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( name ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = {"fourSite"})//SEQUOIACM-415
+    @Test(groups = { "fourSite" })//SEQUOIACM-415
     private void test() throws Exception {
         this.writeFileFromA();
         this.readFileFromB();
@@ -65,12 +79,12 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if (runSuccess || forceClear) {
-                ScmFactory.File.getInstance(ws, fileId).delete(true);
-                TestTools.LocalFile.removeFile(localPath);
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }
@@ -78,34 +92,44 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
 
     private void writeFileFromA() throws Exception {
         // write scmfile
-        fileId = ScmFileUtils.create(ws, name, filePath);
-        System.out.println("fileId = " + fileId.get() + ",writeFileFromA file size = " + new File(filePath).length());
+        fileId = ScmFileUtils.create( ws, name, filePath );
+        System.out.println(
+                "fileId = " + fileId.get() + ",writeFileFromA file size = " +
+                        new File( filePath ).length() );
         // check results
-        SiteWrapper[] expSites = {branSites.get(0)};
-        ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
+        SiteWrapper[] expSites = { branSites.get( 0 ) };
+        ScmFileUtils
+                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
     }
 
     private void readFileFromB() throws Exception {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession(branSites.get(1));
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            session = TestScmTools.createSession( branSites.get( 1 ) );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), session );
             // read content
-            ScmFile scmfile = ScmFactory.File.getInstance(ws, fileId);
-            String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-                    Thread.currentThread().getId());
-            OutputStream fos = new FileOutputStream(new File(downloadPath));
-            scmfile.getContent(fos);
+            ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            OutputStream fos = new FileOutputStream( new File( downloadPath ) );
+            scmfile.getContent( fos );
             fos.close();
-            System.out.println("fileId = " + fileId.get() + "readFileFromB downloadPath size = " + new File(downloadPath).length());
+            System.out.println( "fileId = " + fileId.get() +
+                    "readFileFromB downloadPath size = " +
+                    new File( downloadPath ).length() );
 
             // check results
-            Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-            SiteWrapper[] expSites = {rootSite, branSites.get(0), branSites.get(1)};
-            ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
+            Assert.assertEquals( TestTools.getMD5( filePath ),
+                    TestTools.getMD5( downloadPath ) );
+            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                    branSites.get( 1 ) };
+            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                    filePath );
         } finally {
-            if (session != null)
+            if ( session != null )
                 session.close();
         }
     }

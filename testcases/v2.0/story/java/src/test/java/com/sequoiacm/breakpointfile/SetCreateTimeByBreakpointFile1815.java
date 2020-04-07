@@ -1,6 +1,5 @@
 package com.sequoiacm.breakpointfile;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,119 +27,129 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:set createTime when create breakpointfile and continue upload breakpointfile
+ * test content:set createTime when create breakpointfile and continue upload
+ * breakpointfile
  * testlink-case:SCM-1815
- * 
+ *
  * @author wuyan
  * @Date 2018.06.21
  * @version 1.00
  */
 
-public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {	
-	private static WsWrapper wsp = null;
-	private SiteWrapper site = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;	
-	private byte[] filedata1 = new byte[ 1024 * 100 ];
-	private byte[] filedata2 = new byte[ 1024 * 20 ];
-	private byte[] filedata3 = new byte[ 1024 * 50 ];
+public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
+    private static WsWrapper wsp = null;
+    private SiteWrapper site = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
+    private byte[] filedata1 = new byte[ 1024 * 100 ];
+    private byte[] filedata2 = new byte[ 1024 * 20 ];
+    private byte[] filedata3 = new byte[ 1024 * 50 ];
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {	
-		BreakpointUtil.checkDBDataSource();
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);					
-	}
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        BreakpointUtil.checkDBDataSource();
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    }
 
-	@Test(groups = { "twoSite", "fourSite"})
-	private void test() throws Exception {		
-		long currentTimestamp = new Date().getTime();
-		
-		//test a: the setCreateTime interval within one month 
-		long timestamp1 = currentTimestamp - 10000;
-		String fileName1 = "file1815a";
-		createBreakpointFile( ws, fileName1, filedata1 ,timestamp1);
-		uploadBreakpointFile( ws, fileName1, filedata1 ,timestamp1);
-		checkResult(fileName1, filedata1, timestamp1);		
-		
-		//test b :at least 31 days between different months,the timestamp is 2678400000ms
-		long timestamp2 = currentTimestamp - 2678400000l;		
-		String fileName2= "file1815b";
-		createBreakpointFile( ws, fileName2, filedata2 ,timestamp2);
-		uploadBreakpointFile( ws, fileName2, filedata2 ,timestamp2);
-		checkResult(fileName2, filedata2, timestamp2);
-		
-		//test c :not the same year at least 365 days,,the timestamp is 31536000000ms
-		long timestamp3 = currentTimestamp - 31536000000l;
-		String fileName3 = "file1815c";
-		createBreakpointFile( ws, fileName3, filedata3 ,timestamp3);
-		uploadBreakpointFile( ws, fileName3, filedata3 ,timestamp3);
-		checkResult(fileName3, filedata3, timestamp3);
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        long currentTimestamp = new Date().getTime();
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-			
-		}
-	}	
-	
-	private  void createBreakpointFile( ScmWorkspace ws, String fileName, byte[] data, long timestamp ) throws ScmException  {		
-		ScmChecksumType checksumType = ScmChecksumType.CRC32;
-		ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.createInstance(ws, fileName, checksumType);
-		Date date = new Date(timestamp);
-		breakpointFile.setCreateTime(date);		
-		new Random().nextBytes(data);
-		int length = 1024 * 5;
-		byte[] datapart = new byte[length];
-		System.arraycopy(data, 0, datapart, 0, length);
-		breakpointFile.incrementalUpload(new ByteArrayInputStream(datapart), false);			
-	}
-	
-	private  void uploadBreakpointFile( ScmWorkspace ws, String fileName, byte[] data, long timestamp ) throws ScmException  {		
-		ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.getInstance(ws, fileName);
-		try{
-			Date date = new Date(timestamp);
-			breakpointFile.setCreateTime(date);
-			Assert.fail("can not set createTime when file is exist!");
-		}catch (ScmException e) {
-			if ( ScmError.OPERATION_UNSUPPORTED != e.getError()) {
-				Assert.fail("expErrorCode:-107  actError:"+e.getError()+e.getMessage());
-			}
-		}				
-		breakpointFile.upload(new ByteArrayInputStream(data));				
-	}
-	
-	private void checkResult(String fileName, byte[] expData, long timestamp) throws ScmException{
-		ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.getInstance(ws, fileName);
-		Date actDate = breakpointFile.getCreateTime();
-		long actTime = actDate.getTime();
-		Assert.assertEquals(actTime, timestamp);				
-		
-		// down file		
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setContent(breakpointFile);	
-		file.setFileName(fileName);		
-		ScmId fileId = file.save();
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		file.getContent(outputStream);	
-		        
-		// check file data
-		byte[] fileData = outputStream.toByteArray();
-		Assert.assertEquals(fileData, expData);		
-		
-		//delete the file
-		ScmFactory.File.deleteInstance(ws, fileId, true);
-	}
-	
-	
+        //test a: the setCreateTime interval within one month
+        long timestamp1 = currentTimestamp - 10000;
+        String fileName1 = "file1815a";
+        createBreakpointFile( ws, fileName1, filedata1, timestamp1 );
+        uploadBreakpointFile( ws, fileName1, filedata1, timestamp1 );
+        checkResult( fileName1, filedata1, timestamp1 );
+
+        //test b :at least 31 days between different months,the timestamp is
+        // 2678400000ms
+        long timestamp2 = currentTimestamp - 2678400000l;
+        String fileName2 = "file1815b";
+        createBreakpointFile( ws, fileName2, filedata2, timestamp2 );
+        uploadBreakpointFile( ws, fileName2, filedata2, timestamp2 );
+        checkResult( fileName2, filedata2, timestamp2 );
+
+        //test c :not the same year at least 365 days,,the timestamp is
+        // 31536000000ms
+        long timestamp3 = currentTimestamp - 31536000000l;
+        String fileName3 = "file1815c";
+        createBreakpointFile( ws, fileName3, filedata3, timestamp3 );
+        uploadBreakpointFile( ws, fileName3, filedata3, timestamp3 );
+        checkResult( fileName3, filedata3, timestamp3 );
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+
+        }
+    }
+
+    private void createBreakpointFile( ScmWorkspace ws, String fileName,
+            byte[] data, long timestamp ) throws ScmException {
+        ScmChecksumType checksumType = ScmChecksumType.CRC32;
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .createInstance( ws, fileName, checksumType );
+        Date date = new Date( timestamp );
+        breakpointFile.setCreateTime( date );
+        new Random().nextBytes( data );
+        int length = 1024 * 5;
+        byte[] datapart = new byte[ length ];
+        System.arraycopy( data, 0, datapart, 0, length );
+        breakpointFile.incrementalUpload( new ByteArrayInputStream( datapart ),
+                false );
+    }
+
+    private void uploadBreakpointFile( ScmWorkspace ws, String fileName,
+            byte[] data, long timestamp ) throws ScmException {
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .getInstance( ws, fileName );
+        try {
+            Date date = new Date( timestamp );
+            breakpointFile.setCreateTime( date );
+            Assert.fail( "can not set createTime when file is exist!" );
+        } catch ( ScmException e ) {
+            if ( ScmError.OPERATION_UNSUPPORTED != e.getError() ) {
+                Assert.fail( "expErrorCode:-107  actError:" + e.getError() +
+                        e.getMessage() );
+            }
+        }
+        breakpointFile.upload( new ByteArrayInputStream( data ) );
+    }
+
+    private void checkResult( String fileName, byte[] expData, long timestamp )
+            throws ScmException {
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .getInstance( ws, fileName );
+        Date actDate = breakpointFile.getCreateTime();
+        long actTime = actDate.getTime();
+        Assert.assertEquals( actTime, timestamp );
+
+        // down file
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setContent( breakpointFile );
+        file.setFileName( fileName );
+        ScmId fileId = file.save();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        file.getContent( outputStream );
+
+        // check file data
+        byte[] fileData = outputStream.toByteArray();
+        Assert.assertEquals( fileData, expData );
+
+        //delete the file
+        ScmFactory.File.deleteInstance( ws, fileId, true );
+    }
+
 }

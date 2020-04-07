@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.version.concurrent;
 
@@ -29,8 +29,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @date 2018年6月13日
  */
 public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
-    private boolean runSuccess = false;
     private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
     private ScmSession sessionA = null;
@@ -40,8 +40,8 @@ public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
     private ScmId fileId = null;
 
     private String fileName = "fileVersion1692";
-    private byte[] filedata = new byte[1024 * 100];
-    private byte[] updatedata = new byte[1024 * 1024 * 2];
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 1024 * 2 ];
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
@@ -68,15 +68,21 @@ public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        int asyncFileVersion = VersionUtils.waitAsyncTaskFinished2( wsM, fileId, historyVersion, 2 );
-        Assert.assertTrue( updateFileThread.isSuccess(), updateFileThread.getErrorMsg() );
+        int asyncFileVersion = VersionUtils
+                .waitAsyncTaskFinished2( wsM, fileId, historyVersion, 2 );
+        Assert.assertTrue( updateFileThread.isSuccess(),
+                updateFileThread.getErrorMsg() );
 
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, asyncFileVersion, expHisSiteList );
         if ( asyncFileVersion == historyVersion ) {
-            VersionUtils.CheckFileContentByStream( wsM, fileName, asyncFileVersion, filedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsM, fileName, asyncFileVersion,
+                            filedata );
         } else {
-            VersionUtils.CheckFileContentByStream( wsM, fileName, asyncFileVersion, updatedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsM, fileName, asyncFileVersion,
+                            updatedata );
         }
 
         runSuccess = true;

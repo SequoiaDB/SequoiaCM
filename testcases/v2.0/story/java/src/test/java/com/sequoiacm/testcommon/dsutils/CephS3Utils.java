@@ -36,151 +36,177 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 public class CephS3Utils extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(CephS3Utils.class);
+    private static final Logger logger = Logger.getLogger( CephS3Utils.class );
 
-	public static AmazonS3 createConnect(SiteWrapper site) /*throws ScmCryptoException*/ {
-		AmazonS3 conn = null;
-		int siteId = site.getSiteId();
-		String siteDsUrl = site.getDataDsUrl();
-		String siteDsUser = site.getDataUser();
-		String siteDsPasswd = site.getDataPasswd();
-		try {
-			AWSCredentials awsCredentials = new BasicAWSCredentials(siteDsUser, siteDsPasswd);
+    public static AmazonS3 createConnect(
+            SiteWrapper site ) /*throws ScmCryptoException*/ {
+        AmazonS3 conn = null;
+        int siteId = site.getSiteId();
+        String siteDsUrl = site.getDataDsUrl();
+        String siteDsUser = site.getDataUser();
+        String siteDsPasswd = site.getDataPasswd();
+        try {
+            AWSCredentials awsCredentials = new BasicAWSCredentials( siteDsUser,
+                    siteDsPasswd );
 
-			ClientConfiguration conf = new ClientConfiguration();
-			conf.setProtocol(Protocol.HTTP);
-			conf.setSignerOverride("S3SignerType");
-			conn = new AmazonS3Client(awsCredentials, conf);
+            ClientConfiguration conf = new ClientConfiguration();
+            conf.setProtocol( Protocol.HTTP );
+            conf.setSignerOverride( "S3SignerType" );
+            conn = new AmazonS3Client( awsCredentials, conf );
 
-			S3ClientOptions s3ClientOpt = new S3ClientOptions();
-			s3ClientOpt.setPathStyleAccess(true);
-			conn.setS3ClientOptions(s3ClientOpt);
-			conn.setEndpoint(siteDsUrl);
-		} catch (Exception e) {
-			logger.error("failed to connect ceph-s3, siteId = " + siteId);
-			throw e;
-		}
-		return conn;
-	}
+            S3ClientOptions s3ClientOpt = new S3ClientOptions();
+            s3ClientOpt.setPathStyleAccess( true );
+            conn.setS3ClientOptions( s3ClientOpt );
+            conn.setEndpoint( siteDsUrl );
+        } catch ( Exception e ) {
+            logger.error( "failed to connect ceph-s3, siteId = " + siteId );
+            throw e;
+        }
+        return conn;
+    }
 
-	public static void putObject(SiteWrapper site, WsWrapper ws, ScmId fileId, String filePath) throws Exception {
-		AmazonS3 conn = null;
-		String bucketName = "";
-		String key = fileId.get();
-		List<PartETag> tags = new ArrayList<PartETag>();
-		try {
-			conn = createConnect(site);
-			
-			bucketName = getBucketName(site, ws);
-			conn.createBucket(bucketName);
+    public static void putObject( SiteWrapper site, WsWrapper ws, ScmId fileId,
+            String filePath ) throws Exception {
+        AmazonS3 conn = null;
+        String bucketName = "";
+        String key = fileId.get();
+        List< PartETag > tags = new ArrayList< PartETag >();
+        try {
+            conn = createConnect( site );
 
-			InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucketName, key);
-			InitiateMultipartUploadResult initResult = conn.initiateMultipartUpload(initReq);
-			String uploadId = initResult.getUploadId();
+            bucketName = getBucketName( site, ws );
+            conn.createBucket( bucketName );
 
-			File file = new File(filePath);
-			int fileSize = (int) file.length();
-			int partNum = 1;
-			byte[] data = TestTools.getBuffer(filePath);
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-			UploadPartRequest uploadPartReq = new UploadPartRequest().withBucketName(bucketName)
-					.withInputStream(inputStream).withKey(key).withPartNumber(partNum).withPartSize(fileSize)
-					.withUploadId(uploadId);
-			UploadPartResult uploadPartResult = conn.uploadPart(uploadPartReq);
+            InitiateMultipartUploadRequest initReq = new
+                    InitiateMultipartUploadRequest(
+                    bucketName, key );
+            InitiateMultipartUploadResult initResult = conn
+                    .initiateMultipartUpload( initReq );
+            String uploadId = initResult.getUploadId();
 
-			PartETag partETag = uploadPartResult.getPartETag();
-			tags.add(partETag);
+            File file = new File( filePath );
+            int fileSize = ( int ) file.length();
+            int partNum = 1;
+            byte[] data = TestTools.getBuffer( filePath );
+            ByteArrayInputStream inputStream = new ByteArrayInputStream( data );
+            UploadPartRequest uploadPartReq = new UploadPartRequest()
+                    .withBucketName( bucketName )
+                    .withInputStream( inputStream ).withKey( key )
+                    .withPartNumber( partNum ).withPartSize( fileSize )
+                    .withUploadId( uploadId );
+            UploadPartResult uploadPartResult = conn
+                    .uploadPart( uploadPartReq );
 
-			CompleteMultipartUploadRequest compReq = new CompleteMultipartUploadRequest(bucketName, key, uploadId,
-					tags);
-			conn.completeMultipartUpload(compReq);
-		} catch (AmazonClientException e) {
-			logger.error("failed to write file in ceph-s3, fileId = " + fileId.get());
-			e.printStackTrace();
-			throw e;
-		}
-	}
+            PartETag partETag = uploadPartResult.getPartETag();
+            tags.add( partETag );
 
-	public static ObjectMetadata getObjMetadata(SiteWrapper site, WsWrapper ws, ScmId fileId, String filePath,
-			String downloadPath) throws Exception {
-		AmazonS3 conn = null;
-		String key = fileId.get();
-		ObjectMetadata obj = null;
-		long fileSize = new File(filePath).length();
-		try {
-			conn = createConnect(site);
-			String bucketName = getBucketName(site, ws);
-			obj = conn.getObject(new GetObjectRequest(bucketName, key), new File(downloadPath));
-			
-			// check object length
-			long objLen = obj.getContentLength();
-			if (fileSize != objLen) {
-				throw new Exception(
-						"objLength is error, objSize = " + objLen + "fileSize = " + fileSize + ", fileId = " + fileId);
-			}
-			
-			// check object content
-			String expMd5 = TestTools.getMD5(filePath);
-			String actMd5 = TestTools.getMD5(downloadPath);
-			if (expMd5.equals(actMd5)) {
-				throw new Exception(
-						"objContent is error, actMd5 = " + actMd5 + "expMd5 = " + expMd5 + ", fileId = " + fileId);				
-			}
-		} catch (Exception e) {
-			logger.error("failed to get object in ceph-s3, fileId = " + fileId);
-			throw e;
-		}
-		return obj;
-	}
-	
-	public static void deleteBucket(SiteWrapper site, String wsName) throws Exception {
-		AmazonS3 conn;
-		String bucketName = "";
-		List<Bucket> buckets;
-		try {
-			bucketName = getBucketName(site, wsName);
-			
-			conn = CephS3Utils.createConnect(site);
-			buckets = conn.listBuckets();
-			for (int i = 0; i < buckets.size(); i++) {
-				String tmpBucketName = buckets.get(i).getName();
-				if (tmpBucketName.equals(bucketName)) {
-					ObjectListing objects = conn.listObjects(tmpBucketName);
-					List<S3ObjectSummary> summarys = objects.getObjectSummaries();
-					for (S3ObjectSummary summ : summarys) {
-						String key = summ.getKey();
-						conn.deleteObject(tmpBucketName, key);
-					}
-					conn.deleteBucket(tmpBucketName);
-					break;
-				}
-			}
-		} catch (Exception e) {
-			logger.error("failed to delete all buckets, siteId = " + site.getSiteId() + ", wsName = " + wsName
-					+ ", bucketName = " + bucketName);
-			throw e;
-		}
-	}
+            CompleteMultipartUploadRequest compReq = new
+                    CompleteMultipartUploadRequest(
+                    bucketName, key, uploadId,
+                    tags );
+            conn.completeMultipartUpload( compReq );
+        } catch ( AmazonClientException e ) {
+            logger.error( "failed to write file in ceph-s3, fileId = " +
+                    fileId.get() );
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
-	public static void deleteObject(SiteWrapper site, WsWrapper ws, ScmId fileId) throws Exception {
-		AmazonS3 conn = null;
-		String bucketName = "";
-		String key = fileId.get();
-		try {
-			conn = createConnect(site);
-			
-			bucketName = getBucketName(site, ws);
-//			System.out.println("list objects before delete, objects = " + listAllObjects(site, bucketName));
-			
-			conn.deleteObject(new DeleteObjectRequest(bucketName, key));
-//			System.out.println("list objects after  delete, objects = " + listAllObjects(site, bucketName));
-		} catch (Exception e) {
-			logger.error("failed to delete object in ceph-s3, fileId = " + fileId.get());
-			throw e;
-		}
-	}
-	
-/*	public static int readContent(SiteWrapper site, WsWrapper ws, ScmId fileId, String filePath) throws Exception { 
+    public static ObjectMetadata getObjMetadata( SiteWrapper site, WsWrapper ws,
+            ScmId fileId, String filePath,
+            String downloadPath ) throws Exception {
+        AmazonS3 conn = null;
+        String key = fileId.get();
+        ObjectMetadata obj = null;
+        long fileSize = new File( filePath ).length();
+        try {
+            conn = createConnect( site );
+            String bucketName = getBucketName( site, ws );
+            obj = conn.getObject( new GetObjectRequest( bucketName, key ),
+                    new File( downloadPath ) );
+
+            // check object length
+            long objLen = obj.getContentLength();
+            if ( fileSize != objLen ) {
+                throw new Exception(
+                        "objLength is error, objSize = " + objLen +
+                                "fileSize = " + fileSize + ", fileId = " +
+                                fileId );
+            }
+
+            // check object content
+            String expMd5 = TestTools.getMD5( filePath );
+            String actMd5 = TestTools.getMD5( downloadPath );
+            if ( expMd5.equals( actMd5 ) ) {
+                throw new Exception(
+                        "objContent is error, actMd5 = " + actMd5 +
+                                "expMd5 = " + expMd5 + ", fileId = " + fileId );
+            }
+        } catch ( Exception e ) {
+            logger.error(
+                    "failed to get object in ceph-s3, fileId = " + fileId );
+            throw e;
+        }
+        return obj;
+    }
+
+    public static void deleteBucket( SiteWrapper site, String wsName )
+            throws Exception {
+        AmazonS3 conn;
+        String bucketName = "";
+        List< Bucket > buckets;
+        try {
+            bucketName = getBucketName( site, wsName );
+
+            conn = CephS3Utils.createConnect( site );
+            buckets = conn.listBuckets();
+            for ( int i = 0; i < buckets.size(); i++ ) {
+                String tmpBucketName = buckets.get( i ).getName();
+                if ( tmpBucketName.equals( bucketName ) ) {
+                    ObjectListing objects = conn.listObjects( tmpBucketName );
+                    List< S3ObjectSummary > summarys = objects
+                            .getObjectSummaries();
+                    for ( S3ObjectSummary summ : summarys ) {
+                        String key = summ.getKey();
+                        conn.deleteObject( tmpBucketName, key );
+                    }
+                    conn.deleteBucket( tmpBucketName );
+                    break;
+                }
+            }
+        } catch ( Exception e ) {
+            logger.error( "failed to delete all buckets, siteId = " +
+                    site.getSiteId() + ", wsName = " + wsName
+                    + ", bucketName = " + bucketName );
+            throw e;
+        }
+    }
+
+    public static void deleteObject( SiteWrapper site, WsWrapper ws,
+            ScmId fileId ) throws Exception {
+        AmazonS3 conn = null;
+        String bucketName = "";
+        String key = fileId.get();
+        try {
+            conn = createConnect( site );
+
+            bucketName = getBucketName( site, ws );
+//			System.out.println("list objects before delete, objects = " +
+// listAllObjects(site, bucketName));
+
+            conn.deleteObject( new DeleteObjectRequest( bucketName, key ) );
+//			System.out.println("list objects after  delete, objects = " +
+// listAllObjects(site, bucketName));
+        } catch ( Exception e ) {
+            logger.error( "failed to delete object in ceph-s3, fileId = " +
+                    fileId.get() );
+            throw e;
+        }
+    }
+
+/*	public static int readContent(SiteWrapper site, WsWrapper ws, ScmId
+fileId, String filePath) throws Exception {
 		S3Object obj = null; 
 		int readLen = 0; 
 		long fileSize = new File(filePath).length(); 
@@ -208,56 +234,61 @@ public class CephS3Utils extends TestScmBase {
 		return readLen; 
 	}*/
 
-	private static String getBucketName(SiteWrapper site, WsWrapper ws) {
-		String bucketName = "";
+    private static String getBucketName( SiteWrapper site, WsWrapper ws ) {
+        String bucketName = "";
 
-		// get bucketName prefix
-		String containerPrefix = ws.getContainerPrefix(site.getSiteId());
-		if (null == containerPrefix) {
-			containerPrefix = ws.getName() + "-scmfile";
-		}
+        // get bucketName prefix
+        String containerPrefix = ws.getContainerPrefix( site.getSiteId() );
+        if ( null == containerPrefix ) {
+            containerPrefix = ws.getName() + "-scmfile";
+        }
 
-		// get bucketName postFix
-		String dstType = ws.getDataShardingTypeForOtherDs(site.getSiteId());
-		if (null == dstType) {
-			dstType = "month";
-		} 
-		String postFix = TestSdbTools.getCsClPostfix(dstType);
+        // get bucketName postFix
+        String dstType = ws.getDataShardingTypeForOtherDs( site.getSiteId() );
+        if ( null == dstType ) {
+            dstType = "month";
+        }
+        String postFix = TestSdbTools.getCsClPostfix( dstType );
 
-		// get bucketName
-		if (!dstType.equals("none")) {
-			containerPrefix += "-";
-		}
-		bucketName = (containerPrefix + postFix).toLowerCase().replaceAll("_", "-");
+        // get bucketName
+        if ( !dstType.equals( "none" ) ) {
+            containerPrefix += "-";
+        }
+        bucketName = ( containerPrefix + postFix ).toLowerCase()
+                .replaceAll( "_", "-" );
 
-		return bucketName;
-	}
+        return bucketName;
+    }
 
-	private static String getBucketName(SiteWrapper site, String wsName) throws ScmException {
-		String bucketName = "";
+    private static String getBucketName( SiteWrapper site, String wsName )
+            throws ScmException {
+        String bucketName = "";
 
-		// get bucketName prefix
-		Object containerPrefix = TestSdbTools.getContainerPrefix(site.getSiteId(), wsName);
-		if (null == containerPrefix) {
-			containerPrefix = wsName + "-scmfile";
-		} else {
-			containerPrefix = containerPrefix.toString();
-		}
+        // get bucketName prefix
+        Object containerPrefix = TestSdbTools
+                .getContainerPrefix( site.getSiteId(), wsName );
+        if ( null == containerPrefix ) {
+            containerPrefix = wsName + "-scmfile";
+        } else {
+            containerPrefix = containerPrefix.toString();
+        }
 
-		// get bucketName postFix
-		String dstType = TestSdbTools.getDataShardingTypeForOtherDs(site.getSiteId(), wsName);
-		if (null == dstType) {
-			dstType = "month";
-		} 
-		String postFix = TestSdbTools.getCsClPostfix(dstType);
+        // get bucketName postFix
+        String dstType = TestSdbTools
+                .getDataShardingTypeForOtherDs( site.getSiteId(), wsName );
+        if ( null == dstType ) {
+            dstType = "month";
+        }
+        String postFix = TestSdbTools.getCsClPostfix( dstType );
 
-		// get bucketName
-		if (!dstType.equals("none")) {
-			containerPrefix += "-";
-		}
-		bucketName = (containerPrefix + postFix).toLowerCase().replaceAll("_", "-");
+        // get bucketName
+        if ( !dstType.equals( "none" ) ) {
+            containerPrefix += "-";
+        }
+        bucketName = ( containerPrefix + postFix ).toLowerCase()
+                .replaceAll( "_", "-" );
 
-		return bucketName;
-	}
+        return bucketName;
+    }
 
 }

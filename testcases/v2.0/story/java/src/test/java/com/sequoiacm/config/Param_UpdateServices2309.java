@@ -1,17 +1,18 @@
 package com.sequoiacm.config;
 
+import java.util.ArrayList;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.ArrayList;
 
 /**
  * @author fanyu
@@ -27,48 +28,54 @@ public class Param_UpdateServices2309 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
             ScmConfigProperties.builder()
-                    .services(null)
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .services( null )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().services must be failed when services is null");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().services must be failed " +
+                            "when services is null" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty1() {
         try {
             ScmConfigProperties.builder()
-                    .services(new ArrayList<String>())
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .services( new ArrayList< String >() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().services must be failed when the size of services is 0");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().services must be failed " +
+                            "when the size of services is 0" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty2() {
         try {
             ScmConfigProperties.builder()
-                    .services(new ArrayList<String>())
-                    .service(site.getSiteServiceName())
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .services( new ArrayList< String >() )
+                    .service( site.getSiteServiceName() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().services must be failed when the size of services is 0");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().services must be failed " +
+                            "when the size of services is 0" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }

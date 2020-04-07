@@ -1,4 +1,3 @@
-
 package com.sequoiacm.auth.serial;
 
 import java.io.File;
@@ -57,137 +56,150 @@ public class AuthWsDir_None1731 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws InterruptedException, IOException {
-	localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-	filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-	try {
-	    localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-	    filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-	    TestTools.LocalFile.removeFile(localPath);
-	    TestTools.LocalFile.createDir(localPath.toString());
-	    TestTools.LocalFile.createFile(filePath, fileSize);
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            localPath = new File( TestScmBase.dataDirectory + File.separator +
+                    TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize +
+                    ".txt";
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	    rootsite = ScmInfo.getRootSite();
-	    branchsite = ScmInfo.getBranchSite();
-	    wsp = ScmInfo.getWs();
-	    sessionM = TestScmTools.createSession(rootsite);
-	    sessionB = TestScmTools.createSession(branchsite);
-	    wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
-	    try {
-		ScmFactory.User.deleteUser(sessionM, username);
-	    } catch (ScmException e) {
-		if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		    e.printStackTrace();
-		    Assert.fail(e.getMessage());
-		}
-	    }
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	}
-	try {
-	    user = ScmFactory.User.createUser(sessionM, username, ScmUserPasswordType.LOCAL, passwd);
-	    sessionUM = TestScmTools.createSession(rootsite, username, passwd);
-	    sessionUB = TestScmTools.createSession(branchsite, username, passwd);
-	    wsUM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionUM);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+            rootsite = ScmInfo.getRootSite();
+            branchsite = ScmInfo.getBranchSite();
+            wsp = ScmInfo.getWs();
+            sessionM = TestScmTools.createSession( rootsite );
+            sessionB = TestScmTools.createSession( branchsite );
+            wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+            try {
+                ScmFactory.User.deleteUser( sessionM, username );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+        }
+        try {
+            user = ScmFactory.User
+                    .createUser( sessionM, username, ScmUserPasswordType.LOCAL,
+                            passwd );
+            sessionUM = TestScmTools
+                    .createSession( rootsite, username, passwd );
+            sessionUB = TestScmTools
+                    .createSession( branchsite, username, passwd );
+            wsUM = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), sessionUM );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListDir() {
-	ScmCursor<ScmDirectory> cursor = null;
-	try {
-	    cursor = ScmFactory.Directory.listInstance(wsUM, new BasicBSONObject());
-	    Assert.assertNotNull(cursor);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+        ScmCursor< ScmDirectory > cursor = null;
+        try {
+            cursor = ScmFactory.Directory
+                    .listInstance( wsUM, new BasicBSONObject() );
+            Assert.assertNotNull( cursor );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListSche() {
-	ScmCursor<ScmScheduleBasicInfo> cursor = null;
-	try {
-	    cursor = ScmSystem.Schedule.list(sessionUB, new BasicBSONObject());
-	    Assert.assertNotNull(cursor);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+        ScmCursor< ScmScheduleBasicInfo > cursor = null;
+        try {
+            cursor = ScmSystem.Schedule
+                    .list( sessionUB, new BasicBSONObject() );
+            Assert.assertNotNull( cursor );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListFile() {
-	ScmCursor<ScmFileBasicInfo> cursor = null;
-	try {
-	    cursor = ScmFactory.File.listInstance(wsM, ScopeType.SCOPE_ALL, new BasicBSONObject());
-	    Assert.assertNotNull(cursor);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            cursor = ScmFactory.File.listInstance( wsM, ScopeType.SCOPE_ALL,
+                    new BasicBSONObject() );
+            Assert.assertNotNull( cursor );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListTask() {
-	ScmCursor<ScmTaskBasicInfo> cursor = null;
-	try {
-	    cursor = ScmSystem.Task.listTask(sessionUB, new BasicBSONObject());
-	    Assert.assertNotNull(cursor);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+        ScmCursor< ScmTaskBasicInfo > cursor = null;
+        try {
+            cursor = ScmSystem.Task
+                    .listTask( sessionUB, new BasicBSONObject() );
+            Assert.assertNotNull( cursor );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListSite() {
-	ScmCursor<ScmSiteInfo> cursor = null;
-	try {
-	    cursor = ScmFactory.Site.listSite(sessionUB);
-	    Assert.assertNotNull(cursor);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+        ScmCursor< ScmSiteInfo > cursor = null;
+        try {
+            cursor = ScmFactory.Site.listSite( sessionUB );
+            Assert.assertNotNull( cursor );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() {
-	try {
-	    ScmFactory.User.deleteUser(sessionM, user);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (sessionM != null) {
-		sessionM.close();
-	    }
-	    if (sessionB != null) {
-		sessionB.close();
-	    }
-	}
+        try {
+            ScmFactory.User.deleteUser( sessionM, user );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+            if ( sessionB != null ) {
+                sessionB.close();
+            }
+        }
     }
 }

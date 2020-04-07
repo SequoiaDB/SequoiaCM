@@ -21,44 +21,46 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @author luweikang
  * @date 2018年8月28日
  */
-public class WorkspaceRemoveSite2192 extends TestScmBase{
+public class WorkspaceRemoveSite2192 extends TestScmBase {
 
-	private ScmSession sessionM = null;
-	private ScmSession sessionA = null;
-	private static SiteWrapper siteM = null;
-	private static List<SiteWrapper> branchSiteList = null;
-	private String wsName = "ws2184";	
-	
-	@BeforeClass
-	public void setUp() throws Exception{
-		siteM = ScmInfo.getRootSite();
-		branchSiteList = ScmInfo.getBranchSites(ScmInfo.getSiteNum()-1);
-		sessionM = TestScmTools.createSession(siteM);	
-		ScmWorkspaceUtil.deleteWs(wsName, sessionM);
-	}
-	
-	@Test(groups = { "twoSite", "fourSite" })
-	public void test() throws ScmException, InterruptedException, IOException{
-		int siteNum = ScmInfo.getSiteNum();
-		ScmWorkspace ws = ScmWorkspaceUtil.createWS(sessionM, wsName, siteNum);
-		for (int i = 0; i < branchSiteList.size(); i++) {
-			ScmWorkspaceUtil.wsRemoveSite(ws, branchSiteList.get(i).getSiteName());
-		}
-	}
-	
-	@AfterClass
-	public void tearDown() throws Exception{
-		try {
-			ScmWorkspaceUtil.deleteWs(wsName, sessionM);
-		} finally {
-			if (sessionM!=null) {
-				sessionM.close();
-			}
-			if (sessionA!=null) {
-				sessionA.close();
-			}
-		}
-	}
-	
+    private static SiteWrapper siteM = null;
+    private static List< SiteWrapper > branchSiteList = null;
+    private ScmSession sessionM = null;
+    private ScmSession sessionA = null;
+    private String wsName = "ws2184";
+
+    @BeforeClass
+    public void setUp() throws Exception {
+        siteM = ScmInfo.getRootSite();
+        branchSiteList = ScmInfo.getBranchSites( ScmInfo.getSiteNum() - 1 );
+        sessionM = TestScmTools.createSession( siteM );
+        ScmWorkspaceUtil.deleteWs( wsName, sessionM );
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    public void test() throws ScmException, InterruptedException, IOException {
+        int siteNum = ScmInfo.getSiteNum();
+        ScmWorkspace ws = ScmWorkspaceUtil
+                .createWS( sessionM, wsName, siteNum );
+        for ( int i = 0; i < branchSiteList.size(); i++ ) {
+            ScmWorkspaceUtil
+                    .wsRemoveSite( ws, branchSiteList.get( i ).getSiteName() );
+        }
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        try {
+            ScmWorkspaceUtil.deleteWs( wsName, sessionM );
+        } finally {
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
+    }
+
 }
 

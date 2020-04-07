@@ -1,18 +1,19 @@
 package com.sequoiacm.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author fanyu
@@ -28,70 +29,78 @@ public class Param_UpdateInstances2311 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
             ScmConfigProperties.builder()
-                    .instances(null)
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .instances( null )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().instances(null) must be failed when instances is null");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().instances(null) must be " +
+                            "failed when instances is null" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty() {
         try {
             ScmConfigProperties.builder()
-                    .instances(new ArrayList<String>())
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .instances( new ArrayList< String >() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().instances must be failed when the size of instances is 0");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().instances must be failed " +
+                            "when the size of instances is 0" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHybrid1() {
         try {
-            List<String> list = new ArrayList<String>();
-            list.add(site.getNode().getUrl());
+            List< String > list = new ArrayList< String >();
+            list.add( site.getNode().getUrl() );
             ScmConfigProperties.builder()
-                    .instances(list)
-                    .instances(new ArrayList<String>())
-                    .service(site.getSiteServiceName())
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .instances( list )
+                    .instances( new ArrayList< String >() )
+                    .service( site.getSiteServiceName() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().instances must be failed when the size of instances is 0");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().instances must be failed " +
+                            "when the size of instances is 0" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHybrid2() {
         try {
-            List<String> list = new ArrayList<String>();
-            list.add(site.getNode().getUrl());
+            List< String > list = new ArrayList< String >();
+            list.add( site.getNode().getUrl() );
             ScmConfigProperties.builder()
-                    .instances(list)
-                    .instances(null)
-                    .service(site.getSiteServiceName())
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .instances( list )
+                    .instances( null )
+                    .service( site.getSiteServiceName() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().instances(null) must be failed when instances is null");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().instances(null) must be " +
+                            "failed when instances is null" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }

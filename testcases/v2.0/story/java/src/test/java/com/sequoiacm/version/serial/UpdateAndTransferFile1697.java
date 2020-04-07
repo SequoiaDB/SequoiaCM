@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.version.serial;
 
@@ -38,8 +38,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @date 2018年6月13日
  */
 public class UpdateAndTransferFile1697 extends TestScmBase {
-    private boolean runSuccess = false;
     private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
     private ScmSession sessionA = null;
@@ -51,8 +51,8 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
     private ScmId taskId = null;
 
     private String fileName = "fileVersion1693";
-    private byte[] filedata = new byte[1024 * 100];
-    private byte[] updatedata = new byte[1024 * 200];
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
@@ -67,7 +67,8 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName, updatedata );
+        sbFile = VersionUtils
+                .createBreakpointFileByStream( wsA, fileName, updatedata );
 
     }
 
@@ -80,20 +81,26 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID ).is( fileId.toString() ).get();
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId.toString() ).get();
         taskId = ScmSystem.Task.startTransferTask( wsA, cond );
 
         ScmTaskUtils.waitTaskFinish( sessionA, taskId );
-        Assert.assertTrue( updateFileThread.isSuccess(), updateFileThread.getErrorMsg() );
+        Assert.assertTrue( updateFileThread.isSuccess(),
+                updateFileThread.getErrorMsg() );
 
         int curFileVersion = rootCurVersion();
 
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, curFileVersion, expHisSiteList );
         if ( curFileVersion == 1 ) {
-            VersionUtils.CheckFileContentByStream( wsM, fileName, historyVersion, filedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsM, fileName, historyVersion,
+                            filedata );
         } else {
-            VersionUtils.CheckFileContentByStream( wsM, fileName, currentVersion, updatedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsM, fileName, currentVersion,
+                            updatedata );
         }
 
         runSuccess = true;
@@ -119,6 +126,15 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         }
     }
 
+    private int rootCurVersion() throws ScmException {
+        ScmFile file = ScmFactory.File.getInstance( wsM, fileId, 1, 0 );
+        if ( file.getLocationList().size() < 2 ) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
     class UpdateFileThread extends TestThreadBase {
 
         @Override
@@ -128,15 +144,6 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
             scmFile.updateContent( sbFile );
         }
 
-    }
-
-    private int rootCurVersion() throws ScmException {
-        ScmFile file = ScmFactory.File.getInstance( wsM, fileId, 1, 0 );
-        if ( file.getLocationList().size() < 2 ) {
-            return 2;
-        } else {
-            return 1;
-        }
     }
 
 }

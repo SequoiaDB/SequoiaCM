@@ -1,4 +1,3 @@
-
 package com.sequoiacm.definemeta;
 
 import org.bson.BasicBSONObject;
@@ -54,107 +53,120 @@ public class DefineAttr_Class_List1852 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-	try {
-	    site = ScmInfo.getSite();
-	    wsp = ScmInfo.getWs();
-	    session = TestScmTools.createSession(site);
-	    cleanEnv();
-	    prepare();
-	} catch (Exception e) {
-	    Assert.fail(e.getMessage());
-	}
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            cleanEnv();
+            prepare();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-	try {
-	    ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionNA);
-	    ScmFactory.Class.listInstance(ws, new BasicBSONObject());
-	    Assert.fail("the user does not have priority to do something");
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.OPERATION_UNAUTHORIZED) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
-	runSuccess = true;
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), sessionNA );
+            ScmFactory.Class.listInstance( ws, new BasicBSONObject() );
+            Assert.fail( "the user does not have priority to do something" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() {
-	try {
-	    ScmFactory.Role.revokePrivilege(session, role, wsrs, ScmPrivilegeType.UPDATE);
-	    ScmFactory.Role.revokePrivilege(session, role, wsrs, ScmPrivilegeType.DELETE);
-	    ScmFactory.Role.revokePrivilege(session, role, wsrs, ScmPrivilegeType.CREATE);
+        try {
+            ScmFactory.Role.revokePrivilege( session, role, wsrs,
+                    ScmPrivilegeType.UPDATE );
+            ScmFactory.Role.revokePrivilege( session, role, wsrs,
+                    ScmPrivilegeType.DELETE );
+            ScmFactory.Role.revokePrivilege( session, role, wsrs,
+                    ScmPrivilegeType.CREATE );
 
-	    ScmFactory.Role.revokePrivilege(session, role, dirrs, ScmPrivilegeType.ALL);
-	    ScmFactory.Role.deleteRole(session, role);
-	    ScmFactory.User.deleteUser(session, user);
-	    if (runSuccess || TestScmBase.forceClear) {
-		ScmFactory.Class.deleteInstance(ws, scmClass.getId());
-	    }
-	    if (!runSuccess && scmClass != null) {
-		System.out.println("class = " + scmClass.toString());
-		ScmFactory.Class.deleteInstance(ws, scmClass.getId());
-	    }
-	} catch (BaseException | ScmException e) {
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	}
+            ScmFactory.Role.revokePrivilege( session, role, dirrs,
+                    ScmPrivilegeType.ALL );
+            ScmFactory.Role.deleteRole( session, role );
+            ScmFactory.User.deleteUser( session, user );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.Class.deleteInstance( ws, scmClass.getId() );
+            }
+            if ( !runSuccess && scmClass != null ) {
+                System.out.println( "class = " + scmClass.toString() );
+                ScmFactory.Class.deleteInstance( ws, scmClass.getId() );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
     }
 
-    private void grantPriAndAttachRole(ScmSession session, ScmResource rs, ScmUser user, ScmRole role,
-	    ScmPrivilegeType privileges) {
-	try {
-	    ScmUserModifier modifier = new ScmUserModifier();
-	    ScmFactory.Role.grantPrivilege(session, role, rs, privileges);
-	    modifier.addRole(role);
-	    ScmFactory.User.alterUser(session, user, modifier);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+    private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
+            ScmUser user, ScmRole role,
+            ScmPrivilegeType privileges ) {
+        try {
+            ScmUserModifier modifier = new ScmUserModifier();
+            ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
+            modifier.addRole( role );
+            ScmFactory.User.alterUser( session, user, modifier );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     private void cleanEnv() {
-	try {
-	    ScmFactory.Role.deleteRole(session, rolename);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
-	try {
-	    ScmFactory.User.deleteUser(session, username);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
+        try {
+            ScmFactory.Role.deleteRole( session, rolename );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        try {
+            ScmFactory.User.deleteUser( session, username );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
 
     }
 
     private void prepare() throws Exception {
-	user = ScmFactory.User.createUser(session, username, ScmUserPasswordType.LOCAL, passwd);
-	role = ScmFactory.Role.createRole(session, rolename, null);
-	wsrs = ScmResourceFactory.createWorkspaceResource(wsp.getName());
-	dirrs = ScmResourceFactory.createDirectoryResource(wsp.getName(), "/");
+        user = ScmFactory.User
+                .createUser( session, username, ScmUserPasswordType.LOCAL,
+                        passwd );
+        role = ScmFactory.Role.createRole( session, rolename, null );
+        wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
+        dirrs = ScmResourceFactory
+                .createDirectoryResource( wsp.getName(), "/" );
 
-	grantPriAndAttachRole(session, wsrs, user, role, ScmPrivilegeType.UPDATE);
-	grantPriAndAttachRole(session, wsrs, user, role, ScmPrivilegeType.CREATE);
-	grantPriAndAttachRole(session, wsrs, user, role, ScmPrivilegeType.DELETE);
+        grantPriAndAttachRole( session, wsrs, user, role,
+                ScmPrivilegeType.UPDATE );
+        grantPriAndAttachRole( session, wsrs, user, role,
+                ScmPrivilegeType.CREATE );
+        grantPriAndAttachRole( session, wsrs, user, role,
+                ScmPrivilegeType.DELETE );
 
-	grantPriAndAttachRole(session, dirrs, user, role, ScmPrivilegeType.ALL);
-	ScmAuthUtils.checkPriority(site, username, passwd, role, wsp);
+        grantPriAndAttachRole( session, dirrs, user, role,
+                ScmPrivilegeType.ALL );
+        ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
-	sessionNA = TestScmTools.createSession(site, username, passwd);
+        sessionNA = TestScmTools.createSession( site, username, passwd );
 
-	ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-	scmClass = ScmFactory.Class.createInstance(ws, classname, desc);
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        scmClass = ScmFactory.Class.createInstance( ws, classname, desc );
     }
 }

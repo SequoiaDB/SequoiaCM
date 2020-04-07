@@ -39,121 +39,135 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class LessThan349 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private final int fileNum = 3;
+    private final String authorName = "LessThan349";
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private final int fileNum = 3;
-	private final String authorName = "LessThan349";
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			readyScmFile();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            readyScmFile();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			// build condition
-			BSONObject cond = null;
-			Object[][] kvs = this.kvsArr();
-			ScmQueryBuilder builder = null;
-			String bsStr = "{ \"";
-			for (Object[] kv : kvs) {
-				String key = (String) kv[0];
-				Object value = kv[1];
-				String subStr = null;
-				if (kv[1] instanceof String) {
-					subStr = key + "\" : { \"$lt\" : \"" + value + "\"}";
-				} else {
-					subStr = key + "\" : { \"$lt\" : " + value + "}";
-				}
-				if (null == builder) {
-					builder = ScmQueryBuilder.start(key).lessThan(value);
-					bsStr = bsStr + subStr;
-				} else {
-					builder.put(key).lessThan(value);
-					bsStr = bsStr + " , \"" + subStr;
-				}
-			}
-			cond = builder.and(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			bsStr = bsStr + " , \"author\" : \"" + authorName + "\"}";
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), bsStr.replaceAll("\\s*",""));
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            // build condition
+            BSONObject cond = null;
+            Object[][] kvs = this.kvsArr();
+            ScmQueryBuilder builder = null;
+            String bsStr = "{ \"";
+            for ( Object[] kv : kvs ) {
+                String key = ( String ) kv[ 0 ];
+                Object value = kv[ 1 ];
+                String subStr = null;
+                if ( kv[ 1 ] instanceof String ) {
+                    subStr = key + "\" : { \"$lt\" : \"" + value + "\"}";
+                } else {
+                    subStr = key + "\" : { \"$lt\" : " + value + "}";
+                }
+                if ( null == builder ) {
+                    builder = ScmQueryBuilder.start( key ).lessThan( value );
+                    bsStr = bsStr + subStr;
+                } else {
+                    builder.put( key ).lessThan( value );
+                    bsStr = bsStr + " , \"" + subStr;
+                }
+            }
+            cond = builder.and( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            bsStr = bsStr + " , \"author\" : \"" + authorName + "\"}";
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    bsStr.replaceAll( "\\s*", "" ) );
 
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, 2);
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, 2 );
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.getInstance(ws, fileId).delete(true);
-				}
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                }
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private void readyScmFile() {
-		try {
-			for (int i = 0; i < fileNum; i++) {
-				String str = authorName + "_" + i;
-				ScmFile scmfile = ScmFactory.File.createInstance(ws);
-				scmfile.setFileName(str);
-				scmfile.setAuthor(authorName);
-				scmfile.setTitle(str);
-				scmfile.setMimeType(str);
-				ScmId fileId = scmfile.save();
-				fileIdList.add(fileId);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void readyScmFile() {
+        try {
+            for ( int i = 0; i < fileNum; i++ ) {
+                String str = authorName + "_" + i;
+                ScmFile scmfile = ScmFactory.File.createInstance( ws );
+                scmfile.setFileName( str );
+                scmfile.setAuthor( authorName );
+                scmfile.setTitle( str );
+                scmfile.setMimeType( str );
+                ScmId fileId = scmfile.save();
+                fileIdList.add( fileId );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private Object[][] kvsArr() throws ScmException {
-		ScmFile file = ScmFactory.File.getInstance(ws, fileIdList.get(2));
-		return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID, "ffffffffffffffffffffffff" }, // max
-																											// id
-				// new Object[]{ScmAttributeName.File.FILE_NAME,
-				// file.getFileName()},
-				new Object[] { ScmAttributeName.File.FILE_NAME, file.getFileName() },
-				new Object[] { ScmAttributeName.File.TITLE, file.getTitle() },
-				new Object[] { ScmAttributeName.File.MIME_TYPE, file.getMimeType() },
-				new Object[] { ScmAttributeName.File.SIZE, file.getSize() + 1 },
-				new Object[] { ScmAttributeName.File.MAJOR_VERSION, Integer.MAX_VALUE },
-				new Object[] { ScmAttributeName.File.MINOR_VERSION, Integer.MAX_VALUE },
-				new Object[] { ScmAttributeName.File.USER, file.getUser() + "A" },
-				new Object[] { ScmAttributeName.File.CREATE_TIME, file.getCreateTime().getTime() },
-				new Object[] { ScmAttributeName.File.UPDATE_USER, file.getUser() + "A" },
-				new Object[] { ScmAttributeName.File.UPDATE_TIME, file.getUpdateTime().getTime() } };
-	}
+    private Object[][] kvsArr() throws ScmException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 2 ) );
+        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
+                "ffffffffffffffffffffffff" }, // max
+                // id
+                // new Object[]{ScmAttributeName.File.FILE_NAME,
+                // file.getFileName()},
+                new Object[] { ScmAttributeName.File.FILE_NAME,
+                        file.getFileName() },
+                new Object[] { ScmAttributeName.File.TITLE, file.getTitle() },
+                new Object[] { ScmAttributeName.File.MIME_TYPE,
+                        file.getMimeType() },
+                new Object[] { ScmAttributeName.File.SIZE, file.getSize() + 1 },
+                new Object[] { ScmAttributeName.File.MAJOR_VERSION,
+                        Integer.MAX_VALUE },
+                new Object[] { ScmAttributeName.File.MINOR_VERSION,
+                        Integer.MAX_VALUE },
+                new Object[] { ScmAttributeName.File.USER,
+                        file.getUser() + "A" },
+                new Object[] { ScmAttributeName.File.CREATE_TIME,
+                        file.getCreateTime().getTime() },
+                new Object[] { ScmAttributeName.File.UPDATE_USER,
+                        file.getUser() + "A" },
+                new Object[] { ScmAttributeName.File.UPDATE_TIME,
+                        file.getUpdateTime().getTime() } };
+    }
 
 }

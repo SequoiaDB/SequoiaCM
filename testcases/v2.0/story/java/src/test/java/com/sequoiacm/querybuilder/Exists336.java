@@ -39,80 +39,84 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class Exists336 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private int fileNum = 3;
-	private String author = "Exists336";
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private int fileNum = 3;
+    private String author = "Exists336";
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			readyScmFile();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            readyScmFile();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			// build condition
-			String key = ScmAttributeName.File.CREATE_TIME;
-			BSONObject cond = ScmQueryBuilder.start(key).exists(0).get();
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), ("{ \"" + key + "\" : { \"$exists\" : 0}}").replaceAll("\\s*",""));
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            // build condition
+            String key = ScmAttributeName.File.CREATE_TIME;
+            BSONObject cond = ScmQueryBuilder.start( key ).exists( 0 ).get();
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    ( "{ \"" + key + "\" : { \"$exists\" : 0}}" )
+                            .replaceAll( "\\s*", "" ) );
 
-			// count
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, 0);
+            // count
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, 0 );
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.getInstance(ws, fileId).delete(true);
-				}
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                }
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private void readyScmFile() {
-		try {
-			for (int i = 0; i < fileNum; i++) {
-				ScmFile file = ScmFactory.File.createInstance(ws);
-				file.setFileName("a" + i);
-				file.setAuthor(author);
-				ScmId fileId = file.save();
-				fileIdList.add(fileId);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void readyScmFile() {
+        try {
+            for ( int i = 0; i < fileNum; i++ ) {
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setFileName( "a" + i );
+                file.setAuthor( author );
+                ScmId fileId = file.save();
+                fileIdList.add( fileId );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 }

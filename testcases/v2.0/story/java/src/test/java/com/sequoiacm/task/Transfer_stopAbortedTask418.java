@@ -50,119 +50,128 @@ import com.sequoiadb.exception.BaseException;
 
 public class Transfer_stopAbortedTask418 extends TestScmBase {
 
-	private boolean runSuccess = false;
+    private final int fileSize = 200 * 1024;
+    private final int fileNum = 10;
+    private boolean runSuccess = false;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private BSONObject cond = null;
 
-	private final int fileSize = 200 * 1024;
-	private final int fileNum = 10;
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private BSONObject cond = null;
+    private File localPath = null;
+    private String filePath = null;
 
-	private File localPath = null;
-	private String filePath = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace ws = null;
+    private String authorName = "StopAbortedTask418";
+    private ScmId taskId = null;
 
-	private ScmSession sessionA = null;
-	private ScmWorkspace ws = null;
-	private String authorName = "StopAbortedTask418";
-	private ScmId taskId = null;
-	
-	private SiteWrapper branceSite = null;
-	private WsWrapper ws_T = null;
+    private SiteWrapper branceSite = null;
+    private WsWrapper ws_T = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			// ready file
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            // ready file
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			//sessionA = TestScmTools.createSession(TestScmBase.hostName2, TestScmBase.port2);
-			sessionA = TestScmTools.createSession(branceSite);
-			ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
-			
-			cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_T, cond);
-			
-			prepareFiles(ws);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-			if (sessionA != null) {
-				sessionA.close();
-			}
-		}
-	}
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		try {
-			taskId = transferAllFile(ws);
-			ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-			changeFlagToAbortOnSdb(taskId);
-			ScmSystem.Task.stopTask(sessionA, taskId);
-			waitTaskStop();
-			Assert.assertEquals(ScmSystem.Task.getTask(sessionA, taskId).getRunningFlag(),
-					CommonDefine.TaskRunningFlag.SCM_TASK_ABORT); // 5: abort
+            //sessionA = TestScmTools.createSession(TestScmBase.hostName2,
+            // TestScmBase.port2);
+            sessionA = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                    .is( authorName ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (int i = 0; i < fileNum; ++i) {
-					ScmFactory.File.deleteInstance(ws, fileIdList.get(i), true);
-				}
-				TestTools.LocalFile.removeFile(localPath);
-				TestSdbTools.Task.deleteMeta(taskId);
-			}
-		} catch (BaseException | ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
-		}
-	}
+            prepareFiles( ws );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
+    }
 
-	private void prepareFiles(ScmWorkspace ws) throws Exception {
-		for (int i = 0; i < fileNum; ++i) {
-			ScmFile scmfile = ScmFactory.File.createInstance(ws);
-			scmfile.setContent(filePath);
-			scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-			scmfile.setAuthor(authorName);
-			fileIdList.add(scmfile.save());
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        try {
+            taskId = transferAllFile( ws );
+            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+            changeFlagToAbortOnSdb( taskId );
+            ScmSystem.Task.stopTask( sessionA, taskId );
+            waitTaskStop();
+            Assert.assertEquals(
+                    ScmSystem.Task.getTask( sessionA, taskId ).getRunningFlag(),
+                    CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ); // 5: abort
 
-	private ScmId transferAllFile(ScmWorkspace ws) throws ScmException {
-		BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-		return ScmSystem.Task.startTransferTask(ws, condition);
-	}
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	private void changeFlagToAbortOnSdb(ScmId taskId) {
-		try (Sequoiadb sdb = new Sequoiadb(TestScmBase.mainSdbUrl, TestScmBase.sdbUserName, TestScmBase.sdbPassword)) {
-			DBCollection cl = sdb.getCollectionSpace(TestSdbTools.SCM_CS).getCollection(TestSdbTools.SCM_CL_TASK);
-			cl.update("{ id: '" + taskId.get() + "' }", "{ $set: { running_flag: 5 } }", null); 
-		} catch (BaseException e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( int i = 0; i < fileNum; ++i ) {
+                    ScmFactory.File
+                            .deleteInstance( ws, fileIdList.get( i ), true );
+                }
+                TestTools.LocalFile.removeFile( localPath );
+                TestSdbTools.Task.deleteMeta( taskId );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
+    }
 
-	private void waitTaskStop() throws ScmException {
-		Date stopTime = null;
-		while (stopTime == null) {
-			stopTime = ScmSystem.Task.getTask(sessionA, taskId).getStopTime();
-		}
-	}
+    private void prepareFiles( ScmWorkspace ws ) throws Exception {
+        for ( int i = 0; i < fileNum; ++i ) {
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setContent( filePath );
+            scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+            scmfile.setAuthor( authorName );
+            fileIdList.add( scmfile.save() );
+        }
+    }
+
+    private ScmId transferAllFile( ScmWorkspace ws ) throws ScmException {
+        BSONObject condition = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        return ScmSystem.Task.startTransferTask( ws, condition );
+    }
+
+    private void changeFlagToAbortOnSdb( ScmId taskId ) {
+        try ( Sequoiadb sdb = new Sequoiadb( TestScmBase.mainSdbUrl,
+                TestScmBase.sdbUserName, TestScmBase.sdbPassword ) ) {
+            DBCollection cl = sdb.getCollectionSpace( TestSdbTools.SCM_CS )
+                    .getCollection( TestSdbTools.SCM_CL_TASK );
+            cl.update( "{ id: '" + taskId.get() + "' }",
+                    "{ $set: { running_flag: 5 } }", null );
+        } catch ( BaseException e ) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private void waitTaskStop() throws ScmException {
+        Date stopTime = null;
+        while ( stopTime == null ) {
+            stopTime = ScmSystem.Task.getTask( sessionA, taskId ).getStopTime();
+        }
+    }
 }

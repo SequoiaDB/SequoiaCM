@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.workspace.serial;
 
@@ -23,42 +23,43 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @author luweikang
  * @date 2018年6月22日
  */
-public class CreateWorkspace1818 extends TestScmBase{
-	
-	private String wsName = "ws1818";
-	private ScmSession session = null;
-	private SiteWrapper rootSite = null;
-	
-	@BeforeClass
-	private void setUp() throws Exception{
-		
-		rootSite = ScmInfo.getRootSite();
-		session = TestScmTools.createSession(rootSite);
-		ScmWorkspaceUtil.deleteWs(wsName, session);
-	}
-	
-	@Test(groups = { "one", "twoSite", "fourSite" })
-	private void test() throws ScmException, InterruptedException{
-		int siteNum = ScmInfo.getSiteNum();
-		ScmWorkspaceUtil.createWS(session, wsName, siteNum);
-		try {
-			ScmWorkspaceUtil.createWS(session, wsName, siteNum);
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getError(), ScmError.WORKSPACE_EXIST, e.getMessage());
-		}
-	
-	}
-	
-	@AfterClass
-	private void tearDown(){
-		try{
-			ScmFactory.Workspace.deleteWorkspace(session, wsName, true);
-		}catch( Exception e){
-			Assert.fail(e.getMessage()+e.getStackTrace());
-		}finally {
-			if( session != null){
-				session.close();
-			}
-		}
-	}
+public class CreateWorkspace1818 extends TestScmBase {
+
+    private String wsName = "ws1818";
+    private ScmSession session = null;
+    private SiteWrapper rootSite = null;
+
+    @BeforeClass
+    private void setUp() throws Exception {
+
+        rootSite = ScmInfo.getRootSite();
+        session = TestScmTools.createSession( rootSite );
+        ScmWorkspaceUtil.deleteWs( wsName, session );
+    }
+
+    @Test(groups = { "one", "twoSite", "fourSite" })
+    private void test() throws ScmException, InterruptedException {
+        int siteNum = ScmInfo.getSiteNum();
+        ScmWorkspaceUtil.createWS( session, wsName, siteNum );
+        try {
+            ScmWorkspaceUtil.createWS( session, wsName, siteNum );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.WORKSPACE_EXIST,
+                    e.getMessage() );
+        }
+
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() + e.getStackTrace() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 }

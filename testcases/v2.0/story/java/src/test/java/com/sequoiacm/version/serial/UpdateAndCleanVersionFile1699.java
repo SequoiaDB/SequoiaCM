@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.version.serial;
 
@@ -39,106 +39,110 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @date 2018年6月15日
  */
 public class UpdateAndCleanVersionFile1699 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static WsWrapper wsp = null;
-	private SiteWrapper branSite = null;
-	private SiteWrapper rootSite = null;
-	private ScmSession sessionA = null;
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsA = null;
-	private ScmWorkspace wsM = null;
-	private ScmId fileId = null;
-	private ScmBreakpointFile sbFile = null;
-	private ScmId taskId = null;
+    private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
+    private SiteWrapper branSite = null;
+    private SiteWrapper rootSite = null;
+    private ScmSession sessionA = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsA = null;
+    private ScmWorkspace wsM = null;
+    private ScmId fileId = null;
+    private ScmBreakpointFile sbFile = null;
+    private ScmId taskId = null;
 
-	private String fileName = "fileVersion1699";
-	private byte[] filedata = new byte[ 1024 * 100 ];
-	private byte[] updatedata = new byte[ 1024 * 200];	
-	
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		BreakpointUtil.checkDBDataSource();
-		branSite = ScmInfo.getBranchSite();
-		rootSite = ScmInfo.getRootSite();
-		wsp = ScmInfo.getWs();
-		
-		sessionA = TestScmTools.createSession(branSite);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-		sessionM = TestScmTools.createSession(rootSite);
-		wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
-		
-		fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-		sbFile = VersionUtils.createBreakpointFileByStream(wsA, fileName, updatedata);
-	}
-	
-	@Test(groups = {  "twoSite", "fourSite"})
-	private void test() throws Exception {
-		
-		ScmFactory.File.asyncTransfer(wsA, fileId);
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId, 1, 2, 30);
-		
-		UpdateFileThread updateFileThread = new UpdateFileThread();
-		updateFileThread.start();
-		
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_ID).is(fileId.toString()).get();
-		taskId = ScmSystem.Task.startCleanTask(wsA, cond, ScopeType.SCOPE_CURRENT);
-		
-		Assert.assertTrue(updateFileThread.isSuccess(), updateFileThread.getErrorMsg());
-		ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-		boolean branHasHisVersion = branHasHisVersion();
-		
-		if(branHasHisVersion){
-			SiteWrapper[] expSites = {rootSite,branSite};
-			VersionUtils.checkSite(wsM, fileId, 1, expSites);
-			VersionUtils.CheckFileContentByStream(wsA, fileName, 1, filedata);
-		}else{
-			SiteWrapper[] expSites = {rootSite};
-			VersionUtils.checkSite(wsM, fileId, 1, expSites);
-		}
-		VersionUtils.CheckFileContentByStream(wsA, fileName, 2, updatedata);
-		
-		runSuccess = true;
-	}
-	
-	@AfterClass
-	private void tearDown() {
-		try {			
-			if(runSuccess){
-				ScmFactory.File.deleteInstance(wsM, fileId, true);	
-				TestSdbTools.Task.deleteMeta(taskId);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage()+e.getStackTrace());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}	
-			if (sessionM != null) {
-				sessionM.close();
-			}
-		}
-	}
-	
-	class UpdateFileThread extends TestThreadBase{
+    private String fileName = "fileVersion1699";
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 200 ];
 
-		@Override
-		public void exec() throws Exception {
-			Thread.sleep(210);
-			ScmFile scmFile = ScmFactory.File.getInstance(wsA, fileId);
-			scmFile.updateContent(sbFile);
-		}
-		
-	}
-	
-	private boolean branHasHisVersion() throws ScmException{
-		
-		ScmFile file = ScmFactory.File.getInstance(wsA, fileId, 1, 0);
-		int siteNum = file.getLocationList().size();
-		
-		boolean branHasHisVersion = false;
-		if(siteNum > 1){
-			branHasHisVersion = true;
-		}
-		return branHasHisVersion;
-	}
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        BreakpointUtil.checkDBDataSource();
+        branSite = ScmInfo.getBranchSite();
+        rootSite = ScmInfo.getRootSite();
+        wsp = ScmInfo.getWs();
+
+        sessionA = TestScmTools.createSession( branSite );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+
+        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        sbFile = VersionUtils
+                .createBreakpointFileByStream( wsA, fileName, updatedata );
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+
+        ScmFactory.File.asyncTransfer( wsA, fileId );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2, 30 );
+
+        UpdateFileThread updateFileThread = new UpdateFileThread();
+        updateFileThread.start();
+
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId.toString() ).get();
+        taskId = ScmSystem.Task
+                .startCleanTask( wsA, cond, ScopeType.SCOPE_CURRENT );
+
+        Assert.assertTrue( updateFileThread.isSuccess(),
+                updateFileThread.getErrorMsg() );
+        ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+        boolean branHasHisVersion = branHasHisVersion();
+
+        if ( branHasHisVersion ) {
+            SiteWrapper[] expSites = { rootSite, branSite };
+            VersionUtils.checkSite( wsM, fileId, 1, expSites );
+            VersionUtils.CheckFileContentByStream( wsA, fileName, 1, filedata );
+        } else {
+            SiteWrapper[] expSites = { rootSite };
+            VersionUtils.checkSite( wsM, fileId, 1, expSites );
+        }
+        VersionUtils.CheckFileContentByStream( wsA, fileName, 2, updatedata );
+
+        runSuccess = true;
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( runSuccess ) {
+                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() + e.getStackTrace() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+        }
+    }
+
+    private boolean branHasHisVersion() throws ScmException {
+
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, 1, 0 );
+        int siteNum = file.getLocationList().size();
+
+        boolean branHasHisVersion = false;
+        if ( siteNum > 1 ) {
+            branHasHisVersion = true;
+        }
+        return branHasHisVersion;
+    }
+
+    class UpdateFileThread extends TestThreadBase {
+
+        @Override
+        public void exec() throws Exception {
+            Thread.sleep( 210 );
+            ScmFile scmFile = ScmFactory.File.getInstance( wsA, fileId );
+            scmFile.updateContent( sbFile );
+        }
+
+    }
 }

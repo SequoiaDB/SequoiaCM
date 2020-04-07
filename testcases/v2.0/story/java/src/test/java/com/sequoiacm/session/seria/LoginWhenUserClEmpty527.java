@@ -35,81 +35,88 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class LoginWhenUserClEmpty527 extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(LoginWhenUserClEmpty527.class);
-	private static SiteWrapper site = null;
+    private static final Logger logger = Logger
+            .getLogger( LoginWhenUserClEmpty527.class );
+    private static SiteWrapper site = null;
 
-	private Sequoiadb sdb = null;
-	private DBCollection userCL = null;
-	private List<BSONObject> oldUserRecs = new ArrayList<BSONObject>();
+    private Sequoiadb sdb = null;
+    private DBCollection userCL = null;
+    private List< BSONObject > oldUserRecs = new ArrayList< BSONObject >();
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
 
-			sdb = new Sequoiadb(TestScmBase.mainSdbUrl, TestScmBase.sdbUserName, TestScmBase.sdbPassword);
-			userCL = sdb.getCollectionSpace(TestSdbTools.SCM_CS).getCollection(TestSdbTools.SCM_CL_USER);
+            sdb = new Sequoiadb( TestScmBase.mainSdbUrl,
+                    TestScmBase.sdbUserName, TestScmBase.sdbPassword );
+            userCL = sdb.getCollectionSpace( TestSdbTools.SCM_CS )
+                    .getCollection( TestSdbTools.SCM_CL_USER );
 
-			saveAndClearCL(userCL);
-		} catch (BaseException e) {
-			e.printStackTrace();
-			if (sdb != null) {
-				sdb.close();
-			}
-			Assert.fail(e.getMessage());
-		}
-	}
+            saveAndClearCL( userCL );
+        } catch ( BaseException e ) {
+            e.printStackTrace();
+            if ( sdb != null ) {
+                sdb.close();
+            }
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(TestScmBase.gateWayList.get(0)+"/"+ site, TestScmBase.scmUserName,
-					TestScmBase.scmPassword);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("login shouldn't succeed when user cl is empty!");
-		} catch (ScmException e) {
-			if (-301 != e.getErrorCode()) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" + site,
+                    TestScmBase.scmUserName,
+                    TestScmBase.scmPassword );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail( "login shouldn't succeed when user cl is empty!" );
+        } catch ( ScmException e ) {
+            if ( -301 !=
+                    e.getErrorCode() ) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			restoreCL(userCL);
-		} catch (BaseException e) {
-			logger.error("fail to restore userCL, original records: " + oldUserRecs);
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sdb != null) {
-				sdb.close();
-			}
-		}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            restoreCL( userCL );
+        } catch ( BaseException e ) {
+            logger.error( "fail to restore userCL, original records: " +
+                    oldUserRecs );
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
 
-	}
+    }
 
-	private void saveAndClearCL(DBCollection cl) {
-		// save user table to restore then
-		DBCursor cursor = null;
-		try {
-			cursor = userCL.query();
-			while (cursor.hasNext()) {
-				oldUserRecs.add(cursor.getNext());
-			}
-		} finally {
-			cursor.close();
-		}
+    private void saveAndClearCL( DBCollection cl ) {
+        // save user table to restore then
+        DBCursor cursor = null;
+        try {
+            cursor = userCL.query();
+            while ( cursor.hasNext() ) {
+                oldUserRecs.add( cursor.getNext() );
+            }
+        } finally {
+            cursor.close();
+        }
 
-		// delete all records
-		userCL.delete("{}");
-	}
+        // delete all records
+        userCL.delete( "{}" );
+    }
 
-	private void restoreCL(DBCollection cl) {
-		for (BSONObject rec : oldUserRecs) {
-			cl.insert(rec);
-		}
-	}
+    private void restoreCL( DBCollection cl ) {
+        for ( BSONObject rec : oldUserRecs ) {
+            cl.insert( rec );
+        }
+    }
 
 }

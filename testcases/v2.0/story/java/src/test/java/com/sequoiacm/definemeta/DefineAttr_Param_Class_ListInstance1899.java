@@ -1,4 +1,3 @@
-
 package com.sequoiacm.definemeta;
 
 import org.bson.BasicBSONObject;
@@ -22,39 +21,38 @@ import com.sequoiacm.testcommon.TestScmTools;
  * @Date:2018年7月7日
  * @version:1.0
  */
-public class DefineAttr_Param_Class_ListInstance1899  extends TestScmBase{
-	private SiteWrapper site = null;
-	private ScmSession session = null;
-	
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-            session = TestScmTools.createSession(site);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+public class DefineAttr_Param_Class_ListInstance1899 extends TestScmBase {
+    private SiteWrapper site = null;
+    private ScmSession session = null;
 
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testWsIsNull() {
-		// create
-		try {
-			ScmFactory.Class.listInstance(null, new BasicBSONObject());
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		if (session != null) {
-			session.close();
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testWsIsNull() {
+        // create
+        try {
+            ScmFactory.Class.listInstance( null, new BasicBSONObject() );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

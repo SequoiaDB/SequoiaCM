@@ -1,4 +1,3 @@
-
 package com.sequoiacm.version;
 
 import java.io.File;
@@ -38,168 +37,181 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @version:1.0
  */
 public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
-	private boolean runSuccess1 = false;
-	private SiteWrapper site = null;
-	private WsWrapper wsp = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private boolean runSuccess1 = false;
+    private SiteWrapper site = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	private String name = "MutilVersionFileUnderMoveDir2067";
-	private String srcPath = "/2067_D";
-	private String destPath = "/2067_A/2067_B/2067_C";
-	private ScmDirectory srcDir = null;
-	private ScmDirectory destDir = null;
-	private int fileSize = 1024;
-	private ScmId fileId = null;
-	private File localPath = null;
-	private List<String> filePathList = new ArrayList<>();
+    private String name = "MutilVersionFileUnderMoveDir2067";
+    private String srcPath = "/2067_D";
+    private String destPath = "/2067_A/2067_B/2067_C";
+    private ScmDirectory srcDir = null;
+    private ScmDirectory destDir = null;
+    private int fileSize = 1024;
+    private ScmId fileId = null;
+    private File localPath = null;
+    private List< String > filePathList = new ArrayList<>();
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		for (int i = 1; i <= 3; i++) {
-			String filePath = localPath + File.separator + "localFile_" + (int) (fileSize / Math.pow(2, i - 1))
-					+ ".txt";
-			TestTools.LocalFile.createFile(filePath, (int) (fileSize / Math.pow(2, i - 1)));
-			filePathList.add(filePath);
-		}
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        for ( int i = 1; i <= 3; i++ ) {
+            String filePath = localPath + File.separator + "localFile_" +
+                    ( int ) ( fileSize / Math.pow( 2, i - 1 ) )
+                    + ".txt";
+            TestTools.LocalFile.createFile( filePath,
+                    ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) );
+            filePathList.add( filePath );
+        }
 
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(name).get();
-		ScmFileUtils.cleanFile(wsp, cond);
-		deleteDir(ws, destPath + srcPath);
-		srcDir = createDir(ws, srcPath);
-		destDir = createDir(ws, destPath);
-	}
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( name ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        deleteDir( ws, destPath + srcPath );
+        srcDir = createDir( ws, srcPath );
+        destDir = createDir( ws, destPath );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		// create file
-		fileId = createFile(name, srcDir, filePathList.get(0));
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        // create file
+        fileId = createFile( name, srcDir, filePathList.get( 0 ) );
 
-		// update file
-		updateFile(fileId, filePathList.get(1));
-		updateFile(fileId, filePathList.get(2));
+        // update file
+        updateFile( fileId, filePathList.get( 1 ) );
+        updateFile( fileId, filePathList.get( 2 ) );
 
-		// rename dir
-		srcDir.move(destDir);
-		String filePath = destPath + srcPath + "/" + name;
+        // rename dir
+        srcDir.move( destDir );
+        String filePath = destPath + srcPath + "/" + name;
 
-		// check fileAttr
-		checkFileAttr(filePath);
+        // check fileAttr
+        checkFileAttr( filePath );
 
-		// check version
-		for (int i = filePathList.size(); i <= 1; i++) {
-			VersionUtils.CheckFileContentByFile(ws, fileId, i, filePath, localPath);
-		}
-		SiteWrapper[] expSites = { site };
-		ScmFileUtils.checkMeta(ws, fileId, expSites);
-		runSuccess1 = true;
-	}
+        // check version
+        for ( int i = filePathList.size(); i <= 1; i++ ) {
+            VersionUtils.CheckFileContentByFile( ws, fileId, i, filePath,
+                    localPath );
+        }
+        SiteWrapper[] expSites = { site };
+        ScmFileUtils.checkMeta( ws, fileId, expSites );
+        runSuccess1 = true;
+    }
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			if (!runSuccess1 || TestScmBase.forceClear) {
-				System.out.println("fileId = " + fileId.get());
-			}
-			ScmFactory.File.deleteInstance(ws, fileId, true);
-			TestTools.LocalFile.removeFile(localPath);
-			deleteDir(ws, destPath + srcPath);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( !runSuccess1 || TestScmBase.forceClear ) {
+                System.out.println( "fileId = " + fileId.get() );
+            }
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+            TestTools.LocalFile.removeFile( localPath );
+            deleteDir( ws, destPath + srcPath );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	private ScmId createFile(String filename, ScmDirectory dir, String filePath) throws ScmException {
-		// upload file and set tags
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setFileName(filename);
-		file.setAuthor(name);
-		file.setDirectory(dir);
-		file.setContent(filePath);
-		ScmId fileId = file.save();
-		return fileId;
-	}
+    private ScmId createFile( String filename, ScmDirectory dir,
+            String filePath ) throws ScmException {
+        // upload file and set tags
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( filename );
+        file.setAuthor( name );
+        file.setDirectory( dir );
+        file.setContent( filePath );
+        ScmId fileId = file.save();
+        return fileId;
+    }
 
-	private void updateFile(ScmId fileId, String filePath) throws ScmException {
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		// file.setTags(tags);
-		file.updateContent(filePath);
-	}
+    private void updateFile( ScmId fileId, String filePath )
+            throws ScmException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        // file.setTags(tags);
+        file.updateContent( filePath );
+    }
 
-	private ScmDirectory createDir(ScmWorkspace ws, String dirPath) throws ScmException {
-		List<String> pathList = getSubPaths(dirPath);
-		for (String path : pathList) {
-			try {
-				ScmFactory.Directory.createInstance(ws, path);
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.DIR_EXIST) {
-					e.printStackTrace();
-					Assert.fail(e.getMessage());
-				}
-			}
-		}
-		return ScmFactory.Directory.getInstance(ws, pathList.get(pathList.size() - 1));
-	}
+    private ScmDirectory createDir( ScmWorkspace ws, String dirPath )
+            throws ScmException {
+        List< String > pathList = getSubPaths( dirPath );
+        for ( String path : pathList ) {
+            try {
+                ScmFactory.Directory.createInstance( ws, path );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.DIR_EXIST ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
+        return ScmFactory.Directory
+                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+    }
 
-	private void deleteDir(ScmWorkspace ws, String dirPath) {
-		List<String> pathList = getSubPaths(dirPath);
-		for (int i = pathList.size() - 1; i >= 0; i--) {
-			try {
-				ScmFactory.Directory.deleteInstance(ws, pathList.get(i));
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.DIR_NOT_FOUND && e.getError() != ScmError.DIR_NOT_EMPTY) {
-					e.printStackTrace();
-					Assert.fail(e.getMessage());
-				}
-			}
-		}
-	}
+    private void deleteDir( ScmWorkspace ws, String dirPath ) {
+        List< String > pathList = getSubPaths( dirPath );
+        for ( int i = pathList.size() - 1; i >= 0; i-- ) {
+            try {
+                ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
+                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
+    }
 
-	private List<String> getSubPaths(String path) {
-		String ele = "/";
-		String[] arry = path.split("/");
-		List<String> pathList = new ArrayList<>();
-		for (int i = 1; i < arry.length; i++) {
-			ele = ele + arry[i];
-			pathList.add(ele);
-			ele = ele + "/";
-		}
-		return pathList;
-	}
+    private List< String > getSubPaths( String path ) {
+        String ele = "/";
+        String[] arry = path.split( "/" );
+        List< String > pathList = new ArrayList<>();
+        for ( int i = 1; i < arry.length; i++ ) {
+            ele = ele + arry[ i ];
+            pathList.add( ele );
+            ele = ele + "/";
+        }
+        return pathList;
+    }
 
-	private void checkFileAttr(String filePath) throws ScmException {
-		//check fileAtrr
-        ScmFile file = ScmFactory.File.getInstanceByPath(ws, filePath);
-		Assert.assertEquals(file.getFileName(), name);
-		Assert.assertEquals(file.getMajorVersion(), 3);
-		Assert.assertEquals(file.getSize(), fileSize / 4);
-		Assert.assertEquals(file.getDirectory().getPath(), destPath + srcPath + "/");
+    private void checkFileAttr( String filePath ) throws ScmException {
+        //check fileAtrr
+        ScmFile file = ScmFactory.File.getInstanceByPath( ws, filePath );
+        Assert.assertEquals( file.getFileName(), name );
+        Assert.assertEquals( file.getMajorVersion(), 3 );
+        Assert.assertEquals( file.getSize(), fileSize / 4 );
+        Assert.assertEquals( file.getDirectory().getPath(),
+                destPath + srcPath + "/" );
 
-		// check old dir
-		String filePath1 = srcPath + "/" + name;
-		try {
-            ScmFactory.File.getInstanceByPath(ws, filePath1);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.FILE_NOT_FOUND) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		
-		//check
-		ScmDirectory dir1 = ScmFactory.Directory.getInstance(ws, destPath + srcPath);
-		ScmFile file1 = dir1.getSubfile(name);
-		Assert.assertEquals(file1.getDirectory().getPath(), destPath + srcPath + "/");
-	}
+        // check old dir
+        String filePath1 = srcPath + "/" + name;
+        try {
+            ScmFactory.File.getInstanceByPath( ws, filePath1 );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+
+        //check
+        ScmDirectory dir1 = ScmFactory.Directory
+                .getInstance( ws, destPath + srcPath );
+        ScmFile file1 = dir1.getSubfile( name );
+        Assert.assertEquals( file1.getDirectory().getPath(),
+                destPath + srcPath + "/" );
+    }
 }

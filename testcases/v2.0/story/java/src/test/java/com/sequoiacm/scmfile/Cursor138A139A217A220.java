@@ -34,116 +34,120 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class Cursor138A139A217A220 extends TestScmBase {
-	private boolean runSuccess1 = false;
-	private boolean runSuccess2 = false;
-	private boolean runSuccess3 = false;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess1 = false;
+    private boolean runSuccess2 = false;
+    private boolean runSuccess3 = false;
+    private ScmWorkspace ws = null;
 
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private int fileSize = 1024 * 10;
+    private File localPath = null;
+    private String filePath = null;
+    private String fileName = "scmfile138";
+    private ScmId fileId = null;
 
-	private int fileSize = 1024 * 10;
-	private File localPath = null;
-	private String filePath = null;
-	private String fileName = "scmfile138";
-	private ScmId fileId = null;
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            fileId = ScmFileUtils.create( ws, fileName, filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			fileId = ScmFileUtils.create(ws, fileName, filePath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testCursorByGetNext() {
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            ScopeType scopeType = ScopeType.SCOPE_CURRENT;
+            BSONObject condition = new BasicBSONObject(
+                    ScmAttributeName.File.FILE_ID, fileId.get() );
+            cursor = ScmFactory.File.listInstance( ws, scopeType, condition );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testCursorByGetNext() {
-		ScmCursor<ScmFileBasicInfo> cursor = null;
-		try {
-			ScopeType scopeType = ScopeType.SCOPE_CURRENT;
-			BSONObject condition = new BasicBSONObject(ScmAttributeName.File.FILE_ID, fileId.get());
-			cursor = ScmFactory.File.listInstance(ws, scopeType, condition);
+            ScmFileBasicInfo info = cursor.getNext();
+            Assert.assertEquals( info.getFileId().get(), fileId.get() );
 
-			ScmFileBasicInfo info = cursor.getNext();
-			Assert.assertEquals(info.getFileId().get(), fileId.get());
+            cursor.close();
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess1 = true;
+    }
 
-			cursor.close();
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess1 = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testCursorByBlankResult() {
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            ScopeType scopeType = ScopeType.SCOPE_CURRENT;
+            BSONObject condition = new BasicBSONObject( "", "" );
+            cursor = ScmFactory.File.listInstance( ws, scopeType, condition );
+            boolean rc = cursor.hasNext();
+            Assert.assertEquals( rc, false );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testCursorByBlankResult() {
-		ScmCursor<ScmFileBasicInfo> cursor = null;
-		try {
-			ScopeType scopeType = ScopeType.SCOPE_CURRENT;
-			BSONObject condition = new BasicBSONObject("", "");
-			cursor = ScmFactory.File.listInstance(ws, scopeType, condition);
-			boolean rc = cursor.hasNext();
-			Assert.assertEquals(rc, false);
+            ScmFileBasicInfo rcInfo = cursor.getNext();
+            Assert.assertEquals( rcInfo, null );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            cursor.close();
+        }
+        runSuccess2 = true;
+    }
 
-			ScmFileBasicInfo rcInfo = cursor.getNext();
-			Assert.assertEquals(rcInfo, null);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			cursor.close();
-		}
-		runSuccess2 = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testCursorByRepeatClose() {
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            ScopeType scopeType = ScopeType.SCOPE_CURRENT;
+            BSONObject condition = new BasicBSONObject(
+                    ScmAttributeName.File.FILE_ID, fileId.get() );
+            cursor = ScmFactory.File.listInstance( ws, scopeType, condition );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testCursorByRepeatClose() {
-		ScmCursor<ScmFileBasicInfo> cursor = null;
-		try {
-			ScopeType scopeType = ScopeType.SCOPE_CURRENT;
-			BSONObject condition = new BasicBSONObject(ScmAttributeName.File.FILE_ID, fileId.get());
-			cursor = ScmFactory.File.listInstance(ws, scopeType, condition);
+            int size = 0;
+            while ( cursor.hasNext() ) {
+                cursor.getNext();
+                size++;
+            }
+            Assert.assertEquals( size, 1 );
+            cursor.close();
+            cursor.close();
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess3 = true;
+    }
 
-			int size = 0;
-			while (cursor.hasNext()) {
-				cursor.getNext();
-				size++;
-			}
-			Assert.assertEquals(size, 1);
-			cursor.close();
-			cursor.close();
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess3 = true;
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess1 || runSuccess2 || runSuccess3 ||
+                    TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess1 || runSuccess2 || runSuccess3 || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-
-		}
-	}
+        }
+    }
 
 }

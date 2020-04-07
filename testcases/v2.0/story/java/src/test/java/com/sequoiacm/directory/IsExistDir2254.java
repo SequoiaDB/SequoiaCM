@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.directory;
 
@@ -25,58 +25,58 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class IsExistDir2254 extends TestScmBase {
-	private boolean runSuccess;
-	private ScmSession session;
-	private ScmWorkspace ws;
-	private SiteWrapper site;
-	private WsWrapper wsp;
-	private String dirBasePath = "/IsExistDir2254";
+    private boolean runSuccess;
+    private ScmSession session;
+    private ScmWorkspace ws;
+    private SiteWrapper site;
+    private WsWrapper wsp;
+    private String dirBasePath = "/IsExistDir2254";
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);	
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws ScmException {
-		//directory exist
-		ScmFactory.Directory.createInstance(ws, dirBasePath);
-		boolean flag = ScmFactory.Directory.isInstanceExist(ws,dirBasePath);
-		Assert.assertTrue(flag);
-		
-		//directory no exist
-		ScmFactory.Directory.deleteInstance(ws, dirBasePath);
-		boolean flag1 = ScmFactory.Directory.isInstanceExist(ws, dirBasePath);
-		Assert.assertFalse(flag1);
-		
-		//create same directory again
-		ScmFactory.Directory.createInstance(ws, dirBasePath);
-		boolean flag3 = ScmFactory.Directory.isInstanceExist(ws, dirBasePath);
-		Assert.assertTrue(flag3);
-		runSuccess = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws ScmException {
+        //directory exist
+        ScmFactory.Directory.createInstance( ws, dirBasePath );
+        boolean flag = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
+        Assert.assertTrue( flag );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.Directory.deleteInstance(ws, dirBasePath);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+        //directory no exist
+        ScmFactory.Directory.deleteInstance( ws, dirBasePath );
+        boolean flag1 = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
+        Assert.assertFalse( flag1 );
+
+        //create same directory again
+        ScmFactory.Directory.createInstance( ws, dirBasePath );
+        boolean flag3 = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
+        Assert.assertTrue( flag3 );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.Directory.deleteInstance( ws, dirBasePath );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 }

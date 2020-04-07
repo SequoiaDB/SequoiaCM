@@ -40,68 +40,71 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class OprWhenCursorOpen711 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private final int fileNum = 20;
+    private final String author = "case711";
+    private ScmWorkspace ws = null;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private final int fileNum = 20;
-	private final String author = "case711";
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            prepareScmFile();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			prepareScmFile();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
+            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            while ( cursor.hasNext() ) {
+                ScmFileBasicInfo fileInfo = cursor.getNext();
+                ScmId fileId = fileInfo.getFileId();
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }
+            cursor.close();
 
-			ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			while (cursor.hasNext()) {
-				ScmFileBasicInfo fileInfo = cursor.getNext();
-				ScmId fileId = fileInfo.getFileId();
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-			}
-			cursor.close();
+            // patch for JIRA: SEQUOIACM-40
+            ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            ScmCursor< ScmFileBasicInfo > cursor2 = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            cursor2.close();
+            cursor1.close();
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			// patch for JIRA: SEQUOIACM-40
-			ScmCursor<ScmFileBasicInfo> cursor1 = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			ScmCursor<ScmFileBasicInfo> cursor2 = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			cursor2.close();
-			cursor1.close();
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null ) {
+            session.close();
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		if (session != null) {
-			session.close();
-		}
-	}
-
-	private void prepareScmFile() throws ScmException {
-		for (int i = 0; i < fileNum; i++) {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(author+"_"+UUID.randomUUID());
-			file.setAuthor(author);
-			ScmId fileId = file.save();
-			fileIdList.add(fileId);
-		}
-	}
+    private void prepareScmFile() throws ScmException {
+        for ( int i = 0; i < fileNum; i++ ) {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( author + "_" + UUID.randomUUID() );
+            file.setAuthor( author );
+            ScmId fileId = file.save();
+            fileIdList.add( fileId );
+        }
+    }
 
 }

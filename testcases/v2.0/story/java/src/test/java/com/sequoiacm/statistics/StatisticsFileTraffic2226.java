@@ -31,99 +31,105 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 /**
  * test content: statistics upload and download file traffic
  * testlink-case:SCM-2226
- * 
+ *
  * @author wuyan
  * @Date 2018.09.12
  * @version 1.00
  */
 
 public class StatisticsFileTraffic2226 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;	
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "file12226";
-	private String authorName = "author12226";
-	private List<ScmId> fileIds = new ArrayList<ScmId>();
-	private int fileNums = 20;
-	private int fileSize = 1024 * 10;	
-	private byte[] fileData = new byte[fileSize];	
-	
+    private String fileName = "file12226";
+    private String authorName = "author12226";
+    private List< ScmId > fileIds = new ArrayList< ScmId >();
+    private int fileNums = 20;
+    private int fileSize = 1024 * 10;
+    private byte[] fileData = new byte[ fileSize ];
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-		ScmFileUtils.cleanFile(wsp, cond);
-	}
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite"})
-	private void test() throws Exception {		
-		//get statisticDownload before create file
-		HashMap<String, Long> firstmap = StatisticsUtils.statisticsFile(ws, session);
-		long statisticDownload1 = firstmap.get("file_download");	
-		long statisticUpload1 =  firstmap.get("file_upload");			
-		
-		createFiles( ws , fileNums );
-		downloadFile(  ws );
-		deleteFile( ws );
-		
-		//get statisticUpload after download
-		HashMap<String, Long> secondmap = StatisticsUtils.statisticsFile(ws, session);
-		long statisticDownload2 = secondmap.get("file_download");
-		long statisticUpload2 = secondmap.get("file_upload");		
-		
-		//check statistic file download and upload result
-		long upFiles = statisticUpload2 - statisticUpload1;
-		Assert.assertEquals(upFiles, fileNums);
-		long downloadFiles = statisticDownload2 - statisticDownload1;
-		Assert.assertEquals(downloadFiles, fileNums);
-		runSuccess = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        //get statisticDownload before create file
+        HashMap< String, Long > firstmap = StatisticsUtils
+                .statisticsFile( ws, session );
+        long statisticDownload1 = firstmap.get( "file_download" );
+        long statisticUpload1 = firstmap.get( "file_upload" );
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			if (runSuccess) {
-				BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-				ScmFileUtils.cleanFile(wsp, cond);
-			}			
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}			
-		}
-	}	
+        createFiles( ws, fileNums );
+        downloadFile( ws );
+        deleteFile( ws );
 
-	private void createFiles( ScmWorkspace ws, int fileNums) throws ScmException{			
-		for ( int i = 0; i < fileNums; i++ ){
-			String subfileName = fileName + "_" + i;			
-			ScmId fileId = StatisticsUtils.createFileByStream( ws, subfileName, fileData, authorName);			
-			fileIds.add(fileId);
-		}
-	}
-	
-	
-	private void downloadFile( ScmWorkspace ws ) throws ScmException{
-		for( ScmId fileId : fileIds){
-			ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-			// down file
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			file.getContent(outputStream);		
-		}
-	}
-	
-	private void deleteFile( ScmWorkspace ws ) throws ScmException{
-		for (ScmId fileId : fileIds) {					
-			ScmFactory.File.deleteInstance(ws, fileId, true);					
-		}
-	}
-	
+        //get statisticUpload after download
+        HashMap< String, Long > secondmap = StatisticsUtils
+                .statisticsFile( ws, session );
+        long statisticDownload2 = secondmap.get( "file_download" );
+        long statisticUpload2 = secondmap.get( "file_upload" );
+
+        //check statistic file download and upload result
+        long upFiles = statisticUpload2 - statisticUpload1;
+        Assert.assertEquals( upFiles, fileNums );
+        long downloadFiles = statisticDownload2 - statisticDownload1;
+        Assert.assertEquals( downloadFiles, fileNums );
+        runSuccess = true;
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( runSuccess ) {
+                BSONObject cond = ScmQueryBuilder
+                        .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                        .get();
+                ScmFileUtils.cleanFile( wsp, cond );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void createFiles( ScmWorkspace ws, int fileNums )
+            throws ScmException {
+        for ( int i = 0; i < fileNums; i++ ) {
+            String subfileName = fileName + "_" + i;
+            ScmId fileId = StatisticsUtils
+                    .createFileByStream( ws, subfileName, fileData,
+                            authorName );
+            fileIds.add( fileId );
+        }
+    }
+
+    private void downloadFile( ScmWorkspace ws ) throws ScmException {
+        for ( ScmId fileId : fileIds ) {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+            // down file
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            file.getContent( outputStream );
+        }
+    }
+
+    private void deleteFile( ScmWorkspace ws ) throws ScmException {
+        for ( ScmId fileId : fileIds ) {
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+        }
+    }
+
 }

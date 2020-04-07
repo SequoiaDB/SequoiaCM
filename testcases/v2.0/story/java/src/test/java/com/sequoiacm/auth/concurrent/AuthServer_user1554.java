@@ -21,124 +21,128 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
- * @FileName  SCM-1554:并发修改用户属性添加角色、删除该角色
+ * @FileName SCM-1554:并发修改用户属性添加角色、删除该角色
  * @Author huangxioni
  * @Date 2018/5/16
  */
 
 public class AuthServer_user1554 extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(AuthServer_user1554.class);
-	private boolean runSuccess = false;
-	
-	private SiteWrapper site = null;
-	private ScmSession session = null;
-	
-	private static final String NAME = "auth1554";
-	private static final String PASSWORD = NAME;
+    private static final Logger logger = Logger
+            .getLogger( AuthServer_user1554.class );
+    private static final String NAME = "auth1554";
+    private static final String PASSWORD = NAME;
+    private boolean runSuccess = false;
+    private SiteWrapper site = null;
+    private ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		
-		// clean new user
-		try {
-			ScmFactory.User.deleteUser(session, NAME);
-		}  catch (ScmException e) {
-			logger.info("clean users in setUp, errorMsg = [" + e.getError() + "]");
-		}
-		try {
-			ScmFactory.Role.deleteRole(session, NAME);
-		}  catch (ScmException e) {
-			logger.info("clean roles in setUp, errorMsg = [" + e.getError() + "]");
-		}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
 
-		ScmFactory.User.createUser(session, NAME, ScmUserPasswordType.LOCAL, PASSWORD);
-		ScmFactory.Role.createRole(session, NAME, "");
-	}
+        // clean new user
+        try {
+            ScmFactory.User.deleteUser( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean users in setUp, errorMsg = [" + e.getError() + "]" );
+        }
+        try {
+            ScmFactory.Role.deleteRole( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean roles in setUp, errorMsg = [" + e.getError() + "]" );
+        }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws ScmException {
-		Random random = new Random();
-		
-		AlterUserAddRole addRole = new AlterUserAddRole();
-		AlterUserDelRole delRole = new AlterUserDelRole();
-		addRole.start(random.nextInt(50) + 1);
-		delRole.start(random.nextInt(50) + 1);
+        ScmFactory.User.createUser( session, NAME, ScmUserPasswordType.LOCAL,
+                PASSWORD );
+        ScmFactory.Role.createRole( session, NAME, "" );
+    }
 
-		if (!(addRole.isSuccess() && delRole.isSuccess())) {
-			Assert.fail(addRole.getErrorMsg() + delRole.getErrorMsg());
-		}
-		
-		// check results
-		ScmFactory.Role.deleteRole(session, NAME);
-		ScmFactory.User.deleteUser(session, NAME);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws ScmException {
+        Random random = new Random();
 
-		try {
-			ScmFactory.User.getUser(session, NAME);
-			Assert.fail("expect failed but actual succ.");
-		} catch (ScmException e) {
-			logger.info("delete not exist user, errorMsg = [" + e.getError() + "]");
-		}
+        AlterUserAddRole addRole = new AlterUserAddRole();
+        AlterUserDelRole delRole = new AlterUserDelRole();
+        addRole.start( random.nextInt( 50 ) + 1 );
+        delRole.start( random.nextInt( 50 ) + 1 );
 
-		try {
-			ScmFactory.Role.deleteRole(session, NAME);
-			Assert.fail("expect failed but actual succ.");
-		} catch (ScmException e) {
-			logger.info("delete not exist role, errorMsg = [" + e.getError() + "]");
-		}
+        if ( !( addRole.isSuccess() && delRole.isSuccess() ) ) {
+            Assert.fail( addRole.getErrorMsg() + delRole.getErrorMsg() );
+        }
 
-		runSuccess = true;
-	}
+        // check results
+        ScmFactory.Role.deleteRole( session, NAME );
+        ScmFactory.User.deleteUser( session, NAME );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-			}
-		} finally{
-			if(null != session){
-				session.close();
-			}
-		}
-	}
+        try {
+            ScmFactory.User.getUser( session, NAME );
+            Assert.fail( "expect failed but actual succ." );
+        } catch ( ScmException e ) {
+            logger.info( "delete not exist user, errorMsg = [" + e.getError() +
+                    "]" );
+        }
 
-	private class AlterUserAddRole extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				
-				ScmUser scmUser = ScmFactory.User.getUser(session, NAME);
-				ScmUserModifier modifier = new ScmUserModifier();
-				modifier.addRole(NAME);
-				ScmFactory.User.alterUser(session, scmUser, modifier);
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+        try {
+            ScmFactory.Role.deleteRole( session, NAME );
+            Assert.fail( "expect failed but actual succ." );
+        } catch ( ScmException e ) {
+            logger.info( "delete not exist role, errorMsg = [" + e.getError() +
+                    "]" );
+        }
 
-	private class AlterUserDelRole extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				
-				ScmUser scmUser = ScmFactory.User.getUser(session, NAME);
-				ScmUserModifier modifier = new ScmUserModifier();
-				modifier.delRole(NAME);
-				ScmFactory.User.alterUser(session, scmUser, modifier);
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+            }
+        } finally {
+            if ( null != session ) {
+                session.close();
+            }
+        }
+    }
+
+    private class AlterUserAddRole extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+
+                ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
+                ScmUserModifier modifier = new ScmUserModifier();
+                modifier.addRole( NAME );
+                ScmFactory.User.alterUser( session, scmUser, modifier );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private class AlterUserDelRole extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+
+                ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
+                ScmUserModifier modifier = new ScmUserModifier();
+                modifier.delRole( NAME );
+                ScmFactory.User.alterUser( session, scmUser, modifier );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
 }

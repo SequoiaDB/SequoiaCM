@@ -38,134 +38,139 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class OprAndLogout229 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private final int FILE_SIZE = 100;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
+    private String fileName = "session229";
+    private File localPath = null;
+    private String filePath = null;
+    private ScmId fileId = null;
+    private AtomicInteger logoutThdIsDone = new AtomicInteger();
 
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
-	private String fileName = "session229";
-	private File localPath = null;
-	private String filePath = null;
-	private ScmId fileId = null;
-	private final int FILE_SIZE = 100;
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, FILE_SIZE );
 
-	private AtomicInteger logoutThdIsDone = new AtomicInteger();
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, FILE_SIZE);
+            fileId = ScmFileUtils.create( ws, fileName, filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        ScmSession sessionB = null;
+        try {
+            LogoutThread logoutThd = new LogoutThread();
+            DeleteThread deleteThd = new DeleteThread();
 
-			fileId = ScmFileUtils.create(ws, fileName, filePath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            logoutThd.start();
+            deleteThd.start();
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		ScmSession sessionB = null;
-		try {
-			LogoutThread logoutThd = new LogoutThread();
-			DeleteThread deleteThd = new DeleteThread();
+            if ( !( deleteThd.isSuccess() && logoutThd.isSuccess() ) ) {
+                Assert.fail(
+                        deleteThd.getErrorMsg() + logoutThd.getErrorMsg() );
+            }
+            this.checkResults();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionB != null ) {
+                sessionB.close();
+            }
+        }
+        runSuccess = true;
+    }
 
-			logoutThd.start();
-			deleteThd.start();
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-			if (!(deleteThd.isSuccess() && logoutThd.isSuccess())) {
-				Assert.fail(deleteThd.getErrorMsg() + logoutThd.getErrorMsg());
-			}
-			this.checkResults();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionB != null) {
-				sessionB.close();
-			}
-		}
-		runSuccess = true;
-	}
+    private void checkResults() throws Exception {
+        try {
+            BSONObject cond = new BasicBSONObject( "id", fileId.get() );
+            long cnt = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( cnt, 0 );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+            ScmFileUtils.checkData( ws, fileId, localPath, filePath );
+            Assert.assertFalse( true,
+                    "File is unExisted, except throw e, but success." );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.FILE_NOT_FOUND.getErrorCode(), e.getMessage() );
+        }
+    }
 
-	private class LogoutThread extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-			} catch (Exception e) {
-				logoutThdIsDone.set(2);
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-			logoutThdIsDone.set(1);
-			// System.out.println("debug: logout flag is true!");
-		}
-	}
+    private class LogoutThread extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+            } catch ( Exception e ) {
+                logoutThdIsDone.set( 2 );
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+            logoutThdIsDone.set( 1 );
+            // System.out.println("debug: logout flag is true!");
+        }
+    }
 
-	private class DeleteThread extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				// System.out.println("debug: begin to wait");
-				while (true) {
-					if (logoutThdIsDone.get() == 1) {
-						break;
-					}
-					if (logoutThdIsDone.get() == 2) {
-						throw new Exception("LogoutThread is fail");
-					}
-				}
-				// System.out.println("debug: wait finish");
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				ScmFactory.File.getInstance(ws, fileId).delete(true);
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
-
-	private void checkResults() throws Exception {
-		try {
-			BSONObject cond = new BasicBSONObject("id", fileId.get());
-			long cnt = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(cnt, 0);
-
-			ScmFileUtils.checkData(ws, fileId, localPath, filePath);
-			Assert.assertFalse(true, "File is unExisted, except throw e, but success.");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.FILE_NOT_FOUND.getErrorCode(), e.getMessage());
-		}
-	}
+    private class DeleteThread extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                // System.out.println("debug: begin to wait");
+                while ( true ) {
+                    if ( logoutThdIsDone.get() == 1 ) {
+                        break;
+                    }
+                    if ( logoutThdIsDone.get() == 2 ) {
+                        throw new Exception( "LogoutThread is fail" );
+                    }
+                }
+                // System.out.println("debug: wait finish");
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFactory.File.getInstance( ws, fileId ).delete( true );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

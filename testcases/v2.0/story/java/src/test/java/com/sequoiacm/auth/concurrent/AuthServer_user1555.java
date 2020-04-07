@@ -24,136 +24,140 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
- * @FileName  SCM-1555:并发修改用户属性删除角色、删除该角色
+ * @FileName SCM-1555:并发修改用户属性删除角色、删除该角色
  * @Author huangxioni
  * @Date 2018/5/16
  */
 
 public class AuthServer_user1555 extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(AuthServer_user1555.class);
-	private boolean runSuccess = false;
-	
-	private SiteWrapper site = null;
-	private ScmSession session = null;
-	
-	private static final String NAME = "auth1555";
-	private static final String PASSWORD = NAME;
+    private static final Logger logger = Logger
+            .getLogger( AuthServer_user1555.class );
+    private static final String NAME = "auth1555";
+    private static final String PASSWORD = NAME;
+    private boolean runSuccess = false;
+    private SiteWrapper site = null;
+    private ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		
-		// clean new user
-		try {
-			ScmFactory.User.deleteUser(session, NAME);
-		}  catch (ScmException e) {
-			logger.info("clean users in setUp, errorMsg = [" + e.getError() + "]");
-		}
-		try {
-			ScmFactory.Role.deleteRole(session, NAME);
-		}  catch (ScmException e) {
-			logger.info("clean roles in setUp, errorMsg = [" + e.getError() + "]");
-		}
-		
-		this.createUserAndAddRole();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws ScmException {
-		Random random = new Random();
+        // clean new user
+        try {
+            ScmFactory.User.deleteUser( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean users in setUp, errorMsg = [" + e.getError() + "]" );
+        }
+        try {
+            ScmFactory.Role.deleteRole( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean roles in setUp, errorMsg = [" + e.getError() + "]" );
+        }
 
-		AlterUserDelRole alterUser = new AlterUserDelRole();
-		DelRole delRole = new DelRole();
-		alterUser.start(random.nextInt(50) + 1);
-		delRole.start(random.nextInt(50) + 1);
+        this.createUserAndAddRole();
+    }
 
-		if (!(alterUser.isSuccess() && delRole.isSuccess())) {
-			Assert.fail(alterUser.getErrorMsg() + delRole.getErrorMsg());
-		}
-		
-		// check results
-		ScmUser scmUser = ScmFactory.User.getUser(session, NAME);
-		Collection<ScmRole> roles = scmUser.getRoles();
-		Assert.assertEquals(roles.size(), 0);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws ScmException {
+        Random random = new Random();
 
-		try {
-			ScmFactory.Role.deleteRole(session, NAME);
-			Assert.fail("expect failed but actual succ.");
-		} catch (ScmException e) {
-			logger.info("delete not exist role, errorMsg = [" + e.getError() + "]");
-		}
+        AlterUserDelRole alterUser = new AlterUserDelRole();
+        DelRole delRole = new DelRole();
+        alterUser.start( random.nextInt( 50 ) + 1 );
+        delRole.start( random.nextInt( 50 ) + 1 );
 
-		runSuccess = true;
-	}
+        if ( !( alterUser.isSuccess() && delRole.isSuccess() ) ) {
+            Assert.fail( alterUser.getErrorMsg() + delRole.getErrorMsg() );
+        }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.User.deleteUser(session, NAME);
-			}
-		} finally{
-			if(null != session){
-				session.close();
-			}
-		}
-	}
+        // check results
+        ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
+        Collection< ScmRole > roles = scmUser.getRoles();
+        Assert.assertEquals( roles.size(), 0 );
 
-	private class DelRole extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				ScmFactory.Role.deleteRole(session, NAME);
-			} catch (ScmException e) {
-				if (ScmError.HTTP_NOT_FOUND != e.getError()
-						&& ScmError.HTTP_FORBIDDEN != e.getError()
-						&& ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError()) {
-					e.printStackTrace();
-					throw e;
-				}
-			}finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+        try {
+            ScmFactory.Role.deleteRole( session, NAME );
+            Assert.fail( "expect failed but actual succ." );
+        } catch ( ScmException e ) {
+            logger.info( "delete not exist role, errorMsg = [" + e.getError() +
+                    "]" );
+        }
 
-	private class AlterUserDelRole extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				
-				ScmUser scmUser = ScmFactory.User.getUser(session, NAME);
-				ScmUserModifier modifier = new ScmUserModifier();
-				modifier.delRole(NAME);
-				ScmFactory.User.alterUser(session, scmUser, modifier);
-			} catch (ScmException e) {
-				if (ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError()) {
-					e.printStackTrace();
-					throw e;
-				}
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
-	
-	private void createUserAndAddRole() throws ScmException {
-		ScmFactory.User.createUser(session, NAME, ScmUserPasswordType.LOCAL, PASSWORD);
-		ScmFactory.Role.createRole(session, NAME, "");
-		
-		ScmUser scmUser = ScmFactory.User.getUser(session, NAME);
-		ScmUserModifier modifier = new ScmUserModifier();
-		modifier.addRole(NAME);
-		ScmFactory.User.alterUser(session, scmUser, modifier);
-	}
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.User.deleteUser( session, NAME );
+            }
+        } finally {
+            if ( null != session ) {
+                session.close();
+            }
+        }
+    }
+
+    private void createUserAndAddRole() throws ScmException {
+        ScmFactory.User.createUser( session, NAME, ScmUserPasswordType.LOCAL,
+                PASSWORD );
+        ScmFactory.Role.createRole( session, NAME, "" );
+
+        ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
+        ScmUserModifier modifier = new ScmUserModifier();
+        modifier.addRole( NAME );
+        ScmFactory.User.alterUser( session, scmUser, modifier );
+    }
+
+    private class DelRole extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                ScmFactory.Role.deleteRole( session, NAME );
+            } catch ( ScmException e ) {
+                if ( ScmError.HTTP_NOT_FOUND != e.getError()
+                        && ScmError.HTTP_FORBIDDEN != e.getError()
+                        &&
+                        ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError() ) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private class AlterUserDelRole extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+
+                ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
+                ScmUserModifier modifier = new ScmUserModifier();
+                modifier.delRole( NAME );
+                ScmFactory.User.alterUser( session, scmUser, modifier );
+            } catch ( ScmException e ) {
+                if ( ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError() ) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
 }

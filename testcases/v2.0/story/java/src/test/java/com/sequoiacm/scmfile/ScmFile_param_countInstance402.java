@@ -30,51 +30,56 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class ScmFile_param_countInstance402 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private ScmSession session = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testWsIsNull() {
-		try {
-			ScmFactory.File.countInstance(null, ScmType.ScopeType.SCOPE_CURRENT, new BasicBSONObject());
-			Assert.fail("expect fail, but success.");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getError(), ScmError.INVALID_ARGUMENT);
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testWsIsNull() {
+        try {
+            ScmFactory.File
+                    .countInstance( null, ScmType.ScopeType.SCOPE_CURRENT,
+                            new BasicBSONObject() );
+            Assert.fail( "expect fail, but success." );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testConditionIsNull() {
-		try {
-			ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			ScmFactory.File.countInstance(ws, ScmType.ScopeType.SCOPE_CURRENT, null);
-			Assert.fail("count shouldn't succeed when condition is null!");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getError(), ScmError.INVALID_ARGUMENT, "wrong error code when condition is null");
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testConditionIsNull() {
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), session );
+            ScmFactory.File
+                    .countInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, null );
+            Assert.fail( "count shouldn't succeed when condition is null!" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT,
+                    "wrong error code when condition is null" );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
 }

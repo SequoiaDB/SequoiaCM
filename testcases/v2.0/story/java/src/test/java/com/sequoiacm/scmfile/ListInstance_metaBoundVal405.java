@@ -38,72 +38,74 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class ListInstance_metaBoundVal405 extends TestScmBase {
-	private boolean runSuccess = false;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
+    private ScmId fileId = null;
+    private String longStr = TestTools.getRandomString( 950 );
 
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
-	private ScmId fileId = null;
-	private String longStr = TestTools.getRandomString(950);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( longStr ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
+            createFileAndSetAttr();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(longStr).get();
-			ScmFileUtils.cleanFile(wsp, cond);
-			createFileAndSetAttr();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        try {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( longStr ).get();
+            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            cursor.getNext();
+            cursor.close();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		try {
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(longStr).get();
-			ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			cursor.getNext();
-			cursor.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+        }
+    }
 
-		}
-	}
-
-	private void createFileAndSetAttr() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			//file.setAuthor(longStr);
-			file.setFileName(longStr);
-			//file.setPropertyType(null);
-			file.setTitle("");
-			fileId = file.save();
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void createFileAndSetAttr() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            //file.setAuthor(longStr);
+            file.setFileName( longStr );
+            //file.setPropertyType(null);
+            file.setTitle( "" );
+            fileId = file.save();
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
 }

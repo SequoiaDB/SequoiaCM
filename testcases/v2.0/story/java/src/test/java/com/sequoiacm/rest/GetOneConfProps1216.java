@@ -20,38 +20,40 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 
 public class GetOneConfProps1216 extends TestScmBase {
-	private RestWrapper rest = null;
-	private SiteWrapper site = null;
+    private RestWrapper rest = null;
+    private SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
-		site = ScmInfo.getRootSite();
-		rest = new RestWrapper();
-		rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
+        site = ScmInfo.getRootSite();
+        rest = new RestWrapper();
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		String response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("conf-properties/scm.rootsite.meta.url")
-				.setResponseType(String.class).exec().getBody().toString();
-		System.out.println("---" + response);
-		JSONObject conf = new JSONObject(response);
-		Assert.assertEquals(1, conf.length());
-		Assert.assertNotEquals("null", conf.getString("scm.rootsite.meta.url"));
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        String response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "conf-properties/scm.rootsite.meta.url" )
+                .setResponseType( String.class ).exec().getBody().toString();
+        System.out.println( "---" + response );
+        JSONObject conf = new JSONObject( response );
+        Assert.assertEquals( 1, conf.length() );
+        Assert.assertNotEquals( "null",
+                conf.getString( "scm.rootsite.meta.url" ) );
 
-        response = rest.setRequestMethod(HttpMethod.GET)
-                .setApi("conf-properties/ke")
-                .setResponseType(String.class).exec().getBody().toString();
-        conf = new JSONObject(response);
-        Assert.assertEquals(1, conf.length());
-        Assert.assertEquals("null", conf.getString("ke"));
-	}
+        response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "conf-properties/ke" )
+                .setResponseType( String.class ).exec().getBody().toString();
+        conf = new JSONObject( response );
+        Assert.assertEquals( 1, conf.length() );
+        Assert.assertEquals( "null", conf.getString( "ke" ) );
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (rest != null) {
-			rest.disconnect();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( rest != null ) {
+            rest.disconnect();
+        }
+    }
 }

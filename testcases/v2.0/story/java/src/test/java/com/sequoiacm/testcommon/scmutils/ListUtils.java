@@ -14,8 +14,10 @@ import java.util.List;
  * ②.可以按照list元素对象的任意多个属性进行排序,即可以同时指定多个属性进行排序
  *         --->使用java的可变参数解决
  *
- * ③.list元素对象属性的类型可以是数字(byte、short、int、long、float、double等，包括正数、负数、0)、字符串(char、String)、日期(java.util.Date)
- *         --->对于数字：统一转换为固定长度的字符串解决,比如数字3和123，转换为"003"和"123" ;再比如"-15"和"7"转换为"-015"和"007"
+ * ③.list元素对象属性的类型可以是数字(byte、short、int、long、float、double等，包括正数、负数、0)、字符串
+ * (char、String)、日期(java.util.Date)
+ *         --->对于数字：统一转换为固定长度的字符串解决,比如数字3和123，转换为"003"和"123" ;
+ *         再比如"-15"和"7"转换为"-015"和"007"
  *         --->对于日期：可以先把日期转化为long类型的数字，数字的解决方法如上
  *
  * ④.list元素对象的属性可以没有相应的getter和setter方法
@@ -29,7 +31,8 @@ import java.util.List;
 public class ListUtils {
     /**
      * 对list的元素按照多个属性名称排序,
-     * list元素的属性可以是数字（byte、short、int、long、float、double等，支持正数、负数、0）、char、String、java.util.Date
+     * list元素的属性可以是数字（byte、short、int、long、float、double等，支持正数、负数、0）、char
+     * 、String、java.util.Date
      *
      *
      * @param list
@@ -38,24 +41,26 @@ public class ListUtils {
      * @param isAsc
      *            true升序，false降序
      */
-    public static <E> void sort(List<E> list, final boolean isAsc, final String... sortnameArr) {
-        Collections.sort(list, new Comparator<E>() {
+    public static < E > void sort( List< E > list, final boolean isAsc,
+            final String... sortnameArr ) {
+        Collections.sort( list, new Comparator< E >() {
 
-            public int compare(E a, E b) {
+            public int compare( E a, E b ) {
                 int ret = 0;
                 try {
-                    for (int i = 0; i < sortnameArr.length; i++) {
-                        ret = ListUtils.compareObject(sortnameArr[i], isAsc, a, b);
-                        if (0 != ret) {
+                    for ( int i = 0; i < sortnameArr.length; i++ ) {
+                        ret = ListUtils
+                                .compareObject( sortnameArr[ i ], isAsc, a, b );
+                        if ( 0 != ret ) {
                             break;
                         }
                     }
-                } catch (Exception e) {
+                } catch ( Exception e ) {
                     e.printStackTrace();
                 }
                 return ret;
             }
-        });
+        } );
     }
 
     /**
@@ -66,26 +71,29 @@ public class ListUtils {
      * @param typeArr      每个属性对应的升降序数组， true升序，false降序
      */
 
-    public static <E> void sort(List<E> list, final String[] sortnameArr, final boolean[] typeArr) {
-        if (sortnameArr.length != typeArr.length) {
-            throw new RuntimeException("属性数组元素个数和升降序数组元素个数不相等");
+    public static < E > void sort( List< E > list, final String[] sortnameArr,
+            final boolean[] typeArr ) {
+        if ( sortnameArr.length != typeArr.length ) {
+            throw new RuntimeException( "属性数组元素个数和升降序数组元素个数不相等" );
         }
-        Collections.sort(list, new Comparator<E>() {
-            public int compare(E a, E b) {
+        Collections.sort( list, new Comparator< E >() {
+            public int compare( E a, E b ) {
                 int ret = 0;
                 try {
-                    for (int i = 0; i < sortnameArr.length; i++) {
-                        ret = ListUtils.compareObject(sortnameArr[i], typeArr[i], a, b);
-                        if (0 != ret) {
+                    for ( int i = 0; i < sortnameArr.length; i++ ) {
+                        ret = ListUtils
+                                .compareObject( sortnameArr[ i ], typeArr[ i ],
+                                        a, b );
+                        if ( 0 != ret ) {
                             break;
                         }
                     }
-                } catch (Exception e) {
+                } catch ( Exception e ) {
                     e.printStackTrace();
                 }
                 return ret;
             }
-        });
+        } );
     }
 
     /**
@@ -100,27 +108,28 @@ public class ListUtils {
      * @return
      * @throws Exception
      */
-    private static <E> int compareObject(final String sortname, final boolean isAsc, E a, E b) throws Exception {
+    private static < E > int compareObject( final String sortname,
+            final boolean isAsc, E a, E b ) throws Exception {
         int ret;
-        Object value1 = ListUtils.forceGetFieldValue(a, sortname);
-        Object value2 = ListUtils.forceGetFieldValue(b, sortname);
+        Object value1 = ListUtils.forceGetFieldValue( a, sortname );
+        Object value2 = ListUtils.forceGetFieldValue( b, sortname );
         String str1 = value1.toString();
         String str2 = value2.toString();
-        if (value1 instanceof Number && value2 instanceof Number) {
-            int maxlen = Math.max(str1.length(), str2.length());
-            str1 = ListUtils.addZero2Str((Number) value1, maxlen);
-            str2 = ListUtils.addZero2Str((Number) value2, maxlen);
-        } else if (value1 instanceof Date && value2 instanceof Date) {
-            long time1 = ((Date) value1).getTime();
-            long time2 = ((Date) value2).getTime();
-            int maxlen = Long.toString(Math.max(time1, time2)).length();
-            str1 = ListUtils.addZero2Str(time1, maxlen);
-            str2 = ListUtils.addZero2Str(time2, maxlen);
+        if ( value1 instanceof Number && value2 instanceof Number ) {
+            int maxlen = Math.max( str1.length(), str2.length() );
+            str1 = ListUtils.addZero2Str( ( Number ) value1, maxlen );
+            str2 = ListUtils.addZero2Str( ( Number ) value2, maxlen );
+        } else if ( value1 instanceof Date && value2 instanceof Date ) {
+            long time1 = ( ( Date ) value1 ).getTime();
+            long time2 = ( ( Date ) value2 ).getTime();
+            int maxlen = Long.toString( Math.max( time1, time2 ) ).length();
+            str1 = ListUtils.addZero2Str( time1, maxlen );
+            str2 = ListUtils.addZero2Str( time2, maxlen );
         }
-        if (isAsc) {
-            ret = str1.compareTo(str2);
+        if ( isAsc ) {
+            ret = str1.compareTo( str2 );
         } else {
-            ret = str2.compareTo(str1);
+            ret = str2.compareTo( str1 );
         }
         return ret;
     }
@@ -136,15 +145,15 @@ public class ListUtils {
      *            指定的长度
      * @return
      */
-    public static String addZero2Str(Number numObj, int length) {
+    public static String addZero2Str( Number numObj, int length ) {
         NumberFormat nf = NumberFormat.getInstance();
         // 设置是否使用分组
-        nf.setGroupingUsed(false);
+        nf.setGroupingUsed( false );
         // 设置最大整数位数
-        nf.setMaximumIntegerDigits(length);
+        nf.setMaximumIntegerDigits( length );
         // 设置最小整数位数
-        nf.setMinimumIntegerDigits(length);
-        return nf.format(numObj);
+        nf.setMinimumIntegerDigits( length );
+        return nf.format( numObj );
     }
 
     /**
@@ -157,19 +166,20 @@ public class ListUtils {
      * @return
      * @throws Exception
      */
-    public static Object forceGetFieldValue(Object obj, String fieldName) throws Exception {
-        Field field = obj.getClass().getDeclaredField(fieldName);
+    public static Object forceGetFieldValue( Object obj, String fieldName )
+            throws Exception {
+        Field field = obj.getClass().getDeclaredField( fieldName );
         Object object = null;
         boolean accessible = field.isAccessible();
-        if (!accessible) {
+        if ( !accessible ) {
             // 如果是private,protected修饰的属性，需要修改为可以访问的
-            field.setAccessible(true);
-            object = field.get(obj);
+            field.setAccessible( true );
+            object = field.get( obj );
             // 还原private,protected属性的访问性质
-            field.setAccessible(accessible);
+            field.setAccessible( accessible );
             return object;
         }
-        object = field.get(obj);
+        object = field.get( obj );
         return object;
     }
 }

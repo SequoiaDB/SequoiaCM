@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.breakpointfile.concurrent;
 
@@ -35,123 +35,138 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @date 2018年5月23日
  */
 public class BreakpointFile1402 extends TestScmBase {
-	private boolean setSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean setSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "scmfile1402";
-	private int fileSize = 1024 * 1024 * 10;
-	private ScmId fileId = null;
-	private File localPath = null;
-	private String filePath = null;
-	private String checkFilePath = null;
-	
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws IOException, ScmException {
-		BreakpointUtil.checkDBDataSource();
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		checkFilePath = localPath + File.separator + "localFile_check" + fileSize + ".txt";
-		TestTools.LocalFile.removeFile(localPath);
-		TestTools.LocalFile.createDir(localPath.toString());
-		BreakpointUtil.createFile(filePath, fileSize);
+    private String fileName = "scmfile1402";
+    private int fileSize = 1024 * 1024 * 10;
+    private ScmId fileId = null;
+    private File localPath = null;
+    private String filePath = null;
+    private String checkFilePath = null;
 
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws JSONException, ScmException, InterruptedException, IOException {
-		
-		this.CreateBreakpointFile();
-		
-		SetBreakpointFile2ScmFileThread setFileThread = new SetBreakpointFile2ScmFileThread();
-		setFileThread.start();
-		
-		createScmFileThread createThread = new createScmFileThread();
-		createThread.start();
-		
-		setSuccess = setFileThread.isSuccess();
-		checkBreakpointFile(setSuccess, createThread.isSuccess());
-		
-	}
-	
-	@AfterClass
-	private void tearDown() {
-		try {
-			if (!setSuccess) {
-				ScmFactory.BreakpointFile.deleteInstance(ws, fileName);
-			}
-			ScmFactory.File.deleteInstance(ws, fileId, true);
-			TestTools.LocalFile.removeFile(localPath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-	
-	private class SetBreakpointFile2ScmFileThread extends TestThreadBase{
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws IOException, ScmException {
+        BreakpointUtil.checkDBDataSource();
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        checkFilePath =
+                localPath + File.separator + "localFile_check" + fileSize +
+                        ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        BreakpointUtil.createFile( filePath, fileSize );
 
-		@Override
-		public void exec() throws ScmException {
-			ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.getInstance(ws, fileName);
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setContent(breakpointFile);
-			file.setFileName(fileName);
-			file.setTitle(fileName);
-			fileId = file.save();
-		}
-		
-	}
-	
-	private class createScmFileThread extends TestThreadBase{
-		
-		@Override
-		public void exec() throws ScmException {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(fileName);
-			file.setTitle(fileName);
-			fileId = file.save();
-		}
-	}
-	
-	private void CreateBreakpointFile() throws ScmException  {
-		
-		ScmBreakpointFile breakpointFile;
-		breakpointFile = ScmFactory.BreakpointFile.createInstance(ws, fileName, ScmChecksumType.ADLER32);
-		breakpointFile.upload(new File(filePath));
-	}
-	
-	private void checkBreakpointFile(boolean setFileResult, boolean createResult) throws ScmException, IOException{
-		if (setFileResult&&!createResult) {
-			checkScmFile(false);
-		}else if(!setFileResult && createResult){
-			checkScmFile(true);
-		}else{
-			Assert.fail("All success");
-		}
-	}
-	
-	private void checkScmFile(boolean fileIsNull) throws ScmException, IOException{
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		long fileSize = file.getSize();
-		if(fileIsNull){
-			if( fileSize != 0 ){
-				Assert.fail("breakpointFile change to ScmFile fail,fileSize should 0");
-			}
-		}else{
-			if(fileSize == 0 ){
-				Assert.fail("breakpointFile change to ScmFile success,fileSize should not 0");
-			}
-			file.getContent(checkFilePath);
-			Assert.assertEquals(TestTools.getMD5(checkFilePath), TestTools.getMD5(filePath),"check breakpointFile to ScmFile");
-		}
-	}
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test()
+            throws JSONException, ScmException, InterruptedException,
+            IOException {
+
+        this.CreateBreakpointFile();
+
+        SetBreakpointFile2ScmFileThread setFileThread = new
+                SetBreakpointFile2ScmFileThread();
+        setFileThread.start();
+
+        createScmFileThread createThread = new createScmFileThread();
+        createThread.start();
+
+        setSuccess = setFileThread.isSuccess();
+        checkBreakpointFile( setSuccess, createThread.isSuccess() );
+
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( !setSuccess ) {
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
+            }
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+            TestTools.LocalFile.removeFile( localPath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void CreateBreakpointFile() throws ScmException {
+
+        ScmBreakpointFile breakpointFile;
+        breakpointFile = ScmFactory.BreakpointFile
+                .createInstance( ws, fileName, ScmChecksumType.ADLER32 );
+        breakpointFile.upload( new File( filePath ) );
+    }
+
+    private void checkBreakpointFile( boolean setFileResult,
+            boolean createResult ) throws ScmException, IOException {
+        if ( setFileResult && !createResult ) {
+            checkScmFile( false );
+        } else if ( !setFileResult && createResult ) {
+            checkScmFile( true );
+        } else {
+            Assert.fail( "All success" );
+        }
+    }
+
+    private void checkScmFile( boolean fileIsNull )
+            throws ScmException, IOException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        long fileSize = file.getSize();
+        if ( fileIsNull ) {
+            if ( fileSize != 0 ) {
+                Assert.fail(
+                        "breakpointFile change to ScmFile fail,fileSize should 0" );
+            }
+        } else {
+            if ( fileSize == 0 ) {
+                Assert.fail(
+                        "breakpointFile change to ScmFile success,fileSize should not 0" );
+            }
+            file.getContent( checkFilePath );
+            Assert.assertEquals( TestTools.getMD5( checkFilePath ),
+                    TestTools.getMD5( filePath ),
+                    "check breakpointFile to ScmFile" );
+        }
+    }
+
+    private class SetBreakpointFile2ScmFileThread extends TestThreadBase {
+
+        @Override
+        public void exec() throws ScmException {
+            ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                    .getInstance( ws, fileName );
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setContent( breakpointFile );
+            file.setFileName( fileName );
+            file.setTitle( fileName );
+            fileId = file.save();
+        }
+
+    }
+
+    private class createScmFileThread extends TestThreadBase {
+
+        @Override
+        public void exec() throws ScmException {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName );
+            file.setTitle( fileName );
+            fileId = file.save();
+        }
+    }
 }

@@ -38,114 +38,119 @@ import com.sequoiadb.exception.BaseException;
  * @version:1.0
  */
 public class AsyncCacheSameFile752 extends TestScmBase {
-	private boolean runSuccess = false;
-	private int fileSize = 1024 * new Random().nextInt(1025);
-	private File localPath = null;
-	private String filePath = null;
-	private ScmId fileId = null;
-	private String author = "DiffNodeCacheSameFile752";
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
-	
-	private SiteWrapper rootSite = null;
-	private SiteWrapper branceSite = null;
-	private WsWrapper ws_T = null;
+    private boolean runSuccess = false;
+    private int fileSize = 1024 * new Random().nextInt( 1025 );
+    private File localPath = null;
+    private String filePath = null;
+    private ScmId fileId = null;
+    private String author = "DiffNodeCacheSameFile752";
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			
-			rootSite = ScmInfo.getRootSite();
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
+    private SiteWrapper rootSite = null;
+    private SiteWrapper branceSite = null;
+    private WsWrapper ws_T = null;
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(ws_T,cond);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			session = TestScmTools.createSession(rootSite);
-			ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-			write();
-		} catch (IOException | ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() {
-		try {
-			CacheFile cThread1 = new CacheFile(branceSite);
-			cThread1.start(10);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-			CacheFile cThread2 = new CacheFile(branceSite);
-			cThread2.start(10);
+            session = TestScmTools.createSession( rootSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
+            write();
+        } catch ( IOException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			if (!(cThread1.isSuccess() && cThread2.isSuccess())) {
-				Assert.fail(cThread1.getErrorMsg() + cThread2.getErrorMsg());
-			}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() {
+        try {
+            CacheFile cThread1 = new CacheFile( branceSite );
+            cThread1.start( 10 );
 
-			checkResult();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            CacheFile cThread2 = new CacheFile( branceSite );
+            cThread2.start( 10 );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException | ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if(session != null){
-				session.close();
-			}
-		}
-	}
+            if ( !( cThread1.isSuccess() && cThread2.isSuccess() ) ) {
+                Assert.fail( cThread1.getErrorMsg() + cThread2.getErrorMsg() );
+            }
 
-	private class CacheFile extends TestThreadBase {
-		private SiteWrapper site;
+            checkResult();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-		public CacheFile(SiteWrapper site) {
-			this.site = site;
-		}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-				ScmFactory.File.asyncCache(ws, fileId);
-			} catch (Exception e) {
-				Assert.fail(e.getMessage());
-			} finally {
-				if (null != session) {
-					session.close();
-				}
-			}
-		}
-	}
+    private void write() throws ScmException {
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setContent( filePath );
+        file.setFileName( author + "_" + UUID.randomUUID() );
+        file.setAuthor( author );
+        fileId = file.save();
+    }
 
-	private void write() throws ScmException {
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setContent(filePath);
-		file.setFileName(author+"_"+UUID.randomUUID());
-		file.setAuthor(author);
-		fileId = file.save();
-	}
+    private void checkResult() throws Exception {
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
+    }
 
-	private void checkResult() throws Exception {
-		SiteWrapper[] expSiteList = { rootSite, branceSite };
-		ScmTaskUtils.waitAsyncTaskFinished(ws, fileId,expSiteList.length);
-		ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteList, localPath, filePath);
-	}
+    private class CacheFile extends TestThreadBase {
+        private SiteWrapper site;
+
+        public CacheFile( SiteWrapper site ) {
+            this.site = site;
+        }
+
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), session );
+                ScmFactory.File.asyncCache( ws, fileId );
+            } catch ( Exception e ) {
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( null != session ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

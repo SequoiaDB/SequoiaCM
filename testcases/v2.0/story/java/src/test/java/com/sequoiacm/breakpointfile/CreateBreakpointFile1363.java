@@ -22,72 +22,75 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * test content:create an empty breakpoint file by file testlink case:seqDB-1363
- * 
+ *
  * @author wuyan
  * @Date 2018.05.11
  * @version 1.00
  */
 
 public class CreateBreakpointFile1363 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "breakpointfile1363";
-	private int fileSize = 0;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "breakpointfile1363";
+    private int fileSize = 0;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {		
-		BreakpointUtil.checkDBDataSource();
-		
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		TestTools.LocalFile.removeFile(localPath);
-		TestTools.LocalFile.createDir(localPath.toString());
-		TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        BreakpointUtil.checkDBDataSource();
 
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-	}
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		createBreakpointFile();
-	}
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    }
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			ScmFactory.BreakpointFile.deleteInstance(ws, fileName);
-			TestTools.LocalFile.removeFile(localPath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        createBreakpointFile();
+    }
 
-	private void createBreakpointFile() {
-		try {
-			// create file
-			ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.createInstance(ws, fileName);
-			breakpointFile.upload(new File(filePath));
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
+            TestTools.LocalFile.removeFile( localPath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-			// check file's attribute
-			// empty file is check the filesize is 0
-			Assert.assertEquals(breakpointFile.getUploadSize(), 0);
-			Assert.assertEquals(breakpointFile.getWorkspace(), ws);
-			Assert.assertEquals(breakpointFile.isCompleted(), true);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void createBreakpointFile() {
+        try {
+            // create file
+            ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                    .createInstance( ws, fileName );
+            breakpointFile.upload( new File( filePath ) );
+
+            // check file's attribute
+            // empty file is check the filesize is 0
+            Assert.assertEquals( breakpointFile.getUploadSize(), 0 );
+            Assert.assertEquals( breakpointFile.getWorkspace(), ws );
+            Assert.assertEquals( breakpointFile.isCompleted(), true );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
 }

@@ -24,56 +24,62 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class ListTasks1224 extends TestScmBase {
-	private WsWrapper ws = null;
-	private RestWrapper rest = null;
-	private String taskId = null;
-	private SiteWrapper site = null;
+    private WsWrapper ws = null;
+    private RestWrapper rest = null;
+    private String taskId = null;
+    private SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
         ws = ScmInfo.getWs();
         site = ScmInfo.getBranchSite();
         rest = new RestWrapper();
-        rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
 
-		JSONObject options = new JSONObject().put("filter", new JSONObject().put("author", "inexistent_author1224"));
-		String response = rest.setRequestMethod(HttpMethod.POST)
-				.setApi("tasks")
-				.setParameter("task_type", "2")
-				.setParameter("workspace_name", ws.getName())
-				.setParameter("options", options.toString())
-				.setResponseType(String.class).exec().getBody().toString();
-		taskId = new JSONObject(response).getJSONObject("task").getString("id");
-	}
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", "inexistent_author1224" ) );
+        String response = rest.setRequestMethod( HttpMethod.POST )
+                .setApi( "tasks" )
+                .setParameter( "task_type", "2" )
+                .setParameter( "workspace_name", ws.getName() )
+                .setParameter( "options", options.toString() )
+                .setResponseType( String.class ).exec().getBody().toString();
+        taskId = new JSONObject( response ).getJSONObject( "task" )
+                .getString( "id" );
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		String response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("tasks?filter={uri}")
-				.setUriVariables(new Object[]{ "{\"id\":\"" + taskId + "\"}"})
-				.setResponseType(String.class).exec().getBody().toString();
-		JSONArray responseJSONArr = new JSONArray(response);
-		int respSize = responseJSONArr.length();
-		Assert.assertEquals(1, respSize);
-		String respWsName = ((JSONObject) responseJSONArr.get(0)).getString("workspace_name");
-		Assert.assertEquals(ws.getName(), respWsName);
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        String response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "tasks?filter={uri}" )
+                .setUriVariables(
+                        new Object[] { "{\"id\":\"" + taskId + "\"}" } )
+                .setResponseType( String.class ).exec().getBody().toString();
+        JSONArray responseJSONArr = new JSONArray( response );
+        int respSize = responseJSONArr.length();
+        Assert.assertEquals( 1, respSize );
+        String respWsName = ( ( JSONObject ) responseJSONArr.get( 0 ) )
+                .getString( "workspace_name" );
+        Assert.assertEquals( ws.getName(), respWsName );
 
-		String inexistentId = "fffffffffffffff";
-        response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("tasks?filter={uri}")
-				.setUriVariables(new Object[]{ "{\"id\":\"" + inexistentId + "\"}"})
-                .setResponseType(String.class).exec().getBody().toString();
-		respSize = new JSONArray(response).length();
-		Assert.assertEquals(0, respSize);
-	}
+        String inexistentId = "fffffffffffffff";
+        response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "tasks?filter={uri}" )
+                .setUriVariables(
+                        new Object[] { "{\"id\":\"" + inexistentId + "\"}" } )
+                .setResponseType( String.class ).exec().getBody().toString();
+        respSize = new JSONArray( response ).length();
+        Assert.assertEquals( 0, respSize );
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (taskId != null) {
-			TestSdbTools.Task.deleteMeta(new ScmId(taskId));
-		}
-        if (rest != null) {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( taskId != null ) {
+            TestSdbTools.Task.deleteMeta( new ScmId( taskId ) );
+        }
+        if ( rest != null ) {
             rest.disconnect();
         }
-	}
+    }
 }

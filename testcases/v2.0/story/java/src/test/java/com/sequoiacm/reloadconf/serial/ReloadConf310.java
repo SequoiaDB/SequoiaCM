@@ -27,64 +27,73 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class ReloadConf310 extends TestScmBase {
-	private static SiteWrapper site = null;
+    private static SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void reloadWithNullSession() throws Exception {
-		ScmSession session = null;
-		try {
-			ScmSystem.Configuration.reloadBizConf(ServerScope.ALL_SITE, site.getSiteId(), null);
-			Assert.fail("shouldn't succeed when parameter 'session' is null! ");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void reloadWithNullSession() throws Exception {
+        ScmSession session = null;
+        try {
+            ScmSystem.Configuration
+                    .reloadBizConf( ServerScope.ALL_SITE, site.getSiteId(),
+                            null );
+            Assert.fail(
+                    "shouldn't succeed when parameter 'session' is null! " );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void reloadWithNullScopeType() throws Exception {
-		ScmSession session = null;
-		try {
-			session = TestScmTools.createSession(site);
-			ScmSystem.Configuration.reloadBizConf(null, site.getSiteId(), session);
-			Assert.fail("shouldn't succeed when parameter 'ScopeType' is null! ");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void reloadWithNullScopeType() throws Exception {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            ScmSystem.Configuration
+                    .reloadBizConf( null, site.getSiteId(), session );
+            Assert.fail(
+                    "shouldn't succeed when parameter 'ScopeType' is null! " );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void reloadWithNotExistSiteId() throws Exception {
-		ScmSession session = null;
-		try {
-			session = TestScmTools.createSession(site);
-			int invalidId = -1;
-			ScmSystem.Configuration.reloadBizConf(ServerScope.SITE, invalidId, session);
-			Assert.fail("shouldn't succeed when parameter 'siteId' is -1! ");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.SITE_NOT_EXIST.getErrorCode(), e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void reloadWithNotExistSiteId() throws Exception {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            int invalidId = -1;
+            ScmSystem.Configuration
+                    .reloadBizConf( ServerScope.SITE, invalidId, session );
+            Assert.fail( "shouldn't succeed when parameter 'siteId' is -1! " );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.SITE_NOT_EXIST.getErrorCode(), e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
 
-	}
+    }
 
 }

@@ -22,50 +22,56 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class Param_getWorkspace1203 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testWsNameIsNull() {
-		try {
-			ScmFactory.Workspace.getWorkspace(null, session);
-			Assert.fail("expect result is fail but actual is success, when ws name is null.");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testWsNameIsNull() {
+        try {
+            ScmFactory.Workspace.getWorkspace( null, session );
+            Assert.fail(
+                    "expect result is fail but actual is success, when ws " +
+                            "name is null." );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testSessionIsNull() {
-		try {
-			ScmFactory.Workspace.getWorkspace(wsp.getName(), null);
-			Assert.fail("expect result is fail but actual is success, when session is null.");
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getErrorCode(), ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testSessionIsNull() {
+        try {
+            ScmFactory.Workspace.getWorkspace( wsp.getName(), null );
+            Assert.fail(
+                    "expect result is fail but actual is success, when " +
+                            "session is null." );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
 }

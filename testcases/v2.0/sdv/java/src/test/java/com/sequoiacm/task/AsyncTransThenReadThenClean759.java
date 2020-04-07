@@ -1,21 +1,35 @@
 package com.sequoiacm.task;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.UUID;
+
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.UUID;
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmInputStream;
+import com.sequoiacm.client.core.ScmQueryBuilder;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
  * @FileName SCM-759 : 异步迁移到主中心并读取文件，清理分中心文件
@@ -29,122 +43,134 @@ import java.util.UUID;
  */
 
 public class AsyncTransThenReadThenClean759 extends TestScmBase {
-	private boolean runSuccess = false;
+    private final String author = "asyncTransfer759";
+    private final int fileSize = 4 * 1024 * 1024;
+    private boolean runSuccess = false;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmId taskId = null;
+    private ScmId fileId = null;
+    private String filePath = null;
+    private File localPath = null;
 
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmId taskId = null;
+    private SiteWrapper rootSite = null;
+    private SiteWrapper branceSite = null;
+    private WsWrapper ws_T = null;
 
-	private final String author = "asyncTransfer759";
-	private final int fileSize = 4 * 1024 * 1024;
-	private ScmId fileId = null;
-	private String filePath = null;
-	private File localPath = null;
-	
-	private SiteWrapper rootSite = null;
-	private SiteWrapper branceSite = null;
-	private WsWrapper ws_T = null;
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            // ready file
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			// ready file
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			
-			rootSite = ScmInfo.getRootSite();
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
-			
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(ws_T,cond);
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-			sessionA = TestScmTools.createSession(branceSite);
-			wsA = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
-			String random = author+"_"+UUID.randomUUID();
-			fileId = ScmFileUtils.create(wsA, random, filePath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		try {
-			// asyncTransfer
-			ScmFactory.File.asyncTransfer(wsA, fileId);
-			int expSiteNum = 2;
-			ScmTaskUtils.waitAsyncTaskFinished(wsA, fileId, expSiteNum);
-			// check results
-			SiteWrapper[] expSiteIdList1 = { rootSite, branceSite };
-			ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteIdList1, localPath, filePath);
+            sessionA = TestScmTools.createSession( branceSite );
+            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+            String random = author + "_" + UUID.randomUUID();
+            fileId = ScmFileUtils.create( wsA, random, filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			readFileFromM();
-			// check results
-			SiteWrapper[] expSiteIdList2 = { rootSite, branceSite };
-			ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteIdList2, localPath, filePath);
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        try {
+            // asyncTransfer
+            ScmFactory.File.asyncTransfer( wsA, fileId );
+            int expSiteNum = 2;
+            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, expSiteNum );
+            // check results
+            SiteWrapper[] expSiteIdList1 = { rootSite, branceSite };
+            ScmFileUtils
+                    .checkMetaAndData( ws_T, fileId, expSiteIdList1, localPath,
+                            filePath );
 
-			// startCleanTasl
-			BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.FILE_ID).is(fileId.get()).get();
-			taskId = ScmSystem.Task.startCleanTask(wsA, condition);
-			ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-			// check results
-			SiteWrapper[] expSiteIdList3 = { rootSite };
-			ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteIdList3, localPath, filePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            readFileFromM();
+            // check results
+            SiteWrapper[] expSiteIdList2 = { rootSite, branceSite };
+            ScmFileUtils
+                    .checkMetaAndData( ws_T, fileId, expSiteIdList2, localPath,
+                            filePath );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-				TestSdbTools.Task.deleteMeta(taskId);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
+            // startCleanTasl
+            BSONObject condition = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
+                    .get();
+            taskId = ScmSystem.Task.startCleanTask( wsA, condition );
+            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+            // check results
+            SiteWrapper[] expSiteIdList3 = { rootSite };
+            ScmFileUtils
+                    .checkMetaAndData( ws_T, fileId, expSiteIdList3, localPath,
+                            filePath );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
 
-	private void readFileFromM() throws Exception {
-		ScmSession ss = null;
-		OutputStream fos = null;
-		ScmInputStream sis = null;
-		try {
-			// login
-			ss = TestScmTools.createSession(rootSite);
-			ScmWorkspace wks = ScmFactory.Workspace.getWorkspace(ws_T.getName(), ss);
+        }
+    }
 
-			// read content
-			ScmFile scmfile = ScmFactory.File.getInstance(wks, fileId);
-			String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
-			fos = new FileOutputStream(new File(downloadPath));
-			sis = ScmFactory.File.createInputStream(scmfile);
-			sis.read(fos);
+    private void readFileFromM() throws Exception {
+        ScmSession ss = null;
+        OutputStream fos = null;
+        ScmInputStream sis = null;
+        try {
+            // login
+            ss = TestScmTools.createSession( rootSite );
+            ScmWorkspace wks = ScmFactory.Workspace
+                    .getWorkspace( ws_T.getName(), ss );
 
-			// check content
-			Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-		} finally {
-			if (fos != null)
-				fos.close();
-			if (sis != null)
-				sis.close();
-			if (ss != null)
-				ss.close();
-		}
-	}
+            // read content
+            ScmFile scmfile = ScmFactory.File.getInstance( wks, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            fos = new FileOutputStream( new File( downloadPath ) );
+            sis = ScmFactory.File.createInputStream( scmfile );
+            sis.read( fos );
+
+            // check content
+            Assert.assertEquals( TestTools.getMD5( filePath ),
+                    TestTools.getMD5( downloadPath ) );
+        } finally {
+            if ( fos != null )
+                fos.close();
+            if ( sis != null )
+                sis.close();
+            if ( ss != null )
+                ss.close();
+        }
+    }
 }

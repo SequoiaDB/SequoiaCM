@@ -32,44 +32,54 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class NotAuthLogin318 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		ScmSession session = null;
-		try {
-			String user = TestScmBase.scmUserName;
-			String passwd = TestScmBase.scmPassword;
-			ScmConfigOption scOpt = new ScmConfigOption(TestScmBase.gateWayList.get(0)+"/"+site.getSiteServiceName(), user, passwd);
-			session = ScmFactory.Session.createSession(SessionType.NOT_AUTH_SESSION, scOpt);
-			ScmSystem.Configuration.reloadBizConf(ServerScope.SITE, site.getSiteId(), session);
-			try {
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				ScmFactory.File.createInstance(ws);
-				Assert.fail("business operation shouldn't succeed when login is not authorized");
-			} catch (ScmException e) {
-				Assert.assertEquals(e.getErrorCode(), ScmError.HTTP_FORBIDDEN.getErrorCode(), e.getMessage());
-			}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        ScmSession session = null;
+        try {
+            String user = TestScmBase.scmUserName;
+            String passwd = TestScmBase.scmPassword;
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName(), user, passwd );
+            session = ScmFactory.Session
+                    .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
+            ScmSystem.Configuration
+                    .reloadBizConf( ServerScope.SITE, site.getSiteId(),
+                            session );
+            try {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFactory.File.createInstance( ws );
+                Assert.fail(
+                        "business operation shouldn't succeed when login is " +
+                                "not authorized" );
+            } catch ( ScmException e ) {
+                Assert.assertEquals( e.getErrorCode(),
+                        ScmError.HTTP_FORBIDDEN.getErrorCode(),
+                        e.getMessage() );
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

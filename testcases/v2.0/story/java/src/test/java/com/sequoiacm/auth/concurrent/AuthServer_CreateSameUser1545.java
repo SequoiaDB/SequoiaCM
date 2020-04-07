@@ -1,4 +1,3 @@
-
 package com.sequoiacm.auth.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,81 +26,87 @@ import com.sequoiacm.testcommon.TestThreadBase;
  * @version:1.0
  */
 public class AuthServer_CreateSameUser1545 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper site;
-	private ScmSession session;
-	private String username = "CreateSameUser1545";
-	private String passwd = "1545";
-	private AtomicInteger atom = new AtomicInteger(1);
+    private boolean runSuccess = false;
+    private SiteWrapper site;
+    private ScmSession session;
+    private String username = "CreateSameUser1545";
+    private String passwd = "1545";
+    private AtomicInteger atom = new AtomicInteger( 1 );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			session = TestScmTools.createSession(site);
-			site = ScmInfo.getSite();
-			ScmFactory.User.deleteUser(session, username);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+            site = ScmInfo.getSite();
+            ScmFactory.User.deleteUser( session, username );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		CreateSameUser cThread = new CreateSameUser();
-		cThread.start(30);
-		boolean cflag = cThread.isSuccess();
-		Assert.assertEquals(cflag, true, cThread.getErrorMsg());
-		Assert.assertEquals(atom.get(), 1,atom.get());
-		runSuccess = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        CreateSameUser cThread = new CreateSameUser();
+        cThread.start( 30 );
+        boolean cflag = cThread.isSuccess();
+        Assert.assertEquals( cflag, true, cThread.getErrorMsg() );
+        Assert.assertEquals( atom.get(), 1, atom.get() );
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.User.deleteUser(session, username);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.User.deleteUser( session, username );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	private class CreateSameUser extends TestThreadBase {
-		@Override
-		public void exec() {
-			try {
-				ScmUser user = ScmFactory.User.createUser(session, username, ScmUserPasswordType.LOCAL, passwd);
-				check(user);
-				atom.getAndIncrement();
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.HTTP_BAD_REQUEST
-						&& e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR) {
-					e.printStackTrace();
-					Assert.fail(e.getMessage());
-				}
-			}
-		}
+    private class CreateSameUser extends TestThreadBase {
+        @Override
+        public void exec() {
+            try {
+                ScmUser user = ScmFactory.User.createUser( session, username,
+                        ScmUserPasswordType.LOCAL, passwd );
+                check( user );
+                atom.getAndIncrement();
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_BAD_REQUEST
+                        &&
+                        e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
 
-		private void check(ScmUser expUser) {
-			try {
-				ScmUser actUser = ScmFactory.User.getUser(session, username);
-				Assert.assertEquals(actUser.getRoles().size(), 0, actUser.toString());
-				Assert.assertEquals(actUser.getUserId(), expUser.getUserId(), actUser.toString());
-				Assert.assertEquals(actUser.getUsername(), expUser.getUsername(), actUser.toString());
-				Assert.assertEquals(actUser.getPasswordType(), expUser.getPasswordType(), actUser.toString());
-			} catch (ScmException e) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+        private void check( ScmUser expUser ) {
+            try {
+                ScmUser actUser = ScmFactory.User.getUser( session, username );
+                Assert.assertEquals( actUser.getRoles().size(), 0,
+                        actUser.toString() );
+                Assert.assertEquals( actUser.getUserId(), expUser.getUserId(),
+                        actUser.toString() );
+                Assert.assertEquals( actUser.getUsername(),
+                        expUser.getUsername(), actUser.toString() );
+                Assert.assertEquals( actUser.getPasswordType(),
+                        expUser.getPasswordType(), actUser.toString() );
+            } catch ( ScmException e ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 }

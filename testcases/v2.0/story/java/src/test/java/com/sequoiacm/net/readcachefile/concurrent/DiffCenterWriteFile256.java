@@ -37,185 +37,204 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class DiffCenterWriteFile256 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper rootSite = null;
-	private List<SiteWrapper> branSites = null;
-	private final int branSitesNum = 2;
-	private WsWrapper wsp = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private final int branSitesNum = 2;
+    private boolean runSuccess = false;
+    private SiteWrapper rootSite = null;
+    private List< SiteWrapper > branSites = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	private List<ScmId> fileIdList = Collections.synchronizedList(new ArrayList<ScmId>());
-	private String fileName = "readcachefile256";
-	private int fileSize = 1024 * 1024 * 2;
-	private File localPath = null;
-	private String filePath = null;
+    private List< ScmId > fileIdList = Collections
+            .synchronizedList( new ArrayList< ScmId >() );
+    private String fileName = "readcachefile256";
+    private int fileSize = 1024 * 1024 * 2;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			rootSite = ScmInfo.getRootSite();
-			branSites = ScmInfo.getBranchSites(branSitesNum);
-			wsp = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branSites = ScmInfo.getBranchSites( branSitesNum );
+            wsp = ScmInfo.getWs();
 
-			session = TestScmTools.createSession(branSites.get(0));
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            session = TestScmTools.createSession( branSites.get( 0 ) );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        } catch ( IOException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "fourSite" })
-	private void test() {
-		try {
-			WriteFileFromM writeFromM = new WriteFileFromM();
-			writeFromM.start(15);
+    @Test(groups = { "fourSite" })
+    private void test() {
+        try {
+            WriteFileFromM writeFromM = new WriteFileFromM();
+            writeFromM.start( 15 );
 
-			WriteFileFromA WriteFromA = new WriteFileFromA();
-			WriteFromA.start(15);
+            WriteFileFromA WriteFromA = new WriteFileFromA();
+            WriteFromA.start( 15 );
 
-			WriteFileFromB WriteFromB = new WriteFileFromB();
-			WriteFromB.start(15);
+            WriteFileFromB WriteFromB = new WriteFileFromB();
+            WriteFromB.start( 15 );
 
-			if (!(writeFromM.isSuccess() && WriteFromA.isSuccess() && WriteFromB.isSuccess())) {
-				Assert.fail(writeFromM.getErrorMsg() + WriteFromA.getErrorMsg() + WriteFromB.getErrorMsg());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            if ( !( writeFromM.isSuccess() && WriteFromA.isSuccess() &&
+                    WriteFromB.isSuccess() ) ) {
+                Assert.fail(
+                        writeFromM.getErrorMsg() + WriteFromA.getErrorMsg() +
+                                WriteFromB.getErrorMsg() );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.getInstance(ws, fileId).delete(true);
-				}
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException | ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                }
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private class WriteFileFromM extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			try {
-				// write file from mainCenter
-				ScmId fileId = writeFile(rootSite);
+    private ScmId writeFile( SiteWrapper site ) {
+        ScmSession ss = null;
+        ScmId fileId = null;
+        try {
+            ss = TestScmTools.createSession( site );
+            ScmWorkspace wks = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), ss );
 
-				// read file from subCenterA
-				synchronized (fileId) {
-					readFile(branSites.get(0), fileId);
-					// check meta data
-					SiteWrapper[] expSites = { rootSite, branSites.get(0) };
-					ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-				}
-			} catch (ScmException e) {
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+            fileId = ScmFileUtils
+                    .create( wks, fileName + "_" + UUID.randomUUID(),
+                            filePath );
+            fileIdList.add( fileId );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( ss != null ) {
+                ss.close();
+            }
+        }
+        return fileId;
+    }
 
-	private class WriteFileFromA extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			try {
-				// write file from subCenterA
-				ScmId fileId = writeFile(branSites.get(0));
+    private void readFile( SiteWrapper site, ScmId fileId ) throws Exception {
+        ScmSession ss = null;
+        OutputStream fos = null;
+        ScmInputStream sis = null;
+        try {
+            ss = TestScmTools.createSession( site );
+            ScmWorkspace wks = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), ss );
 
-				// read file from subCenterB
-				synchronized (fileId) {
-					readFile(branSites.get(1), fileId);
-					// check meta data
-					SiteWrapper[] expSites = {  branSites.get(0), branSites.get(1) };
-					ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-				}
-			} catch (ScmException e) {
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+            // read
+            ScmFile file = ScmFactory.File.getInstance( wks, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            sis = ScmFactory.File.createInputStream( file );
+            fos = new FileOutputStream( new File( downloadPath ) );
+            sis.read( fos );
 
-	private class WriteFileFromB extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			try {
-				// write file from subCenterB
-				ScmId fileId = writeFile(branSites.get(1));
+            // check content
+            Assert.assertEquals( TestTools.getMD5( filePath ),
+                    TestTools.getMD5( downloadPath ) );
+        } finally {
+            if ( fos != null )
+                fos.close();
+            if ( sis != null )
+                sis.close();
+            if ( ss != null )
+                ss.close();
+        }
+    }
 
-				// read file from mainCenter
-				synchronized (fileId) {
-					readFile(rootSite, fileId);
-					// check meta data
-					SiteWrapper[] expSites = { rootSite, branSites.get(1) };
-					ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-				}
-			} catch (ScmException e) {
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    private class WriteFileFromM extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            try {
+                // write file from mainCenter
+                ScmId fileId = writeFile( rootSite );
 
-	private ScmId writeFile(SiteWrapper site) {
-		ScmSession ss = null;
-		ScmId fileId = null;
-		try {
-			ss = TestScmTools.createSession(site);
-			ScmWorkspace wks = ScmFactory.Workspace.getWorkspace(wsp.getName(), ss);
+                // read file from subCenterA
+                synchronized ( fileId ) {
+                    readFile( branSites.get( 0 ), fileId );
+                    // check meta data
+                    SiteWrapper[] expSites = { rootSite, branSites.get( 0 ) };
+                    ScmFileUtils
+                            .checkMetaAndData( wsp, fileId, expSites, localPath,
+                                    filePath );
+                }
+            } catch ( ScmException e ) {
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-			fileId = ScmFileUtils.create(wks, fileName+"_"+UUID.randomUUID(), filePath);
-			fileIdList.add(fileId);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (ss != null) {
-				ss.close();
-			}
-		}
-		return fileId;
-	}
+    private class WriteFileFromA extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            try {
+                // write file from subCenterA
+                ScmId fileId = writeFile( branSites.get( 0 ) );
 
-	private void readFile(SiteWrapper site, ScmId fileId) throws Exception {
-		ScmSession ss = null;
-		OutputStream fos = null;
-		ScmInputStream sis = null;
-		try {
-			ss = TestScmTools.createSession(site);
-			ScmWorkspace wks = ScmFactory.Workspace.getWorkspace(wsp.getName(), ss);
+                // read file from subCenterB
+                synchronized ( fileId ) {
+                    readFile( branSites.get( 1 ), fileId );
+                    // check meta data
+                    SiteWrapper[] expSites = { branSites.get( 0 ),
+                            branSites.get( 1 ) };
+                    ScmFileUtils
+                            .checkMetaAndData( wsp, fileId, expSites, localPath,
+                                    filePath );
+                }
+            } catch ( ScmException e ) {
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-			// read
-			ScmFile file = ScmFactory.File.getInstance(wks, fileId);
-			String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
-			sis = ScmFactory.File.createInputStream(file);
-			fos = new FileOutputStream(new File(downloadPath));
-			sis.read(fos);
+    private class WriteFileFromB extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            try {
+                // write file from subCenterB
+                ScmId fileId = writeFile( branSites.get( 1 ) );
 
-			// check content
-			Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-		} finally {
-			if (fos != null)
-				fos.close();
-			if (sis != null)
-				sis.close();
-			if (ss != null)
-				ss.close();
-		}
-	}
+                // read file from mainCenter
+                synchronized ( fileId ) {
+                    readFile( rootSite, fileId );
+                    // check meta data
+                    SiteWrapper[] expSites = { rootSite, branSites.get( 1 ) };
+                    ScmFileUtils
+                            .checkMetaAndData( wsp, fileId, expSites, localPath,
+                                    filePath );
+                }
+            } catch ( ScmException e ) {
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 }

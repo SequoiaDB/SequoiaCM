@@ -33,96 +33,100 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
  */
 
 public class ReadFileByOff251 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper scmSite1 = null;
-	private SiteWrapper scmSite2 = null;	
-	private WsWrapper wsp = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private boolean runSuccess = false;
+    private SiteWrapper scmSite1 = null;
+    private SiteWrapper scmSite2 = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "readCacheFile251";
-	private ScmId fileId = null;
-	private int fileSize = 0;
-	private int off = 0;
-	private int len = 1;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "readCacheFile251";
+    private ScmId fileId = null;
+    private int fileSize = 0;
+    private int off = 0;
+    private int len = 1;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws IOException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws IOException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			wsp = ScmInfo.getWs();
-			List<SiteWrapper> siteList = ScmNetUtils.getRandomSites(wsp);
-			scmSite1 = siteList.get(0);
-			scmSite2 = siteList.get(1);
+            wsp = ScmInfo.getWs();
+            List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( wsp );
+            scmSite1 = siteList.get( 0 );
+            scmSite2 = siteList.get( 1 );
 
-			session = TestScmTools.createSession(scmSite1);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            session = TestScmTools.createSession( scmSite1 );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "fourSite" })
-	private void test() throws Exception {
-		try {
-			// writeFileFromA
-			fileId = ScmFileUtils.create(ws, fileName, filePath);
-			this.readFileFromOtherSite( scmSite2 );
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+    @Test(groups = { "fourSite" })
+    private void test() throws Exception {
+        try {
+            // writeFileFromA
+            fileId = ScmFileUtils.create( ws, fileName, filePath );
+            this.readFileFromOtherSite( scmSite2 );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	@AfterClass()
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.getInstance(ws, fileId).delete(true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass()
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private void readFileFromOtherSite(SiteWrapper scmSite) throws Exception {
-		ScmSession session = null;
-		ScmInputStream sis = null;
-		try {
-			// login
-			session = TestScmTools.createSession(scmSite);
-			ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    private void readFileFromOtherSite( SiteWrapper scmSite ) throws Exception {
+        ScmSession session = null;
+        ScmInputStream sis = null;
+        try {
+            // login
+            session = TestScmTools.createSession( scmSite );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), session );
 
-			// read content
-			ScmFile scmfile = ScmFactory.File.getInstance(ws, fileId);
-			sis = ScmFactory.File.createInputStream(scmfile);
-			byte[] buffer = new byte[off + len];
-			int readSize = sis.read(buffer, off, len);
-			Assert.assertEquals(readSize, -1);
+            // read content
+            ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
+            sis = ScmFactory.File.createInputStream( scmfile );
+            byte[] buffer = new byte[ off + len ];
+            int readSize = sis.read( buffer, off, len );
+            Assert.assertEquals( readSize, -1 );
 
-			// check results
-			SiteWrapper[] expSites = {  scmSite1, scmSite2 };
-			ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-		} finally {
-			if (sis != null)
-				sis.close();
-			if (session != null)
-				session.close();
-		}
-	}
+            // check results
+            SiteWrapper[] expSites = { scmSite1, scmSite2 };
+            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                    filePath );
+        } finally {
+            if ( sis != null )
+                sis.close();
+            if ( session != null )
+                session.close();
+        }
+    }
 
 }

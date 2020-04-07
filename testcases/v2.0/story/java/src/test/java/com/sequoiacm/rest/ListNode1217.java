@@ -21,47 +21,49 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 
 public class ListNode1217 extends TestScmBase {
-	private SiteWrapper site = null;
-	private RestWrapper rest = null;
+    private SiteWrapper site = null;
+    private RestWrapper rest = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
-		site = ScmInfo.getSite();
-		rest = new RestWrapper();
-		rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
+        site = ScmInfo.getSite();
+        rest = new RestWrapper();
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-	    int siteId = ScmInfo.getSite().getSiteId();
-		String response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("nodes?filter={uri}")
-				.setUriVariables(new Object[]{ "{\"site_id\":" + siteId + "}"})
-				.setResponseType(String.class).exec().getBody().toString();
-		JSONArray results = new JSONArray(response);
-		if (results.length() <= 0) {
-			Assert.fail("no node of site_id[" + siteId + "]");
-		}
-		for (int i = 0; i < results.length(); ++i) {
-			JSONObject obj = results.getJSONObject(i);
-			Assert.assertTrue(obj.has("name"));
-			Assert.assertTrue(obj.has("id"));
-			Assert.assertTrue(obj.has("type"));
-			Assert.assertTrue(obj.has("site_id"));
-		}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        int siteId = ScmInfo.getSite().getSiteId();
+        String response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "nodes?filter={uri}" )
+                .setUriVariables(
+                        new Object[] { "{\"site_id\":" + siteId + "}" } )
+                .setResponseType( String.class ).exec().getBody().toString();
+        JSONArray results = new JSONArray( response );
+        if ( results.length() <= 0 ) {
+            Assert.fail( "no node of site_id[" + siteId + "]" );
+        }
+        for ( int i = 0; i < results.length(); ++i ) {
+            JSONObject obj = results.getJSONObject( i );
+            Assert.assertTrue( obj.has( "name" ) );
+            Assert.assertTrue( obj.has( "id" ) );
+            Assert.assertTrue( obj.has( "type" ) );
+            Assert.assertTrue( obj.has( "site_id" ) );
+        }
 
+        response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "nodes?filter={uri}" )
+                .setUriVariables( new Object[] {
+                        "{\"name\":\"nobody_use_this_node_name1217\"}" } )
+                .setResponseType( String.class ).exec().getBody().toString();
+        Assert.assertEquals( "[]", response );
+    }
 
-		response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("nodes?filter={uri}")
-				.setUriVariables(new Object[]{ "{\"name\":\"nobody_use_this_node_name1217\"}"})
-				.setResponseType(String.class).exec().getBody().toString();
-		Assert.assertEquals("[]", response);
-	}
-
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (rest != null) {
-			rest.disconnect();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( rest != null ) {
+            rest.disconnect();
+        }
+    }
 }

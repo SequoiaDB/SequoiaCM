@@ -1,17 +1,17 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.workspace;
 
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -29,51 +29,51 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class Param_scmWorkSpaceInfoCursor925 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private ScmSession session = null;
+    private static SiteWrapper site = null;
+    private ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			session = TestScmTools.createSession(site);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testRepeatClosed() {
-		ScmCursor<ScmWorkspaceInfo> cursor = null;
-		try {
-			cursor = ScmFactory.Workspace.listWorkspace(session);
-			cursor.close();
-			cursor.close();
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testRepeatClosed() {
+        ScmCursor< ScmWorkspaceInfo > cursor = null;
+        try {
+            cursor = ScmFactory.Workspace.listWorkspace( session );
+            cursor.close();
+            cursor.close();
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testCloseAfterCloseSS() {
-		ScmSession session = null;
-		ScmCursor<ScmWorkspaceInfo> cursor = null;
-		try {
-			session = TestScmTools.createSession(site);
-			cursor = ScmFactory.Workspace.listWorkspace(session);
-			session.close();
-			cursor.close();
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testCloseAfterCloseSS() {
+        ScmSession session = null;
+        ScmCursor< ScmWorkspaceInfo > cursor = null;
+        try {
+            session = TestScmTools.createSession( site );
+            cursor = ScmFactory.Workspace.listWorkspace( session );
+            session.close();
+            cursor.close();
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		if (session != null) {
-			session.close();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

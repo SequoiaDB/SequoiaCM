@@ -41,91 +41,99 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
  */
 
 public class Transfer_startAndStopTime883 extends TestScmBase {
-	private boolean runSuccess = false;
+    private final String authorName = "Transfer883";
+    private boolean runSuccess = false;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmId taskId = null;
+    private ScmId fileId = null;
 
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private final String authorName = "Transfer883";
-	private ScmId taskId = null;
-	private ScmId fileId = null;
-	
-	private SiteWrapper sourceSite = null;
-	private SiteWrapper targetSite = null;
-	private WsWrapper ws_T = null;
+    private SiteWrapper sourceSite = null;
+    private SiteWrapper targetSite = null;
+    private WsWrapper ws_T = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException, Exception {
-		try {			
-			ws_T = ScmInfo.getWs();
-			List<SiteWrapper> siteList = ScmNetUtils.getRandomSites(ws_T);
-			sourceSite = siteList.get(0);
-			targetSite = siteList.get(1);
-		
-			// set the system time of subCenter
-			SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
-			Long updateTime = new Date().getTime() - 10 * 60 * 1000; //10min slower than current time
-			TestTools.setSystemTime(sourceSite.getNode().getHost(), dateFmt.format(updateTime)); 
-			
-			// login
-			sessionA = TestScmTools.createSession(sourceSite);
-			wsA = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
-			
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_T, cond);
-			
-			// write file
-			ScmFile file = ScmFactory.File.createInstance(wsA);
-			file.setFileName(authorName+"_"+UUID.randomUUID());
-			file.setAuthor(authorName);
-			fileId = file.save();
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} 
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException, Exception {
+        try {
+            ws_T = ScmInfo.getWs();
+            List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( ws_T );
+            sourceSite = siteList.get( 0 );
+            targetSite = siteList.get( 1 );
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void testTransfer() {
-		try {
-			// start transfer task
-			this.startTransferTask();
-			ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-			
-			// get startTime and stopTime, and check
-			ScmTask task = ScmSystem.Task.getTask(sessionA, taskId);
-			Long startTime = task.getStartTime().getTime();
-			Long stopTime  = task.getStopTime().getTime();
-			if (startTime >= stopTime) {
-				Assert.fail("error, expect startTime < stopTime, actual startTime >= stopTime");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            // set the system time of subCenter
+            SimpleDateFormat dateFmt = new SimpleDateFormat( "yyyyMMdd" );
+            Long updateTime = new Date().getTime() -
+                    10 * 60 * 1000; //10min slower than current time
+            TestTools.setSystemTime( sourceSite.getNode().getHost(),
+                    dateFmt.format( updateTime ) );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-				TestSdbTools.Task.deleteMeta(taskId);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (null != sessionA) {
-				sessionA.close();
-			}
-			TestTools.restoreSystemTime(sourceSite.getNode().getHost());
-			System.out.println("wait 10s...");
-			Thread.sleep(10*1000);
-		}
-	}
-	
-	private void startTransferTask() throws ScmException, InterruptedException {
-		BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-		taskId = ScmSystem.Task.startTransferTask(wsA, condition, ScopeType.SCOPE_CURRENT, targetSite.getSiteName());
-	}
+            // login
+            sessionA = TestScmTools.createSession( sourceSite );
+            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
+
+            // write file
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setFileName( authorName + "_" + UUID.randomUUID() );
+            file.setAuthor( authorName );
+            fileId = file.save();
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testTransfer() {
+        try {
+            // start transfer task
+            this.startTransferTask();
+            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+
+            // get startTime and stopTime, and check
+            ScmTask task = ScmSystem.Task.getTask( sessionA, taskId );
+            Long startTime = task.getStartTime().getTime();
+            Long stopTime = task.getStopTime().getTime();
+            if ( startTime >= stopTime ) {
+                Assert.fail(
+                        "error, expect startTime < stopTime, actual startTime" +
+                                " >= stopTime" );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( null != sessionA ) {
+                sessionA.close();
+            }
+            TestTools.restoreSystemTime( sourceSite.getNode().getHost() );
+            System.out.println( "wait 10s..." );
+            Thread.sleep( 10 * 1000 );
+        }
+    }
+
+    private void startTransferTask() throws ScmException, InterruptedException {
+        BSONObject condition = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        taskId = ScmSystem.Task
+                .startTransferTask( wsA, condition, ScopeType.SCOPE_CURRENT,
+                        targetSite.getSiteName() );
+    }
 }

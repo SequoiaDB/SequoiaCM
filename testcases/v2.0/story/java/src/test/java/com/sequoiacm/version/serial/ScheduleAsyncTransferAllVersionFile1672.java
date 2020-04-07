@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.version.serial;
 
@@ -40,96 +40,97 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @date 2018年6月13日
  */
 public class ScheduleAsyncTransferAllVersionFile1672 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static WsWrapper wsp = null;
-	private SiteWrapper branSite = null;
-	private SiteWrapper rootSite = null;
-	private ScmSession sessionA = null;
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsA = null;
-	private ScmWorkspace wsM = null;
-	private ScmId fileId1 = null;
-	private ScmId fileId2 = null;
-	private ScmId scheduleId = null;
-	private List<String> fileIdList = new ArrayList<>();	
+    private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
+    private SiteWrapper branSite = null;
+    private SiteWrapper rootSite = null;
+    private ScmSession sessionA = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsA = null;
+    private ScmWorkspace wsM = null;
+    private ScmId fileId1 = null;
+    private ScmId fileId2 = null;
+    private ScmId scheduleId = null;
+    private List< String > fileIdList = new ArrayList<>();
 
-	private String fileName1 = "fileVersion1672_1";
-	private String fileName2 = "fileVersion1672_2";
-	private String scheduleName = "schedule1672";
-	private byte[] filedata = new byte[ 1024 * 100 ];
-	private byte[] updatedata = new byte[ 1024 * 200 ];	
-	
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		branSite = ScmInfo.getBranchSite();
-		rootSite = ScmInfo.getRootSite();
-		wsp = ScmInfo.getWs();
-		
-		sessionA = TestScmTools.createSession(branSite);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-		sessionM = TestScmTools.createSession(rootSite);
-		wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
-		
-		fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata );
-		fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata );
-		VersionUtils.updateContentByStream(wsA, fileId1, updatedata);
-		VersionUtils.updateContentByStream(wsA, fileId2, updatedata);
-		VersionUtils.updateContentByStream(wsA, fileId2, updatedata);
-		fileIdList.add(fileId1.toString());
-		fileIdList.add(fileId2.toString());
-		
-	}
-	
-	@Test(groups = {  "twoSite", "fourSite"})
-	private void test() throws Exception {
-		
-		createScheduleTask();
-		
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId1, 1, 2);
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId1, 2, 2);
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId2, 1, 2);
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId2, 2, 2);
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId2, 3, 2);
-		
-		
-		SiteWrapper[] expSites = {rootSite, branSite};
-		VersionUtils.checkSite(wsM, fileId1, 1, expSites);
-		VersionUtils.checkSite(wsM, fileId1, 2, expSites);
-		VersionUtils.checkSite(wsM, fileId2, 1, expSites);
-		VersionUtils.checkSite(wsM, fileId2, 2, expSites);
-		VersionUtils.checkSite(wsM, fileId2, 3, expSites);
-		
-		runSuccess = true;
-	}
-	
-	@AfterClass()
-	private void tearDown() {
-		try {	
-			ScmSystem.Schedule.delete(sessionA, scheduleId);
-			if(runSuccess){
-				ScmFactory.File.deleteInstance(wsM, fileId1, true);	
-				ScmFactory.File.deleteInstance(wsM, fileId2, true);	
-				ScmScheduleUtils.cleanTask(sessionA, scheduleId);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage()+e.getStackTrace());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}	
-			if (sessionM != null) {
-				sessionM.close();
-			}
-		}
-	}
-	
-	private void createScheduleTask() throws ScmException{
-		BSONObject queryCond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_ID).in(fileIdList).get();
-		ScmScheduleContent content = new ScmScheduleCopyFileContent(branSite.getSiteName(), rootSite.getSiteName(), 
-											"0d", queryCond, ScopeType.SCOPE_ALL);
-		String cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule.create(sessionA, wsp.getName(), 
-        		ScheduleType.COPY_FILE, scheduleName, "", content, cron);
+    private String fileName1 = "fileVersion1672_1";
+    private String fileName2 = "fileVersion1672_2";
+    private String scheduleName = "schedule1672";
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 200 ];
+
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        branSite = ScmInfo.getBranchSite();
+        rootSite = ScmInfo.getRootSite();
+        wsp = ScmInfo.getWs();
+
+        sessionA = TestScmTools.createSession( branSite );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+
+        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata );
+        fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata );
+        VersionUtils.updateContentByStream( wsA, fileId1, updatedata );
+        VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
+        VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
+        fileIdList.add( fileId1.toString() );
+        fileIdList.add( fileId2.toString() );
+
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+
+        createScheduleTask();
+
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId1, 1, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId1, 2, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 1, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 2, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 3, 2 );
+
+        SiteWrapper[] expSites = { rootSite, branSite };
+        VersionUtils.checkSite( wsM, fileId1, 1, expSites );
+        VersionUtils.checkSite( wsM, fileId1, 2, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 1, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 2, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 3, expSites );
+
+        runSuccess = true;
+    }
+
+    @AfterClass()
+    private void tearDown() {
+        try {
+            ScmSystem.Schedule.delete( sessionA, scheduleId );
+            if ( runSuccess ) {
+                ScmFactory.File.deleteInstance( wsM, fileId1, true );
+                ScmFactory.File.deleteInstance( wsM, fileId2, true );
+                ScmScheduleUtils.cleanTask( sessionA, scheduleId );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() + e.getStackTrace() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+        }
+    }
+
+    private void createScheduleTask() throws ScmException {
+        BSONObject queryCond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
+        ScmScheduleContent content = new ScmScheduleCopyFileContent(
+                branSite.getSiteName(), rootSite.getSiteName(),
+                "0d", queryCond, ScopeType.SCOPE_ALL );
+        String cron = "* * * * * ?";
+        ScmSchedule sche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                ScheduleType.COPY_FILE, scheduleName, "", content, cron );
         scheduleId = sche.getId();
-	}
+    }
 }

@@ -1,7 +1,28 @@
-
 package com.sequoiacm.auth;
 
-import com.sequoiacm.client.core.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmCursor;
+import com.sequoiacm.client.core.ScmDirectory;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmQueryBuilder;
+import com.sequoiacm.client.core.ScmRole;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.client.core.ScmUserModifier;
+import com.sequoiacm.client.core.ScmUserPasswordType;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
@@ -9,19 +30,14 @@ import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * @Description: SCM-1726 :: 有目录资源READ权限，对表格中各个接口进行覆盖测试
@@ -51,378 +67,402 @@ public class AuthDir_Read1726 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-	try {
-	    localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-	    filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-	    TestTools.LocalFile.removeFile(localPath);
-	    TestTools.LocalFile.createDir(localPath.toString());
-	    TestTools.LocalFile.createFile(filePath, fileSize);
+        try {
+            localPath = new File( TestScmBase.dataDirectory + File.separator +
+                    TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize +
+                    ".txt";
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	    site = ScmInfo.getSite();
-	    wsp = ScmInfo.getWs();
-	    sessionA = TestScmTools.createSession(site);
-	    wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-	    cleanEnv();
-	    prepare();
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            sessionA = TestScmTools.createSession( site );
+            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+            cleanEnv();
+            prepare();
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testGetDirByPath() {
-	String dirpath = path;
-	try {
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsR, dirpath);
-	    Assert.assertEquals(dir.getPath(), dirpath + "/");
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+        String dirpath = path;
+        try {
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsR, dirpath );
+            Assert.assertEquals( dir.getPath(), dirpath + "/" );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testGetSubDirByCond() {
-	String dirpath = path;
-	ScmCursor<ScmDirectory> cursor = null;
-	try {
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsR, dirpath);
-	    cursor = dir.listDirectories(null);
-	    int i = 0;
-	    while (cursor.hasNext()) {
-		Assert.assertNotNull(cursor.getNext());
-		i++;
-	    }
-	    Assert.assertEquals(i, 0);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+        String dirpath = path;
+        ScmCursor< ScmDirectory > cursor = null;
+        try {
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsR, dirpath );
+            cursor = dir.listDirectories( null );
+            int i = 0;
+            while ( cursor.hasNext() ) {
+                Assert.assertNotNull( cursor.getNext() );
+                i++;
+            }
+            Assert.assertEquals( i, 0 );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testGetSubDirByName() {
-	String path = basepath + "/1726_A/1726_B";
-	String dirName = "1726_C";
-	ScmDirectory subdir = null;
-	try {
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsR, path);
-	    subdir = dir.getSubdirectory(dirName);
-	    Assert.assertEquals(subdir.getName(), dirName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+        String path = basepath + "/1726_A/1726_B";
+        String dirName = "1726_C";
+        ScmDirectory subdir = null;
+        try {
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsR, path );
+            subdir = dir.getSubdirectory( dirName );
+            Assert.assertEquals( subdir.getName(), dirName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testGetFileMetaUnderDir() throws ScmException {
-	ScmId fileId = null;
-	String fileName = author + "_" + UUID.randomUUID();
-	String dirpath = path;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        ScmId fileId = null;
+        String fileName = author + "_" + UUID.randomUUID();
+        String dirpath = path;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    // get file
-	    ScmDirectory actdir = ScmFactory.Directory.getInstance(wsR, dirpath);
-	    ScmFile actfile = actdir.getSubfile(fileName);
-	    Assert.assertEquals(actfile.getDirectory().getPath(), dirpath + "/");
-	    Assert.assertEquals(actfile.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	}
+            // get file
+            ScmDirectory actdir = ScmFactory.Directory
+                    .getInstance( wsR, dirpath );
+            ScmFile actfile = actdir.getSubfile( fileName );
+            Assert.assertEquals( actfile.getDirectory().getPath(),
+                    dirpath + "/" );
+            Assert.assertEquals( actfile.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testReadFileById() throws Exception {
-	String fileName = author + "_" + UUID.randomUUID();
-	ScmId fileId = null;
-	String dirpath = path;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        String fileName = author + "_" + UUID.randomUUID();
+        ScmId fileId = null;
+        String dirpath = path;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    ScmFile actfile = ScmFactory.File.getInstance(wsR, fileId);
-	    String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-		    Thread.currentThread().getId());
-	    actfile.getContent(downloadPath);
-	    Assert.assertEquals(actfile.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	}
+            ScmFile actfile = ScmFactory.File.getInstance( wsR, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            actfile.getContent( downloadPath );
+            Assert.assertEquals( actfile.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testReadFileByPath() throws Exception {
-	String fileName = author + "_" + UUID.randomUUID();
-	ScmId fileId = null;
-	String dirpath = path;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        String fileName = author + "_" + UUID.randomUUID();
+        ScmId fileId = null;
+        String dirpath = path;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    ScmFile actfile = ScmFactory.File.getInstanceByPath(wsR, dirpath + "/" + fileName);
-	    String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-		    Thread.currentThread().getId());
-	    actfile.getContent(downloadPath);
-	    Assert.assertEquals(actfile.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	}
+            ScmFile actfile = ScmFactory.File
+                    .getInstanceByPath( wsR, dirpath + "/" + fileName );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            actfile.getContent( downloadPath );
+            Assert.assertEquals( actfile.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testReadFileByIdVersion() throws Exception {
-	String fileName = author + "_" + UUID.randomUUID();
-	ScmId fileId = null;
-	String dirpath = path;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        String fileName = author + "_" + UUID.randomUUID();
+        ScmId fileId = null;
+        String dirpath = path;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    ScmFile actfile = ScmFactory.File.getInstance(wsR, fileId, 1, 0);
-	    String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-		    Thread.currentThread().getId());
-	    actfile.getContent(downloadPath);
-	    Assert.assertEquals(actfile.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	}
+            ScmFile actfile = ScmFactory.File.getInstance( wsR, fileId, 1, 0 );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            actfile.getContent( downloadPath );
+            Assert.assertEquals( actfile.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testReadFileByPathVersion() throws Exception {
-	String fileName = author + "_" + UUID.randomUUID();
-	ScmId fileId = null;
-	String dirpath = path;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        String fileName = author + "_" + UUID.randomUUID();
+        ScmId fileId = null;
+        String dirpath = path;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    ScmFile actfile = ScmFactory.File.getInstanceByPath(wsR, dirpath + "/" + fileName, 1, 0);
-	    String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-		    Thread.currentThread().getId());
-	    actfile.getContent(downloadPath);
-	    Assert.assertEquals(actfile.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	}
+            ScmFile actfile = ScmFactory.File
+                    .getInstanceByPath( wsR, dirpath + "/" + fileName, 1, 0 );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            actfile.getContent( downloadPath );
+            Assert.assertEquals( actfile.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testlistFile() throws Exception {
-	String fileName = author + "_" + UUID.randomUUID();
-	ScmId fileId = null;
-	String dirpath = path;
-	ScmCursor<ScmFileBasicInfo> cursor = null;
-	try {
-	    // get dir
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(wsA, dirpath);
+        String fileName = author + "_" + UUID.randomUUID();
+        ScmId fileId = null;
+        String dirpath = path;
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            // get dir
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA, dirpath );
 
-	    // CreateFileInDir
-	    ScmFile file = ScmFactory.File.createInstance(wsA);
-	    file.setAuthor(author);
-	    file.setFileName(fileName);
-	    file.setDirectory(dir);
-	    file.setContent(filePath);
-	    fileId = file.save();
+            // CreateFileInDir
+            ScmFile file = ScmFactory.File.createInstance( wsA );
+            file.setAuthor( author );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            fileId = file.save();
 
-	    ScmDirectory actdir = ScmFactory.Directory.getInstance(wsR, dirpath);
-	    BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
+            ScmDirectory actdir = ScmFactory.Directory
+                    .getInstance( wsR, dirpath );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
 
-	    cursor = actdir.listFiles(cond);
-	    Assert.assertEquals(cursor.getNext().getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (fileId != null) {
-		ScmFactory.File.deleteInstance(wsA, fileId, true);
-	    }
-	    if (cursor != null) {
-		cursor.close();
-	    }
-	}
+            cursor = actdir.listFiles( cond );
+            Assert.assertEquals( cursor.getNext().getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() {
-	try {
-	    ScmFactory.Role.revokePrivilege(sessionA, role, rs, ScmPrivilegeType.READ);
-	    ScmFactory.Role.deleteRole(sessionA, role);
-	    ScmFactory.User.deleteUser(sessionA, user);
-	    deleteDir(wsA, path);
-	    TestTools.LocalFile.removeFile(localPath);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (sessionA != null) {
-		sessionA.close();
-	    }
-	}
+        try {
+            ScmFactory.Role.revokePrivilege( sessionA, role, rs,
+                    ScmPrivilegeType.READ );
+            ScmFactory.Role.deleteRole( sessionA, role );
+            ScmFactory.User.deleteUser( sessionA, user );
+            deleteDir( wsA, path );
+            TestTools.LocalFile.removeFile( localPath );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
     }
 
-    private void grantPriAndAttachRole(ScmSession session, ScmResource rs, ScmUser user, ScmRole role,
-	    ScmPrivilegeType privileges) {
-	try {
-	    ScmUserModifier modifier = new ScmUserModifier();
-	    ScmFactory.Role.grantPrivilege(sessionA, role, rs, privileges);
-	    modifier.addRole(role);
-	    ScmFactory.User.alterUser(sessionA, user, modifier);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+    private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
+            ScmUser user, ScmRole role,
+            ScmPrivilegeType privileges ) {
+        try {
+            ScmUserModifier modifier = new ScmUserModifier();
+            ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
+            modifier.addRole( role );
+            ScmFactory.User.alterUser( sessionA, user, modifier );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
 
     }
 
-    private ScmDirectory createDir(ScmWorkspace ws, String dirPath) throws ScmException {
-	List<String> pathList = getSubPaths(dirPath);
-	for (String path : pathList) {
-	    try {
-		ScmFactory.Directory.createInstance(ws, path);
-	    } catch (ScmException e) {
-		if (e.getError() != ScmError.DIR_EXIST) {
-		    e.printStackTrace();
-		    Assert.fail(e.getMessage());
-		}
-	    }
-	}
-	return ScmFactory.Directory.getInstance(ws, pathList.get(pathList.size() - 1));
+    private ScmDirectory createDir( ScmWorkspace ws, String dirPath )
+            throws ScmException {
+        List< String > pathList = getSubPaths( dirPath );
+        for ( String path : pathList ) {
+            try {
+                ScmFactory.Directory.createInstance( ws, path );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.DIR_EXIST ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
+        return ScmFactory.Directory
+                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
     }
 
-    private void deleteDir(ScmWorkspace ws, String dirPath) {
-	List<String> pathList = getSubPaths(dirPath);
-	for (int i = pathList.size() - 1; i >= 0; i--) {
-	    try {
-		ScmFactory.Directory.deleteInstance(ws, pathList.get(i));
-	    } catch (ScmException e) {
-		if (e.getError() != ScmError.DIR_NOT_FOUND && e.getError() != ScmError.DIR_NOT_EMPTY) {
-		    e.printStackTrace();
-		    Assert.fail(e.getMessage());
-		}
-	    }
-	}
+    private void deleteDir( ScmWorkspace ws, String dirPath ) {
+        List< String > pathList = getSubPaths( dirPath );
+        for ( int i = pathList.size() - 1; i >= 0; i-- ) {
+            try {
+                ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
+                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
     }
 
-    private List<String> getSubPaths(String path) {
-	String ele = "/";
-	String[] arry = path.split("/");
-	List<String> pathList = new ArrayList<>();
-	for (int i = 1; i < arry.length; i++) {
-	    ele = ele + arry[i];
-	    pathList.add(ele);
-	    ele = ele + "/";
-	}
-	return pathList;
+    private List< String > getSubPaths( String path ) {
+        String ele = "/";
+        String[] arry = path.split( "/" );
+        List< String > pathList = new ArrayList<>();
+        for ( int i = 1; i < arry.length; i++ ) {
+            ele = ele + arry[ i ];
+            pathList.add( ele );
+            ele = ele + "/";
+        }
+        return pathList;
     }
 
     private void cleanEnv() throws ScmException {
-	BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-	ScmFileUtils.cleanFile(wsp, cond);
-	try {
-	    ScmFactory.Role.deleteRole(sessionA, rolename);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
-	try {
-	    ScmFactory.User.deleteUser(sessionA, username);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( author ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        try {
+            ScmFactory.Role.deleteRole( sessionA, rolename );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        try {
+            ScmFactory.User.deleteUser( sessionA, username );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
     }
 
     private void prepare() throws Exception {
-	try {
-	    user = ScmFactory.User.createUser(sessionA, username, ScmUserPasswordType.LOCAL, passwd);
-	    role = ScmFactory.Role.createRole(sessionA, rolename, null);
+        try {
+            user = ScmFactory.User
+                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
+                            passwd );
+            role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
-	    rs = ScmResourceFactory.createDirectoryResource(wsp.getName(), basepath + "/1726_A/1726_B");
-	    deleteDir(wsA, path);
-	    createDir(wsA, path);
+            rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    basepath + "/1726_A/1726_B" );
+            deleteDir( wsA, path );
+            createDir( wsA, path );
 
-	    grantPriAndAttachRole(sessionA, rs, user, role, ScmPrivilegeType.READ);
-		ScmAuthUtils.checkPriority(site, username, passwd, role, wsp.getName());
+            grantPriAndAttachRole( sessionA, rs, user, role,
+                    ScmPrivilegeType.READ );
+            ScmAuthUtils.checkPriority( site, username, passwd, role,
+                    wsp.getName() );
 
-	    sessionR = TestScmTools.createSession(site, username, passwd);
-	    wsR = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionR);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+            sessionR = TestScmTools.createSession( site, username, passwd );
+            wsR = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionR );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 }

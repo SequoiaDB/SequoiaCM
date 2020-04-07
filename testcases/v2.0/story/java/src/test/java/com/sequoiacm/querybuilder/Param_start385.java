@@ -24,33 +24,37 @@ import com.sequoiacm.testcommon.TestScmBase;
 
 public class Param_start385 extends TestScmBase {
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			BSONObject cond = ScmQueryBuilder.start("").is("value").get();
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), ("{ \"\" : \"value\"}").replaceAll("\\s*",""));
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            BSONObject cond = ScmQueryBuilder.start( "" ).is( "value" ).get();
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    ( "{ \"\" : \"value\"}" ).replaceAll( "\\s*", "" ) );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
 
-		try {
-			BSONObject cond = ScmQueryBuilder.start(null).is("value").get();
-			Assert.fail("build condition when key is null shouldn't succeed. cond: " + cond);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+        try {
+            BSONObject cond = ScmQueryBuilder.start( null ).is( "value" ).get();
+            Assert.fail(
+                    "build condition when key is null shouldn't succeed. " +
+                            "cond: " +
+                            cond );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+    }
 
 }

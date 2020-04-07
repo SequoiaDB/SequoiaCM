@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.net.version.serial;
 
@@ -43,8 +43,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @version 1.10
  */
 public class UpdateAndTransferFile1696 extends TestScmBase {
-    private boolean runSuccess = false;
     private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
     private SiteWrapper sourceSite = null;
     private SiteWrapper targetSite = null;
     private ScmSession sessionS = null;
@@ -55,17 +55,18 @@ public class UpdateAndTransferFile1696 extends TestScmBase {
     private ScmId taskId = null;
 
     private String fileName = "fileVersion1696";
-    private byte[] filedata = new byte[1024 * 100];
-    private byte[] updatedata = new byte[1024 * 1024 * 2];
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 1024 * 2 ];
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         wsp = ScmInfo.getWs();
         // clean file
-        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
 
-        List<SiteWrapper> siteList = ScmNetUtils.getRandomSites( wsp );
+        List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( wsp );
         sourceSite = siteList.get( 0 );
         targetSite = siteList.get( 1 );
 
@@ -87,20 +88,28 @@ public class UpdateAndTransferFile1696 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID ).is( fileId.toString() ).get();
-        taskId = ScmSystem.Task.startTransferTask( wsS, cond, ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId.toString() ).get();
+        taskId = ScmSystem.Task
+                .startTransferTask( wsS, cond, ScopeType.SCOPE_CURRENT,
+                        targetSite.getSiteName() );
 
         ScmTaskUtils.waitTaskFinish( sessionS, taskId );
-        Assert.assertTrue( updateFileThread.isSuccess(), updateFileThread.getErrorMsg() );
+        Assert.assertTrue( updateFileThread.isSuccess(),
+                updateFileThread.getErrorMsg() );
 
         int curFileVersion = rootCurVersion();
 
         SiteWrapper[] expHisSiteList = { targetSite, sourceSite };
         VersionUtils.checkSite( wsS, fileId, curFileVersion, expHisSiteList );
         if ( curFileVersion == 1 ) {
-            VersionUtils.CheckFileContentByStream( wsT, fileName, historyVersion, filedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsT, fileName, historyVersion,
+                            filedata );
         } else {
-            VersionUtils.CheckFileContentByStream( wsT, fileName, currentVersion, updatedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsT, fileName, currentVersion,
+                            updatedata );
         }
 
         runSuccess = true;
@@ -126,15 +135,6 @@ public class UpdateAndTransferFile1696 extends TestScmBase {
         }
     }
 
-    class UpdateFileThread extends TestThreadBase {
-
-        @Override
-        public void exec() throws Exception {
-            VersionUtils.updateContentByStream( wsS, fileId, updatedata );
-        }
-
-    }
-
     private int rootCurVersion() throws ScmException {
 
         ScmFile file = ScmFactory.File.getInstance( wsT, fileId, 1, 0 );
@@ -143,6 +143,15 @@ public class UpdateAndTransferFile1696 extends TestScmBase {
         } else {
             return 1;
         }
+    }
+
+    class UpdateFileThread extends TestThreadBase {
+
+        @Override
+        public void exec() throws Exception {
+            VersionUtils.updateContentByStream( wsS, fileId, updatedata );
+        }
+
     }
 
 }

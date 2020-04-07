@@ -46,165 +46,177 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class AcrossCenterReadFileByStream234 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper rootSite = null;
-	private List<SiteWrapper> branSites = null;
-	private final int branSitesNum = 2;
-	private WsWrapper wsp = null;
+    private final int branSitesNum = 2;
+    private boolean runSuccess = false;
+    private SiteWrapper rootSite = null;
+    private List< SiteWrapper > branSites = null;
+    private WsWrapper wsp = null;
 
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsM = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmSession sessionB = null;
-	private ScmWorkspace wsB = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsM = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmSession sessionB = null;
+    private ScmWorkspace wsB = null;
 
-	private String fileName = "readCacheFile234";
-	private ScmId fileId = null;
-	private int fileSize = 1024 * 1024 * 2;
-	private List<ScmFileLocation> preSiteInfoList = null;
-	private List<ScmFileLocation> aftSiteInfoList = null;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "readCacheFile234";
+    private ScmId fileId = null;
+    private int fileSize = 1024 * 1024 * 2;
+    private List< ScmFileLocation > preSiteInfoList = null;
+    private List< ScmFileLocation > aftSiteInfoList = null;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws IOException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws IOException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			rootSite = ScmInfo.getRootSite();
-			branSites = ScmInfo.getBranchSites(branSitesNum);
-			wsp = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branSites = ScmInfo.getBranchSites( branSitesNum );
+            wsp = ScmInfo.getWs();
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			sessionM = TestScmTools.createSession(rootSite);
-			wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
+            sessionM = TestScmTools.createSession( rootSite );
+            wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-			sessionA = TestScmTools.createSession(branSites.get(0));
-			wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
+            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-			sessionB = TestScmTools.createSession(branSites.get(1));
-			wsB = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionB);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+            wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "fourSite" })//bug:315
-	private void test() throws Exception {
-		ScmFile file;
-		try {
-			fileId = ScmFileUtils.create(wsA, fileName, filePath);
+    @Test(groups = { "fourSite" })//bug:315
+    private void test() throws Exception {
+        ScmFile file;
+        try {
+            fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
-			this.readFileFromB(wsB);
-			TestSdbTools.Lob.removeLob(rootSite, wsp, fileId);
-			TestSdbTools.Lob.removeLob(branSites.get(0), wsp, fileId);
+            this.readFileFromB( wsB );
+            TestSdbTools.Lob.removeLob( rootSite, wsp, fileId );
+            TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
 
-			// get lastAccessTime before read
-			file = ScmFactory.File.getInstance(wsM, fileId);
-			preSiteInfoList = file.getLocationList();
+            // get lastAccessTime before read
+            file = ScmFactory.File.getInstance( wsM, fileId );
+            preSiteInfoList = file.getLocationList();
 
-			this.readFileFromB(wsB);
+            this.readFileFromB( wsB );
 
-			// get lastAccessTime after read
-			file = ScmFactory.File.getInstance(wsM, fileId);
-			aftSiteInfoList = file.getLocationList();
+            // get lastAccessTime after read
+            file = ScmFactory.File.getInstance( wsM, fileId );
+            aftSiteInfoList = file.getLocationList();
 
-			// check results
-			this.checkMetaAndData();
-			this.checkLastAccessTime();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            // check results
+            this.checkMetaAndData();
+            this.checkLastAccessTime();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.getInstance(wsM, fileId).delete(true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionM != null)
-				sessionM.close();
-			if (sessionA != null)
-				sessionA.close();
-			if (sessionB != null)
-				sessionB.close();
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.getInstance( wsM, fileId ).delete( true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionM != null )
+                sessionM.close();
+            if ( sessionA != null )
+                sessionA.close();
+            if ( sessionB != null )
+                sessionB.close();
 
-		}
-	}
+        }
+    }
 
-	private void readFileFromB(ScmWorkspace ws) throws Exception {
-		OutputStream fos = null;
-		ScmInputStream sis = null;
-		try {
-			ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-			String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
-			sis = ScmFactory.File.createInputStream(file);
-			fos = new FileOutputStream(new File(downloadPath));
-			sis.read(fos);
+    private void readFileFromB( ScmWorkspace ws ) throws Exception {
+        OutputStream fos = null;
+        ScmInputStream sis = null;
+        try {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            sis = ScmFactory.File.createInputStream( file );
+            fos = new FileOutputStream( new File( downloadPath ) );
+            sis.read( fos );
 
-			Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-		} finally {
-			if (fos != null)
-				fos.close();
-			if (sis != null)
-				sis.close();
-		}
-	}
+            Assert.assertEquals( TestTools.getMD5( filePath ),
+                    TestTools.getMD5( downloadPath ) );
+        } finally {
+            if ( fos != null )
+                fos.close();
+            if ( sis != null )
+                sis.close();
+        }
+    }
 
-	private void checkMetaAndData() throws Exception {
-		// check meta
-		SiteWrapper[] expSites = { rootSite, branSites.get(0), branSites.get(1) };
-		ScmFileUtils.checkMeta(wsM, fileId, expSites);
+    private void checkMetaAndData() throws Exception {
+        // check meta
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        ScmFileUtils.checkMeta( wsM, fileId, expSites );
 
-		// check data
-		ScmFileUtils.checkData(wsB, fileId, localPath, filePath);
-		ScmWorkspace[] notExistLobSites = { wsA, wsM };
-		for (int i = 0; i < notExistLobSites.length; i++) {
-			try {
-				ScmFileUtils.checkData(notExistLobSites[i], fileId, localPath, filePath);
-				Assert.fail("Lob has be removed, expect fail, actual success.");
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.DATA_NOT_EXIST && e.getError() != ScmError.DATA_ERROR) { // TODO:jira-158,expCode:-401,
-																			// not
-																			// -801
-					e.printStackTrace();
-					Assert.fail(e.getMessage());
-				}
-			}
-		}
-	}
+        // check data
+        ScmFileUtils.checkData( wsB, fileId, localPath, filePath );
+        ScmWorkspace[] notExistLobSites = { wsA, wsM };
+        for ( int i = 0; i < notExistLobSites.length; i++ ) {
+            try {
+                ScmFileUtils
+                        .checkData( notExistLobSites[ i ], fileId, localPath,
+                                filePath );
+                Assert.fail(
+                        "Lob has be removed, expect fail, actual success." );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.DATA_NOT_EXIST && e.getError() !=
+                        ScmError.DATA_ERROR ) { // TODO:jira-158,expCode:-401,
+                    // not
+                    // -801
+                    e.printStackTrace();
+                    Assert.fail( e.getMessage() );
+                }
+            }
+        }
+    }
 
-	private void checkLastAccessTime() throws Exception {
-		List<Long> preTimes = new ArrayList<>();
-		for (int i = 0; i < preSiteInfoList.size(); i++) {
-			preTimes.add(preSiteInfoList.get(i).getDate().getTime());
-		}
+    private void checkLastAccessTime() throws Exception {
+        List< Long > preTimes = new ArrayList<>();
+        for ( int i = 0; i < preSiteInfoList.size(); i++ ) {
+            preTimes.add( preSiteInfoList.get( i ).getDate().getTime() );
+        }
 
-		List<Long> aftTimes = new ArrayList<>();
-		for (int i = 0; i < aftSiteInfoList.size(); i++) {
-			preTimes.add(aftSiteInfoList.get(i).getDate().getTime());
-		}
+        List< Long > aftTimes = new ArrayList<>();
+        for ( int i = 0; i < aftSiteInfoList.size(); i++ ) {
+            preTimes.add( aftSiteInfoList.get( i ).getDate().getTime() );
+        }
 
-		for (int i = 0; i < aftTimes.size(); i++) {
-			if (preTimes.get(i) != aftTimes.get(i)) {
-				Assert.fail("failed to check lastAccessTime, " + "preSiteInfoList: " + preSiteInfoList.toString()
-						+ "\naftSiteInfoList: " + aftSiteInfoList.toString());
-			}
-		}
-	}
+        for ( int i = 0; i < aftTimes.size(); i++ ) {
+            if ( preTimes.get( i ) != aftTimes.get( i ) ) {
+                Assert.fail( "failed to check lastAccessTime, " +
+                        "preSiteInfoList: " + preSiteInfoList.toString()
+                        + "\naftSiteInfoList: " + aftSiteInfoList.toString() );
+            }
+        }
+    }
 }

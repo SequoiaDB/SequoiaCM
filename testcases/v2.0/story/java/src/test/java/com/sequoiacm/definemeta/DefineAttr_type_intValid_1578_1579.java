@@ -43,158 +43,157 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class DefineAttr_type_intValid_1578_1579 extends TestScmBase {
-	private boolean runSuccess = false;
-	private int failTimes = 0;
+    private static final String NAME = "definemeta1579_intValid";
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private int failTimes = 0;
+    private String CLASS_ID = null;
+    private Map< String, Object > attrMap = new HashMap<>();
+    private ScmClass class1 = null;
+    private List< ScmAttribute > attrList = new ArrayList< ScmAttribute >();
+    private ScmWorkspace ws = null;
+    private ScmId fileId = null;
 
-	private static final String NAME = "definemeta1579_intValid";
-	private String CLASS_ID = null;
-	private Map<String, Object> attrMap = new HashMap<>();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws IOException, ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-	private ScmClass class1 = null;
-	private List<ScmAttribute> attrList = new ArrayList<ScmAttribute>();
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( NAME ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
-	private ScmId fileId = null;
+        createModel( NAME );
+        CLASS_ID = class1.getId().get();
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( NAME );
+        fileId = file.save();
+    }
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws IOException, ScmException {
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @BeforeMethod
+    private void initMethod() {
+        attrMap.clear();
 
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(NAME).get();
-		ScmFileUtils.cleanFile(wsp, cond);
+        if ( !runSuccess ) {
+            failTimes++;
+        }
+        runSuccess = false;
+    }
 
-		createModel(NAME);
-		CLASS_ID = class1.getId().get();
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setFileName(NAME);
-		fileId = file.save();
-	}
+    @AfterMethod
+    private void afterMethod() {
+        if ( failTimes > 1 ) {
+            runSuccess = false;
+        }
+    }
 
-	@BeforeMethod
-	private void initMethod() {
-		attrMap.clear();
+    @Test // jira-303
+    private void test_setPropValidLeftBound() throws Exception {
+        // set class properties
+        attrMap.put( "test_attr_name_int_1579_1", -2147483648 );
+        attrMap.put( "test_attr_name_int_1579_3", -2147483648 );
+        attrMap.put( "test_attr_name_int_1579_4", 0 );
 
-		if (!runSuccess) {
-			failTimes++;
-		}
-		runSuccess = false;
-	}
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
+        properties.addProperties( attrMap );
+        file.setClassProperties( properties );
 
-	@AfterMethod
-	private void afterMethod() {
-		if (failTimes > 1) {
-			runSuccess = false;
-		}
-	}
+        // check results
+        file = ScmFactory.File.getInstance( ws, fileId );
+        properties = file.getClassProperties();
+        Assert.assertEquals( properties.toMap(), attrMap );
 
-	@Test // jira-303
-	private void test_setPropValidLeftBound() throws Exception {
-		// set class properties
-		attrMap.put("test_attr_name_int_1579_1", -2147483648);
-		attrMap.put("test_attr_name_int_1579_3", -2147483648);
-		attrMap.put("test_attr_name_int_1579_4", 0);
+        runSuccess = true;
+    }
 
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		ScmClassProperties properties = new ScmClassProperties(CLASS_ID);
-		properties.addProperties(attrMap);
-		file.setClassProperties(properties);
+    @Test
+    private void test_setPropValidRightBound() throws Exception {
+        // set class properties
+        attrMap.put( "test_attr_name_int_1579_1", 2147483647 );
+        attrMap.put( "test_attr_name_int_1579_3", 2147483647 );
+        attrMap.put( "test_attr_name_int_1579_4", 100 );
 
-		// check results
-		file = ScmFactory.File.getInstance(ws, fileId);
-		properties = file.getClassProperties();
-		Assert.assertEquals(properties.toMap(), attrMap);
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
+        properties.addProperties( attrMap );
+        file.setClassProperties( properties );
 
-		runSuccess = true;
-	}
+        // check results
+        file = ScmFactory.File.getInstance( ws, fileId );
+        properties = file.getClassProperties();
+        Assert.assertEquals( properties.toMap(), attrMap );
 
-	@Test
-	private void test_setPropValidRightBound() throws Exception {
-		// set class properties
-		attrMap.put("test_attr_name_int_1579_1", 2147483647);
-		attrMap.put("test_attr_name_int_1579_3", 2147483647);
-		attrMap.put("test_attr_name_int_1579_4", 100);
+        runSuccess = true;
+    }
 
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		ScmClassProperties properties = new ScmClassProperties(CLASS_ID);
-		properties.addProperties(attrMap);
-		file.setClassProperties(properties);
+    @Test
+    private void test_setPropNotRequired() throws Exception {
+        // set class properties
+        attrMap.put( "test_attr_name_int_1579_1", 2147483647 );
+        attrMap.put( "test_attr_name_int_1579_3", 2147483647 );
+        attrMap.put( "test_attr_name_int_1579_4", 2 );
 
-		// check results
-		file = ScmFactory.File.getInstance(ws, fileId);
-		properties = file.getClassProperties();
-		Assert.assertEquals(properties.toMap(), attrMap);
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
+        properties.addProperties( attrMap );
+        file.setClassProperties( properties );
 
-		runSuccess = true;
-	}
+        // check results
+        file = ScmFactory.File.getInstance( ws, fileId );
+        properties = file.getClassProperties();
+        Assert.assertEquals( properties.toMap(), attrMap );
+        Assert.assertNull(
+                properties.getProperty( "test_attr_name_int_1579_2" ) );
+        runSuccess = true;
+    }
 
-	@Test
-	private void test_setPropNotRequired() throws Exception {
-		// set class properties
-		attrMap.put("test_attr_name_int_1579_1", 2147483647);
-		attrMap.put("test_attr_name_int_1579_3", 2147483647);
-		attrMap.put("test_attr_name_int_1579_4", 2);
-	
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		ScmClassProperties properties = new ScmClassProperties(CLASS_ID);
-		properties.addProperties(attrMap);
-		file.setClassProperties(properties);
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                ScmFactory.Class.deleteInstance( ws, class1.getId() );
+                for ( ScmAttribute attr : attrList ) {
+                    ScmFactory.Attribute.deleteInstance( ws, attr.getId() );
+                }
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-		// check results
-		file = ScmFactory.File.getInstance(ws, fileId);
-		properties = file.getClassProperties();
-		Assert.assertEquals(properties.toMap(), attrMap);
-		Assert.assertNull(properties.getProperty("test_attr_name_int_1579_2"));
-		runSuccess = true;
-	}
+    private void createModel( String name ) throws ScmException {
+        // create class
+        class1 = ScmFactory.Class.createInstance( ws, name, name + "_desc" );
+        for ( int i = 1; i < 5; i++ ) {
+            // create attr
+            ScmAttributeConf conf = new ScmAttributeConf();
+            conf.setName( "test_attr_name_int_1579_" + i );
+            conf.setDescription( "test_attr_name_int_1579_" + i );
+            conf.setDisplayName( name + "_display" );
+            conf.setType( AttributeType.INTEGER );
+            if ( i % 2 == 0 ) {
+                conf.setRequired( false );
+                ScmIntegerRule rule = new ScmIntegerRule();
+                rule.setMinimum( 0 );
+                rule.setMaximum( 100 );
+                conf.setCheckRule( rule );
+            } else {
+                conf.setRequired( true );
+            }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				ScmFactory.Class.deleteInstance(ws, class1.getId());
-				for (ScmAttribute attr : attrList) {
-					ScmFactory.Attribute.deleteInstance(ws, attr.getId());
-				}
-			}
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	private void createModel(String name) throws ScmException {
-		// create class
-		class1 = ScmFactory.Class.createInstance(ws, name, name + "_desc");
-		for (int i = 1; i < 5; i++) {
-			// create attr
-			ScmAttributeConf conf = new ScmAttributeConf();
-			conf.setName("test_attr_name_int_1579_" + i);
-			conf.setDescription("test_attr_name_int_1579_" + i);
-			conf.setDisplayName(name + "_display");
-			conf.setType(AttributeType.INTEGER);
-			if (i % 2 == 0) {
-				conf.setRequired(false);
-				ScmIntegerRule rule = new ScmIntegerRule();
-				rule.setMinimum(0);
-				rule.setMaximum(100);
-				conf.setCheckRule(rule);
-			}else{
-				conf.setRequired(true);
-			}
-			
-			ScmAttribute attr = ScmFactory.Attribute.createInstance(ws, conf);
-			//attr attach class
-			class1.attachAttr(attr.getId());
-			attrList.add(attr);
-		}
-		CLASS_ID = class1.getId().get();
-	}
+            ScmAttribute attr = ScmFactory.Attribute.createInstance( ws, conf );
+            //attr attach class
+            class1.attachAttr( attr.getId() );
+            attrList.add( attr );
+        }
+        CLASS_ID = class1.getId().get();
+    }
 }

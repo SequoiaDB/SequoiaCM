@@ -1,5 +1,13 @@
 package com.sequoiacm.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmConfigProperties;
@@ -11,13 +19,6 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author fanyu
@@ -33,60 +34,66 @@ public class Param_Properties2314 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
-            Map<String,String> conf = new HashMap<String,String>();
-            conf.put(ConfigCommonDefind.scm_audit_mask,"ALL");
+            Map< String, String > conf = new HashMap< String, String >();
+            conf.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
             ScmConfigProperties.builder()
-                    .service(site.getSiteServiceName())
-                    .updateProperties(conf)
-                    .updateProperties(null)
+                    .service( site.getSiteServiceName() )
+                    .updateProperties( conf )
+                    .updateProperties( null )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().properties(null) must be failed when the properties is null");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().properties(null) must be " +
+                            "failed when the properties is null" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty() {
         try {
             ScmConfigProperties.builder()
-                    .service(site.getSiteServiceName())
-                    .updateProperties(new HashMap<String, String>())
+                    .service( site.getSiteServiceName() )
+                    .updateProperties( new HashMap< String, String >() )
                     .build();
-            Assert.fail(" ScmConfigProperties.builder().properties(null) must be failed when the properties is null");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.fail(
+                    " ScmConfigProperties.builder().properties(null) must be " +
+                            "failed when the properties is null" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHybrid() throws Exception {
         testHybrid1();
         testHybrid2();
     }
 
-
     private void testHybrid1() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession(site);
+            session = TestScmTools.createSession( site );
             ScmConfigProperties conf = ScmConfigProperties.builder()
-                    .service(site.getSiteServiceName())
-                    .updateProperties(new HashMap<String, String>())
-                    .updateProperty(ConfigCommonDefind.scm_audit_userMask, "LOCAL")
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
+                    .service( site.getSiteServiceName() )
+                    .updateProperties( new HashMap< String, String >() )
+                    .updateProperty( ConfigCommonDefind.scm_audit_userMask,
+                            "LOCAL" )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
-            ScmUpdateConfResultSet set = ScmSystem.Configuration.setConfigProperties(session, conf);
-            ConfUtil.checkTakeEffect(site, "file2314");
+            ScmUpdateConfResultSet set = ScmSystem.Configuration
+                    .setConfigProperties( session, conf );
+            ConfUtil.checkTakeEffect( site, "file2314" );
         } finally {
-            ConfUtil.deleteAuditConf(site.getSiteServiceName());
-            if (session != null) {
+            ConfUtil.deleteAuditConf( site.getSiteServiceName() );
+            if ( session != null ) {
                 session.close();
             }
         }
@@ -95,16 +102,18 @@ public class Param_Properties2314 extends TestScmBase {
     private void testHybrid2() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession(site);
+            session = TestScmTools.createSession( site );
             ScmConfigProperties conf = ScmConfigProperties.builder()
-                    .service(site.getSiteServiceName())
-                    .updateProperties(new HashMap<String, String>())
-                    .updateProperty("", "")
+                    .service( site.getSiteServiceName() )
+                    .updateProperties( new HashMap< String, String >() )
+                    .updateProperty( "", "" )
                     .build();
-            ScmUpdateConfResultSet set = ScmSystem.Configuration.setConfigProperties(session, conf);
-            Assert.assertTrue(set.getFailures().size()<=site.getNodeNum(),set.toString());
+            ScmUpdateConfResultSet set = ScmSystem.Configuration
+                    .setConfigProperties( session, conf );
+            Assert.assertTrue( set.getFailures().size() <= site.getNodeNum(),
+                    set.toString() );
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }

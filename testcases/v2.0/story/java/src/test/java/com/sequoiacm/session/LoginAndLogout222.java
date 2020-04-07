@@ -23,52 +23,55 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class LoginAndLogout222 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testLoginAndLogout() {
-		try {
-			for (int i = 0; i < 300; i++) {
-				ScmSession session = TestScmTools.createSession(site);
-				// check result
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				Assert.assertNotNull(ws);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testLoginAndLogout() {
+        try {
+            for ( int i = 0; i < 300; i++ ) {
+                ScmSession session = TestScmTools.createSession( site );
+                // check result
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                Assert.assertNotNull( ws );
 
-				session.close();
+                session.close();
 
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testLogoutThenOper() {
-		try {
-			ScmSession session = TestScmTools.createSession(site);
-			// [bug] sequoiacm-41 重复登出不应报错
-			session.close();
-			session.close();
-			// [bug] sequoiacm-41 登出后操作失败报错合理
-			ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			Assert.fail("getWorkspace succeed when session is closed!");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.SESSION_CLOSED.getErrorCode() && !e.getMessage().toString().contains("Session has been Closed")) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testLogoutThenOper() {
+        try {
+            ScmSession session = TestScmTools.createSession( site );
+            // [bug] sequoiacm-41 重复登出不应报错
+            session.close();
+            session.close();
+            // [bug] sequoiacm-41 登出后操作失败报错合理
+            ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            Assert.fail( "getWorkspace succeed when session is closed!" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.SESSION_CLOSED.getErrorCode() &&
+                    !e.getMessage().toString()
+                            .contains( "Session has been Closed" ) ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

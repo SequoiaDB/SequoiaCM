@@ -1,5 +1,16 @@
 package com.sequoiacm.scmfile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Random;
+
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBatch;
 import com.sequoiacm.client.core.ScmBatchInfo;
@@ -29,16 +40,6 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Random;
 
 /**
  * @Description: SCM-2676 :: 用户有相关的权限，覆盖文件
@@ -190,7 +191,7 @@ public class OverWriteFile2676 extends TestScmBase {
     private void prepareScmFile() throws ScmException {
         BSONObject cond1 = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
-        ScmCursor<ScmBatchInfo> cursor = ScmFactory.Batch
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
                 .listInstance( ws, cond1 );
         while ( cursor.hasNext() ) {
             ScmFactory.Batch.deleteInstance( ws, cursor.getNext().getId() );

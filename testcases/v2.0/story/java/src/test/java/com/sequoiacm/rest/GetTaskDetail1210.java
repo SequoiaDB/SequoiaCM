@@ -25,54 +25,59 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class GetTaskDetail1210 extends TestScmBase {
-	private WsWrapper ws = null;
-	private RestWrapper rest = null;
-	private String taskId = null;
-	private SiteWrapper site = null;
+    private WsWrapper ws = null;
+    private RestWrapper rest = null;
+    private String taskId = null;
+    private SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
         ws = ScmInfo.getWs();
         site = ScmInfo.getBranchSite();
         rest = new RestWrapper();
-        rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
 
-		JSONObject options = new JSONObject("{ 'filter': { 'author': 'inexistent_author1210' } }");
-		String response = rest.setRequestMethod(HttpMethod.POST)
-				.setApi("tasks")
-				.setParameter("task_type", "2")
-				.setParameter("workspace_name", ws.getName())
-				.setParameter("options", options.toString())
-				.setResponseType(String.class).exec().getBody().toString();
-		taskId = new JSONObject(response).getJSONObject("task").getString("id");
-	}
+        JSONObject options = new JSONObject(
+                "{ 'filter': { 'author': 'inexistent_author1210' } }" );
+        String response = rest.setRequestMethod( HttpMethod.POST )
+                .setApi( "tasks" )
+                .setParameter( "task_type", "2" )
+                .setParameter( "workspace_name", ws.getName() )
+                .setParameter( "options", options.toString() )
+                .setResponseType( String.class ).exec().getBody().toString();
+        taskId = new JSONObject( response ).getJSONObject( "task" )
+                .getString( "id" );
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		String response = rest.setRequestMethod(HttpMethod.HEAD)
-				.setApi("tasks/" + taskId)
-				.setResponseType(String.class).exec().getHeaders().get("task").toString();
-		JSONObject obj = new JSONArray(response).getJSONObject(0);
-		Assert.assertEquals(taskId, obj.getString("id"));
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        String response = rest.setRequestMethod( HttpMethod.HEAD )
+                .setApi( "tasks/" + taskId )
+                .setResponseType( String.class ).exec().getHeaders()
+                .get( "task" ).toString();
+        JSONObject obj = new JSONArray( response ).getJSONObject( 0 );
+        Assert.assertEquals( taskId, obj.getString( "id" ) );
 
-		try {
-			String inexistentId = "ffffffffffffffff";
-			response = rest.setRequestMethod(HttpMethod.HEAD)
-					.setApi("tasks/" + inexistentId)
-					.setResponseType(String.class).exec().getBody().toString();
-			Assert.fail("getting inexistent task detail should not succeed");
-		} catch (HttpClientErrorException e) {
-			Assert.assertEquals(404, e.getStatusCode().value());
-		}
-	}
+        try {
+            String inexistentId = "ffffffffffffffff";
+            response = rest.setRequestMethod( HttpMethod.HEAD )
+                    .setApi( "tasks/" + inexistentId )
+                    .setResponseType( String.class ).exec().getBody()
+                    .toString();
+            Assert.fail( "getting inexistent task detail should not succeed" );
+        } catch ( HttpClientErrorException e ) {
+            Assert.assertEquals( 404, e.getStatusCode().value() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (taskId != null) {
-			TestSdbTools.Task.deleteMeta(new ScmId(taskId));
-		}
-        if (rest != null) {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( taskId != null ) {
+            TestSdbTools.Task.deleteMeta( new ScmId( taskId ) );
+        }
+        if ( rest != null ) {
             rest.disconnect();
         }
-	}
+    }
 }

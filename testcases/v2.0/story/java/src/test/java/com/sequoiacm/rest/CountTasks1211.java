@@ -22,49 +22,52 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class CountTasks1211 extends TestScmBase {
-	private WsWrapper ws = null;
-	private RestWrapper rest = null;
-	private String taskId = null;
-	private SiteWrapper site = null;
+    private WsWrapper ws = null;
+    private RestWrapper rest = null;
+    private String taskId = null;
+    private SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
         ws = ScmInfo.getWs();
         site = ScmInfo.getBranchSite();
         rest = new RestWrapper();
-        rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
 
-		JSONObject options = new JSONObject().put("filter", new JSONObject().put("author", "inexistent_author1211"));
-		String response = rest.setRequestMethod(HttpMethod.POST)
-				.setApi("tasks")
-				.setParameter("task_type", "2")
-				.setParameter("workspace_name", ws.getName())
-				.setParameter("options", options.toString())
-				.setResponseType(String.class).exec().getBody().toString();
-		taskId = new JSONObject(response).getJSONObject("task").getString("id");
-	}
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", "inexistent_author1211" ) );
+        String response = rest.setRequestMethod( HttpMethod.POST )
+                .setApi( "tasks" )
+                .setParameter( "task_type", "2" )
+                .setParameter( "workspace_name", ws.getName() )
+                .setParameter( "options", options.toString() )
+                .setResponseType( String.class ).exec().getBody().toString();
+        taskId = new JSONObject( response ).getJSONObject( "task" )
+                .getString( "id" );
+    }
 
-	//TODO: rest interface not implemented
-	@Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
-	private void test() throws Exception {
-		String response = rest.setRequestMethod(HttpMethod.HEAD)
-				.setApi("tasks")
-				.setResponseType(String.class).exec().getBody().toString();
-		System.out.println(response);
+    //TODO: rest interface not implemented
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    private void test() throws Exception {
+        String response = rest.setRequestMethod( HttpMethod.HEAD )
+                .setApi( "tasks" )
+                .setResponseType( String.class ).exec().getBody().toString();
+        System.out.println( response );
 
-        response = rest.setRequestMethod(HttpMethod.HEAD)
-				.setApi("tasks")
-                .setResponseType(String.class).exec().getBody().toString();
-		System.out.println(response);
-	}
+        response = rest.setRequestMethod( HttpMethod.HEAD )
+                .setApi( "tasks" )
+                .setResponseType( String.class ).exec().getBody().toString();
+        System.out.println( response );
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (taskId != null) {
-			TestSdbTools.Task.deleteMeta(new ScmId(taskId));
-		}
-        if (rest != null) {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( taskId != null ) {
+            TestSdbTools.Task.deleteMeta( new ScmId( taskId ) );
+        }
+        if ( rest != null ) {
             rest.disconnect();
         }
-	}
+    }
 }

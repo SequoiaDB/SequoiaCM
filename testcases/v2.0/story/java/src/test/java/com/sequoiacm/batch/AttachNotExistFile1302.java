@@ -28,40 +28,41 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class AttachNotExistFile1302 extends TestScmBase {
+    private final String batchName = "batch1302";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private final String batchName = "batch1302";
     private ScmId batchId = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession(site);
-        ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        ScmBatch batch = ScmFactory.Batch.createInstance(ws);
-        batch.setName(batchName);
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
+        batch.setName( batchName );
         batchId = batch.save();
 
-        ScmId inexistentId = new ScmId("ffffffffffffffffffffffff");
+        ScmId inexistentId = new ScmId( "ffffffffffffffffffffffff" );
         try {
-            batch.attachFile(inexistentId);
-            Assert.fail("attach inexistent file should not succeed");
-        } catch (ScmException e) {
-            Assert.assertEquals(e.getError(), ScmError.FILE_NOT_FOUND);
+            batch.attachFile( inexistentId );
+            Assert.fail( "attach inexistent file should not succeed" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND );
         }
 
-        List<ScmFile> files = batch.listFiles();
-        Assert.assertEquals(files.size(), 0);
+        List< ScmFile > files = batch.listFiles();
+        Assert.assertEquals( files.size(), 0 );
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
-        ScmFactory.Batch.deleteInstance(ws, batchId);
-        if (session != null) {
+        ScmFactory.Batch.deleteInstance( ws, batchId );
+        if ( session != null ) {
             session.close();
         }
     }

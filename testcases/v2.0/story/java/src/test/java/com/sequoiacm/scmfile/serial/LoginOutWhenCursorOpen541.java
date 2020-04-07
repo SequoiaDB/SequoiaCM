@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -13,6 +11,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.ScopeType;
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmCursor;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmQueryBuilder;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -36,92 +42,102 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class LoginOutWhenCursorOpen541 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
-
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private final int fileNum = 200;
-	private final String fileName = "LoginOutWhenCursorOpen541";
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private final int fileNum = 200;
+    private final String fileName = "LoginOutWhenCursorOpen541";
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private String author = fileName;
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			prepareScmFile();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
-	private void test() throws Exception {
-		try {
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(fileName).get();
-			ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			cursor.getNext();
-			session.close();
-			try {
-				while (cursor.hasNext()) {
-					cursor.getNext();
-				}
-				cursor.close();
-				Assert.fail("cursor got next successfully when session is closed.");
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.SESSION_CLOSED) { // EN_SCM_SESSION_SESSION_CLOSED(-202)
-					throw e;
-				}
-			}
+            prepareScmFile();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			try {
-				ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				Assert.fail("get workspace successfully when session is closed.");
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.SESSION_CLOSED) { // EN_SCM_SESSION_SESSION_CLOSED(-202)
-					throw e;
-				}
-			}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    private void test() throws Exception {
+        try {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( fileName ).get();
+            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            cursor.getNext();
+            session.close();
+            try {
+                while ( cursor.hasNext() ) {
+                    cursor.getNext();
+                }
+                cursor.close();
+                Assert.fail(
+                        "cursor got next successfully when session is closed" +
+                                "." );
+            } catch ( ScmException e ) {
+                if ( e.getError() !=
+                        ScmError.SESSION_CLOSED ) { //
+                    // EN_SCM_SESSION_SESSION_CLOSED(-202)
+                    throw e;
+                }
+            }
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+            try {
+                ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+                Assert.fail(
+                        "get workspace successfully when session is closed." );
+            } catch ( ScmException e ) {
+                if ( e.getError() !=
+                        ScmError.SESSION_CLOSED ) { //
+                    // EN_SCM_SESSION_SESSION_CLOSED(-202)
+                    throw e;
+                }
+            }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-			}
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private void prepareScmFile() throws ScmException {
-		for (int i = 0; i < fileNum; i++) {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(fileName+"_"+UUID.randomUUID());
-			file.setAuthor(author);
-			ScmId fileId = file.save();
-			fileIdList.add(fileId);
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                }
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void prepareScmFile() throws ScmException {
+        for ( int i = 0; i < fileNum; i++ ) {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName + "_" + UUID.randomUUID() );
+            file.setAuthor( author );
+            ScmId fileId = file.save();
+            fileIdList.add( fileId );
+        }
+    }
 
 }

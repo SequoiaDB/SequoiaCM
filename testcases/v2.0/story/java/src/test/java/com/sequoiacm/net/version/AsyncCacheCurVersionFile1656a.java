@@ -26,9 +26,10 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update Content of the current scm file, than ayncCache the current version file 
+ * test content:update Content of the current scm file, than ayncCache the
+ * current version file
  * testlink-case:SCM-1656
- * 
+ *
  * @author wuyan
  * @Date 2018.06.05
  * @modify By wuyan
@@ -37,78 +38,82 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  */
 
 public class AsyncCacheCurVersionFile1656a extends TestScmBase {
-	private static WsWrapper wsp = null;
-	private SiteWrapper cacheSite = null;
-	private SiteWrapper sourceSite = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmSession sessionS = null;
-	private ScmWorkspace wsS = null;
-	private ScmId fileId = null;
+    private static WsWrapper wsp = null;
+    private SiteWrapper cacheSite = null;
+    private SiteWrapper sourceSite = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmSession sessionS = null;
+    private ScmWorkspace wsS = null;
+    private ScmId fileId = null;
 
-	private String fileName = "fileVersion1656a";
-	private byte[] filedata = new byte[1024 * 100];
-	private byte[] updatedata = new byte[1024 * 200];
+    private String fileName = "fileVersion1656a";
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 200 ];
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		wsp = ScmInfo.getWs();
-		// clean file
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-		ScmFileUtils.cleanFile(wsp, cond);
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        wsp = ScmInfo.getWs();
+        // clean file
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-		List<SiteWrapper> siteList = ScmNetUtils.getRandomSites(wsp);
-		cacheSite = siteList.get(0);
-		sourceSite = siteList.get(1);
+        List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( wsp );
+        cacheSite = siteList.get( 0 );
+        sourceSite = siteList.get( 1 );
 
-		sessionA = TestScmTools.createSession(cacheSite);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-		sessionS = TestScmTools.createSession(sourceSite);
-		wsS = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionS);
+        sessionA = TestScmTools.createSession( cacheSite );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionS = TestScmTools.createSession( sourceSite );
+        wsS = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionS );
 
-		fileId = VersionUtils.createFileByStream(wsS, fileName, filedata);
-		VersionUtils.updateContentByStream(wsS, fileId, updatedata);
-	}
+        fileId = VersionUtils.createFileByStream( wsS, fileName, filedata );
+        VersionUtils.updateContentByStream( wsS, fileId, updatedata );
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		int currentVersion = 2;
-		int historyVersion = 1;
-		asyncCacheCurrentVersionFile(currentVersion);
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        int currentVersion = 2;
+        int historyVersion = 1;
+        asyncCacheCurrentVersionFile( currentVersion );
 
-		// check the currentVersion file data and siteinfo
-		SiteWrapper[] expCurSiteList = { sourceSite, cacheSite };
-		VersionUtils.checkSite(wsS, fileId, currentVersion, expCurSiteList);
-		VersionUtils.CheckFileContentByStream(wsA, fileName, currentVersion, updatedata);
+        // check the currentVersion file data and siteinfo
+        SiteWrapper[] expCurSiteList = { sourceSite, cacheSite };
+        VersionUtils.checkSite( wsS, fileId, currentVersion, expCurSiteList );
+        VersionUtils.CheckFileContentByStream( wsA, fileName, currentVersion,
+                updatedata );
 
-		// check the historyVersion file only on the rootSite
-		SiteWrapper[] expHisSiteList = { sourceSite };
-		VersionUtils.checkSite(wsA, fileId, historyVersion, expHisSiteList);
-	}
+        // check the historyVersion file only on the rootSite
+        SiteWrapper[] expHisSiteList = { sourceSite };
+        VersionUtils.checkSite( wsA, fileId, historyVersion, expHisSiteList );
+    }
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			ScmFactory.File.deleteInstance(wsA, fileId, true);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
-			if (sessionS != null) {
-				sessionS.close();
-			}
-		}
-	}
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmFactory.File.deleteInstance( wsA, fileId, true );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionS != null ) {
+                sessionS.close();
+            }
+        }
+    }
 
-	private void asyncCacheCurrentVersionFile(int majorVersion) throws Exception {
-		// cache
-		ScmFactory.File.asyncCache(wsA, fileId, majorVersion, 0);
+    private void asyncCacheCurrentVersionFile( int majorVersion )
+            throws Exception {
+        // cache
+        ScmFactory.File.asyncCache( wsA, fileId, majorVersion, 0 );
 
-		int sitenums = 2;
-		VersionUtils.waitAsyncTaskFinished(wsS, fileId, majorVersion, sitenums);
+        int sitenums = 2;
+        VersionUtils
+                .waitAsyncTaskFinished( wsS, fileId, majorVersion, sitenums );
 
-	}
+    }
 
 }

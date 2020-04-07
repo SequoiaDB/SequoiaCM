@@ -1,4 +1,3 @@
-
 package com.sequoiacm.rest.serial;
 
 import org.springframework.http.HttpMethod;
@@ -25,61 +24,63 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @date 2018年5月24日
  */
 public class DeleteWorkspace2181 extends TestScmBase {
-	
-	private ScmSession session = null;
-	private static SiteWrapper site = null;
-	private String wsName = "ws2179";
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
+    private static SiteWrapper site = null;
+    private ScmSession session = null;
+    private String wsName = "ws2179";
 
-		site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);	
-		ScmWorkspaceUtil.deleteWs(wsName, session);
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		int siteNum = ScmInfo.getSiteNum();
-		ScmWorkspaceUtil.createWS(session, wsName, siteNum);
-		deleteWorkspace(wsName, siteNum);
-		
-	}
-	
-	@AfterClass
-	private void tearDown() {
-		try {
-			ScmWorkspaceUtil.deleteWs(wsName, session);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-	
-	private void deleteWorkspace(String wsName, int siteNum) throws Exception{
-		RestWrapper rest = new RestWrapper();
-		rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
-		rest.setRequestMethod(HttpMethod.DELETE)
-			.setApi("/workspaces/" + wsName)
-			.exec();
-		rest.disconnect();
-		for (int i = 0; i < 15; i++) {
-			Thread.sleep(1000);
-			try{
-				ScmFactory.Workspace.getWorkspace(wsName, session);
-			}catch(ScmException e){
-				if(e.getError() != ScmError.WORKSPACE_NOT_EXIST){
-					throw e;
-				}
-				TestSdbTools.Workspace.checkWsCs(wsName, session);
-				return;
-			}
-		}
-		Assert.fail("delete ws is not done in 15 seconds: ");
-		
-	}
-	
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
+
+        site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ScmWorkspaceUtil.deleteWs( wsName, session );
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        int siteNum = ScmInfo.getSiteNum();
+        ScmWorkspaceUtil.createWS( session, wsName, siteNum );
+        deleteWorkspace( wsName, siteNum );
+
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void deleteWorkspace( String wsName, int siteNum )
+            throws Exception {
+        RestWrapper rest = new RestWrapper();
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+        rest.setRequestMethod( HttpMethod.DELETE )
+                .setApi( "/workspaces/" + wsName )
+                .exec();
+        rest.disconnect();
+        for ( int i = 0; i < 15; i++ ) {
+            Thread.sleep( 1000 );
+            try {
+                ScmFactory.Workspace.getWorkspace( wsName, session );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+                    throw e;
+                }
+                TestSdbTools.Workspace.checkWsCs( wsName, session );
+                return;
+            }
+        }
+        Assert.fail( "delete ws is not done in 15 seconds: " );
+
+    }
+
 }

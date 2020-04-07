@@ -22,38 +22,43 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class GetWorkSpaceDetail1204 extends TestScmBase {
-	private RestWrapper rest = null;
+    private RestWrapper rest = null;
     private SiteWrapper site = null;
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws Exception {
-		site = ScmInfo.getRootSite();
+
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws Exception {
+        site = ScmInfo.getRootSite();
         rest = new RestWrapper();
-        rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
-	}
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+    }
 
-	// TODO: function is not implemented yet.
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		WsWrapper ws = ScmInfo.getWs();
-		String response = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("workspaces/" + ws.getName())
-				.setResponseType(String.class).exec().getHeaders().toString();
-		// TODO: check result
-		System.out.println(response);
+    // TODO: function is not implemented yet.
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        WsWrapper ws = ScmInfo.getWs();
+        String response = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "workspaces/" + ws.getName() )
+                .setResponseType( String.class ).exec().getHeaders().toString();
+        // TODO: check result
+        System.out.println( response );
 
-		try {
-			response = rest.setRequestMethod(HttpMethod.HEAD)
-					.setApi("workspaces/inexistent_ws_name098345")
-					.setResponseType(String.class).exec().getHeaders().toString();
-		} catch (HttpServerErrorException e) {
-			Assert.assertEquals(e.getStatusCode().value(), ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode(), e.getMessage());
-		}
-	}
+        try {
+            response = rest.setRequestMethod( HttpMethod.HEAD )
+                    .setApi( "workspaces/inexistent_ws_name098345" )
+                    .setResponseType( String.class ).exec().getHeaders()
+                    .toString();
+        } catch ( HttpServerErrorException e ) {
+            Assert.assertEquals( e.getStatusCode().value(),
+                    ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode(),
+                    e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (rest != null) {
-			rest.disconnect();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( rest != null ) {
+            rest.disconnect();
+        }
+    }
 }

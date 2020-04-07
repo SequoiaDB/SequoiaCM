@@ -48,160 +48,171 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class Clean_whenLobRemain471 extends TestScmBase {
-	private boolean runSuccess = false;
+    private final int fileSize = 200 * 1024;
+    private final int fileNum = 5;
+    private final String authorName = "CleanFileWhenLobRemain471";
+    private final int randomIdx = 4; // lob of this index is remained
+    private boolean runSuccess = false;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private File localPath = null;
+    private String filePath = null;
+    private String remainedFilePath = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsM = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmId taskId = null;
 
-	private final int fileSize = 200 * 1024;
-	private final int fileNum = 5;
-	private final String authorName = "CleanFileWhenLobRemain471";
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-
-	private File localPath = null;
-	private String filePath = null;
-	private String remainedFilePath = null;
-
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsM = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-
-	private final int randomIdx = 4; // lob of this index is remained
-	private ScmId taskId = null;
-	
-	private SiteWrapper rootSite = null;
-	private SiteWrapper branceSite = null;
+    private SiteWrapper rootSite = null;
+    private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		remainedFilePath = localPath + File.separator + "localFile_" + fileSize / 2 + ".txt";
-		try {
-			// ready file
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			TestTools.LocalFile.createFile(remainedFilePath, fileSize / 2);
-			
-			rootSite = ScmInfo.getRootSite();
-			branceSite= ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
-			
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_T,cond);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        remainedFilePath =
+                localPath + File.separator + "localFile_" + fileSize / 2 +
+                        ".txt";
+        try {
+            // ready file
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
+            TestTools.LocalFile.createFile( remainedFilePath, fileSize / 2 );
 
-			sessionM = TestScmTools.createSession(rootSite);
-			wsM = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionM);
-			sessionA = TestScmTools.createSession(branceSite);
-			wsA = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-			prepareFiles();
-		} catch (Exception e) {
-			if (sessionM != null) {
-				sessionM.close();
-			}
-			if (sessionA != null) {
-				sessionA.close();
-			}
-			Assert.fail(e.getMessage());
-		}
-	}
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		try {
-			readAllFile(sessionM);
-			
-			ScmId randomId = fileIdList.get(randomIdx);
-			TestSdbTools.Lob.removeLob(rootSite, ws_T,randomId);
-			TestSdbTools.Lob.putLob(rootSite, ws_T, randomId, remainedFilePath);
+            sessionM = TestScmTools.createSession( rootSite );
+            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
+            sessionA = TestScmTools.createSession( branceSite );
+            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-			taskId = cleanFile(sessionA);
-			ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-			checkResult();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            prepareFiles();
+        } catch ( Exception e ) {
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionM);
-				for (int i = 0; i < fileNum; ++i) {
-					ScmFactory.File.getInstance(ws, fileIdList.get(i)).delete(true);
-				}
-				TestSdbTools.Task.deleteMeta(taskId);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException | ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionM != null) {
-				sessionM.close();
-			}
-			if (sessionA != null) {
-				sessionA.close();
-			}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        try {
+            readAllFile( sessionM );
 
-		}
-	}
+            ScmId randomId = fileIdList.get( randomIdx );
+            TestSdbTools.Lob.removeLob( rootSite, ws_T, randomId );
+            TestSdbTools.Lob
+                    .putLob( rootSite, ws_T, randomId, remainedFilePath );
 
-	private void prepareFiles() throws Exception {
-		for (int i = 0; i < fileNum; ++i) {
-			ScmFile scmfile = ScmFactory.File.createInstance(wsA);
-			scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-			scmfile.setAuthor(authorName);
-			scmfile.setContent(filePath);
-			fileIdList.add(scmfile.save());
-		}
-	}
+            taskId = cleanFile( sessionA );
+            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+            checkResult();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	private void readAllFile(ScmSession session) throws Exception {
-		OutputStream fos = null;
-		ScmInputStream sis = null;
-		try {
-			ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(),  session);
-			for (ScmId fileId : fileIdList) {
-				ScmFile scmfile = ScmFactory.File.getInstance(ws, fileId);
-				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-						Thread.currentThread().getId());
-				fos = new FileOutputStream(new File(downloadPath));
-				sis = ScmFactory.File.createInputStream(scmfile);
-				sis.read(fos);
-			}
-		} finally {
-			if (fos != null) {
-				fos.close();
-			}
-			if (sis != null) {
-				sis.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), sessionM );
+                for ( int i = 0; i < fileNum; ++i ) {
+                    ScmFactory.File.getInstance( ws, fileIdList.get( i ) )
+                            .delete( true );
+                }
+                TestSdbTools.Task.deleteMeta( taskId );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
 
-	private ScmId cleanFile(ScmSession session) throws ScmException {
-		ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-		BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-		return ScmSystem.Task.startCleanTask(ws, condition);
-	}
+        }
+    }
 
-	private void checkResult() {
-		try {
-			// check file should be cleaned
-			ScmId fileId = fileIdList.get(randomIdx);
-			SiteWrapper[] expSiteList1 = { rootSite, branceSite };
-			ScmFileUtils.checkMeta(wsM, fileId, expSiteList1);
-			ScmFileUtils.checkData(wsM, fileId, localPath, remainedFilePath);
-			ScmFileUtils.checkData(wsA, fileId, localPath, filePath);
+    private void prepareFiles() throws Exception {
+        for ( int i = 0; i < fileNum; ++i ) {
+            ScmFile scmfile = ScmFactory.File.createInstance( wsA );
+            scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+            scmfile.setAuthor( authorName );
+            scmfile.setContent( filePath );
+            fileIdList.add( scmfile.save() );
+        }
+    }
 
-			SiteWrapper[] expSiteList2 = { rootSite };
-			ScmFileUtils.checkMetaAndData(ws_T,fileIdList.subList(0, fileNum - 1), expSiteList2, localPath, filePath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void readAllFile( ScmSession session ) throws Exception {
+        OutputStream fos = null;
+        ScmInputStream sis = null;
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( ws_T.getName(), session );
+            for ( ScmId fileId : fileIdList ) {
+                ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
+                String downloadPath = TestTools.LocalFile
+                        .initDownloadPath( localPath, TestTools.getMethodName(),
+                                Thread.currentThread().getId() );
+                fos = new FileOutputStream( new File( downloadPath ) );
+                sis = ScmFactory.File.createInputStream( scmfile );
+                sis.read( fos );
+            }
+        } finally {
+            if ( fos != null ) {
+                fos.close();
+            }
+            if ( sis != null ) {
+                sis.close();
+            }
+        }
+    }
+
+    private ScmId cleanFile( ScmSession session ) throws ScmException {
+        ScmWorkspace ws = ScmFactory.Workspace
+                .getWorkspace( ws_T.getName(), session );
+        BSONObject condition = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        return ScmSystem.Task.startCleanTask( ws, condition );
+    }
+
+    private void checkResult() {
+        try {
+            // check file should be cleaned
+            ScmId fileId = fileIdList.get( randomIdx );
+            SiteWrapper[] expSiteList1 = { rootSite, branceSite };
+            ScmFileUtils.checkMeta( wsM, fileId, expSiteList1 );
+            ScmFileUtils.checkData( wsM, fileId, localPath, remainedFilePath );
+            ScmFileUtils.checkData( wsA, fileId, localPath, filePath );
+
+            SiteWrapper[] expSiteList2 = { rootSite };
+            ScmFileUtils.checkMetaAndData( ws_T,
+                    fileIdList.subList( 0, fileNum - 1 ), expSiteList2,
+                    localPath, filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 }

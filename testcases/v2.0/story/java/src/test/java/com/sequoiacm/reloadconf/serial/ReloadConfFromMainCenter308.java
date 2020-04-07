@@ -103,7 +103,7 @@ public class ReloadConfFromMainCenter308 extends TestScmBase {
             ScmId fileId = file.save();
 
             ScmFactory.File.deleteInstance( ws, fileId, true );
-        }finally {
+        } finally {
             if ( session != null )
                 session.close();
         }

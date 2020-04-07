@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.rest;
 
@@ -28,58 +28,64 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class GetWorkSpace1099 extends TestScmBase {
-	private WsWrapper ws = null;
-	private RestWrapper rest = null;
-	private SiteWrapper site = null;
+    private WsWrapper ws = null;
+    private RestWrapper rest = null;
+    private SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			ws = ScmInfo.getWs();
-			site= ScmInfo.getRootSite();
-			rest  = new RestWrapper();
-			rest.connect(site.getSiteServiceName(), TestScmBase.scmUserName,TestScmBase.scmPassword);
-		} catch (HttpClientErrorException | JSONException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            ws = ScmInfo.getWs();
+            site = ScmInfo.getRootSite();
+            rest = new RestWrapper();
+            rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                    TestScmBase.scmPassword );
+        } catch ( HttpClientErrorException | JSONException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		//getwsList(match all)
-		String response1 = rest.setApi("workspaces")
-                .setRequestMethod(HttpMethod.GET)
-				.setParameter("filter", "{ name: { $exist: 1 } }")
-                .setResponseType(String.class).exec().getBody().toString();
-		JSONArray wsListInfo = new JSONArray(response1);
-		List<WsWrapper> wsList = ScmInfo.getAllWorkspaces();
-		// just check num
-		Assert.assertEquals(wsList.size(), wsListInfo.length(),
-				"wsListByRest = " + wsListInfo.toString() + ",wsListByDb = " + wsList.toString());
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        //getwsList(match all)
+        String response1 = rest.setApi( "workspaces" )
+                .setRequestMethod( HttpMethod.GET )
+                .setParameter( "filter", "{ name: { $exist: 1 } }" )
+                .setResponseType( String.class ).exec().getBody().toString();
+        JSONArray wsListInfo = new JSONArray( response1 );
+        List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
+        // just check num
+        Assert.assertEquals( wsList.size(), wsListInfo.length(),
+                "wsListByRest = " + wsListInfo.toString() + ",wsListByDb = " +
+                        wsList.toString() );
 
-		//getwsList(match none)
-		response1 = rest.setRequestMethod(HttpMethod.GET)
-				.setApi("workspaces?filter={uri}")
-				.setUriVariables(new Object[]{ "{\"name\":\"inexistent_ws_name1099\"}"})
-				.setResponseType(String.class).exec().getBody().toString();
-		wsListInfo = new JSONArray(response1);
-		// just check num
-		Assert.assertEquals(0, wsListInfo.length(), "no ws should be returned");
+        //getwsList(match none)
+        response1 = rest.setRequestMethod( HttpMethod.GET )
+                .setApi( "workspaces?filter={uri}" )
+                .setUriVariables( new Object[] {
+                        "{\"name\":\"inexistent_ws_name1099\"}" } )
+                .setResponseType( String.class ).exec().getBody().toString();
+        wsListInfo = new JSONArray( response1 );
+        // just check num
+        Assert.assertEquals( 0, wsListInfo.length(),
+                "no ws should be returned" );
 
-		//check getws
-		String response2 = rest.reset().setApi("workspaces/" + ws.getName())
-                .setRequestMethod(HttpMethod.GET)
-                .setResponseType(String.class).exec().getBody().toString();
-		JSONObject wsInfo = new JSONObject(response2).getJSONObject("workspace");
-		// check
-		Assert.assertEquals(wsInfo.get("name"), ws.getName(), "wsByRest = " + wsInfo + ",wsByDb = " + ws.toString());
-	}
+        //check getws
+        String response2 = rest.reset().setApi( "workspaces/" + ws.getName() )
+                .setRequestMethod( HttpMethod.GET )
+                .setResponseType( String.class ).exec().getBody().toString();
+        JSONObject wsInfo = new JSONObject( response2 )
+                .getJSONObject( "workspace" );
+        // check
+        Assert.assertEquals( wsInfo.get( "name" ), ws.getName(),
+                "wsByRest = " + wsInfo + ",wsByDb = " + ws.toString() );
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		if (rest != null) {
-			rest.disconnect();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( rest != null ) {
+            rest.disconnect();
+        }
+    }
 }

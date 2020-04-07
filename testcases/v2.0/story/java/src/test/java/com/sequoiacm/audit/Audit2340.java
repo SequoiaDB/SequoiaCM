@@ -1,21 +1,31 @@
 package com.sequoiacm.audit;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ConfUtil;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmDirectory;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
- * @Description:  SCM-2340 ::指定重复的username，审计类型有重叠
+ * @Description: SCM-2340 ::指定重复的username，审计类型有重叠
  * @author fanyu
  * @Date:2018年12月25日
  * @version:1.0
@@ -32,27 +42,31 @@ public class Audit2340 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        ConfUtil.deleteAuditConf(site.getSiteServiceName());
-        session = TestScmTools.createSession(site);
-        ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+        ConfUtil.deleteAuditConf( site.getSiteServiceName() );
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        Map<String, String> confMap = new HashMap<String, String>();
-        confMap.put(ConfigCommonDefind.scm_audit_user + TestScmBase.scmUserName, "ALL");
-        ConfUtil.updateConf(site.getSiteServiceName(), confMap);
+        Map< String, String > confMap = new HashMap< String, String >();
+        confMap.put(
+                ConfigCommonDefind.scm_audit_user + TestScmBase.scmUserName,
+                "ALL" );
+        ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
-        Map<String, String> confMap1 = new HashMap<String, String>();
-        confMap1.put(ConfigCommonDefind.scm_audit_user + TestScmBase.scmUserName, "DIR_DML");
-        ConfUtil.updateConf(site.getSiteServiceName(), confMap1);
+        Map< String, String > confMap1 = new HashMap< String, String >();
+        confMap1.put(
+                ConfigCommonDefind.scm_audit_user + TestScmBase.scmUserName,
+                "DIR_DML" );
+        ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
         checkAudit();
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
-        ConfUtil.deleteAuditConf(site.getSiteServiceName());
-        if (session != null) {
+        ConfUtil.deleteAuditConf( site.getSiteServiceName() );
+        if ( session != null ) {
             session.close();
         }
     }
@@ -63,18 +77,27 @@ public class Audit2340 extends TestScmBase {
         try {
             dirId = createAndQueryDir();
             fileId = createFile();
-            Assert.assertEquals(ConfUtil.checkAudit(session, new BasicBSONObject().append(ScmAttributeName.Audit.TYPE, "CREATE_DIR")
-                            .append(ScmAttributeName.Audit.USERNAME, TestScmBase.scmUserName)
-                    , dirName), true, "Has the configuration been updated?dirName = " + dirName);
-            Assert.assertEquals(ConfUtil.checkAudit(session, new BasicBSONObject().append(ScmAttributeName.Audit.TYPE, "CREATE_FILE")
-                            .append(ScmAttributeName.Audit.USERNAME, TestScmBase.scmUserName)
-                    , fileId.get()), false, "Has the configuration been updated?fileId = " + fileId.get());
+            Assert.assertEquals( ConfUtil.checkAudit( session,
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE, "CREATE_DIR" )
+                            .append( ScmAttributeName.Audit.USERNAME,
+                                    TestScmBase.scmUserName )
+                    , dirName ), true,
+                    "Has the configuration been updated?dirName = " + dirName );
+            Assert.assertEquals( ConfUtil.checkAudit( session,
+                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
+                            "CREATE_FILE" )
+                            .append( ScmAttributeName.Audit.USERNAME,
+                                    TestScmBase.scmUserName )
+                    , fileId.get() ), false,
+                    "Has the configuration been updated?fileId = " +
+                            fileId.get() );
         } finally {
-            if(dirId != null) {
-                ScmFactory.Directory.deleteInstance(ws, dirName);
+            if ( dirId != null ) {
+                ScmFactory.Directory.deleteInstance( ws, dirName );
             }
-            if(fileId != null){
-                ScmFactory.File.deleteInstance(ws,fileId,true);
+            if ( fileId != null ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         }
     }
@@ -83,15 +106,17 @@ public class Audit2340 extends TestScmBase {
         ScmSession session = null;
         String dirId = null;
         try {
-            session = TestScmTools.createSession(site);
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            session = TestScmTools.createSession( site );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), session );
             //create dir
-            ScmDirectory dir = ScmFactory.Directory.createInstance(ws,dirName);
+            ScmDirectory dir = ScmFactory.Directory
+                    .createInstance( ws, dirName );
             dirId = dir.getId();
             //query dir
-            ScmFactory.Directory.getInstance(ws,dirName);
+            ScmFactory.Directory.getInstance( ws, dirName );
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }
@@ -102,13 +127,14 @@ public class Audit2340 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession(site);
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-            ScmFile file = ScmFactory.File.createInstance(ws);
-            file.setFileName(fileName);
+            session = TestScmTools.createSession( site );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsp.getName(), session );
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName );
             fileId = file.save();
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }

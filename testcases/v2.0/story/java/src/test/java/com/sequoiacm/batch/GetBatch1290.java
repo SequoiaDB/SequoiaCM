@@ -36,93 +36,98 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class GetBatch1290 extends TestScmBase {
-	private boolean runSuccess = false;
-    private ScmSession session = null;
-    private ScmWorkspace ws = null;
     private final String batchName = "batch1290";
     private final int fileNum = 5;
-    private List<ScmId> fileIdList = new ArrayList<>(fileNum);
+    private boolean runSuccess = false;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
+    private List< ScmId > fileIdList = new ArrayList<>( fileNum );
     private ScmId batchId = null;
     private String className = "class1290";
-	private String attrName = "attr1290";
-	private ScmId scmClassId = null;
-	private ScmId attrId = null;
+    private String attrName = "attr1290";
+    private ScmId scmClassId = null;
+    private ScmId attrId = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession(site);
-        ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
 
-        for (int i = 0; i < fileNum; ++i) {
-            ScmFile file = ScmFactory.File.createInstance(ws);
-            file.setFileName("file1290_" + i);
-            file.setTitle(batchName);
+        for ( int i = 0; i < fileNum; ++i ) {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "file1290_" + i );
+            file.setTitle( batchName );
             ScmId fileId = file.save();
-            fileIdList.add(fileId);
+            fileIdList.add( fileId );
         }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-    	ScmAttributeConf attr = new ScmAttributeConf();
-		attr.setName(attrName);
-		attr.setType(AttributeType.STRING);
-		attr.setDescription("I am a Attribute1290");
-		attr.setDisplayName(attrName+"_display");
-		ScmAttribute scmAttribute =  ScmFactory.Attribute.createInstance(ws, attr);
-		ScmClass scmClass = ScmFactory.Class.createInstance(ws, className, "i am a class1290");
-		scmClass.attachAttr(scmAttribute.getId());
-		
-		scmClassId = scmClass.getId();
-		attrId = scmAttribute.getId();
-    	
-    	ScmClassProperties props = new ScmClassProperties(scmClassId.toString());
-        ScmBatch batch = ScmFactory.Batch.createInstance(ws);
-        batch.setName(batchName);
+        ScmAttributeConf attr = new ScmAttributeConf();
+        attr.setName( attrName );
+        attr.setType( AttributeType.STRING );
+        attr.setDescription( "I am a Attribute1290" );
+        attr.setDisplayName( attrName + "_display" );
+        ScmAttribute scmAttribute = ScmFactory.Attribute
+                .createInstance( ws, attr );
+        ScmClass scmClass = ScmFactory.Class
+                .createInstance( ws, className, "i am a class1290" );
+        scmClass.attachAttr( scmAttribute.getId() );
+
+        scmClassId = scmClass.getId();
+        attrId = scmAttribute.getId();
+
+        ScmClassProperties props = new ScmClassProperties(
+                scmClassId.toString() );
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
+        batch.setName( batchName );
         ScmTags tags = new ScmTags();
-        props.addProperty(attrName, "props1290");
-        batch.setTags(tags);
-        batch.setClassProperties(props);
+        props.addProperty( attrName, "props1290" );
+        batch.setTags( tags );
+        batch.setClassProperties( props );
         batchId = batch.save();
-        for (ScmId fileId : fileIdList) {
-            batch.attachFile(fileId);
+        for ( ScmId fileId : fileIdList ) {
+            batch.attachFile( fileId );
         }
 
-        batch = ScmFactory.Batch.getInstance(ws, batchId);
-        Assert.assertEquals(batch.getName(), batchName);
-        Assert.assertEquals(batch.getId().get(), batchId.get());
-        Assert.assertEquals(batch.getTags().toString(), tags.toString());
-        Assert.assertEquals(batch.getClassProperties().toString(), props.toString());
-        Assert.assertEquals(batch.getClassId(), scmClassId);
-        List<ScmFile> files = batch.listFiles();
-        Assert.assertEquals(files.size(), fileNum);
-        for (ScmFile file : files) {
-            Assert.assertEquals(file.getTitle(), batchName);
+        batch = ScmFactory.Batch.getInstance( ws, batchId );
+        Assert.assertEquals( batch.getName(), batchName );
+        Assert.assertEquals( batch.getId().get(), batchId.get() );
+        Assert.assertEquals( batch.getTags().toString(), tags.toString() );
+        Assert.assertEquals( batch.getClassProperties().toString(),
+                props.toString() );
+        Assert.assertEquals( batch.getClassId(), scmClassId );
+        List< ScmFile > files = batch.listFiles();
+        Assert.assertEquals( files.size(), fileNum );
+        for ( ScmFile file : files ) {
+            Assert.assertEquals( file.getTitle(), batchName );
         }
 
-        ScmId inexistentId = new ScmId("ffffffffffffffffffffffff");
+        ScmId inexistentId = new ScmId( "ffffffffffffffffffffffff" );
         try {
-            ScmFactory.Batch.getInstance(ws, inexistentId);
-            Assert.fail("get not exist batch should not succeed");
-        } catch (ScmException e) {
-            Assert.assertEquals(e.getError(), ScmError.BATCH_NOT_FOUND);
+            ScmFactory.Batch.getInstance( ws, inexistentId );
+            Assert.fail( "get not exist batch should not succeed" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.BATCH_NOT_FOUND );
         }
-        
+
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.Batch.deleteInstance(ws, batchId);
-				ScmFactory.Class.deleteInstance(ws, scmClassId);
-				ScmFactory.Attribute.deleteInstance(ws, attrId);
-			}
-		} finally {
-			if (session != null)
-				session.close();
-		}
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.Batch.deleteInstance( ws, batchId );
+                ScmFactory.Class.deleteInstance( ws, scmClassId );
+                ScmFactory.Attribute.deleteInstance( ws, attrId );
+            }
+        } finally {
+            if ( session != null )
+                session.close();
+        }
     }
 }

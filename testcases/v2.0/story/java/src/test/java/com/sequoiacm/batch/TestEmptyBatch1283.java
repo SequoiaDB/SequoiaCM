@@ -1,20 +1,24 @@
 package com.sequoiacm.batch;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
+import java.util.List;
 
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import com.sequoiacm.client.core.ScmBatch;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
 
 /**
  * @FileName SCM-1283: 创建空批次
@@ -26,38 +30,40 @@ import java.util.List;
  */
 
 public class TestEmptyBatch1283 extends TestScmBase {
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		SiteWrapper site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        SiteWrapper site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-	    ScmBatch emptyBatch = ScmFactory.Batch.createInstance(ws);
-	    emptyBatch.setName("emptyBatch1283");
-	    ScmId batchId = emptyBatch.save();
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        ScmBatch emptyBatch = ScmFactory.Batch.createInstance( ws );
+        emptyBatch.setName( "emptyBatch1283" );
+        ScmId batchId = emptyBatch.save();
 
-	    emptyBatch = ScmFactory.Batch.getInstance(ws, batchId);
-	    List<ScmFile> fileList = emptyBatch.listFiles();
-	    Assert.assertEquals(0, fileList.size(), "empty batch should has 0 file.");
-	    emptyBatch.delete();
+        emptyBatch = ScmFactory.Batch.getInstance( ws, batchId );
+        List< ScmFile > fileList = emptyBatch.listFiles();
+        Assert.assertEquals( 0, fileList.size(),
+                "empty batch should has 0 file." );
+        emptyBatch.delete();
 
-	    try {
-			ScmFactory.Batch.getInstance(ws, batchId);
-			Assert.fail("get inexistent batch should not succeed");
-		} catch (ScmException e) {
-			Assert.assertEquals(ScmError.BATCH_NOT_FOUND, e.getError());
-		}
-	}
+        try {
+            ScmFactory.Batch.getInstance( ws, batchId );
+            Assert.fail( "get inexistent batch should not succeed" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( ScmError.BATCH_NOT_FOUND, e.getError() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-        if (session != null)
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null )
             session.close();
-	}
+    }
 }

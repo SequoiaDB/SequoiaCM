@@ -28,49 +28,51 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class CreateSche_cleanRootSiteFile1228 extends TestScmBase {
-	private SiteWrapper rootSite = null;
-	private WsWrapper wsp = null;
-	private final static String name = "schetask1228";
+    private final static String name = "schetask1228";
+    private SiteWrapper rootSite = null;
+    private WsWrapper wsp = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			rootSite = ScmInfo.getRootSite();
-			wsp = ScmInfo.getWs();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            rootSite = ScmInfo.getRootSite();
+            wsp = ScmInfo.getWs();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		ScmSession ss = null;
-		try {
-			ss = TestScmTools.createSession(rootSite);
-			
-			String maxStayTime = "0d";
-			BSONObject queryCond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(name).get();
-			ScmScheduleCleanFileContent content = 
-					new ScmScheduleCleanFileContent(rootSite.getSiteName(), maxStayTime, queryCond);
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        ScmSession ss = null;
+        try {
+            ss = TestScmTools.createSession( rootSite );
+
+            String maxStayTime = "0d";
+            BSONObject queryCond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
+            ScmScheduleCleanFileContent content =
+                    new ScmScheduleCleanFileContent( rootSite.getSiteName(),
+                            maxStayTime, queryCond );
             String cron = "* * * * * ?";
-            ScmSystem.Schedule.create(ss, wsp.getName(), 
-            		ScheduleType.CLEAN_FILE, name, "", content, cron);
-            Assert.fail("expect fail but actual succ.");
-		} catch (ScmException e) {
-			if (ScmError.HTTP_BAD_REQUEST != e.getError()) {
-				e.printStackTrace();
-				throw e;
-			}
-		} finally {
-			if (null != ss) {
-				ss.close();
-			}
-		}
-	}
+            ScmSystem.Schedule.create( ss, wsp.getName(),
+                    ScheduleType.CLEAN_FILE, name, "", content, cron );
+            Assert.fail( "expect fail but actual succ." );
+        } catch ( ScmException e ) {
+            if ( ScmError.HTTP_BAD_REQUEST != e.getError() ) {
+                e.printStackTrace();
+                throw e;
+            }
+        } finally {
+            if ( null != ss ) {
+                ss.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

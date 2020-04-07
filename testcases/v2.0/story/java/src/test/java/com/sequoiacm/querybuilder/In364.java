@@ -33,109 +33,116 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class In364 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private static String fileName = "In364";
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private int fileNum = 3;
+    private String author = fileName;
 
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private int fileNum = 3;
-	private static String fileName = "In364";
-	private String author = fileName;
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			readyScmFile();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            readyScmFile();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testInByObj() throws Exception {
-		try {
-			// build condition
-			String key = ScmAttributeName.File.FILE_ID;
-			String value = fileIdList.get(1).get();
-			BSONObject cond = ScmQueryBuilder.start(key).in(value).get();
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testInByObj() throws Exception {
+        try {
+            // build condition
+            String key = ScmAttributeName.File.FILE_ID;
+            String value = fileIdList.get( 1 ).get();
+            BSONObject cond = ScmQueryBuilder.start( key ).in( value ).get();
 
-			String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value + "\"]}}";
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), bsStr.replaceAll("\\s*",""));
+            String bsStr =
+                    "{ \"" + key + "\" : { \"$in\" : [ \"" + value + "\"]}}";
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    bsStr.replaceAll( "\\s*", "" ) );
 
-			// count
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, 1);
+            // count
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, 1 );
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testInByList() throws Exception {
-		try {
-			// build condition
-			String key = ScmAttributeName.File.FILE_ID;
-			List<String> list = new ArrayList<>();
-			String value1 = fileIdList.get(1).get();
-			String value2 = fileIdList.get(2).get();
-			list.add(value1);
-			list.add(value2);
-			BSONObject cond = ScmQueryBuilder.start(key).in(list).get();
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testInByList() throws Exception {
+        try {
+            // build condition
+            String key = ScmAttributeName.File.FILE_ID;
+            List< String > list = new ArrayList<>();
+            String value1 = fileIdList.get( 1 ).get();
+            String value2 = fileIdList.get( 2 ).get();
+            list.add( value1 );
+            list.add( value2 );
+            BSONObject cond = ScmQueryBuilder.start( key ).in( list ).get();
 
-			String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value1 + "\" , \"" + value2 + "\"]}}";
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), bsStr.replaceAll("\\s*",""));
+            String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value1 +
+                    "\" , \"" + value2 + "\"]}}";
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    bsStr.replaceAll( "\\s*", "" ) );
 
-			// count
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, 2);
+            // count
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, 2 );
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.getInstance(ws, fileId).delete(true);
-				}
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.getInstance( ws, fileId ).delete( true );
+                }
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private void readyScmFile() {
-		try {
-			for (int i = 0; i < fileNum; i++) {
-				ScmFile file = ScmFactory.File.createInstance(ws);
-				file.setFileName(fileName + "_" + i);
-				file.setAuthor(author);
-				ScmId fileId = file.save();
-				fileIdList.add(fileId);
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void readyScmFile() {
+        try {
+            for ( int i = 0; i < fileNum; i++ ) {
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setFileName( fileName + "_" + i );
+                file.setAuthor( author );
+                ScmId fileId = file.save();
+                fileIdList.add( fileId );
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
 }

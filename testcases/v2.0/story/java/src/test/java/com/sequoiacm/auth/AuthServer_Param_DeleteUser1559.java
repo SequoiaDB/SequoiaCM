@@ -1,4 +1,3 @@
-
 package com.sequoiacm.auth;
 
 import org.testng.Assert;
@@ -22,52 +21,52 @@ import com.sequoiacm.testcommon.TestScmTools;
  * @version:1.0
  */
 public class AuthServer_Param_DeleteUser1559 extends TestScmBase {
-	private SiteWrapper site;
-	private ScmSession session;
+    private SiteWrapper site;
+    private ScmSession session;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			session = TestScmTools.createSession(site);
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testInexistUser1() {
-		String username = "inexist";
-		try {
-			ScmFactory.User.deleteUser(session, username);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testInexistUser1() {
+        String username = "inexist";
+        try {
+            ScmFactory.User.deleteUser( session, username );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testIsNull() {
-		String username = null;
-		try {
-			ScmFactory.User.deleteUser(session, username);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testIsNull() {
+        String username = null;
+        try {
+            ScmFactory.User.deleteUser( session, username );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		if (session != null) {
-			session.close();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

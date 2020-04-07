@@ -24,25 +24,27 @@ import com.sequoiacm.testcommon.TestScmBase;
 
 public class Param_createSession319 extends TestScmBase {
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		try {
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, null);
-			Assert.fail("create session shouldn't succeed when option is null");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()) { // -108 SCM_COMMON_INVALIDARG
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        try {
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, null );
+            Assert.fail(
+                    "create session shouldn't succeed when option is null" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                    .getErrorCode() ) { // -108 SCM_COMMON_INVALIDARG
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

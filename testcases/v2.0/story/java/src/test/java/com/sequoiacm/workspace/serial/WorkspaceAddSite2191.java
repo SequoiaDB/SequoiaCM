@@ -22,40 +22,41 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @author luweikang
  * @date 2018年8月28日
  */
-public class WorkspaceAddSite2191 extends TestScmBase{
+public class WorkspaceAddSite2191 extends TestScmBase {
 
-	private ScmSession session = null;
-	private SiteWrapper site = null;
-	private String wsName = "ws2191";
-	private ScmWorkspace ws = null;
-	
-	@BeforeClass
-	public void setUp() throws Exception{
-		site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);	
-		ScmWorkspaceUtil.deleteWs(wsName, session);
-	}
-	
-	@Test(groups = { "one", "twoSite", "fourSite" })
-	public void test() throws ScmException, InterruptedException, IOException{
-		int siteNum = ScmInfo.getSiteNum();
-		ws = ScmWorkspaceUtil.createWS(session, wsName, siteNum);
-		try {
-			ScmWorkspaceUtil.wsAddSite(ws, site);
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getError(), ScmError.INVALID_ARGUMENT, e.getMessage());
-		}
-	}
-	
-	@AfterClass
-	public void tearDown() throws Exception{
-		try {
-			ScmWorkspaceUtil.deleteWs(wsName, session);
-		} finally {
-			if (session!=null) {
-				session.close();
-			}
-		}
-	}
+    private ScmSession session = null;
+    private SiteWrapper site = null;
+    private String wsName = "ws2191";
+    private ScmWorkspace ws = null;
+
+    @BeforeClass
+    public void setUp() throws Exception {
+        site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ScmWorkspaceUtil.deleteWs( wsName, session );
+    }
+
+    @Test(groups = { "one", "twoSite", "fourSite" })
+    public void test() throws ScmException, InterruptedException, IOException {
+        int siteNum = ScmInfo.getSiteNum();
+        ws = ScmWorkspaceUtil.createWS( session, wsName, siteNum );
+        try {
+            ScmWorkspaceUtil.wsAddSite( ws, site );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT,
+                    e.getMessage() );
+        }
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        try {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 }
 

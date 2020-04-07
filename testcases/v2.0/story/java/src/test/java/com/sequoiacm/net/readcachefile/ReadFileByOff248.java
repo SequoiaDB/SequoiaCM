@@ -35,7 +35,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 /**
  * @Testcase: SCM-248:read文件，偏移+长度<byte总长度 
  *            	1、分中心A写文件 
- *              2、分中心B调用read(byte[]b, int off, int len)读取文件,偏移+长度<byte总长度,len > 1M
+ *              2、分中心B调用read(byte[]b, int off, int len)读取文件,偏移+长度<byte总长度,len
+ *              > 1M
  * @author huangxiaoni init
  * @date 2017.5.6
  * @modify By wuyan
@@ -44,119 +45,127 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
  */
 
 public class ReadFileByOff248 extends TestScmBase {
-	private boolean runSuccess = false;	
-	private SiteWrapper site1 = null;
-	private SiteWrapper site2 = null;	
-	private WsWrapper wsp = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmSession sessionB = null;
-	private ScmWorkspace wsB = null;
+    private boolean runSuccess = false;
+    private SiteWrapper site1 = null;
+    private SiteWrapper site2 = null;
+    private WsWrapper wsp = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmSession sessionB = null;
+    private ScmWorkspace wsB = null;
 
-	private String fileName = "readCacheFile248";
-	private ScmId fileId = null;
-	private int fileSize = 1024 * 1024 * 3;
-	private int seekSize = 1024;
-	private int off = 1024 * 10;
-	private int len = 1024 * 1024 * 2;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "readCacheFile248";
+    private ScmId fileId = null;
+    private int fileSize = 1024 * 1024 * 3;
+    private int seekSize = 1024;
+    private int off = 1024 * 10;
+    private int len = 1024 * 1024 * 2;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass()
-	private void setUp() throws IOException, ScmException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-	
-		TestTools.LocalFile.removeFile(localPath);
-		TestTools.LocalFile.createDir(localPath.toString());
-		TestTools.LocalFile.createFile(filePath, "aa1", fileSize);		
-		
-		wsp = ScmInfo.getWs();
-		List<SiteWrapper> siteList = ScmNetUtils.getRandomSites(wsp);
-		site1 = siteList.get(0);
-		site2 = siteList.get(1);
-		
-		//clean file
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-		ScmFileUtils.cleanFile(wsp, cond);
+    @BeforeClass()
+    private void setUp() throws IOException, ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
 
-		sessionA = TestScmTools.createSession(site1);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);	
-		sessionB = TestScmTools.createSession(site2);
-		wsB = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionB);	
-	}
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, "aa1", fileSize );
 
-	@Test(groups = { "fourSite" })
-	private void test() throws Exception {
-		fileId = ScmFileUtils.create(wsA, fileName, filePath);
-		this.readFileFromB( wsB );		
-		runSuccess = true;
-	}
+        wsp = ScmInfo.getWs();
+        List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( wsp );
+        site1 = siteList.get( 0 );
+        site2 = siteList.get( 1 );
 
-	@AfterClass()
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch ( Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
-			if (sessionB != null) {
-				sessionB.close();
-			}
-		}
-	}
+        //clean file
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-	private void readFileFromB( ScmWorkspace ws ) throws Exception {		
-		OutputStream fos = null;
-		ScmInputStream in = null;
-		try {			
-			// read content
-			ScmFile scmfile = ScmFactory.File.getInstance(ws, fileId);
-			String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
+        sessionA = TestScmTools.createSession( site1 );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionB = TestScmTools.createSession( site2 );
+        wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
+    }
 
-			in = ScmFactory.File.createInputStream(InputStreamType.SEEKABLE, scmfile);
-			in.seek(SeekType.SCM_FILE_SEEK_SET, seekSize);
-			fos = new FileOutputStream(new File(downloadPath));
-			byte[] buffer = new byte[fileSize];
-			int curOff = off;
-			int curLen = len;
-			int endOff = off + len;
-			while (true) {
-				int readSize = in.read(buffer, curOff, curLen);				
-				if (readSize == -1 ) {
-					Assert.fail("can not read to the end!");
-				}		
-				
-				fos.write(buffer, curOff, readSize);				
-				if( curOff + readSize < endOff  ){
-					curOff += readSize;
-					curLen = endOff - curOff;
-				}else{
-					break;
-				}				
-			}		
+    @Test(groups = { "fourSite" })
+    private void test() throws Exception {
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        this.readFileFromB( wsB );
+        runSuccess = true;
+    }
 
-			// check results
-			String tmpPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
-			TestTools.LocalFile.readFile(filePath, seekSize, len, tmpPath);
-			Assert.assertEquals(TestTools.getMD5(tmpPath), TestTools.getMD5(downloadPath));
+    @AfterClass()
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionB != null ) {
+                sessionB.close();
+            }
+        }
+    }
 
-			SiteWrapper[] expSites = { site1, site2 };
-			ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-		} finally {
-			if (fos != null)
-				fos.close();
-			if (in != null)
-				in.close();			
-		}
-	}
+    private void readFileFromB( ScmWorkspace ws ) throws Exception {
+        OutputStream fos = null;
+        ScmInputStream in = null;
+        try {
+            // read content
+            ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+
+            in = ScmFactory.File
+                    .createInputStream( InputStreamType.SEEKABLE, scmfile );
+            in.seek( SeekType.SCM_FILE_SEEK_SET, seekSize );
+            fos = new FileOutputStream( new File( downloadPath ) );
+            byte[] buffer = new byte[ fileSize ];
+            int curOff = off;
+            int curLen = len;
+            int endOff = off + len;
+            while ( true ) {
+                int readSize = in.read( buffer, curOff, curLen );
+                if ( readSize == -1 ) {
+                    Assert.fail( "can not read to the end!" );
+                }
+
+                fos.write( buffer, curOff, readSize );
+                if ( curOff + readSize < endOff ) {
+                    curOff += readSize;
+                    curLen = endOff - curOff;
+                } else {
+                    break;
+                }
+            }
+
+            // check results
+            String tmpPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            TestTools.LocalFile.readFile( filePath, seekSize, len, tmpPath );
+            Assert.assertEquals( TestTools.getMD5( tmpPath ),
+                    TestTools.getMD5( downloadPath ) );
+
+            SiteWrapper[] expSites = { site1, site2 };
+            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                    filePath );
+        } finally {
+            if ( fos != null )
+                fos.close();
+            if ( in != null )
+                in.close();
+        }
+    }
 
 }

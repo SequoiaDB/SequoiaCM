@@ -32,66 +32,72 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class And329 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private ScmId fileId = null;
-	private String fileName = "and329";
+    private ScmId fileId = null;
+    private String fileName = "and329";
     private String author = fileName;
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(fileName+"_"+UUID.randomUUID());
-			file.setAuthor(author);
-			fileId = file.save();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			// build condition
-			BSONObject obj = ScmQueryBuilder.start("notExist").is(" ").get();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName + "_" + UUID.randomUUID() );
+            file.setAuthor( author );
+            fileId = file.save();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			BSONObject cond = ScmQueryBuilder.start().and(obj).get();
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            // build condition
+            BSONObject obj = ScmQueryBuilder.start( "notExist" ).is( " " )
+                    .get();
 
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), ("{ \"$and\" : [ { \"notExist\" : \" \"}]}").replaceAll("\\s*",""));
+            BSONObject cond = ScmQueryBuilder.start().and( obj ).get();
 
-			// count
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, 0);
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    ( "{ \"$and\" : [ { \"notExist\" : \" \"}]}" )
+                            .replaceAll( "\\s*", "" ) );
 
-			runSuccess = true;
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            // count
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, 0 );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+            runSuccess = true;
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+
+        }
+    }
 }

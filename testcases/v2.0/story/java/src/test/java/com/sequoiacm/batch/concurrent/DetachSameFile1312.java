@@ -29,75 +29,76 @@ import com.sequoiacm.testcommon.TestThreadBase;
  */
 
 public class DetachSameFile1312 extends TestScmBase {
-	private boolean runSuccess = false;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
-	private final String batchName = "batch1311";
-	private ScmId fileId = null;
-	private ScmId batchId = null;
+    private final String batchName = "batch1311";
+    private boolean runSuccess = false;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
+    private ScmId fileId = null;
+    private ScmId batchId = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		SiteWrapper site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        SiteWrapper site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
 
-        ScmFile file = ScmFactory.File.createInstance(ws);
-        file.setFileName("file1311");
-        file.setTitle(batchName);
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( "file1311" );
+        file.setTitle( batchName );
         fileId = file.save();
 
-		ScmBatch batch = ScmFactory.Batch.createInstance(ws);
-		batch.setName(batchName);
-		batchId = batch.save();
-		batch.attachFile(fileId);
-	}
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
+        batch.setName( batchName );
+        batchId = batch.save();
+        batch.attachFile( fileId );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-	    DetachThread detachThrd = new DetachThread();
-		detachThrd.start(5);
-		Assert.assertTrue(detachThrd.isSuccess(), detachThrd.getErrorMsg());
-		Assert.assertEquals(detachThrd.getSuccessTimes(), 1);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        DetachThread detachThrd = new DetachThread();
+        detachThrd.start( 5 );
+        Assert.assertTrue( detachThrd.isSuccess(), detachThrd.getErrorMsg() );
+        Assert.assertEquals( detachThrd.getSuccessTimes(), 1 );
 
-		ScmBatch batch = ScmFactory.Batch.getInstance(ws, batchId);
-		List<ScmFile> files = batch.listFiles();
-		Assert.assertEquals(files.size(), 0);
-		runSuccess = true;
-	}
+        ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
+        List< ScmFile > files = batch.listFiles();
+        Assert.assertEquals( files.size(), 0 );
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
         try {
-            if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.Batch.deleteInstance(ws, batchId);
-				ScmFactory.File.deleteInstance(ws, fileId, true);
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.Batch.deleteInstance( ws, batchId );
+                ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         } finally {
-            if (session != null)
+            if ( session != null )
                 session.close();
         }
-	}
+    }
 
-	private class DetachThread extends TestThreadBase {
-		private AtomicInteger successTimes = new AtomicInteger(0);
+    private class DetachThread extends TestThreadBase {
+        private AtomicInteger successTimes = new AtomicInteger( 0 );
 
-		@Override
-		public void exec() throws Exception {
-			try {
-				ScmBatch batch = ScmFactory.Batch.getInstance(ws, batchId);
-                batch.detachFile(fileId);
+        @Override
+        public void exec() throws Exception {
+            try {
+                ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
+                batch.detachFile( fileId );
                 successTimes.getAndIncrement();
-			} catch (ScmException e) {
-				//TODO:错误码不对
+            } catch ( ScmException e ) {
+                //TODO:错误码不对
 //				if (e.getError() != ScmError.FILE_NOT_IN_BATCH) {
 //					throw e;
 //				}
-			}
-		}
+            }
+        }
 
-		public int getSuccessTimes() {
-			return successTimes.get();
-		}
-	}
+        public int getSuccessTimes() {
+            return successTimes.get();
+        }
+    }
 }

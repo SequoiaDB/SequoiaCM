@@ -27,32 +27,33 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 
 public class Param_addUrl321 extends TestScmBase {
-	private static SiteWrapper site = null;
+    private static SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHostNotExist() {
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption();
-			scOpt.addUrl("thishostisunexist"+"/"+site.getSiteServiceName());
-			scOpt.setUser(TestScmBase.scmUserName);
-			scOpt.setPasswd(TestScmBase.scmPassword);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("host not exist, expect fail, but success.");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.NETWORK_IO.getErrorCode()) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHostNotExist() {
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption();
+            scOpt.addUrl(
+                    "thishostisunexist" + "/" + site.getSiteServiceName() );
+            scOpt.setUser( TestScmBase.scmUserName );
+            scOpt.setPasswd( TestScmBase.scmPassword );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail( "host not exist, expect fail, but success." );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.NETWORK_IO.getErrorCode() ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

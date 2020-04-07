@@ -18,44 +18,46 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @author luweikang
  * @date 2018年8月28日
  */
-public class WorkspaceRemoveSite2188 extends TestScmBase{
+public class WorkspaceRemoveSite2188 extends TestScmBase {
 
-	private ScmSession session = null;
-	private SiteWrapper rootSite = null;
-	private SiteWrapper branchSite = null;
-	private String wsNameA = "ws2188_A";	
-	private String wsNameB = "ws2188_B";	
-	
-	@BeforeClass
-	public void setUp() throws Exception{
-		rootSite = ScmInfo.getRootSite();
-		branchSite = ScmInfo.getBranchSite();
-		session = TestScmTools.createSession(rootSite);	
-		ScmWorkspaceUtil.deleteWs(wsNameA, session);
-		ScmWorkspaceUtil.deleteWs(wsNameB, session);
-	}
-	
-	@Test(groups = {"twoSite", "fourSite" })
-	public void test() throws ScmException, InterruptedException{
-		int siteNum = ScmInfo.getSiteNum();
-		ScmWorkspace wsA = ScmWorkspaceUtil.createWS(session, wsNameA, siteNum);
-		ScmWorkspace wsB = ScmWorkspaceUtil.createWS(session, wsNameB, siteNum);
-		
-		ScmWorkspaceUtil.wsRemoveSite(wsA, branchSite.getSiteName());
-		ScmWorkspaceUtil.wsRemoveSite(wsB, branchSite.getSiteName());
-	}
-	
-	@AfterClass
-	public void tearDown() throws Exception{
-		try {
-			ScmWorkspaceUtil.deleteWs(wsNameA, session);
-			ScmWorkspaceUtil.deleteWs(wsNameB, session);
-		} finally {
-			if (session!=null) {
-				session.close();
-			}
-		}
-	}
-	
+    private ScmSession session = null;
+    private SiteWrapper rootSite = null;
+    private SiteWrapper branchSite = null;
+    private String wsNameA = "ws2188_A";
+    private String wsNameB = "ws2188_B";
+
+    @BeforeClass
+    public void setUp() throws Exception {
+        rootSite = ScmInfo.getRootSite();
+        branchSite = ScmInfo.getBranchSite();
+        session = TestScmTools.createSession( rootSite );
+        ScmWorkspaceUtil.deleteWs( wsNameA, session );
+        ScmWorkspaceUtil.deleteWs( wsNameB, session );
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    public void test() throws ScmException, InterruptedException {
+        int siteNum = ScmInfo.getSiteNum();
+        ScmWorkspace wsA = ScmWorkspaceUtil
+                .createWS( session, wsNameA, siteNum );
+        ScmWorkspace wsB = ScmWorkspaceUtil
+                .createWS( session, wsNameB, siteNum );
+
+        ScmWorkspaceUtil.wsRemoveSite( wsA, branchSite.getSiteName() );
+        ScmWorkspaceUtil.wsRemoveSite( wsB, branchSite.getSiteName() );
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        try {
+            ScmWorkspaceUtil.deleteWs( wsNameA, session );
+            ScmWorkspaceUtil.deleteWs( wsNameB, session );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
 }
 

@@ -1,5 +1,13 @@
 package com.sequoiacm.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmConfigProperties;
@@ -11,13 +19,6 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author fanyu
@@ -33,49 +34,59 @@ public class UpdateServiceConf2292 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession(site);
+        session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testSingleService() throws ScmException {
         try {
             ScmConfigProperties confProp = ScmConfigProperties.builder()
-                    .service(site.getSiteServiceName() + "_inexistence")
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
-                    .updateProperty(ConfigCommonDefind.scm_audit_userMask, "LOCAL").build();
-            ScmUpdateConfResultSet actResults = ScmSystem.Configuration.setConfigProperties(session, confProp);
-            Assert.fail("update configuration should be failed when servicename is invalid,actResults = " + actResults.toString());
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR) {
-                Assert.fail(e.getMessage());
+                    .service( site.getSiteServiceName() + "_inexistence" )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
+                    .updateProperty( ConfigCommonDefind.scm_audit_userMask,
+                            "LOCAL" ).build();
+            ScmUpdateConfResultSet actResults = ScmSystem.Configuration
+                    .setConfigProperties( session, confProp );
+            Assert.fail(
+                    "update configuration should be failed when servicename " +
+                            "is invalid,actResults = " +
+                            actResults.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
+                Assert.fail( e.getMessage() );
             }
         }
-        ConfUtil.checkNotTakeEffect(site, fileName);
+        ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = {"oneSite", "twoSite", "fourSite"})
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testListService() throws ScmException {
         try {
-            List<String> serviceList = new ArrayList<String>();
-            serviceList.add(site.getSiteServiceName());
-            serviceList.add(site.getSiteServiceName() + "_inexistence");
+            List< String > serviceList = new ArrayList< String >();
+            serviceList.add( site.getSiteServiceName() );
+            serviceList.add( site.getSiteServiceName() + "_inexistence" );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
-                    .services(serviceList)
-                    .updateProperty(ConfigCommonDefind.scm_audit_mask, "ALL")
-                    .updateProperty(ConfigCommonDefind.scm_audit_userMask, "LOCAL").build();
-            ScmUpdateConfResultSet actResults = ScmSystem.Configuration.setConfigProperties(session, confProp);
-            Assert.fail("update configuration should be failed when servicenames contains invalid,actResults = " + actResults.toString()) ;
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR) {
-                Assert.fail(e.getMessage());
+                    .services( serviceList )
+                    .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
+                    .updateProperty( ConfigCommonDefind.scm_audit_userMask,
+                            "LOCAL" ).build();
+            ScmUpdateConfResultSet actResults = ScmSystem.Configuration
+                    .setConfigProperties( session, confProp );
+            Assert.fail(
+                    "update configuration should be failed when servicenames " +
+                            "contains invalid,actResults = " +
+                            actResults.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
+                Assert.fail( e.getMessage() );
             }
         }
-        ConfUtil.checkNotTakeEffect(site, fileName);
+        ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() {
-        if (session != null) {
+        if ( session != null ) {
             session.close();
         }
     }

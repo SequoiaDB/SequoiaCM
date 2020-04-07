@@ -31,9 +31,9 @@ public class ScmFile_param_createInstance168 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession(site);
-        } catch (ScmException e) {
-            Assert.fail(e.getMessage());
+            session = TestScmTools.createSession( site );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 
@@ -41,13 +41,15 @@ public class ScmFile_param_createInstance168 extends TestScmBase {
     private void TestNotExitWS() {
         boolean rst = false;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace("abc", session);
-            ScmFactory.File.createInstance(ws);
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( "abc", session );
+            ScmFactory.File.createInstance( ws );
             rst = true;
-            Assert.assertFalse(rst, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
-                Assert.fail(e.getMessage());
+            Assert.assertFalse( rst,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
@@ -55,15 +57,16 @@ public class ScmFile_param_createInstance168 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void TestWsIsNull() {
         try {
-            ScmFile file = ScmFactory.File.createInstance(null);
-            file.setFileName("a");
-            file.setMimeType("text/plain");
-            file.setTitle("a");
+            ScmFile file = ScmFactory.File.createInstance( null );
+            file.setFileName( "a" );
+            file.setMimeType( "text/plain" );
+            file.setTitle( "a" );
             file.save();
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT) {
-                Assert.fail(e.getMessage());
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                Assert.fail( e.getMessage() );
             }
         }
     }
@@ -72,8 +75,8 @@ public class ScmFile_param_createInstance168 extends TestScmBase {
     private void tearDown() {
         try {
             session.close();
-        } catch (BaseException e) {
-            Assert.fail(e.getMessage());
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
         } finally {
 
         }

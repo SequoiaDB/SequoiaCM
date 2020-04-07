@@ -1,4 +1,3 @@
-
 package com.sequoiacm.testenv;
 
 import java.io.IOException;
@@ -29,49 +28,53 @@ import com.sequoiacm.testcommon.TestScmBase;
  * @version:1.0
  */
 public class CleanEnvForHBase extends TestScmBase {
-	Logger log = LoggerFactory.getLogger(CleanEnvForHBase.class);
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    Logger log = LoggerFactory.getLogger( CleanEnvForHBase.class );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testRemainSession() throws Exception {
-		List<SiteWrapper> siteList = ScmInfo.getAllSites();
-		for (SiteWrapper site : siteList) {
-			if (site.getDataType().equals(DatasourceType.HBASE)) {
-				String conf = (String) site.getDataDsConf().get("hbase.zookeeper.quorum");
-				deleteTableInHbase(conf);
-			} else {
-				System.out.println(site.getSiteName() + "'s datasourcetype is not hbase,it is " + site.getDataType());
-			}
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testRemainSession() throws Exception {
+        List< SiteWrapper > siteList = ScmInfo.getAllSites();
+        for ( SiteWrapper site : siteList ) {
+            if ( site.getDataType().equals( DatasourceType.HBASE ) ) {
+                String conf = ( String ) site.getDataDsConf()
+                        .get( "hbase.zookeeper.quorum" );
+                deleteTableInHbase( conf );
+            } else {
+                System.out.println( site.getSiteName() +
+                        "'s datasourcetype is not hbase,it is " +
+                        site.getDataType() );
+            }
+        }
+    }
 
-	private void deleteTableInHbase(String confstr) throws Exception {
-		Configuration conf = HBaseConfiguration.create();
-		conf.set("hbase.zookeeper.quorum", confstr);
-		Connection connect = null;
-		try {
-			connect = ConnectionFactory.createConnection(conf);
-			Admin admin = connect.getAdmin();
-			String regex = ".*";
-			Pattern pattern = Pattern.compile(regex);
-			admin.disableTables(pattern);
-			admin.deleteTables(pattern);
-			TableName[] tableNames = admin.listTableNames(pattern);	
-			if (tableNames.length > 0) {
-				throw new Exception("delete table in hbase fail");
-			}
-		} catch (IOException e) {
-			log.warn("delete table failed,msg = " + e.getMessage());
-		} finally {
-			if (connect != null) {
-				connect.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
+
+    private void deleteTableInHbase( String confstr ) throws Exception {
+        Configuration conf = HBaseConfiguration.create();
+        conf.set( "hbase.zookeeper.quorum", confstr );
+        Connection connect = null;
+        try {
+            connect = ConnectionFactory.createConnection( conf );
+            Admin admin = connect.getAdmin();
+            String regex = ".*";
+            Pattern pattern = Pattern.compile( regex );
+            admin.disableTables( pattern );
+            admin.deleteTables( pattern );
+            TableName[] tableNames = admin.listTableNames( pattern );
+            if ( tableNames.length > 0 ) {
+                throw new Exception( "delete table in hbase fail" );
+            }
+        } catch ( IOException e ) {
+            log.warn( "delete table failed,msg = " + e.getMessage() );
+        } finally {
+            if ( connect != null ) {
+                connect.close();
+            }
+        }
+    }
 }

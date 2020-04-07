@@ -55,7 +55,7 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
     private ScmSession sessionB = null; // subCenterB
     private ScmWorkspace ws1 = null;
     private ScmWorkspace ws2 = null;
-    private List<ScmId> fileIdList = new ArrayList<ScmId>();
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private File localPath = null;
     private String filePath = null;
 
@@ -64,8 +64,8 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
     private ScmId taskId2 = null;
 
     private SiteWrapper rootSite = null;
-    private List<SiteWrapper> branceSiteList = new ArrayList<SiteWrapper>();
-    private List<WsWrapper> ws_TList = new ArrayList<WsWrapper>();
+    private List< SiteWrapper > branceSiteList = new ArrayList< SiteWrapper >();
+    private List< WsWrapper > ws_TList = new ArrayList< WsWrapper >();
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -192,7 +192,7 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
         }
         expStopTime = new Date();
 
-        long acceptableOffset = 180*1000; // 3m
+        long acceptableOffset = 180 * 1000; // 3m
         if ( Math.abs( actStopTime.getTime() - expStopTime.getTime() )
                 > acceptableOffset ) {
             Assert.fail( "actStopTime: " + actStopTime + ", expStopTime: "

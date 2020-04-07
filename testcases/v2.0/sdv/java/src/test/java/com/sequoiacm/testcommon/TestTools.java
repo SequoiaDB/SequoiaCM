@@ -17,392 +17,411 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 public class TestTools {
-	private static final Logger logger = Logger.getLogger(TestSdbTools.class);
+    private static final Logger logger = Logger.getLogger( TestSdbTools.class );
 
-	public static class LocalFile {
+    /**
+     * get file's md5
+     *
+     * @param pathName
+     * @return
+     * @throws IOException
+     */
+    public static String getMD5( String pathName ) throws IOException {
+        File file = new File( pathName );
+        try ( FileInputStream fis = new FileInputStream( file ) ) {
+            byte[] buffer = new byte[ ( int ) file.length() ];
+            fis.read( buffer );
+            return getMD5( buffer );
+        }
+    }
 
-		/**
-		 * read the specify file length after seek, to compare the read results
-		 * with SCM
-		 * 
-		 * @param filePath
-		 * @param size
-		 * @param len
-		 * @param downloadPath
-		 * @throws FileNotFoundException
-		 * @throws IOException
-		 */
-		public static void readFile(String filePath, int size, int len, String downloadPath)
-				throws FileNotFoundException, IOException {
-			RandomAccessFile raf = null;
-			OutputStream fos = null;
-			try {
-				raf = new RandomAccessFile(filePath, "rw");
-				fos = new FileOutputStream(downloadPath);
-				raf.seek(size);
-				int off = 0;
-				int readSize = 0;
-				byte[] buf = new byte[off + len];
-				readSize = raf.read(buf, off, len);
-				fos.write(buf, off, readSize);
-			} finally {
-				if (raf != null)
-					raf.close();
-				if (fos != null)
-					fos.close();
-			}
-		}
+    public static String getMD5( Object buffer ) {
+        String value = "";
+        try {
+            MessageDigest md5 = MessageDigest.getInstance( "MD5" );
+            if ( buffer instanceof ByteBuffer ) {
+                md5.update( ( ByteBuffer ) buffer );
+            } else if ( buffer instanceof byte[] ) {
+                md5.update( ( byte[] ) buffer );
+            } else {
+                throw new IllegalArgumentException( "invalid type of buffer" );
+            }
+            BigInteger bi = new BigInteger( 1, md5.digest() );
+            value = bi.toString( 16 );
+        } catch ( NoSuchAlgorithmException e ) {
+            e.printStackTrace();
+            throw new RuntimeException( "fail to get md5!" + e.getMessage() );
+        }
+        return value;
+    }
 
-		/**
-		 * read the entire file length after the seek, to compare the read
-		 * results with SCM
-		 * 
-		 * @param sourceFile
-		 * @param size
-		 * @param outputFile
-		 * @throws FileNotFoundException
-		 * @throws IOException
-		 */
-		public static void readFile(String sourceFile, int size, String outputFile)
-				throws FileNotFoundException, IOException {
-			RandomAccessFile raf = null;
-			OutputStream fos = null;
-			try {
-				raf = new RandomAccessFile(sourceFile, "rw");
-				fos = new FileOutputStream(outputFile);
-				raf.seek(size);
-				int readSize = 0;
-				int off = 0;
-				int len = 1024 * 1024;
-				byte[] buf = new byte[off + len];
-				while (true) {
-					readSize = raf.read(buf, off, len);
-					if (readSize <= 0) {
-						break;
-					}
-					fos.write(buf, off, readSize);
-				}
-			} finally {
-				if (raf != null)
-					raf.close();
-				if (fos != null)
-					fos.close();
-			}
-		}
+    /**
+     * random generate string
+     *
+     * @param length
+     * @return character string
+     */
+    public static String getRandomString( int length ) {
+        String str =
+                "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for ( int i = 0; i < length; i++ ) {
+            int number = random.nextInt( str.length() );
+            sb.append( str.charAt( number ) );
+        }
+        return sb.toString();
+    }
 
-		/**
-		 * create local directory
-		 * 
-		 * @param dir
-		 */
-		public static void createDir(String dir) {
-			mkdir(new File(dir));
-		}
+    /**
+     * get buffer
+     *
+     * @param filePath
+     * @return byte[]
+     * @throws IOException
+     */
+    public static byte[] getBuffer( String filePath ) throws IOException {
+        File file = new File( filePath );
+        long fileSize = file.length();
+        if ( fileSize > Integer.MAX_VALUE ) {
+            System.out.println( "file too big..." );
+            return null;
+        }
+        FileInputStream fi = new FileInputStream( file );
+        byte[] buffer = new byte[ ( int ) fileSize ];
+        int offset = 0;
+        int numRead = 0;
+        while ( offset < buffer.length && ( numRead = fi
+                .read( buffer, offset, buffer.length - offset ) ) >= 0 ) {
+            offset += numRead;
+        }
+        // 确保所有数据均被读取
+        if ( offset != buffer.length ) {
+            extracted( file );
+        }
+        fi.close();
+        return buffer;
+    }
 
-		private static void mkdir(File filePath) {
-			if (!filePath.getParentFile().exists()) {
-				mkdir(filePath.getParentFile());
-			}
-			filePath.mkdir();
-		}
+    private static void extracted( File file ) throws IOException {
+        throw new IOException( "failed to get buffer, file=" + file.getName() );
+    }
 
-		/**
-		 * remove directory including directories and sub files
-		 * 
-		 * @param filePath
-		 */
-		public static void removeFile(String filePath) {
-			File file = new File(filePath);
-			if (file.exists()) {
-				file.delete();
-			}
-		}
+    /**
+     * get method... name
+     */
+    public static String getMethodName() {
+        return Thread.currentThread().getStackTrace()[ 2 ].getMethodName();
+    }
 
-		public static void removeFile(File file) {
-			if (file.exists()) {
-				if (file.isFile()) {
-					file.delete();
-				} else {
-					File[] files = file.listFiles();
-					for (File subFile : files) {
-						removeFile(subFile);
-					}
+    public static String getClassName() {
+        String fullClassName = Thread.currentThread().getStackTrace()[ 2 ]
+                .getClassName();
+        int index = fullClassName.lastIndexOf( "." );
+        return fullClassName.substring( index + 1 );
+    }
 
-					file.delete();
-				}
-			}
-		}
+    public static void setSystemTime( String host, Long date )
+            throws Exception {
+        String time = new SimpleDateFormat( "\"yyyy-MM-dd HH:mm:ss\"" )
+                .format( date );
+        setSystemTime( host, time );
+    }
 
-		/**
-		 * create empty file
-		 * 
-		 * @param filePath
-		 * @throws IOException
-		 */
-		public static void createFile(String filePath) throws IOException {
-			File file = new File(filePath);
-			if (file.exists()) {
-				file.delete();
-			}
-			mkdir(file.getParentFile());
-			file.createNewFile();
-		}
+    /**
+     * set the system time for the host
+     *
+     * @param host
+     * @param dateStr,
+     *            e.g: yyyyMMdd
+     * @throws Exception
+     */
+    public static void setSystemTime( String host, String dateStr )
+            throws Exception {
+        Ssh ssh = null;
+        try {
+            ssh = new Ssh( host );
 
-		/**
-		 * create file, the file content are randomly generated character
-		 * 
-		 * @param filePath
-		 * @param size
-		 * @throws IOException
-		 */
-		public static void createFile(String filePath, int size) throws IOException {
-			FileOutputStream fos = null;
-			try {
-				createFile(filePath);
-				File file = new File(filePath);
-				fos = new FileOutputStream(file);
+            // set date
+            String cmd = "date -s " + dateStr;
+            ssh.exec( cmd );
 
-				int written = 0;
-				byte[] fileBlock = new byte[1024];
-				new Random().nextBytes(fileBlock);
-				while (written < size) {
-					int toWrite = size - written;
-					int len = fileBlock.length < toWrite ? fileBlock.length : toWrite;
-					fos.write(fileBlock, 0, len);
-					written += len;
-				}
-			} catch (IOException e) {
-				System.out.println("create file failed, file=" + filePath);
-				throw e;
-			} finally {
-				if (fos != null) {
-					fos.close();
-				}
-			}
-		}
+            // print local date after set date
+            ssh.exec( "date" );
+            String localDate = ssh.getStdout().split( "\n" )[ 0 ];
+            System.out.println(
+                    "host = " + host + ", localDate = " + localDate +
+                            ", after set system time" );
+        } finally {
+            if ( null != ssh ) {
+                ssh.disconnect();
+            }
+        }
+    }
 
-		/**
-		 * create file, the file content are specify characters
-		 * 
-		 * @param filePath
-		 * @param content
-		 * @param size
-		 * @throws IOException
-		 */
-		public static void createFile(String filePath, String content, int size) throws IOException {
-			FileOutputStream fos = null;
-			byte[] contentBytes = content.getBytes();
-			int written = 0;
-			try {
-				File file = new File(filePath);
-				fos = new FileOutputStream(file);
-				while (written < size) {
-					int toWrite = size - written;
-					int len = contentBytes.length < toWrite ? contentBytes.length : toWrite;
-					fos.write(contentBytes, 0, len);
-					written += len;
-				}
-			} catch (IOException e) {
-				System.out.println("create file failed:file=" + filePath);
-				e.printStackTrace();
-			} finally {
-				if (fos != null)
-					fos.close();
-			}
-		}
+    /**
+     * restore the system time for the host
+     *
+     * @param host
+     * @throws Exception
+     */
+    public static void restoreSystemTime( String host ) throws Exception {
+        Ssh ssh = null;
+        try {
+            ssh = new Ssh( host );
+            String cmd = "ntpdate " + TestScmBase.ntpServer;
 
-		/**
-		 * create download path and file, by methodName and threadId
-		 */
-		public static String initDownloadPath(File localPath, String methodName, long threadId) throws Exception {
-			String downloadPath = null;
-			try {
-				int randomId = new Random().nextInt(10000);
-				String downLoadDir = localPath + File.separator + methodName;
-				createDir(downLoadDir);
-				downloadPath = downLoadDir + File.separator + "thread-" + threadId + "_" + System.currentTimeMillis()
-						+ "_" + randomId + ".lob";
-			} catch (Exception e) {
-				logger.info("downloadPath\n" + downloadPath);
-				throw e;
-			}
-			return downloadPath;
-		}
-	}
+            // in case of time server not usable, retry in 1 min
+            int times = 60;
+            int intervalSec = 1;
+            boolean restoreOk = false;
+            Exception lastException = null;
+            for ( int i = 0; i < times; ++i ) {
+                try {
+                    ssh.exec( cmd );
+                    restoreOk = true;
+                    break;
+                } catch ( Exception e ) {
+                    lastException = e;
+                    Thread.sleep( intervalSec );
+                }
+            }
 
-	/**
-	 * get file's md5
-	 * 
-	 * @param pathName
-	 * @return
-	 * @throws IOException
-	 */
-	public static String getMD5(String pathName) throws IOException {
-		File file = new File(pathName);
-		try (FileInputStream fis = new FileInputStream(file)) {
-			byte[] buffer = new byte[(int) file.length()];
-			fis.read(buffer);
-			return getMD5(buffer);
-		}
-	}
+            // print local date after set date
+            ssh.exec( "date" );
+            String localDate = ssh.getStdout().split( "\n" )[ 0 ];
+            System.out.println(
+                    "host = " + host + ", localDate = " + localDate +
+                            ", after restore system time" );
 
-	public static String getMD5(Object buffer) {
-		String value = "";
-		try {
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
-			if (buffer instanceof ByteBuffer) {
-				md5.update((ByteBuffer) buffer);
-			} else if (buffer instanceof byte[]) {
-				md5.update((byte[]) buffer);
-			} else {
-				throw new IllegalArgumentException("invalid type of buffer");
-			}
-			BigInteger bi = new BigInteger(1, md5.digest());
-			value = bi.toString(16);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			throw new RuntimeException("fail to get md5!" + e.getMessage());
-		}
-		return value;
-	}
+            if ( !restoreOk ) {
+                throw lastException;
+            }
+        } finally {
+            if ( null != ssh ) {
+                ssh.disconnect();
+            }
+        }
+    }
 
-	/**
-	 * random generate string
-	 * 
-	 * @param length
-	 * @return character string
-	 */
-	public static String getRandomString(int length) {
-		String str = "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		Random random = new Random();
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < length; i++) {
-			int number = random.nextInt(str.length());
-			sb.append(str.charAt(number));
-		}
-		return sb.toString();
-	}
+    public static class LocalFile {
 
-	/**
-	 * get buffer
-	 * 
-	 * @param filePath
-	 * @return byte[]
-	 * @throws IOException
-	 */
-	public static byte[] getBuffer(String filePath) throws IOException {
-		File file = new File(filePath);
-		long fileSize = file.length();
-		if (fileSize > Integer.MAX_VALUE) {
-			System.out.println("file too big...");
-			return null;
-		}
-		FileInputStream fi = new FileInputStream(file);
-		byte[] buffer = new byte[(int) fileSize];
-		int offset = 0;
-		int numRead = 0;
-		while (offset < buffer.length && (numRead = fi.read(buffer, offset, buffer.length - offset)) >= 0) {
-			offset += numRead;
-		}
-		// 确保所有数据均被读取
-		if (offset != buffer.length) {
-			extracted(file);
-		}
-		fi.close();
-		return buffer;
-	}
+        /**
+         * read the specify file length after seek, to compare the read results
+         * with SCM
+         *
+         * @param filePath
+         * @param size
+         * @param len
+         * @param downloadPath
+         * @throws FileNotFoundException
+         * @throws IOException
+         */
+        public static void readFile( String filePath, int size, int len,
+                String downloadPath )
+                throws FileNotFoundException, IOException {
+            RandomAccessFile raf = null;
+            OutputStream fos = null;
+            try {
+                raf = new RandomAccessFile( filePath, "rw" );
+                fos = new FileOutputStream( downloadPath );
+                raf.seek( size );
+                int off = 0;
+                int readSize = 0;
+                byte[] buf = new byte[ off + len ];
+                readSize = raf.read( buf, off, len );
+                fos.write( buf, off, readSize );
+            } finally {
+                if ( raf != null )
+                    raf.close();
+                if ( fos != null )
+                    fos.close();
+            }
+        }
 
-	private static void extracted(File file) throws IOException {
-		throw new IOException("failed to get buffer, file=" + file.getName());
-	}
+        /**
+         * read the entire file length after the seek, to compare the read
+         * results with SCM
+         *
+         * @param sourceFile
+         * @param size
+         * @param outputFile
+         * @throws FileNotFoundException
+         * @throws IOException
+         */
+        public static void readFile( String sourceFile, int size,
+                String outputFile )
+                throws FileNotFoundException, IOException {
+            RandomAccessFile raf = null;
+            OutputStream fos = null;
+            try {
+                raf = new RandomAccessFile( sourceFile, "rw" );
+                fos = new FileOutputStream( outputFile );
+                raf.seek( size );
+                int readSize = 0;
+                int off = 0;
+                int len = 1024 * 1024;
+                byte[] buf = new byte[ off + len ];
+                while ( true ) {
+                    readSize = raf.read( buf, off, len );
+                    if ( readSize <= 0 ) {
+                        break;
+                    }
+                    fos.write( buf, off, readSize );
+                }
+            } finally {
+                if ( raf != null )
+                    raf.close();
+                if ( fos != null )
+                    fos.close();
+            }
+        }
 
-	/**
-	 * get method... name
-	 */
-	public static String getMethodName() {
-		return Thread.currentThread().getStackTrace()[2].getMethodName();
-	}
+        /**
+         * create local directory
+         *
+         * @param dir
+         */
+        public static void createDir( String dir ) {
+            mkdir( new File( dir ) );
+        }
 
-	public static String getClassName() {
-		String fullClassName = Thread.currentThread().getStackTrace()[2].getClassName();
-		int index = fullClassName.lastIndexOf(".");
-		return fullClassName.substring(index + 1);
-	}
+        private static void mkdir( File filePath ) {
+            if ( !filePath.getParentFile().exists() ) {
+                mkdir( filePath.getParentFile() );
+            }
+            filePath.mkdir();
+        }
 
-	public static void setSystemTime(String host, Long date) throws Exception {
-		String time = new SimpleDateFormat("\"yyyy-MM-dd HH:mm:ss\"").format(date);
-		setSystemTime(host, time);
-	}
+        /**
+         * remove directory including directories and sub files
+         *
+         * @param filePath
+         */
+        public static void removeFile( String filePath ) {
+            File file = new File( filePath );
+            if ( file.exists() ) {
+                file.delete();
+            }
+        }
 
-	/**
-	 * set the system time for the host
-	 * 
-	 * @param host
-	 * @param dateStr,
-	 *            e.g: yyyyMMdd
-	 * @throws Exception
-	 */
-	public static void setSystemTime(String host, String dateStr) throws Exception {
-		Ssh ssh = null;
-		try {
-			ssh = new Ssh(host);
+        public static void removeFile( File file ) {
+            if ( file.exists() ) {
+                if ( file.isFile() ) {
+                    file.delete();
+                } else {
+                    File[] files = file.listFiles();
+                    for ( File subFile : files ) {
+                        removeFile( subFile );
+                    }
 
-			// set date
-			String cmd = "date -s " + dateStr;
-			ssh.exec(cmd);
+                    file.delete();
+                }
+            }
+        }
 
-			// print local date after set date
-			ssh.exec("date");
-			String localDate = ssh.getStdout().split("\n")[0];
-			System.out.println("host = " + host + ", localDate = " + localDate + ", after set system time");
-		} finally {
-			if (null != ssh) {
-				ssh.disconnect();
-			}
-		}
-	}
+        /**
+         * create empty file
+         *
+         * @param filePath
+         * @throws IOException
+         */
+        public static void createFile( String filePath ) throws IOException {
+            File file = new File( filePath );
+            if ( file.exists() ) {
+                file.delete();
+            }
+            mkdir( file.getParentFile() );
+            file.createNewFile();
+        }
 
-	/**
-	 * restore the system time for the host
-	 * 
-	 * @param host
-	 * @throws Exception
-	 */
-	public static void restoreSystemTime(String host) throws Exception {
-		Ssh ssh = null;
-		try {
-			ssh = new Ssh(host);
-			String cmd = "ntpdate " + TestScmBase.ntpServer;
+        /**
+         * create file, the file content are randomly generated character
+         *
+         * @param filePath
+         * @param size
+         * @throws IOException
+         */
+        public static void createFile( String filePath, int size )
+                throws IOException {
+            FileOutputStream fos = null;
+            try {
+                createFile( filePath );
+                File file = new File( filePath );
+                fos = new FileOutputStream( file );
 
-			// in case of time server not usable, retry in 1 min
-			int times = 60;
-			int intervalSec = 1;
-			boolean restoreOk = false;
-			Exception lastException = null;
-			for (int i = 0; i < times; ++i) {
-				try {
-					ssh.exec(cmd);
-					restoreOk = true;
-					break;
-				} catch (Exception e) {
-					lastException = e;
-					Thread.sleep(intervalSec);
-				}
-			}
+                int written = 0;
+                byte[] fileBlock = new byte[ 1024 ];
+                new Random().nextBytes( fileBlock );
+                while ( written < size ) {
+                    int toWrite = size - written;
+                    int len = fileBlock.length < toWrite ? fileBlock.length :
+                            toWrite;
+                    fos.write( fileBlock, 0, len );
+                    written += len;
+                }
+            } catch ( IOException e ) {
+                System.out.println( "create file failed, file=" + filePath );
+                throw e;
+            } finally {
+                if ( fos != null ) {
+                    fos.close();
+                }
+            }
+        }
 
-			// print local date after set date
-			ssh.exec("date");
-			String localDate = ssh.getStdout().split("\n")[0];
-			System.out.println("host = " + host + ", localDate = " + localDate + ", after restore system time");
+        /**
+         * create file, the file content are specify characters
+         *
+         * @param filePath
+         * @param content
+         * @param size
+         * @throws IOException
+         */
+        public static void createFile( String filePath, String content,
+                int size ) throws IOException {
+            FileOutputStream fos = null;
+            byte[] contentBytes = content.getBytes();
+            int written = 0;
+            try {
+                File file = new File( filePath );
+                fos = new FileOutputStream( file );
+                while ( written < size ) {
+                    int toWrite = size - written;
+                    int len = contentBytes.length < toWrite ?
+                            contentBytes.length : toWrite;
+                    fos.write( contentBytes, 0, len );
+                    written += len;
+                }
+            } catch ( IOException e ) {
+                System.out.println( "create file failed:file=" + filePath );
+                e.printStackTrace();
+            } finally {
+                if ( fos != null )
+                    fos.close();
+            }
+        }
 
-			if (!restoreOk) {
-				throw lastException;
-			}
-		} finally {
-			if (null != ssh) {
-				ssh.disconnect();
-			}
-		}
-	}
+        /**
+         * create download path and file, by methodName and threadId
+         */
+        public static String initDownloadPath( File localPath,
+                String methodName, long threadId ) throws Exception {
+            String downloadPath = null;
+            try {
+                int randomId = new Random().nextInt( 10000 );
+                String downLoadDir = localPath + File.separator + methodName;
+                createDir( downLoadDir );
+                downloadPath =
+                        downLoadDir + File.separator + "thread-" + threadId +
+                                "_" + System.currentTimeMillis()
+                                + "_" + randomId + ".lob";
+            } catch ( Exception e ) {
+                logger.info( "downloadPath\n" + downloadPath );
+                throw e;
+            }
+            return downloadPath;
+        }
+    }
 
 }

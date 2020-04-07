@@ -28,7 +28,8 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:ayncTransfer file,target site and source site data sources are different 
+ * test content:ayncTransfer file,target site and source site data sources
+ * are different
  * testlink-case:SCM-2098 
  * @author wuyan
  * @Date 2018.07.17
@@ -36,84 +37,89 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  */
 
 public class AsyncTransferFile2098 extends TestScmBase {
-	private boolean runSuccess = false;	
-	private static WsWrapper wsp = null;
-	private SiteWrapper branSite = null;
-	private SiteWrapper rootSite = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsM = null;
-	private ScmId fileId = null;
+    private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
+    private SiteWrapper branSite = null;
+    private SiteWrapper rootSite = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsM = null;
+    private ScmId fileId = null;
 
-	private String fileName = "file2098";	
-	private byte[] filedata = new byte[1024 * 100];
+    private String fileName = "file2098";
+    private byte[] filedata = new byte[ 1024 * 100 ];
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		int getSiteNums = 2;
-		List<SiteWrapper> branSitelist = ScmInfo.getBranchSites(getSiteNums);
-		rootSite = ScmInfo.getRootSite();
-		DatasourceType rootSiteDataType = rootSite.getDataType();
-		
-		int dbDataSoureCount = 0;
-		for (int i = 0; i < branSitelist.size(); i++) {
-			DatasourceType dataType = branSitelist.get(i).getDataType();
-			if (!dataType.equals(rootSiteDataType)) {
-				branSite = branSitelist.get(i);
-				break;
-			}
-			dbDataSoureCount ++;
-		}
-		if ( dbDataSoureCount == branSitelist.size() ) {				
-			throw new SkipException("all bransite are connected to sequoiadb datasourse, skip!");
-		}
-		wsp = ScmInfo.getWs();
-		sessionA = TestScmTools.createSession(branSite);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-		sessionM = TestScmTools.createSession(rootSite);
-		wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        int getSiteNums = 2;
+        List< SiteWrapper > branSitelist = ScmInfo
+                .getBranchSites( getSiteNums );
+        rootSite = ScmInfo.getRootSite();
+        DatasourceType rootSiteDataType = rootSite.getDataType();
 
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-		ScmFileUtils.cleanFile(wsp, cond);
-		fileId = VersionUtils.createFileByStream(wsA, fileName, filedata);
-	}
+        int dbDataSoureCount = 0;
+        for ( int i = 0; i < branSitelist.size(); i++ ) {
+            DatasourceType dataType = branSitelist.get( i ).getDataType();
+            if ( !dataType.equals( rootSiteDataType ) ) {
+                branSite = branSitelist.get( i );
+                break;
+            }
+            dbDataSoureCount++;
+        }
+        if ( dbDataSoureCount == branSitelist.size() ) {
+            throw new SkipException(
+                    "all bransite are connected to sequoiadb datasourse, " +
+                            "skip!" );
+        }
+        wsp = ScmInfo.getWs();
+        sessionA = TestScmTools.createSession( branSite );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-	@Test(groups = { "fourSite" })
-	private void test() throws Exception {
-		asyncTransferFile(wsA);
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+    }
 
-		// check the file data and siteinfo
-		SiteWrapper[] expCurSiteList = { rootSite, branSite };
-		int currentVersion = 1;
-		VersionUtils.checkSite(wsA, fileId, currentVersion, expCurSiteList);
-		VersionUtils.CheckFileContentByStream(wsM, fileName, currentVersion, filedata);
-		runSuccess = true;
-	}
+    @Test(groups = { "fourSite" })
+    private void test() throws Exception {
+        asyncTransferFile( wsA );
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			if( runSuccess ){
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
-			if (sessionM != null) {
-				sessionM.close();
-			}
-		}
-	}
+        // check the file data and siteinfo
+        SiteWrapper[] expCurSiteList = { rootSite, branSite };
+        int currentVersion = 1;
+        VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
+        VersionUtils.CheckFileContentByStream( wsM, fileName, currentVersion,
+                filedata );
+        runSuccess = true;
+    }
 
-	private void asyncTransferFile(ScmWorkspace ws) throws Exception {		
-		ScmFactory.File.asyncTransfer(ws, fileId);
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( runSuccess ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+        }
+    }
 
-		int sitenums = 2;
-		ScmTaskUtils.waitAsyncTaskFinished(wsM, fileId, sitenums);
-	}
+    private void asyncTransferFile( ScmWorkspace ws ) throws Exception {
+        ScmFactory.File.asyncTransfer( ws, fileId );
+
+        int sitenums = 2;
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, sitenums );
+    }
 
 }

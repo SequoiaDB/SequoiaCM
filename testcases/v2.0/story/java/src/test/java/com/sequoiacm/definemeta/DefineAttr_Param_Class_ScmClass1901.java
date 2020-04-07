@@ -1,4 +1,3 @@
-
 package com.sequoiacm.definemeta;
 
 import org.testng.Assert;
@@ -25,102 +24,102 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class DefineAttr_Param_Class_ScmClass1901 extends TestScmBase {
-	private String classname = "Param1901";
-	private String desc = "Param1901 It is a test";
-	private ScmClass expClass = null;
-	private SiteWrapper site = null;
-	private WsWrapper wsp = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private String classname = "Param1901";
+    private String desc = "Param1901 It is a test";
+    private ScmClass expClass = null;
+    private SiteWrapper site = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			expClass = ScmFactory.Class.createInstance(ws, classname, desc);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testIdIsNull() {
-		// get
-		try {
-			expClass.attachAttr(null);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ID) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testIdIsNull1() {
-		// get
-		try {
-			expClass.detachAttr(null);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ID) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testNameIsNull1() {
-		// get
-		try {
-			expClass.setName(null);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testNameIsBlank() {
-		// get
-		try {
-			expClass.setName("");
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testDescIsNull() {
-		// get
-		try {
-			expClass.setDescription(null);
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testIdIsNull() {
+        // get
+        try {
+            expClass.attachAttr( null );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ID ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		ScmFactory.Class.deleteInstance(ws, expClass.getId());
-		if (session != null) {
-			session.close();
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testIdIsNull1() {
+        // get
+        try {
+            expClass.detachAttr( null );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ID ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testNameIsNull1() {
+        // get
+        try {
+            expClass.setName( null );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testNameIsBlank() {
+        // get
+        try {
+            expClass.setName( "" );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testDescIsNull() {
+        // get
+        try {
+            expClass.setDescription( null );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        ScmFactory.Class.deleteInstance( ws, expClass.getId() );
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

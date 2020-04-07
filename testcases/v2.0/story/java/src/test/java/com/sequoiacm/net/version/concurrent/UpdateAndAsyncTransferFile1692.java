@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.net.version.concurrent;
 
@@ -37,8 +37,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @version 1.10
  */
 public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
-    private boolean runSuccess = false;
     private static WsWrapper wsp = null;
+    private boolean runSuccess = false;
     private SiteWrapper sourceSite = null;
     private SiteWrapper targetSite = null;
     private ScmSession sessionS = null;
@@ -48,17 +48,18 @@ public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
     private ScmId fileId = null;
 
     private String fileName = "fileVersion1692";
-    private byte[] filedata = new byte[1024 * 100];
-    private byte[] updatedata = new byte[1024 * 1024 * 2];
+    private byte[] filedata = new byte[ 1024 * 100 ];
+    private byte[] updatedata = new byte[ 1024 * 1024 * 2 ];
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         wsp = ScmInfo.getWs();
         // clean file
-        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
 
-        List<SiteWrapper> siteList = ScmNetUtils.getSortSites( wsp );
+        List< SiteWrapper > siteList = ScmNetUtils.getSortSites( wsp );
         sourceSite = siteList.get( 0 );
         targetSite = siteList.get( 1 );
 
@@ -80,16 +81,22 @@ public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        int asyncileVersion = VersionUtils.waitAsyncTaskFinished2( wsT, fileId, historyVersion, 2 );
+        int asyncileVersion = VersionUtils
+                .waitAsyncTaskFinished2( wsT, fileId, historyVersion, 2 );
 
-        Assert.assertTrue( updateFileThread.isSuccess(), updateFileThread.getErrorMsg() );
+        Assert.assertTrue( updateFileThread.isSuccess(),
+                updateFileThread.getErrorMsg() );
 
         SiteWrapper[] expHisSiteList = { targetSite, sourceSite };
         VersionUtils.checkSite( wsS, fileId, asyncileVersion, expHisSiteList );
         if ( asyncileVersion == historyVersion ) {
-            VersionUtils.CheckFileContentByStream( wsT, fileName, asyncileVersion, filedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsT, fileName, asyncileVersion,
+                            filedata );
         } else {
-            VersionUtils.CheckFileContentByStream( wsT, fileName, asyncileVersion, updatedata );
+            VersionUtils
+                    .CheckFileContentByStream( wsT, fileName, asyncileVersion,
+                            updatedata );
         }
 
         runSuccess = true;

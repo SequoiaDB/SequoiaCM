@@ -59,26 +59,30 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-            ScmFileUtils.cleanFile(ws_T,cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
             // login in
-            sessionA = TestScmTools.createSession(branceSite);
-            ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
+            sessionA = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromSubCenterA();
-        } catch (Exception e) {
+        } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testWSNoExist() throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace("ws_1", sessionA);
-            ScmSystem.Task.startCleanTask(ws, cond);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.WORKSPACE_NOT_EXIST != e.getError()) {
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( "ws_1", sessionA );
+            ScmSystem.Task.startCleanTask( ws, cond );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.WORKSPACE_NOT_EXIST != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -89,10 +93,11 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWSIsNull() throws ScmException {
         try {
-            ScmSystem.Task.startCleanTask(null, cond);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmSystem.Task.startCleanTask( null, cond );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -103,10 +108,11 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testCondIsNull() throws ScmException {
         try {
-            ScmSystem.Task.startCleanTask(ws, null);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmSystem.Task.startCleanTask( ws, null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -117,14 +123,14 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if (runSuccess1 || runSuccess2 || runSuccess3 || forceClear) {
-                ScmFactory.File.deleteInstance(ws, fileId, true);
-                TestSdbTools.Task.deleteMeta(taskId);
+            if ( runSuccess1 || runSuccess2 || runSuccess3 || forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch (BaseException | ScmException e) {
-            Assert.fail(e.getMessage());
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
         } finally {
-            if (sessionA != null) {
+            if ( sessionA != null ) {
                 sessionA.close();
             }
 
@@ -133,12 +139,12 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
 
     private void writeFileFromSubCenterA() {
         try {
-            ScmFile scmfile = ScmFactory.File.createInstance(ws);
-            scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-            scmfile.setAuthor(authorName);
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+            scmfile.setAuthor( authorName );
             fileId = scmfile.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 }

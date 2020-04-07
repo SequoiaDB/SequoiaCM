@@ -1,4 +1,3 @@
-
 package com.sequoiacm.testenv;
 
 import java.util.List;
@@ -23,29 +22,31 @@ import com.sequoiacm.testcommon.dsutils.HdfsUtils;
  * @version:1.0
  */
 public class CleanEnvForHdfs extends TestScmBase {
-	Logger log = LoggerFactory.getLogger(CleanEnvForHBase.class);
+    Logger log = LoggerFactory.getLogger( CleanEnvForHBase.class );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		List<SiteWrapper> siteList = ScmInfo.getAllSites();
-		for (SiteWrapper site : siteList) {
-			if (site.getDataType().equals(DatasourceType.HDFS)) {
-				List<WsWrapper> wspList = ScmInfo.getAllWorkspaces();
-				for (WsWrapper wsp : wspList) {
-					String rootPath =  HdfsUtils.getRootPath(site, wsp);
-					HdfsUtils.deletePath(site, rootPath);
-				}
-			} else {
-				log.info(site.getSiteName() + "'s datasourcetype is not hbase,it is " + site.getDataType());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        List< SiteWrapper > siteList = ScmInfo.getAllSites();
+        for ( SiteWrapper site : siteList ) {
+            if ( site.getDataType().equals( DatasourceType.HDFS ) ) {
+                List< WsWrapper > wspList = ScmInfo.getAllWorkspaces();
+                for ( WsWrapper wsp : wspList ) {
+                    String rootPath = HdfsUtils.getRootPath( site, wsp );
+                    HdfsUtils.deletePath( site, rootPath );
+                }
+            } else {
+                log.info( site.getSiteName() +
+                        "'s datasourcetype is not hbase,it is " +
+                        site.getDataType() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 }

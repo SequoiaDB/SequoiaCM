@@ -32,89 +32,97 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class AuthWs_role1742 extends TestScmBase {
-    private static final Logger logger = Logger.getLogger(AuthWs_role1742.class);
+    private static final Logger logger = Logger
+            .getLogger( AuthWs_role1742.class );
+    private static final String NAME = "authws1742";
+    private static final String PASSWORD = NAME;
+    private static final String DIR_PATH = "/" + NAME;
     private boolean runSuccess = false;
-
     private SiteWrapper site = null;
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-
-    private static final String NAME = "authws1742";
-    private static final String PASSWORD = NAME;
-    private static final String DIR_PATH = "/" + NAME;
     private ScmRole role = null;
 
     @BeforeClass
     private void setUp() throws ScmException {
-	site = ScmInfo.getSite();
-	wsp = ScmInfo.getWs();
-	session = TestScmTools.createSession(site);
-	ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-	// clean users and roles
-	try {
-	    ScmFactory.User.deleteUser(session, NAME);
-	} catch (ScmException e) {
-	    logger.info("clean users in setUp, errorMsg = [" + e.getError() + "]");
-	}
-	try {
-	    ScmFactory.Role.deleteRole(session, NAME);
-	} catch (ScmException e) {
-	    logger.info("clean roles in setUp, errorMsg = [" + e.getError() + "]");
-	}
+        // clean users and roles
+        try {
+            ScmFactory.User.deleteUser( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean users in setUp, errorMsg = [" + e.getError() + "]" );
+        }
+        try {
+            ScmFactory.Role.deleteRole( session, NAME );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean roles in setUp, errorMsg = [" + e.getError() + "]" );
+        }
 
-	// clean director
-	try {
-	    ScmFactory.Directory.deleteInstance(ws, DIR_PATH);
-	} catch (ScmException e) {
-	    logger.info("dir does not exist, errorMsg = [" + e.getError() + "]");
-	}
-	// prepare user
-	this.createUserAndRole();
+        // clean director
+        try {
+            ScmFactory.Directory.deleteInstance( ws, DIR_PATH );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "dir does not exist, errorMsg = [" + e.getError() + "]" );
+        }
+        // prepare user
+        this.createUserAndRole();
     }
 
     @Test
     private void test() throws ScmException, InterruptedException {
-	ScmResource resource = ScmResourceFactory.createDirectoryResource(wsp.getName(), DIR_PATH);
-	try {
-	    ScmFactory.Role.grantPrivilege(session, role, resource, ScmPrivilegeType.ALL);
-	    Assert.fail("expect failed but actual succ.");
-	} catch (ScmException e) {
-	    logger.info("grantPrivilege but ws/dir not exist, errorMsg = [" + e.getError() + "]");
-	}
+        ScmResource resource = ScmResourceFactory
+                .createDirectoryResource( wsp.getName(), DIR_PATH );
+        try {
+            ScmFactory.Role.grantPrivilege( session, role, resource,
+                    ScmPrivilegeType.ALL );
+            Assert.fail( "expect failed but actual succ." );
+        } catch ( ScmException e ) {
+            logger.info( "grantPrivilege but ws/dir not exist, errorMsg = [" +
+                    e.getError() + "]" );
+        }
 
-	// check results
-	// check privileges
-	ScmCursor<ScmPrivilege> priCursor = ScmFactory.Privilege.listPrivileges(session, role);
-	while (priCursor.hasNext()) {
-	    ScmPrivilege info = priCursor.getNext();
-	    Assert.assertNotEquals(info.getRoleId(), role.getRoleId());
-	    Assert.assertNotEquals(info.getResource(), resource);
-	}
+        // check results
+        // check privileges
+        ScmCursor< ScmPrivilege > priCursor = ScmFactory.Privilege
+                .listPrivileges( session, role );
+        while ( priCursor.hasNext() ) {
+            ScmPrivilege info = priCursor.getNext();
+            Assert.assertNotEquals( info.getRoleId(), role.getRoleId() );
+            Assert.assertNotEquals( info.getResource(), resource );
+        }
 
-	runSuccess = true;
+        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws ScmException {
-	try {
-	    if (runSuccess || TestScmBase.forceClear) {
-		ScmFactory.User.deleteUser(session, NAME);
-		ScmFactory.Role.deleteRole(session, NAME);
-	    }
-	} finally {
-	    if (null != session) {
-		session.close();
-	    }
-	}
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.User.deleteUser( session, NAME );
+                ScmFactory.Role.deleteRole( session, NAME );
+            }
+        } finally {
+            if ( null != session ) {
+                session.close();
+            }
+        }
     }
 
     private void createUserAndRole() throws ScmException {
-	ScmUser scmUser = ScmFactory.User.createUser(session, NAME, ScmUserPasswordType.LOCAL, PASSWORD);
-	role = ScmFactory.Role.createRole(session, NAME, "");
-	ScmUserModifier modifier = new ScmUserModifier();
-	modifier.addRole(role);
-	ScmFactory.User.alterUser(session, scmUser, modifier);
+        ScmUser scmUser = ScmFactory.User
+                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
+                        PASSWORD );
+        role = ScmFactory.Role.createRole( session, NAME, "" );
+        ScmUserModifier modifier = new ScmUserModifier();
+        modifier.addRole( role );
+        ScmFactory.User.alterUser( session, scmUser, modifier );
     }
 }

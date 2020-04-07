@@ -27,104 +27,121 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 
 public class Param_setUserAndPasswd322 extends TestScmBase {
-	private static SiteWrapper site = null;
+    private static SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() {
-		// inexistent user
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser("thisuserisnotexist");
-			scOpt.setPasswd(TestScmBase.scmPassword);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when user is inexistent");
-		} catch (ScmException e) {
-			if (401 != e.getErrorCode()) { // SCM_BUSINESS_LOGIN_FAILED
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		// wrong password
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser(TestScmBase.scmUserName);
-			scOpt.setPasswd(TestScmBase.scmPassword + "_plus");
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when password is wrong");
-		} catch (ScmException e) {
-			if (401 != e.getErrorCode()) { // SCM_BUSINESS_LOGIN_FAILED
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		// user is null
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser(null);
-			scOpt.setPasswd(TestScmBase.scmPassword);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when user is null");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		// user is ""
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser("");
-			scOpt.setPasswd(TestScmBase.scmPassword);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when user is empty string");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED.getErrorCode()) { // SCM_BUSINESS_LOGIN_FAILED
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		// password is null
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser(TestScmBase.scmUserName);
-			scOpt.setPasswd(null);
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when password is null");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-		// password is ""
-		try {
-			ScmConfigOption scOpt = new ScmConfigOption(
-					TestScmBase.gateWayList.get(0) + "/" + site.getSiteServiceName());
-			scOpt.setUser(TestScmBase.scmUserName);
-			scOpt.setPasswd("");
-			ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-			Assert.fail("create session shouldn't succeed when password is empty string");
-		} catch (ScmException e) {
-			if (e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED.getErrorCode()) { // SCM_BUSINESS_LOGIN_FAILED
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        // inexistent user
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( "thisuserisnotexist" );
+            scOpt.setPasswd( TestScmBase.scmPassword );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail(
+                    "create session shouldn't succeed when user is " +
+                            "inexistent" );
+        } catch ( ScmException e ) {
+            if ( 401 != e.getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        // wrong password
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( TestScmBase.scmUserName );
+            scOpt.setPasswd( TestScmBase.scmPassword + "_plus" );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail(
+                    "create session shouldn't succeed when password is wrong" );
+        } catch ( ScmException e ) {
+            if ( 401 != e.getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        // user is null
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( null );
+            scOpt.setPasswd( TestScmBase.scmPassword );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail( "create session shouldn't succeed when user is null" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() !=
+                    ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        // user is ""
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( "" );
+            scOpt.setPasswd( TestScmBase.scmPassword );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail(
+                    "create session shouldn't succeed when user is empty " +
+                            "string" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED
+                    .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        // password is null
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( TestScmBase.scmUserName );
+            scOpt.setPasswd( null );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail(
+                    "create session shouldn't succeed when password is null" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() !=
+                    ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        // password is ""
+        try {
+            ScmConfigOption scOpt = new ScmConfigOption(
+                    TestScmBase.gateWayList.get( 0 ) + "/" +
+                            site.getSiteServiceName() );
+            scOpt.setUser( TestScmBase.scmUserName );
+            scOpt.setPasswd( "" );
+            ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
+            Assert.fail(
+                    "create session shouldn't succeed when password is empty string" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED
+                    .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
 
-	}
+    }
 
 }

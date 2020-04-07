@@ -37,9 +37,9 @@ public class Param_scmInputStream272 extends TestScmBase {
         try {
             wsp = ScmInfo.getWs();
             session = TestScmTools.createSession();
-            ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-        } catch (ScmException e) {
-            Assert.fail(e.getMessage());
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 
@@ -47,15 +47,17 @@ public class Param_scmInputStream272 extends TestScmBase {
     private void testParamIsNull() throws ScmException {
         ScmInputStream sis = null;
         try {
-            sis = ScmFactory.File.createInputStream(null);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.INVALID_ARGUMENT || !e.getMessage().contains("scmFile is null")) {
+            sis = ScmFactory.File.createInputStream( null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ||
+                    !e.getMessage().contains( "scmFile is null" ) ) {
                 e.printStackTrace();
-                Assert.fail(e.getMessage());
+                Assert.fail( e.getMessage() );
             }
         } finally {
-            if (sis != null) {
+            if ( sis != null ) {
                 sis.close();
             }
         }
@@ -66,14 +68,17 @@ public class Param_scmInputStream272 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             // read content
-            ScmFile scmfile = ScmFactory.File.getInstance(ws, new ScmId("a1ffb2ffc3ffd4ff56ffe7ff"));
-            sis = ScmFactory.File.createInputStream(scmfile);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
+            ScmFile scmfile = ScmFactory.File
+                    .getInstance( ws, new ScmId( "a1ffb2ffc3ffd4ff56ffe7ff" ) );
+            sis = ScmFactory.File.createInputStream( scmfile );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
 
-        } catch (ScmException e) {
-            Assert.assertEquals(e.getErrorCode(), ScmError.FILE_NOT_FOUND.getErrorCode(), e.getMessage());
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getErrorCode(),
+                    ScmError.FILE_NOT_FOUND.getErrorCode(), e.getMessage() );
         } finally {
-            if (sis != null) {
+            if ( sis != null ) {
                 sis.close();
             }
         }
@@ -84,7 +89,7 @@ public class Param_scmInputStream272 extends TestScmBase {
         try {
             //
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
 

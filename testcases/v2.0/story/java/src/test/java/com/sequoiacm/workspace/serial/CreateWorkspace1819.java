@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sequoiacm.workspace.serial;
 
@@ -30,64 +30,69 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  * @author luweikang
  * @date 2018年6月22日
  */
-public class CreateWorkspace1819 extends TestScmBase{
-	
-	private String wsName = "ws1819";
-	private ScmSession session1 = null;
-	private ScmSession session2 = null;
-	private SiteWrapper rootSite = null;
-	private String username = "user1819";
-	private String password = "passwd1819";
-	private String roleName = "role1819";
-	
-	@BeforeClass
-	private void setUp() throws Exception{
-		
-		rootSite = ScmInfo.getRootSite();
-		session1 = TestScmTools.createSession(rootSite);
-		ScmWorkspaceUtil.deleteWs(wsName, session1);
-		try {
-			ScmFactory.User.deleteUser(session1, username);
-			ScmFactory.Role.deleteRole(session1, roleName);
-		} catch (ScmException e) {
-		}
-	}
-	
-	@Test(groups = { "one", "twoSite", "fourSite" })
-	private void test() throws ScmException, InterruptedException{
-		
-		this.createScmUser();
-		int siteNum = ScmInfo.getSiteNum();
-		try {
-			ScmWorkspaceUtil.createWS(session2, wsName, siteNum);
-		} catch (ScmException e) {
-			Assert.assertEquals(e.getError(), ScmError.OPERATION_UNAUTHORIZED, e.getMessage());
-		}
-	
-	}
-	
-	@AfterClass
-	private void tearDown(){
-		try{
-			ScmFactory.User.deleteUser(session1, username);
-			ScmFactory.Role.deleteRole(session1, roleName);
-		}catch( Exception e){
-			Assert.fail(e.getMessage()+e.getStackTrace());
-		}finally {
-			if( session1 != null){
-				session1.close();
-			}
-		}
-	}
-	
-	private void createScmUser() throws ScmException, InterruptedException{
-		ScmUser user = ScmFactory.User.createUser(session1, username, ScmUserPasswordType.LOCAL, password);
-		ScmRole role = ScmFactory.Role.createRole(session1, roleName, null);
-		ScmUserModifier modifier = new ScmUserModifier();
-		ScmResource rs = ScmResourceFactory.createWorkspaceResource(ScmInfo.getWs().getName());
-		ScmFactory.Role.grantPrivilege(session1, role, rs, ScmPrivilegeType.READ);
-		modifier.addRole(role);
-		ScmFactory.User.alterUser(session1, user, modifier);
-		session2 = TestScmTools.createSession(rootSite, username, password);
-	}
+public class CreateWorkspace1819 extends TestScmBase {
+
+    private String wsName = "ws1819";
+    private ScmSession session1 = null;
+    private ScmSession session2 = null;
+    private SiteWrapper rootSite = null;
+    private String username = "user1819";
+    private String password = "passwd1819";
+    private String roleName = "role1819";
+
+    @BeforeClass
+    private void setUp() throws Exception {
+
+        rootSite = ScmInfo.getRootSite();
+        session1 = TestScmTools.createSession( rootSite );
+        ScmWorkspaceUtil.deleteWs( wsName, session1 );
+        try {
+            ScmFactory.User.deleteUser( session1, username );
+            ScmFactory.Role.deleteRole( session1, roleName );
+        } catch ( ScmException e ) {
+        }
+    }
+
+    @Test(groups = { "one", "twoSite", "fourSite" })
+    private void test() throws ScmException, InterruptedException {
+
+        this.createScmUser();
+        int siteNum = ScmInfo.getSiteNum();
+        try {
+            ScmWorkspaceUtil.createWS( session2, wsName, siteNum );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.OPERATION_UNAUTHORIZED,
+                    e.getMessage() );
+        }
+
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmFactory.User.deleteUser( session1, username );
+            ScmFactory.Role.deleteRole( session1, roleName );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() + e.getStackTrace() );
+        } finally {
+            if ( session1 != null ) {
+                session1.close();
+            }
+        }
+    }
+
+    private void createScmUser() throws ScmException, InterruptedException {
+        ScmUser user = ScmFactory.User
+                .createUser( session1, username, ScmUserPasswordType.LOCAL,
+                        password );
+        ScmRole role = ScmFactory.Role.createRole( session1, roleName, null );
+        ScmUserModifier modifier = new ScmUserModifier();
+        ScmResource rs = ScmResourceFactory
+                .createWorkspaceResource( ScmInfo.getWs().getName() );
+        ScmFactory.Role
+                .grantPrivilege( session1, role, rs, ScmPrivilegeType.READ );
+        modifier.addRole( role );
+        ScmFactory.User.alterUser( session1, user, modifier );
+        session2 = TestScmTools.createSession( rootSite, username, password );
+    }
 }

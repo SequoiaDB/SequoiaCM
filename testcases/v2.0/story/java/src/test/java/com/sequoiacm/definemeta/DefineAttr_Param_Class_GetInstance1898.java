@@ -1,4 +1,3 @@
-
 package com.sequoiacm.definemeta;
 
 import org.testng.Assert;
@@ -25,58 +24,58 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class DefineAttr_Param_Class_GetInstance1898 extends TestScmBase {
-	private String classname = "Param1897";
-	private String desc = "Param1897 It is a test";
-	private ScmClass expClass = null;
-	private SiteWrapper site = null;
-	private WsWrapper wsp = null;
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private String classname = "Param1897";
+    private String desc = "Param1897 It is a test";
+    private ScmClass expClass = null;
+    private SiteWrapper site = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			expClass = ScmFactory.Class.createInstance(ws, classname, desc);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testWsIsNull() {
-		// get
-		try {
-			ScmFactory.Class.getInstance(null, expClass.getId());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testWsIsNull() {
+        // get
+        try {
+            ScmFactory.Class.getInstance( null, expClass.getId() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testIdIsNull() {
-		// get
-		try {
-			ScmFactory.Class.getInstance(ws, null);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testIdIsNull() {
+        // get
+        try {
+            ScmFactory.Class.getInstance( ws, null );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		ScmFactory.Class.deleteInstance(ws, expClass.getId());
-		if (session != null) {
-			session.close();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        ScmFactory.Class.deleteInstance( ws, expClass.getId() );
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

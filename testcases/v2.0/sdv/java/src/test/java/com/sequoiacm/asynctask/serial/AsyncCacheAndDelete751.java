@@ -39,144 +39,156 @@ import com.sequoiadb.exception.BaseException;
  * @version:1.0
  */
 public class AsyncCacheAndDelete751 extends TestScmBase {
-	private boolean runSuccess = false;
-	private int fileSize = 1024 * 1;
-	private File localPath = null;
-	private static String filePath = null;
-	private String author = "AsyncCacheAndDelete751";
-	
-	private SiteWrapper  rootSite = null;
-	private SiteWrapper branceSite = null;
-	private WsWrapper ws_T = null;
+    private static String filePath = null;
+    private boolean runSuccess = false;
+    private int fileSize = 1024 * 1;
+    private File localPath = null;
+    private String author = "AsyncCacheAndDelete751";
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		// filePathList.add(filePath);
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			
-			rootSite = ScmInfo.getRootSite();
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
+    private SiteWrapper rootSite = null;
+    private SiteWrapper branceSite = null;
+    private WsWrapper ws_T = null;
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(ws_T,cond);
-		} catch (IOException | ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        // filePathList.add(filePath);
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() {
-		try {
-			WCDFile wcdThread = new WCDFile();
-			wcdThread.start(20);
-			Assert.assertTrue(wcdThread.isSuccess(), wcdThread.getErrorMsg());
-			checkDeleteResult();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
+        } catch ( IOException | ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() {
+        try {
+            WCDFile wcdThread = new WCDFile();
+            wcdThread.start( 20 );
+            Assert.assertTrue( wcdThread.isSuccess(), wcdThread.getErrorMsg() );
+            checkDeleteResult();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	private class WCDFile extends TestThreadBase {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
 
-		@Override
-		public void exec() throws Exception {
-			ScmId fileId = write();
-			cache(fileId);
-			delete(fileId);
-		}
+        }
+    }
 
-		public void cache(ScmId fileId) throws InterruptedException {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(branceSite);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-				ScmFactory.File.asyncCache(ws, fileId);
-				SiteWrapper[] siteList = { rootSite, branceSite };
-				ScmTaskUtils.waitAsyncTaskFinished(ws, fileId, siteList.length);
-				ScmFileUtils.checkMetaAndData(ws_T, fileId, siteList, localPath, filePath);
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
+    private void checkDeleteResult() {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( rootSite );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( ws_T.getName(), session );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            long cnt = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( cnt, 0 );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-		public void delete(ScmId fileId) {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(branceSite);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-				// delete
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-			} catch (ScmException e) {
-				Assert.fail(e.getMessage());
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
+    private class WCDFile extends TestThreadBase {
 
-		private ScmId write() {
-			ScmSession session = null;
-			ScmId fileId = null;
-			try {
-				session = TestScmTools.createSession(rootSite);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-				ScmFile file = ScmFactory.File.createInstance(ws);
-				file.setContent(filePath);
-				file.setFileName(author+"_"+UUID.randomUUID());
-				file.setAuthor(author);
-				fileId = file.save();
-			} catch (ScmException e) {
-				Assert.fail(e.getMessage());
-			} finally {
-				if (null != session) {
-					session.close();
-				}
-			}
-			return fileId;
-		}
-	}
+        @Override
+        public void exec() throws Exception {
+            ScmId fileId = write();
+            cache( fileId );
+            delete( fileId );
+        }
 
-	private void checkDeleteResult() {
-		ScmSession session = null;
-		try {
-			session = TestScmTools.createSession(rootSite);
-			ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			long cnt = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(cnt, 0);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+        public void cache( ScmId fileId ) throws InterruptedException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branceSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), session );
+                ScmFactory.File.asyncCache( ws, fileId );
+                SiteWrapper[] siteList = { rootSite, branceSite };
+                ScmTaskUtils
+                        .waitAsyncTaskFinished( ws, fileId, siteList.length );
+                ScmFileUtils
+                        .checkMetaAndData( ws_T, fileId, siteList, localPath,
+                                filePath );
+            } catch ( Exception e ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+
+        public void delete( ScmId fileId ) {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branceSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), session );
+                // delete
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            } catch ( ScmException e ) {
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+
+        private ScmId write() {
+            ScmSession session = null;
+            ScmId fileId = null;
+            try {
+                session = TestScmTools.createSession( rootSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), session );
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setContent( filePath );
+                file.setFileName( author + "_" + UUID.randomUUID() );
+                file.setAuthor( author );
+                fileId = file.save();
+            } catch ( ScmException e ) {
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( null != session ) {
+                    session.close();
+                }
+            }
+            return fileId;
+        }
+    }
 }

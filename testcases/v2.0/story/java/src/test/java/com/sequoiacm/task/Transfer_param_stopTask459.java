@@ -39,99 +39,104 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
  * null taskId：不存在、null 2、检查校验结果
  */
 public class Transfer_param_stopTask459 extends TestScmBase {
-	private boolean runSuccess = true;
-	private ScmSession sessionA = null;
-	private ScmWorkspace ws = null;
-	private ScmId taskId = null;
-	private ScmId fileId = null;
-	private String authorName = "StopTaskArgValid459";
+    private boolean runSuccess = true;
+    private ScmSession sessionA = null;
+    private ScmWorkspace ws = null;
+    private ScmId taskId = null;
+    private ScmId fileId = null;
+    private String authorName = "StopTaskArgValid459";
 
-	private SiteWrapper branceSite = null;
-	private WsWrapper ws_T = null;
+    private SiteWrapper branceSite = null;
+    private WsWrapper ws_T = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_T, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-			sessionA = TestScmTools.createSession(branceSite);
-			ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
+            sessionA = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-			fileId = createFile(ws);
-			taskId = ScmSystem.Task.startTransferTask(ws, cond);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            fileId = createFile( ws );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void testInvalidSeeionArg() throws ScmException {
-		try {
-			ScmSystem.Task.stopTask(null, taskId);
-			Assert.assertFalse(true, "expect result is fail but actual is success.");
-		} catch (ScmException e) {
-			if (ScmError.INVALID_ARGUMENT != e.getError()) {
-				e.printStackTrace();
-				throw e;
-			}
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testInvalidSeeionArg() throws ScmException {
+        try {
+            ScmSystem.Task.stopTask( null, taskId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void testNullTaskIdArg() throws ScmException {
-		try {
-			ScmSystem.Task.stopTask(sessionA, null);
-			Assert.assertFalse(true, "expect result is fail but actual is success.");
-		} catch (ScmException e) {
-			if (ScmError.INVALID_ARGUMENT != e.getError()) {
-				e.printStackTrace();
-				throw e;
-			}
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testNullTaskIdArg() throws ScmException {
+        try {
+            ScmSystem.Task.stopTask( sessionA, null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void testInvalidTaskId() throws ScmException {
-		try {
-			ScmSystem.Task.stopTask(sessionA, fileId);
-			Assert.assertFalse(true, "expect result is fail but actual is success.");
-		} catch (ScmException e) {
-			if (ScmError.TASK_NOT_EXIST != e.getError()) {
-				e.printStackTrace();
-				throw e;
-			}	
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void testInvalidTaskId() throws ScmException {
+        try {
+            ScmSystem.Task.stopTask( sessionA, fileId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.TASK_NOT_EXIST != e.getError() ) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		ScmTaskUtils.waitTaskFinish(sessionA, taskId);
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				TestSdbTools.Task.deleteMeta(taskId);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private ScmId createFile(ScmWorkspace ws) throws ScmException {
-		ScmId fileId = null;
-		ScmFile scmfile = ScmFactory.File.createInstance(ws);
-		scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-		scmfile.setAuthor(authorName);
-		fileId = scmfile.save();
-		return fileId;
-	}
+    private ScmId createFile( ScmWorkspace ws ) throws ScmException {
+        ScmId fileId = null;
+        ScmFile scmfile = ScmFactory.File.createInstance( ws );
+        scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+        scmfile.setAuthor( authorName );
+        fileId = scmfile.save();
+        return fileId;
+    }
 }

@@ -29,83 +29,91 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 
 public class AuthServer_userAndRole_nameContainDot1833 extends TestScmBase {
-    private static final Logger logger = Logger.getLogger(AuthServer_userAndRole_nameContainDot1833.class);
-    private boolean runSuccess = false;
-
+    private static final Logger logger = Logger
+            .getLogger( AuthServer_userAndRole_nameContainDot1833.class );
+    private static final String NAME = "auth1833.a";
+    private static final String PASSWORD = NAME;
     private static SiteWrapper site = null;
+    private boolean runSuccess = false;
     private ScmSession session = null;
     private WsWrapper wsp = null;
 
-    private static final String NAME = "auth1833.a";
-    private static final String PASSWORD = NAME;
-
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-	try {
-	    site = ScmInfo.getSite();
-	    session = TestScmTools.createSession(site);
-	    wsp = ScmInfo.getWs();
+        try {
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+            wsp = ScmInfo.getWs();
 
-	    // clean new user
-	    try {
-		ScmFactory.User.deleteUser(session, NAME);
-	    } catch (ScmException e) {
-		logger.info("clean users in setUp, errorMsg = [" + e.getError() + "]");
-	    }
-	    try {
-		ScmFactory.Role.deleteRole(session, NAME);
-	    } catch (ScmException e) {
-		logger.info("clean roles in setUp, errorMsg = [" + e.getError() + "]");
-	    }
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+            // clean new user
+            try {
+                ScmFactory.User.deleteUser( session, NAME );
+            } catch ( ScmException e ) {
+                logger.info(
+                        "clean users in setUp, errorMsg = [" + e.getError() +
+                                "]" );
+            }
+            try {
+                ScmFactory.Role.deleteRole( session, NAME );
+            } catch ( ScmException e ) {
+                logger.info(
+                        "clean roles in setUp, errorMsg = [" + e.getError() +
+                                "]" );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
-	// create user and role
-	ScmUser user = ScmFactory.User.createUser(session, NAME, ScmUserPasswordType.LOCAL, PASSWORD);
-	ScmRole role = ScmFactory.Role.createRole(session, NAME, "");
-	ScmUserModifier modifier = new ScmUserModifier();
-	modifier.addRole(role);
-	ScmFactory.User.alterUser(session, user, modifier);
+        // create user and role
+        ScmUser user = ScmFactory.User
+                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
+                        PASSWORD );
+        ScmRole role = ScmFactory.Role.createRole( session, NAME, "" );
+        ScmUserModifier modifier = new ScmUserModifier();
+        modifier.addRole( role );
+        ScmFactory.User.alterUser( session, user, modifier );
 
-	// check user info
-	user = ScmFactory.User.getUser(session, NAME);
-	Assert.assertEquals(user.getUsername(), NAME);
-	Assert.assertTrue(user.hasRole(NAME));
+        // check user info
+        user = ScmFactory.User.getUser( session, NAME );
+        Assert.assertEquals( user.getUsername(), NAME );
+        Assert.assertTrue( user.hasRole( NAME ) );
 
-	role = ScmFactory.Role.getRole(session, NAME);
-	Assert.assertEquals(role.getRoleName(), "ROLE_" + NAME);
+        role = ScmFactory.Role.getRole( session, NAME );
+        Assert.assertEquals( role.getRoleName(), "ROLE_" + NAME );
 
-	// grant and revoke privilege
-	ScmResource resource = ScmResourceFactory.createWorkspaceResource(wsp.getName());
-	ScmFactory.Role.grantPrivilege(session, role, resource, ScmPrivilegeType.ALL);
-	ScmFactory.Role.revokePrivilege(session, role, resource, ScmPrivilegeType.ALL);
+        // grant and revoke privilege
+        ScmResource resource = ScmResourceFactory
+                .createWorkspaceResource( wsp.getName() );
+        ScmFactory.Role.grantPrivilege( session, role, resource,
+                ScmPrivilegeType.ALL );
+        ScmFactory.Role.revokePrivilege( session, role, resource,
+                ScmPrivilegeType.ALL );
 
-	// login and logout new user
-	ScmSession newSS = TestScmTools.createSession(site, NAME, PASSWORD);
-	newSS.close();
+        // login and logout new user
+        ScmSession newSS = TestScmTools.createSession( site, NAME, PASSWORD );
+        newSS.close();
 
-	// delete user and role
-	ScmFactory.User.deleteUser(session, NAME);
-	ScmFactory.Role.deleteRole(session, NAME);
+        // delete user and role
+        ScmFactory.User.deleteUser( session, NAME );
+        ScmFactory.Role.deleteRole( session, NAME );
 
-	runSuccess = true;
+        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
-	try {
-	    if (runSuccess || TestScmBase.forceClear) {
-	    }
-	} finally {
-	    if (null != session) {
-		session.close();
-	    }
-	}
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+            }
+        } finally {
+            if ( null != session ) {
+                session.close();
+            }
+        }
     }
 
 }

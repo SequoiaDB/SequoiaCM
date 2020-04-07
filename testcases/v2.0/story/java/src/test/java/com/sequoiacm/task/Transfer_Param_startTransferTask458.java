@@ -58,20 +58,22 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
             // cleanEnv
-            BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-            ScmFileUtils.cleanFile(ws_T,cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
             // login
-            session = TestScmTools.createSession(branceSite);
-            ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
+            session = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             // write scm file
-            ScmFile file = ScmFactory.File.createInstance(ws);
-            file.setFileName(authorName+"_"+UUID.randomUUID());
-            file.setAuthor(authorName);
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( authorName + "_" + UUID.randomUUID() );
+            file.setAuthor( authorName );
             fileId = file.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 
@@ -79,19 +81,20 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     private void testAttriNotExist() {
         try {
             // startTask
-            BSONObject condition = ScmQueryBuilder.start("test").greaterThanEquals("aa")
-                    .and(ScmAttributeName.File.AUTHOR).is(authorName).get();
-            taskId = ScmSystem.Task.startTransferTask(ws, condition);
-            ScmTaskUtils.waitTaskFinish(session, taskId);
+            BSONObject condition = ScmQueryBuilder.start( "test" )
+                    .greaterThanEquals( "aa" )
+                    .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+            taskId = ScmSystem.Task.startTransferTask( ws, condition );
+            ScmTaskUtils.waitTaskFinish( session, taskId );
             // check task info
-            ScmTask taskInfo = ScmSystem.Task.getTask(session, taskId);
-            Assert.assertEquals(taskInfo.getContent(), condition);
-            ScmTaskUtils.waitTaskFinish(session, taskId);
+            ScmTask taskInfo = ScmSystem.Task.getTask( session, taskId );
+            Assert.assertEquals( taskInfo.getContent(), condition );
+            ScmTaskUtils.waitTaskFinish( session, taskId );
             SiteWrapper[] expSiteList = { branceSite };
-            ScmFileUtils.checkMeta(ws, fileId, expSiteList);
-        } catch (Exception e) {
+            ScmFileUtils.checkMeta( ws, fileId, expSiteList );
+        } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         }
         runSuccess1 = true;
     }
@@ -99,12 +102,15 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsNotExist() throws ScmException {
         try {
-            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace("testaaa", session);
-            BSONObject condition = ScmQueryBuilder.start("test").greaterThanEquals("aa").get();
-            ScmSystem.Task.startTransferTask(ws1, condition);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.WORKSPACE_NOT_EXIST != e.getError()) {
+            ScmWorkspace ws1 = ScmFactory.Workspace
+                    .getWorkspace( "testaaa", session );
+            BSONObject condition = ScmQueryBuilder.start( "test" )
+                    .greaterThanEquals( "aa" ).get();
+            ScmSystem.Task.startTransferTask( ws1, condition );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.WORKSPACE_NOT_EXIST != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -115,11 +121,13 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsIsNull() throws ScmException {
         try {
-            BSONObject condition = ScmQueryBuilder.start("test").greaterThanEquals("aa").get();
-            ScmSystem.Task.startTransferTask(null, condition);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            BSONObject condition = ScmQueryBuilder.start( "test" )
+                    .greaterThanEquals( "aa" ).get();
+            ScmSystem.Task.startTransferTask( null, condition );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -130,10 +138,11 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testConditionIsNull() throws ScmException {
         try {
-            ScmSystem.Task.startTransferTask(ws, null);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmSystem.Task.startTransferTask( ws, null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -144,14 +153,15 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ((runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4) || forceClear) {
-                ScmFactory.File.deleteInstance(ws, fileId, true);
-                TestSdbTools.Task.deleteMeta(taskId);
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
+                    forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch (ScmException e) {
-            Assert.fail(e.getMessage());
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }

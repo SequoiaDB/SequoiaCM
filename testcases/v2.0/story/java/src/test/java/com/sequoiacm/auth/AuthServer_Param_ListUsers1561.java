@@ -1,4 +1,3 @@
-
 package com.sequoiacm.auth;
 
 import org.bson.BasicBSONObject;
@@ -23,46 +22,46 @@ import com.sequoiacm.testcommon.TestScmTools;
  * @version:1.0
  */
 public class AuthServer_Param_ListUsers1561 extends TestScmBase {
-	private SiteWrapper site;
+    private SiteWrapper site;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testSessionInexist1() {
-		ScmSession session = null;
-		try {
-			session = TestScmTools.createSession(site);
-			session.close();
-			ScmFactory.User.listUsers(session, new BasicBSONObject());
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.SESSION_CLOSED) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testSessionInexist1() {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            session.close();
+            ScmFactory.User.listUsers( session, new BasicBSONObject() );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.SESSION_CLOSED ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testSessionInexist2() {
-		ScmSession session = null;
-		try {
-			session = TestScmTools.createSession(site);
-			session.close();
-			ScmFactory.User.listUsers(session, new BasicBSONObject());
-			Assert.fail("exp fail but act success");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.SESSION_CLOSED) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testSessionInexist2() {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            session.close();
+            ScmFactory.User.listUsers( session, new BasicBSONObject() );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.SESSION_CLOSED ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 }

@@ -1,4 +1,3 @@
-
 package com.sequoiacm.monitor;
 
 import org.testng.Assert;
@@ -23,60 +22,62 @@ import com.sequoiacm.testcommon.TestScmTools;
  * @version:1.0
  */
 public class ListHealth2207 extends TestScmBase {
-	private SiteWrapper site = null;
-	private ScmSession session = null;
+    private SiteWrapper site = null;
+    private ScmSession session = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getRootSite();
-		try {
-			session = TestScmTools.createSession(site);
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getRootSite();
+        try {
+            session = TestScmTools.createSession( site );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "fourSite" })
-	private void testList() throws Exception {
-		ScmCursor<ScmHealth> cursor = null;
-		try {
-			cursor = ScmSystem.Monitor.listHealth(session, null);
-			while (cursor.hasNext()) {
-				ScmHealth str = cursor.getNext();
-				Assert.assertEquals(str.getStatus(), "UP");
-				Assert.assertNotNull(str.getNodeName());
-				Assert.assertNotNull(str.getServiceName());
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
+    @Test(groups = { "fourSite" })
+    private void testList() throws Exception {
+        ScmCursor< ScmHealth > cursor = null;
+        try {
+            cursor = ScmSystem.Monitor.listHealth( session, null );
+            while ( cursor.hasNext() ) {
+                ScmHealth str = cursor.getNext();
+                Assert.assertEquals( str.getStatus(), "UP" );
+                Assert.assertNotNull( str.getNodeName() );
+                Assert.assertNotNull( str.getServiceName() );
+            }
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
+    }
 
-	@Test(groups = { "fourSite" })
-	private void testGet() throws Exception {
-		ScmCursor<ScmHealth> cursor = null;
-		try {
-			cursor = ScmSystem.Monitor.listHealth(session, site.getSiteServiceName());
-			while (cursor.hasNext()) {
-				ScmHealth str = cursor.getNext();
-				Assert.assertEquals(str.getStatus(), "UP");
-				Assert.assertEquals(str.getServiceName(), site.getSiteServiceName());
-				Assert.assertNotNull(str.getNodeName());
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
+    @Test(groups = { "fourSite" })
+    private void testGet() throws Exception {
+        ScmCursor< ScmHealth > cursor = null;
+        try {
+            cursor = ScmSystem.Monitor
+                    .listHealth( session, site.getSiteServiceName() );
+            while ( cursor.hasNext() ) {
+                ScmHealth str = cursor.getNext();
+                Assert.assertEquals( str.getStatus(), "UP" );
+                Assert.assertEquals( str.getServiceName(),
+                        site.getSiteServiceName() );
+                Assert.assertNotNull( str.getNodeName() );
+            }
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		if (session != null) {
-			session.close();
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( session != null ) {
+            session.close();
+        }
+    }
 }

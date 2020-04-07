@@ -24,32 +24,33 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class DeleteNotExistBatch1293 extends TestScmBase {
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		SiteWrapper site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        SiteWrapper site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		ScmId inexistentId = new ScmId("ffffffffffffffffffffffff");
-		try {
-			ScmFactory.Batch.deleteInstance(ws, inexistentId);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.BATCH_NOT_FOUND) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        ScmId inexistentId = new ScmId( "ffffffffffffffffffffffff" );
+        try {
+            ScmFactory.Batch.deleteInstance( ws, inexistentId );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-        if (session != null)
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( session != null )
             session.close();
-	}
+    }
 }

@@ -47,228 +47,261 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class RecreateWs713 extends TestScmBase {
-	private String author = "RecreateWs713";
-	private SiteWrapper rootSite = null;
-	private String wsName1 = "ws1_RecreateWs713";
-	private WsWrapper wsp = null;
-	private List<ScmId> fileIdList = new CopyOnWriteArrayList<ScmId>();
-	private int fileSize = 1024 * 1024 * 1;
-	private File localPath = null;
-	private String filePath = null;
-	private boolean runSuccess = false;
-	private ScmSession session = null;
-	private List<SiteWrapper> siteList = new ArrayList<SiteWrapper>();
-	private List<String> domainNameList = new ArrayList<String>();
+    private String author = "RecreateWs713";
+    private SiteWrapper rootSite = null;
+    private String wsName1 = "ws1_RecreateWs713";
+    private WsWrapper wsp = null;
+    private List< ScmId > fileIdList = new CopyOnWriteArrayList< ScmId >();
+    private int fileSize = 1024 * 1024 * 1;
+    private File localPath = null;
+    private String filePath = null;
+    private boolean runSuccess = false;
+    private ScmSession session = null;
+    private List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
+    private List< String > domainNameList = new ArrayList< String >();
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			rootSite = ScmInfo.getRootSite();
-			siteList = ScmInfo.getAllSites();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(rootSite);
-			TestSdbTools.Workspace.delete(wsName1, session);
-			domainNameList.add("metaDomain1");
-			domainNameList.add("dataDomain1");
-			domainNameList.add("dataDomain2");
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
+            rootSite = ScmInfo.getRootSite();
+            siteList = ScmInfo.getAllSites();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( rootSite );
+            TestSdbTools.Workspace.delete( wsName1, session );
+            domainNameList.add( "metaDomain1" );
+            domainNameList.add( "dataDomain1" );
+            domainNameList.add( "dataDomain2" );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		createws(wsName1);
-		List<BSONObject> infoList = ScmSystem.Configuration.reloadBizConf(ServerScope.ALL_SITE,
-				rootSite.getSiteId(), session);
-		System.out.println("infoList after reloadbizconf: \n" + infoList);
-		write(session,wsName1);
-		TestSdbTools.Workspace.delete(wsName1, session);
-		createws(wsName1);
-		List<BSONObject> infoList1 = ScmSystem.Configuration.reloadBizConf(ServerScope.ALL_SITE,
-				rootSite.getSiteId(), session);
-		System.out.println("infoList after reloadbizconf: \n" + infoList1);
-		write(session,wsName1);
-		runSuccess = true;
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        createws( wsName1 );
+        List< BSONObject > infoList = ScmSystem.Configuration
+                .reloadBizConf( ServerScope.ALL_SITE,
+                        rootSite.getSiteId(), session );
+        System.out.println( "infoList after reloadbizconf: \n" + infoList );
+        write( session, wsName1 );
+        TestSdbTools.Workspace.delete( wsName1, session );
+        createws( wsName1 );
+        List< BSONObject > infoList1 = ScmSystem.Configuration
+                .reloadBizConf( ServerScope.ALL_SITE,
+                        rootSite.getSiteId(), session );
+        System.out.println( "infoList after reloadbizconf: \n" + infoList1 );
+        write( session, wsName1 );
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			TestSdbTools.Workspace.delete(wsName1, session);
-			for (SiteWrapper site : siteList) {
-				if (site.getDataType().equals(DatasourceType.SEQUOIADB)) {
-					dropAllDomain(site, domainNameList, false);
-				}
-			}
-			dropAllDomain(rootSite, domainNameList.subList(0, 1), true);
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                }
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            TestSdbTools.Workspace.delete( wsName1, session );
+            for ( SiteWrapper site : siteList ) {
+                if ( site.getDataType().equals( DatasourceType.SEQUOIADB ) ) {
+                    dropAllDomain( site, domainNameList, false );
+                }
+            }
+            dropAllDomain( rootSite, domainNameList.subList( 0, 1 ), true );
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	private void write(ScmSession session, String wsName) throws Exception {
+    private void write( ScmSession session, String wsName ) throws Exception {
 
-		ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setContent(filePath);
-		file.setFileName(author + "_" + UUID.randomUUID());
-		ScmId fileId = file.save();
-		fileIdList.add(fileId);
-	}
+        ScmWorkspace ws = ScmFactory.Workspace
+                .getWorkspace( wsp.getName(), session );
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setContent( filePath );
+        file.setFileName( author + "_" + UUID.randomUUID() );
+        ScmId fileId = file.save();
+        fileIdList.add( fileId );
+    }
 
-	private void createws(String wsName) throws Exception {
-		ScmSession session = null;
-		String metaStr1 = "{site:\'" + rootSite.getSiteName() + "\',domain:\'"
-				+ createDomain(rootSite, domainNameList.get(0), true) + "\'}";
-		String dataStr1 = createDataStr(domainNameList);
-		try {
-			session = TestScmTools.createSession(rootSite);
-			createWs(session, wsName, metaStr1,dataStr1);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-	
-	public void createWs(ScmSession session, String wsName, String metaStr, String dataStr)
-			throws Exception {
-		Ssh ssh = null;
-		try {
-			ssh = new Ssh(ScmInfo.getRootSite().getNode().getHost());
+    private void createws( String wsName ) throws Exception {
+        ScmSession session = null;
+        String metaStr1 = "{site:\'" + rootSite.getSiteName() + "\',domain:\'"
+                + createDomain( rootSite, domainNameList.get( 0 ), true ) +
+                "\'}";
+        String dataStr1 = createDataStr( domainNameList );
+        try {
+            session = TestScmTools.createSession( rootSite );
+            createWs( session, wsName, metaStr1, dataStr1 );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-			// get scm_install_dir
-			String installPath = ssh.getScmInstallDir();
+    public void createWs( ScmSession session, String wsName, String metaStr,
+            String dataStr )
+            throws Exception {
+        Ssh ssh = null;
+        try {
+            ssh = new Ssh( ScmInfo.getRootSite().getNode().getHost() );
 
-			// create workspace
-			String cmd = installPath + "/bin/scmadmin.sh createws -n " + wsName + " -m \"" + metaStr + "\" -d \""
-                    + dataStr + "\" --url \""+ TestScmBase.gateWayList.get(0)+"/"+rootSite.getSiteName().toLowerCase()+"\" --user " +TestScmBase.scmUserName +" --password " + TestScmBase.scmUserName;
-			ssh.exec(cmd);
-			String resultMsg = ssh.getStdout();
-			if (!resultMsg.contains("success")) {
-				throw new Exception("Failed to create ws[" + wsName + "], msg:\n" + resultMsg);
-			}
-		} finally {
-			if (null != ssh) {
-				ssh.disconnect();
-			}
-		}
-	}
+            // get scm_install_dir
+            String installPath = ssh.getScmInstallDir();
 
-	private String createDataStr(List<String> domainNameList) throws Exception {
-		String dataStr = "[";
-		for (int i = 0; i < siteList.size() - 1; i++) {
-			if (siteList.get(i).getDataType().equals(DatasourceType.SEQUOIADB)) {
-				dataStr += "{site:\'" + siteList.get(i).getSiteName() + "\',domain:\'"
-						+ createDomain(siteList.get(i), domainNameList.get(i % domainNameList.size()), false)
-						+ "\',data_sharding_type:{collection_space:\'year\',collection:\'month\'}},";
+            // create workspace
+            String cmd =
+                    installPath + "/bin/scmadmin.sh createws -n " + wsName +
+                            " -m \"" + metaStr + "\" -d \""
+                            + dataStr + "\" --url \"" +
+                            TestScmBase.gateWayList.get( 0 ) + "/" +
+                            rootSite.getSiteName().toLowerCase() +
+                            "\" --user " + TestScmBase.scmUserName +
+                            " --password " + TestScmBase.scmUserName;
+            ssh.exec( cmd );
+            String resultMsg = ssh.getStdout();
+            if ( !resultMsg.contains( "success" ) ) {
+                throw new Exception(
+                        "Failed to create ws[" + wsName + "], msg:\n" +
+                                resultMsg );
+            }
+        } finally {
+            if ( null != ssh ) {
+                ssh.disconnect();
+            }
+        }
+    }
 
-			} else {
-				dataStr += "{site:\'" + siteList.get(i).getSiteName() + "'},";
-			}
-		}
-		SiteWrapper lastSite = siteList.get(siteList.size() - 1);
-		if (lastSite.getDataType() == DatasourceType.SEQUOIADB) {
-			dataStr += "{site:\'" + lastSite.getSiteName() + "\',domain:\'"
-					+ createDomain(lastSite, domainNameList.get(siteList.size() % domainNameList.size()), false)
-					+ "\',data_sharding_type:{collection_space:\'year\',collection:\'month\'}}]";
-		} else {
-			dataStr += "{site:\'" + lastSite.getSiteName() + "\'}]";
-		}
-		return dataStr;
-	}
+    private String createDataStr( List< String > domainNameList )
+            throws Exception {
+        String dataStr = "[";
+        for ( int i = 0; i < siteList.size() - 1; i++ ) {
+            if ( siteList.get( i ).getDataType()
+                    .equals( DatasourceType.SEQUOIADB ) ) {
+                dataStr += "{site:\'" + siteList.get( i ).getSiteName() +
+                        "\',domain:\'"
+                        + createDomain( siteList.get( i ),
+                        domainNameList.get( i % domainNameList.size() ), false )
+                        +
+                        "\',data_sharding_type:{collection_space:\'year\'," +
+                        "collection:\'month\'}},";
 
-	private List<String> getGroupNames(Sequoiadb db) {
-		List<String> groupNameList = db.getReplicaGroupNames();
-		List<String> sysGroupname = new ArrayList<String>();
-		int num = groupNameList.size();
-		for (int i = 0; i < num; i++) {
-			if (groupNameList.get(i).contains("SYS")) {
-				sysGroupname.add(groupNameList.get(i));
-			}
-		}
-		groupNameList.removeAll(sysGroupname);
-		return groupNameList;
-	}
+            } else {
+                dataStr += "{site:\'" + siteList.get( i ).getSiteName() + "'},";
+            }
+        }
+        SiteWrapper lastSite = siteList.get( siteList.size() - 1 );
+        if ( lastSite.getDataType() == DatasourceType.SEQUOIADB ) {
+            dataStr += "{site:\'" + lastSite.getSiteName() + "\',domain:\'"
+                    + createDomain( lastSite, domainNameList
+                    .get( siteList.size() % domainNameList.size() ), false )
+                    +
+                    "\',data_sharding_type:{collection_space:\'year\'," +
+                    "collection:\'month\'}}]";
+        } else {
+            dataStr += "{site:\'" + lastSite.getSiteName() + "\'}]";
+        }
+        return dataStr;
+    }
 
-	private String createDomain(SiteWrapper site, String domainName, boolean flag) throws Exception {
-		Sequoiadb db = null;
-		try {
-			if (!flag) {
-				db = new Sequoiadb(site.getDataDsUrl(), TestScmBase.sdbUserName, TestScmBase.sdbPassword);
-			} else {
-				db = new Sequoiadb(site.getMetaDsUrl(), TestScmBase.sdbUserName, TestScmBase.sdbPassword);
-			}
-			if (db.isDomainExist(domainName)) {
-				return domainName;
-			}
-			List<String> groupNameList = getGroupNames(db);
-			if (groupNameList == null || groupNameList.size() == 0) {
-				throw new Exception("db does not exist group," + groupNameList);
-			}
-			BSONObject obj = new BasicBSONObject();
-			obj.put("Groups", groupNameList.toArray());
-			try {
-				db.createDomain(domainName, obj);
-			} catch (BaseException e) {
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (db != null) {
-				db.close();
-			}
-		}
-		return domainName;
-	}
+    private List< String > getGroupNames( Sequoiadb db ) {
+        List< String > groupNameList = db.getReplicaGroupNames();
+        List< String > sysGroupname = new ArrayList< String >();
+        int num = groupNameList.size();
+        for ( int i = 0; i < num; i++ ) {
+            if ( groupNameList.get( i ).contains( "SYS" ) ) {
+                sysGroupname.add( groupNameList.get( i ) );
+            }
+        }
+        groupNameList.removeAll( sysGroupname );
+        return groupNameList;
+    }
 
-	private void dropAllDomain(SiteWrapper site, List<String> domainNameList, boolean flag) {
-		Sequoiadb db = null;
-		try {
-			if (!flag) {
-				db = new Sequoiadb(site.getDataDsUrl(), TestScmBase.sdbUserName, TestScmBase.sdbPassword);
-			} else {
-				db = new Sequoiadb(site.getMetaDsUrl(), TestScmBase.sdbUserName, TestScmBase.sdbPassword);
-			}
-			try {
-				for (String domainName : domainNameList) {
-					System.out.println("domainName1 = " + domainName + " : " + site.toString());
-					db.dropDomain(domainName);
-				}
-			} catch (BaseException e) {
-				if (e.getErrorCode() != -214) {
-					e.printStackTrace();
-				}
-			}
+    private String createDomain( SiteWrapper site, String domainName,
+            boolean flag ) throws Exception {
+        Sequoiadb db = null;
+        try {
+            if ( !flag ) {
+                db = new Sequoiadb( site.getDataDsUrl(),
+                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
+            } else {
+                db = new Sequoiadb( site.getMetaDsUrl(),
+                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
+            }
+            if ( db.isDomainExist( domainName ) ) {
+                return domainName;
+            }
+            List< String > groupNameList = getGroupNames( db );
+            if ( groupNameList == null || groupNameList.size() == 0 ) {
+                throw new Exception(
+                        "db does not exist group," + groupNameList );
+            }
+            BSONObject obj = new BasicBSONObject();
+            obj.put( "Groups", groupNameList.toArray() );
+            try {
+                db.createDomain( domainName, obj );
+            } catch ( BaseException e ) {
+                e.printStackTrace();
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        } finally {
+            if ( db != null ) {
+                db.close();
+            }
+        }
+        return domainName;
+    }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (db != null) {
-				db.close();
-			}
-		}
-	}
+    private void dropAllDomain( SiteWrapper site, List< String > domainNameList,
+            boolean flag ) {
+        Sequoiadb db = null;
+        try {
+            if ( !flag ) {
+                db = new Sequoiadb( site.getDataDsUrl(),
+                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
+            } else {
+                db = new Sequoiadb( site.getMetaDsUrl(),
+                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
+            }
+            try {
+                for ( String domainName : domainNameList ) {
+                    System.out.println( "domainName1 = " + domainName + " : " +
+                            site.toString() );
+                    db.dropDomain( domainName );
+                }
+            } catch ( BaseException e ) {
+                if ( e.getErrorCode() != -214 ) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( db != null ) {
+                db.close();
+            }
+        }
+    }
 }

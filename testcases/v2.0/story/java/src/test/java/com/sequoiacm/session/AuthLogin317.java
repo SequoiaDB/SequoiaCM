@@ -26,44 +26,49 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 
 public class AuthLogin317 extends TestScmBase {
-	private static SiteWrapper site = null;
+    private static SiteWrapper site = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		site = ScmInfo.getSite();
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        site = ScmInfo.getSite();
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" } )
-	private void test() {
-		try {
-			try {
-				ScmConfigOption scOpt = new ScmConfigOption();
-				ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt);
-				Assert.fail("login success with invalid parameter");
-			} catch (ScmException e) {
-				if (e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()) {
-					throw e;
-				}
-			}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() {
+        try {
+            try {
+                ScmConfigOption scOpt = new ScmConfigOption();
+                ScmFactory.Session
+                        .createSession( SessionType.AUTH_SESSION, scOpt );
+                Assert.fail( "login success with invalid parameter" );
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() !=
+                        ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                    throw e;
+                }
+            }
 
-			try {
-				ScmConfigOption scOpt2 = new ScmConfigOption(TestScmBase.gateWayList.get(0)+"/"+site);
-				ScmFactory.Session.createSession(SessionType.AUTH_SESSION, scOpt2);
-				Assert.fail("login success with invalid parameter");
-			} catch (ScmException e) {
-				if (e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()) {
-					throw e;
-				}
-			}
+            try {
+                ScmConfigOption scOpt2 = new ScmConfigOption(
+                        TestScmBase.gateWayList.get( 0 ) + "/" + site );
+                ScmFactory.Session
+                        .createSession( SessionType.AUTH_SESSION, scOpt2 );
+                Assert.fail( "login success with invalid parameter" );
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() !=
+                        ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                    throw e;
+                }
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 
 }

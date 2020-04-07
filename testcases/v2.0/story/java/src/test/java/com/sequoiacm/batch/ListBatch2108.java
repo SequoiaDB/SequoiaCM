@@ -27,36 +27,39 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class ListBatch2108 extends TestScmBase {
-	private ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		SiteWrapper site = ScmInfo.getSite();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        SiteWrapper site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		List<ScmCursor<ScmBatchInfo>> list = new ArrayList<ScmCursor<ScmBatchInfo>>();
-		for (int i = 0; i < 10; i++) {
-			ScmCursor<ScmBatchInfo> cursor1 = ScmFactory.Batch.listInstance(ws, new BasicBSONObject());
-			list.add(cursor1);
-		}
-		for (ScmCursor<ScmBatchInfo> cursor : list) {
-			cursor.hasNext();
-		}
-		for (ScmCursor<ScmBatchInfo> cursor : list) {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        List< ScmCursor< ScmBatchInfo > > list = new ArrayList< ScmCursor<
+                ScmBatchInfo > >();
+        for ( int i = 0; i < 10; i++ ) {
+            ScmCursor< ScmBatchInfo > cursor1 = ScmFactory.Batch
+                    .listInstance( ws, new BasicBSONObject() );
+            list.add( cursor1 );
+        }
+        for ( ScmCursor< ScmBatchInfo > cursor : list ) {
+            cursor.hasNext();
+        }
+        for ( ScmCursor< ScmBatchInfo > cursor : list ) {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws Exception {
-        if (session != null)
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws Exception {
+        if ( session != null )
             session.close();
-	}
+    }
 }

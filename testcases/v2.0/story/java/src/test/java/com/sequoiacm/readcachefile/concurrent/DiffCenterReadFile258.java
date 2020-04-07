@@ -34,180 +34,196 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class DiffCenterReadFile258 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper rootSite = null;
-	private List<SiteWrapper> branSites = null;
-	private final int branSitesNum = 2;
-	private WsWrapper wsp = null;
-	private static ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
+    private static ScmSession sessionA = null;
+    private final int branSitesNum = 2;
+    private boolean runSuccess = false;
+    private SiteWrapper rootSite = null;
+    private List< SiteWrapper > branSites = null;
+    private WsWrapper wsp = null;
+    private ScmWorkspace wsA = null;
 
-	private String fileName = "readcachefile258";
-	private ScmId fileId = null;
-	private int fileSize = 1024 * 1024 * 3;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "readcachefile258";
+    private ScmId fileId = null;
+    private int fileSize = 1024 * 1024 * 3;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			rootSite = ScmInfo.getRootSite();
-			branSites = ScmInfo.getBranchSites(branSitesNum);
-			wsp = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branSites = ScmInfo.getBranchSites( branSitesNum );
+            wsp = ScmInfo.getWs();
 
-			sessionA = TestScmTools.createSession(branSites.get(0));
-			wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
+            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-			fileId = ScmFileUtils.create(wsA, fileName, filePath);
-		} catch (IOException | ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        } catch ( IOException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "fourSite" })
-	private void test() {
-		try {
-			ReadFileFromMainCenter readFromM = new ReadFileFromMainCenter();
-			readFromM.start(20);
+    @Test(groups = { "fourSite" })
+    private void test() {
+        try {
+            ReadFileFromMainCenter readFromM = new ReadFileFromMainCenter();
+            readFromM.start( 20 );
 
-			ReadFileFromSubCenterA readFromA = new ReadFileFromSubCenterA();
-			readFromA.start(20);
+            ReadFileFromSubCenterA readFromA = new ReadFileFromSubCenterA();
+            readFromA.start( 20 );
 
-			ReadFileFromSubCenterB readFromB = new ReadFileFromSubCenterB();
-			readFromB.start(20);
+            ReadFileFromSubCenterB readFromB = new ReadFileFromSubCenterB();
+            readFromB.start( 20 );
 
-			if (!(readFromM.isSuccess() && readFromA.isSuccess() && readFromB.isSuccess())) {
-				Assert.fail(readFromM.getErrorMsg() + readFromA.getErrorMsg() + readFromB.getErrorMsg());
-			}
+            if ( !( readFromM.isSuccess() && readFromA.isSuccess() &&
+                    readFromB.isSuccess() ) ) {
+                Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg() +
+                        readFromB.getErrorMsg() );
+            }
 
-			checkMetadataAndLobs();
+            checkMetadataAndLobs();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
 
-		runSuccess = true;
-	}
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private class ReadFileFromMainCenter extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				// login
-				session = TestScmTools.createSession(rootSite);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    private void checkMetadataAndLobs() throws Exception {
+        try {
+            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                    branSites.get( 1 ) };
+            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                    filePath );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-				// read
-				ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-						Thread.currentThread().getId());
-				read(file, downloadPath);
+    private void read( ScmFile file, String downloadPath )
+            throws ScmException, IOException {
+        ScmInputStream sis = null;
+        OutputStream fos = null;
+        try {
+            sis = ScmFactory.File.createInputStream( file );
+            fos = new FileOutputStream( downloadPath );
+            sis.read( fos );
+        } finally {
+            if ( fos != null )
+                fos.close();
+            if ( sis != null )
+                sis.close();
+        }
+    }
 
-				// check content
-				Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+    private class ReadFileFromMainCenter extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                // login
+                session = TestScmTools.createSession( rootSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
 
-	private class ReadFileFromSubCenterA extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				// login
-				session = TestScmTools.createSession(branSites.get(0));
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+                // read
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                String downloadPath = TestTools.LocalFile
+                        .initDownloadPath( localPath, TestTools.getMethodName(),
+                                Thread.currentThread().getId() );
+                read( file, downloadPath );
 
-				// read
-				ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-						Thread.currentThread().getId());
-				read(file, downloadPath);
+                // check content
+                Assert.assertEquals( TestTools.getMD5( filePath ),
+                        TestTools.getMD5( downloadPath ) );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
-				// check content
-				Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+    private class ReadFileFromSubCenterA extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                // login
+                session = TestScmTools.createSession( branSites.get( 0 ) );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
 
-	private class ReadFileFromSubCenterB extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				// login
-				session = TestScmTools.createSession(branSites.get(1));
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+                // read
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                String downloadPath = TestTools.LocalFile
+                        .initDownloadPath( localPath, TestTools.getMethodName(),
+                                Thread.currentThread().getId() );
+                read( file, downloadPath );
 
-				// read
-				ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-						Thread.currentThread().getId());
-				read(file, downloadPath);
+                // check content
+                Assert.assertEquals( TestTools.getMD5( filePath ),
+                        TestTools.getMD5( downloadPath ) );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
-				// check content
-				Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+    private class ReadFileFromSubCenterB extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                // login
+                session = TestScmTools.createSession( branSites.get( 1 ) );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
 
-	private void checkMetadataAndLobs() throws Exception {
-		try {
-			SiteWrapper[] expSites = { rootSite, branSites.get(0), branSites.get(1) };
-			ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath, filePath);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+                // read
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                String downloadPath = TestTools.LocalFile
+                        .initDownloadPath( localPath, TestTools.getMethodName(),
+                                Thread.currentThread().getId() );
+                read( file, downloadPath );
 
-	private void read(ScmFile file, String downloadPath) throws ScmException, IOException {
-		ScmInputStream sis = null;
-		OutputStream fos = null;
-		try {
-			sis = ScmFactory.File.createInputStream(file);
-			fos = new FileOutputStream(downloadPath);
-			sis.read(fos);
-		} finally {
-			if (fos != null)
-				fos.close();
-			if (sis != null)
-				sis.close();
-		}
-	}
+                // check content
+                Assert.assertEquals( TestTools.getMD5( filePath ),
+                        TestTools.getMD5( downloadPath ) );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
 }

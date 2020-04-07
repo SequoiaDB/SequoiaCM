@@ -1,4 +1,3 @@
-
 package com.sequoiacm.testcommon.scmutils;
 
 import java.util.ArrayList;
@@ -112,8 +111,9 @@ public class ScmAuthUtils extends TestScmBase {
             //the newSS used to check privilege come into effect
             newSS = TestScmTools.createSession( site, username, password );
             for ( int i = 0; i < nodeWrappers.size(); i++ ) {
-                checkNodePriority( newSS, wsName,nodeWrappers.get( i ),scmDirs.get(
-                        i ) );
+                checkNodePriority( newSS, wsName, nodeWrappers.get( i ),
+                        scmDirs.get(
+                                i ) );
             }
         } finally {
             if ( newSS != null ) {
@@ -130,8 +130,9 @@ public class ScmAuthUtils extends TestScmBase {
      * @param scmDirectory 文件夹
      * @throws Exception
      */
-    private static void checkNodePriority( ScmSession ss, String wsName, NodeWrapper
-            node, ScmDirectory scmDirectory ) throws Exception {
+    private static void checkNodePriority( ScmSession ss, String wsName,
+            NodeWrapper
+                    node, ScmDirectory scmDirectory ) throws Exception {
         int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
         int maxTimes = ScmAuthUtils.defaultTimeOut / ScmAuthUtils.sleepTime;
         while ( maxTimes-- > 0 ) {

@@ -1,4 +1,3 @@
-
 package com.sequoiacm.testenv;
 
 import java.util.ArrayList;
@@ -24,64 +23,66 @@ import com.sequoiadb.base.Sequoiadb;
  * @version:1.0
  */
 public class CleanEnvForSdb extends TestScmBase {
-	Logger log = LoggerFactory.getLogger(CleanEnvForHBase.class);
+    Logger log = LoggerFactory.getLogger( CleanEnvForHBase.class );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		List<SiteWrapper> siteList = ScmInfo.getAllSites();
-		for (SiteWrapper site : siteList) {
-			if (site.getDataType().equals(DatasourceType.SEQUOIADB)) {
-				deleteCS(site);
-			} else {
-				log.info(site.getSiteName() + "'s datasourcetype is not hbase,it is " + site.getDataType());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        List< SiteWrapper > siteList = ScmInfo.getAllSites();
+        for ( SiteWrapper site : siteList ) {
+            if ( site.getDataType().equals( DatasourceType.SEQUOIADB ) ) {
+                deleteCS( site );
+            } else {
+                log.info( site.getSiteName() +
+                        "'s datasourcetype is not hbase,it is " +
+                        site.getDataType() );
+            }
+        }
+    }
 
-	private void deleteCS(SiteWrapper site) {
-		List<String> csNames = getCsNames(site);
-		Sequoiadb sdb = null;
-		try {
-			sdb = TestSdbTools.getSdb(site.getDataDsUrl());
-			for (String csName : csNames) {
-				sdb.dropCollectionSpace(csName);
-			}
-		} catch (Exception e) {
-			log.info("delete cs failed, e = " + e.getMessage());
-		} finally {
-			if (sdb != null) {
-				sdb.close();
-			}
-		}
-	}
+    private void deleteCS( SiteWrapper site ) {
+        List< String > csNames = getCsNames( site );
+        Sequoiadb sdb = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            for ( String csName : csNames ) {
+                sdb.dropCollectionSpace( csName );
+            }
+        } catch ( Exception e ) {
+            log.info( "delete cs failed, e = " + e.getMessage() );
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+    }
 
-	private List<String> getCsNames(SiteWrapper site) {
-		Sequoiadb sdb = null;
-		List<String> lodCSNames = null;
-		try {
-			sdb = TestSdbTools.getSdb(site.getDataDsUrl());
-			List<String> csNames = sdb.getCollectionSpaceNames();
-			lodCSNames = new ArrayList<String>();
-			for (String name : csNames) {
-				if (name.contains("LOB")) {
-					lodCSNames.add(name);
-				}
-			}
-		} catch (Exception e) {
-			log.info("get cs names failed, e = " + e.getMessage());
-		} finally {
-			if (sdb != null) {
-				sdb.close();
-			}
-		}
-		return lodCSNames;
-	}
+    private List< String > getCsNames( SiteWrapper site ) {
+        Sequoiadb sdb = null;
+        List< String > lodCSNames = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            List< String > csNames = sdb.getCollectionSpaceNames();
+            lodCSNames = new ArrayList< String >();
+            for ( String name : csNames ) {
+                if ( name.contains( "LOB" ) ) {
+                    lodCSNames.add( name );
+                }
+            }
+        } catch ( Exception e ) {
+            log.info( "get cs names failed, e = " + e.getMessage() );
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+        return lodCSNames;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+    }
 }

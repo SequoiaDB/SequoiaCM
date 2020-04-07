@@ -24,78 +24,81 @@ import com.sequoiacm.testcommon.WsWrapper;
 /**
  * test content:breakpoint file is exists, continue upload breakpoint file
  * testlink case:seqDB-1373
- * 
+ *
  * @author wuyan
  * @Date 2018.05.13
  * @version 1.00
  */
 
 public class CreateBreakpointFile1373 extends TestScmBase {
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "breakpointfile1373";
-	private int fileSize = 1024 * 1024 * 2;
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "breakpointfile1373";
+    private int fileSize = 1024 * 1024 * 2;
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		BreakpointUtil.checkDBDataSource();
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		TestTools.LocalFile.removeFile(localPath);
-		TestTools.LocalFile.createDir(localPath.toString());
-		TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        BreakpointUtil.checkDBDataSource();
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-	}
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void test() throws Exception {
-		ScmBreakpointFile breakpointFile = createBreakpointFile();
-		reUploadFileData(breakpointFile);
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        ScmBreakpointFile breakpointFile = createBreakpointFile();
+        reUploadFileData( breakpointFile );
+    }
 
-	@AfterClass
-	private void tearDown() {
-		try {
-			if (TestScmBase.forceClear) {
-				ScmFactory.BreakpointFile.deleteInstance(ws, fileName);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass
+    private void tearDown() {
+        try {
+            if ( TestScmBase.forceClear ) {
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	private ScmBreakpointFile createBreakpointFile() throws ScmException {
-		// create file
-		ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile.createInstance(ws, fileName);
-		breakpointFile.upload(new File(filePath));
-		return breakpointFile;
-	}
+    private ScmBreakpointFile createBreakpointFile() throws ScmException {
+        // create file
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .createInstance( ws, fileName );
+        breakpointFile.upload( new File( filePath ) );
+        return breakpointFile;
+    }
 
-	private void reUploadFileData(ScmBreakpointFile breakpointFile) {
-		try {
-			breakpointFile.upload(new File(filePath));
-		} catch (ScmException e) {
-			if( ScmError.INVALID_ARGUMENT != e.getError()){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Assert.fail("upload error:" + e.getErrorCode());
-			}
+    private void reUploadFileData( ScmBreakpointFile breakpointFile ) {
+        try {
+            breakpointFile.upload( new File( filePath ) );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                Assert.fail( "upload error:" + e.getErrorCode() );
+            }
 
-		}
-	}
+        }
+    }
 
 }

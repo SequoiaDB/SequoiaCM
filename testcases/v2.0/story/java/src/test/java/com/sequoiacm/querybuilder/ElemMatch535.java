@@ -39,96 +39,101 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class ElemMatch535 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private ScmId fileId = null;
-	private String fileName = "EleMatch535";
-	private String author = fileName;
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private int fileNum = 5;
-	private List<ScmFile> fileList = new ArrayList<ScmFile>();
+    private ScmId fileId = null;
+    private String fileName = "EleMatch535";
+    private String author = fileName;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private int fileNum = 5;
+    private List< ScmFile > fileList = new ArrayList< ScmFile >();
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			readyScmFile();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+            readyScmFile();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testEleMatch() throws Exception {
-		try {
-			String key = ScmAttributeName.File.SITE_LIST;
-			String objKey1 = ScmAttributeName.File.SITE_ID;
-			String objkey2 = ScmAttributeName.File.LAST_ACCESS_TIME;
-			BSONObject obj = ScmQueryBuilder.start(objKey1).is(site.getSiteId()).put(objkey2).greaterThan(123456).get();
-			BSONObject cond = ScmQueryBuilder.start(key).elemMatch(obj).and(ScmAttributeName.File.TITLE).is(author)
-					.get();
-			// count
-			long count = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(count, fileNum - 2);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testEleMatch() throws Exception {
+        try {
+            String key = ScmAttributeName.File.SITE_LIST;
+            String objKey1 = ScmAttributeName.File.SITE_ID;
+            String objkey2 = ScmAttributeName.File.LAST_ACCESS_TIME;
+            BSONObject obj = ScmQueryBuilder.start( objKey1 )
+                    .is( site.getSiteId() ).put( objkey2 ).greaterThan( 123456 )
+                    .get();
+            BSONObject cond = ScmQueryBuilder.start( key ).elemMatch( obj )
+                    .and( ScmAttributeName.File.TITLE ).is( author )
+                    .get();
+            // count
+            long count = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( count, fileNum - 2 );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                }
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	private void readyScmFile() {
-		try {
-			ScmFile file = null;
-			for (int i = 0; i < fileNum - 2; i++) {
-				file = ScmFactory.File.createInstance(ws);
-				file.setFileName(fileName+"_"+UUID.randomUUID());
-				file.setTitle(author);
-				file.setAuthor(author);
-				fileId = file.save();
-				fileList.add(file);
-				fileIdList.add(fileId);
-			}
+    private void readyScmFile() {
+        try {
+            ScmFile file = null;
+            for ( int i = 0; i < fileNum - 2; i++ ) {
+                file = ScmFactory.File.createInstance( ws );
+                file.setFileName( fileName + "_" + UUID.randomUUID() );
+                file.setTitle( author );
+                file.setAuthor( author );
+                fileId = file.save();
+                fileList.add( file );
+                fileIdList.add( fileId );
+            }
 
-			for (int j = 0; j < 2; j++) {
-				file = ScmFactory.File.createInstance(ws);
-				file.setFileName(fileName+"_"+UUID.randomUUID());
-				file.setTitle(author+ "_12");
-				file.setAuthor(author);
-				fileId = file.save();
-				fileList.add(file);
-				fileIdList.add(fileId);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            for ( int j = 0; j < 2; j++ ) {
+                file = ScmFactory.File.createInstance( ws );
+                file.setFileName( fileName + "_" + UUID.randomUUID() );
+                file.setTitle( author + "_12" );
+                file.setAuthor( author );
+                fileId = file.save();
+                fileList.add( file );
+                fileIdList.add( fileId );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 }

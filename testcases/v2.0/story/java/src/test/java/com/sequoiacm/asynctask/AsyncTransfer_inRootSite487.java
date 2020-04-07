@@ -57,30 +57,34 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-        filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
 
         try {
             // ready file
-            TestTools.LocalFile.removeFile(localPath);
-            TestTools.LocalFile.createDir(localPath.toString());
-            TestTools.LocalFile.createFile(filePath, fileSize);
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
-            branceSite= ScmInfo.getBranchSite();
+            branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-            ScmFileUtils.cleanFile(ws_T,cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
             // login in
-            sessionM = TestScmTools.createSession(rootSite);
-            wsM = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionM);
+            sessionM = TestScmTools.createSession( rootSite );
+            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
 
-            writeFileFromMainCenter(wsM, filePath);
-        } catch (ScmException | IOException e) {
+            writeFileFromMainCenter( wsM, filePath );
+        } catch ( ScmException | IOException e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         }
     }
 
@@ -89,8 +93,8 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
         try {
             asyncTransferFromSubCenterA();
             checkResult();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
         runSuccess = true;
     }
@@ -98,44 +102,46 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if (runSuccess || forceClear) {
-                ScmFactory.File.deleteInstance(wsM, fileId, true);
-                TestTools.LocalFile.removeFile(localPath);
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
             }
-        } catch (BaseException | ScmException e) {
-            Assert.fail(e.getMessage());
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
         } finally {
-            if (sessionM != null) {
+            if ( sessionM != null ) {
                 sessionM.close();
             }
         }
     }
 
-    private void writeFileFromMainCenter(ScmWorkspace ws, String filePath) {
+    private void writeFileFromMainCenter( ScmWorkspace ws, String filePath ) {
         try {
-            ScmFile scmfile = ScmFactory.File.createInstance(ws);
-            scmfile.setContent(filePath);
-            scmfile.setFileName(fileName+"_"+UUID.randomUUID());
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setContent( filePath );
+            scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
             fileId = scmfile.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 
     private void asyncTransferFromSubCenterA() throws ScmException {
         ScmSession sessionB = null;
         try {
-            sessionB = TestScmTools.createSession(branceSite);
-            ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionB);
-            ScmFactory.File.asyncTransfer(wsB, fileId);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.DATA_NOT_EXIST != e.getError()) {
+            sessionB = TestScmTools.createSession( branceSite );
+            ScmWorkspace wsB = ScmFactory.Workspace
+                    .getWorkspace( ws_T.getName(), sessionB );
+            ScmFactory.File.asyncTransfer( wsB, fileId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.DATA_NOT_EXIST != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
         } finally {
-            if (sessionB != null) {
+            if ( sessionB != null ) {
                 sessionB.close();
             }
         }
@@ -144,10 +150,12 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     private void checkResult() {
         try {
             SiteWrapper[] expSiteList = { rootSite };
-            ScmTaskUtils.waitAsyncTaskFinished(wsM, fileId, expSiteList.length);
-            ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteList, localPath, filePath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            ScmTaskUtils
+                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                    filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 }

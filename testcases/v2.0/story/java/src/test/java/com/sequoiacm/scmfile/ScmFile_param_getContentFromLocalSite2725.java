@@ -1,5 +1,20 @@
 package com.sequoiacm.scmfile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
@@ -13,20 +28,6 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: SCM-2725:getContentFromLocalSite参数校验
@@ -44,7 +45,7 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
     private AtomicInteger actTestSuccessCount = new AtomicInteger( 0 );
     private int expTestSuccessCount = 4;
     private ScmWorkspace ws;
-    private List<ScmId> fileIdList = new ArrayList<>();
+    private List< ScmId > fileIdList = new ArrayList<>();
     private String name = "file2725";
     private File localPath;
 
@@ -55,7 +56,7 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
                         .getClassName() );
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        List<SiteWrapper> branchSites = ScmInfo.getBranchSites( 2 );
+        List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
         wsp = ScmInfo.getWs();

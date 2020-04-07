@@ -1,6 +1,5 @@
 package com.sequoiacm.version;
 
-
 import java.io.IOException;
 
 import org.testng.Assert;
@@ -21,81 +20,85 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update Content of the current scm file, than ayncTransfer the history version file
+ * test content:update Content of the current scm file, than ayncTransfer the
+ * history version file
  * testlink-case:SCM-1653
- * 
+ *
  * @author wuyan
  * @Date 2018.06.05
  * @version 1.00
  */
 
-public class AsyncTransferHisVersionFile1653 extends TestScmBase {	
-	private static WsWrapper wsp = null;
-	private SiteWrapper branSite = null;
-	private SiteWrapper rootSite = null;
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	private ScmSession sessionM = null;
-	private ScmWorkspace wsM = null;
-	private ScmId fileId = null;
+public class AsyncTransferHisVersionFile1653 extends TestScmBase {
+    private static WsWrapper wsp = null;
+    private SiteWrapper branSite = null;
+    private SiteWrapper rootSite = null;
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+    private ScmSession sessionM = null;
+    private ScmWorkspace wsM = null;
+    private ScmId fileId = null;
 
-	private String fileName = "file1653";
-	private byte[] filedata = new byte[ 1024 * 500 ];
-	private byte[] updatedata = new byte[ 1024];	
+    private String fileName = "file1653";
+    private byte[] filedata = new byte[ 1024 * 500 ];
+    private byte[] updatedata = new byte[ 1024 ];
 
-	@BeforeClass
-	private void setUp() throws IOException, ScmException {
-		branSite = ScmInfo.getBranchSite();
-		rootSite = ScmInfo.getRootSite();
-		wsp = ScmInfo.getWs();
-		
-		sessionA = TestScmTools.createSession(branSite);
-		wsA = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionA);
-		sessionM = TestScmTools.createSession(rootSite);
-		wsM = ScmFactory.Workspace.getWorkspace(wsp.getName(), sessionM);
-		
-		fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-		VersionUtils.updateContentByStream(wsA, fileId, updatedata);
-	}
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
+        branSite = ScmInfo.getBranchSite();
+        rootSite = ScmInfo.getRootSite();
+        wsp = ScmInfo.getWs();
 
-	@Test(groups = {  "twoSite", "fourSite"})
-	private void test() throws Exception {			
-		int currentVersion = 2;
-		int historyVersion = 1;
-		asyncTransferCurrentVersionFile(historyVersion);		
-		
-		//check the historyVersion file data and siteinfo
-		SiteWrapper[] expHisSiteList = { rootSite, branSite };		
-		VersionUtils.checkSite(wsA, fileId, historyVersion, expHisSiteList);
-		VersionUtils.CheckFileContentByStream(  wsM, fileName, historyVersion, filedata );
-		
-		//check the currentVersion file only on the branSiteA
-		SiteWrapper[] expCurSiteList = { branSite};
-		VersionUtils.checkSite(wsA, fileId, currentVersion, expCurSiteList);		
-	}
+        sessionA = TestScmTools.createSession( branSite );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-	@AfterClass
-	private void tearDown() {
-		try {			
-			ScmFactory.File.deleteInstance(wsM, fileId, true);			
-		} catch (Exception e) {
-			Assert.fail(e.getMessage()+e.getStackTrace());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}	
-			if (sessionM != null) {
-				sessionM.close();
-			}
-		}
-	}	
-	
-	private void asyncTransferCurrentVersionFile(int majorVersion) throws Exception {	
-		ScmFactory.File.asyncTransfer(wsA, fileId, majorVersion, 0);
-			
-		//wait task finished
-		int sitenums = 2;
-		VersionUtils.waitAsyncTaskFinished(wsM, fileId, majorVersion, sitenums);			
-	}
-	
+        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        VersionUtils.updateContentByStream( wsA, fileId, updatedata );
+    }
+
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        int currentVersion = 2;
+        int historyVersion = 1;
+        asyncTransferCurrentVersionFile( historyVersion );
+
+        //check the historyVersion file data and siteinfo
+        SiteWrapper[] expHisSiteList = { rootSite, branSite };
+        VersionUtils.checkSite( wsA, fileId, historyVersion, expHisSiteList );
+        VersionUtils.CheckFileContentByStream( wsM, fileName, historyVersion,
+                filedata );
+
+        //check the currentVersion file only on the branSiteA
+        SiteWrapper[] expCurSiteList = { branSite };
+        VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
+    }
+
+    @AfterClass
+    private void tearDown() {
+        try {
+            ScmFactory.File.deleteInstance( wsM, fileId, true );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() + e.getStackTrace() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+            if ( sessionM != null ) {
+                sessionM.close();
+            }
+        }
+    }
+
+    private void asyncTransferCurrentVersionFile( int majorVersion )
+            throws Exception {
+        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
+
+        //wait task finished
+        int sitenums = 2;
+        VersionUtils
+                .waitAsyncTaskFinished( wsM, fileId, majorVersion, sitenums );
+    }
+
 }

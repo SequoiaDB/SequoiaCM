@@ -46,7 +46,7 @@ public class Transfer_param_getTask460 extends TestScmBase {
     private String fileName = "GetTaskArgValid460";
 
     private SiteWrapper branceSite = null;
-    private WsWrapper  ws_T = null;
+    private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -54,25 +54,28 @@ public class Transfer_param_getTask460 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-            ScmFileUtils.cleanFile(ws_T,cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-            session = TestScmTools.createSession(branceSite);
-            ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-            fileId = createFile(ws);
-        } catch (Exception e) {
+            session = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
+            fileId = createFile( ws );
+        } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testInvalidSessonArg() throws ScmException {
         try {
-            ScmSystem.Task.getTask(null, taskId);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmSystem.Task.getTask( null, taskId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -82,10 +85,11 @@ public class Transfer_param_getTask460 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testTaskIdNullArg() throws ScmException {
         try {
-            ScmSystem.Task.getTask(session, null);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmSystem.Task.getTask( session, null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -95,12 +99,13 @@ public class Transfer_param_getTask460 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testNoExistTaskIdArg() {
         try {
-            ScmSystem.Task.getTask(session, fileId);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (e.getError() != ScmError.TASK_NOT_EXIST ) {
+            ScmSystem.Task.getTask( session, fileId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.TASK_NOT_EXIST ) {
                 e.printStackTrace();
-                Assert.fail(e.getMessage());
+                Assert.fail( e.getMessage() );
             }
         }
     }
@@ -108,25 +113,25 @@ public class Transfer_param_getTask460 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if (runSuccess || TestScmBase.forceClear) {
-                ScmFactory.File.deleteInstance(ws, fileId, true);
-                TestSdbTools.Task.deleteMeta(taskId);
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch (Exception e) {
+        } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
 
         }
     }
 
-    private ScmId createFile(ScmWorkspace ws) throws ScmException {
+    private ScmId createFile( ScmWorkspace ws ) throws ScmException {
         ScmId fileId = null;
-        ScmFile scmfile = ScmFactory.File.createInstance(ws);
-        scmfile.setFileName(fileName+"_"+UUID.randomUUID());
+        ScmFile scmfile = ScmFactory.File.createInstance( ws );
+        scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
         fileId = scmfile.save();
         return fileId;
     }

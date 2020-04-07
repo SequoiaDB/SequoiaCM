@@ -24,35 +24,41 @@ import com.sequoiacm.testcommon.TestScmBase;
 
 public class Param_put386 extends TestScmBase {
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testQuery() throws Exception {
-		try {
-			BSONObject cond = ScmQueryBuilder.start("key1").is("value1").put("").is("value2").get();
-			Assert.assertEquals(cond.toString().replaceAll("\\s*",""), ("{ \"key1\" : \"value1\" , \"\" : \"value2\"}").replaceAll("\\s*",""));
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testQuery() throws Exception {
+        try {
+            BSONObject cond = ScmQueryBuilder.start( "key1" ).is( "value1" )
+                    .put( "" ).is( "value2" ).get();
+            Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
+                    ( "{ \"key1\" : \"value1\" , \"\" : \"value2\"}" )
+                            .replaceAll( "\\s*", "" ) );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
 
-		try {
-			BSONObject cond = ScmQueryBuilder.start("key1").is("value1").put(null).is("value2").get();
-			Assert.fail("build condition when key is null shouldn't succeed. cond: " + cond);
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+        try {
+            BSONObject cond = ScmQueryBuilder.start( "key1" ).is( "value1" )
+                    .put( null ).is( "value2" ).get();
+            Assert.fail(
+                    "build condition when key is null shouldn't succeed. cond: " +
+                            cond );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+    }
 
 }

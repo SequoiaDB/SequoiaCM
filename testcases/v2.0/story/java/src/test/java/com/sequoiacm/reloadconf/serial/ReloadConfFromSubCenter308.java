@@ -56,20 +56,21 @@ public class ReloadConfFromSubCenter308 extends TestScmBase {
                             .getSiteServiceName() );
             session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
-            List<BSONObject> list = ScmSystem.Configuration
+            List< BSONObject > list = ScmSystem.Configuration
                     .reloadBizConf( ServerScope.ALL_SITE, rootSite.getSiteId(),
                             session );
 
             // check results
-            List<NodeWrapper> expNodeList = ScmInfo.getNodeList();
+            List< NodeWrapper > expNodeList = ScmInfo.getNodeList();
             String errStr =
-                    "reloadBizConf failed, actual infoList after reloadBizConf: \n"
+                    "reloadBizConf failed, actual infoList after " +
+                            "reloadBizConf: \n"
                             + list + "expect nodeInfo: \n" + expNodeList;
 
             Assert.assertEquals( list.size(), expNodeList.size(), errStr );
 
             // compare node id
-            List<Integer> serverIdList = new ArrayList<>();
+            List< Integer > serverIdList = new ArrayList<>();
             List< Integer > expServerIdList = new ArrayList<>();
             for ( int i = 0; i < list.size(); i++ ) {
                 Object errormsg = list.get( i ).get( "errormsg" );
@@ -81,7 +82,7 @@ public class ReloadConfFromSubCenter308 extends TestScmBase {
             }
             Collections.sort( serverIdList );
             Collections.sort( expServerIdList );
-            Assert.assertEquals( serverIdList,expServerIdList );
+            Assert.assertEquals( serverIdList, expServerIdList );
             this.bizOperator();
         } finally {
             if ( session != null )

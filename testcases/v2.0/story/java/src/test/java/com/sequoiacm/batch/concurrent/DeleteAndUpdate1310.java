@@ -30,19 +30,20 @@ import com.sequoiacm.testcommon.TestThreadBase;
  */
 
 public class DeleteAndUpdate1310 extends TestScmBase {
+    private final String batchName = "batch1310";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private final String batchName = "batch1310";
     private ScmId batchId = null;
 
     @BeforeClass(alwaysRun = false)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession(site);
-        ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
 
-        ScmBatch batch = ScmFactory.Batch.createInstance(ws);
-        batch.setName(batchName);
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
+        batch.setName( batchName );
         batchId = batch.save();
     }
 
@@ -52,17 +53,18 @@ public class DeleteAndUpdate1310 extends TestScmBase {
         DeleteThread deleteThrd = new DeleteThread();
         updateThrd.start();
         deleteThrd.start();
-        Assert.assertTrue(updateThrd.isSuccess(), updateThrd.getErrorMsg());
-        Assert.assertTrue(deleteThrd.isSuccess(), deleteThrd.getErrorMsg());
+        Assert.assertTrue( updateThrd.isSuccess(), updateThrd.getErrorMsg() );
+        Assert.assertTrue( deleteThrd.isSuccess(), deleteThrd.getErrorMsg() );
 
-        ScmCursor<ScmBatchInfo> batchCursor = ScmFactory.Batch.listInstance(ws, new BasicBSONObject("id", batchId.get()));
-        Assert.assertFalse(batchCursor.hasNext());
+        ScmCursor< ScmBatchInfo > batchCursor = ScmFactory.Batch
+                .listInstance( ws, new BasicBSONObject( "id", batchId.get() ) );
+        Assert.assertFalse( batchCursor.hasNext() );
         batchCursor.close();
     }
 
     @AfterClass(alwaysRun = false)
     private void tearDown() throws Exception {
-        if (session != null) {
+        if ( session != null ) {
             session.close();
         }
     }
@@ -70,9 +72,10 @@ public class DeleteAndUpdate1310 extends TestScmBase {
     private class DeleteThread extends TestThreadBase {
         @Override
         public void exec() throws Exception {
-            // TODO: using global ws is rude. remember to create new session when free.
-            Thread.sleep(50);
-            ScmFactory.Batch.deleteInstance(ws, batchId);
+            // TODO: using global ws is rude. remember to create new session
+            // when free.
+            Thread.sleep( 50 );
+            ScmFactory.Batch.deleteInstance( ws, batchId );
         }
     }
 
@@ -80,15 +83,15 @@ public class DeleteAndUpdate1310 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             try {
-                ScmBatch batch = ScmFactory.Batch.getInstance(ws, batchId);
+                ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
                 ScmTags props = new ScmTags();
-                for (int i = 0; i < 100; ++i) {
-                    props.addTag( "value" + i);
-                    batch.setTags(props);
-                    batch.setTags(props);
+                for ( int i = 0; i < 100; ++i ) {
+                    props.addTag( "value" + i );
+                    batch.setTags( props );
+                    batch.setTags( props );
                 }
-            } catch (ScmException e) {
-                if (e.getError() != ScmError.BATCH_NOT_FOUND) {
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
                     throw e;
                 }
             }

@@ -37,113 +37,119 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class ListInstanceInNewWs2273 extends TestScmBase {
-	private boolean runSuccess = false;
-	private int fileSize = 0;
-	private File localPath = null;
-	private String filePath = null;
-	private String name = "ListInstanceInNewWs2273";
+    private boolean runSuccess = false;
+    private int fileSize = 0;
+    private File localPath = null;
+    private String filePath = null;
+    private String name = "ListInstanceInNewWs2273";
 
-	private SiteWrapper site = null;
-	private ScmSession session = null;
+    private SiteWrapper site = null;
+    private ScmSession session = null;
 
-	private String wsName = "test";
-	private int num = 200;
+    private String wsName = "test";
+    private int num = 200;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws ScmException {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			// ready file
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			site = ScmInfo.getSite();
-			session = TestScmTools.createSession(site);
-			ScmFactory.Workspace.deleteWorkspace(session, wsName, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            // ready file
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
+            site = ScmInfo.getSite();
+            session = TestScmTools.createSession( site );
+            ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
+        } catch ( IOException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		this.prepareWs();
-		WriteFile wThread = new WriteFile();
-		wThread.start(num);
-		boolean wflag = wThread.isSuccess();
-		Assert.assertEquals(wflag, true, wThread.getErrorMsg());
-		this.listByCond();
-		ScmFactory.Workspace.deleteWorkspace(session, wsName, true);
-		runSuccess = true;
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        this.prepareWs();
+        WriteFile wThread = new WriteFile();
+        wThread.start( num );
+        boolean wflag = wThread.isSuccess();
+        Assert.assertEquals( wflag, true, wThread.getErrorMsg() );
+        this.listByCond();
+        ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		ScmFactory.Workspace.deleteWorkspace(session, wsName, true);
-		try {
-			if (runSuccess || forceClear) {
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
+        try {
+            if ( runSuccess || forceClear ) {
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	class WriteFile extends TestThreadBase {
-		@Override
-		public void exec() {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, session);
-				ScmFile file = ScmFactory.File.createInstance(ws);
-				file.setFileName(name + "_" + UUID.randomUUID());
-				file.setAuthor(name);
-				file.save();
-			} catch (ScmException e) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}finally{
-				if(session != null){
-					session.close();
-				}
-			}
-		}
-	}
+    private void listByCond() {
+        int count = 0;
+        try {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsName, session );
+            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            while ( cursor.hasNext() ) {
+                cursor.getNext();
+                count++;
+            }
+            Assert.assertEquals( count, num );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private void listByCond() {
-		int count = 0;
-		try {
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(name).get();
-			ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, session);
-			ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			while (cursor.hasNext()) {
-				cursor.getNext();
-				count++;
-			}
-			Assert.assertEquals(count, num);
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    private void prepareWs() {
+        try {
+            ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
+            ScmWorkspaceUtil.wsSetPriority( session, wsName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } catch ( InterruptedException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private void prepareWs() {
-		try {
-			ScmWorkspaceUtil.createWS(session, wsName, ScmInfo.getSiteNum());
-			ScmWorkspaceUtil.wsSetPriority(session, wsName);
-		} catch (ScmException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+    class WriteFile extends TestThreadBase {
+        @Override
+        public void exec() {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsName, session );
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setFileName( name + "_" + UUID.randomUUID() );
+                file.setAuthor( name );
+                file.save();
+            } catch ( ScmException e ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

@@ -41,109 +41,117 @@ import com.sequoiadb.exception.BaseException;
  */
 public class AsynctransferSameFile492 extends TestScmBase {
 
-	private boolean runSuccess = false;
-	private int fileSize = 1024 * 1024 * 11;
-	private File localPath = null;
-	private String filePath = null;
-	private ScmId fileId = null;
-	private String fileName = "AsynctransferSameFile492";
-	private ScmSession sessionA = null;
-	private ScmWorkspace wsA = null;
-	
-	private SiteWrapper branceSite = null;
+    private boolean runSuccess = false;
+    private int fileSize = 1024 * 1024 * 11;
+    private File localPath = null;
+    private String filePath = null;
+    private ScmId fileId = null;
+    private String fileName = "AsynctransferSameFile492";
+    private ScmSession sessionA = null;
+    private ScmWorkspace wsA = null;
+
+    private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
-			
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
-			
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-			ScmFileUtils.cleanFile(ws_T,cond);
-			
-			sessionA = TestScmTools.createSession(branceSite);
-			wsA = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
-			
-			writeFileFromSubCenterA();
-		} catch (IOException | ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		AsyncTransferFromSubCenterA asyncTransfer = new AsyncTransferFromSubCenterA();
-		asyncTransfer.start(50);
-		
-		if (!(asyncTransfer.isSuccess())) {
-			Assert.fail(asyncTransfer.getErrorMsg());
-		}
-		
-		checkResult();
-		runSuccess = true;
-	}
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				ScmFactory.File.deleteInstance(wsA, fileId, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (BaseException | ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (null != sessionA) {
-				sessionA.close();
-			}
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-		}
-	}
+            sessionA = TestScmTools.createSession( branceSite );
+            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-	private void writeFileFromSubCenterA() {
-		try {
-			ScmFile scmfile = ScmFactory.File.createInstance(wsA);
-			scmfile.setContent(filePath);
-			scmfile.setFileName(fileName+"_"+UUID.randomUUID());
-			fileId = scmfile.save();
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            writeFileFromSubCenterA();
+        } catch ( IOException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private class AsyncTransferFromSubCenterA extends TestThreadBase {
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(branceSite);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), session);
-				ScmFactory.File.asyncTransfer(ws, fileId);
-			} catch (ScmException e) {
-				throw e;
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        AsyncTransferFromSubCenterA asyncTransfer = new
+                AsyncTransferFromSubCenterA();
+        asyncTransfer.start( 50 );
 
-	private void checkResult() {
-		SiteWrapper rootSite = ScmInfo.getRootSite();
-		try {
-			SiteWrapper[] expSiteList = { rootSite, branceSite };
-			ScmTaskUtils.waitAsyncTaskFinished(wsA, fileId, expSiteList.length);
-			ScmFileUtils.checkMetaAndData(ws_T,fileId, expSiteList, localPath, filePath);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+        if ( !( asyncTransfer.isSuccess() ) ) {
+            Assert.fail( asyncTransfer.getErrorMsg() );
+        }
+
+        checkResult();
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( null != sessionA ) {
+                sessionA.close();
+            }
+
+        }
+    }
+
+    private void writeFileFromSubCenterA() {
+        try {
+            ScmFile scmfile = ScmFactory.File.createInstance( wsA );
+            scmfile.setContent( filePath );
+            scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
+            fileId = scmfile.save();
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
+
+    private void checkResult() {
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        try {
+            SiteWrapper[] expSiteList = { rootSite, branceSite };
+            ScmTaskUtils
+                    .waitAsyncTaskFinished( wsA, fileId, expSiteList.length );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                    filePath );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
+
+    private class AsyncTransferFromSubCenterA extends TestThreadBase {
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branceSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( ws_T.getName(), session );
+                ScmFactory.File.asyncTransfer( ws, fileId );
+            } catch ( ScmException e ) {
+                throw e;
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

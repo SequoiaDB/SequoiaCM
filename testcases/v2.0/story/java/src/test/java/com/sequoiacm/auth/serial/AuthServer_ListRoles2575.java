@@ -1,5 +1,18 @@
 package com.sequoiacm.auth.serial;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmQueryBuilder;
@@ -12,18 +25,6 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ListUtils;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: SCM-2575 :: 分页列取排序的角色
@@ -37,8 +38,8 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
     private SiteWrapper site;
     private ScmSession session;
     private int roleNum = 1000;
-    private List<String> roleNames = new ArrayList<>();
-    private List<ScmRole> scmRoles = new ArrayList<>();
+    private List< String > roleNames = new ArrayList<>();
+    private List< ScmRole > scmRoles = new ArrayList<>();
     private String roleNamePrefix = "role2575";
 
     @BeforeClass(alwaysRun = true)
@@ -57,7 +58,7 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
             ScmFactory.Role.createRole( session, roleName, roleName );
             roleNames.add( roleName );
         }
-        ScmCursor<ScmRole> cursor = ScmFactory.Role.listRoles( session );
+        ScmCursor< ScmRole > cursor = ScmFactory.Role.listRoles( session );
         while ( cursor.hasNext() ) {
             scmRoles.add( cursor.getNext() );
         }
@@ -66,9 +67,9 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
 
     @DataProvider(name = "dataProvider", parallel = true)
     public Object[][] generateRangData() throws Exception {
-        List<ScmRole> positiveList = new ArrayList<>();
+        List< ScmRole > positiveList = new ArrayList<>();
         positiveList.addAll( scmRoles );
-        List<ScmRole> negativeList = new ArrayList<>();
+        List< ScmRole > negativeList = new ArrayList<>();
         negativeList.addAll( scmRoles );
         ListUtils.sort( positiveList, true, "roleName" );
         ListUtils.sort( negativeList, false, "roleName" );
@@ -101,13 +102,13 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
 
     @Test(dataProvider = "dataProvider")
     private void test( BSONObject orderby, long skip, long limit,
-            List<ScmRole> expScmRoles, int expPageSize, double expTotalNum )
+            List< ScmRole > expScmRoles, int expPageSize, double expTotalNum )
             throws Exception {
         int actPageSize = 0;
         long tmpSkip = skip;
         double totalNum = 0;
         while ( tmpSkip < expScmRoles.size() ) {
-            ScmCursor<ScmRole> cursor = ScmFactory.Role
+            ScmCursor< ScmRole > cursor = ScmFactory.Role
                     .listRoles( session, orderby, tmpSkip, limit );
             int count = 0;
             while ( cursor.hasNext() ) {

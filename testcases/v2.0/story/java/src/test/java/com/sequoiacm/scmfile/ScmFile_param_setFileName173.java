@@ -33,189 +33,189 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class ScmFile_param_setFileName173 extends TestScmBase {
-	private boolean runSuccess1 = false;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess1 = false;
+    private ScmWorkspace ws = null;
 
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private String fileName = "scmfile173";
+    private String author = fileName;
+    private List< ScmId > fileIdList = new ArrayList<>();
 
-	private String fileName = "scmfile173";
-	private String author = fileName;
-	private List<ScmId> fileIdList = new ArrayList<>();
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        try {
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		try {
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testFileNameIsLongStr() {
+        try {
+            int strLeagth = 950;
+            String str = TestTools.getRandomString( strLeagth );
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testFileNameIsLongStr() {
-		try {
-			int strLeagth = 950;
-			String str = TestTools.getRandomString(strLeagth);
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( str );
+            file.setTitle( str );
+            file.setAuthor( fileName );
+            ScmId fileId = file.save();
+            fileIdList.add( fileId );
 
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(str);
-			file.setTitle(str);
-			file.setAuthor(fileName);
-			ScmId fileId = file.save();
-			fileIdList.add(fileId);
+            // check results
+            ScmFile file2 = ScmFactory.File.getInstance( ws, fileId );
+            Assert.assertEquals( file2.getAuthor(), fileName );
+            Assert.assertEquals( file2.getTitle(), str );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess1 = true;
+    }
 
-			// check results
-			ScmFile file2 = ScmFactory.File.getInstance(ws, fileId);
-			Assert.assertEquals(file2.getAuthor(), fileName);
-			Assert.assertEquals(file2.getTitle(), str);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess1 = true;
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" },enabled=false)
-	private void testNameIsDot() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName(".");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasSprit() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("//");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasBackslash() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("\\");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasStar() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("*");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasQuestionMark() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("12?");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasLessThanSign() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("qwer<");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasGreatThanSign() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("qwer>");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
-	
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testHasOrSign() {
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
-			file.setFileName("qwer|");
-			file.save();
-			Assert.fail("expect fail but success," + file.toString());
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.INVALID_ARGUMENT) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    private void testNameIsDot() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "." );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess1 || forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasSprit() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "//" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasBackslash() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "\\" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasStar() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "*" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasQuestionMark() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "12?" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasLessThanSign() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "qwer<" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasGreatThanSign() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "qwer>" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testHasOrSign() {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "qwer|" );
+            file.save();
+            Assert.fail( "expect fail but success," + file.toString() );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess1 || forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                }
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
 }

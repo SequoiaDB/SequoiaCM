@@ -33,125 +33,133 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class GetScmFileAttriByVersion132 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "scmfile132";
-	private String author = fileName;
-	private ScmId fileId = null;
-	private ScmId fileId2 = null;
-	private int fileSize = 1024 * 10;
-	private long localTime; // local time when createScmFile
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "scmfile132";
+    private String author = fileName;
+    private ScmId fileId = null;
+    private ScmId fileId2 = null;
+    private int fileSize = 1024 * 10;
+    private long localTime; // local time when createScmFile
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(author).get();
-			ScmFileUtils.cleanFile(wsp, cond);
-			fileId = this.createScmFile(ws, filePath, 0);
-			fileId2 = this.createScmFile(ws, filePath, 1);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
+            fileId = this.createScmFile( ws, filePath, 0 );
+            fileId2 = this.createScmFile( ws, filePath, 1 );
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testGetScmFileAllAttriByVersion() {
-		try {
-			ScmFile file = ScmFactory.File.getInstance(ws, fileId, 1, 0);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testGetScmFileAllAttriByVersion() {
+        try {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId, 1, 0 );
 
-			// get file's content, and check results
-			String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-					Thread.currentThread().getId());
-			file.getContent(downloadPath);
-			Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
+            // get file's content, and check results
+            String downloadPath = TestTools.LocalFile
+                    .initDownloadPath( localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
+            file.getContent( downloadPath );
+            Assert.assertEquals( TestTools.getMD5( filePath ),
+                    TestTools.getMD5( downloadPath ) );
 
-			// get file's attributes, and check results
-			Assert.assertEquals(file.getWorkspaceName(), wsp.getName());
-			Assert.assertEquals(file.getFileId(), fileId);
+            // get file's attributes, and check results
+            Assert.assertEquals( file.getWorkspaceName(), wsp.getName() );
+            Assert.assertEquals( file.getFileId(), fileId );
 
-			Assert.assertEquals(file.getFileName(), fileName + "_0");
-			Assert.assertEquals(file.getAuthor(), author);
-			Assert.assertEquals(file.getTitle(), "sequoiacm0");
-			
-			Assert.assertEquals(file.getMimeTypeEnum(), MimeType.CSS);
-			Assert.assertEquals(file.getMimeType(),  MimeType.CSS.getType());
-			Assert.assertEquals( file.getMimeTypeEnum().getSuffix(),MimeType.CSS.getSuffix());
-				
-			Assert.assertEquals(file.getSize(), fileSize);
-			Assert.assertEquals(file.getMinorVersion(), 0);
-			Assert.assertEquals(file.getMajorVersion(), 1);
+            Assert.assertEquals( file.getFileName(), fileName + "_0" );
+            Assert.assertEquals( file.getAuthor(), author );
+            Assert.assertEquals( file.getTitle(), "sequoiacm0" );
 
-			Assert.assertEquals(file.getUser(), TestScmBase.scmUserName);
-			long acceptableOffSet = 2000 * 1000; // unit:ms
-			if (Math.abs(file.getCreateTime().getTime() - localTime) > acceptableOffSet) {
-				Assert.fail("time is different: scmCreateFullTime=" + file.getCreateTime().getTime()
-						+ ", localFullTime=" + localTime);
-			}
-			Assert.assertEquals(file.getUpdateUser(), file.getUser());
-			Assert.assertEquals(file.getUpdateTime(), file.getCreateTime());
-	        //Assert.assertEquals(file.getPropertyType(), PropertyType.VIDEO);
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-		runSuccess = true;
-	}
+            Assert.assertEquals( file.getMimeTypeEnum(), MimeType.CSS );
+            Assert.assertEquals( file.getMimeType(), MimeType.CSS.getType() );
+            Assert.assertEquals( file.getMimeTypeEnum().getSuffix(),
+                    MimeType.CSS.getSuffix() );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				ScmFactory.File.deleteInstance(ws, fileId2, true);
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+            Assert.assertEquals( file.getSize(), fileSize );
+            Assert.assertEquals( file.getMinorVersion(), 0 );
+            Assert.assertEquals( file.getMajorVersion(), 1 );
 
-		}
-	}
+            Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
+            long acceptableOffSet = 2000 * 1000; // unit:ms
+            if ( Math.abs( file.getCreateTime().getTime() - localTime ) >
+                    acceptableOffSet ) {
+                Assert.fail( "time is different: scmCreateFullTime=" +
+                        file.getCreateTime().getTime()
+                        + ", localFullTime=" + localTime );
+            }
+            Assert.assertEquals( file.getUpdateUser(), file.getUser() );
+            Assert.assertEquals( file.getUpdateTime(), file.getCreateTime() );
+            //Assert.assertEquals(file.getPropertyType(), PropertyType.VIDEO);
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
 
-	private ScmId createScmFile(ScmWorkspace ws, String filePath, int i) {
-		ScmId scmFileID = null;
-		try {
-			ScmFile file = ScmFactory.File.createInstance(ws);
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                ScmFactory.File.deleteInstance( ws, fileId2, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-			file.setContent(filePath);
-			file.setFileName(fileName + "_" + i);
-			file.setTitle("sequoiacm" + i);
-			file.setAuthor(author);
-			file.setMimeType(MimeType.CSS);
+        }
+    }
 
-			//file.setPropertyType(PropertyType.VIDEO);
+    private ScmId createScmFile( ScmWorkspace ws, String filePath, int i ) {
+        ScmId scmFileID = null;
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
 
-			scmFileID = file.save();
+            file.setContent( filePath );
+            file.setFileName( fileName + "_" + i );
+            file.setTitle( "sequoiacm" + i );
+            file.setAuthor( author );
+            file.setMimeType( MimeType.CSS );
 
-			if (i == 0) {
-				localTime = new Date().getTime();
-			}
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-		return scmFileID;
-	}
+            //file.setPropertyType(PropertyType.VIDEO);
+
+            scmFileID = file.save();
+
+            if ( i == 0 ) {
+                localTime = new Date().getTime();
+            }
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+        return scmFileID;
+    }
 
 }

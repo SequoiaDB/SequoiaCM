@@ -1,5 +1,18 @@
 package com.sequoiacm.auth.serial;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
@@ -15,18 +28,6 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: SCM-2574:分页列取用户列表
@@ -40,7 +41,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
     private SiteWrapper site;
     private ScmSession session;
     private int userNum = 100;
-    private List<String> userNames = new ArrayList<>();
+    private List< String > userNames = new ArrayList<>();
     private String userNamePrefix = "user2574";
     private String roleName = "role2574";
 
@@ -111,7 +112,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         long tmpSkip = skip;
         int totalNum = 0;
         while ( tmpSkip < userNum ) {
-            ScmCursor<ScmUser> cursor = ScmFactory.User
+            ScmCursor< ScmUser > cursor = ScmFactory.User
                     .listUsers( session, filter, tmpSkip, limit );
             int count = 0;
             while ( cursor.hasNext() ) {

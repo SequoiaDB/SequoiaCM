@@ -36,141 +36,150 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  * @version:1.0
  */
 public class DiffNodeDeleteAndReadSameScmFile720 extends TestScmBase {
-	private boolean runSuccess = false;
-	private SiteWrapper site = null;
-	private WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static final String author = "DiffNodeDeleteAndReadSameScmFile720";
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private SiteWrapper site = null;
+    private WsWrapper wsp = null;
+    private ScmWorkspace ws = null;
+    private int fileSize = 1024 * 3;
+    private File localPath = null;
+    private String filePath = null;
+    private ScmId fileId = null;
 
-	private int fileSize = 1024 * 3;
-	private File localPath = null;
-	private String filePath = null;
-	private ScmId fileId = null;
-	private static final String author = "DiffNodeDeleteAndReadSameScmFile720";
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            fileId = ScmFileUtils
+                    .create( ws, author + "_" + UUID.randomUUID(), filePath );
+        } catch ( IOException | ScmException e ) {
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-			fileId = ScmFileUtils.create(ws, author+"_"+UUID.randomUUID(), filePath);
-		} catch (IOException | ScmException e) {
-			Assert.fail(e.getMessage());
-		}
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws Exception {
+        DeleteScmFile dThread = new DeleteScmFile( fileId );
+        dThread.start();
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws Exception {
-		DeleteScmFile dThread = new DeleteScmFile(fileId);
-		dThread.start();
+        ReadScmFile rThread = new ReadScmFile( fileId );
+        rThread.start( 20 );
 
-		ReadScmFile rThread = new ReadScmFile(fileId);
-		rThread.start(20);
+        if ( !( dThread.isSuccess() || rThread.isSuccess() ) ) {
+            Assert.fail( dThread.getErrorMsg() + rThread.getErrorMsg() );
+        }
+        dThread.join();
+        rThread.join();
+        checkResults();
+        runSuccess = true;
+    }
 
-		if (!(dThread.isSuccess() || rThread.isSuccess())) {
-			Assert.fail(dThread.getErrorMsg() + rThread.getErrorMsg());
-		}
-		dThread.join();
-		rThread.join();
-		checkResults();
-		runSuccess = true;
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || forceClear ) {
+                try {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                } catch ( ScmException e ) {
+                    System.out.println( "MSG = " + e.getMessage() );
+                }
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || forceClear) {
-				try{
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				}catch(ScmException e){
-					System.out.println("MSG = " + e.getMessage());
-				}
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		}finally {
-			if(session != null){
-				session.close();
-			}
-		}
-	}
+    private void checkResults() throws Exception {
+        try {
+            // check meta
+            BSONObject cond = new BasicBSONObject( "id", fileId.get() );
+            long cnt = ScmFactory.File
+                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            Assert.assertEquals( cnt, 0 );
 
-	private class DeleteScmFile extends TestThreadBase {
-		private ScmId fileId = null;
+            // check data
+            ScmFileUtils.checkData( ws, fileId, localPath, filePath );
+            Assert.assertFalse( true,
+                    "File is unExisted, except throw e, but success." );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+    }
 
-		public DeleteScmFile(ScmId fileId) {
-			this.fileId = fileId;
-		}
+    private class DeleteScmFile extends TestThreadBase {
+        private ScmId fileId = null;
 
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				ScmFactory.File.getInstance(ws, this.fileId).delete(true);
-			} finally {
-				if (session != null) {
-					session.close();
-				}
-			}
-		}
-	}
+        public DeleteScmFile( ScmId fileId ) {
+            this.fileId = fileId;
+        }
 
-	private class ReadScmFile extends TestThreadBase {
-		private ScmId fileId = null;
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFactory.File.getInstance( ws, this.fileId ).delete( true );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
-		public ReadScmFile(ScmId fileId) {
-			this.fileId = fileId;
-		}
+    private class ReadScmFile extends TestThreadBase {
+        private ScmId fileId = null;
 
-		@Override
-		public void exec() throws Exception {
-			ScmSession session = null;
-			try {
-				session = TestScmTools.createSession(site);
-				ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
-				ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-				String downloadPath = TestTools.LocalFile.initDownloadPath(localPath, TestTools.getMethodName(),
-						Thread.currentThread().getId());
-				file.getContent(downloadPath);
-				// check results
-				Assert.assertEquals(TestTools.getMD5(filePath), TestTools.getMD5(downloadPath));
-			} catch (ScmException e) {
-				if (e.getError() != ScmError.FILE_NOT_FOUND && e.getError() != ScmError.DATA_ERROR) {
-					Assert.fail(e.getMessage());
-				}
-			} finally {
-				if (null != session) {
-					session.close();
-				}
-			}
-		}
-	}
+        public ReadScmFile( ScmId fileId ) {
+            this.fileId = fileId;
+        }
 
-	private void checkResults() throws Exception {
-		try {
-			// check meta
-			BSONObject cond = new BasicBSONObject("id", fileId.get());
-			long cnt = ScmFactory.File.countInstance(ws, ScopeType.SCOPE_CURRENT, cond);
-			Assert.assertEquals(cnt, 0);
-
-			// check data
-			ScmFileUtils.checkData(ws, fileId, localPath, filePath);
-			Assert.assertFalse(true, "File is unExisted, except throw e, but success.");
-		} catch (ScmException e) {
-			if (e.getError() != ScmError.FILE_NOT_FOUND ) {
-				e.printStackTrace();
-				Assert.fail(e.getMessage());
-			}
-		}
-	}
+        @Override
+        public void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( site );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                String downloadPath = TestTools.LocalFile
+                        .initDownloadPath( localPath, TestTools.getMethodName(),
+                                Thread.currentThread().getId() );
+                file.getContent( downloadPath );
+                // check results
+                Assert.assertEquals( TestTools.getMD5( filePath ),
+                        TestTools.getMD5( downloadPath ) );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.FILE_NOT_FOUND &&
+                        e.getError() != ScmError.DATA_ERROR ) {
+                    Assert.fail( e.getMessage() );
+                }
+            } finally {
+                if ( null != session ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

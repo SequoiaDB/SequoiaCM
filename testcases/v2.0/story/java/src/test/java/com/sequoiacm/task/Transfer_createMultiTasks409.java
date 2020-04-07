@@ -45,120 +45,128 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class Transfer_createMultiTasks409 extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(Transfer_createMultiTasks409.class);
+    private static final Logger logger = Logger
+            .getLogger( Transfer_createMultiTasks409.class );
 
-	private boolean runSuccess = false;
-	private File localPath = null;
-	private String filePath = null;
-	private int FILE_SIZE = new Random().nextInt(1024) + 1;
-	private ScmSession sessionA = null;
-	private ScmWorkspace ws = null;
-	private ScmId taskId = null;
-	private String authorName = "CreateMultiTasks409";
-	private ScmId fileId = null;
-	private BSONObject cond = null;
-	
-	private SiteWrapper branceSite = null;
+    private boolean runSuccess = false;
+    private File localPath = null;
+    private String filePath = null;
+    private int FILE_SIZE = new Random().nextInt( 1024 ) + 1;
+    private ScmSession sessionA = null;
+    private ScmWorkspace ws = null;
+    private ScmId taskId = null;
+    private String authorName = "CreateMultiTasks409";
+    private ScmId fileId = null;
+    private BSONObject cond = null;
+
+    private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
-    
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
 
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, FILE_SIZE);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
 
-			branceSite = ScmInfo.getBranchSite();
-			ws_T = ScmInfo.getWs();
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, FILE_SIZE );
 
-			sessionA = TestScmTools.createSession(branceSite);
-			ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
-			
-			cond = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is(authorName).get();
-			ScmFileUtils.cleanFile(ws_T, cond);
-			
-			createFile(ws, filePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+            branceSite = ScmInfo.getBranchSite();
+            ws_T = ScmInfo.getWs();
 
-	@Test(groups = { "twoSite", "fourSite" })
-	private void test() throws ScmException {
-		startTask();
-		waitTaskStop();
-		checkTaskAttribute();
-		runSuccess = true;
-	}
+            sessionA = TestScmTools.createSession( branceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				TestTools.LocalFile.removeFile(localPath);
-				TestSdbTools.Task.deleteMeta(taskId);
-				ScmFileUtils.cleanFile(ws_T, cond);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		} finally {
-			if (sessionA != null) {
-				sessionA.close();
-			}
+            cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                    .is( authorName ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
 
-		}
-	}
+            createFile( ws, filePath );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	private void createFile(ScmWorkspace ws, String filePath) throws ScmException {
-		ScmFile scmfile = ScmFactory.File.createInstance(ws);
-		scmfile.setContent(filePath);
-		scmfile.setFileName(authorName+"_"+UUID.randomUUID());
-		scmfile.setAuthor(authorName);
-		fileId = scmfile.save();
-	}
+    @Test(groups = { "twoSite", "fourSite" })
+    private void test() throws ScmException {
+        startTask();
+        waitTaskStop();
+        checkTaskAttribute();
+        runSuccess = true;
+    }
 
-	private void startTask() throws ScmException {
-		try {
-			taskId = ScmSystem.Task.startTransferTask(ws, cond);
-			for (int i = 0; i < 5; i++) {
-				ScmSystem.Task.startTransferTask(ws, cond);
-			}
-		} catch (ScmException e) {
-			if (ScmError.TASK_DUPLICATE != e.getError()) {
-				logger.error("transfer cond INFO "+cond.toString());
-				throw e;
-			}
-		}
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                TestTools.LocalFile.removeFile( localPath );
+                TestSdbTools.Task.deleteMeta( taskId );
+                ScmFileUtils.cleanFile( ws_T, cond );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
 
-	private void waitTaskStop() throws ScmException {
-		Date stopTime = null;
-		while (stopTime == null) {
-			stopTime = ScmSystem.Task.getTask(sessionA, taskId).getStopTime();
-		}
-	}
+        }
+    }
 
-	private void checkTaskAttribute() {
-		ScmTask task = null;
-		try {
-			task = ScmSystem.Task.getTask(sessionA, taskId);
-			Assert.assertEquals(task.getId(), taskId);
-			Assert.assertEquals(task.getProgress(), 100);
-			Assert.assertEquals(task.getRunningFlag(), CommonDefine.TaskRunningFlag.SCM_TASK_FINISH);
-			Assert.assertEquals(task.getType(), CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE);
-			Assert.assertEquals(task.getWorkspaceName(), ws.getName());
-			
+    private void createFile( ScmWorkspace ws, String filePath )
+            throws ScmException {
+        ScmFile scmfile = ScmFactory.File.createInstance( ws );
+        scmfile.setContent( filePath );
+        scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
+        scmfile.setAuthor( authorName );
+        fileId = scmfile.save();
+    }
+
+    private void startTask() throws ScmException {
+        try {
+            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+            for ( int i = 0; i < 5; i++ ) {
+                ScmSystem.Task.startTransferTask( ws, cond );
+            }
+        } catch ( ScmException e ) {
+            if ( ScmError.TASK_DUPLICATE != e.getError() ) {
+                logger.error( "transfer cond INFO " + cond.toString() );
+                throw e;
+            }
+        }
+    }
+
+    private void waitTaskStop() throws ScmException {
+        Date stopTime = null;
+        while ( stopTime == null ) {
+            stopTime = ScmSystem.Task.getTask( sessionA, taskId ).getStopTime();
+        }
+    }
+
+    private void checkTaskAttribute() {
+        ScmTask task = null;
+        try {
+            task = ScmSystem.Task.getTask( sessionA, taskId );
+            Assert.assertEquals( task.getId(), taskId );
+            Assert.assertEquals( task.getProgress(), 100 );
+            Assert.assertEquals( task.getRunningFlag(),
+                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
+            Assert.assertEquals( task.getType(),
+                    CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE );
+            Assert.assertEquals( task.getWorkspaceName(), ws.getName() );
+
             SiteWrapper rootSite = ScmInfo.getRootSite();
-			SiteWrapper[] expSiteList = {rootSite,branceSite};
-			ScmFileUtils.checkMetaAndData(ws_T, fileId, expSiteList, localPath, filePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage()+"  task INFO "+task.toString());
-		}
-	}
+            SiteWrapper[] expSiteList = { rootSite, branceSite };
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                    filePath );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() + "  task INFO " + task.toString() );
+        }
+    }
 }

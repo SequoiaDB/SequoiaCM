@@ -1,4 +1,3 @@
-
 package com.sequoiacm.auth.serial;
 
 import org.testng.Assert;
@@ -50,118 +49,126 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-	site = ScmInfo.getSite();
-	sessionA = TestScmTools.createSession(site);
-	cleanEnv();
-	ScmWorkspaceUtil.createWS(sessionA, wsName1, ScmInfo.getSiteNum());
-	ScmWorkspaceUtil.wsSetPriority(sessionA, wsName1);
-	ScmWorkspaceUtil.createWS(sessionA, wsName2, ScmInfo.getSiteNum());
-	ScmWorkspaceUtil.wsSetPriority(sessionA, wsName2);
-	try {
-	    user = ScmFactory.User.createUser(sessionA, username, ScmUserPasswordType.LOCAL, passwd);
-	    role = ScmFactory.Role.createRole(sessionA, rolename, null);
+        site = ScmInfo.getSite();
+        sessionA = TestScmTools.createSession( site );
+        cleanEnv();
+        ScmWorkspaceUtil.createWS( sessionA, wsName1, ScmInfo.getSiteNum() );
+        ScmWorkspaceUtil.wsSetPriority( sessionA, wsName1 );
+        ScmWorkspaceUtil.createWS( sessionA, wsName2, ScmInfo.getSiteNum() );
+        ScmWorkspaceUtil.wsSetPriority( sessionA, wsName2 );
+        try {
+            user = ScmFactory.User
+                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
+                            passwd );
+            role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
-	    wsrs = ScmResourceFactory.createWorkspaceResource(wsName1);
-	    grantPriAndAttachRole(sessionA, wsrs, user, role, ScmPrivilegeType.ALL);
-	    dirrs = ScmResourceFactory.createDirectoryResource(wsName2, "/");
-	    grantPriAndAttachRole(sessionA, dirrs, user, role, ScmPrivilegeType.CREATE);
-	    grantPriAndAttachRole(sessionA, dirrs, user, role, ScmPrivilegeType.READ);
-	    ScmAuthUtils.checkPriority(site, username, passwd, role, wsName1);
-	    ScmAuthUtils.checkPriority(site, username, passwd, role, wsName2);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	}
+            wsrs = ScmResourceFactory.createWorkspaceResource( wsName1 );
+            grantPriAndAttachRole( sessionA, wsrs, user, role,
+                    ScmPrivilegeType.ALL );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsName2, "/" );
+            grantPriAndAttachRole( sessionA, dirrs, user, role,
+                    ScmPrivilegeType.CREATE );
+            grantPriAndAttachRole( sessionA, dirrs, user, role,
+                    ScmPrivilegeType.READ );
+            ScmAuthUtils.checkPriority( site, username, passwd, role, wsName1 );
+            ScmAuthUtils.checkPriority( site, username, passwd, role, wsName2 );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
     }
 
     @Test(groups = { "fourSite" })
     private void testCreateDirInWs1() {
-	ScmSession session = null;
-	try {
-	    session = TestScmTools.createSession(site, username, passwd);
-	    ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName1, session);
-	    ScmFactory.Directory.createInstance(ws, dirpath);
-	    ScmDirectory dir = ScmFactory.Directory.getInstance(ws, dirpath);
-	    Assert.assertEquals(dir.getPath(), dirpath + "/");
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	}
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site, username, passwd );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsName1, session );
+            ScmFactory.Directory.createInstance( ws, dirpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirpath );
+            Assert.assertEquals( dir.getPath(), dirpath + "/" );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
     }
 
     @Test(groups = { "fourSite" })
     private void testCreateFileInWs2() {
-	ScmSession session = null;
-	String fileName = "2281";
-	try {
-	    session = TestScmTools.createSession(site, username, passwd);
-	    ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName1, session);
+        ScmSession session = null;
+        String fileName = "2281";
+        try {
+            session = TestScmTools.createSession( site, username, passwd );
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( wsName1, session );
 
-	    // create file
-	    ScmFile file = ScmFactory.File.createInstance(ws);
-	    file.setFileName(fileName);
-	    ScmId fileId = file.save();
+            // create file
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName );
+            ScmId fileId = file.save();
 
-	    // get file
-	    ScmFile file1 = ScmFactory.File.getInstance(ws, fileId);
-	    Assert.assertEquals(file1.getFileName(), fileName);
-	} catch (ScmException e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	}
+            // get file
+            ScmFile file1 = ScmFactory.File.getInstance( ws, fileId );
+            Assert.assertEquals( file1.getFileName(), fileName );
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() {
-	try {
-	    ScmWorkspaceUtil.deleteWs(wsName1, sessionA);
-	    ScmWorkspaceUtil.deleteWs(wsName2, sessionA);
-	    ScmFactory.Role.deleteRole(sessionA, role);
-	    ScmFactory.User.deleteUser(sessionA, user);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    Assert.fail(e.getMessage());
-	} finally {
-	    if (sessionA != null) {
-		sessionA.close();
-	    }
-	}
+        try {
+            ScmWorkspaceUtil.deleteWs( wsName1, sessionA );
+            ScmWorkspaceUtil.deleteWs( wsName2, sessionA );
+            ScmFactory.Role.deleteRole( sessionA, role );
+            ScmFactory.User.deleteUser( sessionA, user );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
     }
 
-    private void grantPriAndAttachRole(ScmSession session, ScmResource rs, ScmUser user, ScmRole role,
-	    ScmPrivilegeType privileges) throws ScmException {
-	ScmUserModifier modifier = new ScmUserModifier();
-	ScmFactory.Role.grantPrivilege(sessionA, role, rs, privileges);
-	modifier.addRole(role);
-	ScmFactory.User.alterUser(sessionA, user, modifier);
+    private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
+            ScmUser user, ScmRole role,
+            ScmPrivilegeType privileges ) throws ScmException {
+        ScmUserModifier modifier = new ScmUserModifier();
+        ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
+        modifier.addRole( role );
+        ScmFactory.User.alterUser( sessionA, user, modifier );
     }
 
     private void cleanEnv() throws Exception {
-	ScmWorkspaceUtil.deleteWs(wsName1, sessionA);
-	ScmWorkspaceUtil.deleteWs(wsName2, sessionA);
-	try {
-	    ScmFactory.Role.deleteRole(sessionA, rolename);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
-	try {
-	    ScmFactory.User.deleteUser(sessionA, username);
-	} catch (ScmException e) {
-	    if (e.getError() != ScmError.HTTP_NOT_FOUND) {
-		e.printStackTrace();
-		Assert.fail(e.getMessage());
-	    }
-	}
+        ScmWorkspaceUtil.deleteWs( wsName1, sessionA );
+        ScmWorkspaceUtil.deleteWs( wsName2, sessionA );
+        try {
+            ScmFactory.Role.deleteRole( sessionA, rolename );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
+        try {
+            ScmFactory.User.deleteUser( sessionA, username );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                e.printStackTrace();
+                Assert.fail( e.getMessage() );
+            }
+        }
     }
 }

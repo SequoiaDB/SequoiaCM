@@ -36,78 +36,80 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class DefineAttr_type_intRequired_notSet_1577 extends TestScmBase {
-	private static final Logger logger = Logger.getLogger(DefineAttr_type_intRequired_notSet_1577.class);
-	private boolean runSuccess = false;
+    private static final Logger logger = Logger
+            .getLogger( DefineAttr_type_intRequired_notSet_1577.class );
+    private static final String NAME = "definemeta1577";
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private String CLASS_ID = null;
+    private ScmClass class1 = null;
+    private ScmAttribute attr = null;
+    private ScmWorkspace ws = null;
+    private ScmId fileId = null;
 
-	private static final String NAME = "definemeta1577";
-	private String CLASS_ID = null;
-	private ScmClass class1 = null;
-	private ScmAttribute attr = null;
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws IOException, ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
-	private ScmId fileId = null;
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( NAME ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        createModel( NAME );
+        CLASS_ID = class1.getId().get();
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( NAME );
+        fileId = file.save();
+    }
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() throws IOException, ScmException {
-		site = ScmInfo.getSite();
-		wsp = ScmInfo.getWs();
-		session = TestScmTools.createSession(site);
-		ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+    @Test
+    private void test_setProperty() throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
+        try {
+            file.setClassProperties( properties );
+            Assert.fail( "expect failed but actual succ." );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "attr is required, but not set the attr, errorMsg = [" +
+                            e.getError() + "]" );
+        }
+        runSuccess = true;
+    }
 
-		BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(NAME).get();
-		ScmFileUtils.cleanFile(wsp, cond);
-		createModel(NAME);
-		CLASS_ID = class1.getId().get();
-		ScmFile file = ScmFactory.File.createInstance(ws);
-		file.setFileName(NAME);
-		fileId = file.save();
-	}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                ScmFactory.Class.deleteInstance( ws, class1.getId() );
+                ScmFactory.Attribute.deleteInstance( ws, attr.getId() );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
 
-	@Test
-	private void test_setProperty() throws Exception {
-		ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-		ScmClassProperties properties = new ScmClassProperties(CLASS_ID);
-		try {
-			file.setClassProperties(properties);
-			Assert.fail("expect failed but actual succ.");
-		} catch (ScmException e) {
-			logger.info("attr is required, but not set the attr, errorMsg = [" + e.getError() + "]");
-		}
-		runSuccess = true;
-	}
+    private void createModel( String name ) throws ScmException {
+        // create class
+        class1 = ScmFactory.Class.createInstance( ws, name, name + "_desc" );
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() throws ScmException {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				ScmFactory.File.deleteInstance(ws, fileId, true);
-				ScmFactory.Class.deleteInstance(ws, class1.getId());
-				ScmFactory.Attribute.deleteInstance(ws,attr.getId());
-			}
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+        // create attr
+        ScmAttributeConf conf = new ScmAttributeConf();
+        conf.setName( "test_attr_name_int_1577" );
+        conf.setDescription( "test_attr_name_int_1577" );
+        conf.setDisplayName( name + "_display" );
+        conf.setType( AttributeType.INTEGER );
+        conf.setRequired( true );
 
-	private void createModel(String name) throws ScmException {
-		// create class
-		class1 = ScmFactory.Class.createInstance(ws, name, name + "_desc");
-
-		// create attr
-		ScmAttributeConf conf = new ScmAttributeConf();
-		conf.setName("test_attr_name_int_1577");
-		conf.setDescription("test_attr_name_int_1577");
-		conf.setDisplayName(name + "_display");
-		conf.setType(AttributeType.INTEGER);
-		conf.setRequired(true);
-
-		attr = ScmFactory.Attribute.createInstance(ws, conf);
-		// attr attach class
-		class1.attachAttr(attr.getId());
-	}
+        attr = ScmFactory.Attribute.createInstance( ws, conf );
+        // attr attach class
+        class1.attachAttr( attr.getId() );
+    }
 }

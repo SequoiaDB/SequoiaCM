@@ -38,97 +38,103 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
  */
 
 public class CursorByTotalSizeMoreThan100M216 extends TestScmBase {
-	private boolean runSuccess = false;
-	private static SiteWrapper site = null;
-	private static WsWrapper wsp = null;
-	private static ScmSession session = null;
-	private ScmWorkspace ws = null;
+    private static SiteWrapper site = null;
+    private static WsWrapper wsp = null;
+    private static ScmSession session = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws = null;
 
-	private String fileName = "scmfile216";
-	private int fileSize = 1024 * (1024 + 100);
-	private int fileNum = 100;
-	private List<ScmId> fileIdList = new ArrayList<ScmId>();
-	private File localPath = null;
-	private String filePath = null;
+    private String fileName = "scmfile216";
+    private int fileSize = 1024 * ( 1024 + 100 );
+    private int fileNum = 100;
+    private List< ScmId > fileIdList = new ArrayList< ScmId >();
+    private File localPath = null;
+    private String filePath = null;
 
-	@BeforeClass(alwaysRun = true)
-	private void setUp() {
-		localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-		filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
-		try {
-			TestTools.LocalFile.removeFile(localPath);
-			TestTools.LocalFile.createDir(localPath.toString());
-			TestTools.LocalFile.createFile(filePath, fileSize);
+    @BeforeClass(alwaysRun = true)
+    private void setUp() {
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        try {
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
-			site = ScmInfo.getSite();
-			wsp = ScmInfo.getWs();
-			session = TestScmTools.createSession(site);
-			ws = ScmFactory.Workspace.getWorkspace(wsp.getName(), session);
+            site = ScmInfo.getSite();
+            wsp = ScmInfo.getWs();
+            session = TestScmTools.createSession( site );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-			BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-			ScmFileUtils.cleanFile(wsp, cond);
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
+            ScmFileUtils.cleanFile( wsp, cond );
 
-			this.writeScmFile();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
-	}
+            this.writeScmFile();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+    }
 
-	@Test(groups = { "oneSite", "twoSite", "fourSite" })
-	private void testListInstanceByWS() {
-		ScmCursor<ScmFileBasicInfo> cursor = null;
-		try {
-			BSONObject condition = new BasicBSONObject(ScmAttributeName.File.AUTHOR, fileName);
-			cursor = ScmFactory.File.listInstance(ws, ScopeType.SCOPE_CURRENT, condition);
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testListInstanceByWS() {
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            BSONObject condition = new BasicBSONObject(
+                    ScmAttributeName.File.AUTHOR, fileName );
+            cursor = ScmFactory.File
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
 
-			int size = 0;
-			ScmFileBasicInfo file;
-			while (cursor.hasNext()) {
-				file = cursor.getNext();
-				// check results
-				Assert.assertTrue(fileIdList.contains(file.getFileId()));
-				size++;
-			}
-			Assert.assertEquals(size, fileNum);
-		} catch (ScmException e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			cursor.close();
-		}
-		runSuccess = true;
-	}
+            int size = 0;
+            ScmFileBasicInfo file;
+            while ( cursor.hasNext() ) {
+                file = cursor.getNext();
+                // check results
+                Assert.assertTrue( fileIdList.contains( file.getFileId() ) );
+                size++;
+            }
+            Assert.assertEquals( size, fileNum );
+        } catch ( ScmException e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            cursor.close();
+        }
+        runSuccess = true;
+    }
 
-	@AfterClass(alwaysRun = true)
-	private void tearDown() {
-		try {
-			if (runSuccess || TestScmBase.forceClear) {
-				for (ScmId fileId : fileIdList) {
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-				TestTools.LocalFile.removeFile(localPath);
-			}
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (session != null) {
-				session.close();
-			}
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                }
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
 
-		}
-	}
+        }
+    }
 
-	private void writeScmFile() throws ScmException {
-		for (int i = 0; i < fileNum; i++) {
-			ScmFile scmfile = ScmFactory.File.createInstance(ws);
-			scmfile.setFileName(fileName+"_"+UUID.randomUUID());
-			scmfile.setAuthor(fileName);
-			scmfile.setTitle(fileName);
-			scmfile.setMimeType(fileName);
-			scmfile.setContent(filePath);
-			ScmId fileId = scmfile.save();
-			fileIdList.add(fileId);
-		}
-	}
+    private void writeScmFile() throws ScmException {
+        for ( int i = 0; i < fileNum; i++ ) {
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
+            scmfile.setAuthor( fileName );
+            scmfile.setTitle( fileName );
+            scmfile.setMimeType( fileName );
+            scmfile.setContent( filePath );
+            ScmId fileId = scmfile.save();
+            fileIdList.add( fileId );
+        }
+    }
 
 }

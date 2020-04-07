@@ -43,16 +43,15 @@ import com.sequoiadb.exception.BaseException;
  * fileid：不存在、null 2、检查校验结果
  */
 public class AsyncCache_param_asyncCache522 extends TestScmBase {
+    private static final String fileName = "AsyncCache522";
     private boolean runSuccess1 = false;
     private boolean runSuccess2 = false;
     private boolean runSuccess3 = false;
     private boolean runSuccess4 = false;
-
-    private int fileSize = new Random().nextInt(1024) + 1024;
+    private int fileSize = new Random().nextInt( 1024 ) + 1024;
     private File localPath = null;
     private ScmId fileId = null;
     private String filePath;
-    private static final String fileName = "AsyncCache522";
     private BSONObject cond = null;
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
@@ -62,39 +61,44 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File(TestScmBase.dataDirectory + File.separator + TestTools.getClassName());
-        filePath = localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator +
+                TestTools.getClassName() );
+        filePath =
+                localPath + File.separator + "localFile_" + fileSize + ".txt";
         try {
             // ready file
-            TestTools.LocalFile.removeFile(localPath);
-            TestTools.LocalFile.createDir(localPath.toString());
-            TestTools.LocalFile.createFile(filePath, fileSize);
+            TestTools.LocalFile.removeFile( localPath );
+            TestTools.LocalFile.createDir( localPath.toString() );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
             ws_T = ScmInfo.getWs();
-			List<SiteWrapper> siteList = ScmNetUtils.getRandomSites(ws_T);
-			sourceSite = siteList.get(0);
+            List< SiteWrapper > siteList = ScmNetUtils.getRandomSites( ws_T );
+            sourceSite = siteList.get( 0 );
 
             // clean file
-            cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is(fileName).get();
-            ScmFileUtils.cleanFile(ws_T, cond);
+            cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
+                    .is( fileName ).get();
+            ScmFileUtils.cleanFile( ws_T, cond );
             // login in
-            sessionA = TestScmTools.createSession(sourceSite);
-            ws = ScmFactory.Workspace.getWorkspace(ws_T.getName(), sessionA);
+            sessionA = TestScmTools.createSession( sourceSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromMainCenter();
-        } catch (ScmException | IOException e) {
+        } catch ( ScmException | IOException e ) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assert.fail( e.getMessage() );
         }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsNoExist() throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace("test503", sessionA);
-            ScmFactory.File.asyncCache(ws, fileId);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.WORKSPACE_NOT_EXIST != e.getError()) {
+            ScmWorkspace ws = ScmFactory.Workspace
+                    .getWorkspace( "test503", sessionA );
+            ScmFactory.File.asyncCache( ws, fileId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.WORKSPACE_NOT_EXIST != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -105,10 +109,11 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWSIsNULL() throws ScmException {
         try {
-            ScmFactory.File.asyncCache(null, fileId);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmFactory.File.asyncCache( null, fileId );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -119,10 +124,11 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testfileIdIsNull() throws ScmException {
         try {
-            ScmFactory.File.asyncCache(ws, null);
-            Assert.assertFalse(true, "expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.INVALID_ARGUMENT != e.getError()) {
+            ScmFactory.File.asyncCache( ws, null );
+            Assert.assertFalse( true,
+                    "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -133,11 +139,11 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testfileIdNotExist() throws ScmException {
         try {
-            ScmId fileId = new ScmId("00ff00ff00ff00ff00ff00ff");
-            ScmFactory.File.asyncCache(ws, fileId);
-            Assert.fail("expect result is fail but actual is success.");
-        } catch (ScmException e) {
-            if (ScmError.FILE_NOT_FOUND != e.getError()) {
+            ScmId fileId = new ScmId( "00ff00ff00ff00ff00ff00ff" );
+            ScmFactory.File.asyncCache( ws, fileId );
+            Assert.fail( "expect result is fail but actual is success." );
+        } catch ( ScmException e ) {
+            if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
                 e.printStackTrace();
                 throw e;
             }
@@ -148,14 +154,15 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ((runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4) || forceClear) {
-                ScmFactory.File.deleteInstance(ws, fileId, true);
-                TestTools.LocalFile.removeFile(localPath);
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
+                    forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
             }
-        } catch (BaseException | ScmException e) {
-            Assert.fail(e.getMessage());
+        } catch ( BaseException | ScmException e ) {
+            Assert.fail( e.getMessage() );
         } finally {
-            if (sessionA != null) {
+            if ( sessionA != null ) {
                 sessionA.close();
             }
         }
@@ -163,12 +170,12 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
 
     private void writeFileFromMainCenter() {
         try {
-            ScmFile scmfile = ScmFactory.File.createInstance(ws);
-            scmfile.setContent(filePath);
-            scmfile.setFileName(fileName+"_"+UUID.randomUUID());
+            ScmFile scmfile = ScmFactory.File.createInstance( ws );
+            scmfile.setContent( filePath );
+            scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
             fileId = scmfile.save();
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        } catch ( Exception e ) {
+            Assert.fail( e.getMessage() );
         }
     }
 }

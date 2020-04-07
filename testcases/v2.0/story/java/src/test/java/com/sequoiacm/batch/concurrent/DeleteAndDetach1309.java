@@ -35,33 +35,34 @@ import com.sequoiacm.testcommon.TestThreadBase;
  */
 
 public class DeleteAndDetach1309 extends TestScmBase {
+    private final String batchName = "batch1309";
+    private final int fileNum = 30;
     private boolean runSuccess = false;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private final String batchName = "batch1309";
-    private final int fileNum = 30;
-    private List<ScmId> fileIdList = new ArrayList<>(fileNum);
+    private List< ScmId > fileIdList = new ArrayList<>( fileNum );
     private ScmId batchId = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession(site);
-        ws = ScmFactory.Workspace.getWorkspace(ScmInfo.getWs().getName(), session);
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace
+                .getWorkspace( ScmInfo.getWs().getName(), session );
 
-        for (int i = 0; i < fileNum; ++i) {
-            ScmFile file = ScmFactory.File.createInstance(ws);
-            file.setFileName("file1309_" + i);
-            file.setTitle(batchName);
+        for ( int i = 0; i < fileNum; ++i ) {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "file1309_" + i );
+            file.setTitle( batchName );
             ScmId fileId = file.save();
-            fileIdList.add(fileId);
+            fileIdList.add( fileId );
         }
 
-        ScmBatch batch = ScmFactory.Batch.createInstance(ws);
-        batch.setName(batchName);
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
+        batch.setName( batchName );
         batchId = batch.save();
-        for (ScmId fileId : fileIdList) {
-            batch.attachFile(fileId);
+        for ( ScmId fileId : fileIdList ) {
+            batch.attachFile( fileId );
         }
     }
 
@@ -71,11 +72,12 @@ public class DeleteAndDetach1309 extends TestScmBase {
         DeleteThread deleteThrd = new DeleteThread();
         detachThrd.start();
         deleteThrd.start();
-        Assert.assertTrue(detachThrd.isSuccess(), detachThrd.getErrorMsg());
-        Assert.assertTrue(deleteThrd.isSuccess(), deleteThrd.getErrorMsg());
+        Assert.assertTrue( detachThrd.isSuccess(), detachThrd.getErrorMsg() );
+        Assert.assertTrue( deleteThrd.isSuccess(), deleteThrd.getErrorMsg() );
 
-        ScmCursor<ScmBatchInfo> batchCursor = ScmFactory.Batch.listInstance(ws, new BasicBSONObject("id", batchId.get()));
-        Assert.assertFalse(batchCursor.hasNext());
+        ScmCursor< ScmBatchInfo > batchCursor = ScmFactory.Batch
+                .listInstance( ws, new BasicBSONObject( "id", batchId.get() ) );
+        Assert.assertFalse( batchCursor.hasNext() );
         batchCursor.close();
         runSuccess = true;
     }
@@ -83,17 +85,19 @@ public class DeleteAndDetach1309 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if (runSuccess || TestScmBase.forceClear) {
-                ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(ws, ScmType.ScopeType.SCOPE_CURRENT,
-                        new BasicBSONObject("title", batchName));
-                while (cursor.hasNext()) {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                        .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
+                                new BasicBSONObject( "title", batchName ) );
+                while ( cursor.hasNext() ) {
                     ScmFileBasicInfo info = cursor.getNext();
-                    ScmFactory.File.deleteInstance(ws, info.getFileId(), true);
+                    ScmFactory.File
+                            .deleteInstance( ws, info.getFileId(), true );
                 }
                 cursor.close();
             }
         } finally {
-            if (session != null) {
+            if ( session != null ) {
                 session.close();
             }
         }
@@ -102,8 +106,8 @@ public class DeleteAndDetach1309 extends TestScmBase {
     private class DeleteThread extends TestThreadBase {
         @Override
         public void exec() throws Exception {
-            Thread.sleep(50);
-            ScmFactory.Batch.deleteInstance(ws, batchId);
+            Thread.sleep( 50 );
+            ScmFactory.Batch.deleteInstance( ws, batchId );
         }
     }
 
@@ -111,12 +115,12 @@ public class DeleteAndDetach1309 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             try {
-                ScmBatch batch = ScmFactory.Batch.getInstance(ws, batchId);
-                for (ScmId fileId : fileIdList) {
-                    batch.detachFile(fileId);
+                ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
+                for ( ScmId fileId : fileIdList ) {
+                    batch.detachFile( fileId );
                 }
-            } catch (ScmException e) {
-                if (e.getError() != ScmError.BATCH_NOT_FOUND) {
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
                     throw e;
                 }
             }
