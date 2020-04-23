@@ -41,7 +41,8 @@ public class CountSession2214 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    // bug:SEQUOIACM-455
+    @Test(groups = { "fourSite" }, enabled = false)
     private void test() throws Exception {
         long count = ScmFactory.Session.countSessions( sessionList.get( 0 ) );
         Assert.assertEquals( count >= num, true );
@@ -67,7 +68,7 @@ public class CountSession2214 extends TestScmBase {
 
         for ( ScmSession session : sessionList ) {
             session.close();
-            System.out.println( "closed session = " + session.getSessionId() );
+            System.out.println( "closed session = " + session.toString() );
         }
     }
 }
