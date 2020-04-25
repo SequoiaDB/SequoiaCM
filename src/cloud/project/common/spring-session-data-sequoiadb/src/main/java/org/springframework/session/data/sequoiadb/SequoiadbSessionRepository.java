@@ -1,26 +1,37 @@
 package org.springframework.session.data.sequoiadb;
 
-import com.sequoiadb.base.*;
-import com.sequoiadb.exception.BaseException;
-import com.sequoiadb.exception.SDBError;
-import org.bson.BSON;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.DBQuery;
+import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
 
-public class SequoiadbSessionRepository implements FindByIndexNameSessionRepository<SequoiadbSession> {
+public class SequoiadbSessionRepository
+        implements FindByIndexNameSessionRepository<SequoiadbSession> {
 
     public static final String DEFAULT_COLLECTION_SPACE_NAME = "spring";
     public static final String DEFAULT_COLLECTION_NAME = "sessions";
 
     private final SequoiadbDatasource sequoiadbDatasource;
 
-    private AbstractSequoiadbSessionConverter sequoiadbSessionConverter = SessionConverterProvider.getDefaultSequoiadbConverter();
+    private AbstractSequoiadbSessionConverter sequoiadbSessionConverter = SessionConverterProvider
+            .getDefaultSequoiadbConverter();
 
     private Integer maxInactiveInterval = SequoiadbSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
     private String collectionSpaceName = DEFAULT_COLLECTION_SPACE_NAME;
@@ -31,7 +42,8 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
     }
 
     @Override
-    public Map<String, SequoiadbSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+    public Map<String, SequoiadbSession> findByIndexNameAndIndexValue(String indexName,
+            String indexValue) {
         DBQuery query = this.sequoiadbSessionConverter.getQueryForIndex(indexName, indexValue);
         if (query == null) {
             return Collections.emptyMap();
@@ -42,13 +54,13 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
             DBCursor cursor = sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
-                    .query(query);
+                    .getCollection(collectionName).query(query);
             if (cursor != null) {
                 while (cursor.hasNext()) {
                     BSONObject obj = cursor.getNext();
@@ -59,7 +71,8 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
                 }
                 cursor.close();
             }
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
         return result;
@@ -71,6 +84,7 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         if (this.maxInactiveInterval != null) {
             session.setMaxInactiveIntervalInSeconds(this.maxInactiveInterval);
         }
+        session.setNew(true);
         return session;
     }
 
@@ -84,14 +98,22 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
-            sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
-                    .upsert(matcher, modifier, null);
-        } finally {
+            if (session.isNew()) {
+                sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
+                        .upsert(matcher, modifier, null);
+                session.setNew(false);
+            }
+            else {
+                sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
+                        .update(matcher, modifier, null);
+            }
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
     }
@@ -110,10 +132,14 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
             sessionWrapper.removeField(AbstractSequoiadbSessionConverter.ATTRIBUTES);
         }
         SequoiadbSession session = convert(sessionWrapper);
-        if (session != null && session.isExpired()) {
+        if (session == null) {
+            return null;
+        }
+        if (session.isExpired()) {
             delete(sessionId);
             return null;
         }
+        session.setNew(false);
         return session;
     }
 
@@ -123,14 +149,15 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
-            sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
+            sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
                     .delete(matcher);
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
     }
@@ -140,14 +167,16 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
             DBCollection collection = sdb.getCollectionSpace(collectionSpaceName)
                     .getCollection(collectionName);
             sequoiadbSessionConverter.ensureIndexes(collection);
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
     }
@@ -161,7 +190,7 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
 
         List<BSONObject> objects = findSessions(principal);
         if (objects != null && objects.size() > 0) {
-            for (BSONObject obj: objects) {
+            for (BSONObject obj : objects) {
                 if (attributesIgnorable) {
                     obj.removeField(AbstractSequoiadbSessionConverter.ATTRIBUTES);
                 }
@@ -169,7 +198,8 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
                 if (session != null) {
                     if (session.isExpired()) {
                         delete(session.getId());
-                    } else {
+                    }
+                    else {
                         sessions.add(session);
                     }
                 }
@@ -184,14 +214,15 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
-            return sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
+            return sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
                     .queryOne(matcher, null, null, null, 0);
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
     }
@@ -206,20 +237,21 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
             DBCursor cursor = sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
-                    .query(matcher, null, null, null, 0);
+                    .getCollection(collectionName).query(matcher, null, null, null, 0);
             if (cursor != null) {
                 while (cursor.hasNext()) {
                     objects.add(cursor.getNext());
                 }
                 cursor.close();
             }
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
 
@@ -237,14 +269,15 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
-            sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
+            sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
                     .delete(matcher);
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
     }
@@ -264,13 +297,13 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
         Sequoiadb sdb;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
             DBCursor cursor = sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName)
-                    .query();
+                    .getCollection(collectionName).query();
             if (cursor != null) {
                 while (cursor.hasNext()) {
                     BSONObject obj = cursor.getNext();
@@ -285,25 +318,28 @@ public class SequoiadbSessionRepository implements FindByIndexNameSessionReposit
                 }
                 cursor.close();
             }
-        } finally {
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
 
         return count;
     }
-    
+
     public long countSessions() {
         Sequoiadb sdb;
         long count = 0;
         try {
             sdb = sequoiadbDatasource.getConnection();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
         try {
-            count = sdb.getCollectionSpace(collectionSpaceName)
-                    .getCollection(collectionName).getCount();
-        } finally {
+            count = sdb.getCollectionSpace(collectionSpaceName).getCollection(collectionName)
+                    .getCount();
+        }
+        finally {
             sequoiadbDatasource.releaseConnection(sdb);
         }
         return count;

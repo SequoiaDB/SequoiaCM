@@ -1,10 +1,16 @@
 package org.springframework.session.data.sequoiadb;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.session.ExpiringSession;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class SequoiadbSession implements ExpiringSession, Serializable {
 
@@ -24,6 +30,9 @@ public class SequoiadbSession implements ExpiringSession, Serializable {
     private int maxInactiveInterval;
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
+    @JsonIgnore
+    private boolean isNew = true;
+
     public SequoiadbSession(String id, int maxInactiveIntervalInSeconds) {
         this.id = id;
         this.maxInactiveInterval = maxInactiveIntervalInSeconds;
@@ -41,6 +50,14 @@ public class SequoiadbSession implements ExpiringSession, Serializable {
     @Override
     public long getCreationTime() {
         return this.creationTime;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
     }
 
     public void setCreationTime(long created) {
@@ -76,8 +93,7 @@ public class SequoiadbSession implements ExpiringSession, Serializable {
         if (this.maxInactiveInterval < 0) {
             return false;
         }
-        return now - TimeUnit.SECONDS
-                .toMillis(this.maxInactiveInterval) >= this.lastAccessedTime;
+        return now - TimeUnit.SECONDS.toMillis(this.maxInactiveInterval) >= this.lastAccessedTime;
     }
 
     @Override
@@ -108,7 +124,8 @@ public class SequoiadbSession implements ExpiringSession, Serializable {
     public void setAttribute(String attributeName, Object attributeValue) {
         if (attributeValue == null) {
             removeAttribute(coverDot(attributeName));
-        } else {
+        }
+        else {
             this.attributes.put(coverDot(attributeName), attributeValue);
         }
     }
