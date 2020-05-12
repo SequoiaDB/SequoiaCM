@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-config</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>sequoiacm-config-tools</artifactId>
