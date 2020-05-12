@@ -26,8 +26,8 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     @Override
     public void startNode(String springConfigLocation, String loggingConfig, String errorLogPath,
             String options) throws ScmToolsException {
-        String cmd = " nohup java " + options + " -jar " + ScmCommon.getContentServerJarName()
-                + " --spring.config.location=" + springConfigLocation + " --logging.config="
+        String cmd = " nohup java " + options + " -jar '" + ScmCommon.getContentServerJarName()
+                + "' --spring.config.location=" + springConfigLocation + " --logging.config="
                 + loggingConfig + " > " + errorLogPath + " 2>&1 &";
         logger.info("starting scm by exec cmd(/bin/sh -c \" " + cmd + "\")");
         Process ps = exec(cmd);

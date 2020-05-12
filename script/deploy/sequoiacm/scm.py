@@ -18,7 +18,18 @@ def run():
     jvmOption += " -Dapplication.properties=" + appPropertiesPath
     jvmOption += " -Dcommon.basePath=" + rootDir
     
-    jarPath = rootDir + "sequoiacm-deploy" + os.sep + "bin" + os.sep + "sequoiacm-deploy-3.0.0.jar"
+    jarParent = rootDir + "sequoiacm-deploy" + os.sep + "bin" + os.sep
+    jarFile = None
+    files = os.listdir(jarParent)
+    for file in files:
+        if os.path.isfile(jarParent + file):
+            if file.startswith("sequoiacm-deploy-") and file.endswith(".jar"):
+                jarFile = file
+    if jarFile == None:
+        print("failed to find deploy jar in " + jarParent)
+        sys.exit(1)
+    
+    jarPath = jarParent + jarFile
     cmd = "java " + jvmOption + " -jar " + jarPath + " " + args
     
     command(cmd)

@@ -15,7 +15,20 @@ scmProjectUtil = ScmProjectUtil(rootDir + "script" + os.sep + "dev" + os.sep + "
 
 compileScmModule = None
 needArchiveRelease = False
-archiveReleasePath = rootDir + "archive-target" + os.sep + 'sequoiacm-3.0.0-release.tar.gz'
+
+
+def getScmVersion():
+    versionFile = rootDir + "script" + os.sep + "dev" + os.sep + "version"
+    with open(versionFile) as lines:
+        for line in lines:
+            line = line.strip()
+            if line.startswith("NewVersion="):
+                return line.replace("NewVersion=", "")
+    print ("Error:failed to get scm version from " + versionFile)
+    sys.exit(-1)
+
+archiveReleasePath = rootDir + "archive-target" + os.sep + 'sequoiacm-' + getScmVersion() + '-release.tar.gz'
+
 compileTestModule = None
 runTestModule = None
 compileRelease = False

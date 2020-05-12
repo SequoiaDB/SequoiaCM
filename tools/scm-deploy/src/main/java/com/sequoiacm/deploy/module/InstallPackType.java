@@ -1,11 +1,13 @@
 package com.sequoiacm.deploy.module;
 
 public enum InstallPackType {
-    CLOUD("^sequoiacm-cloud-([0-9\\.]*)-release\\.tar\\.gz$", "sequoiacm-cloud"),
-    CONFIG_SERVER("^sequoiacm-config-([0-9\\.]*)-release\\.tar\\.gz$", "sequoiacm-config"),
-    SCHEDULE_SERVER("^sequoiacm-schedule-([0-9\\.]*)-release\\.tar\\.gz$", "sequoiacm-schedule"),
-    CONTENTSERVER("^sequoiacm-content-([0-9\\.]*)-release\\.tar\\.gz$", "sequoiacm-content"),
-    OM_SERVER("^sequoiacm-om-([0-9\\.]*)-release\\.tar\\.gz$", "sequoiacm-om"),
+    CLOUD("^sequoiacm-cloud-((?!disk).)*-release\\.tar\\.gz$", "sequoiacm-cloud"),
+    CONFIG_SERVER("^sequoiacm-config-(.*)-release\\.tar\\.gz$", "sequoiacm-config"),
+    SCHEDULE_SERVER("^sequoiacm-schedule-(.*)-release\\.tar\\.gz$", "sequoiacm-schedule"),
+    CONTENTSERVER("^sequoiacm-content-(.*)-release\\.tar\\.gz$", "sequoiacm-content"),
+    OM_SERVER("^sequoiacm-om-(.*)-release\\.tar\\.gz$", "sequoiacm-om"),
+    CLOUD_DISK("^sequoiacm-cloud-disk-(.*)-release\\.tar\\.gz$", "sequoiacm-cloud-disk"),
+    VIRTUAL_CLOUD_DISK("^cloud-disk-(.*)-release\\.tar\\.gz$", "cloud-disk"),
 
     ZOOKEEPER("^zookeeper-(.*)\\.tar\\.gz$") {
         @Override
