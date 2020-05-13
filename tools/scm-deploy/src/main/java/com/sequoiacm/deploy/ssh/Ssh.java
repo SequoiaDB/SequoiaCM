@@ -159,6 +159,11 @@ public class Ssh implements Closeable {
         if (isRootUser) {
             return internalExec(command, false, expectExitCode);
         }
+        if (password == null || password.length() <= 0) {
+            // no password
+            command = "sudo -n " + command;
+            return internalExec(command, false, expectExitCode);
+        }
         command = "sudo -S -p '' " + command;
         return internalExec(command, true, expectExitCode);
     }

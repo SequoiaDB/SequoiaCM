@@ -187,10 +187,17 @@ public class ScmDeployInfoMgr {
             Ssh ssh = null;
             try {
                 ssh = sshMgr.getSsh(host);
-                ssh.sudoExec("echo host_is_reachable > /dev/null");
             }
             catch (Exception e) {
                 throw new IllegalArgumentException("host is unreachable:" + host.getHostName(), e);
+            }
+
+            try {
+                ssh.sudoExec("echo user_is_sudoer > /dev/null");
+            }
+            catch (Exception e) {
+                throw new IllegalArgumentException("this user may not be sudoer:username="
+                        + host.getUserName() + ", host=" + host.getHostName(), e);
             }
             finally {
                 CommonUtils.closeResource(ssh);
