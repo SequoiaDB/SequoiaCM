@@ -93,13 +93,13 @@ public class ScmDeployer {
             int isUserExist = ssh.exec("id -u " + installUser, 0, 1).getExitCode();
             if (isUserExist == 1) {
                 String installPasswd = deployConfMgr.getInstallConfig().getInstallUserPassword();
-                if (installPasswd != null && installPasswd.length() > 0) {
+                if (installPasswd == null || installPasswd.length() <= 0) {
                     throw new IllegalArgumentException("user not exist in " + host.getHostName()
-                            + ", please specify password for create install user:" + installUser);
+                            + ", please specify password to create install user:" + installUser);
                 }
                 ssh.sudoExec("useradd " + installUser);
                 ssh.sudoExec("echo " + deployConfMgr.getInstallConfig().getInstallUser() + ":"
-                        + installPasswd + " | chpasswd");
+                        + installPasswd + " | sudo chpasswd");
             }
 
             ssh.sudoExec("mkdir -p " + deployConfMgr.getInstallConfig().getInstallPath());
