@@ -65,15 +65,6 @@ if ret != 0:
     print "commit Scm porject version failed"
     sys.exit(-1)
 
-##modify test pom.xml
-oldDriverValue = "<scmdriver.version>" + oldVersion + "</scmdriver.version>"
-newDriverValue = "<scmdriver.version>" + newVersion + "</scmdriver.version>"
-# modify test pom.xml
-testRootDir = GIT_ROOT_PATH + os.sep + "testcases" + os.sep + "v2.0"
-# base
-basePom = testRootDir + os.sep + "testcase-base" + os.sep + "pom.xml"
-modifyFile(basePom, oldDriverValue, newDriverValue)
-
 # doc/config/version.json
 docVersion = GIT_ROOT_PATH + os.sep + "doc" + os.sep + "config" + os.sep + "version.json"
 # version format like 2.3.1 ,we need major version 2,minor version 3
