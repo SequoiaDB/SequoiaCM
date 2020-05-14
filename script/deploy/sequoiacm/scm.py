@@ -30,7 +30,7 @@ def run():
         sys.exit(1)
     
     jarPath = jarParent + jarFile
-    cmd = "java " + jvmOption + " -jar " + jarPath + " " + args
+    cmd = "java " + jvmOption + " -jar \"" + jarPath + "\" " + args
     
     command(cmd)
 
