@@ -169,8 +169,12 @@ def copyRelyJar( scminstalldir ):
     displayInfo("Begin to copy scm related jar and testng related jar")
     os.system("rm -rf "+os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib/*driver.jar;");
     os.chdir(scminstalldir+"/driver")
-    for file in glob.glob("sequoiacm-driver*"):
-       os.system("cp -rf "+file+"/*.jar " +os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib")
+    for file in glob.glob("sequoiacm-driver*.tar.gz"):
+       os.system("tar -zxvf '"+file+"'")
+       driverlibdir=file.split('-release')
+    os.chdir(driverlibdir[0])
+    for file in glob.glob("*.jar"):
+       os.system("cp -rf '"+file+"' " +os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0/testcase-base/lib")
     
     displayInfo("End copy scm related jar and testng related jar")
     
