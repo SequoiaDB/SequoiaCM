@@ -34,9 +34,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-261:多中心，并发指定不同偏移+长度跨中心读相同文件
- * 					 1、分中心A写文件 
- * 					 2、并发指定不同偏移+长度跨中心读相同文件
+ * @Testcase: SCM-261:多中心，并发指定不同偏移+长度跨中心读相同文件 1、分中心A写文件 2、并发指定不同偏移+长度跨中心读相同文件
  * @author huangxiaoni init
  * @date 2017.5.8
  */
@@ -58,10 +56,10 @@ public class DiffCenterReadFile261 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,7 +78,6 @@ public class DiffCenterReadFile261 extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
-    //TODO: BUG:SEQUOIACM-412，由于bug单未修改，用例里面暂时捕获-401 -411异常避免用例失败
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         ReadFileFromM readFromM = new ReadFileFromM();
@@ -92,10 +89,10 @@ public class DiffCenterReadFile261 extends TestScmBase {
         ReadFileFromB readFromB = new ReadFileFromB();
         readFromB.start( 20 );
 
-        if ( !( readFromM.isSuccess() && readFromA.isSuccess() &&
-                readFromB.isSuccess() ) ) {
-            Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg() +
-                    readFromB.getErrorMsg() );
+        if ( !( readFromM.isSuccess() && readFromA.isSuccess()
+                && readFromB.isSuccess() ) ) {
+            Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg()
+                    + readFromB.getErrorMsg() );
         }
 
         checkMetadataAndLobs();
@@ -144,9 +141,9 @@ public class DiffCenterReadFile261 extends TestScmBase {
 
                 // read
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 in = ScmFactory.File
                         .createInputStream( InputStreamType.SEEKABLE, scmfile );
@@ -171,17 +168,16 @@ public class DiffCenterReadFile261 extends TestScmBase {
                 fos.flush();
 
                 // check content
-                String tmpPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
-                TestTools.LocalFile
-                        .readFile( filePath, seekSize, len, tmpPath );
+                String tmpPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
+                TestTools.LocalFile.readFile( filePath, seekSize, len,
+                        tmpPath );
 
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
                         TestTools.getMD5( tmpPath ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DATA_NOT_EXIST &&
-                        e.getError() != ScmError.DATA_IS_IN_USE
+                if ( e.getError() != ScmError.DATA_IS_IN_USE
                         && e.getError() != ScmError.DATA_ERROR ) {
                     throw e;
                 }
@@ -213,9 +209,9 @@ public class DiffCenterReadFile261 extends TestScmBase {
 
                 // read
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 in = ScmFactory.File
                         .createInputStream( InputStreamType.SEEKABLE, scmfile );
@@ -240,16 +236,15 @@ public class DiffCenterReadFile261 extends TestScmBase {
                 fos.flush();
 
                 // check content
-                String tmpPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
-                TestTools.LocalFile
-                        .readFile( filePath, seekSize, len, tmpPath );
+                String tmpPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
+                TestTools.LocalFile.readFile( filePath, seekSize, len,
+                        tmpPath );
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
                         TestTools.getMD5( tmpPath ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DATA_NOT_EXIST &&
-                        e.getError() != ScmError.DATA_IS_IN_USE
+                if ( e.getError() != ScmError.DATA_IS_IN_USE
                         && e.getError() != ScmError.DATA_ERROR ) {
                     throw e;
                 }
@@ -281,9 +276,9 @@ public class DiffCenterReadFile261 extends TestScmBase {
 
                 // read
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 in = ScmFactory.File
                         .createInputStream( InputStreamType.SEEKABLE, scmfile );
@@ -307,17 +302,16 @@ public class DiffCenterReadFile261 extends TestScmBase {
                 fos.flush();
 
                 // check content
-                String tmpPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
-                TestTools.LocalFile
-                        .readFile( filePath, seekSize, len, tmpPath );
+                String tmpPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
+                TestTools.LocalFile.readFile( filePath, seekSize, len,
+                        tmpPath );
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
                         TestTools.getMD5( tmpPath ) );
 
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DATA_NOT_EXIST &&
-                        e.getError() != ScmError.DATA_IS_IN_USE
+                if ( e.getError() != ScmError.DATA_IS_IN_USE
                         && e.getError() != ScmError.DATA_ERROR ) {
                     throw e;
                 }
