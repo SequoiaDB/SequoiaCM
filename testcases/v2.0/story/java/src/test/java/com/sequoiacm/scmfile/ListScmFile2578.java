@@ -56,14 +56,14 @@ public class ListScmFile2578 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean
+        // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
         ScmFileUtils.cleanFile( wsp, cond );
         byte[] bytes = new byte[ 2 ];
         Random random = new Random();
         random.nextBytes( bytes );
-        //prepare file
+        // prepare file
         for ( int i = 0; i < fileNum; i++ ) {
             String fileName = fileNamePrefix + "-" + i;
             ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -72,17 +72,17 @@ public class ListScmFile2578 extends TestScmBase {
             scmFile.setFileName( fileName );
             fileIdList.add( scmFile.save().get() );
         }
-        //update file
+        // update file
         int count = 3;
         for ( int i = 0; i < fileIdList.size(); i = i + 2 ) {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, new ScmId( fileIdList.get( i ) ) );
-            //update Count
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    new ScmId( fileIdList.get( i ) ) );
+            // update Count
             for ( int j = 0; j < count; j++ ) {
                 file.updateContent( new ByteArrayInputStream( bytes ) );
             }
         }
-        //prepare filter
+        // prepare filter
         filter = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                 .in( fileIdList ).get();
         getInitScmFileInfo( filter, fileList );
@@ -92,23 +92,19 @@ public class ListScmFile2578 extends TestScmBase {
     public Object[][] generateRangData() throws Exception {
         BSONObject positive = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( 1 )
-                .and( ScmAttributeName.File.MAJOR_VERSION ).is( 1 )
-                .get();
+                .and( ScmAttributeName.File.MAJOR_VERSION ).is( 1 ).get();
         BSONObject negative = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( -1 )
-                .and( ScmAttributeName.File.MAJOR_VERSION ).is( -1 )
-                .get();
+                .and( ScmAttributeName.File.MAJOR_VERSION ).is( -1 ).get();
         BSONObject dPositive = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( 1 )
                 .and( ScmAttributeName.File.CREATE_TIME ).is( -1 )
-                .and( ScmAttributeName.File.MAJOR_VERSION ).is( -1 )
-                .get();
+                .and( ScmAttributeName.File.MAJOR_VERSION ).is( -1 ).get();
 
         BSONObject dNegative = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( -1 )
                 .and( ScmAttributeName.File.CREATE_TIME ).is( 1 )
-                .and( ScmAttributeName.File.MAJOR_VERSION ).is( 1 )
-                .get();
+                .and( ScmAttributeName.File.MAJOR_VERSION ).is( 1 ).get();
 
         String[] sortNameAtr1 = new String[] { "fileId", "majorVersion" };
         boolean[] typeAtr1 = new boolean[] { true, true };
@@ -118,19 +114,19 @@ public class ListScmFile2578 extends TestScmBase {
         boolean[] typeAtr4 = new boolean[] { false, true, true };
 
         return new Object[][] {
-                //orderby:两个字段，正逆序
+                // orderby:两个字段，正逆序
                 { filter, positive, 0, 10, fileList, sortNameAtr1, typeAtr1 },
                 { filter, negative, 2, 20, fileList, sortNameAtr1, typeAtr2 },
-                //orderby:三个字段，正逆序混合
+                // orderby:三个字段，正逆序混合
                 { filter, dPositive, 1, 10, fileList, sortNameAtr2, typeAtr3 },
-                { filter, dNegative, 3, 30, fileList, sortNameAtr2, typeAtr4 }
-        };
+                { filter, dNegative, 3, 30, fileList, sortNameAtr2,
+                        typeAtr4 } };
     }
 
     @Test(dataProvider = "dataProvider")
     private void test( BSONObject filter, BSONObject orderby, long skip,
-            long limit, List< ScmFileBasicInfo > list
-            , String[] sortnameArr, boolean[] typeArr ) throws Exception {
+            long limit, List< ScmFileBasicInfo > list, String[] sortnameArr,
+            boolean[] typeArr ) throws Exception {
         List< ScmFileBasicInfo > tmpList = new ArrayList<>();
         tmpList.addAll( list );
         ListUtils.sort( tmpList, sortnameArr, typeArr );
@@ -165,10 +161,10 @@ public class ListScmFile2578 extends TestScmBase {
                                 exp.getMimeType() );
                         count++;
                     } catch ( AssertionError e ) {
-                        throw new Exception( "filter = " + filter.toString() +
-                                ",orderby = " + orderby.toString()
-                                + ",skip = " + skip + ",limit = " + limit +
-                                "，act = " + act.toString() + ",exp = "
+                        throw new Exception( "filter = " + filter.toString()
+                                + ",orderby = " + orderby.toString()
+                                + ",skip = " + skip + ",limit = " + limit
+                                + "，act = " + act.toString() + ",exp = "
                                 + exp.toString(), e );
                     }
                 }
@@ -199,10 +195,9 @@ public class ListScmFile2578 extends TestScmBase {
                 Assert.assertEquals( actPageSize, 0 );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "filter = " + filter.toString() + ",orderby = " +
-                            orderby.toString()
-                            + ",skip = " + skip + ",limit = " + limit, e );
+            throw new Exception( "filter = " + filter.toString() + ",orderby = "
+                    + orderby.toString() + ",skip = " + skip + ",limit = "
+                    + limit, e );
         }
         expSuccessTestCount.getAndIncrement();
     }
@@ -212,8 +207,8 @@ public class ListScmFile2578 extends TestScmBase {
         try {
             if ( expSuccessTestCount.get() == 4 || TestScmBase.forceClear ) {
                 for ( String fileId : fileIdList ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, new ScmId( fileId ), true );
+                    ScmFactory.File.deleteInstance( ws, new ScmId( fileId ),
+                            true );
                 }
             }
         } finally {
@@ -227,9 +222,8 @@ public class ListScmFile2578 extends TestScmBase {
             List< ScmFileBasicInfo > fileList ) throws ScmException {
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScmType.ScopeType.SCOPE_HISTORY,
-                            filter );
+            cursor = ScmFactory.File.listInstance( ws,
+                    ScmType.ScopeType.SCOPE_HISTORY, filter );
             while ( cursor.hasNext() ) {
                 fileList.add( cursor.getNext() );
             }
@@ -240,5 +234,3 @@ public class ListScmFile2578 extends TestScmBase {
         }
     }
 }
-
-

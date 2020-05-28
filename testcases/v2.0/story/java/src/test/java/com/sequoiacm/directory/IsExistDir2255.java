@@ -50,31 +50,31 @@ public class IsExistDir2255 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        //create directory
-        ScmDirectory dir = ScmFactory.Directory
-                .createInstance( ws, dirBasePath );
+        // create directory
+        ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                dirBasePath );
         ScmDirectory subdir = ScmFactory.Directory.createInstance( ws, path );
         subdir.createSubdirectory( name );
 
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name );
         file.setDirectory( dir );
         fileId = file.save();
 
-        boolean flag = ScmFactory.Directory
-                .isInstanceExist( ws, dirBasePath + name );
+        boolean flag = ScmFactory.Directory.isInstanceExist( ws,
+                dirBasePath + name );
         Assert.assertFalse( flag );
 
         ScmFactory.File.deleteInstance( ws, fileId, true );
 
-        //create directory
+        // create directory
         ScmFactory.Directory.createInstance( ws, dirBasePath + name );
-        boolean flag1 = ScmFactory.Directory
-                .isInstanceExist( ws, dirBasePath + name );
+        boolean flag1 = ScmFactory.Directory.isInstanceExist( ws,
+                dirBasePath + name );
         Assert.assertTrue( flag1 );
 
-        //clear
+        // clear
         ScmFactory.Directory.deleteInstance( ws, dirBasePath + name );
         ScmFactory.Directory.deleteInstance( ws, path + "/" + name );
         ScmFactory.Directory.deleteInstance( ws, path );

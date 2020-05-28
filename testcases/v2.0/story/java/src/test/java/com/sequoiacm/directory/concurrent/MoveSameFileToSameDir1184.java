@@ -54,10 +54,10 @@ public class MoveSameFileToSameDir1184 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -169,8 +169,8 @@ public class MoveSameFileToSameDir1184 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -203,10 +203,10 @@ public class MoveSameFileToSameDir1184 extends TestScmBase {
     private class MoveFileA extends TestThreadBase {
         public void exec() {
             try {
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( 0 ) );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, dirBasePath );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( 0 ) );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        dirBasePath );
                 file.setDirectory( dir );
                 check( fileIdList.get( 0 ), dir );
             } catch ( ScmException e ) {
@@ -222,10 +222,10 @@ public class MoveSameFileToSameDir1184 extends TestScmBase {
     private class MoveFileB extends TestThreadBase {
         public void exec() {
             try {
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( 1 ) );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, dirBasePath );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( 1 ) );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        dirBasePath );
                 file.setDirectory( dir );
                 check( fileIdList.get( 1 ), dir );
             } catch ( ScmException e ) {

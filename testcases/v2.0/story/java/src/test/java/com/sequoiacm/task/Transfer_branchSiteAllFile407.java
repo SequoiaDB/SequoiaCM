@@ -68,10 +68,10 @@ public class Transfer_branchSiteAllFile407 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -113,8 +113,8 @@ public class Transfer_branchSiteAllFile407 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( wsA, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( wsA, fileIdList.get( i ),
+                            true );
                 }
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
@@ -168,9 +168,8 @@ public class Transfer_branchSiteAllFile407 extends TestScmBase {
         try {
             SiteWrapper rootSite = ScmInfo.getRootSite();
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -190,24 +189,22 @@ public class Transfer_branchSiteAllFile407 extends TestScmBase {
         Date actStartTime = task.getStartTime();
         Date actStopTime = task.getStopTime();
         if ( actStartTime.getTime() > actStopTime.getTime() ) {
-            Assert.fail(
-                    "taskId :" + taskId.get() + "startTime: " + actStartTime +
-                            "stopTime: " + actStopTime
-                            + ", startTime shouldn't greater than stopTime!" );
+            Assert.fail( "taskId :" + taskId.get() + "startTime: "
+                    + actStartTime + "stopTime: " + actStopTime
+                    + ", startTime shouldn't greater than stopTime!" );
         }
         long acceptableOffset = 2000 * 1000; // unit: ms
-        if ( Math.abs( actStartTime.getTime() - expStartTime.getTime() ) >
-                acceptableOffset ) {
-            Assert.fail( "taskId :" + taskId.get() + "actStartTime: " +
-                    actStartTime + ", expStartTime: " + expStartTime
+        if ( Math.abs( actStartTime.getTime()
+                - expStartTime.getTime() ) > acceptableOffset ) {
+            Assert.fail( "taskId :" + taskId.get() + "actStartTime: "
+                    + actStartTime + ", expStartTime: " + expStartTime
                     + ", startTime is not reasonable" );
         }
-        if ( Math.abs( actStopTime.getTime() - expStopTime.getTime() ) >
-                acceptableOffset ) {
-            Assert.fail(
-                    "taskId :" + taskId.get() + "actStopTime: " + actStopTime +
-                            "expStopTime: " + expStopTime +
-                            ", stopTime is not reasonable" );
+        if ( Math.abs( actStopTime.getTime()
+                - expStopTime.getTime() ) > acceptableOffset ) {
+            Assert.fail( "taskId :" + taskId.get() + "actStopTime: "
+                    + actStopTime + "expStopTime: " + expStopTime
+                    + ", stopTime is not reasonable" );
         }
     }
 }

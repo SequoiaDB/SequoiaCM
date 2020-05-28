@@ -69,10 +69,10 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -100,7 +100,7 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })//bug:315
+    @Test(groups = { "fourSite" }) // bug:315
     private void test() throws Exception {
         ScmFile file;
         try {
@@ -155,9 +155,9 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             sis = ScmFactory.File.createInputStream( file );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis.read( fos );
@@ -183,14 +183,13 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
         ScmWorkspace[] notExistLobSites = { wsA, wsM };
         for ( int i = 0; i < notExistLobSites.length; i++ ) {
             try {
-                ScmFileUtils
-                        .checkData( notExistLobSites[ i ], fileId, localPath,
-                                filePath );
+                ScmFileUtils.checkData( notExistLobSites[ i ], fileId,
+                        localPath, filePath );
                 Assert.fail(
                         "Lob has be removed, expect fail, actual success." );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DATA_NOT_EXIST && e.getError() !=
-                        ScmError.DATA_ERROR ) { // TODO:jira-158,expCode:-401,
+                if ( e.getError() != ScmError.DATA_NOT_EXIST
+                        && e.getError() != ScmError.DATA_ERROR ) { // TODO:jira-158,expCode:-401,
                     // not
                     // -801
                     e.printStackTrace();
@@ -213,8 +212,8 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
 
         for ( int i = 0; i < aftTimes.size(); i++ ) {
             if ( preTimes.get( i ) != aftTimes.get( i ) ) {
-                Assert.fail( "failed to check lastAccessTime, " +
-                        "preSiteInfoList: " + preSiteInfoList.toString()
+                Assert.fail( "failed to check lastAccessTime, "
+                        + "preSiteInfoList: " + preSiteInfoList.toString()
                         + "\naftSiteInfoList: " + aftSiteInfoList.toString() );
             }
         }

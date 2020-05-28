@@ -53,7 +53,7 @@ import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 /**
  * @author fanyu
  * @Description:SCM-1725:有工作区UPDATE|CREATE的权限和目录的CREATE|UPDATE| DELETE权限，
- * 对表格中的各个接口进行覆盖测试
+ *                                                              对表格中的各个接口进行覆盖测试
  * @Date:2018年6月6日
  * @version:1.0
  */
@@ -79,10 +79,10 @@ public class AuthWs_NoRead1725 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -186,8 +186,8 @@ public class AuthWs_NoRead1725 extends TestScmBase {
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsA, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsA,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -234,8 +234,8 @@ public class AuthWs_NoRead1725 extends TestScmBase {
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsA, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsA,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -367,13 +367,11 @@ public class AuthWs_NoRead1725 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                     .is( scheName ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
             ScmSystem.Schedule.get( sessionR, expSche.getId() );
             Assert.fail( "the user does not have priority to do something" );
@@ -408,8 +406,7 @@ public class AuthWs_NoRead1725 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -466,16 +463,15 @@ public class AuthWs_NoRead1725 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             ScmFactory.Directory.createInstance( wsA, dirpath );
 
             wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), dirpath );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    dirpath );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
                     ScmPrivilegeType.UPDATE );
             grantPriAndAttachRole( sessionA, wsrs, user, role,

@@ -59,16 +59,15 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".2txt";
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".2txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( remainFilePath, fileSize / 2 );
         wsp = ScmInfo.getWs();
@@ -81,7 +80,7 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
         session = TestScmTools.createSession( sourceSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         writeFileFromSubCenterA();
-        //make remain in targetSite
+        // make remain in targetSite
         TestSdbTools.Lob.putLob( targetSite, wsp, fileId, remainFilePath );
     }
 
@@ -95,7 +94,7 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
                 startTask.getErrorMsg() );
         Assert.assertEquals( readFile.isSuccess(), true,
                 readFile.getErrorMsg() );
-        //check result
+        // check result
         ScmTaskUtils.waitTaskFinish( session, taskId );
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList, localPath,
@@ -163,9 +162,9 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( file );
                 sis.read( fos );

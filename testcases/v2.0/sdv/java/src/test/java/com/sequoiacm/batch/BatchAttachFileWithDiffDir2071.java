@@ -56,10 +56,10 @@ public class BatchAttachFileWithDiffDir2071 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -104,11 +104,10 @@ public class BatchAttachFileWithDiffDir2071 extends TestScmBase {
 
         // get file
         int index = ( int ) Math.random() * 10;
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileIdList.get( index ) );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        ScmFile file = ScmFactory.File.getInstance( ws,
+                fileIdList.get( index ) );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
         // check content
         Assert.assertEquals( TestTools.getMD5( filePath ),
@@ -152,8 +151,8 @@ public class BatchAttachFileWithDiffDir2071 extends TestScmBase {
     private void prepareFile( String dirPath ) throws Exception {
         List< String > pathList = getSubPaths( dirPath );
         for ( int i = 0; i < pathList.size(); i++ ) {
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( ws, pathList.get( i ) );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                    pathList.get( i ) );
             ScmId fileId = createFile( filePath, name, dir );
             fileIdList.add( fileId );
         }
@@ -183,8 +182,8 @@ public class BatchAttachFileWithDiffDir2071 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -193,8 +192,8 @@ public class BatchAttachFileWithDiffDir2071 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

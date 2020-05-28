@@ -67,13 +67,12 @@ public class Clean_whenLobRemain471 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainedFilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainedFilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -148,13 +147,13 @@ public class Clean_whenLobRemain471 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -170,8 +169,8 @@ public class Clean_whenLobRemain471 extends TestScmBase {
     }
 
     private ScmId cleanFile( ScmSession session ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         return ScmSystem.Task.startCleanTask( ws, condition );
@@ -186,8 +185,8 @@ public class Clean_whenLobRemain471 extends TestScmBase {
         ScmFileUtils.checkData( wsA, fileId, localPath, filePath );
 
         SiteWrapper[] expSiteList2 = { rootSite };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList.subList( 0, fileNum - 1 ),
-                        expSiteList2, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( ws_T,
+                fileIdList.subList( 0, fileNum - 1 ), expSiteList2, localPath,
+                filePath );
     }
 }

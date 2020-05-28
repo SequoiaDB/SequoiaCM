@@ -81,10 +81,10 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -192,8 +192,8 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsC, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsC,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -225,8 +225,8 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsC, fileName, ScmChecksumType.CRC32 );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsC,
+                    fileName, ScmChecksumType.CRC32 );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -257,9 +257,8 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsC, fileName, ScmChecksumType.ADLER32,
-                            0 );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsC,
+                    fileName, ScmChecksumType.ADLER32, 0 );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ), 1 );
             expBreakpointFile.incrementalUpload( inputStream, true );
@@ -319,17 +318,15 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( author ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionC, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionC, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
             // check
-            ScmSchedule actSche = ScmSystem.Schedule
-                    .get( sessionA, expSche.getId() );
+            ScmSchedule actSche = ScmSystem.Schedule.get( sessionA,
+                    expSche.getId() );
             Assert.assertEquals( expSche.getCreaateUser(),
                     actSche.getCreaateUser() );
             Assert.assertEquals( expSche.getCron(), actSche.getCron() );
@@ -346,8 +343,7 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -373,10 +369,10 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
             // ScmPrivilegeDefine.CREATE);
             // ScmFactory.Role.revokePrivilege(sessionA, roleList.get(1), rs,
             // ScmPrivilegeDefine.CREATE + "|" + ScmPrivilegeDefine.READ);
-            ScmFactory.Role
-                    .deleteRole( sessionA, roleList.get( 0 ).getRoleName() );
-            ScmFactory.Role
-                    .deleteRole( sessionA, roleList.get( 1 ).getRoleName() );
+            ScmFactory.Role.deleteRole( sessionA,
+                    roleList.get( 0 ).getRoleName() );
+            ScmFactory.Role.deleteRole( sessionA,
+                    roleList.get( 1 ).getRoleName() );
             ScmFactory.User.deleteUser( sessionA, userList.get( 0 ) );
             ScmFactory.User.deleteUser( sessionA, userList.get( 1 ) );
         } catch ( Exception e ) {
@@ -417,20 +413,18 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            ScmUser user = ScmFactory.User
-                    .createUser( sessionA, usernameArr[ 0 ],
-                            ScmUserPasswordType.LOCAL, passwd );
+            ScmUser user = ScmFactory.User.createUser( sessionA,
+                    usernameArr[ 0 ], ScmUserPasswordType.LOCAL, passwd );
             userList.add( user );
-            ScmRole role = ScmFactory.Role
-                    .createRole( sessionA, rolenameArr[ 0 ], null );
+            ScmRole role = ScmFactory.Role.createRole( sessionA,
+                    rolenameArr[ 0 ], null );
             roleList.add( role );
 
-            ScmUser user1 = ScmFactory.User
-                    .createUser( sessionA, usernameArr[ 1 ],
-                            ScmUserPasswordType.LOCAL, passwd );
+            ScmUser user1 = ScmFactory.User.createUser( sessionA,
+                    usernameArr[ 1 ], ScmUserPasswordType.LOCAL, passwd );
             userList.add( user1 );
-            ScmRole role1 = ScmFactory.Role
-                    .createRole( sessionA, rolenameArr[ 1 ], null );
+            ScmRole role1 = ScmFactory.Role.createRole( sessionA,
+                    rolenameArr[ 1 ], null );
             roleList.add( role1 );
 
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
@@ -449,14 +443,14 @@ public class AuthWs_CreateRead1723 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, usernameArr[ 1 ], passwd, role1,
                     wsp.getName() );
 
-            sessionC = TestScmTools
-                    .createSession( site, usernameArr[ 0 ], passwd );
+            sessionC = TestScmTools.createSession( site, usernameArr[ 0 ],
+                    passwd );
             wsC = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionC );
 
-            sessionCR = TestScmTools
-                    .createSession( site, usernameArr[ 1 ], passwd );
-            wsCR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCR );
+            sessionCR = TestScmTools.createSession( site, usernameArr[ 1 ],
+                    passwd );
+            wsCR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

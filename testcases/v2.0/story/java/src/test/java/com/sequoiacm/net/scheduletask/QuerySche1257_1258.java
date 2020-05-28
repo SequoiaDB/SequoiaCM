@@ -121,8 +121,7 @@ public class QuerySche1257_1258 extends TestScmBase {
         try {
             BSONObject queryCond2 = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).in( name ).get();
-            ScmScheduleCopyFileContent content2 = new
-                    ScmScheduleCopyFileContent(
+            ScmScheduleCopyFileContent content2 = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), "1d",
                     queryCond2 );
 
@@ -137,18 +136,14 @@ public class QuerySche1257_1258 extends TestScmBase {
             BSONObject ctObj = ScmQueryBuilder.start( "content" )
                     .is( content2.toBSONObject() ).get();
 
-            BSONObject cond = ScmQueryBuilder.start()
-                    .and( "name" ).is( name + "_new" )
-                    .and( "desc" ).in( desc, desc + "_new" )
-                    .and( "workspace" ).exists( wsp.getName() )
-                    .and( "cron" ).is( "1 * * * * ?" )
-                    .and( "content" ).elemMatch( sourceSite )
-                    .and( "content" ).elemMatch( targetSite )
-                    .and( "content" ).elemMatch( mstObj )
-                    .not( type2 )
-                    .or( ctObj )
-                    .get();
-//			System.out.println(cond);
+            BSONObject cond = ScmQueryBuilder.start().and( "name" )
+                    .is( name + "_new" ).and( "desc" ).in( desc, desc + "_new" )
+                    .and( "workspace" ).exists( wsp.getName() ).and( "cron" )
+                    .is( "1 * * * * ?" ).and( "content" )
+                    .elemMatch( sourceSite ).and( "content" )
+                    .elemMatch( targetSite ).and( "content" )
+                    .elemMatch( mstObj ).not( type2 ).or( ctObj ).get();
+            // System.out.println(cond);
             cursor = ScmSystem.Schedule.list( ssA, cond );
             int actNum = 0;
             while ( cursor.hasNext() ) {
@@ -170,8 +165,8 @@ public class QuerySche1257_1258 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test_returnEmpty() throws Exception {
         BSONObject cond = ScmQueryBuilder.start( "name" ).is( "123" ).get();
-        ScmCursor< ScmScheduleBasicInfo > cursor = ScmSystem.Schedule
-                .list( ssA, cond );
+        ScmCursor< ScmScheduleBasicInfo > cursor = ScmSystem.Schedule.list( ssA,
+                cond );
         Assert.assertFalse( cursor.hasNext() );
         runSuccess = true;
     }
@@ -193,8 +188,8 @@ public class QuerySche1257_1258 extends TestScmBase {
     }
 
     private void createSchedules() throws ScmException {
-        content = new ScmScheduleCleanFileContent(
-                branSite.getSiteName(), maxStayTime, queryCond );
+        content = new ScmScheduleCleanFileContent( branSite.getSiteName(),
+                maxStayTime, queryCond );
         for ( int i = 0; i < scheNum - 1; i++ ) {
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     type, name, desc, content, cron );

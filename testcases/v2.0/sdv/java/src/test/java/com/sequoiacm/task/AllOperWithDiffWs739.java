@@ -54,10 +54,10 @@ public class AllOperWithDiffWs739 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         filePathList.add( filePath );
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -170,9 +170,9 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( this.wsName, session );
                 file = ScmFactory.File.getInstance( ws, fileId );
-                downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                        TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
             } catch ( Exception e ) {
                 e.printStackTrace();
@@ -193,8 +193,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task
-                        .startTransferTask( ws, condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( ws,
+                        condition );
                 ScmTaskUtils.waitTaskFinish( session, taskId );
 
             } catch ( Exception e ) {
@@ -212,8 +212,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmId taskId = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
@@ -233,8 +233,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFactory.File.asyncCache( ws, fileId );
                 SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ),
                         branceSiteList.get( 1 ) };
@@ -254,8 +254,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFactory.File.asyncTransfer( ws, fileId );
                 SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ),
                         branceSiteList.get( 1 ) };

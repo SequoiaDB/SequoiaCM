@@ -55,10 +55,10 @@ public class Clean_readAfterClean1028 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -123,8 +123,8 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( branceSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             // start task
             BSONObject condition = ScmQueryBuilder
@@ -153,14 +153,14 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmId fileId = fileIdList.get( i );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 file.getContent( downloadPath );
             }
@@ -174,9 +174,8 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         SiteWrapper[] expSiteList = { rootSite, branceSites.get( 0 ),
                 branceSites.get( 1 ) };
         for ( int i = 0; i < fileIdList.size(); i++ ) {
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList.get( i ), expSiteList,
-                            localPath, filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( i ),
+                    expSiteList, localPath, filePath );
         }
     }
 }

@@ -61,10 +61,10 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -94,8 +94,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
         try {
             session = TestScmTools.createSession( site, username, passwd );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsA, testpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsA,
+                    testpath );
 
             // create file C+R
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -105,8 +105,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
             fileId = file.save();
 
             // update file R+U
-            ScmFile updateFile = ScmFactory.File
-                    .getInstanceByPath( ws, path + "/" + fileName );
+            ScmFile updateFile = ScmFactory.File.getInstanceByPath( ws,
+                    path + "/" + fileName );
             updateFile.setFileName( newFileName );
 
             // read file R
@@ -121,15 +121,15 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
             ScmFactory.Directory.createInstance( ws, dirpath );
 
             // get dir
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( ws, dirpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( ws,
+                    dirpath );
 
             // rename dir
             actdir.rename( newDirname );
 
             // check
-            ScmDirectory actdir1 = ScmFactory.Directory
-                    .getInstance( ws, newDirPath );
+            ScmDirectory actdir1 = ScmFactory.Directory.getInstance( ws,
+                    newDirPath );
             Assert.assertEquals( actdir1.getName(), newDirname );
             actdir1.delete();
         } catch ( ScmException e ) {
@@ -177,8 +177,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -198,8 +198,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -208,8 +208,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -251,9 +251,8 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
 
     private void prepare() throws Exception {
         createDir( wsA, path );
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( sessionA, rolename, null );
         rs = ScmResourceFactory.createDirectoryResource( wsp.getName(), "/" );
         for ( ScmPrivilegeType privilege : privileges ) {

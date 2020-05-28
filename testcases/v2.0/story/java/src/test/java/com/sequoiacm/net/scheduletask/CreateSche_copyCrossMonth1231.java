@@ -60,10 +60,10 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -83,16 +83,16 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })  //jira-232
+    @Test(groups = { "twoSite", "fourSite" }) // jira-232
     private void test() throws Exception {
         Calendar cal = Calendar.getInstance();
-        String maxStayTime =
-                "" + cal.getActualMaximum( Calendar.DAY_OF_MONTH ) + "d";
+        String maxStayTime = "" + cal.getActualMaximum( Calendar.DAY_OF_MONTH )
+                + "d";
         try {
             this.readyScmFile( 0, 1, null );
             // write scmFile
-            cal.set( Calendar.DAY_OF_YEAR, cal.get( Calendar.DAY_OF_YEAR ) -
-                    cal.getActualMaximum( Calendar.DAY_OF_MONTH ) - 1 );
+            cal.set( Calendar.DAY_OF_YEAR, cal.get( Calendar.DAY_OF_YEAR )
+                    - cal.getActualMaximum( Calendar.DAY_OF_MONTH ) - 1 );
             this.readyScmFile( 1, fileNum, cal.getTime() );
             // create schedule task
             this.createScheduleTask( maxStayTime );
@@ -176,7 +176,8 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -190,7 +191,8 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
                 ScmScheduleUtils.cleanTask( ss, scheduleId );
             }
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -200,13 +202,14 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
         try {
             ss = TestScmTools.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
-            ScmScheduleUtils
-                    .checkScmFile( ws, fileIds, startNum, endNum, expSites );
+            ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,
+                    expSites );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 }

@@ -64,10 +64,10 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -134,9 +134,8 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
 
     private void startTask() {
         try {
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -147,8 +146,8 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.Task.WORKSPACE ).lessThanEquals( "ws" )
                 .get();
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( session, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( session,
+                cond );
         if ( cursor != null ) {
             for ( int i = 0; i < 3; i++ ) {
                 cursor.close();

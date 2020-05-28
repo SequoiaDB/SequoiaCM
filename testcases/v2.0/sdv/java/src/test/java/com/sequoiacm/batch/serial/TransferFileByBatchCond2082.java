@@ -79,10 +79,10 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        //clean batch
+        // clean batch
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2082" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( wsM, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( wsM,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -90,7 +90,7 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
         }
         cursor.close();
 
-        //create file and update content
+        // create file and update content
         fileId1 = VersionUtils.createFileByStream( wsA, fileName1, writeData1 );
         fileId2 = VersionUtils.createFileByStream( wsA, fileName2, writeData2 );
         VersionUtils.updateContentByStream( wsA, fileId1, updateData1 );
@@ -135,7 +135,7 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
                 .get();
         taskId = ScmSystem.Task.startTransferTask( ws, condition );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
@@ -146,7 +146,7 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
         ScmId batchId = batch.save();
         batch.attachFile( fileId );
 
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag( "tag2082" );
         batch.setTags( tags );
@@ -156,10 +156,10 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
     private void checkTransferedFileSiteAndDataInfo( ScmWorkspace ws,
             String fileName ) throws Exception {
         int currentVersion = 2;
-        //check the transfered file,check the sitelist and data	,only
+        // check the transfered file,check the sitelist and data ,only
         // transfered current file
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         SiteWrapper[] expSiteList = { rootSite, branSite };
         while ( cursor.hasNext() ) {
@@ -167,13 +167,12 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
             ScmId fileId = file.getFileId();
             int majorVersion = file.getMajorVersion();
             if ( majorVersion == currentVersion ) {
-                //check sitelist and transfered fileContent of the
+                // check sitelist and transfered fileContent of the
                 // currentVersion file
-                VersionUtils
-                        .checkSite( ws, fileId, currentVersion, expSiteList );
-                VersionUtils
-                        .CheckFileContentByStream( ws, fileName, majorVersion,
-                                updateData1 );
+                VersionUtils.checkSite( ws, fileId, currentVersion,
+                        expSiteList );
+                VersionUtils.CheckFileContentByStream( ws, fileName,
+                        majorVersion, updateData1 );
             } else {
                 Assert.fail( "the file version is error!" + majorVersion );
             }
@@ -188,12 +187,12 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
             throws ScmException {
         int currentVersion = 2;
         int historyVersion = 1;
-        //check the no transfer file by batch2
+        // check the no transfer file by batch2
         BSONObject condition = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.BATCH_ID ).is( batchId2.toString() )
                 .get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         SiteWrapper[] expSiteList = { branSite };
         while ( cursor.hasNext() ) {
@@ -211,7 +210,7 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
         int expFileNum = 1;
         Assert.assertEquals( size, expFileNum );
 
-        //check the no transfer file by history version file
+        // check the no transfer file by history version file
         List< String > fileIdList = new ArrayList<>( 2 );
         fileIdList.add( fileId1.get() );
         fileIdList.add( fileId2.get() );
@@ -225,8 +224,8 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
             ScmId fileId1 = file1.getFileId();
             int majorVersion1 = file1.getMajorVersion();
             if ( majorVersion1 == historyVersion ) {
-                VersionUtils
-                        .checkSite( ws, fileId1, majorVersion1, expSiteList );
+                VersionUtils.checkSite( ws, fileId1, majorVersion1,
+                        expSiteList );
             } else {
                 Assert.fail( "the file version is error!" + majorVersion1 );
             }

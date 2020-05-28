@@ -42,9 +42,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
  */
 
 /*
- * 1、在分中心A开始多个迁移任务，迁移多个文件； 2、迁移部分文件后，并发分中心B停止不同任务； 3、检查执行结果正确性；
- * 
- * 备注： 因为虚机空间太小，所以我将原本的3ws并发改为2ws并发，若未来空间条件允许，就把ws3的注释打开吧
+ * 1、在分中心A开始多个迁移任务，迁移多个文件； 2、迁移部分文件后，并发分中心B停止不同任务； 3、检查执行结果正确性； 备注：
+ * 因为虚机空间太小，所以我将原本的3ws并发改为2ws并发，若未来空间条件允许，就把ws3的注释打开吧
  */
 
 public class Transfer_stopRunningTask440 extends TestScmBase {
@@ -71,13 +70,13 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             for ( int i = 0; i < fileNum; i++ ) {
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
             }
@@ -114,16 +113,14 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
 
         BSONObject cond1 = basicCond.and( ScmAttributeName.File.TITLE )
                 .is( ws1.getName() ).get();
-        taskId1 = ScmSystem.Task
-                .startTransferTask( ws1, cond1, ScopeType.SCOPE_CURRENT,
-                        rootSite.getSiteName() );
+        taskId1 = ScmSystem.Task.startTransferTask( ws1, cond1,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         ScmSystem.Task.stopTask( sessionB, taskId1 );
 
         BSONObject cond2 = basicCond.and( ScmAttributeName.File.TITLE )
                 .is( ws2.getName() ).get();
-        taskId2 = ScmSystem.Task
-                .startTransferTask( ws2, cond2, ScopeType.SCOPE_CURRENT,
-                        rootSite.getSiteName() );
+        taskId2 = ScmSystem.Task.startTransferTask( ws2, cond2,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         ScmSystem.Task.stopTask( sessionB, taskId2 );
 
         waitTaskStop( taskId1 );
@@ -198,10 +195,10 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
         expStopTime = new Date();
 
         long acceptableOffset = 100000; // 100s
-        if ( Math.abs( actStopTime.getTime() - expStopTime.getTime() ) >
-                acceptableOffset ) {
-            Assert.fail( "actStopTime: " + actStopTime + ", expStopTime: " +
-                    expStopTime + ", stopTime is not reasonable" );
+        if ( Math.abs( actStopTime.getTime()
+                - expStopTime.getTime() ) > acceptableOffset ) {
+            Assert.fail( "actStopTime: " + actStopTime + ", expStopTime: "
+                    + expStopTime + ", stopTime is not reasonable" );
 
         }
     }

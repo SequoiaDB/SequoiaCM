@@ -43,10 +43,10 @@ public class AuthServer_user1492 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -59,21 +59,19 @@ public class AuthServer_user1492 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
 
             // get AUTH_ADMIN role
-            ScmUser adminUser = ScmFactory.User
-                    .getUser( session, TestScmBase.scmUserName );
+            ScmUser adminUser = ScmFactory.User.getUser( session,
+                    TestScmBase.scmUserName );
             authAdminRole = adminUser.getRoles().iterator().next();
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -85,9 +83,8 @@ public class AuthServer_user1492 extends TestScmBase {
     private void test_createUserAndRole()
             throws ScmException, InterruptedException {
         // create ScmUser
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
 
         // add AUTH_ADMIN role
         ScmUserModifier modifier = new ScmUserModifier();
@@ -112,8 +109,8 @@ public class AuthServer_user1492 extends TestScmBase {
             ScmFactory.User.getUser( session, NAME );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get user after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get user after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;

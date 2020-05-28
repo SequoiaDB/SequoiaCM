@@ -60,10 +60,10 @@ public class AsyncCacheFiles510 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -91,8 +91,8 @@ public class AsyncCacheFiles510 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             for ( int i = 0; i < fileNum; ++i ) {
                 ScmFactory.File.asyncCache( ws, fileIdList.get( i ) );
             }

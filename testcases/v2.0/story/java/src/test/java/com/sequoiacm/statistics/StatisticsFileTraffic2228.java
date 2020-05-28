@@ -71,20 +71,20 @@ public class StatisticsFileTraffic2228 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get statisticDownload before create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload before create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload1 = firstmap.get( "file_download" );
 
         createFiles( wsA, fileNums );
         downloadFile( wsB );
 
-        //get statisticDownload after download
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload after download
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload2 = secondmap.get( "file_download" );
 
-        //check statisticDownload result,statistic for two sites download files
+        // check statisticDownload result,statistic for two sites download files
         long downloadFiles = statisticDownload2 - statisticDownload1;
         Assert.assertEquals( downloadFiles, fileNums + fileNums );
 
@@ -118,19 +118,19 @@ public class StatisticsFileTraffic2228 extends TestScmBase {
             String subfileName = fileName + "_" + i;
             ScmId fileId = null;
             if ( i < 10 ) {
-                //test a: the setCreateTime interval within one day
+                // test a: the setCreateTime interval within one day
                 long timestamp = currentTimestamp;
                 fileId = StatisticsUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );
             }
             if ( i >= 10 && i < 15 ) {
-                //test b: the setCreateTime interval within 5 days
+                // test b: the setCreateTime interval within 5 days
                 long timestamp = currentTimestamp - 432000000;
                 fileId = StatisticsUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );
             }
             if ( i >= 15 && i < fileNums ) {
-                //test c: the setCreateTime interval within
+                // test c: the setCreateTime interval within
                 long timestamp = currentTimestamp - 2678400000L;
                 fileId = StatisticsUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );

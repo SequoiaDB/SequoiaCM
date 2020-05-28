@@ -102,8 +102,8 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsNotExist() throws ScmException {
         try {
-            ScmWorkspace ws1 = ScmFactory.Workspace
-                    .getWorkspace( "testaaa", session );
+            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( "testaaa",
+                    session );
             BSONObject condition = ScmQueryBuilder.start( "test" )
                     .greaterThanEquals( "aa" ).get();
             ScmSystem.Task.startTransferTask( ws1, condition );
@@ -153,8 +153,8 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
-                    forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 )
+                    || forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
             }

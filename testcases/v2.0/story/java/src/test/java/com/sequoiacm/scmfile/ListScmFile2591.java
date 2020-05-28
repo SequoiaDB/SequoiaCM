@@ -42,8 +42,7 @@ public class ListScmFile2591 extends TestScmBase {
     private void testInvalidScope() throws ScmException {
         try {
             ScmFactory.File.listInstance( ws, ScmType.ScopeType.SCOPE_ALL,
-                    new BasicBSONObject(),
-                    new BasicBSONObject(), 0, 1 );
+                    new BasicBSONObject(), new BasicBSONObject(), 0, 1 );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ) {
@@ -56,8 +55,7 @@ public class ListScmFile2591 extends TestScmBase {
     private void testInvalidLimit() throws ScmException {
         try {
             ScmFactory.File.listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
-                    new BasicBSONObject(),
-                    new BasicBSONObject(), 0, -2 );
+                    new BasicBSONObject(), new BasicBSONObject(), 0, -2 );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -70,8 +68,7 @@ public class ListScmFile2591 extends TestScmBase {
     private void testInvalidSkip() throws ScmException {
         try {
             ScmFactory.File.listInstance( ws, ScmType.ScopeType.SCOPE_HISTORY,
-                    new BasicBSONObject(),
-                    new BasicBSONObject(), -1, 1 );
+                    new BasicBSONObject(), new BasicBSONObject(), -1, 1 );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -84,8 +81,7 @@ public class ListScmFile2591 extends TestScmBase {
     private void testWSisNull() throws ScmException {
         try {
             ScmFactory.File.listInstance( null, ScmType.ScopeType.SCOPE_HISTORY,
-                    new BasicBSONObject(),
-                    new BasicBSONObject(), 0, 1 );
+                    new BasicBSONObject(), new BasicBSONObject(), 0, 1 );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -97,9 +93,8 @@ public class ListScmFile2591 extends TestScmBase {
     @Test
     private void testCondIsNull() throws ScmException {
         try {
-            ScmFactory.File
-                    .listInstance( null, ScmType.ScopeType.SCOPE_HISTORY, null,
-                            new BasicBSONObject(), 0, 1 );
+            ScmFactory.File.listInstance( null, ScmType.ScopeType.SCOPE_HISTORY,
+                    null, new BasicBSONObject(), 0, 1 );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -115,5 +110,3 @@ public class ListScmFile2591 extends TestScmBase {
         }
     }
 }
-
-

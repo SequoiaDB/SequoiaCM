@@ -38,8 +38,8 @@ public class DetachFile1304 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
@@ -58,17 +58,17 @@ public class DetachFile1304 extends TestScmBase {
             batch.detachFile( fileId );
             Assert.fail( "detaching not attached file should not succeed" );
         } catch ( ScmException e ) {
-            //TODO:添加不存在的文件到批次报错不对
-//			Assert.assertEquals(e.getErrorCode(), ScmError.DATA_NOT_EXIST
-// .getErrorCode());
+            // TODO:添加不存在的文件到批次报错不对
+            // Assert.assertEquals(e.getErrorCode(), ScmError.DATA_NOT_EXIST
+            // .getErrorCode());
         }
         ScmId inexistentId = new ScmId( "dddddddddddddddddddddddd" );
         try {
             batch.detachFile( inexistentId );
             Assert.fail( "detaching inexistent file should not succeed" );
         } catch ( ScmException e ) {
-            //TODO:添加不存在的文件到批次报错不对
-//			Assert.assertEquals(e.getErrorCode(), ScmError.DATA_NOT_EXIST);
+            // TODO:添加不存在的文件到批次报错不对
+            // Assert.assertEquals(e.getErrorCode(), ScmError.DATA_NOT_EXIST);
         }
         List< ScmFile > files = batch.listFiles();
         Assert.assertEquals( files.size(), 0 );

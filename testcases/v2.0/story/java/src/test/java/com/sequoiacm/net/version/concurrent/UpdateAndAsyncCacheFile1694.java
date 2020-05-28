@@ -29,9 +29,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content: update Content and asyncCache the same file concurrently:
- *               a.update content
- *               b.asyncCache the file
- * testlink-case:SCM-1694
+ * a.update content b.asyncCache the file testlink-case:SCM-1694
  *
  * @author wuyan
  * @Date 2018.06.15
@@ -67,8 +65,8 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
         sessionS = TestScmTools.createSession( sourceSite );
         wsS = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionS );
 
-        fileId = VersionUtils
-                .createFileByStream( wsS, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsS, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -110,9 +108,10 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
         int currentVersion = 2;
         int historyVersion = 1;
 
-        //asyncCache only one file :current version file or history version file
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, currentVersion, 0 );
+        // asyncCache only one file :current version file or history version
+        // file
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, currentVersion,
+                0 );
         int actSiteNum = file.getLocationList().size();
         SiteWrapper[] expSiteList1 = { sourceSite };
         SiteWrapper[] expSiteList2 = { sourceSite, cacheSite };
@@ -126,7 +125,7 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
             Assert.fail( "check Sitelist error!" );
         }
 
-        //check the update result
+        // check the update result
         VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
                 updateData );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,

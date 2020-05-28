@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description BreakpointFile1375.java 不校验文件，断点续传已更新文件 
+ * @Description BreakpointFile1375.java 不校验文件，断点续传已更新文件
  * @author luweikang
  * @date 2018年5月18日
  */
@@ -50,10 +50,10 @@ public class BreakpointFile1375 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -67,24 +67,21 @@ public class BreakpointFile1375 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, IOException, JSONException {
 
-        //创建断点文件,大小为1024*512
-        BreakpointUtil
-                .createBreakpointFile( ws, filePath, fileName1, 1024 * 512,
-                        ScmChecksumType.NONE );
-        BreakpointUtil
-                .createBreakpointFile( ws, filePath, fileName2, 1024 * 512,
-                        ScmChecksumType.NONE );
-        BreakpointUtil
-                .createBreakpointFile( ws, filePath, fileName3, 1024 * 512,
-                        ScmChecksumType.NONE );
+        // 创建断点文件,大小为1024*512
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName1,
+                1024 * 512, ScmChecksumType.NONE );
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName2,
+                1024 * 512, ScmChecksumType.NONE );
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName3,
+                1024 * 512, ScmChecksumType.NONE );
 
-        //更新断点文件,删除部分文件数据
+        // 更新断点文件,删除部分文件数据
         this.uploadBreakpointFile1();
 
-        //更新断点文件,修改未上传原文件内容
+        // 更新断点文件,修改未上传原文件内容
         this.uploadBreakpointFile2();
 
-        //更新断点文件,追加内容到源文件
+        // 更新断点文件,追加内容到源文件
         this.uploadBreakpointFile3();
 
     }

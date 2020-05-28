@@ -41,14 +41,14 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
-            int startNum, int endNum,
-            SiteWrapper[] expSites ) throws Exception {
+            int startNum, int endNum, SiteWrapper[] expSites )
+            throws Exception {
         checkScmFile( ws, fileIds, startNum, endNum, expSites, defaultTimeOut );
     }
 
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
-            int startNum, int endNum,
-            SiteWrapper[] expSites, int timeOutSec ) throws Exception {
+            int startNum, int endNum, SiteWrapper[] expSites, int timeOutSec )
+            throws Exception {
         ScmId fileId = null;
         for ( int i = startNum; i < endNum; i++ ) {
             fileId = fileIds.get( i );
@@ -61,16 +61,16 @@ public class ScmScheduleUtils extends TestScmBase {
                     break;
                 } catch ( Exception e ) {
                     if ( e.getMessage() != null
-                            &&
-                            e.getMessage().contains( "Failed to check siteNum" )
+                            && e.getMessage()
+                                    .contains( "Failed to check siteNum" )
                             && retryTimes < maxRetryTimes ) {
                         Thread.sleep( sleepTime );
                         retryTimes++;
                     } else {
                         e.printStackTrace();
                         throw new Exception(
-                                "failed to wait task finished, " + "fileId = " +
-                                        fileId + ", " + e.getMessage() );
+                                "failed to wait task finished, " + "fileId = "
+                                        + fileId + ", " + e.getMessage() );
                     }
                 }
             }
@@ -113,9 +113,7 @@ public class ScmScheduleUtils extends TestScmBase {
     public static boolean isRunningOfSche( ScmSession session, ScmId scheduleId,
             int taskType ) throws Exception {
         BSONObject condition = ScmQueryBuilder.start( "schedule_id" )
-                .is( scheduleId.get() )
-                .and( "type" ).is( taskType )
-                .get();
+                .is( scheduleId.get() ).and( "type" ).is( taskType ).get();
         return isRunningOfSche( session, scheduleId, condition );
     }
 
@@ -134,9 +132,8 @@ public class ScmScheduleUtils extends TestScmBase {
                 cursor = ScmSystem.Task.listTask( session, condition );
                 isRunning = cursor.hasNext();
                 if ( isRunning ) {
-                    logger.info(
-                            "retryTimes = " + retryTimes + ", retry time = " +
-                                    retryTimes * sleepTime );
+                    logger.info( "retryTimes = " + retryTimes
+                            + ", retry time = " + retryTimes * sleepTime );
                     break;
                 } else if ( retryTimes < maxRetryTimes ) {
                     Thread.sleep( sleepTime );
@@ -170,8 +167,8 @@ public class ScmScheduleUtils extends TestScmBase {
         } finally {
             cursor.close();
         }
-        logger.info( "scheduleId = " + scheduleId.get() + ", task info \n" +
-                infoList );
+        logger.info( "scheduleId = " + scheduleId.get() + ", task info \n"
+                + infoList );
     }
 
     public static void outputScmfileInfo( ScmWorkspace ws,
@@ -205,8 +202,7 @@ public class ScmScheduleUtils extends TestScmBase {
 
     /**
      * scheduleServer host time is not sync with SCM host time, cause may not
-     * match scmFile
-     * need to add sleep strategy
+     * match scmFile need to add sleep strategy
      */
     public static long sleepStrategy( ScmSession session, ScmWorkspace ws,
             ScmId scheduleId, ScmId fileId, int expEstCount ) throws Exception {
@@ -220,15 +216,12 @@ public class ScmScheduleUtils extends TestScmBase {
 
             // get the create time of schedule'task content
             BSONObject cond = task.getContent();
-//			System.out.println("content: " + content);
+            // System.out.println("content: " + content);
             BSONObject condA = ( BSONObject ) ( ( BasicBSONList ) cond
                     .get( "$and" ) ).get( 0 );
-            long scheMatchTime = ( long ) ( ( BSONObject ) ( ( BSONObject ) (
-                    ( BSONObject ) condA
-                    .get( "site_list" ) )
-                    .get( "$elemMatch" ) )
-                    .get( "create_time" ) )
-                    .get( "$lt" );
+            long scheMatchTime = ( long ) ( ( BSONObject ) ( ( BSONObject ) ( ( BSONObject ) condA
+                    .get( "site_list" ) ).get( "$elemMatch" ) )
+                            .get( "create_time" ) ).get( "$lt" );
 
             // computational time difference
             long maxDiffTime = 17 * 1000;
@@ -238,14 +231,14 @@ public class ScmScheduleUtils extends TestScmBase {
                 Thread.sleep( sleepTime );
                 logger.info( "sleep end, " + "sleepTime: " + sleepTime );
             } else if ( timeDiff > maxDiffTime ) {
-                logger.info( "task content \n" + cond + "\nscheMatchTime: " +
-                        scheMatchTime );
-                logger.info( "file info \n" + file.toString() +
-                        "\nfileCreateTime: " + fileCreateTime );
+                logger.info( "task content \n" + cond + "\nscheMatchTime: "
+                        + scheMatchTime );
+                logger.info( "file info \n" + file.toString()
+                        + "\nfileCreateTime: " + fileCreateTime );
                 throw new Exception(
-                        "the time difference between the schedule host and " +
-                                "the scm host is more than " +
-                                maxDiffTime + "." );
+                        "the time difference between the schedule host and "
+                                + "the scm host is more than " + maxDiffTime
+                                + "." );
             } else if ( timeDiff < 0 ) {
                 throw new Exception( "task is normal." );
             }
@@ -254,12 +247,11 @@ public class ScmScheduleUtils extends TestScmBase {
         return sleepTime;
     }
 
-	/*public static Date calendar2Date(int year,int month,int day){
-        Calendar calendar = Calendar.getInstance();
-	    calendar.set(year, month-1, day);
-	    Date date = calendar.getTime();
-	    return date;
-	}*/
+    /*
+     * public static Date calendar2Date(int year,int month,int day){ Calendar
+     * calendar = Calendar.getInstance(); calendar.set(year, month-1, day); Date
+     * date = calendar.getTime(); return date; }
+     */
 
     public static Date getDate( String dateStr ) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(

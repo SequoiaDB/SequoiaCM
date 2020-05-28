@@ -69,10 +69,10 @@ public class Transfer_cursorGetNext424 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -166,12 +166,11 @@ public class Transfer_cursorGetNext424 extends TestScmBase {
     }
 
     private ScmId transferFile( ScmSession session ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), sessionA );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionA );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        return ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        return ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
     }
 }

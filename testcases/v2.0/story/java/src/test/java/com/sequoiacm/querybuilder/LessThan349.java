@@ -98,8 +98,8 @@ public class LessThan349 extends TestScmBase {
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;
@@ -145,8 +145,9 @@ public class LessThan349 extends TestScmBase {
 
     private Object[][] kvsArr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 2 ) );
-        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
-                "ffffffffffffffffffffffff" }, // max
+        return new Object[][] {
+                new Object[] { ScmAttributeName.File.FILE_ID,
+                        "ffffffffffffffffffffffff" }, // max
                 // id
                 // new Object[]{ScmAttributeName.File.FILE_NAME,
                 // file.getFileName()},

@@ -126,13 +126,11 @@ public class ScheduleUpdateScopeType1807a extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
                 .get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_CURRENT );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                queryCond, ScopeType.SCOPE_CURRENT );
         String cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( sessionS, wsp.getName(), ScheduleType.COPY_FILE,
-                        scheduleName, "",
-                        content, cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( sessionS, wsp.getName(),
+                ScheduleType.COPY_FILE, scheduleName, "", content, cron );
         scheduleId = sche.getId();
     }
 
@@ -141,8 +139,8 @@ public class ScheduleUpdateScopeType1807a extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
                 .get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_HISTORY );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                queryCond, ScopeType.SCOPE_HISTORY );
         ScmSchedule sche = ScmSystem.Schedule.get( sessionS, scheduleId );
         sche.updateContent( content );
     }

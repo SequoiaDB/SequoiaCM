@@ -51,10 +51,10 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -77,13 +77,13 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             System.out.println( "fileId = " + fileId.get() );
             ScmFactory.File.asyncCache( ws, fileId );
             Assert.fail(
-                    "asyncCache shouldn't succeed when main site hasn't such " +
-                            "file" );
+                    "asyncCache shouldn't succeed when main site hasn't such "
+                            + "file" );
         } catch ( ScmException e ) {
             if ( ScmError.DATA_NOT_EXIST != e.getError() ) {
                 e.printStackTrace();
@@ -113,8 +113,8 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         ScmFile scmfile = ScmFactory.File.createInstance( ws );
         scmfile.setContent( filePath );
         scmfile.setFileName( fileName + "_" + UUID.randomUUID() );

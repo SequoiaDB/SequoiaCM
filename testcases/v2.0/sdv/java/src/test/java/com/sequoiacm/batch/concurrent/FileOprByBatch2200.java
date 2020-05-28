@@ -56,8 +56,7 @@ public class FileOprByBatch2200 extends TestScmBase {
     private ScmWorkspace ws = null;
     private byte[] writeData = new byte[ 1024 * 3 ];
     private byte[] updateData = new byte[ 1024 * 2 ];
-    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque<
-            ScmId >();
+    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque< ScmId >();
 
     @BeforeClass()
     private void setUp() throws ScmException {
@@ -67,8 +66,8 @@ public class FileOprByBatch2200 extends TestScmBase {
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2200" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( ws, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -187,14 +186,14 @@ public class FileOprByBatch2200 extends TestScmBase {
 
     private void deleteBatchAndCheckResult( ScmWorkspace ws )
             throws InterruptedException, ScmException {
-        //check delete result
+        // check delete result
         ScmFactory.Batch.deleteInstance( ws, batchId );
 
-        //check file by Batch
+        // check file by Batch
         BSONObject fileCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        long remainFileNum = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCondition );
+        long remainFileNum = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_CURRENT, fileCondition );
         int expFileNum = 0;
         Assert.assertEquals( remainFileNum, expFileNum );
     }
@@ -224,7 +223,7 @@ public class FileOprByBatch2200 extends TestScmBase {
                 batch.attachFile( fileId );
                 fileIdQue.offer( fileId );
 
-                //check file content
+                // check file content
                 checkFileContent( wsTmp, fileId, writeData );
                 // get batchId by file
                 checkBatchInfoByFile( wsTmp, fileId, batchId );
@@ -248,7 +247,7 @@ public class FileOprByBatch2200 extends TestScmBase {
                 ScmFile file = ScmFactory.File.getInstance( wsTmp, fileId );
                 file.updateContent( new ByteArrayInputStream( updateData ) );
 
-                //check file content
+                // check file content
                 checkFileContent( wsTmp, fileId, updateData );
             } finally {
                 if ( session != null ) {
@@ -275,11 +274,11 @@ public class FileOprByBatch2200 extends TestScmBase {
                     ScmFactory.File.getInstance( wsTmp, fileId );
                     Assert.fail( "get file must bu fail!" );
                 } catch ( ScmException e ) {
-                    //System.out.println("---remove file and get error is
+                    // System.out.println("---remove file and get error is
                     // :"+e.getError());
                     if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                        Assert.fail( "expError:FILE NOT FOUND  actError:" +
-                                e.getError() + e.getMessage() );
+                        Assert.fail( "expError:FILE NOT FOUND  actError:"
+                                + e.getError() + e.getMessage() );
                     }
                 }
             } finally {

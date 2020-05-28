@@ -81,8 +81,8 @@ public class Exists338 extends TestScmBase {
             fileAttrs.add( ScmAttributeName.File.MAJOR_VERSION );
             fileAttrs.add( ScmAttributeName.File.MIME_TYPE );
             fileAttrs.add( ScmAttributeName.File.MINOR_VERSION );
-            //fileAttrs.add(ScmAttributeName.File.PROPERTIES);
-            //fileAttrs.add(ScmAttributeName.File.PROPERTY_TYPE);
+            // fileAttrs.add(ScmAttributeName.File.PROPERTIES);
+            // fileAttrs.add(ScmAttributeName.File.PROPERTY_TYPE);
             fileAttrs.add( ScmAttributeName.File.SIZE );
             fileAttrs.add( ScmAttributeName.File.TITLE );
             fileAttrs.add( ScmAttributeName.File.UPDATE_TIME );
@@ -103,13 +103,12 @@ public class Exists338 extends TestScmBase {
 
             Assert.assertEquals( actCond, expCond );
 
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, actCond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, actCond );
             if ( count < 3 ) { // if other threads have their files, file count
                 // may greater than 3
-                Assert.fail(
-                        "count result is wrong. expCount >= 3, actCount = " +
-                                count );
+                Assert.fail( "count result is wrong. expCount >= 3, actCount = "
+                        + count );
             }
 
             runSuccess = true;

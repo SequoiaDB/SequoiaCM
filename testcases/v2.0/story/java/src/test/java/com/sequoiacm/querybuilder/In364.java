@@ -69,14 +69,14 @@ public class In364 extends TestScmBase {
             String value = fileIdList.get( 1 ).get();
             BSONObject cond = ScmQueryBuilder.start( key ).in( value ).get();
 
-            String bsStr =
-                    "{ \"" + key + "\" : { \"$in\" : [ \"" + value + "\"]}}";
+            String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value
+                    + "\"]}}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;
@@ -97,14 +97,14 @@ public class In364 extends TestScmBase {
             list.add( value2 );
             BSONObject cond = ScmQueryBuilder.start( key ).in( list ).get();
 
-            String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value1 +
-                    "\" , \"" + value2 + "\"]}}";
+            String bsStr = "{ \"" + key + "\" : { \"$in\" : [ \"" + value1
+                    + "\" , \"" + value2 + "\"]}}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;

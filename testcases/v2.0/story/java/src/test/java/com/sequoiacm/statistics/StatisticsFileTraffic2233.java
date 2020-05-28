@@ -35,8 +35,8 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
  * test content: create file, update file by breakpointfile, statistics file
- * delta
- * testlink-case:SCM-2233 
+ * delta testlink-case:SCM-2233
+ * 
  * @author wuyan
  * @Date 2018.09.13
  * @version 1.00
@@ -85,7 +85,7 @@ public class StatisticsFileTraffic2233 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get file_delta before create file
+        // get file_delta before create file
         HashMap< String, Long > firstmap = StatisticsUtils
                 .statisticsFileDelta( ws, session );
         long count_delta1 = firstmap.get( "count_delta" );
@@ -94,13 +94,13 @@ public class StatisticsFileTraffic2233 extends TestScmBase {
         createFiles( ws, fileNums );
         updateFileByBreakpointfile( ws );
 
-        //get file_delta after create file
+        // get file_delta after create file
         HashMap< String, Long > secondmap = StatisticsUtils
                 .statisticsFileDelta( ws, session );
         long count_delta2 = secondmap.get( "count_delta" );
         long size_delta2 = secondmap.get( "size_delta" );
 
-        //check statistics result
+        // check statistics result
         Assert.assertEquals( count_delta2 - count_delta1, fileNums,
                 "count_delta must be the filenums!" );
         Assert.assertEquals( size_delta2 - size_delta1, updateSize * fileNums,
@@ -149,7 +149,7 @@ public class StatisticsFileTraffic2233 extends TestScmBase {
             ScmBreakpointFile breakpointFile = createBreakpointFile( ws,
                     subfileName, updateData );
 
-            //update file by breakpointfile
+            // update file by breakpointfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.updateContent( breakpointFile );
         }

@@ -32,9 +32,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-236:A中心写文件，B中心偏移读取文件（seek） 
- *            1、分中心A写文件 
- *            2、分中心B seek文件
+ * @Testcase: SCM-236:A中心写文件，B中心偏移读取文件（seek） 1、分中心A写文件 2、分中心B seek文件
  *            3、调用read(byte[]b, int off, int len)读取文件
  * @author huangxiaoni init
  * @date 2017.5.5
@@ -61,10 +59,10 @@ public class AcrossCenterSeekAndReadFile236 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -72,7 +70,7 @@ public class AcrossCenterSeekAndReadFile236 extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
 
-        //clean file
+        // clean file
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -113,9 +111,8 @@ public class AcrossCenterSeekAndReadFile236 extends TestScmBase {
     private void readFileFromB( ScmWorkspace ws ) throws Exception {
         // read content
         ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         OutputStream fos = new FileOutputStream( new File( downloadPath ) );
 
         ScmInputStream sis = ScmFactory.File
@@ -124,16 +121,15 @@ public class AcrossCenterSeekAndReadFile236 extends TestScmBase {
         sis.read( fos );
 
         // check results
-        String tmpPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String tmpPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         TestTools.LocalFile.readFile( filePath, seekSize, tmpPath );
         Assert.assertEquals( TestTools.getMD5( downloadPath ),
                 TestTools.getMD5( tmpPath ) );
 
         SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
 
         fos.close();
         sis.close();

@@ -25,6 +25,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 /**
  * test content:delete breakpoint file ,the file not uploaded
  * testlink-case:SCM-1388
+ * 
  * @author wuyan
  * @Date 2018.05.18
  * @version 1.00
@@ -78,14 +79,14 @@ public class DeleteBreakpointFile1388 extends TestScmBase {
 
     private void deleteUploadFile() throws ScmException {
         ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
-        //check the delete result
+        // check the delete result
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

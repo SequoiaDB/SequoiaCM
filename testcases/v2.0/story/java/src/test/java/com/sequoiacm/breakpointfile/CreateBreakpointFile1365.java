@@ -50,10 +50,10 @@ public class CreateBreakpointFile1365 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );

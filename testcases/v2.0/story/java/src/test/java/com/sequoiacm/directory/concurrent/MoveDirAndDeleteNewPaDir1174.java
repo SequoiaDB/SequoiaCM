@@ -133,8 +133,8 @@ public class MoveDirAndDeleteNewPaDir1174 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -169,10 +169,10 @@ public class MoveDirAndDeleteNewPaDir1174 extends TestScmBase {
         public void exec() {
             try {
                 String srcPath = dirBasePath + "/Dir_1174_b";
-                ScmDirectory destDir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
-                ScmDirectory srcDir = ScmFactory.Directory
-                        .getInstance( ws, srcPath );
+                ScmDirectory destDir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
+                ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                        srcPath );
                 srcDir.move( destDir );
                 // check
                 BSONObject expBSON1 = new BasicBSONObject();
@@ -215,4 +215,3 @@ public class MoveDirAndDeleteNewPaDir1174 extends TestScmBase {
         }
     }
 }
-

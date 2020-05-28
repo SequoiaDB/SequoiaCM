@@ -59,7 +59,7 @@ public class DefineAttr_tags_removeAndAddTags2713A extends TestScmBase {
         prepareScmFile();
     }
 
-    @Test(enabled = false)//TODO:SEQUOIACM-439
+    @Test(enabled = false) // TODO:SEQUOIACM-439
     private void test() throws Exception {
         String commonTag = initTags[ 0 ];
         Set< String > addTags = new HashSet<>();
@@ -80,7 +80,7 @@ public class DefineAttr_tags_removeAndAddTags2713A extends TestScmBase {
         Set< String > actSet = file.getTags().toSet();
         Set< String > expSet = new HashSet<>();
         Collections.addAll( expSet, initTags );
-        //check results
+        // check results
         if ( actSet.contains( commonTag ) ) {
             expSet.removeAll( removeTags );
             expSet.addAll( addTags );

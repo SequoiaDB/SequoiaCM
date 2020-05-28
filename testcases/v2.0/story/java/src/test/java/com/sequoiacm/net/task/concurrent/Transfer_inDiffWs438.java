@@ -64,16 +64,15 @@ public class Transfer_inDiffWs438 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -91,8 +90,8 @@ public class Transfer_inDiffWs438 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
             session = TestScmTools.createSession( sourceSite );
-            ws = ScmFactory.Workspace
-                    .getWorkspace( ws_TList.get( 0 ).getName(), session );
+            ws = ScmFactory.Workspace.getWorkspace( ws_TList.get( 0 ).getName(),
+                    session );
             newWs = ScmFactory.Workspace
                     .getWorkspace( ws_TList.get( 1 ).getName(), session );
 

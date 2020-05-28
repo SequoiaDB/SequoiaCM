@@ -30,8 +30,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content,and add tag
- * testlink-case:SCM-1941
+ * test content: update Content,and add tag testlink-case:SCM-1941
  *
  * @author wuyan
  * @Date 2018.07.11
@@ -53,10 +52,10 @@ public class UpdateContentAndAddTag1941 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -70,8 +69,8 @@ public class UpdateContentAndAddTag1941 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils
-                .createFileByFile( ws, fileName, filePath, authorName );
+        fileId = VersionUtils.createFileByFile( ws, fileName, filePath,
+                authorName );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -95,30 +94,30 @@ public class UpdateContentAndAddTag1941 extends TestScmBase {
     }
 
     private void updateContentAndAddTag() throws Exception {
-        //update content
+        // update content
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         byte[] testdata = new byte[ 1024 * 2 ];
         new Random().nextBytes( testdata );
         file.updateContent( new ByteArrayInputStream( testdata ) );
 
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag(
-                "我是一个标签1941                                                  " +
-                        "                                                    " +
-                        "                                                    " +
-                        "                            "
+                "我是一个标签1941                                                  "
+                        + "                                                    "
+                        + "                                                    "
+                        + "                            "
                         + "                                " );
         tags.addTag( "THIS IS TAG 1941!" );
         tags.addTag( "tag *&^^^^^*90234@#$%!~asf" );
         file.setTags( tags );
 
-        //check update content
+        // check update content
         int majorVersion = file.getMajorVersion();
         VersionUtils.CheckFileContentByStream( ws, fileName, majorVersion,
                 testdata );
 
-        //check tags
+        // check tags
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
         Assert.assertEquals( fileTags.toString(), tags.toString() );

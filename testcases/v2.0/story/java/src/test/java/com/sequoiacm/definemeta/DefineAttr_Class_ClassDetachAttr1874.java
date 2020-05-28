@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description: SCM-1874 :: 解除没有关连的属性 
+ * @Description: SCM-1874 :: 解除没有关连的属性
  * @author fanyu
  * @Date:2018年7月4日
  * @version:1.0
@@ -91,16 +91,16 @@ public class DefineAttr_Class_ClassDetachAttr1874 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Class.deleteInstance( ws, class1.getId() );
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
             if ( !runSuccess && attrList.size() != 0 ) {
                 System.out.println( "class = " + class1.toString() );
                 ScmFactory.Class.deleteInstance( ws, class1.getId() );
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
         } catch ( BaseException | ScmException e ) {

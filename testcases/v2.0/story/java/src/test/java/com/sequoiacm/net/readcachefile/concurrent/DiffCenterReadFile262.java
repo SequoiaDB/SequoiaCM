@@ -52,10 +52,10 @@ public class DiffCenterReadFile262 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -138,9 +138,9 @@ public class DiffCenterReadFile262 extends TestScmBase {
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 times = times++;
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 sis = ScmFactory.File.createInputStream( file );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis.read( fos );
@@ -174,9 +174,9 @@ public class DiffCenterReadFile262 extends TestScmBase {
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 times = times++;
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 sis = ScmFactory.File.createInputStream( file );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis.read( fos );

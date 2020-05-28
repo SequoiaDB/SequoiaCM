@@ -67,8 +67,8 @@ public class ListDirInPaDir1156 extends TestScmBase {
         try {
             int i = 0;
             int expDirNum = 5;
-            ScmDirectory pdir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+            ScmDirectory pdir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             ScmCursor< ScmDirectory > dirCursor = pdir.listDirectories( null );
             while ( dirCursor.hasNext() ) {
                 ScmDirectory dir = dirCursor.getNext();
@@ -95,15 +95,13 @@ public class ListDirInPaDir1156 extends TestScmBase {
                     .is( TestScmBase.scmUserName )
                     .and( ScmAttributeName.Directory.UPDATE_USER )
                     .is( TestScmBase.scmUserName )
-                    .and( ScmAttributeName.Directory.NAME )
-                    .is( dirName )
+                    .and( ScmAttributeName.Directory.NAME ).is( dirName )
                     .and( ScmAttributeName.Directory.CREATE_TIME )
                     .greaterThan( 0 )
                     .and( ScmAttributeName.Directory.UPDATE_TIME )
-                    .greaterThan( 0 )
-                    .get();
-            ScmDirectory pdir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+                    .greaterThan( 0 ).get();
+            ScmDirectory pdir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             ScmCursor< ScmDirectory > dirCursor = pdir.listDirectories( cond );
             while ( dirCursor.hasNext() ) {
                 dir = dirCursor.getNext();
@@ -150,8 +148,8 @@ public class ListDirInPaDir1156 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -181,4 +179,3 @@ public class ListDirInPaDir1156 extends TestScmBase {
         return pathList;
     }
 }
-

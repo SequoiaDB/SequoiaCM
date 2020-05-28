@@ -52,10 +52,10 @@ public class AsyncTransfer_whenLobRemain489 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         lobPath = localPath + File.separator + "localFile_" + lobSize + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );

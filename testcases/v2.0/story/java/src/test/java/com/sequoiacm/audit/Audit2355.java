@@ -62,13 +62,13 @@ public class Audit2355 extends TestScmBase {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + username1,
                 "USER_DML" );
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "USER_DQL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "USER_DQL" );
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "TOKEN" );
         confMap.put( ConfigCommonDefind.scm_audit_mask, "USER_DQL" );
         ConfUtil.updateConf( serviceName, confMap );
 
-        //check
+        // check
         checkAudit( username1, username1, true, false );
         checkAudit( username2, username2, false, true );
         checkAudit( username3, username3, false, false );
@@ -100,13 +100,13 @@ public class Audit2355 extends TestScmBase {
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, newUsername ),
                     isLogged1,
-                    "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    "Has the configuration been updated? newUsername = "
+                            + newUsername );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson2, newUsername ),
                     isLogged2,
-                    "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    "Has the configuration been updated? newUsername = "
+                            + newUsername );
         } finally {
             if ( user != null ) {
                 ScmFactory.User.deleteUser( session, newUsername );

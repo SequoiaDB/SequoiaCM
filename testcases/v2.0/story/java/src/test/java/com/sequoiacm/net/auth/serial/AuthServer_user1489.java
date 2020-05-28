@@ -62,27 +62,19 @@ public class AuthServer_user1489 extends TestScmBase {
         // create user and role
         ScmFactory.Role.createRole( session, NAME, "" );
 
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL, "aa" );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, "aa" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( NAME );
         ScmFactory.User.alterUser( session, scmUser, modifier );
     }
 
-	/*@BeforeMethod
-	private void initMethod() {
-		if (!runSuccess) {
-			failTimes++;
-		}
-		runSuccess = false;
-	}
-	
-	@AfterMethod
-	private void afterMethod() {
-		if (failTimes > 1) {
-			runSuccess = false;
-		}
-	}*/
+    /*
+     * @BeforeMethod private void initMethod() { if (!runSuccess) { failTimes++;
+     * } runSuccess = false; }
+     * @AfterMethod private void afterMethod() { if (failTimes > 1) { runSuccess
+     * = false; } }
+     */
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
@@ -94,17 +86,15 @@ public class AuthServer_user1489 extends TestScmBase {
 
     private void test_createUser() throws ScmException, InterruptedException {
         // create user and role
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, TestScmBase.ldapUserName,
-                        ScmUserPasswordType.LDAP, "" );
+        ScmUser scmUser = ScmFactory.User.createUser( session,
+                TestScmBase.ldapUserName, ScmUserPasswordType.LDAP, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( NAME );
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
         // check results
-        ScmSession ss = TestScmTools
-                .createSession( site, TestScmBase.ldapUserName,
-                        TestScmBase.ldapPassword );
+        ScmSession ss = TestScmTools.createSession( site,
+                TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();
 
@@ -118,12 +108,11 @@ public class AuthServer_user1489 extends TestScmBase {
     }
 
     private void test_listUser() throws ScmException {
-        BSONObject filter = ScmQueryBuilder.start()
-                .and( "password_type" ).is( ScmUserPasswordType.LDAP )
-                .and( "has_role" ).is( NAME )
+        BSONObject filter = ScmQueryBuilder.start().and( "password_type" )
+                .is( ScmUserPasswordType.LDAP ).and( "has_role" ).is( NAME )
                 .get();
-        ScmCursor< ScmUser > cursor = ScmFactory.User
-                .listUsers( session, filter );
+        ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
+                filter );
         int userNum = 0;
         while ( cursor.hasNext() ) {
             userNum++;
@@ -138,8 +127,8 @@ public class AuthServer_user1489 extends TestScmBase {
     }
 
     private void test_deleteUser() throws ScmException {
-        ScmUser user = ScmFactory.User
-                .getUser( session, TestScmBase.ldapUserName );
+        ScmUser user = ScmFactory.User.getUser( session,
+                TestScmBase.ldapUserName );
         System.out.println( "user2 = " + user.toString() );
         ScmFactory.Role.deleteRole( session, NAME );
         ScmFactory.User.deleteUser( session, TestScmBase.ldapUserName );

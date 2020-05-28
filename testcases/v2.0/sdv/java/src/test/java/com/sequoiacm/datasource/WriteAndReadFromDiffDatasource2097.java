@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content: create file and read file from different site ,and the sites
- * connected to different datasource
- * testlink-case:SCM-2097
+ * connected to different datasource testlink-case:SCM-2097
  *
  * @author wuyan
  * @Date 2018.07.11
@@ -68,7 +67,7 @@ public class WriteAndReadFromDiffDatasource2097 extends TestScmBase {
             }
         }
 
-        //random selection of two sites
+        // random selection of two sites
         int max = sites.size();
         int min = 0;
         int num = 2;
@@ -88,8 +87,8 @@ public class WriteAndReadFromDiffDatasource2097 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        fileId = VersionUtils
-                .createFileByStream( wsB, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsB, fileName, writeData,
+                authorName );
         int majorVersion = 1;
         VersionUtils.CheckFileContentByStream( wsA, fileName, majorVersion,
                 writeData );

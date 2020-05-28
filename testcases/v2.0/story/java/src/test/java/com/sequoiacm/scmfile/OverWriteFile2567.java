@@ -49,13 +49,12 @@ public class OverWriteFile2567 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        updateFilePath =
-                localPath + File.separator + "localFile_" + ( fileSize + 1 ) +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        updateFilePath = localPath + File.separator + "localFile_"
+                + ( fileSize + 1 ) + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -72,7 +71,7 @@ public class OverWriteFile2567 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        //overwrite is true
+        // overwrite is true
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( name );
         scmFile.setContent( updateFilePath );
@@ -84,7 +83,7 @@ public class OverWriteFile2567 extends TestScmBase {
         scmFile.setTags( scmTags );
         fileId = scmFile.save( new ScmUploadConf( true ) );
 
-        //overwrite again
+        // overwrite again
         ScmFile scmFile1 = ScmFactory.File.createInstance( ws );
         scmFile1.setFileName( name );
         scmFile1.setContent( filePath );
@@ -95,10 +94,10 @@ public class OverWriteFile2567 extends TestScmBase {
         scmTags1.addTag( newVal1 );
         scmFile1.setTags( scmTags1 );
         fileId = scmFile1.save( new ScmUploadConf( true ) );
-        //get scm file and directory and check
+        // get scm file and directory and check
         ScmFile actFile = ScmFactory.File.getInstance( ws, fileId );
         checkFile( actFile, newVal1, fileSize, filePath, scmTags1 );
-        //delete file
+        // delete file
         ScmFactory.File.deleteInstance( ws, fileId, true );
         runSuccess = true;
     }
@@ -117,10 +116,10 @@ public class OverWriteFile2567 extends TestScmBase {
     }
 
     private void prepareFile() throws ScmException {
-        //create tags
+        // create tags
         ScmTags scmTags = new ScmTags();
         scmTags.addTag( name );
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name );
         file.setAuthor( name );
@@ -146,17 +145,16 @@ public class OverWriteFile2567 extends TestScmBase {
                     expScmTags.toSet().toString() );
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             Assert.assertNotNull( file.getCreateTime().getTime() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( expFilePath ) );
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "fileName = " + file.getFileName() + "fileId = " +
-                            fileId.get(), e );
+            throw new Exception( "fileName = " + file.getFileName()
+                    + "fileId = " + fileId.get(), e );
         }
     }
 }

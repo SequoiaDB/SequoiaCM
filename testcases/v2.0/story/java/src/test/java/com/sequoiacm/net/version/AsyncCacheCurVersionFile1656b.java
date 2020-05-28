@@ -26,9 +26,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update Content of the current scm file, than ayncCache file
- * does not specify version,
- * 				 ayncCache the current file by default
+ * test content:update Content of the current scm file, than ayncCache file does
+ * not specify version, ayncCache the current file by default
  * testlink-case:SCM-1656
  *
  * @author wuyan
@@ -79,8 +78,8 @@ public class AsyncCacheCurVersionFile1656b extends TestScmBase {
         int historyVersion = 1;
         ScmFactory.File.asyncCache( wsA, fileId );
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsA, fileId, currentVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsA, fileId, currentVersion,
+                sitenums );
 
         // check the currentVersion file data and siteinfo
         SiteWrapper[] expCurSiteList = { sourceSite, cacheSite };

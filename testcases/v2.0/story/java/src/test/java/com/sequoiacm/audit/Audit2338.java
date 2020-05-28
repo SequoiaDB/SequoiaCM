@@ -61,20 +61,20 @@ public class Audit2338 extends TestScmBase {
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
     }
 
-    //bug:442
+    // bug:442
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        //test local
+        // test local
         confMap.put( ConfigCommonDefind.scm_audit_user + name1, "BATCH_DML" );
-        //test token
+        // test token
         confMap.put( ConfigCommonDefind.scm_audit_user + name2, "BATCH_DQL" );
-        //test ldap
+        // test ldap
         confMap.put( ConfigCommonDefind.scm_audit_user + name3,
                 "BATCH_DQL|BATCH_DML" );
-        //update configuration
+        // update configuration
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( name1, name1, true, false );
         checkAudit( name2, name2, false, true );
         checkAudit( TestScmBase.ldapUserName, TestScmBase.ldapPassword, true,
@@ -92,7 +92,7 @@ public class Audit2338 extends TestScmBase {
         }
     }
 
-    //create and query batch to generate audit log  and check audit
+    // create and query batch to generate audit log and check audit
     private void checkAudit( String username, String password,
             boolean isLogged1, boolean isLogged2 ) throws ScmException {
         ScmId batchId = null;
@@ -105,14 +105,15 @@ public class Audit2338 extends TestScmBase {
             BSONObject bson2 = new BasicBSONObject()
                     .append( ScmAttributeName.Audit.TYPE, "BATCH_DQL" )
                     .append( ScmAttributeName.Audit.USERNAME, username );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson1
-                    , batchId.get() ), isLogged1,
-                    "Has the configuration been updated? batchId = " +
-                            batchId.get() );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson2
-                    , batchId.get() ), isLogged2,
-                    "Has not the configuration been updated? batchId = " +
-                            batchId.get() );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson1, batchId.get() ),
+                    isLogged1, "Has the configuration been updated? batchId = "
+                            + batchId.get() );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson2, batchId.get() ),
+                    isLogged2,
+                    "Has not the configuration been updated? batchId = "
+                            + batchId.get() );
         } finally {
             if ( batchId != null ) {
                 ScmFactory.Batch.deleteInstance( ws, batchId );
@@ -126,13 +127,13 @@ public class Audit2338 extends TestScmBase {
         ScmId batchId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            //create batch
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            // create batch
             ScmBatch batch = ScmFactory.Batch.createInstance( ws );
             batch.setName( batchName );
             batchId = batch.save();
-            //query batch
+            // query batch
             ScmFactory.Batch.getInstance( ws, batchId );
         } finally {
             if ( session != null ) {

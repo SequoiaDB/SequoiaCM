@@ -38,7 +38,7 @@ public class ListFileInPaDir_Param2595 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean
+        // clean
         if ( ScmFactory.Directory.isInstanceExist( ws, dirPath ) ) {
             ScmFactory.Directory.deleteInstance( ws, dirPath );
         }
@@ -82,5 +82,3 @@ public class ListFileInPaDir_Param2595 extends TestScmBase {
         }
     }
 }
-
-

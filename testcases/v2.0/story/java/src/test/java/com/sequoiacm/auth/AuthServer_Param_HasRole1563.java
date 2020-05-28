@@ -43,9 +43,8 @@ public class AuthServer_Param_HasRole1563 extends TestScmBase {
         }
 
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

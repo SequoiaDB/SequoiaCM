@@ -74,9 +74,9 @@ public class AuthWs_role1746 extends TestScmBase {
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info(
-                    "grantPrivilege but the user is not ADMIN_AUTH(role) or " +
-                            "ws_ALL(privilege), errorMsg = ["
-                            + e.getError() + "]" );
+                    "grantPrivilege but the user is not ADMIN_AUTH(role) or "
+                            + "ws_ALL(privilege), errorMsg = [" + e.getError()
+                            + "]" );
         } finally {
             if ( null != ss )
                 ss.close();
@@ -111,9 +111,8 @@ public class AuthWs_role1746 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
 
         ScmUserModifier modifier = new ScmUserModifier();
         for ( int i = 0; i < ROLE_NUM; i++ ) {
@@ -137,9 +136,8 @@ public class AuthWs_role1746 extends TestScmBase {
             try {
                 ScmFactory.Role.deleteRole( session, NAME + "_" + i );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         }
     }

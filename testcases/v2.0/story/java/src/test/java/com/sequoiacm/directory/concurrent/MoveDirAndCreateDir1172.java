@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1172 :: 移动文件夹和创建同名文件夹 
+ * @Description:SCM-1172 :: 移动文件夹和创建同名文件夹
  * @author fanyu
  * @Date:2018年4月27日
  * @version:1.0
@@ -117,8 +117,8 @@ public class MoveDirAndCreateDir1172 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -153,10 +153,10 @@ public class MoveDirAndCreateDir1172 extends TestScmBase {
         public void exec() {
             try {
                 String srcPath = dirBasePath + "/Dir_1172_b";
-                ScmDirectory destDir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
-                ScmDirectory srcDir = ScmFactory.Directory
-                        .getInstance( ws, srcPath );
+                ScmDirectory destDir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
+                ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                        srcPath );
                 srcDir.move( destDir );
                 // check
                 BSONObject expBSON1 = new BasicBSONObject();

@@ -53,10 +53,10 @@ public class ListInstanceByWS126 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -70,8 +70,8 @@ public class ListInstanceByWS126 extends TestScmBase {
             this.cleanFile();
 
             for ( int i = 0; i < fileNum; i++ ) {
-                ScmId fileId = ScmFileUtils
-                        .create( ws, author + "_" + i, filePath );
+                ScmId fileId = ScmFileUtils.create( ws, author + "_" + i,
+                        filePath );
                 fileIdList.add( fileId );
             }
         } catch ( Exception e ) {
@@ -141,8 +141,8 @@ public class ListInstanceByWS126 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR )
                     .is( author + "_" + i ).get();
-            preCount = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+            preCount = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, condition );
             if ( 0 != preCount ) {
                 ScmFileUtils.cleanFile( wsp, condition );
             }

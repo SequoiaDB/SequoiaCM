@@ -54,13 +54,12 @@ public class AsyncCacheAndReadCacheFile_whenLobRemain2416 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -76,7 +75,7 @@ public class AsyncCacheAndReadCacheFile_whenLobRemain2416 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         writeFileFromMainCenter();
-        //make remain in main center
+        // make remain in main center
         TestSdbTools.Lob.putLob( branceSite, wsp, fileId, remainFilePath );
     }
 
@@ -148,9 +147,9 @@ public class AsyncCacheAndReadCacheFile_whenLobRemain2416 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );

@@ -60,15 +60,15 @@ public class TransferAndClean742 extends TestScmBase {
 
     private SiteWrapper sourceSite = null;
     private SiteWrapper targetSite = null;
-    //private NodeWrapper node = null;
+    // private NodeWrapper node = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -139,9 +139,8 @@ public class TransferAndClean742 extends TestScmBase {
     private void startTransferTaskFromA() throws Exception {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-        ScmId taskId = ScmSystem.Task
-                .startTransferTask( wsA, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        ScmId taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
         taskIdList.add( taskId );
         ScmTaskUtils.waitTaskFinish( sessionA, taskId );
 

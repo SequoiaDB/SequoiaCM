@@ -29,9 +29,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:the historyVersion file in both the rootSite and the branSite, 
- *               ayncTransfer the current version file.
- * testlink-case:SCM-1655
+ * test content:the historyVersion file in both the rootSite and the branSite,
+ * ayncTransfer the current version file. testlink-case:SCM-1655
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -77,27 +76,26 @@ public class AsyncTransferCurVersionFile1655 extends TestScmBase {
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
-        //rootSite exists the historyVersion file
+        // rootSite exists the historyVersion file
         asyncTransferCurrentVersionFile( historyVersion );
         Collection< ScmFileLocation > getSiteInfo1 = getSiteInfo(
                 historyVersion );
 
-        //asyncTransfer the current version file
+        // asyncTransfer the current version file
         asyncTransferCurrentVersionFile( currentVersion );
 
-        //check the currentVersion file data and siteinfo
+        // check the currentVersion file data and siteinfo
         SiteWrapper[] expCurSiteList = { targetSite, asyncTransferSite };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
         VersionUtils.CheckFileContentByStream( wsT, fileName, currentVersion,
                 updatedata );
 
-        //check the historyVersion file sitelist, the sitelist no update
+        // check the historyVersion file sitelist, the sitelist no update
         Collection< ScmFileLocation > getSiteInfo2 = getSiteInfo(
                 historyVersion );
         Assert.assertEquals( getSiteInfo1.toString(), getSiteInfo2.toString(),
-                "fisrt get siteList:"
-                        + getSiteInfo1.toString() + " 2nd get siteList:" +
-                        getSiteInfo2.toString() );
+                "fisrt get siteList:" + getSiteInfo1.toString()
+                        + " 2nd get siteList:" + getSiteInfo2.toString() );
     }
 
     @AfterClass
@@ -120,17 +118,17 @@ public class AsyncTransferCurVersionFile1655 extends TestScmBase {
             throws Exception {
         ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
 
-        //wait task finished
+        // wait task finished
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsT, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsT, fileId, majorVersion,
+                sitenums );
     }
 
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
-        //get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        // get the create and last access time
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

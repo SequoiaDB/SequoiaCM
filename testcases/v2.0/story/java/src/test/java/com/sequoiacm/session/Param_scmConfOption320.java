@@ -46,11 +46,10 @@ public class Param_scmConfOption320 extends TestScmBase {
             scOpt.setUser( TestScmBase.scmUserName );
             scOpt.setPasswd( TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
-            Assert.fail( "host not exist, expect fail, but success. urls=" +
-                    scOpt.getUrls() );
+            Assert.fail( "host not exist, expect fail, but success. urls="
+                    + scOpt.getUrls() );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.NETWORK_IO
-                    .getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
+            if ( e.getErrorCode() != ScmError.NETWORK_IO.getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -66,11 +65,10 @@ public class Param_scmConfOption320 extends TestScmBase {
             scOpt.setUser( TestScmBase.scmUserName );
             scOpt.setPasswd( TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
-            Assert.fail( "port not exist, expect fail, but success. urls=" +
-                    scOpt.getUrls() );
+            Assert.fail( "port not exist, expect fail, but success. urls="
+                    + scOpt.getUrls() );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.NETWORK_IO
-                    .getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
+            if ( e.getErrorCode() != ScmError.NETWORK_IO.getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -93,11 +91,10 @@ public class Param_scmConfOption320 extends TestScmBase {
                     .createSession( SessionType.AUTH_SESSION, scOpt );
             String ssId = session.getSessionId();
             Assert.assertNotNull( ssId,
-                    "host is empty string, default is localhost, urls=" +
-                            scOpt.getUrls() );
+                    "host is empty string, default is localhost, urls="
+                            + scOpt.getUrls() );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.NETWORK_IO
-                    .getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
+            if ( e.getErrorCode() != ScmError.NETWORK_IO.getErrorCode() ) { // SCM_NETWORK_CONNECT_FAILED
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }

@@ -51,8 +51,8 @@ public class DeleteBatch1294 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -71,10 +71,10 @@ public class DeleteBatch1294 extends TestScmBase {
         attr.setType( AttributeType.STRING );
         attr.setDescription( "I am a Attribute1294" );
         attr.setDisplayName( attrName + "_display" );
-        ScmAttribute scmAttribute = ScmFactory.Attribute
-                .createInstance( ws, attr );
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1294" );
+        ScmAttribute scmAttribute = ScmFactory.Attribute.createInstance( ws,
+                attr );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1294" );
         scmClass.attachAttr( scmAttribute.getId() );
 
         scmClassId = scmClass.getId();

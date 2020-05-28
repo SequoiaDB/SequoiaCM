@@ -44,10 +44,10 @@ public class DefineAttr_Class_Update1848 extends TestScmBase {
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             // create class
-            expClass1 = ScmFactory.Class
-                    .createInstance( ws, classname + "_" + 1, desc );
-            expClass2 = ScmFactory.Class
-                    .createInstance( ws, classname + "_" + 2, desc );
+            expClass1 = ScmFactory.Class.createInstance( ws,
+                    classname + "_" + 1, desc );
+            expClass2 = ScmFactory.Class.createInstance( ws,
+                    classname + "_" + 2, desc );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -81,8 +81,8 @@ public class DefineAttr_Class_Update1848 extends TestScmBase {
         }
 
         try {
-            ScmClass actclass1 = ScmFactory.Class
-                    .getInstance( ws, expClass1.getId() );
+            ScmClass actclass1 = ScmFactory.Class.getInstance( ws,
+                    expClass1.getId() );
             check( actclass1, class1 );
         } catch ( ScmException e ) {
             e.printStackTrace();

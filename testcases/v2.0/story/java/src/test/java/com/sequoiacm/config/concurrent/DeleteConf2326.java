@@ -39,10 +39,10 @@ public class DeleteConf2326 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -113,8 +113,8 @@ public class DeleteConf2326 extends TestScmBase {
                         expServiceNames, new ArrayList< String >() );
             } catch ( ScmException e ) {
                 e.printStackTrace();
-                Assert.fail( "delete conf failed, actResult = " +
-                        actResult.toString() );
+                Assert.fail( "delete conf failed, actResult = "
+                        + actResult.toString() );
             } finally {
                 if ( session != null ) {
                     session.close();

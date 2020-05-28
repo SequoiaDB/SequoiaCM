@@ -64,10 +64,10 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -118,8 +118,8 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -140,8 +140,8 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( branSites.get( 0 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
             for ( int i = 0; i < fileNum; ++i ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setAuthor( author );
@@ -173,9 +173,9 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
                 int i = fileNo.getAndIncrement();
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 scmfile.getContent( fos );
 
@@ -208,9 +208,9 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
                 int i = fileNo.getAndIncrement();
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 scmfile.getContent( downloadPath );
 
                 // check content
@@ -242,9 +242,9 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
                 int i = fileNo.getAndIncrement();
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 sis = ScmFactory.File.createInputStream( scmfile );
                 fos = new FileOutputStream( new File( downloadPath ) );
@@ -283,9 +283,9 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
                 int i = fileNo.getAndIncrement();
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 // FIXME: seek is forbidden. testcase has to be designed again.
                 // sis = ScmFactory.File.createInputStream(InputStreamType
@@ -307,18 +307,18 @@ public class ReadDiffFileByAllWay727 extends TestScmBase {
                     fos.write( buffer, off + readSize, curActReadLen );
 
                     readSize += curActReadLen;
-//					System.out.println("---curOff=" + curOff + ",
-// curExpReadLen=" + curExpReadLen + ", curActReadLen="
-//							+ curActReadLen + ", readSize=" + readSize);
+                    // System.out.println("---curOff=" + curOff + ",
+                    // curExpReadLen=" + curExpReadLen + ", curActReadLen="
+                    // + curActReadLen + ", readSize=" + readSize);
                 }
                 fos.flush();
 
                 // check content
-                String tmpPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
-                TestTools.LocalFile
-                        .readFile( filePath, seekSize, len, tmpPath );
+                String tmpPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
+                TestTools.LocalFile.readFile( filePath, seekSize, len,
+                        tmpPath );
 
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
                         TestTools.getMD5( tmpPath ) );

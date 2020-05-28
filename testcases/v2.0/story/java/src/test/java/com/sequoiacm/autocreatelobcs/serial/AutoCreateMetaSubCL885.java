@@ -64,7 +64,7 @@ public class AutoCreateMetaSubCL885 extends TestScmBase {
         WriteFile writeFile = new WriteFile();
         writeFile.start( 10 );
         Assert.assertTrue( writeFile.isSuccess(), writeFile.getErrorMsg() );
-        //check result
+        // check result
         for ( ScmId fileId : fileIdList ) {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             Assert.assertEquals( file.getAuthor(), fileName, fileId.get() );
@@ -92,8 +92,8 @@ public class AutoCreateMetaSubCL885 extends TestScmBase {
             ScmSession ss = null;
             try {
                 ss = TestScmTools.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, ss );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        ss );
                 cal.set( Calendar.YEAR,
                         cal.get( Calendar.YEAR ) - atom.getAndIncrement() );
                 ScmFile file = ScmFactory.File.createInstance( ws );

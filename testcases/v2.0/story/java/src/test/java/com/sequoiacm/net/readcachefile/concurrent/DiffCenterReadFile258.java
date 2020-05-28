@@ -50,10 +50,10 @@ public class DiffCenterReadFile258 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -81,10 +81,10 @@ public class DiffCenterReadFile258 extends TestScmBase {
             ReadFileFromSubCenterB readFromB = new ReadFileFromSubCenterB();
             readFromB.start( 20 );
 
-            if ( !( readFromM.isSuccess() && readFromA.isSuccess() &&
-                    readFromB.isSuccess() ) ) {
-                Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg() +
-                        readFromB.getErrorMsg() );
+            if ( !( readFromM.isSuccess() && readFromA.isSuccess()
+                    && readFromB.isSuccess() ) ) {
+                Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg()
+                        + readFromB.getErrorMsg() );
             }
 
             checkMetadataAndLobs();
@@ -151,9 +151,9 @@ public class DiffCenterReadFile258 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 read( file, downloadPath );
 
                 // check content
@@ -179,9 +179,9 @@ public class DiffCenterReadFile258 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 read( file, downloadPath );
 
                 // check content
@@ -207,9 +207,9 @@ public class DiffCenterReadFile258 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 read( file, downloadPath );
 
                 // check content

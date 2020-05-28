@@ -17,8 +17,9 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-2256:ScmFactory.Directory.isInstanceExist(ScmWorkspace
- * ws, String path)参数校验
+ * @Description:SCM-2256:ScmFactory.Directory.isInstanceExist(ScmWorkspace ws,
+ *                                                                         String
+ *                                                                         path)参数校验
  * @author fanyu
  * @Date:2018年9月25日
  * @version:1.0
@@ -88,8 +89,8 @@ public class IsInstanceExist_Param2256 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             session.close();
             ScmFactory.Directory.isInstanceExist( ws, "/" );
             Assert.fail( "exp success but act success" );
@@ -108,5 +109,3 @@ public class IsInstanceExist_Param2256 extends TestScmBase {
         }
     }
 }
-
-

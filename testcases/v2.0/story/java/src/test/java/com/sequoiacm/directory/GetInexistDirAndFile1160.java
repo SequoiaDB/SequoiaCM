@@ -94,8 +94,8 @@ public class GetInexistDirAndFile1160 extends TestScmBase {
             file1.setFileName( fileName );
             file1.setDirectory( ScmFactory.Directory.getInstance( ws, "/" ) );
             fileId = file1.save();
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, "/1160_a" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    "/1160_a" );
             dir.delete();
             ScmFile file2 = dir.getSubfile( fileName );
             Assert.assertNull( file2 );
@@ -140,8 +140,8 @@ public class GetInexistDirAndFile1160 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

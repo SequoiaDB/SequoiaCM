@@ -60,10 +60,10 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -92,8 +92,7 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
         List< AsyncTransferFromSubCenterA > asyncTrList = new ArrayList<>();
         List< DeleteFromA > delList = new ArrayList<>();
         for ( int i = 0; i < fileNum; i++ ) {
-            AsyncTransferFromSubCenterA asyncTransferAT = new
-                    AsyncTransferFromSubCenterA(
+            AsyncTransferFromSubCenterA asyncTransferAT = new AsyncTransferFromSubCenterA(
                     i );
             asyncTransferAT.start();
             asyncTrList.add( asyncTransferAT );
@@ -106,10 +105,10 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
         for ( int i = 0; i < fileNum; i++ ) {
             AsyncTransferFromSubCenterA asyncTransferAT = asyncTrList.get( i );
             DeleteFromA deleteFileAT = delList.get( i );
-            if ( !( asyncTransferAT.isSuccess() &&
-                    deleteFileAT.isSuccess() ) ) {
-                Assert.fail( asyncTransferAT.getErrorMsg() +
-                        deleteFileAT.getErrorMsg() );
+            if ( !( asyncTransferAT.isSuccess()
+                    && deleteFileAT.isSuccess() ) ) {
+                Assert.fail( asyncTransferAT.getErrorMsg()
+                        + deleteFileAT.getErrorMsg() );
             }
         }
 
@@ -148,8 +147,8 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
         try {
             for ( ScmId fileId : fileList ) {
                 BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-                long cnt = ScmFactory.File
-                        .countInstance( wsA, ScopeType.SCOPE_CURRENT, cond );
+                long cnt = ScmFactory.File.countInstance( wsA,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( cnt, 0 );
             }
         } catch ( ScmException e ) {
@@ -205,7 +204,7 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
                 ScmFactory.File.getInstance( ws, fileId ).delete( true );
-                //				ScmFactory.File.deleteInstance(ws, fileId,
+                // ScmFactory.File.deleteInstance(ws, fileId,
                 // true);
             } finally {
                 if ( session != null ) {

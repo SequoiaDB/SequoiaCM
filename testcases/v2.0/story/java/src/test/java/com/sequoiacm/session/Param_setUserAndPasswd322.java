@@ -39,14 +39,13 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // inexistent user
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( "thisuserisnotexist" );
             scOpt.setPasswd( TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
-            Assert.fail(
-                    "create session shouldn't succeed when user is " +
-                            "inexistent" );
+            Assert.fail( "create session shouldn't succeed when user is "
+                    + "inexistent" );
         } catch ( ScmException e ) {
             if ( 401 != e.getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
                 e.printStackTrace();
@@ -56,8 +55,8 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // wrong password
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( TestScmBase.scmUserName );
             scOpt.setPasswd( TestScmBase.scmPassword + "_plus" );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
@@ -72,15 +71,15 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // user is null
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( null );
             scOpt.setPasswd( TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
             Assert.fail( "create session shouldn't succeed when user is null" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() !=
-                    ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                    .getErrorCode() ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -88,14 +87,13 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // user is ""
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( "" );
             scOpt.setPasswd( TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
-            Assert.fail(
-                    "create session shouldn't succeed when user is empty " +
-                            "string" );
+            Assert.fail( "create session shouldn't succeed when user is empty "
+                    + "string" );
         } catch ( ScmException e ) {
             if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED
                     .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
@@ -106,16 +104,16 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // password is null
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( TestScmBase.scmUserName );
             scOpt.setPasswd( null );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
             Assert.fail(
                     "create session shouldn't succeed when password is null" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() !=
-                    ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                    .getErrorCode() ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -123,8 +121,8 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
         // password is ""
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt.setUser( TestScmBase.scmUserName );
             scOpt.setPasswd( "" );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );

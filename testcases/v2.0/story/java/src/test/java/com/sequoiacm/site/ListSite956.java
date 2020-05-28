@@ -119,20 +119,22 @@ public class ListSite956 extends TestScmBase {
         Assert.assertEquals( info.getId(), obj.get( "id" ) );
         Assert.assertEquals( info.isRootSite(), obj.get( "root_site_flag" ) );
         if ( dataObj != null ) {
-            //Assert.assertEquals(info.getDataUrl(), dataObj.get("url"));
+            // Assert.assertEquals(info.getDataUrl(), dataObj.get("url"));
             Assert.assertEquals( info.getDataUser(), dataObj.get( "user" ) );
             Assert.assertEquals( info.getDataPasswd(),
                     dataObj.get( "password" ) );
             Assert.assertEquals( info.getDataType().toString(),
                     dataObj.get( "type" ).toString() );
-            //Assert.assertEquals(info.getDataCryptType(), dataObj.get("password_type"));
+            // Assert.assertEquals(info.getDataCryptType(),
+            // dataObj.get("password_type"));
         }
         if ( metaObj != null ) {
             Assert.assertEquals( info.getMetaUrl(), metaObj.get( "url" ) );
             Assert.assertEquals( info.getMetaUser(), metaObj.get( "user" ) );
             Assert.assertEquals( info.getMetaPasswd(),
                     metaObj.get( "password" ) );
-            //Assert.assertEquals(info.getMetaCryptType(), metaObj.get("password_type"));
+            // Assert.assertEquals(info.getMetaCryptType(),
+            // metaObj.get("password_type"));
         }
     }
 }

@@ -75,7 +75,7 @@ public class UpdateConf2301 extends TestScmBase {
         Assert.assertEquals( uThraed.isSuccess(), true, uThraed.getErrorMsg() );
         Assert.assertEquals( cThread.isSuccess(), true, cThread.getErrorMsg() );
 
-        //check local configuration
+        // check local configuration
         List< ScmServiceInstance > instancesList = ScmSystem.ServiceCenter
                 .getServiceInstanceList( session, serviceName );
         Map< String, String > map = new HashMap< String, String >();
@@ -85,7 +85,7 @@ public class UpdateConf2301 extends TestScmBase {
             ConfUtil.checkUpdatedConf(
                     instances.getIp() + ":" + instances.getPort(), map );
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( serviceName );
     }
 
@@ -110,8 +110,8 @@ public class UpdateConf2301 extends TestScmBase {
                         .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                                 "LOCAL" )
                         .build();
-                ScmSystem.Configuration
-                        .setConfigProperties( session, confProp );
+                ScmSystem.Configuration.setConfigProperties( session,
+                        confProp );
             } finally {
                 if ( session != null ) {
                     session.close();
@@ -135,8 +135,8 @@ public class UpdateConf2301 extends TestScmBase {
                 session = TestScmTools.createSession( site );
                 ScmUser scmUser = ScmFactory.User.createUser( session, username,
                         ScmUserPasswordType.LOCAL, passwd );
-                ScmRole role = ScmFactory.Role
-                        .createRole( session, rolename, "" );
+                ScmRole role = ScmFactory.Role.createRole( session, rolename,
+                        "" );
                 ScmUserModifier modifier = new ScmUserModifier();
                 ScmResource resource = ScmResourceFactory
                         .createWorkspaceResource( wsp.getName() );
@@ -205,4 +205,3 @@ public class UpdateConf2301 extends TestScmBase {
         }
     }
 }
-

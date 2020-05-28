@@ -65,4 +65,3 @@ public class WorkspaceRemoveNotExistSite2187 extends TestScmBase {
         }
     }
 }
-

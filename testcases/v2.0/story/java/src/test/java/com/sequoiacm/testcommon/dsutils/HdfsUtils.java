@@ -59,8 +59,8 @@ public class HdfsUtils extends TestScmBase {
                 IOUtils.copyBytes( in, out, 4096, true );
                 logger.info( "srcPath " + srcPath.toString() + " success" );
             } else {
-                logger.error( "the record does not exist,path = " +
-                        srcPath.toString() );
+                logger.error( "the record does not exist,path = "
+                        + srcPath.toString() );
             }
         } catch ( FileNotFoundException e ) {
             e.printStackTrace();

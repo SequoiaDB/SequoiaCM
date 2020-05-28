@@ -72,10 +72,10 @@ public class AuhtWs_Delete1723 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -136,8 +136,8 @@ public class AuhtWs_Delete1723 extends TestScmBase {
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsA, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsA,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -184,13 +184,11 @@ public class AuhtWs_Delete1723 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( author ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
             ScmSystem.Schedule.delete( sessionD, expSche.getId() );
             expSche = null;
         } catch ( ScmException e ) {
@@ -204,8 +202,7 @@ public class AuhtWs_Delete1723 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -256,9 +253,8 @@ public class AuhtWs_Delete1723 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
             grantPriAndAttachRole( sessionA, rs, user, role,

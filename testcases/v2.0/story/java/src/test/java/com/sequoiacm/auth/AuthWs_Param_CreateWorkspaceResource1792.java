@@ -81,8 +81,8 @@ public class AuthWs_Param_CreateWorkspaceResource1792 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -110,9 +110,8 @@ public class AuthWs_Param_CreateWorkspaceResource1792 extends TestScmBase {
 
     private void prepare() {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
         } catch ( ScmException e ) {
             e.printStackTrace();

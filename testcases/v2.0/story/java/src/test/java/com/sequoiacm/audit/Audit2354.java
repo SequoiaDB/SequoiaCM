@@ -66,14 +66,14 @@ public class Audit2354 extends TestScmBase {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + username1,
                 "SCHEDULE_DML" );
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "SCHEDULE_DQL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "SCHEDULE_DQL" );
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
         confMap.put( ConfigCommonDefind.scm_audit_mask,
                 "SCHEDULE_DQL|SCHEDULE_DML" );
         ConfUtil.updateConf( serviceName, confMap );
 
-        //check
+        // check
         checkAudit( username1, username1, true, false );
         checkAudit( username2, username2, false, true );
         checkAudit( username3, username3, true, true );
@@ -105,12 +105,14 @@ public class Audit2354 extends TestScmBase {
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, scheduleName ),
                     isLogged1,
-                    "Has the configuration been updated? scheduleName = " +
-                            scheduleName );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson2,
-                    schedule.getId().get() ), isLogged2,
-                    "Has the configuration been updated? scheduleName = " +
-                            scheduleName );
+                    "Has the configuration been updated? scheduleName = "
+                            + scheduleName );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson2,
+                            schedule.getId().get() ),
+                    isLogged2,
+                    "Has the configuration been updated? scheduleName = "
+                            + scheduleName );
         } finally {
             if ( schedule != null ) {
                 ScmSystem.Schedule.delete( session, schedule.getId() );
@@ -127,9 +129,8 @@ public class Audit2354 extends TestScmBase {
         try {
             session = TestScmTools.createSession( site, username, password );
             ScmScheduleContent copyContent = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(), rootSite.getSiteName(),
-                    "3650d", new BasicBSONObject(),
-                    ScmType.ScopeType.SCOPE_CURRENT );
+                    branchSite.getSiteName(), rootSite.getSiteName(), "3650d",
+                    new BasicBSONObject(), ScmType.ScopeType.SCOPE_CURRENT );
             schedule = ScmSystem.Schedule.create( session, wsp.getName(),
                     ScheduleType.COPY_FILE, scheduleName, "desc", copyContent,
                     "* * * *,* * ?" );

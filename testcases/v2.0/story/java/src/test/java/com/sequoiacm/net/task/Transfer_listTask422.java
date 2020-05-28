@@ -72,10 +72,10 @@ public class Transfer_listTask422 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -88,7 +88,7 @@ public class Transfer_listTask422 extends TestScmBase {
             sourceSite = siteList.get( 0 );
             targetSite = siteList.get( 1 );
 
-            //session = TestScmTools.createSession(TestScmBase.hostName2,
+            // session = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
             session = TestScmTools.createSession( sourceSite );
 
@@ -199,16 +199,14 @@ public class Transfer_listTask422 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 mainSession = TestScmTools
                         .createSession( ScmInfo.getRootSite() );
-                ScmWorkspace ws1 = ScmFactory.Workspace
-                        .getWorkspace( wsList_T.get( 0 ).getName(),
-                                mainSession );
+                ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace(
+                        wsList_T.get( 0 ).getName(), mainSession );
                 for ( int i = 0; i < fileNum; ++i ) {
                     ScmFactory.File.getInstance( ws1, fileIdList1.get( i ) )
                             .delete( true );
                 }
-                ScmWorkspace ws2 = ScmFactory.Workspace
-                        .getWorkspace( wsList_T.get( 1 ).getName(),
-                                mainSession );
+                ScmWorkspace ws2 = ScmFactory.Workspace.getWorkspace(
+                        wsList_T.get( 1 ).getName(), mainSession );
                 for ( int i = 0; i < fileNum; ++i ) {
                     ScmFactory.File.getInstance( ws2, fileIdList2.get( i ) )
                             .delete( true );
@@ -263,8 +261,7 @@ public class Transfer_listTask422 extends TestScmBase {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        return ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        return ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
     }
 }

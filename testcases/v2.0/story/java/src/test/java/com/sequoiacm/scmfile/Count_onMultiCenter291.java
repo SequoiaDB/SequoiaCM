@@ -97,10 +97,10 @@ public class Count_onMultiCenter291 extends TestScmBase {
             qryThd2.start();
             qryThd3.start();
 
-            if ( !( qryThd1.isSuccess() && qryThd2.isSuccess() &&
-                    qryThd3.isSuccess() ) ) {
-                Assert.fail( qryThd1.getErrorMsg() + qryThd2.getErrorMsg() +
-                        qryThd3.getErrorMsg() );
+            if ( !( qryThd1.isSuccess() && qryThd2.isSuccess()
+                    && qryThd3.isSuccess() ) ) {
+                Assert.fail( qryThd1.getErrorMsg() + qryThd2.getErrorMsg()
+                        + qryThd3.getErrorMsg() );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -177,8 +177,8 @@ public class Count_onMultiCenter291 extends TestScmBase {
                         .lessThan( endVal ).and( "notexistkey" ).exists( 0 )
                         .get();
 
-                long actCount = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCond );
+                long actCount = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, fileCond );
                 Assert.assertEquals( actCount, countNum,
                         "fileCond = " + fileCond.toString() );
             } finally {

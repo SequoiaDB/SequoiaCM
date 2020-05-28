@@ -51,10 +51,10 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,9 +80,9 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
 
             // get file's content, and check results
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( filePath ),
                     TestTools.getMD5( downloadPath ) );
@@ -102,16 +102,16 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
 
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             long acceptableOffSet = 2000 * 1000; // unit:ms
-            if ( Math.abs( file.getCreateTime().getTime() - localTime ) >
-                    acceptableOffSet ) {
-                Assert.fail( "time is different: scmCreateFullTime=" +
-                        file.getCreateTime().getTime()
-                        + ", localFullTime=" + localTime );
+            if ( Math.abs( file.getCreateTime().getTime()
+                    - localTime ) > acceptableOffSet ) {
+                Assert.fail( "time is different: scmCreateFullTime="
+                        + file.getCreateTime().getTime() + ", localFullTime="
+                        + localTime );
             }
             Assert.assertEquals( file.getUpdateUser(), file.getUser() );
             Assert.assertEquals( file.getUpdateTime(), file.getCreateTime() );
 
-            //Assert.assertEquals(file.getPropertyType(), PropertyType.VIDEO);
+            // Assert.assertEquals(file.getPropertyType(), PropertyType.VIDEO);
 
             Assert.assertEquals( file.getDataId().get(),
                     file.getFileId().get() );
@@ -122,11 +122,9 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
             long accessTime = file.getLocationList().get( 0 ).getDate()
                     .getTime();
             if ( accessTime != file.getUpdateTime().getTime() ) {
-                throw new Exception(
-                        "file.getLocationList is error. " + "accessTime=" +
-                                accessTime + ", "
-                                + "createTime=" +
-                                file.getCreateTime().getTime() );
+                throw new Exception( "file.getLocationList is error. "
+                        + "accessTime=" + accessTime + ", " + "createTime="
+                        + file.getCreateTime().getTime() );
             }
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -163,7 +161,7 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
             file.setAuthor( author );
             file.setMimeType( MimeType.HTML );
 
-            //file.setPropertyType(PropertyType.VIDEO);
+            // file.setPropertyType(PropertyType.VIDEO);
 
             scmFileID = file.save();
 

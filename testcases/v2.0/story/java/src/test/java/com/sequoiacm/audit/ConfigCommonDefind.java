@@ -7,33 +7,32 @@ import java.util.List;
  * Created by fanyu on 2018/11/30.
  */
 public class ConfigCommonDefind {
-    //permission
+    // permission
     public static final String scm_audit_mask = "scm.audit.mask";
     public static final String scm_audit_userMask = "scm.audit.userMask";
     public static final String scm_audit_userType = "scm.audit.userType.";
     public static final String scm_audit_user = "scm.audit.user.";
 
-    //permission
+    // permission
     public static class Permission {
-        //the type of int
-        public static final String ribbon_maxAutoRetries = "ribbon" +
-                ".MaxAutoRetries";
-        public static final String ribbon_maxAutoRetriesNextServer = "ribbon" +
-                ".MaxAutoRetriesNextServer";
-        public static final String ribbon_connectTimeout = "ribbon" +
-                ".ConnectTimeout";
+        // the type of int
+        public static final String ribbon_maxAutoRetries = "ribbon"
+                + ".MaxAutoRetries";
+        public static final String ribbon_maxAutoRetriesNextServer = "ribbon"
+                + ".MaxAutoRetriesNextServer";
+        public static final String ribbon_connectTimeout = "ribbon"
+                + ".ConnectTimeout";
         public static final String ribbon_readTimeout = "ribbon.ReadTimeout";
-        public static final String hystrix_timeoutInMillisecond =
-                "hystrix.command.default.execution.isolation.thread" +
-                        ".timeoutInMilliseconds";
-        //the type of boolean
-        public static final String prefer_same_zone_eureka = "eureka.client" +
-                ".prefer-same-zone-eureka";
+        public static final String hystrix_timeoutInMillisecond = "hystrix.command.default.execution.isolation.thread"
+                + ".timeoutInMilliseconds";
+        // the type of boolean
+        public static final String prefer_same_zone_eureka = "eureka.client"
+                + ".prefer-same-zone-eureka";
         public static final String zipkin_enabled = "spring.zipkin.enabled";
-        public static final String hystrix_timeout_enabled = "hystrix.command" +
-                ".default.execution.timeout.enabled";
-        public static final String ribbon_retry = "ribbon" +
-                ".OkToRetryOnAllOperations";
+        public static final String hystrix_timeout_enabled = "hystrix.command"
+                + ".default.execution.timeout.enabled";
+        public static final String ribbon_retry = "ribbon"
+                + ".OkToRetryOnAllOperations";
 
         public static List< String > getPermitedList() {
             List< String > permitedList = new ArrayList<>();
@@ -50,15 +49,15 @@ public class ConfigCommonDefind {
         }
     }
 
-    //forbidden
+    // forbidden
     public static class Forbidden {
         public static final String app_name = "spring.application.name";
-        public static final String register_with_eureka = "eureka.client" +
-                ".register-with-eureka";
-        public static final String fetch_registry = "eureka.client" +
-                ".fetch-registry";
-        public static final String metadata_map_region = "eureka.instance" +
-                ".metadata-map.region";
+        public static final String register_with_eureka = "eureka.client"
+                + ".register-with-eureka";
+        public static final String fetch_registry = "eureka.client"
+                + ".fetch-registry";
+        public static final String metadata_map_region = "eureka.instance"
+                + ".metadata-map.region";
         public static final String client_region = "eureka.client.region";
         public static final String server_port = "server.port";
 

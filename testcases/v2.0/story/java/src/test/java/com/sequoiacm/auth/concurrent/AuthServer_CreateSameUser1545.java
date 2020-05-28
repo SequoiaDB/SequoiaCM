@@ -83,9 +83,8 @@ public class AuthServer_CreateSameUser1545 extends TestScmBase {
                 check( user );
                 atom.getAndIncrement();
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.HTTP_BAD_REQUEST
-                        &&
-                        e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
+                if ( e.getError() != ScmError.HTTP_BAD_REQUEST && e
+                        .getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

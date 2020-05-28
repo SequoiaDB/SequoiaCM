@@ -32,8 +32,8 @@ public class OprBeforeSave1339 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -56,7 +56,7 @@ public class OprBeforeSave1339 extends TestScmBase {
             Assert.assertEquals( e.getError(), ScmError.OPERATION_UNSUPPORTED );
         }
 
-        //TODO: fail for SEQUOIACM-247
+        // TODO: fail for SEQUOIACM-247
         try {
             batch.listFiles();
             Assert.fail( "list files should not succeed" );

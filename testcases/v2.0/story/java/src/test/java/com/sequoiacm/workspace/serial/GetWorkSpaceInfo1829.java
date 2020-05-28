@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description GetWorkSpaceInfo1829.java 获取Hbase数据源详细信息 
+ * @Description GetWorkSpaceInfo1829.java 获取Hbase数据源详细信息
  * @author luweikang
  * @date 2018年6月28日
  */
@@ -48,8 +48,7 @@ public class GetWorkSpaceInfo1829 extends TestScmBase {
         for ( ScmDataLocation scmDataLocation : list ) {
             System.out.println( scmDataLocation.getBSONObject() );
             if ( scmDataLocation.getType() == DatasourceType.HBASE ) {
-                ScmHbaseDataLocation hd = ( ScmHbaseDataLocation )
-                        scmDataLocation;
+                ScmHbaseDataLocation hd = ( ScmHbaseDataLocation ) scmDataLocation;
                 System.out.println( hd.getShardingType() );
                 System.out.println( hd.getType() );
                 System.out.println( hd.getSiteName() );

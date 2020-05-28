@@ -43,8 +43,8 @@ public class UpdateBatchAttr1289 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         ScmBatch batch = ScmFactory.Batch.createInstance( ws );
         batch.setName( oldBatchName );
@@ -60,8 +60,8 @@ public class UpdateBatchAttr1289 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject( "id", batchId.get() ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "id", batchId.get() ) );
         ScmBatchInfo info = cursor.getNext();
         Assert.assertEquals( info.getName(), oldBatchName );
         Assert.assertEquals( info.getFilesCount(), fileNum );
@@ -75,8 +75,8 @@ public class UpdateBatchAttr1289 extends TestScmBase {
             batch.detachFile( fileId );
         }
 
-        cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject( "id", batchId.get() ) );
+        cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "id", batchId.get() ) );
         info = cursor.getNext();
         Assert.assertEquals( info.getName(), newBatchName );
         Assert.assertEquals( info.getFilesCount(), 0 );

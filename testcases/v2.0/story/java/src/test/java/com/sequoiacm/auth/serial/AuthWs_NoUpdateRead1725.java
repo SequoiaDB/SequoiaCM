@@ -44,7 +44,7 @@ import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 /**
  * @author fanyu
  * @Description:SCM-1725:有工作区CREATE|READ的权限和目录的UPDATE|READ| DELETE权限，
- * 对表格中的各个接口进行覆盖测试
+ *                                                          对表格中的各个接口进行覆盖测试
  * @Date:2018年6月6日
  * @version:1.0
  */
@@ -71,10 +71,10 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -119,8 +119,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
             ScmBatch expBatch = ScmFactory.Batch.createInstance( wsA );
             expBatch.setName( batchName );
             batchId = expBatch.save();
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsUR, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsUR,
+                    expBatch.getId() );
             // update
             actBatch.setName( newbatchName );
             Assert.fail( "the user have not privilege to do someting" );
@@ -227,8 +227,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -257,8 +257,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -286,8 +286,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -315,8 +315,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -348,16 +348,14 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                     .is( scheName ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
-            ScmSchedule upSche = ScmSystem.Schedule
-                    .get( sessionUR, expSche.getId() );
+            ScmSchedule upSche = ScmSystem.Schedule.get( sessionUR,
+                    expSche.getId() );
             upSche.updateDesc( author );
             Assert.fail( "the user does not have priority to do someting" );
         } catch ( ScmException e ) {
@@ -392,8 +390,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
-            ScmSystem.Task
-                    .startCleanTask( wsUR, condition, ScopeType.SCOPE_CURRENT );
+            ScmSystem.Task.startCleanTask( wsUR, condition,
+                    ScopeType.SCOPE_CURRENT );
             Assert.fail( "the user does not have priority to do someting" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
@@ -497,8 +495,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -560,15 +557,14 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             ScmFactory.Directory.createInstance( wsA, dirpath );
             wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), dirpath );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    dirpath );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
                     ScmPrivilegeType.READ );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
@@ -584,8 +580,8 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
             sessionUR = TestScmTools.createSession( site, username, passwd );
-            wsUR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionUR );
+            wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionUR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

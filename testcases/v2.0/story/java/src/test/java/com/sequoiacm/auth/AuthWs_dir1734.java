@@ -50,8 +50,8 @@ public class AuthWs_dir1734 extends TestScmBase {
     private static final String NAME = "authws1734";
     private static final String PASSWORD = NAME;
     private static final String[] DIR_PATH_ARRAY1 = { "/" + NAME + "_a/",
-            "/" + NAME + "_a/" + NAME + "_a1/",
-            "/" + NAME + "_b/", "/" + NAME + "_b/" + NAME + "_b1/",
+            "/" + NAME + "_a/" + NAME + "_a1/", "/" + NAME + "_b/",
+            "/" + NAME + "_b/" + NAME + "_b1/",
             "/" + NAME + "_b/" + NAME + "_b1/" + NAME + "_b2/",
             "/" + NAME + "_c/", "/" + NAME + "_c/" + NAME + "_c1/",
             "/" + NAME + "_c/" + NAME + "_c1/" + NAME + "_c2/" };
@@ -76,10 +76,10 @@ public class AuthWs_dir1734 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -109,15 +109,14 @@ public class AuthWs_dir1734 extends TestScmBase {
         }
 
         // clean director
-        logger.info( "DIR_PATH_ARRAY1 info \n" +
-                Arrays.toString( DIR_PATH_ARRAY1 ) );
+        logger.info( "DIR_PATH_ARRAY1 info \n"
+                + Arrays.toString( DIR_PATH_ARRAY1 ) );
         for ( int i = DIR_PATH_ARRAY1.length - 1; i >= 0; i-- ) {
             try {
                 ScmFactory.Directory.deleteInstance( ws, DIR_PATH_ARRAY1[ i ] );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean dirPath in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean dirPath in setUp, errorMsg = ["
+                        + e.getError() + "]" );
             }
         }
 
@@ -130,12 +129,11 @@ public class AuthWs_dir1734 extends TestScmBase {
         }
 
         // prepare resource
-        logger.info( "DIR_PATH_ARRAY2 info \n" +
-                Arrays.toString( DIR_PATH_ARRAY2 ) );
+        logger.info( "DIR_PATH_ARRAY2 info \n"
+                + Arrays.toString( DIR_PATH_ARRAY2 ) );
         for ( int i = 0; i < DIR_PATH_ARRAY2.length; i++ ) {
-            ScmResource resource = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(),
-                            DIR_PATH_ARRAY2[ i ] );
+            ScmResource resource = ScmResourceFactory.createDirectoryResource(
+                    wsp.getName(), DIR_PATH_ARRAY2[ i ] );
             resources.add( resource );
         }
 
@@ -165,8 +163,8 @@ public class AuthWs_dir1734 extends TestScmBase {
                 file.setTitle( NAME );
                 Assert.fail( "expect fail but succ." );
             } catch ( ScmException e ) {
-                logger.info( "not update privilege in test, errorMsg = [" +
-                        e.getError() + "]" );
+                logger.info( "not update privilege in test, errorMsg = ["
+                        + e.getError() + "]" );
             }
             file = ScmFactory.File.getInstance( ws, fileId );
             Assert.assertEquals( file.getTitle(), "" );
@@ -183,9 +181,8 @@ public class AuthWs_dir1734 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < DIR_PATH_ARRAY2.length; i++ ) {
-                    ScmFactory.Role
-                            .revokePrivilege( ss, role, resources.get( i ),
-                                    ScmPrivilegeType.READ );
+                    ScmFactory.Role.revokePrivilege( ss, role,
+                            resources.get( i ), ScmPrivilegeType.READ );
                 }
                 ScmFactory.Role.revokePrivilege( ss, role, resources.get( 3 ),
                         ScmPrivilegeType.CREATE );
@@ -198,8 +195,8 @@ public class AuthWs_dir1734 extends TestScmBase {
                 }
 
                 for ( int i = DIR_PATH_ARRAY1.length - 1; i >= 0; i-- ) {
-                    ScmFactory.Directory
-                            .deleteInstance( ws, DIR_PATH_ARRAY1[ i ] );
+                    ScmFactory.Directory.deleteInstance( ws,
+                            DIR_PATH_ARRAY1[ i ] );
                 }
 
                 TestTools.LocalFile.removeFile( localPath );
@@ -215,8 +212,8 @@ public class AuthWs_dir1734 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( ss, NAME, ScmUserPasswordType.LOCAL, PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( ss, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( ss, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );
@@ -225,8 +222,8 @@ public class AuthWs_dir1734 extends TestScmBase {
 
     private ScmId createScmFile( ScmWorkspace scmWS, String dirPath )
             throws ScmException {
-        ScmDirectory scmDir = ScmFactory.Directory
-                .getInstance( scmWS, dirPath );
+        ScmDirectory scmDir = ScmFactory.Directory.getInstance( scmWS,
+                dirPath );
 
         ScmFile file = ScmFactory.File.createInstance( scmWS );
         file.setFileName( NAME + UUID.randomUUID() );

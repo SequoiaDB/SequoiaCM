@@ -26,8 +26,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: delete the same file concurrently
- * testlink-case:SCM-1702
+ * test content: delete the same file concurrently testlink-case:SCM-1702
  *
  * @author wuyan
  * @Date 2018.06.19
@@ -56,8 +55,8 @@ public class DeleteSameFile1702 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
         VersionUtils.updateContentByStream( wsM, fileId, updateData );
     }
 
@@ -66,7 +65,7 @@ public class DeleteSameFile1702 extends TestScmBase {
         DeleteFile deleteFile = new DeleteFile();
         deleteFile.start( 3 );
         Assert.assertTrue( deleteFile.isSuccess(), deleteFile.getErrorMsg() );
-        //check the delete result
+        // check the delete result
         checkDeleteFileResult( wsM );
     }
 
@@ -84,23 +83,23 @@ public class DeleteSameFile1702 extends TestScmBase {
     }
 
     private void checkDeleteFileResult( ScmWorkspace ws ) throws Exception {
-        //check the FILE is not exist
+        // check the FILE is not exist
         try {
             ScmFactory.File.getInstanceByPath( ws, fileName );
             Assert.fail( "get file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //count histroy and current version file are not exist
+        // count histroy and current version file are not exist
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        long count = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, condition );
+        long count = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                condition );
         long expFileConut = 0;
         Assert.assertEquals( count, expFileConut );
     }

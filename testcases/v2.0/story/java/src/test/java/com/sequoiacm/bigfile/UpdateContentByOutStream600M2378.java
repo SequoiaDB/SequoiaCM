@@ -44,10 +44,10 @@ public class UpdateContentByOutStream600M2378 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -62,9 +62,9 @@ public class UpdateContentByOutStream600M2378 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        //test a:scmfile outputStream update Content
+        // test a:scmfile outputStream update Content
         updateContentByAllOutputStream();
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion1 = 1;
 
@@ -85,7 +85,7 @@ public class UpdateContentByOutStream600M2378 extends TestScmBase {
         }
     }
 
-    //test a
+    // test a
     private void updateContentByAllOutputStream() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmOutputStream fileOutStream = ScmFactory.File

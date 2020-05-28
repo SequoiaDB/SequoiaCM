@@ -46,7 +46,7 @@ public class UpdateConfManyTimes2295 extends TestScmBase {
     }
 
     private void testSame() throws Exception {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
@@ -55,7 +55,8 @@ public class UpdateConfManyTimes2295 extends TestScmBase {
                     .service( updatedSite.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = null;
             for ( int i = 0; i < 3; i++ ) {
                 actResults = ScmSystem.Configuration
@@ -73,7 +74,7 @@ public class UpdateConfManyTimes2295 extends TestScmBase {
     }
 
     private void testDiff() throws Exception {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
@@ -82,7 +83,8 @@ public class UpdateConfManyTimes2295 extends TestScmBase {
                     .service( updatedSite.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
 
             ScmConfigProperties confProp1 = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
@@ -90,7 +92,8 @@ public class UpdateConfManyTimes2295 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_mask,
                             "FILE_DML" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
 
             ScmUpdateConfResultSet actResults = null;
             for ( int i = 0; i < 10; i++ ) {

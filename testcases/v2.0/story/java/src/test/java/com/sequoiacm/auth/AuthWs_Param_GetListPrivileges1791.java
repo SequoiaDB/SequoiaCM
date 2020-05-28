@@ -88,8 +88,8 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
     private void testNormalByResource() {
         ScmCursor< ScmPrivilege > cursor = null;
         try {
-            cursor = ScmFactory.Privilege
-                    .listPrivilegesByResource( sessionA, rs );
+            cursor = ScmFactory.Privilege.listPrivilegesByResource( sessionA,
+                    rs );
             int i = 0;
             while ( cursor.hasNext() ) {
                 ScmPrivilege pri = cursor.getNext();
@@ -187,8 +187,8 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -206,9 +206,8 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
                 Assert.assertEquals( pri.getRoleId(), role.getRoleId() );
                 Assert.assertEquals( pri.getResource().toStringFormat(),
                         rs.toStringFormat() );
-                Assert.assertEquals( pri.getPrivilege(),
-                        ScmPrivilegeDefine.READ + "|" +
-                                ScmPrivilegeDefine.CREATE );
+                Assert.assertEquals( pri.getPrivilege(), ScmPrivilegeDefine.READ
+                        + "|" + ScmPrivilegeDefine.CREATE );
                 Assert.assertEquals( pri.getRoleType(), "role" );
                 priId = pri.getId();
                 i++;
@@ -245,9 +244,8 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
 
     private void prepare() throws InterruptedException {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
             grantPriAndAttachRole( sessionA, rs, user, role,

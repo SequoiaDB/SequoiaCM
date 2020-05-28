@@ -39,8 +39,8 @@ public class MoveFileToNewPa1152 extends TestScmBase {
     private SiteWrapper site;
     private WsWrapper wsp;
     private String dirBasePath = "/MoveFileToNewPa1152";
-    private String fullPath1 =
-            dirBasePath + "/1152_b/MoveFileToNewPa1152/1152_d/1152_e";
+    private String fullPath1 = dirBasePath
+            + "/1152_b/MoveFileToNewPa1152/1152_d/1152_e";
     private String author = "MoveFileToNewPa1152";
     private ScmId fileId;
     private ScmDirectory dir;
@@ -64,28 +64,27 @@ public class MoveFileToNewPa1152 extends TestScmBase {
         }
     }
 
-    //bug:255
+    // bug:255
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
             // new parent directory does not exits same ele;
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String newParentPath =
-                    dirBasePath + "/1152_b/MoveFileToNewPa1152/1152_d";
+            String newParentPath = dirBasePath
+                    + "/1152_b/MoveFileToNewPa1152/1152_d";
             file.setDirectory(
                     ScmFactory.Directory.getInstance( ws, newParentPath ) );
             Assert.assertEquals( file.getDirectory().getPath(),
                     newParentPath + "/" );
             // check new dir
-            ScmFile file1 = ScmFactory.File
-                    .getInstanceByPath( ws, newParentPath + "/" + author );
+            ScmFile file1 = ScmFactory.File.getInstanceByPath( ws,
+                    newParentPath + "/" + author );
             Assert.assertEquals( file1.getDirectory().getPath(),
                     newParentPath + "/" );
             // check old dir
             try {
-                ScmFactory.File
-                        .getInstanceByPath( ws, fullPath1 + "/" + author, 1,
-                                0 );
+                ScmFactory.File.getInstanceByPath( ws, fullPath1 + "/" + author,
+                        1, 0 );
                 Assert.fail(
                         "exp fail but act success,fileId = " + fileId.get() );
             } catch ( ScmException e1 ) {
@@ -100,14 +99,13 @@ public class MoveFileToNewPa1152 extends TestScmBase {
         }
 
         try {
-            // new parent directory  exits same ele;
+            // new parent directory exits same ele;
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             String newParentPath = dirBasePath + "/1152_b";
             file.setDirectory(
                     ScmFactory.Directory.getInstance( ws, newParentPath ) );
-            Assert.fail(
-                    "it is not successful when new parent's path has same " +
-                            "ele" );
+            Assert.fail( "it is not successful when new parent's path has same "
+                    + "ele" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_EXIST ) {
                 e.printStackTrace();
@@ -161,8 +159,8 @@ public class MoveFileToNewPa1152 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

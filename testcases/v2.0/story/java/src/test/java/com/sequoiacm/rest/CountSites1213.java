@@ -30,16 +30,15 @@ public class CountSites1213 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    //TODO: rest interface not implemented
+    // TODO: rest interface not implemented
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "sites" )
-                .setResponseType( String.class ).exec().getBody().toString();
+                .setApi( "sites" ).setResponseType( String.class ).exec()
+                .getBody().toString();
         System.out.println( response );
 
-        response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "site" )
+        response = rest.setRequestMethod( HttpMethod.HEAD ).setApi( "site" )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( response );
     }

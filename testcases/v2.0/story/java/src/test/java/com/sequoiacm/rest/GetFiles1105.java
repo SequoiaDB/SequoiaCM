@@ -48,10 +48,10 @@ public class GetFiles1105 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -83,26 +83,25 @@ public class GetFiles1105 extends TestScmBase {
     private void test() throws Exception {
         // just check num
         String fileMetaList = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "files?workspace_name=" + ws.getName() + "&scope=" +
-                        ScopeType.SCOPE_CURRENT.getScope() + "&filter={uri}" )
+                .setApi( "files?workspace_name=" + ws.getName() + "&scope="
+                        + ScopeType.SCOPE_CURRENT.getScope() + "&filter={uri}" )
                 .setUriVariables(
                         new Object[] { "{\"author\":\"" + author + "\"}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONArray fileArr = new JSONArray( fileMetaList );
-        Assert.assertEquals( fileArr.length() > fileNum ||
-                        fileArr.length()
-                                == fileNum, true,
-                "fileListInfo.getJSONArray('files').length = " +
-                        fileArr.length() + ",fileNum = " + fileNum );
+        Assert.assertEquals(
+                fileArr.length() > fileNum || fileArr.length() == fileNum, true,
+                "fileListInfo.getJSONArray('files').length = "
+                        + fileArr.length() + ",fileNum = " + fileNum );
 
         int index = fileNum - 1;
-        String fileMeta = rest.setApi(
-                "files/id/" + fileIdList.get( index ) + "?workspace_name=" +
-                        ws.getName() + "&scope=" +
-                        ScopeType.SCOPE_CURRENT.getScope() )
+        String fileMeta = rest
+                .setApi( "files/id/" + fileIdList.get( index )
+                        + "?workspace_name=" + ws.getName() + "&scope="
+                        + ScopeType.SCOPE_CURRENT.getScope() )
                 .setRequestMethod( HttpMethod.HEAD )
-                .setResponseType( String.class )
-                .exec().getHeaders().get( "file" ).toString();
+                .setResponseType( String.class ).exec().getHeaders()
+                .get( "file" ).toString();
         fileMeta = URLDecoder.decode( fileMeta, "UTF-8" );
         JSONObject fileInfo = new JSONObject(
                 fileMeta.substring( 1, fileMeta.length() - 1 ) );
@@ -122,9 +121,9 @@ public class GetFiles1105 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( String fileId : fileIdList ) {
-                    rest.reset().setApi(
-                            "files/" + fileId + "?workspace_name=" +
-                                    ws.getName() + "&is_physical=true" )
+                    rest.reset()
+                            .setApi( "files/" + fileId + "?workspace_name="
+                                    + ws.getName() + "&is_physical=true" )
                             .setRequestMethod( HttpMethod.DELETE )
                             .setResponseType( String.class ).exec();
                 }
@@ -141,11 +140,11 @@ public class GetFiles1105 extends TestScmBase {
             throws HttpClientErrorException, JSONException,
             FileNotFoundException {
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc)
+                // .setParameter("file", resource)
+                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();

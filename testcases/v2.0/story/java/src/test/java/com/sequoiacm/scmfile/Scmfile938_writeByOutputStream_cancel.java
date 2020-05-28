@@ -46,10 +46,10 @@ public class Scmfile938_writeByOutputStream_cancel extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,11 +80,11 @@ public class Scmfile938_writeByOutputStream_cancel extends TestScmBase {
             // check results
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            //SEQUOIACM-414
+            // SEQUOIACM-414
             for ( int i = 0; i < 6; i++ ) {
                 Thread.sleep( 10 );
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 0 );
             }
         } catch ( ScmException e ) {

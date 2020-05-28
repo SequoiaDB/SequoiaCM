@@ -52,10 +52,10 @@ public class BreakpointFile1392 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -69,19 +69,18 @@ public class BreakpointFile1392 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            BreakpointUtil
-                    .createBreakpointFile( ws, filePath, fileName, 1024 * 512,
-                            ScmChecksumType.ADLER32 );
+            BreakpointUtil.createBreakpointFile( ws, filePath, fileName,
+                    1024 * 512, ScmChecksumType.ADLER32 );
         } catch ( ScmException e ) {
             e.printStackTrace();
         }
-        //指定文件不存在
+        // 指定文件不存在
         this.deleteBreakpointFile( ws.getName(), "nofile1392", "nofile" );
-        //指定ws不存在
+        // 指定ws不存在
         this.deleteBreakpointFile( "ws1392", fileName, "nows" );
-        //检查结果
+        // 检查结果
         this.checkBreakpointFile();
-        //删除文件成功
+        // 删除文件成功
         this.deleteBreakpointFile();
     }
 
@@ -106,8 +105,8 @@ public class BreakpointFile1392 extends TestScmBase {
             rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                     TestScmBase.scmPassword );
             rest.setRequestMethod( HttpMethod.DELETE )
-                    .setApi( "/breakpointfiles/" + filename +
-                            "?workspace_name=" + wsName )
+                    .setApi( "/breakpointfiles/" + filename + "?workspace_name="
+                            + wsName )
                     .exec();
             Assert.fail( "delete breakpointFile should error" );
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {
@@ -139,10 +138,8 @@ public class BreakpointFile1392 extends TestScmBase {
         RestWrapper rest = new RestWrapper();
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
-        rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/breakpointfiles/" + fileName + "?workspace_name=" +
-                        ws.getName() )
-                .exec();
+        rest.setRequestMethod( HttpMethod.DELETE ).setApi( "/breakpointfiles/"
+                + fileName + "?workspace_name=" + ws.getName() ).exec();
         ScmCursor< ScmBreakpointFile > cursor = ScmFactory.BreakpointFile
                 .listInstance( ws,
                         new BasicBSONObject( "file_name", fileName ) );

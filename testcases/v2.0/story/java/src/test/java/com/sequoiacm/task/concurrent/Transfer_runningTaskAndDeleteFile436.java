@@ -63,10 +63,10 @@ public class Transfer_runningTaskAndDeleteFile436 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -169,8 +169,8 @@ public class Transfer_runningTaskAndDeleteFile436 extends TestScmBase {
     }
 
     private List< Integer > getSiteNumList() throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; i++ ) {
             ScmFile file;
             try {
@@ -211,16 +211,17 @@ public class Transfer_runningTaskAndDeleteFile436 extends TestScmBase {
 
                 // check result
                 while ( true ) {
-                    ScmTask taskInfo = ScmSystem.Task
-                            .getTask( session, taskId );
+                    ScmTask taskInfo = ScmSystem.Task.getTask( session,
+                            taskId );
                     if ( taskInfo.getStopTime() != null ) {
-                        if ( taskInfo.getRunningFlag() ==
-                                CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
+                        if ( taskInfo
+                                .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
                             // task detail
                             try ( Sequoiadb db = TestSdbTools
-                                    .getSdb( TestScmBase.mainSdbUrl ) ) {
-                                DBCollection clDB = db.getCollectionSpace(
-                                        TestSdbTools.SCM_CS )
+                                    .getSdb( TestScmBase.mainSdbUrl )) {
+                                DBCollection clDB = db
+                                        .getCollectionSpace(
+                                                TestSdbTools.SCM_CS )
                                         .getCollection(
                                                 TestSdbTools.SCM_CL_TASK );
                                 BSONObject matcher = new BasicBSONObject();
@@ -230,13 +231,11 @@ public class Transfer_runningTaskAndDeleteFile436 extends TestScmBase {
                                         .getNext().get( "detail" );
                                 if ( !( detail.toString()
                                         .contains( "open lob failed" )
-                                        || detail.toString()
-                                        .contains( "read lob failed" ) ) ) {
-                                    throw new Exception(
-                                            "task detail error." +
-                                                    detail.toString() +
-                                                    " taskId = " +
-                                                    taskId.get() );
+                                        || detail.toString().contains(
+                                                "read lob failed" ) ) ) {
+                                    throw new Exception( "task detail error."
+                                            + detail.toString() + " taskId = "
+                                            + taskId.get() );
                                 }
                             } catch ( BaseException e ) {
                                 e.printStackTrace();

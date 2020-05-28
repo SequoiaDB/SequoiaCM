@@ -65,10 +65,10 @@ public class Transfer_inDiffNode741 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -106,18 +106,16 @@ public class Transfer_inDiffNode741 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() {
         try {
-            StartTransferTaskFromNode1 tfWs1FromNode1 = new
-                    StartTransferTaskFromNode1();
+            StartTransferTaskFromNode1 tfWs1FromNode1 = new StartTransferTaskFromNode1();
             tfWs1FromNode1.start();
 
-            StartTransferTaskFromNode2 tfWs2FromNode2 = new
-                    StartTransferTaskFromNode2();
+            StartTransferTaskFromNode2 tfWs2FromNode2 = new StartTransferTaskFromNode2();
             tfWs2FromNode2.start();
 
-            if ( !( tfWs1FromNode1.isSuccess() &&
-                    tfWs2FromNode2.isSuccess() ) ) {
-                Assert.fail( tfWs1FromNode1.getErrorMsg() +
-                        tfWs2FromNode2.getErrorMsg() );
+            if ( !( tfWs1FromNode1.isSuccess()
+                    && tfWs2FromNode2.isSuccess() ) ) {
+                Assert.fail( tfWs1FromNode1.getErrorMsg()
+                        + tfWs2FromNode2.getErrorMsg() );
             }
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );

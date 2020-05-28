@@ -60,7 +60,7 @@ public class UpdateConf2302 extends TestScmBase {
         Assert.assertEquals( uThraed.isSuccess(), true, uThraed.getErrorMsg() );
         Assert.assertEquals( cThread.isSuccess(), true, cThread.getErrorMsg() );
 
-        //check local configuration
+        // check local configuration
         List< ScmServiceInstance > instancesList = ScmSystem.ServiceCenter
                 .getServiceInstanceList( session, serviceName );
         Map< String, String > map = new HashMap< String, String >();
@@ -70,7 +70,7 @@ public class UpdateConf2302 extends TestScmBase {
             ConfUtil.checkUpdatedConf(
                     instances.getIp() + ":" + instances.getPort(), map );
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( serviceName );
     }
 
@@ -96,8 +96,8 @@ public class UpdateConf2302 extends TestScmBase {
                         .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                                 "LOCAL" )
                         .build();
-                results = ScmSystem.Configuration
-                        .setConfigProperties( session, confProp );
+                results = ScmSystem.Configuration.setConfigProperties( session,
+                        confProp );
                 System.out.println( "result = " + results.toString() );
             } finally {
                 if ( session != null ) {
@@ -118,18 +118,17 @@ public class UpdateConf2302 extends TestScmBase {
             List< SiteWrapper > sites = ScmNetUtils.getCleanSites( wsp );
             SiteWrapper branSite = sites.get( 1 );
             ScmSession session = null;
-            String scheName =
-                    TestTools.getClassName() + "_" + UUID.randomUUID();
+            String scheName = TestTools.getClassName() + "_"
+                    + UUID.randomUUID();
             ScmId scheduleId = null;
             try {
                 session = TestScmTools.createSession( branSite );
                 ScmScheduleContent content = new ScmScheduleCleanFileContent(
                         branSite.getSiteName(), "0d", new BasicBSONObject() );
                 String cron = "* * * * * ? 2022";
-                ScmSchedule sche = ScmSystem.Schedule
-                        .create( session, wsp.getName(),
-                                ScheduleType.CLEAN_FILE, scheName, scheName,
-                                content, cron );
+                ScmSchedule sche = ScmSystem.Schedule.create( session,
+                        wsp.getName(), ScheduleType.CLEAN_FILE, scheName,
+                        scheName, content, cron );
                 scheduleId = sche.getId();
                 ScmSchedule sch = ScmSystem.Schedule.get( session, scheduleId );
                 Assert.assertEquals( sch.getId(), scheduleId );
@@ -144,4 +143,3 @@ public class UpdateConf2302 extends TestScmBase {
         }
     }
 }
-

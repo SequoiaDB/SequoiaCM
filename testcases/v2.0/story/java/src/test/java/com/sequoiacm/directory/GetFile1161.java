@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1161 :: 获取根文件夹下的文件/获取多级文件夹下的文件 
+ * @Description:SCM-1161 :: 获取根文件夹下的文件/获取多级文件夹下的文件
  * @author fanyu
  * @Date:2018年4月25日
  * @version:1.0
@@ -55,10 +55,10 @@ public class GetFile1161 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -76,7 +76,7 @@ public class GetFile1161 extends TestScmBase {
             deleteDir( ws, fullPath1 );
             dir1 = createDir( ws, fullPath1 );
             dir2 = createDir( ws, fullPath2 );
-            //create file
+            // create file
             createFile( ws, ScmFactory.Directory.getInstance( ws, "/" ),
                     author );
             createFile( ws, dir1, author );
@@ -87,7 +87,7 @@ public class GetFile1161 extends TestScmBase {
         }
     }
 
-    //bug:251
+    // bug:251
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testSubFile() throws Exception {
         try {
@@ -102,8 +102,8 @@ public class GetFile1161 extends TestScmBase {
             cond1.put( "id", fileIdList.get( 0 ) );
             check( file1, cond1 );
 
-            ScmDirectory subDir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+            ScmDirectory subDir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             ScmFile file2 = subDir.getSubfile( author );
             BSONObject cond2 = new BasicBSONObject();
             cond2.put( "name", author );
@@ -120,12 +120,12 @@ public class GetFile1161 extends TestScmBase {
         runSuccess1 = true;
     }
 
-    //bug:251
+    // bug:251
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testFile1() throws Exception {
         try {
-            ScmFile file1 = ScmFactory.File
-                    .getInstanceByPath( ws, "/" + author );
+            ScmFile file1 = ScmFactory.File.getInstanceByPath( ws,
+                    "/" + author );
             BSONObject cond1 = new BasicBSONObject();
             cond1.put( "name", author );
             cond1.put( "author", author );
@@ -135,8 +135,8 @@ public class GetFile1161 extends TestScmBase {
             cond1.put( "id", fileIdList.get( 0 ) );
             check( file1, cond1 );
 
-            ScmDirectory subDir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+            ScmDirectory subDir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             String path = fullPath1 + "/" + author;
             ScmFile file2 = ScmFactory.File.getInstanceByPath( ws, path, 1, 0 );
             BSONObject cond2 = new BasicBSONObject();
@@ -155,7 +155,7 @@ public class GetFile1161 extends TestScmBase {
         runSuccess2 = true;
     }
 
-    //bug:251
+    // bug:251
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testFile2() throws Exception {
         try {
@@ -264,8 +264,8 @@ public class GetFile1161 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -295,5 +295,3 @@ public class GetFile1161 extends TestScmBase {
         return pathList;
     }
 }
-
-

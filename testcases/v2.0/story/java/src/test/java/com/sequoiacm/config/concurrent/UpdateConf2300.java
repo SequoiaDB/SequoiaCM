@@ -46,10 +46,10 @@ public class UpdateConf2300 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -65,14 +65,14 @@ public class UpdateConf2300 extends TestScmBase {
         cThread.start();
         Assert.assertEquals( uThraed.isSuccess(), true, uThraed.getErrorMsg() );
         Assert.assertEquals( cThread.isSuccess(), true, cThread.getErrorMsg() );
-        //check local configuration
+        // check local configuration
         Map< String, String > map = new HashMap< String, String >();
         map.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
         map.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
         for ( NodeWrapper node : site.getNodes( site.getNodeNum() ) ) {
             ConfUtil.checkUpdatedConf( node.getUrl(), map );
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( site, fileName );
     }
 
@@ -113,11 +113,11 @@ public class UpdateConf2300 extends TestScmBase {
             String wsName = "ws2300_" + UUID.randomUUID();
             try {
                 session = TestScmTools.createSession( site );
-                ScmWorkspaceUtil
-                        .createWS( session, wsName, ScmInfo.getSiteNum() );
+                ScmWorkspaceUtil.createWS( session, wsName,
+                        ScmInfo.getSiteNum() );
                 ScmWorkspaceUtil.wsSetPriority( session, wsName );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( fileName + "_" + UUID.randomUUID() );
                 file.setContent( filePath );

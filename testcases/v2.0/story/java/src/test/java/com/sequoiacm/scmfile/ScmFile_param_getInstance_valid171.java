@@ -53,8 +53,7 @@ public class ScmFile_param_getInstance_valid171 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testMajorVersionNotExist() {
         try {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileId, 2, 0 ); // "2"
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId, 2, 0 ); // "2"
             // not
             // exist
             Assert.assertNull( file );
@@ -73,8 +72,7 @@ public class ScmFile_param_getInstance_valid171 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testMinorVersionNotExist() {
         try {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileId, 1, 3 ); // "3"
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId, 1, 3 ); // "3"
             // not
             // exist
             Assert.assertNull( file );

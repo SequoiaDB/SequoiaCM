@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description CreateWorkspace1818.java 创建ws名重复 
+ * @Description CreateWorkspace1818.java 创建ws名重复
  * @author luweikang
  * @date 2018年6月22日
  */

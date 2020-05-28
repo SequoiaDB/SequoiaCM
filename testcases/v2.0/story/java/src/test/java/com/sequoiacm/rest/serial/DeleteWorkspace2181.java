@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description DeleteWorkspace2181.java  创建workspace 
+ * @Description DeleteWorkspace2181.java 创建workspace
  * @author luweikang
  * @date 2018年5月24日
  */
@@ -64,8 +64,7 @@ public class DeleteWorkspace2181 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/workspaces/" + wsName )
-                .exec();
+                .setApi( "/workspaces/" + wsName ).exec();
         rest.disconnect();
         for ( int i = 0; i < 15; i++ ) {
             Thread.sleep( 1000 );

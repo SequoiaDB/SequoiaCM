@@ -29,13 +29,11 @@ public class Param_DeleteProperty2322 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testKeyIsNull() {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
-                    .deleteProperty( null )
-                    .build();
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
+                    .deleteProperty( null ).build();
             Assert.fail(
-                    " ScmConfigProperties.builder().deleteProperty(null) must" +
-                            " be failed when the key is null" );
+                    " ScmConfigProperties.builder().deleteProperty(null) must"
+                            + " be failed when the key is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -46,14 +44,12 @@ public class Param_DeleteProperty2322 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHybrid() {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
-                    .deleteProperty( null )
-                    .build();
+                    .deleteProperty( null ).build();
             Assert.fail(
-                    " ScmConfigProperties.builder().deleteProperty(null) must" +
-                            " be failed when the value is null" );
+                    " ScmConfigProperties.builder().deleteProperty(null) must"
+                            + " be failed when the value is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

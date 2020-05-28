@@ -61,8 +61,8 @@ public class MoveDirToKid1149 extends TestScmBase {
         try {
             dir2 = ScmFactory.Directory.getInstance( ws, dirBasePath + "/b" );
             // eg:dirBasePath + "/b/c/d" mv b to d dir
-            dir2.move( ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/b/c/d" ) );
+            dir2.move( ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/b/c/d" ) );
             Assert.fail( "move dir to sub dir must be failed" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_MOVE_TO_SUBDIR ) {
@@ -133,8 +133,8 @@ public class MoveDirToKid1149 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

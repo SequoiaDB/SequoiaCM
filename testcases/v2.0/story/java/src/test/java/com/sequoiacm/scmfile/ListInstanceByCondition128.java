@@ -49,10 +49,10 @@ public class ListInstanceByCondition128 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,12 +80,12 @@ public class ListInstanceByCondition128 extends TestScmBase {
             BSONObject condition = new BasicBSONObject();
 
             condition = new BasicBSONObject();
-            condition
-                    .put( ScmAttributeName.File.FILE_NAME, file.getFileName() );
+            condition.put( ScmAttributeName.File.FILE_NAME,
+                    file.getFileName() );
             condition.put( ScmAttributeName.File.AUTHOR, file.getAuthor() );
             condition.put( ScmAttributeName.File.TITLE, file.getTitle() );
-            condition
-                    .put( ScmAttributeName.File.MIME_TYPE, file.getMimeType() );
+            condition.put( ScmAttributeName.File.MIME_TYPE,
+                    file.getMimeType() );
             condition.put( ScmAttributeName.File.FILE_ID,
                     file.getFileId().get() );
             condition.put( ScmAttributeName.File.MAJOR_VERSION,

@@ -37,8 +37,7 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the history version file 
- * testlink-case:SCM-1674
+ * test content:Clean the history version file testlink-case:SCM-1674
  *
  * @author wuyan
  * @Date 2018.06.13
@@ -75,15 +74,15 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize1 + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize2 + ".txt";
+        filePath1 = localPath + File.separator + "localFile_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize2
+                + ".txt";
         TestTools.LocalFile.createFile( filePath1, fileSize1 );
         TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
@@ -149,9 +148,8 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
     private void writeAndUpdateFile( ScmWorkspace ws ) throws ScmException {
         for ( int i = 0; i < fileNum; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = VersionUtils
-                    .createFileByStream( ws, subfileName, writedata,
-                            authorName );
+            ScmId fileId = VersionUtils.createFileByStream( ws, subfileName,
+                    writedata, authorName );
             if ( i % 2 == 0 ) {
                 VersionUtils.updateContentByFile( ws, subfileName, fileId,
                         filePath1 );
@@ -170,15 +168,12 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
                 .in( fileIdListStr ).get();
         // create schedule task
         content = new ScmScheduleCleanFileContent( cleanSite.getSiteName(),
-                maxStayTime, condition,
-                ScopeType.SCOPE_HISTORY );
+                maxStayTime, condition, ScopeType.SCOPE_HISTORY );
 
         cron = "* * * * * ?";
 
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( session, wsp.getName(), ScheduleType.CLEAN_FILE,
-                        taskname, "",
-                        content, cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( session, wsp.getName(),
+                ScheduleType.CLEAN_FILE, taskname, "", content, cron );
         scheduleId = sche.getId();
 
     }
@@ -187,11 +182,11 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
             throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            ScmFile file = ScmFactory.File
-                    .getInstance( wsL, fileId, version, 0 );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
+            ScmFile file = ScmFactory.File.getInstance( wsL, fileId, version,
+                    0 );
             file.getContent( downloadPath );
         }
     }

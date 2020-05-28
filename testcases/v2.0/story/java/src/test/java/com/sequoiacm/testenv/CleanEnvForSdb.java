@@ -36,9 +36,9 @@ public class CleanEnvForSdb extends TestScmBase {
             if ( site.getDataType().equals( DatasourceType.SEQUOIADB ) ) {
                 deleteCS( site );
             } else {
-                log.info( site.getSiteName() +
-                        "'s datasourcetype is not hbase,it is " +
-                        site.getDataType() );
+                log.info( site.getSiteName()
+                        + "'s datasourcetype is not hbase,it is "
+                        + site.getDataType() );
             }
         }
     }

@@ -48,9 +48,8 @@ public class ScmFile_param_countInstance402 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testWsIsNull() {
         try {
-            ScmFactory.File
-                    .countInstance( null, ScmType.ScopeType.SCOPE_CURRENT,
-                            new BasicBSONObject() );
+            ScmFactory.File.countInstance( null,
+                    ScmType.ScopeType.SCOPE_CURRENT, new BasicBSONObject() );
             Assert.fail( "expect fail, but success." );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT );
@@ -60,10 +59,10 @@ public class ScmFile_param_countInstance402 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testConditionIsNull() {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            ScmFactory.File
-                    .countInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, null );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            ScmFactory.File.countInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
+                    null );
             Assert.fail( "count shouldn't succeed when condition is null!" );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT,

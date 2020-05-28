@@ -21,9 +21,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1283: 创建空批次
- * 			 SCM-1292: 删除空批次
- * 			 SCM-1306: 空批次中获取文件列表
+ * @FileName SCM-1283: 创建空批次 SCM-1292: 删除空批次 SCM-1306: 空批次中获取文件列表
  * @Author linsuqiang
  * @Date 2018-04-19
  * @Version 1.00
@@ -37,8 +35,8 @@ public class TestEmptyBatch1283 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })

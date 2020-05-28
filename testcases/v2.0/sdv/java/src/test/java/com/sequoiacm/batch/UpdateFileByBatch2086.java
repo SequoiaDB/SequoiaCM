@@ -61,8 +61,8 @@ public class UpdateFileByBatch2086 extends TestScmBase {
 
         // clean batch
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2086" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -137,8 +137,8 @@ public class UpdateFileByBatch2086 extends TestScmBase {
             Assert.fail( "get batch must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.BATCH_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-250  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-250  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
@@ -146,8 +146,8 @@ public class UpdateFileByBatch2086 extends TestScmBase {
         BSONObject findCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.toString() )
                 .get();
-        long fileCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, findCondition );
+        long fileCount = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                findCondition );
         Assert.assertEquals( fileCount, 0 );
 
     }

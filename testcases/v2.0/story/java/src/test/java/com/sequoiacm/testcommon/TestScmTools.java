@@ -80,8 +80,8 @@ public class TestScmTools extends TestScmBase {
             urlList.add( gateway + "/" + site.getSiteServiceName() );
         }
         ScmConfigOption scOpt = new ScmConfigOption( urlList );
-        return ScmFactory.Session
-                .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
+        return ScmFactory.Session.createSession( SessionType.NOT_AUTH_SESSION,
+                scOpt );
     }
 
     /**
@@ -104,7 +104,8 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create sessionMgr, by specified serviceName and user and syncGateWayInterval
+     * create sessionMgr, by specified serviceName and user and
+     * syncGateWayInterval
      */
     public static ScmSessionMgr createSessionMgr( String serviceName,
             String username, String password, long syncGateWayInterval )
@@ -116,7 +117,7 @@ public class TestScmTools extends TestScmBase {
         ScmSessionMgr sessionMgr = null;
         ScmConfigOption scOpt = new ScmConfigOption( urlList, username,
                 password );
-        return ScmFactory.Session
-                .createSessionMgr( scOpt, syncGateWayInterval );
+        return ScmFactory.Session.createSessionMgr( scOpt,
+                syncGateWayInterval );
     }
 }

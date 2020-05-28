@@ -39,8 +39,8 @@ public class ListInstance_Param1200 extends TestScmBase {
     private SiteWrapper site;
     private WsWrapper wsp;
     private String dirBasePath = "/ListInstance_Param1201";
-    private String fullPath1 =
-            dirBasePath + "/1201_a/ListInstance_Param1201文件夹a/1201_c";
+    private String fullPath1 = dirBasePath
+            + "/1201_a/ListInstance_Param1201文件夹a/1201_c";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -158,8 +158,8 @@ public class ListInstance_Param1200 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess1 || runSuccess2 || runSuccess3 ||
-                    TestScmBase.forceClear ) {
+            if ( runSuccess1 || runSuccess2 || runSuccess3
+                    || TestScmBase.forceClear ) {
                 deleteDir( ws, fullPath1 );
             }
         } catch ( Exception e ) {
@@ -185,8 +185,8 @@ public class ListInstance_Param1200 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -216,5 +216,3 @@ public class ListInstance_Param1200 extends TestScmBase {
         return pathList;
     }
 }
-
-

@@ -61,10 +61,10 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -128,8 +128,8 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
@@ -145,42 +145,22 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
         return ScmSystem.Task.startTransferTask( ws, condition );
     }
 
-	
-	/*private void waitTaskRunning() throws InterruptedException {
-        Sequoiadb db = null;
-		int retryNum = 30;
-		int sleepSecond = 10;
-		boolean isRunning = false;
-		try {
-			db = TestSdbTools.getSdb(TestScmBase.mainSdbUrl);
-			String CSName = TestSdbTools.getFileDataCsName(ws_T);
-			String CLName = TestSdbTools.getFileDataClName(ws_T);
-			DBCollection cl = db.getCollectionSpace(CSName).getCollection
-			(CLName);
-			ObjectId lobObjId = new ObjectId(fileId.get());
-			for (int i = 0; i < retryNum; i++) {
-				try {
-					cl.openLob(lobObjId);
-				} catch (Exception e) {
-					if (e.getMessage().contains("LOB is not useable")) {
-						System.out.println("Msg = " + e.getMessage());
-						isRunning = true;
-						break;
-					}
-				} finally {
-					if (i == retryNum - 1 && !isRunning) {
-						System.out.println("Msg = retry is over,fileId is " +
-						fileId.get());
-					}
-				}
-				Thread.sleep(sleepSecond);
-			}
-		} finally {
-			if (db != null) {
-				db.close();
-			}
-		}
-	}*/
+    /*
+     * private void waitTaskRunning() throws InterruptedException { Sequoiadb db
+     * = null; int retryNum = 30; int sleepSecond = 10; boolean isRunning =
+     * false; try { db = TestSdbTools.getSdb(TestScmBase.mainSdbUrl); String
+     * CSName = TestSdbTools.getFileDataCsName(ws_T); String CLName =
+     * TestSdbTools.getFileDataClName(ws_T); DBCollection cl =
+     * db.getCollectionSpace(CSName).getCollection (CLName); ObjectId lobObjId =
+     * new ObjectId(fileId.get()); for (int i = 0; i < retryNum; i++) { try {
+     * cl.openLob(lobObjId); } catch (Exception e) { if
+     * (e.getMessage().contains("LOB is not useable")) {
+     * System.out.println("Msg = " + e.getMessage()); isRunning = true; break; }
+     * } finally { if (i == retryNum - 1 && !isRunning) {
+     * System.out.println("Msg = retry is over,fileId is " + fileId.get()); } }
+     * Thread.sleep(sleepSecond); } } finally { if (db != null) { db.close(); }
+     * } }
+     */
 
     private void waitTaskRunning() throws ScmException {
         Date startTime = null;

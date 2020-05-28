@@ -47,10 +47,10 @@ public class AsyncTransfer600M2376 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -69,7 +69,7 @@ public class AsyncTransfer600M2376 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ScmFactory.File.asyncTransfer( ws, fileId );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,

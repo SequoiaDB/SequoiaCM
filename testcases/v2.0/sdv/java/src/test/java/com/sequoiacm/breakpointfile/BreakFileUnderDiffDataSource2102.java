@@ -34,7 +34,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description: SCM-2102 :: 通过断点文件创建文件和下载文件站点数据源不同 
+ * @Description: SCM-2102 :: 通过断点文件创建文件和下载文件站点数据源不同
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -61,10 +61,10 @@ public class BreakFileUnderDiffDataSource2102 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -203,9 +203,8 @@ public class BreakFileUnderDiffDataSource2102 extends TestScmBase {
         Assert.assertEquals( file.getMajorVersion(), currentVerion );
         Assert.assertEquals( file.getSize(), fileSize );
         Assert.assertEquals( file.getDirectory().getPath(), "/" );
-        //check content
-        VersionUtils
-                .CheckFileContentByFile( ws, fileId, currentVerion, filePath,
-                        localPath );
+        // check content
+        VersionUtils.CheckFileContentByFile( ws, fileId, currentVerion,
+                filePath, localPath );
     }
 }

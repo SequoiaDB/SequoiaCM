@@ -65,9 +65,8 @@ public class MthCombin333 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             ScmQueryBuilder builder = ScmBuilder();
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                            builder.get() );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, builder.get() );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;
@@ -155,9 +154,8 @@ public class MthCombin333 extends TestScmBase {
         BSONObject and = ScmQueryBuilder.start().and( lessThan, greaterThan )
                 .get();
 
-        ScmQueryBuilder builder = ScmQueryBuilder.start()
-                .and( or, exist, greaterThan, greaterThanEquals, lessThan, is,
-                        not, and );
+        ScmQueryBuilder builder = ScmQueryBuilder.start().and( or, exist,
+                greaterThan, greaterThanEquals, lessThan, is, not, and );
 
         // System.out.println(cond.toString());
         String bsStr = "{ \"$and\" : [ { \"$or\" : [ { \"name\" : { \"$in\" : [ \"MthCombin333_0\" , \"MthCombin333_1\"]}} , { \"name\" : { \"$nin\" : [ \"MthCombin333_1\" , \"MthCombin333_2\"]}}]} , { \"name\" : { \"$exists\" : 1}} , { \"major_version\" : { \"$gt\" : -1}} , { \"major_version\" : { \"$gte\" : 1}} , { \"major_version\" : { \"$lt\" : 10}} , { \"name\" : \"MthCombin333_0\"} , { \"$not\" : [ { \"name\" : \"MthCombin333_1\"}]} , { \"$and\" : [ { \"major_version\" : { \"$lt\" : 10}} , { \"major_version\" : { \"$gt\" : -1}}]}]}";

@@ -57,10 +57,10 @@ public class ComprehensiveReadFile735 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -125,8 +125,8 @@ public class ComprehensiveReadFile735 extends TestScmBase {
     private void writeFile( ScmSession ss, List< ScmId > fileIdList,
             List< String > filePathList, int writeFileNum )
             throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                ss );
         for ( int i = 0; i < writeFileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setAuthor( author );
@@ -140,15 +140,15 @@ public class ComprehensiveReadFile735 extends TestScmBase {
     private void readFile( ScmSession ss, List< ScmId > fileIdList,
             List< String > filePathList ) throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             for ( int i = 0; i < fileIdList.size(); ++i ) {
-                ScmFile scmfile = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 scmfile.getContent( downloadPath );
 
                 Assert.assertEquals( TestTools.getMD5( filePathList.get( i ) ),

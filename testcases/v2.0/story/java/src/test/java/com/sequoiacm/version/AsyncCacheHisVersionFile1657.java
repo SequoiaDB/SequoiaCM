@@ -21,8 +21,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:update Content of the current scm file, than ayncCache the
- * history version file
- * testlink-case:SCM-1657
+ * history version file testlink-case:SCM-1657
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -64,7 +63,7 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
         int historyVersion = 1;
         asyncCacheCurrentVersionFile( historyVersion );
 
-        //check the history file data and siteinfo
+        // check the history file data and siteinfo
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.waitAsyncTaskFinished( wsM, fileId, historyVersion,
                 expHisSiteList.length );
@@ -72,7 +71,7 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
                 filedata );
 
-        //check the currentVersion file only on the rootSite
+        // check the currentVersion file only on the rootSite
         SiteWrapper[] expCurSiteList = { rootSite };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
     }
@@ -98,8 +97,8 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
             // cache
             ScmFactory.File.asyncCache( wsA, fileId, majorVersion, 0 );
         } catch ( ScmException e ) {
-            Assert.fail( "asynccAche file fail!" + e.getErrorCode() +
-                    e.getStackTrace() );
+            Assert.fail( "asynccAche file fail!" + e.getErrorCode()
+                    + e.getStackTrace() );
         }
     }
 }

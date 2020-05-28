@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1148 :: 文件夹移动到当前父级同级文件夹 
+ * @Description:SCM-1148 :: 文件夹移动到当前父级同级文件夹
  * @author fanyu
  * @Date:2018年4月24日
  * @version:1.0
@@ -43,8 +43,8 @@ public class MoveDirToGrandParent1148 extends TestScmBase {
     private SiteWrapper site;
     private WsWrapper wsp;
     private String dirBasePath = "/MoveDirToGrandParent1148";
-    private String fullPath1 =
-            dirBasePath + "/1148_b/1148_c/1148_d/1148_e/1148_f";
+    private String fullPath1 = dirBasePath
+            + "/1148_b/1148_c/1148_d/1148_e/1148_f";
     private String author = "MoveDirToGrandParent1148";
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
@@ -70,15 +70,15 @@ public class MoveDirToGrandParent1148 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            ScmDirectory srcDir = ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1148_b/1148_c/1148_d" );
+            ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1148_b/1148_c/1148_d" );
             createFile( ws, srcDir );
             // eg:dirBasePath + "/b/d/e" mv d to dirBasePath + "/b/c" dir
-            srcDir.move( ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1148_b" ) );
+            srcDir.move( ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1148_b" ) );
             // check sub path
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1148_b/1148_d" );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1148_b/1148_d" );
             check( fileIdList.get( 0 ), dir, ws );
             createFile( ws, dir );
         } catch ( ScmException e ) {
@@ -149,8 +149,8 @@ public class MoveDirToGrandParent1148 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -180,4 +180,3 @@ public class MoveDirToGrandParent1148 extends TestScmBase {
         return pathList;
     }
 }
-

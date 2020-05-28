@@ -16,7 +16,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @Description: SCM-1899 :: ScmFactory. Class.listInstance()参数校验 
+ * @Description: SCM-1899 :: ScmFactory. Class.listInstance()参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0

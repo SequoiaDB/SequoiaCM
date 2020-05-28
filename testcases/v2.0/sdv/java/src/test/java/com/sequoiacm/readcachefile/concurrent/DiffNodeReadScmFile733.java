@@ -55,10 +55,10 @@ public class DiffNodeReadScmFile733 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -163,9 +163,9 @@ public class DiffNodeReadScmFile733 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 Assert.assertEquals( TestTools.getMD5( filePath ),
                         TestTools.getMD5( downloadPath ) );

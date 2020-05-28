@@ -32,10 +32,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-240:A中心写文件，B中心调用read 偏移+长度分批读取文件
- * 				 1、分中心A写文件 
- * 				 2、分中心B seek文件,seek!=0 
- *               3、调用read(byte[]b, int off, int len)读取文件, eg:off=0
+ * @Testcase: SCM-240:A中心写文件，B中心调用read 偏移+长度分批读取文件 1、分中心A写文件 2、分中心B
+ *            seek文件,seek!=0 3、调用read(byte[]b, int off, int len)读取文件, eg:off=0
  * @author huangxiaoni init
  * @date 2017.5.5
  * @modified By wuyan
@@ -61,10 +59,10 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -115,19 +113,18 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
         try {
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
 
-            in = ScmFactory.File
-                    .createInputStream( InputStreamType.SEEKABLE, scmfile );
+            in = ScmFactory.File.createInputStream( InputStreamType.SEEKABLE,
+                    scmfile );
             in.seek( SeekType.SCM_FILE_SEEK_SET, seekSize );
             this.readScmFileByOff( in, downloadPath );
 
             // check results
-            String tmpPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String tmpPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
             TestTools.LocalFile.readFile( filePath, seekSize, tmpPath );
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( tmpPath ) );

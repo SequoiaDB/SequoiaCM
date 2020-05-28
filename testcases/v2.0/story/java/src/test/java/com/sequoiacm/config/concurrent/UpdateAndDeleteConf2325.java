@@ -41,10 +41,10 @@ public class UpdateAndDeleteConf2325 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -64,14 +64,14 @@ public class UpdateAndDeleteConf2325 extends TestScmBase {
 
         update();
 
-        //check local configuration
+        // check local configuration
         Map< String, String > map = new HashMap< String, String >();
         map.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
         map.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
         for ( NodeWrapper node : site.getNodes( site.getNodeNum() ) ) {
             ConfUtil.checkUpdatedConf( node.getUrl(), map );
         }
-        //check updated conf take effect
+        // check updated conf take effect
         ConfUtil.checkTakeEffect( site, fileName );
     }
 
@@ -92,8 +92,8 @@ public class UpdateAndDeleteConf2325 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                             "LOCAL" )
                     .build();
-            actResult = ScmSystem.Configuration
-                    .setConfigProperties( session, confProp );
+            actResult = ScmSystem.Configuration.setConfigProperties( session,
+                    confProp );
         } finally {
             if ( session != null ) {
                 session.close();

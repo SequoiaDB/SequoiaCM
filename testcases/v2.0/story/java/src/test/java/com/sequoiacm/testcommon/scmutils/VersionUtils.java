@@ -47,8 +47,8 @@ public class VersionUtils extends TestScmBase {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
                 throw new SkipException(
-                        "breakpoint file only support sequoiadb datasourse, " +
-                                "skip!" );
+                        "breakpoint file only support sequoiadb datasourse, "
+                                + "skip!" );
             }
         }
     }
@@ -91,8 +91,7 @@ public class VersionUtils extends TestScmBase {
      * @throws ScmException
      */
     public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName )
-            throws ScmException {
+            byte[] data, String authorName ) throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         new Random().nextBytes( data );
         file.setContent( new ByteArrayInputStream( data ) );
@@ -140,8 +139,7 @@ public class VersionUtils extends TestScmBase {
      * @throws ScmException
      */
     public static ScmId createFileByFile( ScmWorkspace ws, String fileName,
-            String filePath, String authorName )
-            throws ScmException {
+            String filePath, String authorName ) throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( filePath );
         file.setFileName( fileName );
@@ -158,8 +156,8 @@ public class VersionUtils extends TestScmBase {
     public static ScmBreakpointFile createBreakpointFileByStream(
             ScmWorkspace ws, String fileName, byte[] data )
             throws ScmException {
-        ScmBreakpointFile sbFile = ScmFactory.BreakpointFile
-                .createInstance( ws, fileName );
+        ScmBreakpointFile sbFile = ScmFactory.BreakpointFile.createInstance( ws,
+                fileName );
         sbFile.upload( new ByteArrayInputStream( data ) );
         return sbFile;
     }
@@ -168,8 +166,7 @@ public class VersionUtils extends TestScmBase {
      * updateContent File by the local file
      */
     public static void updateContentByFile( ScmWorkspace ws, String fileName,
-            ScmId fileId, String filePath )
-            throws ScmException {
+            ScmId fileId, String filePath ) throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.updateContent( filePath );
         file.setFileName( fileName );
@@ -189,10 +186,9 @@ public class VersionUtils extends TestScmBase {
      * check the file context by stream
      */
     public static void CheckFileContentByStream( ScmWorkspace ws,
-            String fileName, int version, byte[] filedata )
-            throws Exception {
-        ScmFile file = ScmFactory.File
-                .getInstanceByPath( ws, fileName, version, 0 );
+            String fileName, int version, byte[] filedata ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstanceByPath( ws, fileName, version,
+                0 );
         // down file
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );
@@ -218,12 +214,10 @@ public class VersionUtils extends TestScmBase {
                         "the path can not use: " + workDirPath );
 
             String callerClassName = getCallerName();
-            File fileActual = new File(
-                    workDirPath + File.separator + callerClassName +
-                            "_actual" );
-            File fileExpect = new File(
-                    workDirPath + File.separator + callerClassName +
-                            "_expect" );
+            File fileActual = new File( workDirPath + File.separator
+                    + callerClassName + "_actual" );
+            File fileExpect = new File( workDirPath + File.separator
+                    + callerClassName + "_expect" );
             try {
                 if ( fileActual.exists() ) {
                     fileActual.delete();
@@ -235,18 +229,18 @@ public class VersionUtils extends TestScmBase {
                 }
 
                 try ( FileOutputStream out = new FileOutputStream(
-                        fileActual ) ) {
+                        fileActual )) {
                     out.write( actual );
                     out.flush();
                 }
                 try ( FileOutputStream out = new FileOutputStream(
-                        fileExpect ) ) {
+                        fileExpect )) {
                     out.write( expect );
                     out.flush();
                 }
 
-                Assert.fail( msg + "; data is written into files in " +
-                        workDirPath );
+                Assert.fail( msg + "; data is written into files in "
+                        + workDirPath );
             } catch ( FileNotFoundException e ) {
                 e.printStackTrace();
             } catch ( IOException e ) {
@@ -275,14 +269,12 @@ public class VersionUtils extends TestScmBase {
      * check the file context by file,, use fileName
      */
     public static void CheckFileContentByFile( ScmWorkspace ws, String fileName,
-            int version, String filePath,
-            File localPath ) throws Exception {
-        ScmFile file = ScmFactory.File
-                .getInstanceByPath( ws, fileName, version, 0 );
+            int version, String filePath, File localPath ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstanceByPath( ws, fileName, version,
+                0 );
         // down file
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
@@ -295,13 +287,11 @@ public class VersionUtils extends TestScmBase {
      * check the file context by file, use fileId
      */
     public static void CheckFileContentByFile( ScmWorkspace ws, ScmId fileId,
-            int version, String filePath,
-            File localPath ) throws Exception {
+            int version, String filePath, File localPath ) throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId, version, 0 );
         // down file
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
@@ -350,10 +340,9 @@ public class VersionUtils extends TestScmBase {
      * @throws ScmException
      */
     public static void checkSite( ScmWorkspace ws, ScmId fileId,
-            int major_version, SiteWrapper[] expSites )
-            throws ScmException {
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, major_version, 0 );
+            int major_version, SiteWrapper[] expSites ) throws ScmException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, major_version,
+                0 );
 
         // sort the actual siteId
         int actSiteNum = file.getLocationList().size();
@@ -374,37 +363,35 @@ public class VersionUtils extends TestScmBase {
             expIdList.add( expSites[ i ].getSiteId() );
         }
         Collections.sort( expIdList );
-        Assert.assertEquals( actIdList, expIdList,
-                "actsiteId:" + actIdList.toString() + ";expsiteId:" +
-                        expIdList.toString() );
+        Assert.assertEquals( actIdList, expIdList, "actsiteId:"
+                + actIdList.toString() + ";expsiteId:" + expIdList.toString() );
 
     }
 
     public static void checkScheTaskFileSites( ScmWorkspace ws,
-            List< ScmId > fileIds, int major_version,
-            SiteWrapper[] expSites ) throws Exception {
+            List< ScmId > fileIds, int major_version, SiteWrapper[] expSites )
+            throws Exception {
         checkScheTaskFileSites( ws, fileIds, major_version, 0, fileIds.size(),
                 expSites, defaultTimeOut );
     }
 
     public static void checkScheTaskFileSites( ScmWorkspace ws,
-            List< ScmId > fileIds, int major_version,
-            SiteWrapper[] expSites, int timeOutSec ) throws Exception {
+            List< ScmId > fileIds, int major_version, SiteWrapper[] expSites,
+            int timeOutSec ) throws Exception {
         checkScheTaskFileSites( ws, fileIds, major_version, 0, fileIds.size(),
                 expSites, timeOutSec );
     }
 
     public static void checkScheTaskFileSites( ScmWorkspace ws,
-            List< ScmId > fileIds, int major_version, int startNum,
-            int endNum, SiteWrapper[] expSites ) throws Exception {
+            List< ScmId > fileIds, int major_version, int startNum, int endNum,
+            SiteWrapper[] expSites ) throws Exception {
         checkScheTaskFileSites( ws, fileIds, major_version, startNum, endNum,
                 expSites, defaultTimeOut );
     }
 
     public static void checkScheTaskFileSites( ScmWorkspace ws,
-            List< ScmId > fileIds, int major_version, int startNum,
-            int endNum, SiteWrapper[] expSites, int timeOutSec )
-            throws Exception {
+            List< ScmId > fileIds, int major_version, int startNum, int endNum,
+            SiteWrapper[] expSites, int timeOutSec ) throws Exception {
         ScmId fileId = null;
         for ( int i = startNum; i < endNum; i++ ) {
             fileId = fileIds.get( i );
@@ -417,16 +404,17 @@ public class VersionUtils extends TestScmBase {
                             expSites );
                     break;
                 } catch ( Exception e ) {
-                    if ( e.getMessage() != null &&
-                            e.getMessage().contains( "Failed to check siteNum" )
+                    if ( e.getMessage() != null
+                            && e.getMessage()
+                                    .contains( "Failed to check siteNum" )
                             && retryTimes < maxRetryTimes ) {
                         Thread.sleep( sleepTime );
                         retryTimes++;
                     } else {
                         TestSdbTools.Task.printlnTaskInfos();
                         throw new Exception(
-                                "failed to wait task finished, " + "fileId = " +
-                                        fileId + ", " + e.getMessage() );
+                                "failed to wait task finished, " + "fileId = "
+                                        + fileId + ", " + e.getMessage() );
                     }
                 }
             }
@@ -443,10 +431,9 @@ public class VersionUtils extends TestScmBase {
      * @throws Exception
      */
     public static void checkScheduleFileSite( ScmWorkspace ws, ScmId fileId,
-            int major_version, SiteWrapper[] expSites )
-            throws Exception {
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, major_version, 0 );
+            int major_version, SiteWrapper[] expSites ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, major_version,
+                0 );
         int actSiteNum = file.getLocationList().size();
         List< Integer > actIdList = new ArrayList<>();
         for ( int i = 0; i < actSiteNum; i++ ) {
@@ -463,20 +450,17 @@ public class VersionUtils extends TestScmBase {
         Collections.sort( expIdList );
         // sort the actual siteId
         if ( actSiteNum != expSites.length ) {
-            throw new Exception(
-                    "Failed to check siteNum, ws = " + ws.getName() +
-                            ", fileId = " + fileId.get()
-                            + ", expSiteNum = " + expSites.length +
-                            ", actSiteNum = " + actSiteNum
-                            + ", actsiteId:" + actIdList.toString() +
-                            ";expsiteId:" + expIdList.toString() );
+            throw new Exception( "Failed to check siteNum, ws = " + ws.getName()
+                    + ", fileId = " + fileId.get() + ", expSiteNum = "
+                    + expSites.length + ", actSiteNum = " + actSiteNum
+                    + ", actsiteId:" + actIdList.toString() + ";expsiteId:"
+                    + expIdList.toString() );
         }
         if ( !actIdList.equals( expIdList ) ) {
-            throw new Exception(
-                    "Failed to check siteId, ws = " + ws.getName() +
-                            ", fileId = " + fileId.get()
-                            + ", actsiteId:" + actIdList.toString() +
-                            ";expsiteId:" + expIdList.toString() );
+            throw new Exception( "Failed to check siteId, ws = " + ws.getName()
+                    + ", fileId = " + fileId.get() + ", actsiteId:"
+                    + actIdList.toString() + ";expsiteId:"
+                    + expIdList.toString() );
         }
     }
 
@@ -505,8 +489,8 @@ public class VersionUtils extends TestScmBase {
      */
     public static void checkFileVersion( ScmWorkspace ws, ScmId fileId,
             int majorVersion ) throws ScmException {
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, majorVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, majorVersion,
+                0 );
         int fileVersion = file.getMajorVersion();
         Assert.assertEquals( fileVersion, majorVersion );
     }
@@ -537,8 +521,7 @@ public class VersionUtils extends TestScmBase {
      * @throws Exception
      */
     public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int version, int expSiteNum )
-            throws Exception {
+            int version, int expSiteNum ) throws Exception {
         waitAsyncTaskFinished( ws, fileId, version, expSiteNum,
                 defaultTimeOut );
     }
@@ -555,14 +538,14 @@ public class VersionUtils extends TestScmBase {
      * @throws Exception
      */
     public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int majorVersion, int expSiteNum,
-            int timeOutSec ) throws Exception {
+            int majorVersion, int expSiteNum, int timeOutSec )
+            throws Exception {
         int sleepTime = 200; // millisecond
         int maxRetryTimes = timeOutSec * 1000 / sleepTime;
         int retryTimes = 0;
         while ( true ) {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileId, majorVersion, 0 );
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
+                    majorVersion, 0 );
             int size = file.getLocationList().size();
             if ( size == expSiteNum ) {
                 break;
@@ -585,8 +568,7 @@ public class VersionUtils extends TestScmBase {
      * @return asyncTask success file version
      */
     public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
-            int version, int expSiteNum )
-            throws Exception {
+            int version, int expSiteNum ) throws Exception {
         return waitAsyncTaskFinished2( ws, fileId, version, expSiteNum,
                 defaultTimeOut );
     }
@@ -605,15 +587,15 @@ public class VersionUtils extends TestScmBase {
      * @return asyncTask success file version
      */
     public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
-            int majorVersion, int expSiteNum,
-            int timeOutSec ) throws Exception {
+            int majorVersion, int expSiteNum, int timeOutSec )
+            throws Exception {
         int sleepTime = 200; // millisecond
         int maxRetryTimes = timeOutSec * 1000 / sleepTime;
         int retryTimes = 0;
         int asyncVersion = 1;
         while ( true ) {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileId, majorVersion, 0 );
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
+                    majorVersion, 0 );
             int size = file.getLocationList().size();
             if ( size == expSiteNum ) {
                 asyncVersion = majorVersion;
@@ -622,8 +604,8 @@ public class VersionUtils extends TestScmBase {
                 throw new Exception( "wait async task, retry failed." );
             }
             try {
-                file = ScmFactory.File
-                        .getInstance( ws, fileId, majorVersion + 1, 0 );
+                file = ScmFactory.File.getInstance( ws, fileId,
+                        majorVersion + 1, 0 );
                 size = file.getLocationList().size();
                 if ( size == expSiteNum ) {
                     asyncVersion = majorVersion + 1;

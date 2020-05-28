@@ -80,16 +80,16 @@ public class AuthServer_user1554 extends TestScmBase {
             ScmFactory.User.getUser( session, NAME );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete not exist user, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "delete not exist user, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             ScmFactory.Role.deleteRole( session, NAME );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete not exist role, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "delete not exist role, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;

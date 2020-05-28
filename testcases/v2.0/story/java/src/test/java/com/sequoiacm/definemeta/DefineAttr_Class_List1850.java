@@ -51,8 +51,8 @@ public class DefineAttr_Class_List1850 extends TestScmBase {
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             for ( int i = 0; i < classNum; i++ ) {
-                ScmClass class1 = ScmFactory.Class
-                        .createInstance( ws, classname + "_" + i, desc );
+                ScmClass class1 = ScmFactory.Class.createInstance( ws,
+                        classname + "_" + i, desc );
                 classList.add( class1 );
             }
         } catch ( Exception e ) {
@@ -62,7 +62,7 @@ public class DefineAttr_Class_List1850 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
-        //suport
+        // suport
         BSONObject cond = null;
         try {
             cond = createCond();
@@ -80,7 +80,7 @@ public class DefineAttr_Class_List1850 extends TestScmBase {
             Assert.fail( e.getMessage() );
         }
 
-        //does not support
+        // does not support
         BSONObject matcher = new BasicBSONObject();
         BSONObject submatcher = new BasicBSONObject();
         submatcher.put( "$regex1", "*List1850" );
@@ -138,7 +138,8 @@ public class DefineAttr_Class_List1850 extends TestScmBase {
                         .start( ScmAttributeName.Class.DESCRIPTION )
                         .is( desc + "_1" ).get() )
                 .or( ScmQueryBuilder.start( ScmAttributeName.Class.DESCRIPTION )
-                        .in( desc ).get() ).get();
+                        .in( desc ).get() )
+                .get();
         return cond;
     }
 }

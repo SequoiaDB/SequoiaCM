@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1144 :: 重命名文件夹，其它文件夹下重名 
+ * @Description: SCM-1144 :: 重命名文件夹，其它文件夹下重名
  * @author fanyu
  * @Date:2018年4月24日
  * @version:1.0
@@ -59,9 +59,9 @@ public class RenameDirOnOtherHasSame1144 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //create test dir
-        ScmDirectory dir = ScmFactory.Directory
-                .createInstance( ws, dirBasePath + "/" + eleName2 );
+        // create test dir
+        ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                dirBasePath + "/" + eleName2 );
         createSubDirAndFile( ws, dir );
         newName = eleName1 + "_1";
         dir.rename( newName );
@@ -144,8 +144,8 @@ public class RenameDirOnOtherHasSame1144 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -175,4 +175,3 @@ public class RenameDirOnOtherHasSame1144 extends TestScmBase {
         return pathList;
     }
 }
-

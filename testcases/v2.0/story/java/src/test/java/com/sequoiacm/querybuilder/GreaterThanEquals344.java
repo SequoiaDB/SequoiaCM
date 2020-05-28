@@ -79,14 +79,14 @@ public class GreaterThanEquals344 extends TestScmBase {
                     .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
                     .get();
 
-            String expCond = "{ \"" + key + "\" : { \"$gte\" : " + value + "}" +
-                    " , \"author\" : \"" + author + "\"}";
+            String expCond = "{ \"" + key + "\" : { \"$gte\" : " + value + "}"
+                    + " , \"author\" : \"" + author + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess1 = true;
@@ -104,18 +104,16 @@ public class GreaterThanEquals344 extends TestScmBase {
 
             BSONObject cond = ScmQueryBuilder.start( key )
                     .greaterThanEquals( value ).put( "k2" )
-                    .greaterThanEquals( " " )
-                    .get();
+                    .greaterThanEquals( " " ).get();
 
-            String expCond =
-                    "{ \"" + key + "\" : { \"$gte\" : " + value + "} , " +
-                            "\"k2\" : { \"$gte\" : \" \"}}";
+            String expCond = "{ \"" + key + "\" : { \"$gte\" : " + value
+                    + "} , " + "\"k2\" : { \"$gte\" : \" \"}}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;

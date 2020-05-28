@@ -66,10 +66,10 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -97,7 +97,7 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }) //bug:315
+    @Test(groups = { "fourSite" }) // bug:315
     private void test() throws Exception {
         try {
             fileId = ScmFileUtils.create( wsA, fileName, filePath );
@@ -148,28 +148,27 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
 
         // check mete and data
         SiteWrapper[] expSites = { rootSite, branSites.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
 
         // check siteA'lastAccessTime, siteM'time is newly generated
         long preTimeA = 0;
         for ( int i = 0; i < preSiteInfoList.size(); i++ ) {
-            if ( preSiteInfoList.get( i ).getSiteId() ==
-                    branSites.get( 0 ).getSiteId() ) {
+            if ( preSiteInfoList.get( i ).getSiteId() == branSites.get( 0 )
+                    .getSiteId() ) {
                 preTimeA = preSiteInfoList.get( i ).getDate().getTime();
             }
         }
         long aftTimeA = 0;
         for ( int i = 0; i < aftSiteInfoList.size(); i++ ) {
-            if ( aftSiteInfoList.get( i ).getSiteId() ==
-                    branSites.get( 0 ).getSiteId() ) {
+            if ( aftSiteInfoList.get( i ).getSiteId() == branSites.get( 0 )
+                    .getSiteId() ) {
                 aftTimeA = aftSiteInfoList.get( i ).getDate().getTime();
             }
         }
         if ( !( preTimeA < aftTimeA ) ) {
-            Assert.fail(
-                    "failed to check lastAccessTime, preTimeA=" + preTimeA +
-                            ", aftTimeA=" + aftTimeA );
+            Assert.fail( "failed to check lastAccessTime, preTimeA=" + preTimeA
+                    + ", aftTimeA=" + aftTimeA );
         }
     }
 
@@ -207,31 +206,31 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
         long preTimeA = 0;
         long preTimeM = 0;
         for ( int i = 0; i < preSiteInfoList.size(); i++ ) {
-            if ( preSiteInfoList.get( i ).getSiteId() ==
-                    branSites.get( 0 ).getSiteId() ) {
+            if ( preSiteInfoList.get( i ).getSiteId() == branSites.get( 0 )
+                    .getSiteId() ) {
                 preTimeA = preSiteInfoList.get( i ).getDate().getTime();
             }
-            if ( preSiteInfoList.get( i ).getSiteId() ==
-                    rootSite.getSiteId() ) {
+            if ( preSiteInfoList.get( i ).getSiteId() == rootSite
+                    .getSiteId() ) {
                 preTimeM = preSiteInfoList.get( i ).getDate().getTime();
             }
         }
         long aftTimeA = 0;
         long aftTimeM = 0;
         for ( int i = 0; i < aftSiteInfoList.size(); i++ ) {
-            if ( aftSiteInfoList.get( i ).getSiteId() ==
-                    branSites.get( 0 ).getSiteId() ) {
+            if ( aftSiteInfoList.get( i ).getSiteId() == branSites.get( 0 )
+                    .getSiteId() ) {
                 aftTimeA = aftSiteInfoList.get( i ).getDate().getTime();
             }
-            if ( aftSiteInfoList.get( i ).getSiteId() ==
-                    rootSite.getSiteId() ) {
+            if ( aftSiteInfoList.get( i ).getSiteId() == rootSite
+                    .getSiteId() ) {
                 aftTimeM = aftSiteInfoList.get( i ).getDate().getTime();
             }
         }
         if ( !( preTimeA == aftTimeA && preTimeM < aftTimeM ) ) {
-            Assert.fail( "failed to check lastAccessTime, " + "preTimeA=" +
-                    preTimeA + ", aftTimeA=" + aftTimeA + ", "
-                    + "preTimeM=" + preTimeM + ", aftTimeM=" + aftTimeM );
+            Assert.fail( "failed to check lastAccessTime, " + "preTimeA="
+                    + preTimeA + ", aftTimeA=" + aftTimeA + ", " + "preTimeM="
+                    + preTimeM + ", aftTimeM=" + aftTimeM );
         }
     }
 
@@ -241,9 +240,9 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
         try {
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( file );
             sis.read( fos );

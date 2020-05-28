@@ -76,8 +76,8 @@ public class Clean_param_startCleanTask484 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWSNoExist() throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( "ws_1", sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( "ws_1",
+                    sessionA );
             ScmSystem.Task.startCleanTask( ws, cond );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );

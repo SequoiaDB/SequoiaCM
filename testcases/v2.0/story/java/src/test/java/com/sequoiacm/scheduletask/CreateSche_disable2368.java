@@ -52,10 +52,10 @@ public class CreateSche_disable2368 extends TestScmBase {
         this.checkScheduleTaskInfo();
         BSONObject bson = ScmQueryBuilder.start( ScmAttributeName.Schedule.ID )
                 .is( scheduleId.get() ).get();
-        //make sure the schedule is disabled
+        // make sure the schedule is disabled
         for ( int i = 0; i < 60; i++ ) {
-            ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                    .listTask( ssA, bson );
+            ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                    bson );
             Assert.assertFalse( cursor.hasNext() );
         }
     }

@@ -40,35 +40,34 @@ public class DefineAttr_class1936 extends TestScmBase {
     private ScmId batchId = null;
     private String className = "class1936";
     private ScmId scmClassId = null;
-    private ArrayList< ScmAttribute > attrList = new ArrayList< ScmAttribute
-            >();
+    private ArrayList< ScmAttribute > attrList = new ArrayList< ScmAttribute >();
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        String attrStr1 = "{name:'attr1936_string', " +
-                "display_name:'dispalyName1936_1', description:'I am a " +
-                "Attribute 1936_1', type:'STRING', required:true}";
-        String attrStr2 = "{name:'attr1936_date', " +
-                "display_name:'dispalyName1936_2', description:'I am a " +
-                "Attribute 1936_2', type:'STRING', required:false}";
-        String attrStr3 = "{name:'attr1936_double', " +
-                "display_name:'dispalyName1936_3', description:'中文', " +
-                "type:'DOUBLE', required:true}";
+        String attrStr1 = "{name:'attr1936_string', "
+                + "display_name:'dispalyName1936_1', description:'I am a "
+                + "Attribute 1936_1', type:'STRING', required:true}";
+        String attrStr2 = "{name:'attr1936_date', "
+                + "display_name:'dispalyName1936_2', description:'I am a "
+                + "Attribute 1936_2', type:'STRING', required:false}";
+        String attrStr3 = "{name:'attr1936_double', "
+                + "display_name:'dispalyName1936_3', description:'中文', "
+                + "type:'DOUBLE', required:true}";
 
         attrList.add( createAttr( attrStr1 ) );
         attrList.add( createAttr( attrStr2 ) );
         attrList.add( createAttr( attrStr3 ) );
 
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1388" );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1388" );
         scmClassId = scmClass.getId();
 
         for ( ScmAttribute attribute : attrList ) {
@@ -100,8 +99,8 @@ public class DefineAttr_class1936 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Class.deleteInstance( ws, scmClassId );
                 for ( ScmAttribute attribute : attrList ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attribute.getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attribute.getId() );
                 }
                 ScmFactory.Batch.deleteInstance( ws, batchId );
             }
@@ -135,8 +134,8 @@ public class DefineAttr_class1936 extends TestScmBase {
                 expBatch.getTags().toString() );
         Assert.assertEquals( batch.getClassId(), expBatch.getClassId() );
 
-        ScmClass scmClass = ScmFactory.Class
-                .getInstance( ws, batch.getClassId() );
+        ScmClass scmClass = ScmFactory.Class.getInstance( ws,
+                batch.getClassId() );
         List< ScmAttribute > actAttrList = scmClass.listAttrs();
 
         Assert.assertEquals( actAttrList.size(), expAttrList.size() );
@@ -150,9 +149,8 @@ public class DefineAttr_class1936 extends TestScmBase {
                     break;
                 }
             }
-            Assert.assertTrue( result,
-                    "exp: " + expAttrList.toString() + ";   act: " +
-                            actAttrList.toString() );
+            Assert.assertTrue( result, "exp: " + expAttrList.toString()
+                    + ";   act: " + actAttrList.toString() );
         }
     }
 

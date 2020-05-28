@@ -28,10 +28,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of  the same file concurrently,two ways of
- * concurrent:
- *               a.update content by file
- *               b.update content by breakpointfile
+ * test content: update Content of the same file concurrently,two ways of
+ * concurrent: a.update content by file b.update content by breakpointfile
  * testlink-case:SCM-1689
  *
  * @author wuyan
@@ -59,10 +57,10 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         VersionUtils.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, FILE_SIZE );
@@ -76,8 +74,8 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -86,8 +84,7 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
         byte[] updateData = new byte[ updateSize ];
 
         createBreakPointFile( wsA, updateData );
-        UpdateContentByBreakpointFile updateByBreakpointFile = new
-                UpdateContentByBreakpointFile();
+        UpdateContentByBreakpointFile updateByBreakpointFile = new UpdateContentByBreakpointFile();
         UpdateContentByFile updateByFile = new UpdateContentByFile();
         updateByBreakpointFile.start();
         updateByFile.start();
@@ -100,15 +97,15 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                         .get( 0 );
                 Assert.assertEquals( e.getError(),
                         ScmError.FILE_VERSION_MISMATCHING,
-                        "updateContent by file fail:" +
-                                updateByFile.getErrorMsg() );
+                        "updateContent by file fail:"
+                                + updateByFile.getErrorMsg() );
                 checkUpdateByBreakpointfileResult( wsM, updateData );
             } else if ( updateByFile.isSuccess() ) {
                 checkAllUpdateContentResult( wsM, updateData );
             } else {
                 Assert.fail(
-                        "the results can only by updated successfully or one " +
-                                "update succeeds" );
+                        "the results can only by updated successfully or one "
+                                + "update succeeds" );
             }
         } else if ( !updateByBreakpointFile.isSuccess() ) {
             Assert.assertTrue( updateByFile.isSuccess(),
@@ -117,8 +114,8 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                     .getExceptions().get( 0 );
             Assert.assertEquals( e.getError(),
                     ScmError.FILE_VERSION_MISMATCHING,
-                    "updateContent by breakpointfile fail:" +
-                            updateByBreakpointFile.getErrorMsg() );
+                    "updateContent by breakpointfile fail:"
+                            + updateByBreakpointFile.getErrorMsg() );
             checkUpdateByFileResult( wsM );
             ScmFactory.BreakpointFile.deleteInstance( wsA, fileName );
         }
@@ -151,16 +148,16 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
     private void checkAllUpdateContentResult( ScmWorkspace ws,
             byte[] updatedata ) throws Exception {
         int historyVersion1 = 1;
-        //first updateContent version
+        // first updateContent version
         int historyVersion2 = 2;
-        //second updateContent version
+        // second updateContent version
         int currentVersion = 3;
 
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, currentVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, currentVersion,
+                0 );
         long fileSize = file.getSize();
 
-        //check the updateContent
+        // check the updateContent
         if ( fileSize == updatedata.length ) {
             VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
                     updatedata );
@@ -169,13 +166,12 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
         } else if ( fileSize == FILE_SIZE ) {
             VersionUtils.CheckFileContentByFile( ws, fileId, currentVersion,
                     filePath, localPath );
-            VersionUtils
-                    .CheckFileContentByStream( ws, fileName, historyVersion2,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( ws, fileName,
+                    historyVersion2, updatedata );
         } else {
             Assert.fail( "update file content is error!" );
         }
-        //check the write content
+        // check the write content
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion1,
                 writeData );
     }
@@ -189,14 +185,14 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 writeData );
 
-        //check the breakpoint is not exist
+        // check the breakpoint is not exist
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -204,9 +200,8 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
     private void checkUpdateByFileResult( ScmWorkspace ws ) throws Exception {
         int historyVersion = 1;
         int currentVersion = 2;
-        VersionUtils
-                .CheckFileContentByFile( ws, fileId, currentVersion, filePath,
-                        localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileId, currentVersion,
+                filePath, localPath );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 writeData );
     }
@@ -219,8 +214,8 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                 session = TestScmTools.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                VersionUtils
-                        .updateContentByFile( ws, fileName, fileId, filePath );
+                VersionUtils.updateContentByFile( ws, fileName, fileId,
+                        filePath );
             } finally {
                 if ( session != null ) {
                     session.close();

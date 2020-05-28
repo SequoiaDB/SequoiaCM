@@ -50,7 +50,7 @@ public class CountBatch2596 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //prepare batch
+        // prepare batch
         for ( int i = 0; i < batchNum; i++ ) {
             String batchName = batchNamePrefix + "-" + i;
             ScmBatch scmBatch = ScmFactory.Batch.createInstance( ws );
@@ -134,4 +134,3 @@ public class CountBatch2596 extends TestScmBase {
         }
     }
 }
-

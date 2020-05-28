@@ -25,8 +25,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:delete the same breakpoint file concurrently
- * testlink case:seqDB-1398
+ * test content:delete the same breakpoint file concurrently testlink
+ * case:seqDB-1398
+ * 
  * @author wuyan
  * @Date 2018.05.22
  * @version 1.00
@@ -47,10 +48,10 @@ public class DeleteSameBreakpointFile1398 extends TestScmBase {
     @BeforeClass
     private void setUp() {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -71,12 +72,11 @@ public class DeleteSameBreakpointFile1398 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
 
-        DeleteBreakpointFileThread deleteBreakpointFile = new
-                DeleteBreakpointFileThread();
+        DeleteBreakpointFileThread deleteBreakpointFile = new DeleteBreakpointFileThread();
         deleteBreakpointFile.start( 10 );
         Assert.assertTrue( deleteBreakpointFile.isSuccess(),
                 deleteBreakpointFile.getErrorMsg() );
-        //delete the same breakpointfile only one success
+        // delete the same breakpointfile only one success
         int expSuccessNum = 1;
         Assert.assertEquals( sameDeleteOKCount.get(), expSuccessNum );
         checkResult();
@@ -104,14 +104,14 @@ public class DeleteSameBreakpointFile1398 extends TestScmBase {
     }
 
     private void checkResult() throws Exception {
-        //the breakpointfile is not exist
+        // the breakpointfile is not exist
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -126,13 +126,12 @@ public class DeleteSameBreakpointFile1398 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
 
-                //recorded the numbers of upload file successful
+                // recorded the numbers of upload file successful
                 sameDeleteOKCount.getAndIncrement();
             } catch ( ScmException e ) {
                 if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                    Assert.fail(
-                            "expErrorCode:-262  actError:" + e.getErrorCode() +
-                                    ":" + e.getMessage() );
+                    Assert.fail( "expErrorCode:-262  actError:"
+                            + e.getErrorCode() + ":" + e.getMessage() );
                 }
             } finally {
                 if ( session != null ) {

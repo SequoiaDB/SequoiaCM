@@ -73,10 +73,10 @@ public class AuthDir_All1728 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -99,10 +99,10 @@ public class AuthDir_All1728 extends TestScmBase {
     private void testCreateDir() {
         String subpath = path + "/1726_D";
         try {
-            ScmDirectory expdir = ScmFactory.Directory
-                    .createInstance( wsALL, subpath );
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsALL, subpath );
+            ScmDirectory expdir = ScmFactory.Directory.createInstance( wsALL,
+                    subpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsALL,
+                    subpath );
             Assert.assertEquals( expdir.getPath(), actdir.getPath() );
             actdir.delete();
         } catch ( ScmException e ) {
@@ -118,8 +118,8 @@ public class AuthDir_All1728 extends TestScmBase {
         String subpath = path + "/1726_E";
         try {
             // create dir
-            ScmDirectory actdir = ScmFactory.Directory
-                    .createInstance( wsALL, subpath );
+            ScmDirectory actdir = ScmFactory.Directory.createInstance( wsALL,
+                    subpath );
             ScmFile file = ScmFactory.File.createInstance( wsALL );
             file.setAuthor( author );
             file.setFileName( fileName );
@@ -127,8 +127,8 @@ public class AuthDir_All1728 extends TestScmBase {
             fileId = file.save();
 
             // check
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsALL, subpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsALL,
+                    subpath );
             ScmFile actfile = dir.getSubfile( fileName );
             Assert.assertEquals( actfile.getDirectory().getPath(),
                     subpath + "/" );
@@ -249,8 +249,8 @@ public class AuthDir_All1728 extends TestScmBase {
         String dirPath = path;
         try { // get dir
             dir = ScmFactory.Directory.getInstance( wsA, dirPath );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionA );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             expfile.setDirectory( dir );
@@ -277,8 +277,8 @@ public class AuthDir_All1728 extends TestScmBase {
         String dirPath = path;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // get dir
             dir = ScmFactory.Directory.getInstance( ws, dirPath );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -311,8 +311,8 @@ public class AuthDir_All1728 extends TestScmBase {
         String dirPath = path;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session ); // get
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session ); // get
             // dir
             dir = ScmFactory.Directory.getInstance( ws, dirPath );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -340,8 +340,8 @@ public class AuthDir_All1728 extends TestScmBase {
     private void testListDir() {
         ScmCursor< ScmDirectory > cursor = null;
         try {
-            cursor = ScmFactory.Directory
-                    .listInstance( wsALL, new BasicBSONObject() );
+            cursor = ScmFactory.Directory.listInstance( wsALL,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -357,8 +357,8 @@ public class AuthDir_All1728 extends TestScmBase {
     private void testListSche() {
         ScmCursor< ScmScheduleBasicInfo > cursor = null;
         try {
-            cursor = ScmSystem.Schedule
-                    .list( sessionALL, new BasicBSONObject() );
+            cursor = ScmSystem.Schedule.list( sessionALL,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -379,13 +379,13 @@ public class AuthDir_All1728 extends TestScmBase {
         String subdirname = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
         try {
-            ScmDirectory srcDir = ScmFactory.Directory
-                    .createInstance( wsALL, srcpath );
-            ScmDirectory dstDir = ScmFactory.Directory
-                    .getInstance( wsALL, dstpath );
+            ScmDirectory srcDir = ScmFactory.Directory.createInstance( wsALL,
+                    srcpath );
+            ScmDirectory dstDir = ScmFactory.Directory.getInstance( wsALL,
+                    dstpath );
             srcDir.move( dstDir );
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsALL, newpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsALL,
+                    newpath );
             Assert.assertEquals( actdir.getPath(), newpath + "/" );
 
             // check dir
@@ -425,8 +425,8 @@ public class AuthDir_All1728 extends TestScmBase {
             dir1.rename( newdirName );
 
             // check dir
-            ScmDirectory actDir = ScmFactory.Directory
-                    .getInstance( wsALL, newpath );
+            ScmDirectory actDir = ScmFactory.Directory.getInstance( wsALL,
+                    newpath );
             Assert.assertEquals( actDir.getPath(), newpath + "/" );
             ScmDirectory subdir = actDir.createSubdirectory( subdirname );
             subdir.delete();
@@ -457,8 +457,8 @@ public class AuthDir_All1728 extends TestScmBase {
         String fileName = author + UUID.randomUUID();
         ScmId fileId = null;
         try {
-            ScmDirectory dir1 = ScmFactory.Directory
-                    .getInstance( wsALL, oldpath );
+            ScmDirectory dir1 = ScmFactory.Directory.getInstance( wsALL,
+                    oldpath );
 
             ScmFile expfile = ScmFactory.File.createInstance( wsALL );
             expfile.setFileName( fileName );
@@ -467,15 +467,15 @@ public class AuthDir_All1728 extends TestScmBase {
             fileId = expfile.save();
 
             // move file
-            ScmFile file = ScmFactory.File
-                    .getInstanceByPath( wsALL, oldpath + "/" + fileName );
-            ScmDirectory newDir = ScmFactory.Directory
-                    .getInstance( wsALL, newpath );
+            ScmFile file = ScmFactory.File.getInstanceByPath( wsALL,
+                    oldpath + "/" + fileName );
+            ScmDirectory newDir = ScmFactory.Directory.getInstance( wsALL,
+                    newpath );
             file.setDirectory( newDir );
 
             // check
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsALL, newpath + "/" + fileName );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsALL,
+                    newpath + "/" + fileName );
             Assert.assertEquals( actfile.getFileName(), expfile.getFileName() );
             Assert.assertEquals( actfile.getDirectory().getPath(),
                     newpath + "/" );
@@ -504,13 +504,13 @@ public class AuthDir_All1728 extends TestScmBase {
             fileId = file.save();
 
             // rename file
-            ScmFile file1 = ScmFactory.File
-                    .getInstanceByPath( wsALL, path + "/" + fileName );
+            ScmFile file1 = ScmFactory.File.getInstanceByPath( wsALL,
+                    path + "/" + fileName );
             file1.setFileName( newFileName );
 
             // check
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsALL, path + "/" + newFileName );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsALL,
+                    path + "/" + newFileName );
             Assert.assertEquals( actfile.getFileName(), newFileName );
             Assert.assertEquals( actfile.getDirectory().getPath(), path + "/" );
         } catch ( ScmException e ) {
@@ -544,8 +544,7 @@ public class AuthDir_All1728 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -571,8 +570,8 @@ public class AuthDir_All1728 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -581,8 +580,8 @@ public class AuthDir_All1728 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -628,15 +627,14 @@ public class AuthDir_All1728 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
-            rs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
-            rs1 = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path1 );
+            rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
+            rs1 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path1 );
             createDir( wsA, path );
             createDir( wsA, path1 );
             grantPriAndAttachRole( sessionA, rs, user, role,
@@ -646,10 +644,10 @@ public class AuthDir_All1728 extends TestScmBase {
 
             ScmAuthUtils.checkPriority( rootsite, username, passwd, role, wsp );
 
-            sessionALL = TestScmTools
-                    .createSession( branchsite, username, passwd );
-            wsALL = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionALL );
+            sessionALL = TestScmTools.createSession( branchsite, username,
+                    passwd );
+            wsALL = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionALL );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

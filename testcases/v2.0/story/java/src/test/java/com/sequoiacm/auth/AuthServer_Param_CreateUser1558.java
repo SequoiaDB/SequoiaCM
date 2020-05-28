@@ -43,9 +43,8 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -55,9 +54,8 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testPasswdIsNull() throws ScmException {
         try {
-            ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_BAD_REQUEST ) {

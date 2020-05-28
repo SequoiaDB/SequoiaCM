@@ -66,10 +66,10 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready local file
             TestTools.LocalFile.removeFile( localPath );
@@ -121,8 +121,8 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
 
             // check task info
             ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-            int totalFileCount = fileIdList1.size() + fileIdList2.size() +
-                    fileIdList3.size() + fileIdList4.size();
+            int totalFileCount = fileIdList1.size() + fileIdList2.size()
+                    + fileIdList3.size() + fileIdList4.size();
             int successFileCount = fileIdList2.size() + fileIdList4.size();
             Assert.assertEquals( taskInfo.getProgress(), 100 );
             Assert.assertEquals( taskInfo.getEstimateCount(), totalFileCount );
@@ -180,43 +180,38 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
         for ( int i = 0; i < fileIdList.size(); i++ ) {
             ScmId fileId = fileIdList.get( i );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         }
     }
 
     private void startTransferTask( ScmSession ss, String fileName )
             throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        siteList.get( 2 ).getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, siteList.get( 2 ).getSiteName() );
     }
 
     private void checkResults() throws Exception {
         SiteWrapper[] expSiteArr1 = { siteList.get( 2 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList1, expSiteArr1, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList1, expSiteArr1,
+                localPath, filePath );
 
         SiteWrapper[] expSiteArr2 = { siteList.get( 2 ), siteList.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList2, expSiteArr2, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList2, expSiteArr2,
+                localPath, filePath );
 
         SiteWrapper[] expSiteArr3 = { siteList.get( 1 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList3, expSiteArr3, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList3, expSiteArr3,
+                localPath, filePath );
 
         SiteWrapper[] expSiteArr4 = { siteList.get( 2 ), siteList.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList4, expSiteArr4, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList4, expSiteArr4,
+                localPath, filePath );
     }
 }

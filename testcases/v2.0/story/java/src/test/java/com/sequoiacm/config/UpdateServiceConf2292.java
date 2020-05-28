@@ -44,13 +44,14 @@ public class UpdateServiceConf2292 extends TestScmBase {
                     .service( site.getSiteServiceName() + "_inexistence" )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.fail(
-                    "update configuration should be failed when servicename " +
-                            "is invalid,actResults = " +
-                            actResults.toString() );
+                    "update configuration should be failed when servicename "
+                            + "is invalid,actResults = "
+                            + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 Assert.fail( e.getMessage() );
@@ -69,13 +70,14 @@ public class UpdateServiceConf2292 extends TestScmBase {
                     .services( serviceList )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.fail(
-                    "update configuration should be failed when servicenames " +
-                            "contains invalid,actResults = " +
-                            actResults.toString() );
+                    "update configuration should be failed when servicenames "
+                            + "contains invalid,actResults = "
+                            + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 Assert.fail( e.getMessage() );

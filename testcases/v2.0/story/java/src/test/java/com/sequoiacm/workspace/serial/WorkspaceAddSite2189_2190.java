@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description WorkspaceAddSite2189.java ws添加已有数据的站点  SCM-2190:ws添加站点
+ * @Description WorkspaceAddSite2189.java ws添加已有数据的站点 SCM-2190:ws添加站点
  * @author luweikang
  * @date 2018年8月28日
  */
@@ -116,4 +116,3 @@ public class WorkspaceAddSite2189_2190 extends TestScmBase {
         }
     }
 }
-

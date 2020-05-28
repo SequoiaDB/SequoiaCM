@@ -54,16 +54,14 @@ public class AuthServer_user_token1808 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             // clean scmFile
             // BSONObject cond =
@@ -79,9 +77,8 @@ public class AuthServer_user_token1808 extends TestScmBase {
     @Test
     private void test() throws ScmException, InterruptedException {
         // create user
-        ScmUser user = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.TOKEN,
-                        PASSWORD );
+        ScmUser user = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.TOKEN, PASSWORD );
         ScmRole role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( NAME );
@@ -104,8 +101,8 @@ public class AuthServer_user_token1808 extends TestScmBase {
             Thread.sleep( 11 * 1000 );
 
             // operation business
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( NAME );
             ScmId fileId = file.save();

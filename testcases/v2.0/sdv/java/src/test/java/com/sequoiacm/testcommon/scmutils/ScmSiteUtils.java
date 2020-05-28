@@ -32,18 +32,15 @@ public class ScmSiteUtils extends TestScmBase {
      *            e.g: -n tsite
      * @param --dstype
      *            e.g: --dstype 1
-     * @param--dsurl
-     *            e.g:ZB-7:11810
-     * @param--dsuser
-     *            e.g:--dsuser sdbadmin
-     * @param--dspasswd
-     *            e.g:--dspsswd sequoiadb
+     * @param--dsurl e.g:ZB-7:11810
+     * @param--dsuser e.g:--dsuser sdbadmin
+     * @param--dspasswd e.g:--dspsswd sequoiadb
      * @return
      * @throws Exception
      */
     public static void createSite( ScmSession session, String siteName,
-            int dstype, String dsurl, String user,
-            String passwd ) throws Exception {
+            int dstype, String dsurl, String user, String passwd )
+            throws Exception {
         Ssh ssh = null;
         try {
             ssh = new Ssh( ScmInfo.getRootSite().getNode().getHost() );
@@ -52,23 +49,20 @@ public class ScmSiteUtils extends TestScmBase {
             String installPath = ssh.getScmInstallDir();
 
             // create workspace
-            String cmd =
-                    installPath + "/bin/scmadmin.sh createsite -n " + siteName +
-                            " --dstype " + dstype
-                            + " --dsurl " + dsurl + " --dsuser " + user +
-                            " --dspasswd " + passwd;
+            String cmd = installPath + "/bin/scmadmin.sh createsite -n "
+                    + siteName + " --dstype " + dstype + " --dsurl " + dsurl
+                    + " --dsuser " + user + " --dspasswd " + passwd;
             ssh.exec( cmd );
             String resultMsg = ssh.getStdout();
             if ( !resultMsg.contains( "success" ) ) {
-                throw new Exception(
-                        "Failed to createsite[" + siteName + "], msg:\n" +
-                                resultMsg );
+                throw new Exception( "Failed to createsite[" + siteName
+                        + "], msg:\n" + resultMsg );
             }
 
             // reloadbizconf after create new workspace
-            List< BSONObject > infoList = ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE,
-                            ScmInfo.getRootSite().getSiteId(), session );
+            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
+                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
+                    session );
             logger.info( "infoList after reloadbizconf: \n" + infoList );
         } finally {
             if ( null != ssh ) {
@@ -90,9 +84,9 @@ public class ScmSiteUtils extends TestScmBase {
                 obj.put( "name", siteName );
                 cl.delete( obj );
             }
-            List< BSONObject > infoList = ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE,
-                            ScmInfo.getRootSite().getSiteId(), session );
+            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
+                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
+                    session );
             logger.info( "infoList after reloadbizconf: \n" + infoList );
         } catch ( BaseException e ) {
             e.printStackTrace();

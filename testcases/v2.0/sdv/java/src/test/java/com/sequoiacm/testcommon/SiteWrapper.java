@@ -30,7 +30,7 @@ public class SiteWrapper {
     }
 
     public String getSiteServiceName() {
-        //return  serviceNameMap.get(getSiteId());
+        // return serviceNameMap.get(getSiteId());
         this.serviceName = getSiteName().toLowerCase();
         return serviceName;
     }
@@ -51,10 +51,12 @@ public class SiteWrapper {
         return siteInfo.getMetaUser();
     }
 
-    public String getMetaPasswd() /*throws ScmCryptoException */ {
+    public String getMetaPasswd() /* throws ScmCryptoException */ {
         String passwd = null;
-                /*ScmPasswordMgr.getInstance().
-              decrypt(siteInfo.getMetaCryptType(), siteInfo.getMetaPasswd());*/
+        /*
+         * ScmPasswordMgr.getInstance(). decrypt(siteInfo.getMetaCryptType(),
+         * siteInfo.getMetaPasswd());
+         */
         return passwd;
     }
 
@@ -62,11 +64,12 @@ public class SiteWrapper {
         return siteInfo.getDataUser();
     }
 
-    public String getDataPasswd() /*throws ScmCryptoException */ {
+    public String getDataPasswd() /* throws ScmCryptoException */ {
         String passwd = null;
-				/*ScmPasswordMgr.getInstance().
-				decrypt(siteInfo.getDataCryptType(), siteInfo.getDataPasswd()
-				);*/
+        /*
+         * ScmPasswordMgr.getInstance(). decrypt(siteInfo.getDataCryptType(),
+         * siteInfo.getDataPasswd() );
+         */
         return passwd;
     }
 
@@ -126,9 +129,10 @@ public class SiteWrapper {
     /**
      * get all the nodes of the current site
      */
-	/*public List<NodeWrapper> getNodes() {
-		return this.getNodes(nodes.size());
-	}*/
+    /*
+     * public List<NodeWrapper> getNodes() { return this.getNodes(nodes.size());
+     * }
+     */
 
     /**
      * get node info

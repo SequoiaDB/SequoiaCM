@@ -43,8 +43,8 @@ public class GetOneConfProps1216 extends TestScmBase {
                 conf.getString( "scm.rootsite.meta.url" ) );
 
         response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "conf-properties/ke" )
-                .setResponseType( String.class ).exec().getBody().toString();
+                .setApi( "conf-properties/ke" ).setResponseType( String.class )
+                .exec().getBody().toString();
         conf = new JSONObject( response );
         Assert.assertEquals( 1, conf.length() );
         Assert.assertEquals( "null", conf.getString( "ke" ) );

@@ -82,8 +82,8 @@ public class AuthServer_user1555 extends TestScmBase {
             ScmFactory.Role.deleteRole( session, NAME );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete not exist role, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "delete not exist role, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -123,8 +123,8 @@ public class AuthServer_user1555 extends TestScmBase {
             } catch ( ScmException e ) {
                 if ( ScmError.HTTP_NOT_FOUND != e.getError()
                         && ScmError.HTTP_FORBIDDEN != e.getError()
-                        &&
-                        ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError() ) {
+                        && ScmError.HTTP_INTERNAL_SERVER_ERROR != e
+                                .getError() ) {
                     e.printStackTrace();
                     throw e;
                 }

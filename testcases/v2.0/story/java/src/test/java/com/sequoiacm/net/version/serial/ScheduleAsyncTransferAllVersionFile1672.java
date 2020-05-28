@@ -81,10 +81,10 @@ public class ScheduleAsyncTransferAllVersionFile1672 extends TestScmBase {
         sessionT = TestScmTools.createSession( targetSite );
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
 
-        fileId1 = VersionUtils
-                .createFileByStream( wsS, fileName1, filedata, authorName );
-        fileId2 = VersionUtils
-                .createFileByStream( wsS, fileName2, filedata, authorName );
+        fileId1 = VersionUtils.createFileByStream( wsS, fileName1, filedata,
+                authorName );
+        fileId2 = VersionUtils.createFileByStream( wsS, fileName2, filedata,
+                authorName );
         VersionUtils.updateContentByStream( wsS, fileId1, updatedata );
         VersionUtils.updateContentByStream( wsS, fileId2, updatedata );
         VersionUtils.updateContentByStream( wsS, fileId2, updatedata );
@@ -139,13 +139,11 @@ public class ScheduleAsyncTransferAllVersionFile1672 extends TestScmBase {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_ALL );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                queryCond, ScopeType.SCOPE_ALL );
         String cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( sessionS, wsp.getName(), ScheduleType.COPY_FILE,
-                        scheduleName, "",
-                        content, cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( sessionS, wsp.getName(),
+                ScheduleType.COPY_FILE, scheduleName, "", content, cron );
         scheduleId = sche.getId();
     }
 }

@@ -58,10 +58,10 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -121,8 +121,8 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
             ScmFactory.File.asyncCache( ws1, fileId );
             // checkResult();
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
         } finally {
@@ -137,9 +137,9 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
         ScmFile file;
         try {
             file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             checkResult( file, fileId, ws_T.getName(), downloadPath );
         } catch ( Exception e ) {

@@ -51,10 +51,10 @@ public class ListInstanceInNewWs2273 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -102,8 +102,8 @@ public class ListInstanceInNewWs2273 extends TestScmBase {
         try {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
                     .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
             while ( cursor.hasNext() ) {
@@ -136,8 +136,8 @@ public class ListInstanceInNewWs2273 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( name + "_" + UUID.randomUUID() );
                 file.setAuthor( name );

@@ -34,9 +34,8 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
  */
 
 /*
- * 1、带条件统计多个子表下的文件； 2、检查统计结果正确性；
- * 
- * 备注： 1.这个用例不兼容windows系统。因为设置系统时间的操作在windows测试机是没有权限的。
+ * 1、带条件统计多个子表下的文件； 2、检查统计结果正确性； 备注：
+ * 1.这个用例不兼容windows系统。因为设置系统时间的操作在windows测试机是没有权限的。
  */
 
 public class Count_coverManyScl397 extends TestScmBase {
@@ -71,13 +70,13 @@ public class Count_coverManyScl397 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
 
             BSONObject fileCond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            long actCount = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCond );
+            long actCount = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, fileCond );
             Assert.assertEquals( actCount, fileNum, "wrong file count" );
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -93,8 +92,8 @@ public class Count_coverManyScl397 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             if ( runSuccess || forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -113,7 +112,7 @@ public class Count_coverManyScl397 extends TestScmBase {
 
     private void prepareScmFile() throws ScmException {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
-        //create files from (current_year-fileNum) to current_year
+        // create files from (current_year-fileNum) to current_year
         for ( int i = 0; i < fileNum; i++ ) {
             cal.set( Calendar.YEAR, cal.get( Calendar.YEAR ) - 1 );
             ScmFile file = ScmFactory.File.createInstance( ws );

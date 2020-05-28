@@ -70,11 +70,10 @@ public class OverWriteFile2676 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File(
-                TestScmBase.dataDirectory + File.separator + TestTools
-                        .getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -82,15 +81,15 @@ public class OverWriteFile2676 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //prepare user
+        // prepare user
         prepareUser();
-        //prepare scm file
+        // prepare scm file
         prepareScmFile();
     }
 
     @Test
     private void test() throws Exception {
-        //有目录的create、delete权限，工作区的update权限
+        // 有目录的create、delete权限，工作区的update权限
         ScmResource dirResource = ScmResourceFactory
                 .createDirectoryResource( wsp.getName(), scmDir );
         ScmResource wsResource = ScmResourceFactory
@@ -98,11 +97,11 @@ public class OverWriteFile2676 extends TestScmBase {
         grantPrivilege( dirResource, ScmPrivilegeType.CREATE );
         grantPrivilege( wsResource, ScmPrivilegeType.UPDATE );
         grantPrivilege( dirResource, ScmPrivilegeType.DELETE );
-        //over write scm file
+        // over write scm file
         overwriteFile();
         checkFile();
-        //有目录的create、delete权限，无工作区的update权限
-        //revoke Privilege
+        // 有目录的create、delete权限，无工作区的update权限
+        // revoke Privilege
         revokePrivilege( wsResource, ScmPrivilegeType.UPDATE );
         // over write scm file again
         try {
@@ -147,8 +146,8 @@ public class OverWriteFile2676 extends TestScmBase {
         ScmSession session1 = null;
         try {
             session1 = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws1 = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session1 );
+            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session1 );
             ScmFile scmFile = ScmFactory.File.createInstance( ws1 );
             scmFile.setFileName( fileName );
             scmFile.setAuthor( fileName );
@@ -176,9 +175,9 @@ public class OverWriteFile2676 extends TestScmBase {
             Assert.assertEquals( file.getUser(), username );
             Assert.assertNotNull( file.getCreateTime().getTime() );
             Assert.assertNull( file.getBatchId() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
@@ -191,8 +190,8 @@ public class OverWriteFile2676 extends TestScmBase {
     private void prepareScmFile() throws ScmException {
         BSONObject cond1 = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, cond1 );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                cond1 );
         while ( cursor.hasNext() ) {
             ScmFactory.Batch.deleteInstance( ws, cursor.getNext().getId() );
         }
@@ -201,21 +200,21 @@ public class OverWriteFile2676 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        //prepare scm dir
+        // prepare scm dir
         if ( ScmFactory.Directory.isInstanceExist( ws, scmDir ) ) {
             ScmFactory.Directory.deleteInstance( ws, scmDir );
         }
-        ScmDirectory scmDirectory = ScmFactory.Directory
-                .createInstance( ws, scmDir );
+        ScmDirectory scmDirectory = ScmFactory.Directory.createInstance( ws,
+                scmDir );
         scmDirId = scmDirectory.getId();
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         file.setAuthor( fileName );
         file.setContent( filePath );
         file.setDirectory( scmDirectory.getId() );
         fileId = file.save();
-        //create batch and attach file
+        // create batch and attach file
         ScmBatch batch = ScmFactory.Batch.createInstance( ws );
         batch.setName( batchName );
         batchId = batch.save();
@@ -237,9 +236,8 @@ public class OverWriteFile2676 extends TestScmBase {
                 throw e;
             }
         }
-        scmUser = ScmFactory.User
-                .createUser( session, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        scmUser = ScmFactory.User.createUser( session, username,
+                ScmUserPasswordType.LOCAL, passwd );
         scmRole = ScmFactory.Role.createRole( session, rolename, null );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( scmRole );

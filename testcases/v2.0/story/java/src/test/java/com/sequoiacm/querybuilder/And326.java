@@ -67,19 +67,19 @@ public class And326 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 0 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 0 ) );
             String key = ScmAttributeName.File.AUTHOR;
             String value = file.getAuthor();
             BSONObject obj = ScmQueryBuilder.start( key ).is( value ).get();
             BSONObject cond = ScmQueryBuilder.start().and( obj ).get();
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"$and\" : [ { \"" + key + "\" : \"" + value +
-                            "\"}]}" ).replaceAll( "\\s*", "" ) );
+                    ( "{ \"$and\" : [ { \"" + key + "\" : \"" + value
+                            + "\"}]}" ).replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;
@@ -110,9 +110,8 @@ public class And326 extends TestScmBase {
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( authorName + "_" + i );
-                file.setAuthor(
-                        TestTools.getRandomString( 5 ) + "_" + authorName +
-                                "_" + i );
+                file.setAuthor( TestTools.getRandomString( 5 ) + "_"
+                        + authorName + "_" + i );
                 ScmId fileId = file.save();
                 fileIdList.add( fileId );
             }

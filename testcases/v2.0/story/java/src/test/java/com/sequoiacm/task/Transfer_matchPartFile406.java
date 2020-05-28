@@ -70,16 +70,15 @@ public class Transfer_matchPartFile406 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -168,8 +167,8 @@ public class Transfer_matchPartFile406 extends TestScmBase {
             throws ScmException, InterruptedException {
         int value = fileSize + startNum;
         condition = ScmQueryBuilder.start().put( ScmAttributeName.File.SIZE )
-                .greaterThanEquals( value )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+                .greaterThanEquals( value ).put( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
         taskId = ScmSystem.Task.startTransferTask( wsA, condition );
     }
 
@@ -208,21 +207,21 @@ public class Transfer_matchPartFile406 extends TestScmBase {
             checkFreeSite();
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail( e.getMessage() + " branceNode INFO " +
-                    branceSite.toString() );
+            Assert.fail( e.getMessage() + " branceNode INFO "
+                    + branceSite.toString() );
         }
     }
 
     private void readFileFromMainCenter( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = startNum; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
             String filePath = filePathList.get( i );
 
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
 
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
@@ -235,8 +234,7 @@ public class Transfer_matchPartFile406 extends TestScmBase {
 
     private void checkLocationLists(
             List< List< ScmFileLocation > > befLocLists,
-            List< List< ScmFileLocation > > aftLocLists )
-            throws Exception {
+            List< List< ScmFileLocation > > aftLocLists ) throws Exception {
         Assert.assertEquals( befLocLists.size(), aftLocLists.size(),
                 "file count is different!" );
         for ( int i = 0; i < startNum; ++i ) {
@@ -250,8 +248,8 @@ public class Transfer_matchPartFile406 extends TestScmBase {
     }
 
     private void checkLastAccessTime( List< ScmFileLocation > befLocList,
-            List< ScmFileLocation > aftLocList,
-            boolean isTransfered ) throws Exception {
+            List< ScmFileLocation > aftLocList, boolean isTransfered )
+            throws Exception {
 
         Assert.assertEquals( aftLocList.size(), isTransfered ? 2 : 1,
                 "site count wrong after clean" );
@@ -260,8 +258,8 @@ public class Transfer_matchPartFile406 extends TestScmBase {
         Date aftDate = getLastAccessTime( aftLocList, branceSite.getSiteId() );
 
         Assert.assertEquals( aftDate.getTime(), befDate.getTime(),
-                "last access time is changed accidentally:" + "befDate = " +
-                        befDate + "  aftDate = " + aftDate );
+                "last access time is changed accidentally:" + "befDate = "
+                        + befDate + "  aftDate = " + aftDate );
     }
 
     private Date getLastAccessTime( List< ScmFileLocation > locList,
@@ -285,8 +283,8 @@ public class Transfer_matchPartFile406 extends TestScmBase {
         try {
             List< List< ScmFileLocation > > locationLists = new ArrayList<>();
             ss = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    ss );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 List< ScmFileLocation > locationList = file.getLocationList();
@@ -309,9 +307,8 @@ public class Transfer_matchPartFile406 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 randNum = new Random().nextInt( fileNum );
-                ScmFileUtils
-                        .checkData( ws, fileIdList.get( randNum ), localPath,
-                                filePathList.get( randNum ) );
+                ScmFileUtils.checkData( ws, fileIdList.get( randNum ),
+                        localPath, filePathList.get( randNum ) );
                 Assert.assertFalse( true,
                         "expect result is fail but actual is success." );
             }

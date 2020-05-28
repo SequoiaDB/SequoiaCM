@@ -39,7 +39,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description: SCM-2072 :: 指定目录、自定义属性和标签检索文件 
+ * @Description: SCM-2072 :: 指定目录、自定义属性和标签检索文件
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -69,10 +69,10 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -107,18 +107,16 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
     private void test() throws Exception {
         ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirPath1 );
         BSONObject queryCond = ScmQueryBuilder
-                .start( ScmAttributeName.File.PROPERTIES + "." + name )
-                .is( 5 )
-                .and( "tags" )
-                .in( name )
+                .start( ScmAttributeName.File.PROPERTIES + "." + name ).is( 5 )
+                .and( "tags" ).in( name )
                 .and( ScmAttributeName.File.DIRECTORY_ID ).is( dir.getId() )
                 .get();
         System.out.println( "cond = " + queryCond.toString() );
         System.out.println(
                 "fileIdList = " + fileIdList.subList( 20, 25 ).toString() );
         int count = 0;
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, queryCond );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, queryCond );
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo fileInfo = cursor.getNext();
             Assert.assertEquals( fileInfo.getMinorVersion(), 0 );
@@ -157,13 +155,12 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
     }
 
     private void prepareFile( String name, String dirPath, ScmTags tags,
-            ScmClassProperties properties )
-            throws Exception {
+            ScmClassProperties properties ) throws Exception {
         List< String > pathList = getSubPaths( dirPath );
         for ( int i = 0; i < pathList.size(); i++ ) {
             for ( int j = 0; j < fileNum; j++ ) {
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, pathList.get( i ) );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        pathList.get( i ) );
                 ScmId fileId = createFile( name, dir, tags, properties );
                 fileIdList.add( fileId );
             }
@@ -217,8 +214,8 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -227,8 +224,8 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

@@ -51,9 +51,8 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File(
-                TestScmBase.dataDirectory + File.separator + TestTools
-                        .getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
@@ -63,7 +62,7 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
         session1 = TestScmTools.createSession( branchSite1 );
         session2 = TestScmTools.createSession( branchSite2 );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
-        //prepare scm file
+        // prepare scm file
         Calendar cal = Calendar.getInstance();
         createScmFile( session1, cal.getTime() );
         createScmFile( session2, cal.getTime() );
@@ -73,8 +72,8 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void testPathIsEmptyStr() throws ScmException {
-        ScmFile scmFile = ScmFactory.File
-                .getInstance( ws, fileIdList.get( 0 ) );
+        ScmFile scmFile = ScmFactory.File.getInstance( ws,
+                fileIdList.get( 0 ) );
         try {
             scmFile.getContentFromLocalSite( "" );
             Assert.fail( "exp fail but act success" );
@@ -88,8 +87,8 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void testPathIsDir() throws ScmException {
-        ScmFile scmFile = ScmFactory.File
-                .getInstance( ws, fileIdList.get( 0 ) );
+        ScmFile scmFile = ScmFactory.File.getInstance( ws,
+                fileIdList.get( 0 ) );
         try {
             scmFile.getContentFromLocalSite( localPath.toString() );
             Assert.fail( "exp fail but act success" );
@@ -103,8 +102,8 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void testPathNotExist() throws ScmException {
-        ScmFile scmFile = ScmFactory.File
-                .getInstance( ws, fileIdList.get( 0 ) );
+        ScmFile scmFile = ScmFactory.File.getInstance( ws,
+                fileIdList.get( 0 ) );
         try {
             scmFile.getContentFromLocalSite( localPath + "/test/test" );
             Assert.fail( "exp fail but act success" );
@@ -118,15 +117,15 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void testDataNotExist() throws ScmException, IOException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session2 );
-        ScmFile scmFile1 = ScmFactory.File
-                .getInstance( ws, fileIdList.get( 0 ) );
-        ScmFile scmFile2 = ScmFactory.File
-                .getInstance( ws, fileIdList.get( 2 ) );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session2 );
+        ScmFile scmFile1 = ScmFactory.File.getInstance( ws,
+                fileIdList.get( 0 ) );
+        ScmFile scmFile2 = ScmFactory.File.getInstance( ws,
+                fileIdList.get( 2 ) );
         String downloadPath = localPath + File.separator + "testDataNotExist1";
         try {
-            //scmfile1：site2存在对应的LOB表不存在数据
+            // scmfile1：site2存在对应的LOB表不存在数据
             scmFile1.getContentFromLocalSite( downloadPath );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
@@ -135,7 +134,7 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
             }
         }
         try {
-            //scmfile2：site2不存在对应的LOB表
+            // scmfile2：site2不存在对应的LOB表
             scmFile2.getContentFromLocalSite(
                     new FileOutputStream( downloadPath ) );
             Assert.fail( "exp fail but act success" );
@@ -169,8 +168,8 @@ public class ScmFile_param_getContentFromLocalSite2725 extends TestScmBase {
 
     private void createScmFile( ScmSession session, Date date )
             throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name + "_" + UUID.randomUUID() );
         file.setCreateTime( date );

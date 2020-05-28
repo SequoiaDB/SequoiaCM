@@ -53,15 +53,15 @@ public class AsyncCacheAndReadDiffFile753 extends TestScmBase {
 
     private SiteWrapper sourceSite = null;
     private SiteWrapper targetSite = null;
-    //private List<NodeWrapper> nodeList = new ArrayList<NodeWrapper>();
+    // private List<NodeWrapper> nodeList = new ArrayList<NodeWrapper>();
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -144,9 +144,8 @@ public class AsyncCacheAndReadDiffFile753 extends TestScmBase {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
             ScmTaskUtils.waitAsyncTaskFinished( ws, fileIdList.get( 0 ),
                     expSiteList.length );
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -198,9 +197,9 @@ public class AsyncCacheAndReadDiffFile753 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
                         TestTools.getMD5( filePath ) );

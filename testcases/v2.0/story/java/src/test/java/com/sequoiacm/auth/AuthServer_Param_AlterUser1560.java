@@ -45,9 +45,8 @@ public class AuthServer_Param_AlterUser1560 extends TestScmBase {
         }
 
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -58,9 +57,8 @@ public class AuthServer_Param_AlterUser1560 extends TestScmBase {
     private void testInexistUser() {
         String username = "AlterUser1560";
         try {
-            ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             ScmFactory.User.deleteUser( session, username );
             ScmFactory.User.alterUser( session, user, new ScmUserModifier() );
             Assert.fail( "exp fail but act success" );

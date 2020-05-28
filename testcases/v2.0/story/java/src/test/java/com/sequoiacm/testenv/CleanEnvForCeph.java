@@ -41,8 +41,8 @@ public class CleanEnvForCeph extends TestScmBase {
         boolean isCephEnv = false;
         for ( SiteWrapper site : sites ) {
             DatasourceType dsType = site.getDataType();
-            if ( dsType.equals( DatasourceType.CEPH_S3 ) ||
-                    dsType.equals( DatasourceType.CEPH_SWIFT ) ) {
+            if ( dsType.equals( DatasourceType.CEPH_S3 )
+                    || dsType.equals( DatasourceType.CEPH_SWIFT ) ) {
                 isCephEnv = true;
                 break;
             }
@@ -91,12 +91,12 @@ public class CleanEnvForCeph extends TestScmBase {
             buckets = conn.listBuckets();
             if ( 0 != buckets.size() ) {
                 throw new Exception(
-                        "failed to delete all buckets, remain buckets = " +
-                                buckets );
+                        "failed to delete all buckets, remain buckets = "
+                                + buckets );
             }
         } catch ( Exception e ) {
-            logger.error( "failed to delete all buckets, siteId = " +
-                    site.getSiteId() + ", bucketName = " + bucketName
+            logger.error( "failed to delete all buckets, siteId = "
+                    + site.getSiteId() + ", bucketName = " + bucketName
                     + ", key = " + key );
             throw e;
         }
@@ -127,13 +127,13 @@ public class CleanEnvForCeph extends TestScmBase {
             containers = account.list();
             if ( 0 != containers.size() ) {
                 throw new Exception(
-                        "failed to delete all containers, remain buckets = " +
-                                containers );
+                        "failed to delete all containers, remain buckets = "
+                                + containers );
             }
         } catch ( Exception e ) {
-            logger.error( "failed to delete all containers, siteId = " +
-                    site.getSiteId() + ", containerName = "
-                    + containerName + ", objectName = " + objectName );
+            logger.error( "failed to delete all containers, siteId = "
+                    + site.getSiteId() + ", containerName = " + containerName
+                    + ", objectName = " + objectName );
             throw e;
         }
     }

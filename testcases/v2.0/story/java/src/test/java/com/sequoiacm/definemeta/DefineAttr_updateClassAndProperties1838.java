@@ -47,8 +47,8 @@ public class DefineAttr_updateClassAndProperties1838 extends TestScmBase {
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private boolean runSuccess = false;
-    //private static final String CLASS_ID = "test_class_id_all_001";
-    //private static final String CLASS_ID_NEW = "test_class_id_bool_005";
+    // private static final String CLASS_ID = "test_class_id_all_001";
+    // private static final String CLASS_ID_NEW = "test_class_id_bool_005";
     private String CLASS_ID = null;
     private String CLASS_ID_NEW = null;
     private ScmClass class1 = null;
@@ -76,8 +76,8 @@ public class DefineAttr_updateClassAndProperties1838 extends TestScmBase {
     private void test_updatePro() throws Exception {
         attrMap.clear();
 
-        class2 = ScmFactory.Class
-                .createInstance( ws, NAME + "_NEW", NAME + "_desc" );
+        class2 = ScmFactory.Class.createInstance( ws, NAME + "_NEW",
+                NAME + "_desc" );
         CLASS_ID_NEW = class2.getId().get();
 
         createModel( class2, "test_attr_name_bool_1838_1", "boolean", false );

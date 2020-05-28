@@ -40,20 +40,17 @@ public class TestScmBase {
     protected static String ldapPassword;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
-                        "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER",
-                        "SDBPASSWD",
-                        "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-                        "LDAPUSER", "LDAPPASSWD",
-                        "SCMPASSWDPATH" })
+            "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
+            "LDAPPASSWD", "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD,
-            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH )
-            throws ScmException {
+            String SCMUSER, String SCMPASSWD, String LDAPUSER,
+            String LDAPPASSWD, String SCMPASSWDPATH ) throws ScmException {
 
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;

@@ -144,11 +144,10 @@ public class Count_onOneCenter290 extends TestScmBase {
                 BSONObject fileCond = ScmQueryBuilder.start().and( key )
                         .greaterThanEquals( startVal ).and( key )
                         .lessThan( endVal ).and( "notexistkey" ).exists( 0 )
-                        .and( ScmAttributeName.File.AUTHOR ).is( author )
-                        .get();
+                        .and( ScmAttributeName.File.AUTHOR ).is( author ).get();
 
-                long actCount = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCond );
+                long actCount = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, fileCond );
                 long expCount = fileNum - 1;
                 Assert.assertEquals( actCount, expCount,
                         "fileCond = " + fileCond.toString() );

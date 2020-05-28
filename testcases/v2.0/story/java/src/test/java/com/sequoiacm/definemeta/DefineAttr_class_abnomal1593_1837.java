@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1593:文件添加的模型id在当前ws不存在
- * 			   SCM-1837:文件未定义模型直接添加自定义属性
+ * @Testcase: SCM-1593:文件添加的模型id在当前ws不存在 SCM-1837:文件未定义模型直接添加自定义属性
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -77,7 +76,7 @@ public class DefineAttr_class_abnomal1593_1837 extends TestScmBase {
         }
     }
 
-    @Test  // SCM-1593
+    @Test // SCM-1593
     private void test_classNotExist() throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties(
@@ -92,7 +91,7 @@ public class DefineAttr_class_abnomal1593_1837 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test  // SCM-1837
+    @Test // SCM-1837
     private void test_unsetClass() throws Exception {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( "test" );

@@ -51,8 +51,8 @@ public class Param_scmInputStream272 extends TestScmBase {
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.INVALID_ARGUMENT ||
-                    !e.getMessage().contains( "scmFile is null" ) ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT
+                    || !e.getMessage().contains( "scmFile is null" ) ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -68,8 +68,8 @@ public class Param_scmInputStream272 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             // read content
-            ScmFile scmfile = ScmFactory.File
-                    .getInstance( ws, new ScmId( "a1ffb2ffc3ffd4ff56ffe7ff" ) );
+            ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                    new ScmId( "a1ffb2ffc3ffd4ff56ffe7ff" ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );

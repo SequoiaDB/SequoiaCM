@@ -43,9 +43,9 @@ public class CleanEnvForHBase extends TestScmBase {
                         .get( "hbase.zookeeper.quorum" );
                 deleteTableInHbase( conf );
             } else {
-                System.out.println( site.getSiteName() +
-                        "'s datasourcetype is not hbase,it is " +
-                        site.getDataType() );
+                System.out.println( site.getSiteName()
+                        + "'s datasourcetype is not hbase,it is "
+                        + site.getDataType() );
             }
         }
     }

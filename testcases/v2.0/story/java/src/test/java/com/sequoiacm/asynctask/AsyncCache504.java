@@ -55,10 +55,10 @@ public class AsyncCache504 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,10 +80,10 @@ public class AsyncCache504 extends TestScmBase {
         writeFileFromMainCenter();
     }
 
-    @Test(groups = { "twoSite", "fourSite" })//bug:315
+    @Test(groups = { "twoSite", "fourSite" }) // bug:315
     private void test() throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ) };
         ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,

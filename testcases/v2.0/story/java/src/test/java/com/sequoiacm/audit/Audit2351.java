@@ -33,7 +33,7 @@ import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
  * @Description: SCM-2351 ::配置参数校验:只测试scm.audit.user.username中的username的值带符号（
- * .），带有空格，其他手工测试
+ *               .），带有空格，其他手工测试
  * @author fanyu
  * @Date:2018年12月25日
  * @version:1.0
@@ -76,7 +76,7 @@ public class Audit2351 extends TestScmBase {
         }
     }
 
-    //scm.audit.user.username中的username的值带符号（.）
+    // scm.audit.user.username中的username的值带符号（.）
     private void test1() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + username1,
@@ -86,7 +86,7 @@ public class Audit2351 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    //scm.audit.userType.{type}中的type值缺
+    // scm.audit.userType.{type}中的type值缺
     private void test2() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_userType,
@@ -96,7 +96,7 @@ public class Audit2351 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    //value为非审计类型的值
+    // value为非审计类型的值
     private void test3() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_userType + "TOKEN",
@@ -106,7 +106,7 @@ public class Audit2351 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    //scm.audit.userType.{type}中的type值不对
+    // scm.audit.userType.{type}中的type值不对
     private void test4() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_userType + "TOKEN1",
@@ -116,7 +116,7 @@ public class Audit2351 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    //配置项有前后有空格
+    // 配置项有前后有空格
     private void test5() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_userType + "TOKEN",
@@ -140,12 +140,12 @@ public class Audit2351 extends TestScmBase {
                     .append( ScmAttributeName.Audit.USERNAME, username );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, fileId.get() ),
-                    isLogged1, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged1, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson2, fileId.get() ),
-                    isLogged2, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged2, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -159,8 +159,8 @@ public class Audit2351 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();
@@ -174,13 +174,13 @@ public class Audit2351 extends TestScmBase {
     }
 
     private void createUser( WsWrapper wsp, String name,
-            ScmUserPasswordType passwordType,
-            ScmPrivilegeType[] privileges ) throws Exception {
+            ScmUserPasswordType passwordType, ScmPrivilegeType[] privileges )
+            throws Exception {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, name, passwordType, name );
+            ScmUser scmUser = ScmFactory.User.createUser( session, name,
+                    passwordType, name );
             ScmRole role = ScmFactory.Role.createRole( session, name, "desc" );
             ScmResource rs = ScmResourceFactory
                     .createWorkspaceResource( wsp.getName() );

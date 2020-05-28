@@ -45,9 +45,8 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -58,10 +57,10 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
     private void test() {
         ScmSession session = null;
         try {
-            session = TestScmTools
-                    .createSession( site, username, passwd + "_testInfoError" );
-            Assert.fail( "exp login fail but act success,session = " +
-                    session.toString() );
+            session = TestScmTools.createSession( site, username,
+                    passwd + "_testInfoError" );
+            Assert.fail( "exp login fail but act success,session = "
+                    + session.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_UNAUTHORIZED ) {
                 e.printStackTrace();
@@ -80,10 +79,10 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
     private void testInfoError() {
         ScmSession session = null;
         try {
-            session = TestScmTools
-                    .createSession( site, username, passwd + "_testInfoError" );
-            Assert.fail( "exp login fail but act success,session = " +
-                    session.toString() );
+            session = TestScmTools.createSession( site, username,
+                    passwd + "_testInfoError" );
+            Assert.fail( "exp login fail but act success,session = "
+                    + session.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_UNAUTHORIZED ) {
                 e.printStackTrace();
@@ -104,8 +103,8 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
         try {
             ScmFactory.User.deleteUser( session, user );
             session1 = TestScmTools.createSession( site, username, passwd );
-            Assert.fail( "exp login fail but act success,session1 = " +
-                    session1.toString() );
+            Assert.fail( "exp login fail but act success,session1 = "
+                    + session1.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_UNAUTHORIZED ) {
                 e.printStackTrace();

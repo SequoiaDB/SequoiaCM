@@ -58,10 +58,10 @@ public class CreateWorkspace2357 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -83,7 +83,7 @@ public class CreateWorkspace2357 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        //create and set ScmHbaseLocation
+        // create and set ScmHbaseLocation
         ScmHbaseDataLocation scmHbaseDataLocation = new ScmHbaseDataLocation(
                 site.getSiteName() );
         scmHbaseDataLocation.setNamespace( namespace );
@@ -92,16 +92,16 @@ public class CreateWorkspace2357 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         // write file in workspace
         writeAndRead( wsName );
-        //check
+        // check
         String tableName = null;
         if ( cal.get( Calendar.MONTH ) + 1 < 10 ) {
-            tableName = namespace + ":" + wsName + "_SCMFILE_" +
-                    cal.get( Calendar.YEAR ) + "0" +
-                    ( cal.get( Calendar.MONTH ) + 1 );
+            tableName = namespace + ":" + wsName + "_SCMFILE_"
+                    + cal.get( Calendar.YEAR ) + "0"
+                    + ( cal.get( Calendar.MONTH ) + 1 );
         } else {
-            tableName = namespace + ":" + wsName + "_SCMFILE_" +
-                    cal.get( Calendar.YEAR ) +
-                    ( cal.get( Calendar.MONTH ) + 1 );
+            tableName = namespace + ":" + wsName + "_SCMFILE_"
+                    + cal.get( Calendar.YEAR )
+                    + ( cal.get( Calendar.MONTH ) + 1 );
         }
         Assert.assertTrue( HbaseUtils.isInNS( site, namespace, tableName ),
                 "expect tableName is in namespace,tableName = " + tableName );
@@ -126,9 +126,8 @@ public class CreateWorkspace2357 extends TestScmBase {
         ScmId fileId = file.save();
 
         ScmFile file1 = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file1.getContent( downloadPath );
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );
@@ -141,11 +140,9 @@ public class CreateWorkspace2357 extends TestScmBase {
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
         ScmMetaLocation scmMetaLocation = null;
         scmMetaLocation = new ScmSdbMetaLocation( rootSite.getSiteName(),
-                ScmShardingType.YEAR,
-                TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
-                        .get( 0 ) );
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+                ScmShardingType.YEAR, TestSdbTools
+                        .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 ) );
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
         } else if ( siteNum < 1 ) {

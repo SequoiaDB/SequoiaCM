@@ -60,10 +60,10 @@ public class BraekFileThenCUDAttr1944 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -145,8 +145,7 @@ public class BraekFileThenCUDAttr1944 extends TestScmBase {
     }
 
     private void breakpointFile2ScmFile( ScmBreakpointFile breakpointFile,
-            String name, ScmClassProperties properties )
-            throws ScmException {
+            String name, ScmClassProperties properties ) throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( name );
@@ -183,8 +182,8 @@ public class BraekFileThenCUDAttr1944 extends TestScmBase {
     }
 
     private ScmClass createClass( String name ) throws ScmException {
-        ScmClass class1 = ScmFactory.Class
-                .createInstance( ws, name, name + "_desc" );
+        ScmClass class1 = ScmFactory.Class.createInstance( ws, name,
+                name + "_desc" );
         return class1;
     }
 

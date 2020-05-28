@@ -43,8 +43,8 @@ public class AsyncCache1209 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile.txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -64,8 +64,8 @@ public class AsyncCache1209 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         String response = branchRest.setRequestMethod( HttpMethod.POST )
-                .setApi( "files/" + fileId + "/async-cache?workspace_name=" +
-                        ws.getName() )
+                .setApi( "files/" + fileId + "/async-cache?workspace_name="
+                        + ws.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         Assert.assertEquals( "\"\"", response );
         checkAsyncCache( branchRest, ws, fileId );
@@ -73,8 +73,8 @@ public class AsyncCache1209 extends TestScmBase {
         try {
             String inexistentId = "ffffffffffffffff";
             response = branchRest.setRequestMethod( HttpMethod.POST )
-                    .setApi( "files/" + inexistentId +
-                            "/async-cache?workspace_name=" + ws.getName() )
+                    .setApi( "files/" + inexistentId
+                            + "/async-cache?workspace_name=" + ws.getName() )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
             Assert.fail( "async-transfer should not succeed" );
@@ -102,16 +102,14 @@ public class AsyncCache1209 extends TestScmBase {
         desc.put( "title", authorName );
         desc.put( "mime_type", "text/plain" );
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "files?workspace_name=" + ws.getName() )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc.toString())
+                // .setParameter("file", resource)
+                // .setParameter("description", desc.toString())
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
-                .setResponseType( String.class )
-                .exec()
-                .getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
@@ -119,8 +117,8 @@ public class AsyncCache1209 extends TestScmBase {
 
     private void deleteFile( RestWrapper rest, WsWrapper ws, String fileId ) {
         rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName() +
-                        "&is_physical=true" )
+                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                        + "&is_physical=true" )
                 .setResponseType( Resource.class ).exec();
     }
 
@@ -131,8 +129,8 @@ public class AsyncCache1209 extends TestScmBase {
         boolean checkOk = false;
         for ( int i = 0; i < times; ++i ) {
             String response = rest.setRequestMethod( HttpMethod.HEAD )
-                    .setApi( "files/id/" + fileId + "?workspace_name=" +
-                            ws.getName() )
+                    .setApi( "files/id/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setResponseType( String.class ).exec().getHeaders()
                     .get( "file" ).toString();
             response = URLDecoder.decode( response, "UTF-8" );

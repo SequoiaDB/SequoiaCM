@@ -56,10 +56,10 @@ public class AsyncTransfer485 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -125,8 +125,8 @@ public class AsyncTransfer485 extends TestScmBase {
     private void checkResult() {
         try {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
         } catch ( Exception e ) {

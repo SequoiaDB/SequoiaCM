@@ -27,14 +27,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @FileName SCM-1329: 创建批次
- *           SCM-1330: 查询批次
- *           SCM-1331: 获取批次
- *           SCM-1332: 更新批次属性
- *           SCM-1333: 删除批次
- *           SCM-1334: 批次中添加文件
- *           SCM-1335: 批次中解除文件
- *           SCM-1336: 使用错误的请求参数创建批次
+ * @FileName SCM-1329: 创建批次 SCM-1330: 查询批次 SCM-1331: 获取批次 SCM-1332: 更新批次属性
+ *           SCM-1333: 删除批次 SCM-1334: 批次中添加文件 SCM-1335: 批次中解除文件 SCM-1336:
+ *           使用错误的请求参数创建批次
  * @Author linsuqiang
  * @Date 2018-04-20
  * @Version 1.00
@@ -53,10 +48,10 @@ public class OprBatch1329 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -79,18 +74,18 @@ public class OprBatch1329 extends TestScmBase {
     private void test() throws Exception {
         // SCM-1329: create batch
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "batches?workspace_name=" + ws.getName() +
-                        "&description={uri}" )
-                .setUriVariables( new Object[] { "{\"name\":\"" + testcaseName +
-                        "\", \"tags\":[\"old_value\"]}" } )
+                .setApi( "batches?workspace_name=" + ws.getName()
+                        + "&description={uri}" )
+                .setUriVariables( new Object[] { "{\"name\":\"" + testcaseName
+                        + "\", \"tags\":[\"old_value\"]}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
         String batchId = new JSONObject( response ).getJSONObject( "batch" )
                 .getString( "id" );
 
         // SCM-1330: list batch
         response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "batches?workspace_name=" + ws.getName() +
-                        "&filter={uri}" )
+                .setApi( "batches?workspace_name=" + ws.getName()
+                        + "&filter={uri}" )
                 .setUriVariables(
                         new Object[] { "{\"name\":\"" + testcaseName + "\"}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -99,8 +94,8 @@ public class OprBatch1329 extends TestScmBase {
 
         // SCM-1332: update batch
         rest.setRequestMethod( HttpMethod.PUT )
-                .setApi( "batches/" + batchId + "?workspace_name=" +
-                        ws.getName() + "&description={uri}" )
+                .setApi( "batches/" + batchId + "?workspace_name="
+                        + ws.getName() + "&description={uri}" )
                 .setUriVariables(
                         new Object[] { "{\"tags\":[\"new_value\"]}" } )
                 .setResponseType( String.class ).exec();
@@ -128,9 +123,8 @@ public class OprBatch1329 extends TestScmBase {
         Assert.assertEquals( batchInfo.getJSONArray( "files" ).length(), 0 );
 
         // SCM-1335: delete batch
-        rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "batches/" + batchId + "?workspace_name=" +
-                        ws.getName() )
+        rest.setRequestMethod( HttpMethod.DELETE ).setApi(
+                "batches/" + batchId + "?workspace_name=" + ws.getName() )
                 .setResponseType( String.class ).exec();
         try {
             getBatchInfo( batchId );
@@ -144,8 +138,8 @@ public class OprBatch1329 extends TestScmBase {
         // SCM-1336: wrong request
         try {
             rest.setRequestMethod( HttpMethod.POST )
-                    .setApi( "batches?workspace_name=" + ws.getName() +
-                            "&desc={uri}" )
+                    .setApi( "batches?workspace_name=" + ws.getName()
+                            + "&desc={uri}" )
                     .setUriVariables( new Object[] {
                             "{\"name\":\"" + testcaseName + "\"}" } )
                     .setResponseType( String.class ).exec();
@@ -163,8 +157,8 @@ public class OprBatch1329 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 rest.setRequestMethod( HttpMethod.DELETE )
-                        .setApi( "files/" + fileId + "?workspace_name=" +
-                                ws.getName() + "&is_physical=true" )
+                        .setApi( "files/" + fileId + "?workspace_name="
+                                + ws.getName() + "&is_physical=true" )
                         .setResponseType( String.class ).exec();
                 TestTools.LocalFile.removeFile( localPath );
             }
@@ -179,11 +173,11 @@ public class OprBatch1329 extends TestScmBase {
             throws HttpClientErrorException, JSONException,
             FileNotFoundException {
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc)
+                // .setParameter("file", resource)
+                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -196,8 +190,8 @@ public class OprBatch1329 extends TestScmBase {
             throws JSONException, UnsupportedEncodingException {
         // SCM-1331: get batch
         String response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "batches/" + batchId + "?workspace_name=" +
-                        ws.getName() )
+                .setApi( "batches/" + batchId + "?workspace_name="
+                        + ws.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         response = URLDecoder.decode( response, "UTF-8" );
         JSONObject batchInfo = new JSONObject( response )

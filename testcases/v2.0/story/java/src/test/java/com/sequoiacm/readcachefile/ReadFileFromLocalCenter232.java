@@ -51,10 +51,10 @@ public class ReadFileFromLocalCenter232 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -119,12 +119,12 @@ public class ReadFileFromLocalCenter232 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // write file
-            fileId = ScmFileUtils
-                    .create( ws, fileName + "_" + UUID.randomUUID(), filePath );
+            fileId = ScmFileUtils.create( ws,
+                    fileName + "_" + UUID.randomUUID(), filePath );
             fileIdList.add( fileId );
         } finally {
             if ( session != null ) {
@@ -140,14 +140,14 @@ public class ReadFileFromLocalCenter232 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read content
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( file );
             sis.read( fos );

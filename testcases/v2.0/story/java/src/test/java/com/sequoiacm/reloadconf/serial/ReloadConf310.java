@@ -38,9 +38,8 @@ public class ReloadConf310 extends TestScmBase {
     private void reloadWithNullSession() throws Exception {
         ScmSession session = null;
         try {
-            ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE, site.getSiteId(),
-                            null );
+            ScmSystem.Configuration.reloadBizConf( ServerScope.ALL_SITE,
+                    site.getSiteId(), null );
             Assert.fail(
                     "shouldn't succeed when parameter 'session' is null! " );
         } catch ( ScmException e ) {
@@ -58,8 +57,8 @@ public class ReloadConf310 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmSystem.Configuration
-                    .reloadBizConf( null, site.getSiteId(), session );
+            ScmSystem.Configuration.reloadBizConf( null, site.getSiteId(),
+                    session );
             Assert.fail(
                     "shouldn't succeed when parameter 'ScopeType' is null! " );
         } catch ( ScmException e ) {
@@ -78,8 +77,8 @@ public class ReloadConf310 extends TestScmBase {
         try {
             session = TestScmTools.createSession( site );
             int invalidId = -1;
-            ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.SITE, invalidId, session );
+            ScmSystem.Configuration.reloadBizConf( ServerScope.SITE, invalidId,
+                    session );
             Assert.fail( "shouldn't succeed when parameter 'siteId' is -1! " );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getErrorCode(),

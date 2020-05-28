@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1897 :: ScmFactory. Class.createInstance() 参数校验 
+ * @Description: SCM-1897 :: ScmFactory. Class.createInstance() 参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0
@@ -48,11 +48,11 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
     private void testChinese() throws Exception {
         String classname = "模型1";
         String desc = "模型描述";
-        //create
+        // create
         expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-        //get
-        ScmClass actClass = ScmFactory.Class
-                .getInstance( ws, expClass.getId() );
+        // get
+        ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                expClass.getId() );
 
         Assert.assertEquals( actClass.getId(), expClass.getId() );
         Assert.assertEquals( actClass.getName(), classname );
@@ -75,8 +75,8 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         // create
         try {
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             Assert.assertEquals( actClass.getName(), classname );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -95,8 +95,8 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         // create
         try {
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             Assert.assertEquals( actClass.getName(), classname );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -115,8 +115,8 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         // create
         try {
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             Assert.assertEquals( actClass.getName(), classname );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -135,8 +135,8 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         // create
         try {
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             Assert.assertEquals( actClass.getName(), classname );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -155,8 +155,8 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         // create
         try {
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             Assert.assertEquals( actClass.getName(), classname );
         } catch ( ScmException e ) {
             e.printStackTrace();

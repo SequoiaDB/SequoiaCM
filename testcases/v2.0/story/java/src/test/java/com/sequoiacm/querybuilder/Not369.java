@@ -72,8 +72,8 @@ public class Not369 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 0 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 0 ) );
 
             String key = ScmAttributeName.File.FILE_NAME;
             String value = file.getFileName();
@@ -83,14 +83,13 @@ public class Not369 extends TestScmBase {
                     .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"$not\" : [ { \"" + key + "\" : \"" + value +
-                            "\"}] , "
-                            + "\"author\" : \"" + authorName + "\"}" )
-                            .replaceAll( "\\s*", "" ) );
+                    ( "{ \"$not\" : [ { \"" + key + "\" : \"" + value
+                            + "\"}] , " + "\"author\" : \"" + authorName
+                            + "\"}" ).replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;

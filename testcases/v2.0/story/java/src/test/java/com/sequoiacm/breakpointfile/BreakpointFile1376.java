@@ -36,7 +36,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description BreakpointFile1376.java  不同用户断点续传文件 
+ * @Description BreakpointFile1376.java 不同用户断点续传文件
  * @author luweikang
  * @date 2018年5月19日
  */
@@ -60,10 +60,10 @@ public class BreakpointFile1376 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -78,13 +78,12 @@ public class BreakpointFile1376 extends TestScmBase {
     private void test() throws JSONException, ScmException, IOException,
             InterruptedException {
 
-        //创建断点文件,大小为1024*512
-        BreakpointUtil
-                .createBreakpointFile( ws1, filePath, fileName, 1024 * 512,
-                        ScmChecksumType.NONE );
-        //创建新用户密码
+        // 创建断点文件,大小为1024*512
+        BreakpointUtil.createBreakpointFile( ws1, filePath, fileName,
+                1024 * 512, ScmChecksumType.NONE );
+        // 创建新用户密码
         this.createScmUser();
-        //使用新用户上传文件
+        // 使用新用户上传文件
         this.uploadBreakpointFile();
 
     }
@@ -106,15 +105,14 @@ public class BreakpointFile1376 extends TestScmBase {
     }
 
     private void createScmUser() throws ScmException, InterruptedException {
-        ScmUser user = ScmFactory.User
-                .createUser( session1, newUsername, ScmUserPasswordType.LOCAL,
-                        newPassword );
+        ScmUser user = ScmFactory.User.createUser( session1, newUsername,
+                ScmUserPasswordType.LOCAL, newPassword );
         ScmRole role = ScmFactory.Role.createRole( session1, roleName, null );
         ScmUserModifier modifier = new ScmUserModifier();
         ScmResource rs = ScmResourceFactory
                 .createWorkspaceResource( wsp.getName() );
-        ScmFactory.Role
-                .grantPrivilege( session1, role, rs, ScmPrivilegeDefine.ALL );
+        ScmFactory.Role.grantPrivilege( session1, role, rs,
+                ScmPrivilegeDefine.ALL );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
         session2 = TestScmTools.createSession( site, newUsername, newPassword );

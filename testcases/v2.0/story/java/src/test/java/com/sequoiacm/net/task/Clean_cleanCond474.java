@@ -71,10 +71,10 @@ public class Clean_cleanCond474 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -89,15 +89,16 @@ public class Clean_cleanCond474 extends TestScmBase {
             sessionM = TestScmTools.createSession( rootSite );
             sessionA = TestScmTools.createSession( branceSite );
 
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             ScmCursor< ScmFileBasicInfo > cur = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_CURRENT, ScmQueryBuilder
-                            .start( ScmAttributeName.File.AUTHOR )
-                            .is( authorName ).get() );
+                    .listInstance( ws, ScopeType.SCOPE_CURRENT,
+                            ScmQueryBuilder
+                                    .start( ScmAttributeName.File.AUTHOR )
+                                    .is( authorName ).get() );
             while ( cur.hasNext() ) {
-                ScmFactory.File
-                        .deleteInstance( ws, cur.getNext().getFileId(), true );
+                ScmFactory.File.deleteInstance( ws, cur.getNext().getFileId(),
+                        true );
             }
             prepareFiles( sessionA );
         } catch ( Exception e ) {
@@ -115,8 +116,8 @@ public class Clean_cleanCond474 extends TestScmBase {
     private void test() throws Exception {
         try {
             readAllFile( sessionM );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             BSONObject cond = buildCond( ws );
             taskId = ScmSystem.Task.startCleanTask( ws, cond );
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
@@ -135,8 +136,8 @@ public class Clean_cleanCond474 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionM );
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
                 TestSdbTools.Task.deleteMeta( taskId );
                 TestTools.LocalFile.removeFile( localPath );
@@ -154,8 +155,8 @@ public class Clean_cleanCond474 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             String str = "474_" + i;
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
@@ -173,13 +174,13 @@ public class Clean_cleanCond474 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -249,8 +250,9 @@ public class Clean_cleanCond474 extends TestScmBase {
 
     private Object[][] kvsArr( ScmWorkspace ws ) throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 2 ) );
-        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
-                "ffffffffffffffffffffffff" }, // max
+        return new Object[][] {
+                new Object[] { ScmAttributeName.File.FILE_ID,
+                        "ffffffffffffffffffffffff" }, // max
                 // id
                 // new Object[]{ScmAttributeName.File.FILE_NAME,
                 // file.getFileName()},

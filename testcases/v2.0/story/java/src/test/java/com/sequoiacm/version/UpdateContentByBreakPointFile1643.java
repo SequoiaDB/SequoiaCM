@@ -29,8 +29,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:specify that the breakpoint file update Content of the current
- *              scm file, the breakpoint file not uploaded. 
- * testlink-case:SCM-1643 * 
+ * scm file, the breakpoint file not uploaded. testlink-case:SCM-1643 *
+ * 
  * @author wuyan
  * @Date 2018.06.01
  * @version 1.00
@@ -52,11 +52,10 @@ public class UpdateContentByBreakPointFile1643 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         VersionUtils.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + breakpointfileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_"
+                + breakpointfileSize + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -106,12 +105,12 @@ public class UpdateContentByBreakPointFile1643 extends TestScmBase {
         try {
             file.updateContent( breakpointFile );
             Assert.fail(
-                    "updateContent by  not uploaded breakpoint file must be " +
-                            "fail!" );
+                    "updateContent by  not uploaded breakpoint file must be "
+                            + "fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 

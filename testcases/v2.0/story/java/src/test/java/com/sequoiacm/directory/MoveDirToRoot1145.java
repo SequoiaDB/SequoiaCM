@@ -77,12 +77,12 @@ public class MoveDirToRoot1145 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
-                ScmFactory.Directory
-                        .deleteInstance( ws, dirBasePath + "/1145_b" );
+                ScmFactory.Directory.deleteInstance( ws,
+                        dirBasePath + "/1145_b" );
                 ScmFactory.Directory.deleteInstance( ws, dirBasePath );
                 ScmFactory.Directory.deleteInstance( ws, "/1145_c/" + eleName );
-                ScmFactory.Directory
-                        .deleteInstance( ws, "/1145_c/" + eleName + "_test" );
+                ScmFactory.Directory.deleteInstance( ws,
+                        "/1145_c/" + eleName + "_test" );
                 ScmFactory.Directory.deleteInstance( ws, "/1145_c" );
             }
         } catch ( Exception e ) {
@@ -147,8 +147,8 @@ public class MoveDirToRoot1145 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private List< String > getSubPaths( String path ) {

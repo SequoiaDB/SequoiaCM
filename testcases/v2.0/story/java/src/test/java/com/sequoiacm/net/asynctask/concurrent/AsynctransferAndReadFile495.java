@@ -58,10 +58,10 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -90,14 +90,13 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            AsyncTransferFromSubCenterB asyncTransferBT = new
-                    AsyncTransferFromSubCenterB();
+            AsyncTransferFromSubCenterB asyncTransferBT = new AsyncTransferFromSubCenterB();
             ReadFileFromMainCenter readFileMT = new ReadFileFromMainCenter();
             asyncTransferBT.start( 15 );
             readFileMT.start( 15 );
             if ( !( asyncTransferBT.isSuccess() && readFileMT.isSuccess() ) ) {
-                Assert.fail( asyncTransferBT.getErrorMsg() +
-                        readFileMT.getErrorMsg() );
+                Assert.fail( asyncTransferBT.getErrorMsg()
+                        + readFileMT.getErrorMsg() );
             }
             checkResult();
         } catch ( Exception e ) {
@@ -137,8 +136,8 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
     private void checkResult() {
         try {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsA, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
         } catch ( Exception e ) {
@@ -176,9 +175,9 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionM );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
             } catch ( ScmException e ) {
                 throw e;

@@ -26,10 +26,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content and delete the same file concurrently:
- *               a.update content
- *               b.delete the file
- * testlink-case:SCM-1690
+ * test content: update Content and delete the same file concurrently: a.update
+ * content b.delete the file testlink-case:SCM-1690
  *
  * @author wuyan
  * @Date 2018.06.15
@@ -62,8 +60,8 @@ public class UpdateAndDeleteFile1690 extends TestScmBase {
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -83,15 +81,15 @@ public class UpdateAndDeleteFile1690 extends TestScmBase {
                 ScmException e = ( ScmException ) updateFile.getExceptions()
                         .get( 0 );
                 Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
-                        "updateContent by file fail:" +
-                                updateFile.getErrorMsg() );
+                        "updateContent by file fail:"
+                                + updateFile.getErrorMsg() );
                 checkDeleteFileResult( wsA );
             } else if ( updateFile.isSuccess() ) {
                 checkDeleteFileResult( wsA );
             } else {
                 Assert.fail(
-                        "the results can only by updated successfully or one " +
-                                "update succeeds" );
+                        "the results can only by updated successfully or one "
+                                + "update succeeds" );
             }
         } else if ( !deleteFile.isSuccess() ) {
             Assert.assertTrue( updateFile.isSuccess(),
@@ -129,23 +127,23 @@ public class UpdateAndDeleteFile1690 extends TestScmBase {
     }
 
     private void checkDeleteFileResult( ScmWorkspace ws ) throws Exception {
-        //check the FILE is not exist
+        // check the FILE is not exist
         try {
             ScmFactory.File.getInstanceByPath( ws, fileName );
             Assert.fail( "get file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //count histroy and current version file are not exist
+        // count histroy and current version file are not exist
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        long count = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, condition );
+        long count = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                condition );
         long expFileConut = 0;
         Assert.assertEquals( count, expFileConut );
     }

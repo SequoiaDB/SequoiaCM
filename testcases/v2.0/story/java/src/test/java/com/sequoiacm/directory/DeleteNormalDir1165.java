@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1165 :: 删除普通文件夹 
+ * @Description:SCM-1165 :: 删除普通文件夹
  * @author fanyu
  * @Date:2018年4月25日
  * @version:1.0
@@ -58,7 +58,7 @@ public class DeleteNormalDir1165 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
             ScmFileUtils.cleanFile( wsp, cond );
-            //ScmFactory.Directory.deleteInstance(ws, fullPath1);
+            // ScmFactory.Directory.deleteInstance(ws, fullPath1);
             deleteDir( ws, fullPath1 );
             dir = createDir( ws, fullPath1 );
         } catch ( Exception e ) {
@@ -81,14 +81,13 @@ public class DeleteNormalDir1165 extends TestScmBase {
             Assert.fail( e.getMessage() );
         }
 
-        //dir is not not empty
+        // dir is not not empty
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1165_b/1165_c" );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1165_b/1165_c" );
             dir.delete();
-            Assert.fail(
-                    "expect dir should not be deleted but actually it was " +
-                            "deleted" );
+            Assert.fail( "expect dir should not be deleted but actually it was "
+                    + "deleted" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_EMPTY ) {
                 e.printStackTrace();
@@ -96,17 +95,16 @@ public class DeleteNormalDir1165 extends TestScmBase {
             }
         }
         Assert.assertEquals( ScmFactory.Directory
-                .getInstance( ws, dirBasePath + "/1165_b/1165_c" )
-                .getPath(), dirBasePath + "/1165_b/1165_c/" );
+                .getInstance( ws, dirBasePath + "/1165_b/1165_c" ).getPath(),
+                dirBasePath + "/1165_b/1165_c/" );
 
-        //dir is not not empty
+        // dir is not not empty
         try {
             createFile( ws, dir );
-            ScmFactory.Directory
-                    .deleteInstance( ws, dirBasePath + "/1165_b/1165_c" );
-            Assert.fail(
-                    "expect dir should not be deleted but actually it was " +
-                            "deleted" );
+            ScmFactory.Directory.deleteInstance( ws,
+                    dirBasePath + "/1165_b/1165_c" );
+            Assert.fail( "expect dir should not be deleted but actually it was "
+                    + "deleted" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_EMPTY ) {
                 e.printStackTrace();
@@ -173,8 +171,8 @@ public class DeleteNormalDir1165 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -204,4 +202,3 @@ public class DeleteNormalDir1165 extends TestScmBase {
         return pathList;
     }
 }
-

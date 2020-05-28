@@ -23,7 +23,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description: SCM-1871 :: 不存在的模型关联属性 
+ * @Description: SCM-1871 :: 不存在的模型关联属性
  * @author fanyu
  * @Date:2018年7月4日
  * @version:1.0

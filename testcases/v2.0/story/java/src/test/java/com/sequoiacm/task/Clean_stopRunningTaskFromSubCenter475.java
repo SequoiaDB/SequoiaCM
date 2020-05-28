@@ -63,14 +63,14 @@ public class Clean_stopRunningTaskFromSubCenter475 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
@@ -146,15 +146,15 @@ public class Clean_stopRunningTaskFromSubCenter475 extends TestScmBase {
         try {
             // login
             sessionM = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionM );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionM );
             for ( int i = 0; i < fileNum; i++ ) {
                 // read content
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
             }
         } finally {

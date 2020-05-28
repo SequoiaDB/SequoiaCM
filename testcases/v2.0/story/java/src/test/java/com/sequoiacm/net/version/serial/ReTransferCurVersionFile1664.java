@@ -34,9 +34,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content : the currentVersion file in both the sourceSite and the
- * targetSite,
- * 					 transfer the current version file again. 
- * testlink-case: SCM-1664
+ * targetSite, transfer the current version file again. testlink-case: SCM-1664
  *
  * @author wuyan
  * @Date 2018.06.07
@@ -79,8 +77,8 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
         sessionT = TestScmTools.createSession( transTargetSite );
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
 
-        fileId = VersionUtils
-                .createFileByStream( wsS, fileName, filedata, authorName );
+        fileId = VersionUtils.createFileByStream( wsS, fileName, filedata,
+                authorName );
         VersionUtils.updateContentByStream( wsS, fileId, updatedata );
     }
 
@@ -110,8 +108,8 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
                 historyVersion );
         Assert.assertEquals( firstSiteInfo.toString(),
                 secondSiteInfo.toString(),
-                "fisrt get siteList:" + firstSiteInfo.toString() +
-                        " 2nd get siteList:" + secondSiteInfo.toString() );
+                "fisrt get siteList:" + firstSiteInfo.toString()
+                        + " 2nd get siteList:" + secondSiteInfo.toString() );
         runSuccess = true;
     }
 
@@ -136,8 +134,7 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     }
 
     private ScmId startTransferTaskByCurrentVerFile( ScmWorkspace ws,
-            ScmSession session, ScopeType type )
-            throws Exception {
+            ScmSession session, ScopeType type ) throws Exception {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
@@ -153,8 +150,8 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
         // get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsS, fileId, majorVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( wsS, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

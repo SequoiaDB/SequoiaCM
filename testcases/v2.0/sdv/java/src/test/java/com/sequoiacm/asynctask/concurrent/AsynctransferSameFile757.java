@@ -53,17 +53,17 @@ public class AsynctransferSameFile757 extends TestScmBase {
 
     private SiteWrapper rootSite = null;
     private SiteWrapper branceSite = null;
-    //private List<NodeWrapper> nodeList = new ArrayList<NodeWrapper>();
+    // private List<NodeWrapper> nodeList = new ArrayList<NodeWrapper>();
     private WsWrapper ws_T = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -71,7 +71,7 @@ public class AsynctransferSameFile757 extends TestScmBase {
 
             rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
-            //nodeList = branceSite.getNodes(2);
+            // nodeList = branceSite.getNodes(2);
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -97,8 +97,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
 
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         for ( ScmId fileId : fileIdList ) {
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
         }
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( 0 ), expSiteList,
                 localPath, filePath );
@@ -146,8 +146,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 session = TestScmTools.createSession( branceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
                     ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
                 }
@@ -168,8 +168,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 session = TestScmTools.createSession( branceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
                     ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
                 }

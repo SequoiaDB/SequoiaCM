@@ -54,10 +54,10 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -74,24 +74,24 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ScmFileUtils.create( ws, name, filePath );
-        //create schedule
+        // create schedule
         this.createScheduleTask();
-        //deletews
+        // deletews
         ScmWorkspaceUtil.deleteWs( wsName, ssA );
-        //check schedule was deleted in sdb
+        // check schedule was deleted in sdb
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Schedule.ID )
                 .is( scheduleId.get() ).get();
-        ScmCursor< ScmScheduleBasicInfo > cursor = ScmSystem.Schedule
-                .list( ssA, cond );
+        ScmCursor< ScmScheduleBasicInfo > cursor = ScmSystem.Schedule.list( ssA,
+                cond );
         Assert.assertFalse( cursor.hasNext() );
         cursor.close();
 
-        //create ws
+        // create ws
         ScmWorkspaceUtil.createWS( ssA, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( ssA, wsName );
-        //create file to make sure schedule is not running again
-        ScmCursor< ScmTaskBasicInfo > cursor1 = ScmSystem.Task
-                .listTask( ssA, cond );
+        // create file to make sure schedule is not running again
+        ScmCursor< ScmTaskBasicInfo > cursor1 = ScmSystem.Task.listTask( ssA,
+                cond );
         Assert.assertFalse( cursor1.hasNext() );
 
         SiteWrapper[] sites = { branSite };

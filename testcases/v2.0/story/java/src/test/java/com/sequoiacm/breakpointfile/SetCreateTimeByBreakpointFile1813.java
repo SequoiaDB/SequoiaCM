@@ -26,8 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:set createTime when create breakpointfile
- * testlink-case:SCM-1813
+ * test content:set createTime when create breakpointfile testlink-case:SCM-1813
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -56,20 +55,20 @@ public class SetCreateTimeByBreakpointFile1813 extends TestScmBase {
     private void test() throws Exception {
         long currentTimestamp = new Date().getTime();
 
-        //test a : the setCreateTime interval within one month
+        // test a : the setCreateTime interval within one month
         long timestamp1 = currentTimestamp - 20000;
         String fileName1 = "file1813a";
         createBreakpointFile( ws, fileName1, filedata1, timestamp1 );
         checkResult( fileName1, filedata1, timestamp1 );
 
-        //test b :at least 31 days between different months,eg:the timestamp
+        // test b :at least 31 days between different months,eg:the timestamp
         // is 9678400000lms
         long timestamp2 = currentTimestamp - 9678400000l;
         String fileName2 = "file1813b";
         createBreakpointFile( ws, fileName2, filedata2, timestamp2 );
         checkResult( fileName2, filedata2, timestamp2 );
 
-        //test c :not the same year at least 365 days,,the timestamp is
+        // test c :not the same year at least 365 days,,the timestamp is
         // 31536000000ms
         long timestamp3 = currentTimestamp - 31536000000l;
         String fileName3 = "file1813c";
@@ -122,7 +121,7 @@ public class SetCreateTimeByBreakpointFile1813 extends TestScmBase {
         byte[] fileData = outputStream.toByteArray();
         Assert.assertEquals( fileData, expData );
 
-        //delete the file
+        // delete the file
         ScmFactory.File.deleteInstance( ws, fileId, true );
     }
 

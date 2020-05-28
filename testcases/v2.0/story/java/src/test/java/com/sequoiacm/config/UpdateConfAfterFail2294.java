@@ -36,15 +36,16 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        //update configuration failed
+        // update configuration failed
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
                     .service( updatedSite.getSiteServiceName() )
-                    .updateProperty( "server.port",
-                            "15200" )   //it is not allowed to be updated
+                    .updateProperty( "server.port", "15200" ) // it is not
+                                                              // allowed to be
+                                                              // updated
                     .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
@@ -58,7 +59,7 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
             }
         }
 
-        //update configuration again
+        // update configuration again
         ScmSession session1 = null;
         try {
             session1 = TestScmTools.createSession( updatedSite );
@@ -68,7 +69,8 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_mask,
                             "FILE_DML" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session1, confProp );
             List< String > expServiceNames = new ArrayList< String >();
@@ -80,7 +82,7 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
                 session1.close();
             }
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( updatedSite, fileName );
     }
 

@@ -73,18 +73,18 @@ public class StatisticsFileTraffic2230 extends TestScmBase {
     private void test() throws Exception {
         createFiles( wsA, fileNums );
 
-        //get statisticDownload after create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload after create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload1 = firstmap.get( "file_download" );
         transferFile( wsA, sessionA );
 
-        //get statisticDownload after transfer file
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload after transfer file
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload2 = secondmap.get( "file_download" );
 
-        //check statisticDownload result, statistic no download file
+        // check statisticDownload result, statistic no download file
         Assert.assertEquals( statisticDownload2, statisticDownload1,
                 "statistic traffic must be no change!" );
         runSuccess = true;
@@ -122,11 +122,10 @@ public class StatisticsFileTraffic2230 extends TestScmBase {
             throws Exception {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
 
     }

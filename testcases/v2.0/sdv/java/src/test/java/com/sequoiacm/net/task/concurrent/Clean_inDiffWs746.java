@@ -71,15 +71,14 @@ public class Clean_inDiffWs746 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -101,8 +100,8 @@ public class Clean_inDiffWs746 extends TestScmBase {
 
             session1 = TestScmTools.createSession( sourceSite1 );
             session2 = TestScmTools.createSession( sourceSite2 );
-            ws = ScmFactory.Workspace
-                    .getWorkspace( ws_TList.get( 0 ).getName(), session1 );
+            ws = ScmFactory.Workspace.getWorkspace( ws_TList.get( 0 ).getName(),
+                    session1 );
             ws2 = ScmFactory.Workspace
                     .getWorkspace( ws_TList.get( 1 ).getName(), session2 );
 
@@ -142,15 +141,14 @@ public class Clean_inDiffWs746 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                /*for (int i = 0; i < fileIdList.size()/2; i++) {
-                    ScmId fileId = fileIdList.get(i);
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-				for(int i = fileIdList.size()/2; i < fileIdList.size(); i++){
-					ScmId fileId = fileIdList.get(i);
-					ScmFactory.File.deleteInstance(ws2, fileId, true);
-				}
-				TestTools.LocalFile.removeFile(localPath);*/
+                /*
+                 * for (int i = 0; i < fileIdList.size()/2; i++) { ScmId fileId
+                 * = fileIdList.get(i); ScmFactory.File.deleteInstance(ws,
+                 * fileId, true); } for(int i = fileIdList.size()/2; i <
+                 * fileIdList.size(); i++){ ScmId fileId = fileIdList.get(i);
+                 * ScmFactory.File.deleteInstance(ws2, fileId, true); }
+                 * TestTools.LocalFile.removeFile(localPath);
+                 */
                 BSONObject cond = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
@@ -190,9 +188,8 @@ public class Clean_inDiffWs746 extends TestScmBase {
             String siteName ) throws Exception {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-        ScmId taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        siteName );
+        ScmId taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, siteName );
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 

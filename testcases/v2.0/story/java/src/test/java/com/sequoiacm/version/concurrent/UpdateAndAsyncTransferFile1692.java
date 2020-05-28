@@ -68,21 +68,19 @@ public class UpdateAndAsyncTransferFile1692 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        int asyncFileVersion = VersionUtils
-                .waitAsyncTaskFinished2( wsM, fileId, historyVersion, 2 );
+        int asyncFileVersion = VersionUtils.waitAsyncTaskFinished2( wsM, fileId,
+                historyVersion, 2 );
         Assert.assertTrue( updateFileThread.isSuccess(),
                 updateFileThread.getErrorMsg() );
 
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, asyncFileVersion, expHisSiteList );
         if ( asyncFileVersion == historyVersion ) {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, asyncFileVersion,
-                            filedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    asyncFileVersion, filedata );
         } else {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, asyncFileVersion,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    asyncFileVersion, updatedata );
         }
 
         runSuccess = true;

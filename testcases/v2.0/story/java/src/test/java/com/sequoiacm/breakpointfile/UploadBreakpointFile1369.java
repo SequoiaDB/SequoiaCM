@@ -27,7 +27,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:breakpoint continuation file in input stream or file 
+ * test content:breakpoint continuation file in input stream or file
  * testlink-case:seqDB-1369
  *
  * @author wuyan
@@ -107,11 +107,10 @@ public class UploadBreakpointFile1369 extends TestScmBase {
         fileId = file.save();
 
         // down file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );

@@ -67,8 +67,8 @@ public class DefineAttr_Class_ClassAttachAttr1870 extends TestScmBase {
             }
         }
         try {
-            ScmClass class2 = ScmFactory.Class
-                    .getInstance( ws, class1.getId() );
+            ScmClass class2 = ScmFactory.Class.getInstance( ws,
+                    class1.getId() );
             Assert.assertEquals( class2.listAttrs().size(), 0 );
         } catch ( ScmException e ) {
             e.printStackTrace();

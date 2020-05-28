@@ -59,7 +59,7 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             sourceSite = siteList.get( 0 );
             targetSite = siteList.get( 1 );
             // login
-            //session = TestScmTools.createSession(TestScmBase.hostName2,
+            // session = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
             session = TestScmTools.createSession( sourceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
@@ -87,9 +87,8 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                     .get();
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
             ScmTaskUtils.waitTaskFinish( session, taskId );
 
             // check task info
@@ -109,20 +108,17 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             Assert.assertNotNull( taskStopTime );
             long fileCreateTime = ScmFactory.File.getInstance( ws, fileId )
                     .getCreateTime().getTime();
-            if ( fileCreateTime < taskStartTime &&
-                    taskStartTime < taskStopTime ) {
+            if ( fileCreateTime < taskStartTime
+                    && taskStartTime < taskStopTime ) {
             } else {
-                throw new Exception(
-                        "time error, " + "\nfileCreateTime=" + fileCreateTime +
-                                "\ntaskStartTime ="
-                                + taskStartTime + "\ntaskStopTime  =" +
-                                taskStopTime );
+                throw new Exception( "time error, " + "\nfileCreateTime="
+                        + fileCreateTime + "\ntaskStartTime =" + taskStartTime
+                        + "\ntaskStopTime  =" + taskStopTime );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(
-                    e.getMessage() + "  node INFO = " + sourceSite.toString() +
-                            " taskId = " + taskId.get() );
+            Assert.fail( e.getMessage() + "  node INFO = "
+                    + sourceSite.toString() + " taskId = " + taskId.get() );
         }
         runSuccess = true;
     }

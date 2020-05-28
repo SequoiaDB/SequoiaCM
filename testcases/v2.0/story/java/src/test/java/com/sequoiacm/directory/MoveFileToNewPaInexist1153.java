@@ -39,8 +39,8 @@ public class MoveFileToNewPaInexist1153 extends TestScmBase {
     private SiteWrapper site;
     private WsWrapper wsp;
     private String dirBasePath = "/MoveFileToNewPaInexist1153";
-    private String fullPath1 =
-            dirBasePath + "/1153_b/MoveFileToNewPaInexist1153/1153_d/1153_e";
+    private String fullPath1 = dirBasePath
+            + "/1153_b/MoveFileToNewPaInexist1153/1153_d/1153_e";
     private String author = "MoveFileToNewPaInexist1153";
     private ScmId fileId;
     private ScmDirectory dir;
@@ -69,8 +69,8 @@ public class MoveFileToNewPaInexist1153 extends TestScmBase {
         ScmFile file = null;
         try {
             // new parent directory does not exits same ele;
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, "/1153_a" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    "/1153_a" );
             ScmFactory.Directory.deleteInstance( ws, "/1153_a" );
             file = ScmFactory.File.getInstance( ws, fileId );
             file.setDirectory( dir );
@@ -130,8 +130,8 @@ public class MoveFileToNewPaInexist1153 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

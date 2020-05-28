@@ -52,10 +52,10 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -89,10 +89,10 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
         ReadScmFile rThread3 = new ReadScmFile( site3, fileIdList.get( 2 ) );
         rThread3.start( 3 );
 
-        if ( !( rThread1.isSuccess() && rThread2.isSuccess() &&
-                rThread3.isSuccess() ) ) {
-            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() +
-                    rThread3.getErrorMsg() );
+        if ( !( rThread1.isSuccess() && rThread2.isSuccess()
+                && rThread3.isSuccess() ) ) {
+            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg()
+                    + rThread3.getErrorMsg() );
         }
 
         checkResult( fileIdList.get( 0 ) );
@@ -125,8 +125,8 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site1 );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             Assert.assertEquals( file.getWorkspaceName(), wsp.getName() );
@@ -164,8 +164,8 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setContent( filePath );
             scmfile.setFileName( author + "_" + UUID.randomUUID() );
@@ -198,9 +198,9 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 Assert.assertEquals( TestTools.getMD5( filePath ),
                         TestTools.getMD5( downloadPath ) );

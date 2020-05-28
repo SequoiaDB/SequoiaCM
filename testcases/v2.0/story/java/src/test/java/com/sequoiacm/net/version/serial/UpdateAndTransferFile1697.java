@@ -80,8 +80,8 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
 
         fileId = VersionUtils.createFileByStream( wsS, fileName, filedata );
-        sbFile = VersionUtils
-                .createBreakpointFileByStream( wsS, fileName, updatedata );
+        sbFile = VersionUtils.createBreakpointFileByStream( wsS, fileName,
+                updatedata );
 
     }
 
@@ -96,9 +96,8 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
 
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                 .is( fileId.toString() ).get();
-        taskId = ScmSystem.Task
-                .startTransferTask( wsS, cond, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( wsS, cond,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
 
         ScmTaskUtils.waitTaskFinish( sessionS, taskId );
         Assert.assertTrue( updateFileThread.isSuccess(),
@@ -109,13 +108,11 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         SiteWrapper[] expHisSiteList = { targetSite, sourceSite };
         VersionUtils.checkSite( wsS, fileId, curFileVersion, expHisSiteList );
         if ( curFileVersion == 1 ) {
-            VersionUtils
-                    .CheckFileContentByStream( wsT, fileName, historyVersion,
-                            filedata );
+            VersionUtils.CheckFileContentByStream( wsT, fileName,
+                    historyVersion, filedata );
         } else {
-            VersionUtils
-                    .CheckFileContentByStream( wsT, fileName, currentVersion,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( wsT, fileName,
+                    currentVersion, updatedata );
         }
 
         runSuccess = true;

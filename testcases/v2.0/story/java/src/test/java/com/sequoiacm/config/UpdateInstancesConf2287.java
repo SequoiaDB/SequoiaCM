@@ -45,7 +45,7 @@ public class UpdateInstancesConf2287 extends TestScmBase {
         for ( NodeWrapper node : nodeList ) {
             instances.add( node.getUrl() );
         }
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( siteList.get( 0 ) );
@@ -68,7 +68,7 @@ public class UpdateInstancesConf2287 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         for ( SiteWrapper site : siteList ) {
             ConfUtil.checkTakeEffect( site, fileName );
         }

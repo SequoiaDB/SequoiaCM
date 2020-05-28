@@ -29,10 +29,9 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer file, specify the fields in transfer condition are
- * not in the history table.
- *              the current version file transfer is test by testcase-1660
- * testlink-case:SCM-1666
+ * test content:Transfer file, specify the fields in transfer condition are not
+ * in the history table. the current version file transfer is test by
+ * testcase-1660 testlink-case:SCM-1666
  *
  * @author wuyan
  * @Date 2018.06.08
@@ -72,8 +71,8 @@ public class TransferFile1666 extends TestScmBase {
         wsS = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionS );
         sessionT = TestScmTools.createSession( targetSite );
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
-        fileId = VersionUtils
-                .createFileByStream( wsS, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsS, fileName, writeData,
+                authorName );
         VersionUtils.updateContentByStream( wsS, fileId, updateData );
     }
 
@@ -83,7 +82,7 @@ public class TransferFile1666 extends TestScmBase {
         int historyVersion = 1;
         startTransferTaskError( wsS, sessionS );
 
-        //check the file  siteinfo
+        // check the file siteinfo
         SiteWrapper[] expSiteList = { sourceSite };
         VersionUtils.checkSite( wsS, fileId, historyVersion, expSiteList );
         VersionUtils.checkSite( wsS, fileId, currentVersion, expSiteList );
@@ -114,25 +113,24 @@ public class TransferFile1666 extends TestScmBase {
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
         try {
-            ScmSystem.Task
-                    .startTransferTask( ws, condition, ScopeType.SCOPE_HISTORY,
-                            targetSite.getSiteName() );
+            ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_HISTORY, targetSite.getSiteName() );
             Assert.fail( "transfer file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
         try {
-            ScmSystem.Task
-                    .startTransferTask( ws, condition, ScopeType.SCOPE_ALL );
+            ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_ALL );
             Assert.fail( "transfer file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

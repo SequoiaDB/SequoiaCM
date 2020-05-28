@@ -28,7 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description BreakpointFile1370.java 以文件方式断点续传文件（指定文件校验） 
+ * @Description BreakpointFile1370.java 以文件方式断点续传文件（指定文件校验）
  * @author luweikang
  * @date 2018年5月11日
  */
@@ -48,10 +48,10 @@ public class BreakpointFile1370 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -64,16 +64,15 @@ public class BreakpointFile1370 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws JSONException, ScmException, IOException {
-        //创建断点文件,上传部分文件
+        // 创建断点文件,上传部分文件
         int partFileSize = 1024 * 1024 * 5;
-        BreakpointUtil
-                .createBreakpointFile( ws, filePath, fileName, partFileSize,
-                        ScmChecksumType.ADLER32 );
-        //检查断点文件信息
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName,
+                partFileSize, ScmChecksumType.ADLER32 );
+        // 检查断点文件信息
         this.checkBreakpointFile( partFileSize );
-        //重新上传文件
+        // 重新上传文件
         ScmBreakpointFile breakpointFile = this.uploadBreakpointFile();
-        //创建scm文件,并将创建的断点文件保存为文件的内容
+        // 创建scm文件,并将创建的断点文件保存为文件的内容
         breakpointFile2ScmFile( breakpointFile );
 
     }
@@ -107,8 +106,8 @@ public class BreakpointFile1370 extends TestScmBase {
     private ScmBreakpointFile uploadBreakpointFile() {
         ScmBreakpointFile breakpointFile = null;
         try {
-            breakpointFile = ScmFactory.BreakpointFile
-                    .getInstance( ws, fileName );
+            breakpointFile = ScmFactory.BreakpointFile.getInstance( ws,
+                    fileName );
             InputStream inputStream = new FileInputStream( filePath );
             breakpointFile.upload( inputStream );
             inputStream.close();

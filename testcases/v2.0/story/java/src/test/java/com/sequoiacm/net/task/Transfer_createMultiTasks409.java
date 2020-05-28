@@ -69,10 +69,10 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -135,13 +135,11 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
 
     private void startTask() throws ScmException {
         try {
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
             for ( int i = 0; i < 5; i++ ) {
-                ScmSystem.Task
-                        .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                                targetSite.getSiteName() );
+                ScmSystem.Task.startTransferTask( ws, cond,
+                        ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
             }
         } catch ( ScmException e ) {
             if ( ScmError.TASK_DUPLICATE != e.getError() ) {

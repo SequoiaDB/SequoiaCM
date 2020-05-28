@@ -41,9 +41,8 @@ import com.sequoiadb.exception.BaseException;
  */
 
 /*
- * 1、创建ws，并在ws写文件； 2、删除该ws，重新建立同名ws； 3、在该ws上写文件； 4、检查结果；
- * 
- * 备注： 1、713为问题单SEQUOIACM-63的补充用例 2、创建新的workspace时本即没有lob的cs、cl，因此覆盖313、314
+ * 1、创建ws，并在ws写文件； 2、删除该ws，重新建立同名ws； 3、在该ws上写文件； 4、检查结果； 备注：
+ * 1、713为问题单SEQUOIACM-63的补充用例 2、创建新的workspace时本即没有lob的cs、cl，因此覆盖313、314
  */
 
 public class RecreateWs713 extends TestScmBase {
@@ -62,10 +61,10 @@ public class RecreateWs713 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -87,16 +86,14 @@ public class RecreateWs713 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         createws( wsName1 );
-        List< BSONObject > infoList = ScmSystem.Configuration
-                .reloadBizConf( ServerScope.ALL_SITE,
-                        rootSite.getSiteId(), session );
+        List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
+                ServerScope.ALL_SITE, rootSite.getSiteId(), session );
         System.out.println( "infoList after reloadbizconf: \n" + infoList );
         write( session, wsName1 );
         TestSdbTools.Workspace.delete( wsName1, session );
         createws( wsName1 );
-        List< BSONObject > infoList1 = ScmSystem.Configuration
-                .reloadBizConf( ServerScope.ALL_SITE,
-                        rootSite.getSiteId(), session );
+        List< BSONObject > infoList1 = ScmSystem.Configuration.reloadBizConf(
+                ServerScope.ALL_SITE, rootSite.getSiteId(), session );
         System.out.println( "infoList after reloadbizconf: \n" + infoList1 );
         write( session, wsName1 );
         runSuccess = true;
@@ -130,8 +127,8 @@ public class RecreateWs713 extends TestScmBase {
 
     private void write( ScmSession session, String wsName ) throws Exception {
 
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( filePath );
         file.setFileName( author + "_" + UUID.randomUUID() );
@@ -142,8 +139,8 @@ public class RecreateWs713 extends TestScmBase {
     private void createws( String wsName ) throws Exception {
         ScmSession session = null;
         String metaStr1 = "{site:\'" + rootSite.getSiteName() + "\',domain:\'"
-                + createDomain( rootSite, domainNameList.get( 0 ), true ) +
-                "\'}";
+                + createDomain( rootSite, domainNameList.get( 0 ), true )
+                + "\'}";
         String dataStr1 = createDataStr( domainNameList );
         try {
             session = TestScmTools.createSession( rootSite );
@@ -159,8 +156,7 @@ public class RecreateWs713 extends TestScmBase {
     }
 
     public void createWs( ScmSession session, String wsName, String metaStr,
-            String dataStr )
-            throws Exception {
+            String dataStr ) throws Exception {
         Ssh ssh = null;
         try {
             ssh = new Ssh( ScmInfo.getRootSite().getNode().getHost() );
@@ -169,20 +165,17 @@ public class RecreateWs713 extends TestScmBase {
             String installPath = ssh.getScmInstallDir();
 
             // create workspace
-            String cmd =
-                    installPath + "/bin/scmadmin.sh createws -n " + wsName +
-                            " -m \"" + metaStr + "\" -d \""
-                            + dataStr + "\" --url \"" +
-                            TestScmBase.gateWayList.get( 0 ) + "/" +
-                            rootSite.getSiteName().toLowerCase() +
-                            "\" --user " + TestScmBase.scmUserName +
-                            " --password " + TestScmBase.scmUserName;
+            String cmd = installPath + "/bin/scmadmin.sh createws -n " + wsName
+                    + " -m \"" + metaStr + "\" -d \"" + dataStr + "\" --url \""
+                    + TestScmBase.gateWayList.get( 0 ) + "/"
+                    + rootSite.getSiteName().toLowerCase() + "\" --user "
+                    + TestScmBase.scmUserName + " --password "
+                    + TestScmBase.scmUserName;
             ssh.exec( cmd );
             String resultMsg = ssh.getStdout();
             if ( !resultMsg.contains( "success" ) ) {
-                throw new Exception(
-                        "Failed to create ws[" + wsName + "], msg:\n" +
-                                resultMsg );
+                throw new Exception( "Failed to create ws[" + wsName
+                        + "], msg:\n" + resultMsg );
             }
         } finally {
             if ( null != ssh ) {
@@ -197,13 +190,13 @@ public class RecreateWs713 extends TestScmBase {
         for ( int i = 0; i < siteList.size() - 1; i++ ) {
             if ( siteList.get( i ).getDataType()
                     .equals( DatasourceType.SEQUOIADB ) ) {
-                dataStr += "{site:\'" + siteList.get( i ).getSiteName() +
-                        "\',domain:\'"
+                dataStr += "{site:\'" + siteList.get( i ).getSiteName()
+                        + "\',domain:\'"
                         + createDomain( siteList.get( i ),
-                        domainNameList.get( i % domainNameList.size() ), false )
-                        +
-                        "\',data_sharding_type:{collection_space:\'year\'," +
-                        "collection:\'month\'}},";
+                                domainNameList.get( i % domainNameList.size() ),
+                                false )
+                        + "\',data_sharding_type:{collection_space:\'year\',"
+                        + "collection:\'month\'}},";
 
             } else {
                 dataStr += "{site:\'" + siteList.get( i ).getSiteName() + "'},";
@@ -212,11 +205,12 @@ public class RecreateWs713 extends TestScmBase {
         SiteWrapper lastSite = siteList.get( siteList.size() - 1 );
         if ( lastSite.getDataType() == DatasourceType.SEQUOIADB ) {
             dataStr += "{site:\'" + lastSite.getSiteName() + "\',domain:\'"
-                    + createDomain( lastSite, domainNameList
-                    .get( siteList.size() % domainNameList.size() ), false )
-                    +
-                    "\',data_sharding_type:{collection_space:\'year\'," +
-                    "collection:\'month\'}}]";
+                    + createDomain( lastSite,
+                            domainNameList.get(
+                                    siteList.size() % domainNameList.size() ),
+                            false )
+                    + "\',data_sharding_type:{collection_space:\'year\',"
+                    + "collection:\'month\'}}]";
         } else {
             dataStr += "{site:\'" + lastSite.getSiteName() + "\'}]";
         }
@@ -285,8 +279,8 @@ public class RecreateWs713 extends TestScmBase {
             }
             try {
                 for ( String domainName : domainNameList ) {
-                    System.out.println( "domainName1 = " + domainName + " : " +
-                            site.toString() );
+                    System.out.println( "domainName1 = " + domainName + " : "
+                            + site.toString() );
                     db.dropDomain( domainName );
                 }
             } catch ( BaseException e ) {

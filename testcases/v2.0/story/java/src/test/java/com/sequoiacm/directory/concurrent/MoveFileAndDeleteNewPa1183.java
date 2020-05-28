@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description: SCM-1183 :: 移动文件和删除新父文件夹并发 
+ * @Description: SCM-1183 :: 移动文件和删除新父文件夹并发
  * @author fanyu
  * @Date:2018年5月2日
  * @version:1.0
@@ -53,10 +53,10 @@ public class MoveFileAndDeleteNewPa1183 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -78,7 +78,7 @@ public class MoveFileAndDeleteNewPa1183 extends TestScmBase {
         }
     }
 
-    //bug:255
+    // bug:255
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         DeletePaDir dThread = new DeletePaDir();
@@ -177,8 +177,8 @@ public class MoveFileAndDeleteNewPa1183 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -229,13 +229,13 @@ public class MoveFileAndDeleteNewPa1183 extends TestScmBase {
         public void exec() {
             try {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, fullPath2 );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        fullPath2 );
                 file.setDirectory( dir );
                 check( fileId, dir );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.HTTP_NOT_FOUND ) {
                     check( fileId, dir );
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
@@ -244,4 +244,3 @@ public class MoveFileAndDeleteNewPa1183 extends TestScmBase {
         }
     }
 }
-

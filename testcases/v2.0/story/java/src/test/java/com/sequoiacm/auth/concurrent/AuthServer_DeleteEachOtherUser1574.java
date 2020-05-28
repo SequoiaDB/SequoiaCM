@@ -61,17 +61,15 @@ public class AuthServer_DeleteEachOtherUser1574 extends TestScmBase {
         }
         try {
             ScmUserModifier modifier = new ScmUserModifier();
-            ScmUser superUser = ScmFactory.User
-                    .getUser( session, TestScmBase.scmUserName );
+            ScmUser superUser = ScmFactory.User.getUser( session,
+                    TestScmBase.scmUserName );
             Collection< ScmRole > superRoles = superUser.getRoles();
             modifier.addRoles( superRoles );
             for ( int i = 0; i < userNum; i++ ) {
-                ScmUser user = ScmFactory.User
-                        .createUser( session, username + "_" + i,
-                                ScmUserPasswordType.LOCAL,
-                                passwd );
-                ScmUser user1 = ScmFactory.User
-                        .alterUser( session, user, modifier );
+                ScmUser user = ScmFactory.User.createUser( session,
+                        username + "_" + i, ScmUserPasswordType.LOCAL, passwd );
+                ScmUser user1 = ScmFactory.User.alterUser( session, user,
+                        modifier );
                 userList.add( user1 );
             }
         } catch ( ScmException e ) {
@@ -106,8 +104,8 @@ public class AuthServer_DeleteEachOtherUser1574 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < userNum; i++ ) {
                     try {
-                        ScmFactory.User
-                                .deleteUser( session, userList.get( i ) );
+                        ScmFactory.User.deleteUser( session,
+                                userList.get( i ) );
                     } catch ( ScmException e ) {
                         if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
                             e.printStackTrace();
@@ -137,16 +135,15 @@ public class AuthServer_DeleteEachOtherUser1574 extends TestScmBase {
         public void exec() {
             ScmSession session = null;
             try {
-                session = TestScmTools
-                        .createSession( site, this.srcUser.getUsername(),
-                                passwd );
+                session = TestScmTools.createSession( site,
+                        this.srcUser.getUsername(), passwd );
                 ScmFactory.User.deleteUser( session, dstUser.getUsername() );
                 check( dstUser );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.HTTP_BAD_REQUEST &&
-                        e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        && e.getError() != ScmError.HTTP_UNAUTHORIZED &&
-                        e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                if ( e.getError() != ScmError.HTTP_BAD_REQUEST
+                        && e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR
+                        && e.getError() != ScmError.HTTP_UNAUTHORIZED
+                        && e.getError() != ScmError.HTTP_NOT_FOUND ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

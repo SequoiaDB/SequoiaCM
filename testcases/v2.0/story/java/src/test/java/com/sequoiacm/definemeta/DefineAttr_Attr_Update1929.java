@@ -53,8 +53,8 @@ public class DefineAttr_Attr_Update1929 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         craeteAttr();
-        ScmAttribute updateAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute updateAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         updateAttr.setDescription( desc + "_1" );
         updateAttr.setDisplayName( attrname + "_display_2" );
         updateAttr.setRequired( false );
@@ -70,8 +70,8 @@ public class DefineAttr_Attr_Update1929 extends TestScmBase {
                 Assert.fail( e.getMessage() );
             }
         }
-        ScmAttribute actattr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actattr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( actattr, attr );
         runSuccess = true;
     }

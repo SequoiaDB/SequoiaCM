@@ -146,8 +146,8 @@ public class DeleteFileInDir1167 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -179,8 +179,8 @@ public class DeleteFileInDir1167 extends TestScmBase {
 
     private void check( ScmWorkspace ws, BSONObject cond ) {
         try {
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
                     .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
             while ( cursor.hasNext() ) {

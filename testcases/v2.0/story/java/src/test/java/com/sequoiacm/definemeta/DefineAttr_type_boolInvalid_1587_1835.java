@@ -102,8 +102,8 @@ public class DefineAttr_type_boolInvalid_1587_1835 extends TestScmBase {
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             // e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -118,8 +118,8 @@ public class DefineAttr_type_boolInvalid_1587_1835 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -134,8 +134,8 @@ public class DefineAttr_type_boolInvalid_1587_1835 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }

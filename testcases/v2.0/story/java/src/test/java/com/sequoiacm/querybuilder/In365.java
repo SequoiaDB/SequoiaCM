@@ -97,8 +97,8 @@ public class In365 extends TestScmBase {
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;
@@ -144,8 +144,9 @@ public class In365 extends TestScmBase {
 
     private Object[][] kvsArr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 1 ) );
-        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
-                file.getFileId().get() },
+        return new Object[][] {
+                new Object[] { ScmAttributeName.File.FILE_ID,
+                        file.getFileId().get() },
                 new Object[] { ScmAttributeName.File.FILE_NAME,
                         file.getFileName() },
                 new Object[] { ScmAttributeName.File.AUTHOR, file.getAuthor() },

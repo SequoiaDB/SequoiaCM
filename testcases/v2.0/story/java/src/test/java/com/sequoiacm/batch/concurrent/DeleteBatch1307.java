@@ -46,8 +46,8 @@ public class DeleteBatch1307 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -73,14 +73,13 @@ public class DeleteBatch1307 extends TestScmBase {
         Assert.assertTrue( delThrd.isSuccess(), delThrd.getErrorMsg() );
 
         ScmCursor< ScmBatchInfo > batchCursor = ScmFactory.Batch
-                .listInstance( ws,
-                        new BasicBSONObject( "id", batchId.get() ) );
+                .listInstance( ws, new BasicBSONObject( "id", batchId.get() ) );
         Assert.assertFalse( batchCursor.hasNext() );
         batchCursor.close();
 
-        ScmCursor< ScmFileBasicInfo > fileCursor = ScmFactory.File
-                .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
-                        new BasicBSONObject( "title", batchName ) );
+        ScmCursor< ScmFileBasicInfo > fileCursor = ScmFactory.File.listInstance(
+                ws, ScmType.ScopeType.SCOPE_CURRENT,
+                new BasicBSONObject( "title", batchName ) );
         Assert.assertFalse( fileCursor.hasNext() );
         fileCursor.close();
     }

@@ -52,8 +52,8 @@ public class DefineAttr_Attr_RepeatCreate1924 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         craeteAttr();
-        ScmAttribute expAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute expAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
 
         // repeat create
         try {
@@ -65,8 +65,8 @@ public class DefineAttr_Attr_RepeatCreate1924 extends TestScmBase {
             }
         }
 
-        ScmAttribute actAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( expAttr, actAttr );
     }
 

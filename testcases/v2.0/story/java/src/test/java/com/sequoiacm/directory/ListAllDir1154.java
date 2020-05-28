@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1154 :: 列取工作区下所有的文件夹 
+ * @Description: SCM-1154 :: 列取工作区下所有的文件夹
  * @author fanyu
  * @Date:2018年4月26日
  * @version:1.0
@@ -123,8 +123,8 @@ public class ListAllDir1154 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -154,5 +154,3 @@ public class ListAllDir1154 extends TestScmBase {
         return pathList;
     }
 }
-
-

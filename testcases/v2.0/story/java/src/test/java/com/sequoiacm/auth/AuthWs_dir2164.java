@@ -95,9 +95,8 @@ public class AuthWs_dir2164 extends TestScmBase {
 
         // prepare resource
         for ( int i = 0; i < DIR_PATH_ARRAY.length - 1; i++ ) {
-            ScmResource resource = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(),
-                            DIR_PATH_ARRAY[ i ] );
+            ScmResource resource = ScmResourceFactory.createDirectoryResource(
+                    wsp.getName(), DIR_PATH_ARRAY[ i ] );
             resources.add( resource );
         }
 
@@ -122,8 +121,8 @@ public class AuthWs_dir2164 extends TestScmBase {
         ScmSession tSS = null;
         try {
             tSS = TestScmTools.createSession( site, NAME, PASSWORD );
-            ScmWorkspace tWS = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), tSS );
+            ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    tSS );
 
             String path = targetDIR_PATH_ARRAY[ 0 ];
             System.out.println( "path = " + path );
@@ -145,13 +144,13 @@ public class AuthWs_dir2164 extends TestScmBase {
         ScmSession tSS = null;
         try {
             tSS = TestScmTools.createSession( site, NAME, PASSWORD );
-            ScmWorkspace tWS = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), tSS );
+            ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    tSS );
 
             String path = targetDIR_PATH_ARRAY[ 1 ];
             System.out.println( "path = " + path );
-            ScmFactory.Directory
-                    .createInstance( tWS, "/" + NAME + "_a/" + NAME + "e/" );
+            ScmFactory.Directory.createInstance( tWS,
+                    "/" + NAME + "_a/" + NAME + "e/" );
             dir = ScmFactory.Directory.createInstance( tWS, path );
             ScmDirectory rcPath = ScmFactory.Directory.getInstance( tWS, path );
             Assert.assertEquals( rcPath.getPath(), path );
@@ -160,10 +159,10 @@ public class AuthWs_dir2164 extends TestScmBase {
                 tSS.close();
             }
             if ( dir != null ) {
-                ScmFactory.Directory
-                        .deleteInstance( ws, targetDIR_PATH_ARRAY[ 1 ] );
-                ScmFactory.Directory
-                        .deleteInstance( ws, "/" + NAME + "_a/" + NAME + "e/" );
+                ScmFactory.Directory.deleteInstance( ws,
+                        targetDIR_PATH_ARRAY[ 1 ] );
+                ScmFactory.Directory.deleteInstance( ws,
+                        "/" + NAME + "_a/" + NAME + "e/" );
             }
         }
         runSuccess = true;
@@ -175,8 +174,8 @@ public class AuthWs_dir2164 extends TestScmBase {
         ScmSession tSS = null;
         try {
             tSS = TestScmTools.createSession( site, NAME, PASSWORD );
-            ScmWorkspace tWS = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), tSS );
+            ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    tSS );
 
             String path = targetDIR_PATH_ARRAY[ 2 ];
             System.out.println( "path = " + path );
@@ -199,9 +198,8 @@ public class AuthWs_dir2164 extends TestScmBase {
     private void tearDown() throws InterruptedException, ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.Role
-                        .revokePrivilege( session, role, resources.get( 0 ),
-                                ScmPrivilegeType.CREATE );
+                ScmFactory.Role.revokePrivilege( session, role,
+                        resources.get( 0 ), ScmPrivilegeType.CREATE );
                 for ( int i = 1; i < DIR_PATH_ARRAY.length - 1; i++ ) {
                     if ( i != 4 ) {
                         ScmFactory.Role.revokePrivilege( session, role,
@@ -223,9 +221,8 @@ public class AuthWs_dir2164 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );
@@ -238,8 +235,8 @@ public class AuthWs_dir2164 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

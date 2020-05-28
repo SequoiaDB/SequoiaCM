@@ -27,7 +27,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description: SCM-1136 :: 创建文件夹，其它文件夹存在同名文件夹或文件 
+ * @Description: SCM-1136 :: 创建文件夹，其它文件夹存在同名文件夹或文件
  * @author fanyu
  * @Date:2018年4月23日
  * @version:1.0
@@ -71,9 +71,9 @@ public class CreateDirOnOtherHasSame1136 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //create  ele in dir
+        // create ele in dir
         createEle( subDir1 );
-        //create same ele in other dir
+        // create same ele in other dir
         createEle( subDir2 );
         runSuccess = true;
     }

@@ -64,21 +64,21 @@ public class Transfer_rootSiteRemainLob2397 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         for ( int i = 0; i < remainFilePathList.size(); i++ ) {
             if ( remainSizes[ i ] == fileSize ) {
                 remainFilePathList.add( filePath );
             } else {
-                String filePath = localPath + File.separator + "remainFile_" +
-                        remainSizes[ i ] + ".txt";
+                String filePath = localPath + File.separator + "remainFile_"
+                        + remainSizes[ i ] + ".txt";
                 TestTools.LocalFile.createFile( filePath, remainSizes[ i ] );
                 remainFilePathList.add( filePath );
             }
@@ -137,8 +137,8 @@ public class Transfer_rootSiteRemainLob2397 extends TestScmBase {
     }
 
     private void writeFileFromSubCenterA( ScmSession ss ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = 0; i < fileNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setContent( filePath );
@@ -151,8 +151,8 @@ public class Transfer_rootSiteRemainLob2397 extends TestScmBase {
 
     private void startTaskFromSubCenterA( ScmSession ss )
             throws ScmException, InterruptedException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                 .put( ScmAttributeName.File.SIZE )

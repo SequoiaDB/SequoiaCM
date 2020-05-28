@@ -71,24 +71,24 @@ public class Or381 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 0 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 0 ) );
             String key = ScmAttributeName.File.CREATE_TIME;
             long value = file.getCreateTime().getTime();
             BSONObject obj = ScmQueryBuilder.start( key ).is( value ).get();
 
             BSONObject cond = ScmQueryBuilder.start().or( obj )
-                    .put( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"$or\" : [ { \"" + key + "\" : " + value +
-                            "}] , \"author\" : \"" + authorName + "\"}" )
-                            .replaceAll( "\\s*", "" ) );
+                    ( "{ \"$or\" : [ { \"" + key + "\" : " + value
+                            + "}] , \"author\" : \"" + authorName + "\"}" )
+                                    .replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;

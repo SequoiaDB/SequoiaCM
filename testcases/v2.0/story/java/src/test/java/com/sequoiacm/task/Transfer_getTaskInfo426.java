@@ -53,7 +53,7 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
             // login
-            //session = TestScmTools.createSession(TestScmBase.hostName2,
+            // session = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
             session = TestScmTools.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
@@ -102,20 +102,17 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             Assert.assertNotNull( taskStopTime );
             long fileCreateTime = ScmFactory.File.getInstance( ws, fileId )
                     .getCreateTime().getTime();
-            if ( fileCreateTime < taskStartTime &&
-                    taskStartTime < taskStopTime ) {
+            if ( fileCreateTime < taskStartTime
+                    && taskStartTime < taskStopTime ) {
             } else {
-                throw new Exception(
-                        "time error, " + "\nfileCreateTime=" + fileCreateTime +
-                                "\ntaskStartTime ="
-                                + taskStartTime + "\ntaskStopTime  =" +
-                                taskStopTime );
+                throw new Exception( "time error, " + "\nfileCreateTime="
+                        + fileCreateTime + "\ntaskStartTime =" + taskStartTime
+                        + "\ntaskStopTime  =" + taskStopTime );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail(
-                    e.getMessage() + "  node INFO = " + branceSite.toString() +
-                            " taskId = " + taskId.get() );
+            Assert.fail( e.getMessage() + "  node INFO = "
+                    + branceSite.toString() + " taskId = " + taskId.get() );
         }
         runSuccess = true;
     }

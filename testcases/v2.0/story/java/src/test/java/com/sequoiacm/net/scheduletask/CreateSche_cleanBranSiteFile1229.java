@@ -66,10 +66,10 @@ public class CreateSche_cleanBranSiteFile1229 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -154,9 +154,9 @@ public class CreateSche_cleanBranSiteFile1229 extends TestScmBase {
 
                 // read scmFile at the branSite
                 ScmFile file2 = ScmFactory.File.getInstance( wsA, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file2.getContent( downloadPath );
             }
         } catch ( ScmException e ) {
@@ -171,13 +171,13 @@ public class CreateSche_cleanBranSiteFile1229 extends TestScmBase {
             // test interface
             String siteName = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), maxStayTime, queryCond )
-                    .getSiteName();
+                            .getSiteName();
             String maxST = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), maxStayTime, queryCond )
-                    .getMaxStayTime();
+                            .getMaxStayTime();
             BSONObject eCond = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), maxStayTime, queryCond )
-                    .getExtraCondition();
+                            .getExtraCondition();
             Assert.assertEquals( siteName, branSite.getSiteName() );
             Assert.assertEquals( maxST, maxStayTime );
             Assert.assertEquals( eCond, queryCond );
@@ -198,7 +198,7 @@ public class CreateSche_cleanBranSiteFile1229 extends TestScmBase {
     private void checkScheduleTaskInfo() {
         try {
             ScmSchedule sche = ScmSystem.Schedule.get( ssA, scheduleId );
-//			System.out.println("sche info :" + sche);
+            // System.out.println("sche info :" + sche);
             Assert.assertEquals( sche.getId(), scheduleId );
             Assert.assertEquals( sche.getType(), ScheduleType.CLEAN_FILE );
             Assert.assertEquals( sche.getName(), name );
@@ -206,8 +206,9 @@ public class CreateSche_cleanBranSiteFile1229 extends TestScmBase {
             Assert.assertEquals( sche.getContent(), content );
             Assert.assertEquals( sche.getCron(), cron );
             Assert.assertEquals( sche.getWorkspace(), wsp.getName() );
-            //Assert.assertEquals(sche.getCreaateUser(), TestScmBase.scmUserName);
-            //Assert.assertEquals(sche.getCreateDate(), scheduleId);
+            // Assert.assertEquals(sche.getCreaateUser(),
+            // TestScmBase.scmUserName);
+            // Assert.assertEquals(sche.getCreateDate(), scheduleId);
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

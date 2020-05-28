@@ -57,7 +57,7 @@ public class UpdateConf2296 extends TestScmBase {
             Assert.assertTrue( thread.isSuccess(), thread.getErrorMsg() );
         }
 
-        //check local configuration
+        // check local configuration
         Map< String, String > map = new HashMap< String, String >();
         map.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
         map.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
@@ -65,7 +65,7 @@ public class UpdateConf2296 extends TestScmBase {
             ConfUtil.checkUpdatedConf( node.getUrl(), map );
         }
 
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( site, fileName );
     }
 

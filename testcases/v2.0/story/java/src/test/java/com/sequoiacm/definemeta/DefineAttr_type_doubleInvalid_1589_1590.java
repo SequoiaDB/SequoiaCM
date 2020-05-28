@@ -37,7 +37,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-1589:属性类型为double，属性表未配置校验规则，非必填
- * 			   SCM-1590:属性类型为double，属性表配置double有效范围，必填
+ *            SCM-1590:属性类型为double，属性表配置double有效范围，必填
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -94,7 +94,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
 
     @Test
     private void test_setPropInvalidLeftBound01() throws Exception {
-        attrMap.put( "test_attr_name_double_1589_1", -5.0E-324 );//invalid
+        attrMap.put( "test_attr_name_double_1589_1", -5.0E-324 );// invalid
         attrMap.put( "test_attr_name_double_1589_3", 1.0 );
         attrMap.put( "test_attr_name_double_1589_4", 1.0 );
 
@@ -105,9 +105,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -116,7 +116,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
     private void test_setPropInvalidLeftBound02() throws Exception {
         attrMap.put( "test_attr_name_double_1589_1", 1.0 );
         attrMap.put( "test_attr_name_double_1589_3", 1.0 );
-        attrMap.put( "test_attr_name_double_1589_4", -5.0E-324 );     //invalid
+        attrMap.put( "test_attr_name_double_1589_4", -5.0E-324 ); // invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -125,9 +125,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -136,7 +136,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
     private void test_setPropInvalidLeftBound03() throws Exception {
         attrMap.put( "test_attr_name_double_1589_1", 1.0 );
         attrMap.put( "test_attr_name_double_1589_3", 1.0 );
-        attrMap.put( "test_attr_name_double_1589_4", 0 );  //invalid
+        attrMap.put( "test_attr_name_double_1589_4", 0 ); // invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -145,9 +145,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -165,9 +165,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -175,7 +175,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
     @Test
     private void test_setPropInvalid02() throws Exception {
         attrMap.put( "test_attr_name_double_1589_1", 1.0 );
-        attrMap.put( "test_attr_name_double_1589_3", 1 );//invalid
+        attrMap.put( "test_attr_name_double_1589_3", 1 );// invalid
         attrMap.put( "test_attr_name_double_1589_4", 1.0 );
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -185,9 +185,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -196,8 +196,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
     private void test_setPropIsNotDouble() throws Exception {
         attrMap.put( "test_attr_name_double_1589_1", 1.0 );
         attrMap.put( "test_attr_name_double_1589_3", 1.0 );
-        attrMap.put( "test_attr_name_double_1589_4",
-                "1.7976931348623157E309" );//invalid
+        attrMap.put( "test_attr_name_double_1589_4", "1.7976931348623157E309" );// invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -206,9 +205,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -217,7 +216,7 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
     private void test_setPropInValidIsNull() throws Exception {
         attrMap.put( "test_attr_name_double_1589_1", 1.0 );
         attrMap.put( "test_attr_name_double_1589_3", 1.0 );
-        attrMap.put( "test_attr_name_double_1589_4", null );//invalid
+        attrMap.put( "test_attr_name_double_1589_4", null );// invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -226,9 +225,9 @@ public class DefineAttr_type_doubleInvalid_1589_1590 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }

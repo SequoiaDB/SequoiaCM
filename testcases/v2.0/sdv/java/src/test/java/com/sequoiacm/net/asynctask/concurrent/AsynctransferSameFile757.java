@@ -60,10 +60,10 @@ public class AsynctransferSameFile757 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -97,8 +97,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
 
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         for ( ScmId fileId : fileIdList ) {
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
         }
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( 0 ), expSiteList,
                 localPath, filePath );
@@ -146,8 +146,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 session = TestScmTools.createSession( sourceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
                     ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
                 }
@@ -168,8 +168,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 session = TestScmTools.createSession( sourceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
                     ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
                 }

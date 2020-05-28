@@ -148,8 +148,8 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
         try {
             cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                     .is( id.get() ).get();
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
         } catch ( ScmException e ) {
             ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
@@ -173,8 +173,8 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -183,8 +183,8 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -214,8 +214,8 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 for ( int i = 0; i < subPathList.size(); i++ ) {
                     try {
-                        ScmFactory.Directory
-                                .deleteInstance( ws, subPathList.get( i ) );
+                        ScmFactory.Directory.deleteInstance( ws,
+                                subPathList.get( i ) );
                     } catch ( ScmException e ) {
                         if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
                             e.printStackTrace();

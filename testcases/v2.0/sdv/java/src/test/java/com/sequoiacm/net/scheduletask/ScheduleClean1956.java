@@ -77,10 +77,10 @@ public class ScheduleClean1956 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -104,8 +104,7 @@ public class ScheduleClean1956 extends TestScmBase {
     private void test() throws Exception {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
-                .lessThan( fileNum / 2 )
-                .and( ScmAttributeName.File.TAGS )
+                .lessThan( fileNum / 2 ).and( ScmAttributeName.File.TAGS )
                 .in( tagList.subList( 0, fileNum / 2 ) ).get();
         createScheduleTask( queryCond );
         checkResult( fileIdList.subList( fileNum / 2, fileNum ), false );
@@ -151,9 +150,9 @@ public class ScheduleClean1956 extends TestScmBase {
         content = new ScmScheduleCleanFileContent( site1.getSiteName(),
                 maxStayTime, queryCond );
         cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( session, wsp.getName(), ScheduleType.CLEAN_FILE, name,
-                        "ScheduleClean1956", content, cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( session, wsp.getName(),
+                ScheduleType.CLEAN_FILE, name, "ScheduleClean1956", content,
+                cron );
         scheduleId = sche.getId();
     }
 
@@ -161,9 +160,9 @@ public class ScheduleClean1956 extends TestScmBase {
         for ( ScmId fileId : fileIdList ) {
             // read scmFile at the branSite
             ScmFile file2 = ScmFactory.File.getInstance( wsM, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file2.getContent( downloadPath );
         }
     }
@@ -184,8 +183,7 @@ public class ScheduleClean1956 extends TestScmBase {
     }
 
     private ScmId createFile( String name, ScmClassProperties properties,
-            ScmTags tag )
-            throws ScmException, ParseException {
+            ScmTags tag ) throws ScmException, ParseException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name + "_" + UUID.randomUUID() );
         file.setAuthor( name );

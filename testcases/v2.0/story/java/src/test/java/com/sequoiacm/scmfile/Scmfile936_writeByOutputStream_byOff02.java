@@ -49,10 +49,10 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -108,8 +108,8 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
         try {
             this.writeScmFile( off, len );
             Assert.fail(
-                    "expect fail, actual success, when off < fileSize and len" +
-                            " > remainSize" );
+                    "expect fail, actual success, when off < fileSize and len"
+                            + " > remainSize" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 e.printStackTrace();
@@ -122,8 +122,8 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 ) ||
-                    TestScmBase.forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 )
+                    || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
@@ -161,9 +161,8 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
             int expScmfileSize ) throws Exception {
         // read scmfile
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check content's length
@@ -171,9 +170,8 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
                 expScmfileSize );
 
         // read content
-        String downloadPath2 = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath2 = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         TestTools.LocalFile.readFile( filePath, size, len, downloadPath2 );
 
         Assert.assertEquals( TestTools.getMD5( downloadPath ),

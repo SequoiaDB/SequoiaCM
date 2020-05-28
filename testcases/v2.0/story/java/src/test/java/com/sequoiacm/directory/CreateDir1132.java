@@ -54,10 +54,10 @@ public class CreateDir1132 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -74,8 +74,8 @@ public class CreateDir1132 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        ScmDirectory dir = ScmFactory.Directory
-                .createInstance( ws, "/" + dirName );
+        ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                "/" + dirName );
         ScmDirectory subDir = dir.createSubdirectory( subDirName );
         write( ws, dir );
         write( ws, subDir );
@@ -123,16 +123,16 @@ public class CreateDir1132 extends TestScmBase {
 
     private void check( ScmWorkspace ws, String dirPath ) throws Exception {
         try {
-            ScmDirectory scmDir = ScmFactory.Directory
-                    .getInstance( ws, dirPath );
+            ScmDirectory scmDir = ScmFactory.Directory.getInstance( ws,
+                    dirPath );
             Assert.assertEquals(
                     scmDir.getSubfile( author + "_" + scmDir.getName() )
-                            .getFileName(), author + "_" + scmDir.getName() );
+                            .getFileName(),
+                    author + "_" + scmDir.getName() );
             checkDirAttr( scmDir, '/' + dirName + "/", dirName, "/" );
 
-            ScmCursor< ScmFileBasicInfo > fileCursor = scmDir
-                    .listFiles( new BasicBSONObject(
-                            ScmAttributeName.File.FILE_NAME,
+            ScmCursor< ScmFileBasicInfo > fileCursor = scmDir.listFiles(
+                    new BasicBSONObject( ScmAttributeName.File.FILE_NAME,
                             author + "_" + scmDir.getName() ) );
             checkFileCursorAttr( fileCursor );
 
@@ -142,9 +142,9 @@ public class CreateDir1132 extends TestScmBase {
             checkDirAttr( subDir, '/' + dirName + "/" + subDirName + "/",
                     subDirName, dirName );
 
-            ScmCursor< ScmDirectory > dirCursor = scmDir
-                    .listDirectories( new BasicBSONObject(
-                            ScmAttributeName.Directory.NAME, subDirName ) );
+            ScmCursor< ScmDirectory > dirCursor = scmDir.listDirectories(
+                    new BasicBSONObject( ScmAttributeName.Directory.NAME,
+                            subDirName ) );
             checkDirCurSorAttr( dirCursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -182,11 +182,10 @@ public class CreateDir1132 extends TestScmBase {
                 Assert.assertEquals( fileInfo.getMinorVersion(), 0 );
                 Assert.assertNotNull( fileInfo.getFileId() );
 
-                //check content
+                // check content
                 SiteWrapper[] expSites = { site };
-                ScmFileUtils
-                        .checkMetaAndData( wsp, fileInfo.getFileId(), expSites,
-                                localPath, filePath );
+                ScmFileUtils.checkMetaAndData( wsp, fileInfo.getFileId(),
+                        expSites, localPath, filePath );
                 i++;
             }
             Assert.assertEquals( i, fileNum,

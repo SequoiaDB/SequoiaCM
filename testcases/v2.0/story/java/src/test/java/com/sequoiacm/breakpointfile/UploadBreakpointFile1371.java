@@ -25,8 +25,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * test content:modify the contents of uploaded files, then breakpoint
- * continuation file
- * testlink-case:SCM-1371
+ * continuation file testlink-case:SCM-1371
+ * 
  * @author wuyan
  * @Date 2018.05.21
  * @version 1.00
@@ -52,18 +52,18 @@ public class UploadBreakpointFile1371 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-        //randomly generated data
+        // randomly generated data
         new Random().nextBytes( fileData );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         createBreakpointFile();
-        //test a: update the contents of  uploaded file
+        // test a: update the contents of uploaded file
         uploadFileContentUpdate();
-        //test b: delete the part contents of uploaded file
+        // test b: delete the part contents of uploaded file
         uploadFileContentdelete();
-        //test c: append contents of uploaded file
+        // test c: append contents of uploaded file
         uploadFileAddContent();
     }
 
@@ -86,9 +86,8 @@ public class UploadBreakpointFile1371 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, checksumType );
         System.arraycopy( fileData, 0, updateData, 0, updateSize );
-        breakpointFile
-                .incrementalUpload( new ByteArrayInputStream( updateData ),
-                        false );
+        breakpointFile.incrementalUpload(
+                new ByteArrayInputStream( updateData ), false );
     }
 
     private void uploadFileAddContent() throws ScmException, IOException {
@@ -134,7 +133,7 @@ public class UploadBreakpointFile1371 extends TestScmBase {
         byte[] testdata = new byte[ updateSize ];
         System.arraycopy( updateFile, 0, testdata, 0, updateSize );
 
-        //upload updatefile fail
+        // upload updatefile fail
         try {
             breakpointFile.upload( new ByteArrayInputStream( updateFile ) );
             Assert.fail( "get breakpoint file must bu fail!" );

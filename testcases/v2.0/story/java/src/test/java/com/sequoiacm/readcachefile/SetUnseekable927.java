@@ -59,10 +59,10 @@ public class SetUnseekable927 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -71,7 +71,7 @@ public class SetUnseekable927 extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
 
-        //clean file
+        // clean file
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -112,9 +112,8 @@ public class SetUnseekable927 extends TestScmBase {
     private void readFileFromB( ScmWorkspace ws ) throws Exception {
         // read content
         ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         OutputStream fos = new FileOutputStream( new File( downloadPath ) );
 
         ScmInputStream in = ScmFactory.File
@@ -125,12 +124,12 @@ public class SetUnseekable927 extends TestScmBase {
             Assert.fail( " seek must be fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.OPERATION_UNSUPPORTED != e.getError() ) {
-                Assert.fail( "expErrorCode:-107  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-107  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //read all file
+        // read all file
         OutputStream fileOutputStream = new FileOutputStream(
                 new File( downloadPath ) );
         byte[] buffer = new byte[ fileSize ];
@@ -144,9 +143,8 @@ public class SetUnseekable927 extends TestScmBase {
         fileOutputStream.close();
 
         // check read content
-        String tmpPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String tmpPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         TestTools.LocalFile.readFile( filePath, 0, tmpPath );
         Assert.assertEquals( TestTools.getMD5( downloadPath ),
                 TestTools.getMD5( tmpPath ) );
@@ -154,8 +152,8 @@ public class SetUnseekable927 extends TestScmBase {
         // check file sites
         SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ),
                 rootSite };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
 
         fos.close();
         in.close();

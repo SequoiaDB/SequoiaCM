@@ -24,8 +24,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:set createTime when create file
- * testlink-case:SCM-1812
+ * test content:set createTime when create file testlink-case:SCM-1812
  *
  * @author wuyan
  * @Date 2018.06.21
@@ -56,20 +55,20 @@ public class SetCreateTimeByFile1812 extends TestScmBase {
     private void test() throws Exception {
         long currentTimestamp = new Date().getTime();
 
-        //test a: the setCreateTime interval within one month
+        // test a: the setCreateTime interval within one month
         long timestamp1 = currentTimestamp - 10000;
         String fileName1 = "file1812a";
         fileId1 = createFileByStream( ws, fileName1, filedata1, timestamp1 );
         checkResult( fileId1, filedata1, timestamp1 );
 
-        //test b :at least 31 days between different months,the timestamp is
+        // test b :at least 31 days between different months,the timestamp is
         // 9678400000ms
         long timestamp2 = currentTimestamp - 9678400000l;
         String fileName2 = "file1812b";
         fileId2 = createFileByStream( ws, fileName2, filedata2, timestamp2 );
         checkResult( fileId2, filedata2, timestamp2 );
 
-        //test c :not the same year at least 365 days,,the timestamp is
+        // test c :not the same year at least 365 days,,the timestamp is
         // 31536000000ms
         long timestamp3 = currentTimestamp - 31536000000l;
         String fileName3 = "file1812c";
@@ -110,7 +109,7 @@ public class SetCreateTimeByFile1812 extends TestScmBase {
     private void checkResult( ScmId fileId, byte[] expData, long timestamp )
             throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        //check the createTime
+        // check the createTime
         Date actdate = file.getCreateTime();
         long actTimestamp = actdate.getTime();
         Assert.assertEquals( actTimestamp, timestamp );

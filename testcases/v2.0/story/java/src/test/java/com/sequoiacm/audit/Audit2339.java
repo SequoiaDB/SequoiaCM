@@ -60,17 +60,17 @@ public class Audit2339 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        //test local
+        // test local
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + name1, "ALL" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
-        //test token
+        // test token
         Map< String, String > confMap1 = new HashMap< String, String >();
         confMap1.put( ConfigCommonDefind.scm_audit_user + name2,
                 " META_CLASS_DML|META_CLASS_DQL" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( name1, name1, true, true, true );
         checkAudit( name2, name2, true, true, false );
     }
@@ -104,15 +104,15 @@ public class Audit2339 extends TestScmBase {
                     .append( ScmAttributeName.Audit.TYPE, "CREATE_FILE" )
                     .append( ScmAttributeName.Audit.USERNAME, username );
 
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson1
-                    , metaName ), isLogged1,
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson1, metaName ), isLogged1,
                     "Has the configuration been updated?" );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson2
-                    , metaId.get() ), isLogged2,
-                    "Has the configuration been updated?" );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bson3
-                    , fileId.get() ), isLogged3,
-                    "Has the configuration been updated?" );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson2, metaId.get() ),
+                    isLogged2, "Has the configuration been updated?" );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bson3, fileId.get() ),
+                    isLogged3, "Has the configuration been updated?" );
         } finally {
             if ( metaId != null ) {
                 ScmFactory.Class.deleteInstance( ws, metaId );
@@ -129,13 +129,13 @@ public class Audit2339 extends TestScmBase {
         ScmId metaId = null;
         try {
             session = TestScmTools.createSession( site, username, username );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            //create meta
-            ScmClass meta = ScmFactory.Class
-                    .createInstance( ws, metaName, "desc" );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            // create meta
+            ScmClass meta = ScmFactory.Class.createInstance( ws, metaName,
+                    "desc" );
             metaId = meta.getId();
-            //query meta
+            // query meta
             ScmFactory.Class.getInstance( ws, metaId );
         } finally {
             if ( session != null ) {
@@ -151,8 +151,8 @@ public class Audit2339 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, username );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();

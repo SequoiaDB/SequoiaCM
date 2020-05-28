@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1157 :: 在当前文件夹下，根据条件检索文件 
+ * @Description:SCM-1157 :: 在当前文件夹下，根据条件检索文件
  * @author fanyu
  * @Date:2018年4月26日
  * @version:1.0
@@ -65,10 +65,10 @@ public class ListFileInPaDir1157 extends TestScmBase {
                 ScmFactory.Directory.createInstance( ws,
                         dirBasePath + "/1157_" + ( char ) i );
             }
-            createFile( ws, ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1157_e" ) );
-            createFile( ws, ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1157_a" ) );
+            createFile( ws, ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1157_e" ) );
+            createFile( ws, ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1157_a" ) );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -80,8 +80,8 @@ public class ListFileInPaDir1157 extends TestScmBase {
         try {
             int i = 0;
             int expDirNum = 0;
-            ScmDirectory pdir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+            ScmDirectory pdir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             ScmCursor< ScmFileBasicInfo > fileCursor = pdir.listFiles( null );
             while ( fileCursor.hasNext() ) {
                 ScmFileBasicInfo fileInfo = fileCursor.getNext();
@@ -110,8 +110,8 @@ public class ListFileInPaDir1157 extends TestScmBase {
                     .and( ScmAttributeName.File.CREATE_TIME ).greaterThan( 0 )
                     .and( ScmAttributeName.File.UPDATE_TIME ).greaterThan( 0 )
                     .get();
-            ScmDirectory pdir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 + "/" + dirName );
+            ScmDirectory pdir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 + "/" + dirName );
             ScmCursor< ScmFileBasicInfo > fileCursor = pdir.listFiles( cond );
             while ( fileCursor.hasNext() ) {
                 fileInfo = fileCursor.getNext();
@@ -179,8 +179,8 @@ public class ListFileInPaDir1157 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -210,5 +210,3 @@ public class ListFileInPaDir1157 extends TestScmBase {
         return pathList;
     }
 }
-
-

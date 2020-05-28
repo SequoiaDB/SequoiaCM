@@ -45,7 +45,7 @@ public class UpdateServicesConf2288 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSites.get( 0 ) );
@@ -56,8 +56,7 @@ public class UpdateServicesConf2288 extends TestScmBase {
                 serviceNames.add( site.getSiteServiceName() );
                 expOkNum += site.getNodeNum();
             }
-            ScmConfigProperties confProp = builder
-                    .services( serviceNames )
+            ScmConfigProperties confProp = builder.services( serviceNames )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask,
                             "FILE_DML" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
@@ -77,7 +76,7 @@ public class UpdateServicesConf2288 extends TestScmBase {
             }
         }
 
-        //check updated configuration take effect
+        // check updated configuration take effect
         Map< String, String > map = new HashMap< String, String >();
         map.put( ConfigCommonDefind.scm_audit_userMask, "FILE_DML" );
         map.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
@@ -90,7 +89,7 @@ public class UpdateServicesConf2288 extends TestScmBase {
             }
         }
 
-        //check otherservice's configration is not updated
+        // check otherservice's configration is not updated
         Map< String, String > map1 = new HashMap< String, String >();
         map.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
         map.put( ConfigCommonDefind.scm_audit_userMask, "TOKEN" );

@@ -66,9 +66,9 @@ public class ScmUtil_param_getCreateMonth894 extends TestScmBase {
             Assert.assertEquals( ScmAttributeName.File.CREATE_MONTH,
                     "create_month" );
 
-            Assert.assertEquals( ScmUtil.Id
-                            .getCreateMonth( new ScmId(
-                                    "0000000000000000012c1947" ) ),
+            Assert.assertEquals(
+                    ScmUtil.Id.getCreateMonth(
+                            new ScmId( "0000000000000000012c1947" ) ),
                     "197001" );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
@@ -105,8 +105,8 @@ public class ScmUtil_param_getCreateMonth894 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 ) ||
-                    TestScmBase.forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 )
+                    || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         } catch ( Exception e ) {

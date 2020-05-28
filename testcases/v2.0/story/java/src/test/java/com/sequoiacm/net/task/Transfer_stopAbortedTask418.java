@@ -72,10 +72,10 @@ public class Transfer_stopAbortedTask418 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -87,7 +87,7 @@ public class Transfer_stopAbortedTask418 extends TestScmBase {
             sourceSite = siteList.get( 0 );
             targetSite = siteList.get( 1 );
 
-            //sessionA = TestScmTools.createSession(TestScmBase.hostName2,
+            // sessionA = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
             sessionA = TestScmTools.createSession( sourceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
@@ -129,8 +129,8 @@ public class Transfer_stopAbortedTask418 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
@@ -157,14 +157,13 @@ public class Transfer_stopAbortedTask418 extends TestScmBase {
     private ScmId transferAllFile( ScmWorkspace ws ) throws ScmException {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        return ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        return ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
     }
 
     private void changeFlagToAbortOnSdb( ScmId taskId ) {
         try ( Sequoiadb sdb = new Sequoiadb( TestScmBase.mainSdbUrl,
-                TestScmBase.sdbUserName, TestScmBase.sdbPassword ) ) {
+                TestScmBase.sdbUserName, TestScmBase.sdbPassword )) {
             DBCollection cl = sdb.getCollectionSpace( TestSdbTools.SCM_CS )
                     .getCollection( TestSdbTools.SCM_CL_TASK );
             cl.update( "{ id: '" + taskId.get() + "' }",

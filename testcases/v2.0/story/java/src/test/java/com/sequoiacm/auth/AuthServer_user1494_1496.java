@@ -21,8 +21,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1494:admin角色删除当前用户
- * 			  SCM-1496:admin角色删除admin用户（非最后一个）
+ * @FileName SCM-1494:admin角色删除当前用户 SCM-1496:admin角色删除admin用户（非最后一个）
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -49,15 +48,14 @@ public class AuthServer_user1494_1496 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME + "_" + i );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         }
 
         // get AUTH_ADMIN role
-        ScmUser adminUser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser adminUser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         authAdminRole = adminUser.getRoles().iterator().next();
         System.out.println( authAdminRole.getRoleId() );
 
@@ -82,8 +80,8 @@ public class AuthServer_user1494_1496 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_deleteCurrentUser() throws ScmException {
-        ScmSession ss = TestScmTools
-                .createSession( site, NAME + "_0", PASSWORD );
+        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+                PASSWORD );
         try {
             ScmFactory.User.deleteUser( ss, NAME + "_0" );
             Assert.fail( "expect failed but actual succ." );
@@ -98,16 +96,16 @@ public class AuthServer_user1494_1496 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_deleteAdminUser() throws ScmException {
-        ScmSession ss = TestScmTools
-                .createSession( site, NAME + "_0", PASSWORD );
+        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+                PASSWORD );
         // delete admin user
         ScmFactory.User.deleteUser( ss, NAME + "_1" );
         try {
             ScmFactory.User.getUser( session, NAME + "_1" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get user after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get user after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
         ss.close();
 
@@ -131,9 +129,8 @@ public class AuthServer_user1494_1496 extends TestScmBase {
         // create user, and add AUTH_ADMIN role
         for ( int i = 0; i < USER_NUM; i++ ) {
             // create ScmUser
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, NAME + "_" + i,
-                            ScmUserPasswordType.LOCAL, PASSWORD );
+            ScmUser scmUser = ScmFactory.User.createUser( session,
+                    NAME + "_" + i, ScmUserPasswordType.LOCAL, PASSWORD );
             // add AUTH_ADMIN role
             ScmUserModifier modifier = new ScmUserModifier();
             modifier.addRole( authAdminRole );

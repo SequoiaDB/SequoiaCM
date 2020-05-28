@@ -53,10 +53,10 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -119,9 +119,8 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
                     ScmId fileId = file.save();
                     fileIdList.add( fileId );
                     SiteWrapper[] expSites = { branceSite };
-                    ScmFileUtils
-                            .checkMetaAndData( wsp, fileId, expSites, localPath,
-                                    filePath );
+                    ScmFileUtils.checkMetaAndData( wsp, fileId, expSites,
+                            localPath, filePath );
                 }
             } catch ( ScmException e ) {
                 System.out.println( "Error : " + e.getMessage() );
@@ -141,36 +140,35 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
                 String user = TestScmBase.sdbUserName;
                 String passwdPath = TestScmBase.scmPasswordPath;
                 ScmConfigOption scOpt = new ScmConfigOption(
-                        TestScmBase.gateWayList.get( 0 ) + "/" +
-                                rootSite.getSiteServiceName(),
-                        TestScmBase.scmUserName,
-                        TestScmBase.scmPassword );
+                        TestScmBase.gateWayList.get( 0 ) + "/"
+                                + rootSite.getSiteServiceName(),
+                        TestScmBase.scmUserName, TestScmBase.scmPassword );
                 session = ScmFactory.Session
                         .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
                 if ( rootSite.getDataType()
                         .equals( DatasourceType.SEQUOIADB ) ) {
                     ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ),
-                            1, rootSite.getDataDsUrl(), user, passwdPath );
+                            TestScmBase.gateWayList.get( 0 ), 1,
+                            rootSite.getDataDsUrl(), user, passwdPath );
                 } else if ( rootSite.getDataType()
                         .equals( DatasourceType.HBASE ) ) {
                     ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ),
-                            2, rootSite.getDataDsUrl(), user, passwdPath );
+                            TestScmBase.gateWayList.get( 0 ), 2,
+                            rootSite.getDataDsUrl(), user, passwdPath );
                 } else if ( rootSite.getDataType()
                         .equals( DatasourceType.CEPH_S3 ) ) {
                     ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ),
-                            3, rootSite.getDataDsUrl(), user, passwdPath );
+                            TestScmBase.gateWayList.get( 0 ), 3,
+                            rootSite.getDataDsUrl(), user, passwdPath );
                 } else if ( rootSite.getDataType()
                         .equals( DatasourceType.CEPH_SWIFT ) ) {
                     ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ),
-                            4, rootSite.getDataDsUrl(), user, passwdPath );
+                            TestScmBase.gateWayList.get( 0 ), 4,
+                            rootSite.getDataDsUrl(), user, passwdPath );
                 } else {
                     throw new Exception(
-                            "DatasourceType is not exist,please check" +
-                                    rootSite.getDataType() );
+                            "DatasourceType is not exist,please check"
+                                    + rootSite.getDataType() );
                 }
                 ScmSiteUtils.deleteSite( session, newSiteName );
             } catch ( ScmException e ) {

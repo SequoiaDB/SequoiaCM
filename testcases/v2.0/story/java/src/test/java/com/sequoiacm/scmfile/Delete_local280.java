@@ -53,10 +53,10 @@ public class Delete_local280 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -76,8 +76,8 @@ public class Delete_local280 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // create scmfile
             fileId = ScmFileUtils.create( ws, fileName, filePath );
@@ -111,8 +111,8 @@ public class Delete_local280 extends TestScmBase {
     private void checkResults( ScmWorkspace ws ) throws Exception {
         try {
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );

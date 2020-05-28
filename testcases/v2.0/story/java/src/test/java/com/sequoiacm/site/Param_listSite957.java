@@ -42,8 +42,8 @@ public class Param_listSite957 extends TestScmBase {
             ScmFactory.Site.listSite( null );
             Assert.fail( "can not lsitsite when session is null" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() !=
-                    ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                    .getErrorCode() ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }

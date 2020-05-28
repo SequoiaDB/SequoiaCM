@@ -34,7 +34,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-1584:属性类型为date，属性表未配置校验规则，非必填
- *			   SCM-1585:属性类型为date，属性表配置date时间格式，必填
+ *            SCM-1585:属性类型为date，属性表配置date时间格式，必填
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -43,9 +43,9 @@ public class DefineAttr_type_dateValid_1584_1585 extends TestScmBase {
     private static final String NAME = "definemeta_dateValid_1584";
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
-    //private static final String CLASS_ID = "test_class_id_date_004";
+    // private static final String CLASS_ID = "test_class_id_date_004";
     private static ScmSession session = null;
-    //	private static final Logger logger = Logger.getLogger
+    // private static final Logger logger = Logger.getLogger
     // (DefineAttr_dateValid_1584_1585.class);
     private boolean runSuccess = false;
     private int failTimes = 0;

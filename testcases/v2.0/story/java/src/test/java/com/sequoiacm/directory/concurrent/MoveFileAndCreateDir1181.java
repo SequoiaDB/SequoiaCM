@@ -34,7 +34,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1181 :: 移动文件和创建同名文件并发 
+ * @Description:SCM-1181 :: 移动文件和创建同名文件并发
  * @author fanyu
  * @Date:2018年5月2日
  * @version:1.0
@@ -47,8 +47,8 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
     private WsWrapper wsp;
     private String dirBasePath = "/MoveFileAndCreateDir1181";
     private String fullPath1 = dirBasePath + "/dir_1181";
-    private String fullPath2 =
-            dirBasePath + "/dir_1181/MoveFileAndCreateDir1181";
+    private String fullPath2 = dirBasePath
+            + "/dir_1181/MoveFileAndCreateDir1181";
     private ScmId fileId;
     private String author = "MoveFileAndCreateDir1181";
     private ScmDirectory dir;
@@ -58,10 +58,10 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -186,8 +186,8 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -241,8 +241,8 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
         public void exec() {
             try {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, dirBasePath );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        dirBasePath );
                 file.setDirectory( dir );
                 check( fileId, dir );
             } catch ( ScmException e ) {
@@ -252,4 +252,3 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
         }
     }
 }
-

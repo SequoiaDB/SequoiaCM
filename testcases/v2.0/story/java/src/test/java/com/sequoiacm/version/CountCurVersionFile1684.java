@@ -56,9 +56,8 @@ public class CountCurVersionFile1684 extends TestScmBase {
 
         fileIdList = new ArrayList< ScmId >();
         for ( int i = 1; i < 6; i++ ) {
-            ScmId fileId = VersionUtils
-                    .createFileByStream( ws, fileName + "_" + i, filedata,
-                            fileName );
+            ScmId fileId = VersionUtils.createFileByStream( ws,
+                    fileName + "_" + i, filedata, fileName );
             fileIdList.add( fileId );
             for ( int j = 0; j < i; j++ ) {
                 VersionUtils.updateContentByStream( ws, fileId, updatedata );
@@ -70,7 +69,7 @@ public class CountCurVersionFile1684 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
 
-        //组合size/major_version
+        // 组合size/major_version
         BSONObject filter1 = new BasicBSONObject();
         BSONObject[] option1 = {
                 new BasicBSONObject( "author", "fileVersion1684" ),
@@ -84,19 +83,18 @@ public class CountCurVersionFile1684 extends TestScmBase {
         listInstanceByOption( ws, ScopeType.SCOPE_CURRENT, filter1,
                 fileNameArr1 );
 
-        //组合id/major_version
+        // 组合id/major_version
         BSONObject filter2 = new BasicBSONObject();
         BSONObject[] option2 = {
                 new BasicBSONObject( "author", "fileVersion1684" ),
-                new BasicBSONObject( "id", fileId.get() ),
-                new BasicBSONObject( "major_version",
-                        new BasicBSONObject( "$gt", 1 ) ) };
+                new BasicBSONObject( "id", fileId.get() ), new BasicBSONObject(
+                        "major_version", new BasicBSONObject( "$gt", 1 ) ) };
         filter2.put( "$and", option2 );
         String[] fileNameArr2 = { "fileVersion1684_3" };
         listInstanceByOption( ws, ScopeType.SCOPE_CURRENT, filter2,
                 fileNameArr2 );
 
-        //组合name/major_version
+        // 组合name/major_version
         BSONObject filter3 = new BasicBSONObject();
         BSONObject[] option3 = {
                 new BasicBSONObject( "author", "fileVersion1684" ),
@@ -118,8 +116,8 @@ public class CountCurVersionFile1684 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
             }
         } catch ( Exception e ) {

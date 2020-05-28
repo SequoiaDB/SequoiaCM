@@ -61,14 +61,14 @@ public class AsyncTransferAndReadDiffFile758 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
 
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
@@ -139,8 +139,8 @@ public class AsyncTransferAndReadDiffFile758 extends TestScmBase {
         fileIdList.remove( 1 );
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         for ( ScmId fileId : fileIdList ) {
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
         }
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( 0 ), expSiteList,
                 localPath, filePath );
@@ -153,8 +153,8 @@ public class AsyncTransferAndReadDiffFile758 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 session = TestScmTools.createSession( branceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
                 ScmFactory.File.asyncTransfer( ws, fileIdList.get( 0 ) );
             } catch ( ScmException e ) {
                 throw e;
@@ -174,13 +174,13 @@ public class AsyncTransferAndReadDiffFile758 extends TestScmBase {
             OutputStream fos = null;
             try {
                 session = TestScmTools.createSession( branceSite );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
-                ScmFile scmfile = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( 1 ) );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                        session );
+                ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( 1 ) );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 scmfile.getContent( fos );
 

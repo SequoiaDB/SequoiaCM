@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1198 :: ScmFactory.Directory中的createInstance参数校验 
+ * @Description:SCM-1198 :: ScmFactory.Directory中的createInstance参数校验
  * @author fanyu
  * @Date:2018年4月27日
  * @version:1.0
@@ -59,12 +59,12 @@ public class CreateInstance_Param1198 extends TestScmBase {
         String path = dirBasePath + "/文件夹a_1198";
         try {
             ScmDirectory dir = ScmFactory.Directory.createInstance( ws, path );
-            ScmDirectory checkDir1 = ScmFactory.Directory
-                    .getInstance( ws, path );
+            ScmDirectory checkDir1 = ScmFactory.Directory.getInstance( ws,
+                    path );
             Assert.assertEquals( checkDir1.getPath(), path + "/" );
             dir.createSubdirectory( "文件夹b_1198" );
-            ScmDirectory checkDir2 = ScmFactory.Directory
-                    .getInstance( ws, path + "/文件夹b_1198" );
+            ScmDirectory checkDir2 = ScmFactory.Directory.getInstance( ws,
+                    path + "/文件夹b_1198" );
             Assert.assertEquals( checkDir2.getPath(), path + "/文件夹b_1198/" );
             ScmFactory.Directory.deleteInstance( ws, path + "/文件夹b_1198" );
             ScmFactory.Directory.deleteInstance( ws, path );
@@ -108,8 +108,8 @@ public class CreateInstance_Param1198 extends TestScmBase {
     private void testPaPathInexist() {
         String paPath = dirBasePath + "/testPaPathInexist";
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, paPath );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    paPath );
             dir.delete();
             ScmDirectory subdir = dir.createSubdirectory( "testPaPathInexist" );
             Assert.fail( "expect fail but success," + subdir.toString() );
@@ -136,7 +136,7 @@ public class CreateInstance_Param1198 extends TestScmBase {
         runSuccess4 = true;
     }
 
-    //bug:248
+    // bug:248
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testNameIsDot() {
         try {
@@ -211,8 +211,8 @@ public class CreateInstance_Param1198 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHasLessThanSign() {
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, "qwer<" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    "qwer<" );
             Assert.fail( "expect fail but success," + dir.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -226,8 +226,8 @@ public class CreateInstance_Param1198 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHasGreatThanSign() {
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, "qwer<" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    "qwer<" );
             Assert.fail( "expect fail but success," + dir.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -241,8 +241,8 @@ public class CreateInstance_Param1198 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHasOrSign() {
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, "|qwer" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    "|qwer" );
             Assert.fail( "expect fail but success," + dir.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {

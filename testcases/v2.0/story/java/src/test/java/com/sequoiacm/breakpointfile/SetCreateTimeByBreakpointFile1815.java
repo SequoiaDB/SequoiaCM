@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * test content:set createTime when create breakpointfile and continue upload
- * breakpointfile
- * testlink-case:SCM-1815
+ * breakpointfile testlink-case:SCM-1815
  *
  * @author wuyan
  * @Date 2018.06.21
@@ -58,14 +57,14 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
     private void test() throws Exception {
         long currentTimestamp = new Date().getTime();
 
-        //test a: the setCreateTime interval within one month
+        // test a: the setCreateTime interval within one month
         long timestamp1 = currentTimestamp - 10000;
         String fileName1 = "file1815a";
         createBreakpointFile( ws, fileName1, filedata1, timestamp1 );
         uploadBreakpointFile( ws, fileName1, filedata1, timestamp1 );
         checkResult( fileName1, filedata1, timestamp1 );
 
-        //test b :at least 31 days between different months,the timestamp is
+        // test b :at least 31 days between different months,the timestamp is
         // 2678400000ms
         long timestamp2 = currentTimestamp - 2678400000l;
         String fileName2 = "file1815b";
@@ -73,7 +72,7 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
         uploadBreakpointFile( ws, fileName2, filedata2, timestamp2 );
         checkResult( fileName2, filedata2, timestamp2 );
 
-        //test c :not the same year at least 365 days,,the timestamp is
+        // test c :not the same year at least 365 days,,the timestamp is
         // 31536000000ms
         long timestamp3 = currentTimestamp - 31536000000l;
         String fileName3 = "file1815c";
@@ -121,8 +120,8 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
             Assert.fail( "can not set createTime when file is exist!" );
         } catch ( ScmException e ) {
             if ( ScmError.OPERATION_UNSUPPORTED != e.getError() ) {
-                Assert.fail( "expErrorCode:-107  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-107  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
         breakpointFile.upload( new ByteArrayInputStream( data ) );
@@ -148,7 +147,7 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
         byte[] fileData = outputStream.toByteArray();
         Assert.assertEquals( fileData, expData );
 
-        //delete the file
+        // delete the file
         ScmFactory.File.deleteInstance( ws, fileId, true );
     }
 

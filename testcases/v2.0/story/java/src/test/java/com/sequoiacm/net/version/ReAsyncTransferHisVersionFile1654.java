@@ -29,9 +29,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:the historyVersion file in both the rootSite and the branSite, 
- *               ayncTransfer the history version file again.
- * testlink-case:SCM-1654
+ * test content:the historyVersion file in both the rootSite and the branSite,
+ * ayncTransfer the history version file again. testlink-case:SCM-1654
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -78,7 +77,7 @@ public class ReAsyncTransferHisVersionFile1654 extends TestScmBase {
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
-        //asyncTransfer history file
+        // asyncTransfer history file
         asyncTransferCurrentVersionFile( historyVersion );
         Collection< ScmFileLocation > getSiteInfo1 = getSiteInfo(
                 historyVersion );
@@ -88,19 +87,18 @@ public class ReAsyncTransferHisVersionFile1654 extends TestScmBase {
         Collection< ScmFileLocation > getSiteInfo2 = getSiteInfo(
                 historyVersion );
 
-        //check the siteinfo is the same
+        // check the siteinfo is the same
         Assert.assertEquals( getSiteInfo1.toString(), getSiteInfo2.toString(),
-                "fisrt get siteList:"
-                        + getSiteInfo1.toString() + " 2nd get siteList:" +
-                        getSiteInfo2.toString() );
+                "fisrt get siteList:" + getSiteInfo1.toString()
+                        + " 2nd get siteList:" + getSiteInfo2.toString() );
 
-        //check the historyVersion file data and siteinfo
+        // check the historyVersion file data and siteinfo
         SiteWrapper[] expHisSiteList = { targetSite, asyncTransferSite };
         VersionUtils.checkSite( wsA, fileId, historyVersion, expHisSiteList );
         VersionUtils.CheckFileContentByStream( wsT, fileName, historyVersion,
                 filedata );
 
-        //check the currentVersion file only on the branSiteA
+        // check the currentVersion file only on the branSiteA
         SiteWrapper[] expCurSiteList = { asyncTransferSite };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
     }
@@ -125,17 +123,17 @@ public class ReAsyncTransferHisVersionFile1654 extends TestScmBase {
             throws Exception {
         ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
 
-        //wait task finished
+        // wait task finished
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsT, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsT, fileId, majorVersion,
+                sitenums );
     }
 
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
-        //get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        // get the create and last access time
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

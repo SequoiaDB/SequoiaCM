@@ -56,8 +56,8 @@ public class AuthServer_CrudDiffRole1553 extends TestScmBase {
         }
         try {
             for ( int i = 0; i < roleNum; i++ ) {
-                ScmRole role = ScmFactory.Role
-                        .createRole( session, roleName + "_" + i, null );
+                ScmRole role = ScmFactory.Role.createRole( session,
+                        roleName + "_" + i, null );
                 roleList.add( role );
             }
         } catch ( ScmException e ) {
@@ -106,8 +106,8 @@ public class AuthServer_CrudDiffRole1553 extends TestScmBase {
         public void exec() {
             try {
                 String rolename1 = roleName + "_" + UUID.randomUUID();
-                ScmRole role = ScmFactory.Role
-                        .createRole( session, rolename1, null );
+                ScmRole role = ScmFactory.Role.createRole( session, rolename1,
+                        null );
                 roleList.add( role );
                 check( rolename1, role );
             } catch ( ScmException e ) {
@@ -120,7 +120,7 @@ public class AuthServer_CrudDiffRole1553 extends TestScmBase {
             ScmRole actRole;
             try {
                 actRole = ScmFactory.Role.getRole( session, roleName );
-                //Assert.assertEquals(actRole.getDescription(), role
+                // Assert.assertEquals(actRole.getDescription(), role
                 // .getDescription());
                 Assert.assertEquals( actRole.getRoleId(), role.getRoleId() );
                 Assert.assertEquals( actRole.getRoleName(),
@@ -160,8 +160,8 @@ public class AuthServer_CrudDiffRole1553 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmRole actrole = ScmFactory.Role
-                        .getRole( session, roleList.get( 1 ).getRoleName() );
+                ScmRole actrole = ScmFactory.Role.getRole( session,
+                        roleList.get( 1 ).getRoleName() );
                 check( actrole, roleList.get( 1 ) );
             } catch ( ScmException e ) {
                 e.printStackTrace();
@@ -170,7 +170,7 @@ public class AuthServer_CrudDiffRole1553 extends TestScmBase {
         }
 
         private void check( ScmRole actrole, ScmRole role ) {
-            //Assert.assertEquals(actrole.getDescription(), role
+            // Assert.assertEquals(actrole.getDescription(), role
             // .getDescription());
             Assert.assertEquals( actrole.getRoleId(), role.getRoleId() );
             Assert.assertEquals( actrole.getRoleName(), role.getRoleName() );

@@ -71,8 +71,8 @@ public class DefineAttr_Attr_Update1932 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         craeteAttr();
-        ScmAttribute updateAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute updateAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         updateAttr.setDescription( desc + "_1" );
         updateAttr.setDisplayName( attrname + "_display_2" );
         updateAttr.setRequired( false );
@@ -93,8 +93,8 @@ public class DefineAttr_Attr_Update1932 extends TestScmBase {
             }
         }
 
-        ScmAttribute actattr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actattr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( actattr, attr );
         runSuccess = true;
     }
@@ -165,8 +165,7 @@ public class DefineAttr_Attr_Update1932 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
@@ -199,9 +198,8 @@ public class DefineAttr_Attr_Update1932 extends TestScmBase {
     }
 
     private void prepare() throws Exception {
-        user = ScmFactory.User
-                .createUser( session, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( session, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( session, rolename, null );
         wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
         grantPriAndAttachRole( session, wsrs, user, role,

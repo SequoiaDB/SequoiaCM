@@ -45,20 +45,19 @@ public class NotAuthLogin316 extends TestScmBase {
         ScmSession session = null;
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
-            ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.NODE, site.getSiteId(),
-                            session );
+            ScmSystem.Configuration.reloadBizConf( ServerScope.NODE,
+                    site.getSiteId(), session );
             try {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.createInstance( ws );
                 Assert.fail(
-                        "business operation shouldn't succeed when login is " +
-                                "not authorized" );
+                        "business operation shouldn't succeed when login is "
+                                + "not authorized" );
             } catch ( ScmException e ) {
                 if ( 403 != e.getErrorCode() ) { // -104 unsupport operation
                     throw e;

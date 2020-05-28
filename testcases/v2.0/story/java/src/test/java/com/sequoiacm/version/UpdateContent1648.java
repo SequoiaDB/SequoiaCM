@@ -29,9 +29,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the inputStream update Content of  the current
- * scm file
- * testlink-case:SCM-1641
+ * test content:specify that the inputStream update Content of the current scm
+ * file testlink-case:SCM-1641
  *
  * @author wuyan
  * @Date 2018.06.01
@@ -69,7 +68,7 @@ public class UpdateContent1648 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( ws1, fileName, filedata );
         updateContent( ws2, updatedata );
 
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion = 1;
         VersionUtils.CheckFileContentByStream( ws1, fileName, currentVersion,
@@ -98,15 +97,14 @@ public class UpdateContent1648 extends TestScmBase {
     }
 
     private void createScmUser() throws ScmException, InterruptedException {
-        ScmUser user = ScmFactory.User
-                .createUser( session1, newUsername, ScmUserPasswordType.LOCAL,
-                        newPassword );
+        ScmUser user = ScmFactory.User.createUser( session1, newUsername,
+                ScmUserPasswordType.LOCAL, newPassword );
         ScmRole role = ScmFactory.Role.createRole( session1, roleName, null );
         ScmUserModifier modifier = new ScmUserModifier();
         ScmResource rs = ScmResourceFactory
                 .createWorkspaceResource( wsp.getName() );
-        ScmFactory.Role
-                .grantPrivilege( session1, role, rs, ScmPrivilegeDefine.ALL );
+        ScmFactory.Role.grantPrivilege( session1, role, rs,
+                ScmPrivilegeDefine.ALL );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
         session2 = TestScmTools.createSession( site, newUsername, newPassword );
@@ -131,14 +129,14 @@ public class UpdateContent1648 extends TestScmBase {
     }
 
     private void checkFileAtrributes() throws ScmException {
-        //check current version file user and size
+        // check current version file user and size
         ScmFile curVersionFile = ScmFactory.File.getInstance( ws1, fileId );
         Assert.assertEquals( curVersionFile.getUpdateUser(), newUsername );
         Assert.assertEquals( curVersionFile.getSize(), updatedata.length );
-        //check history version file user and size
+        // check history version file user and size
         int histroyVersion = 1;
-        ScmFile hisVersionFile = ScmFactory.File
-                .getInstance( ws1, fileId, histroyVersion, 0 );
+        ScmFile hisVersionFile = ScmFactory.File.getInstance( ws1, fileId,
+                histroyVersion, 0 );
         Assert.assertEquals( hisVersionFile.getUser(),
                 TestScmTools.scmUserName );
         Assert.assertEquals( hisVersionFile.getSize(), filedata.length );

@@ -50,13 +50,12 @@ public class OverWriteFile2564 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        updateFilePath =
-                localPath + File.separator + "localFile_" + ( fileSize + 1 ) +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        updateFilePath = localPath + File.separator + "localFile_"
+                + ( fileSize + 1 ) + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -76,7 +75,7 @@ public class OverWriteFile2564 extends TestScmBase {
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( fileName );
         scmFile.setContent( updateFilePath );
-        //ScmUploadConf is null
+        // ScmUploadConf is null
         try {
             scmFile.save( null );
             Assert.fail( "exp fail but act success" );
@@ -85,7 +84,7 @@ public class OverWriteFile2564 extends TestScmBase {
                 throw e;
             }
         }
-        //overwrite is false
+        // overwrite is false
         try {
             scmFile.save( new ScmUploadConf( false ) );
             Assert.fail( "exp fail but act success" );
@@ -94,7 +93,7 @@ public class OverWriteFile2564 extends TestScmBase {
                 throw e;
             }
         }
-        //overwrite is true
+        // overwrite is true
         String newVal = fileName + "-new";
         scmFile.setAuthor( newVal );
         scmFile.setTitle( newVal );
@@ -103,10 +102,10 @@ public class OverWriteFile2564 extends TestScmBase {
         scmFile.setTags( scmTags );
         scmFile.setContent( updateFilePath );
         fileId = scmFile.save( new ScmUploadConf( true ) );
-        //get scm file and check
+        // get scm file and check
         ScmFile actFile = ScmFactory.File.getInstance( ws, fileId );
         checkFile( actFile, newVal, fileSize + 1, updateFilePath, scmTags );
-        //delete file
+        // delete file
         ScmFactory.File.deleteInstance( ws, fileId, true );
         runSuccess = true;
     }
@@ -125,10 +124,10 @@ public class OverWriteFile2564 extends TestScmBase {
     }
 
     private void prepareFile() throws ScmException {
-        //create tags
+        // create tags
         ScmTags scmTags = new ScmTags();
         scmTags.addTag( fileName );
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         file.setAuthor( fileName );
@@ -154,17 +153,16 @@ public class OverWriteFile2564 extends TestScmBase {
                     expScmTags.toSet().toString() );
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             Assert.assertNotNull( file.getCreateTime().getTime() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( expFilePath ) );
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "fileName = " + file.getFileName() + "fileId = " +
-                            fileId.get(), e );
+            throw new Exception( "fileName = " + file.getFileName()
+                    + "fileId = " + fileId.get(), e );
         }
     }
 }

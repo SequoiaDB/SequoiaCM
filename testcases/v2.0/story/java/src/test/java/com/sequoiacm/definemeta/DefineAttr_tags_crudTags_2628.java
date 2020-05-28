@@ -77,7 +77,7 @@ public class DefineAttr_tags_crudTags_2628 extends TestScmBase {
     }
 
     private void testFileTag() throws ScmException {
-        //upload file
+        // upload file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name );
         fileId = file.save();
@@ -89,29 +89,26 @@ public class DefineAttr_tags_crudTags_2628 extends TestScmBase {
         ScmTags tags = new ScmTags();
         tags.addTags( tagSet );
 
-        //set tags
+        // set tags
         file = ScmFactory.File.getInstance( ws, fileId );
         file.setTags( tags );
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
-        Assert.assertEquals( fileTags.toSet(), tags.toSet(),
-                "fileTags = " + fileTags.toString() + ",tagSet = " +
-                        tags.toString() );
+        Assert.assertEquals( fileTags.toSet(), tags.toSet(), "fileTags = "
+                + fileTags.toString() + ",tagSet = " + tags.toString() );
 
-        //set null
+        // set null
         file.setTags( null );
         file = ScmFactory.File.getInstance( ws, fileId );
-        Assert.assertEquals( file.getTags().toString(), "[]",
-                "fileTags = " + file.getTags().toString() + ",tagSet = " +
-                        tags.toString() );
-        //remove tag
+        Assert.assertEquals( file.getTags().toString(), "[]", "fileTags = "
+                + file.getTags().toString() + ",tagSet = " + tags.toString() );
+        // remove tag
         file.removeTag( "test" );
         file = ScmFactory.File.getInstance( ws, fileId );
-        Assert.assertEquals( file.getTags().toString(), "[]",
-                "fileTags = " + file.getTags().toString() + ",tagSet = " +
-                        tags.toString() );
+        Assert.assertEquals( file.getTags().toString(), "[]", "fileTags = "
+                + file.getTags().toString() + ",tagSet = " + tags.toString() );
 
-        //add tag
+        // add tag
         file.addTag( "test" );
         file = ScmFactory.File.getInstance( ws, fileId );
         Assert.assertEquals( file.getTags().toSet().size(), 1,
@@ -133,26 +130,25 @@ public class DefineAttr_tags_crudTags_2628 extends TestScmBase {
         ScmTags tags = new ScmTags();
         tags.addTags( tagSet );
 
-        //set tags
+        // set tags
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.setTags( tags );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
-        Assert.assertEquals( batch.getTags().toSet(), tags.toSet(),
-                "actTags = " + batch.toString() + ",expTags = " +
-                        tags.toString() );
-        //set null
+        Assert.assertEquals( batch.getTags().toSet(), tags.toSet(), "actTags = "
+                + batch.toString() + ",expTags = " + tags.toString() );
+        // set null
         batch.setTags( null );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         Assert.assertEquals( batch.getTags().toString(), "[]",
                 "actTags = " + batch.getTags().toString() );
 
-        //remove tag
+        // remove tag
         batch.removeTag( "test" );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         Assert.assertEquals( batch.getTags().toString(), "[]",
                 "actTags = " + batch.getTags().toString() );
 
-        //add tag
+        // add tag
         batch.addTag( "test" );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         Assert.assertEquals( batch.getTags().toSet().size(), 1,

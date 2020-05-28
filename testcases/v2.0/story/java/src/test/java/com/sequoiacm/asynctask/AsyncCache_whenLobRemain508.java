@@ -50,10 +50,10 @@ public class AsyncCache_whenLobRemain508 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready local file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -76,10 +76,9 @@ public class AsyncCache_whenLobRemain508 extends TestScmBase {
 
         // ready scm file
         writeFileFromM();
-        //lobRemainFromA();
-        String remainfilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".txt";
+        // lobRemainFromA();
+        String remainfilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".txt";
         TestTools.LocalFile.createFile( remainfilePath, fileSize / 2 );
         TestSdbTools.Lob.putLob( branceSite, ws_T, fileId, remainfilePath );
     }

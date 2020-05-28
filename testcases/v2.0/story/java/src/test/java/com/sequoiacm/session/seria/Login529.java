@@ -48,10 +48,10 @@ public class Login529 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -71,12 +71,11 @@ public class Login529 extends TestScmBase {
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
                     TestScmBase.gateWayList.get( 0 ) + "/" + site,
-                    TestScmBase.scmUserName,
-                    TestScmBase.scmPassword );
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
             session = ScmFactory.Session
                     .createSession( SessionType.AUTH_SESSION, scOpt );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             doBusinessOperate( ws );
 
             runSuccess = true;

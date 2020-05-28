@@ -50,8 +50,7 @@ public class CreateMutiDirs2063 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     private List< String > dirNames = new ArrayList< String >();
-    private LinkedBlockingDeque< ScmId > fileIDs = new LinkedBlockingDeque<
-            ScmId >();
+    private LinkedBlockingDeque< ScmId > fileIDs = new LinkedBlockingDeque< ScmId >();
 
     private String authorName = "CreateFileWithDir2063";
     private String fileName = "filedir2063";
@@ -68,7 +67,7 @@ public class CreateMutiDirs2063 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        //clean dir
+        // clean dir
         String dirPath = "/CreatefileWiteDir2063";
         for ( int i = 0; i < 50; i++ ) {
             dirPath = "/CreatefileWiteDir2063" + "_" + i + "/";
@@ -162,8 +161,8 @@ public class CreateMutiDirs2063 extends TestScmBase {
     }
 
     private ScmId createFileWithDir( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName,
-            ScmDirectory dir ) throws ScmException {
+            byte[] data, String authorName, ScmDirectory dir )
+            throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( new ByteArrayInputStream( data ) );
         file.setFileName( fileName );
@@ -173,13 +172,13 @@ public class CreateMutiDirs2063 extends TestScmBase {
             file.setDirectory( dir );
         }
         file.setMimeType( fileName + ".txt" );
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag(
-                "我是一个标签  2063                                                " +
-                        "                                                    " +
-                        "                                                    " +
-                        "                            "
+                "我是一个标签  2063                                                "
+                        + "                                                    "
+                        + "                                                    "
+                        + "                            "
                         + "                                " );
         tags.addTag( "THIS IS TAG2063!" );
         tags.addTag( "tag *&^^^^^*90234@#$%!~asf" );

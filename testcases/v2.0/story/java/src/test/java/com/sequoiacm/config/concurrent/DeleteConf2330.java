@@ -54,8 +54,8 @@ public class DeleteConf2330 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        authList = ScmSystem.ServiceCenter
-                .getServiceInstanceList( session, serviceName );
+        authList = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                serviceName );
         try {
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -121,8 +121,8 @@ public class DeleteConf2330 extends TestScmBase {
                 }
             } catch ( ScmException e ) {
                 e.printStackTrace();
-                Assert.fail( "delete conf failed, actResult = " +
-                        actResult.toString() );
+                Assert.fail( "delete conf failed, actResult = "
+                        + actResult.toString() );
             } finally {
                 if ( session != null ) {
                     session.close();
@@ -146,8 +146,8 @@ public class DeleteConf2330 extends TestScmBase {
                 session = TestScmTools.createSession( site );
                 ScmUser scmUser = ScmFactory.User.createUser( session, username,
                         ScmUserPasswordType.LOCAL, passwd );
-                ScmRole role = ScmFactory.Role
-                        .createRole( session, rolename, "" );
+                ScmRole role = ScmFactory.Role.createRole( session, rolename,
+                        "" );
                 ScmUserModifier modifier = new ScmUserModifier();
                 ScmResource resource = ScmResourceFactory
                         .createWorkspaceResource( wsp.getName() );
@@ -217,4 +217,3 @@ public class DeleteConf2330 extends TestScmBase {
         }
     }
 }
-

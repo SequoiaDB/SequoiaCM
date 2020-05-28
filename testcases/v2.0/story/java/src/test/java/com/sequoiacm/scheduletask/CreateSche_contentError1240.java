@@ -51,11 +51,9 @@ public class CreateSche_contentError1240 extends TestScmBase {
     private void test_contentLackSrSite() throws Exception {
         try {
             BSONObject queryCond = ScmQueryBuilder.start().get();
-            BSONObject cond = ScmQueryBuilder.start()
-                    .and( "target_site" ).is( branSite.getSiteName() )
-                    .and( "max_stay_time" ).is( "0d" )
-                    .and( "extra_condition" ).is( queryCond )
-                    .get();
+            BSONObject cond = ScmQueryBuilder.start().and( "target_site" )
+                    .is( branSite.getSiteName() ).and( "max_stay_time" )
+                    .is( "0d" ).and( "extra_condition" ).is( queryCond ).get();
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     cond );
             ScmSystem.Schedule.create( ss, wsp.getName(),
@@ -73,11 +71,9 @@ public class CreateSche_contentError1240 extends TestScmBase {
     private void test_contentLackTgSite() throws Exception {
         try {
             BSONObject queryCond = ScmQueryBuilder.start().get();
-            BSONObject cond = ScmQueryBuilder.start()
-                    .and( "source_site" ).is( branSite.getSiteName() )
-                    .and( "max_stay_time" ).is( "0d" )
-                    .and( "extra_condition" ).is( queryCond )
-                    .get();
+            BSONObject cond = ScmQueryBuilder.start().and( "source_site" )
+                    .is( branSite.getSiteName() ).and( "max_stay_time" )
+                    .is( "0d" ).and( "extra_condition" ).is( queryCond ).get();
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     cond );
             ScmSystem.Schedule.create( ss, wsp.getName(),
@@ -95,11 +91,10 @@ public class CreateSche_contentError1240 extends TestScmBase {
     private void test_contentLackMST() throws Exception {
         try {
             BSONObject queryCond = ScmQueryBuilder.start().get();
-            BSONObject cond = ScmQueryBuilder.start()
-                    .and( "source_site" ).is( branSite.getSiteName() )
-                    .and( "target_site" ).is( rootSite.getSiteName() )
-                    .and( "extra_condition" ).is( queryCond )
-                    .get();
+            BSONObject cond = ScmQueryBuilder.start().and( "source_site" )
+                    .is( branSite.getSiteName() ).and( "target_site" )
+                    .is( rootSite.getSiteName() ).and( "extra_condition" )
+                    .is( queryCond ).get();
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     cond );
             ScmSystem.Schedule.create( ss, wsp.getName(),

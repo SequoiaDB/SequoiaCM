@@ -25,7 +25,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of  the current scm file ,the file is empty
+ * test content: update Content of the current scm file ,the file is empty
  * testlink-case:SCM-1646
  *
  * @author wuyan
@@ -49,10 +49,10 @@ public class UpdateContent1646 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -67,12 +67,12 @@ public class UpdateContent1646 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
-        //test a:updateContent by empty file
+        // test a:updateContent by empty file
         updateContentByEmptyFile();
-        //test b:updateContext by stream
+        // test b:updateContext by stream
         updateContentByStream();
 
-        //check result
+        // check result
         int currentVersion = 3;
         int historyVersion1 = 1;
         int historyVersion2 = 2;
@@ -102,13 +102,13 @@ public class UpdateContent1646 extends TestScmBase {
         }
     }
 
-    //test a:updateContent by empty file
+    // test a:updateContent by empty file
     private void updateContentByEmptyFile() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.updateContent( filePath );
     }
 
-    //test b:updateContext by stream
+    // test b:updateContext by stream
     private void updateContentByStream() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         new Random().nextBytes( filedata );

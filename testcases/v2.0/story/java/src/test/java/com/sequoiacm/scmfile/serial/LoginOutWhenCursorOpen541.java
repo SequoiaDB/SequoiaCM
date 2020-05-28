@@ -86,11 +86,10 @@ public class LoginOutWhenCursorOpen541 extends TestScmBase {
                 }
                 cursor.close();
                 Assert.fail(
-                        "cursor got next successfully when session is closed" +
-                                "." );
+                        "cursor got next successfully when session is closed"
+                                + "." );
             } catch ( ScmException e ) {
-                if ( e.getError() !=
-                        ScmError.SESSION_CLOSED ) { //
+                if ( e.getError() != ScmError.SESSION_CLOSED ) { //
                     // EN_SCM_SESSION_SESSION_CLOSED(-202)
                     throw e;
                 }
@@ -101,8 +100,7 @@ public class LoginOutWhenCursorOpen541 extends TestScmBase {
                 Assert.fail(
                         "get workspace successfully when session is closed." );
             } catch ( ScmException e ) {
-                if ( e.getError() !=
-                        ScmError.SESSION_CLOSED ) { //
+                if ( e.getError() != ScmError.SESSION_CLOSED ) { //
                     // EN_SCM_SESSION_SESSION_CLOSED(-202)
                     throw e;
                 }

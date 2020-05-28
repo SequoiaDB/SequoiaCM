@@ -23,9 +23,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the empty file update Content of  the current
- * scm file
- * testlink-case:SCM-1645
+ * test content:specify that the empty file update Content of the current scm
+ * file testlink-case:SCM-1645
  *
  * @author wuyan
  * @Date 2018.06.01
@@ -48,10 +47,10 @@ public class UpdateContentByEmptyFile1645 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -68,12 +67,11 @@ public class UpdateContentByEmptyFile1645 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
         updateContentByEmptyFile();
 
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion = 1;
-        VersionUtils
-                .CheckFileContentByFile( ws, fileName, currentVersion, filePath,
-                        localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileName, currentVersion,
+                filePath, localPath );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 filedata );
         VersionUtils.checkFileSize( ws, fileId, currentVersion, fileSize );

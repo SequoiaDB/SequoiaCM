@@ -35,12 +35,11 @@ import com.sequoiacm.testcommon.WsWrapper;
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
     private static final int defaultTimeOut = 10 * 1000; // 10s
-    private static final int sleepTime = 1000;  // 1s
+    private static final int sleepTime = 1000; // 1s
     private static RestTemplate rest;
 
     static {
-        HttpComponentsClientHttpRequestFactory factory = new
-                HttpComponentsClientHttpRequestFactory();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setConnectionRequestTimeout( 10000 );
         factory.setConnectTimeout( 10000 );
         factory.setBufferRequestBody( false );
@@ -50,11 +49,16 @@ public class ScmAuthUtils extends TestScmBase {
 
     /**
      * @Description: 检查主站点和传进来site的节点权限
-     * @param site 站点对象
-     * @param username scm用户名
-     * @param password scm用户密码
-     * @param role scm角色
-     * @param wsp 工作区对象
+     * @param site
+     *            站点对象
+     * @param username
+     *            scm用户名
+     * @param password
+     *            scm用户密码
+     * @param role
+     *            scm角色
+     * @param wsp
+     *            工作区对象
      * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
@@ -64,16 +68,20 @@ public class ScmAuthUtils extends TestScmBase {
 
     /**
      * @Description: 检查主站点和传进来site的节点权限
-     * @param site 站点对象
-     * @param username scm用户名
-     * @param password scm用户密码
-     * @param role scm角色
-     * @param wsName 工作区名
+     * @param site
+     *            站点对象
+     * @param username
+     *            scm用户名
+     * @param password
+     *            scm用户密码
+     * @param role
+     *            scm角色
+     * @param wsName
+     *            工作区名
      * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
-            String password, ScmRole role, String wsName )
-            throws Exception {
+            String password, ScmRole role, String wsName ) throws Exception {
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< NodeWrapper > nodeWrappers = new ArrayList<>();
         nodeWrappers.addAll( site.getNodes() );
@@ -86,10 +94,10 @@ public class ScmAuthUtils extends TestScmBase {
             ss = TestScmTools.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
             for ( int i = 0; i < nodeWrappers.size(); i++ ) {
-                String dirPath = "/ScmAuthUtils" + "_" + username + "_" +
-                        UUID.randomUUID();
-                ScmDirectory dir = ScmFactory.Directory
-                        .createInstance( ws, dirPath );
+                String dirPath = "/ScmAuthUtils" + "_" + username + "_"
+                        + UUID.randomUUID();
+                ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                        dirPath );
                 ScmResource resource = ScmResourceFactory
                         .createDirectoryResource( wsName, dirPath );
                 // grant privilege
@@ -108,12 +116,11 @@ public class ScmAuthUtils extends TestScmBase {
         ScmSession newSS = null;
         try {
             // login
-            //the newSS used to check privilege come into effect
+            // the newSS used to check privilege come into effect
             newSS = TestScmTools.createSession( site, username, password );
             for ( int i = 0; i < nodeWrappers.size(); i++ ) {
                 checkNodePriority( newSS, wsName, nodeWrappers.get( i ),
-                        scmDirs.get(
-                                i ) );
+                        scmDirs.get( i ) );
             }
         } finally {
             if ( newSS != null ) {
@@ -124,60 +131,64 @@ public class ScmAuthUtils extends TestScmBase {
 
     /**
      * @Description: 检查单个节点权限
-     * @param ss scm会话
-     * @param wsName 工作名
-     * @param node 需要检测的节点对象
-     * @param scmDirectory 文件夹
+     * @param ss
+     *            scm会话
+     * @param wsName
+     *            工作名
+     * @param node
+     *            需要检测的节点对象
+     * @param scmDirectory
+     *            文件夹
      * @throws Exception
      */
     private static void checkNodePriority( ScmSession ss, String wsName,
-            NodeWrapper
-                    node, ScmDirectory scmDirectory ) throws Exception {
+            NodeWrapper node, ScmDirectory scmDirectory ) throws Exception {
         int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
         int maxTimes = ScmAuthUtils.defaultTimeOut / ScmAuthUtils.sleepTime;
         while ( maxTimes-- > 0 ) {
             try {
                 Thread.sleep( ScmAuthUtils.sleepTime );
-                ScmAuthUtils.deleteScmDirByRest( ss, node,
-                        wsName, scmDirectory );
+                ScmAuthUtils.deleteScmDirByRest( ss, node, wsName,
+                        scmDirectory );
                 break;
             } catch ( ScmException e ) {
                 if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
-                    ScmAuthUtils.logger.warn( ss.getUser() + " has tried " + (
-                            ScmAuthUtils.defaultTimeOut /
-                                    ScmAuthUtils.sleepTime - maxTimes )
+                    ScmAuthUtils.logger.warn( ss.getUser() + " has tried "
+                            + ( ScmAuthUtils.defaultTimeOut
+                                    / ScmAuthUtils.sleepTime - maxTimes )
                             + " times." + "version1 = " + version1
-                            + ",version2 = " + ScmFactory.Privilege
-                            .getMeta( ss ).getVersion() );
+                            + ",version2 = "
+                            + ScmFactory.Privilege.getMeta( ss ).getVersion() );
                 } else {
-                    ScmAuthUtils.logger.error(
-                            "failed to wait privilege come into " +
-                                    "effect,version1 = "
-                                    + version1 + ",version2 = "
+                    ScmAuthUtils.logger
+                            .error( "failed to wait privilege come into "
+                                    + "effect,version1 = " + version1
+                                    + ",version2 = "
                                     + ScmFactory.Privilege.getMeta( ss )
-                                    .getVersion() + ",scmDir = "
-                                    + scmDirectory.getId() );
+                                            .getVersion()
+                                    + ",scmDir = " + scmDirectory.getId() );
                     throw e;
                 }
             }
         }
         if ( maxTimes == -1 ) {
-            throw new Exception(
-                    "privilege did not come into effect, timeout" +
-                            ".version1" + " = "
-                            + version1 + ",version2 = "
-                            + ScmFactory.Privilege.getMeta( ss )
-                            .getVersion() + ",scmDirid = " +
-                            scmDirectory.getId() );
+            throw new Exception( "privilege did not come into effect, timeout"
+                    + ".version1" + " = " + version1 + ",version2 = "
+                    + ScmFactory.Privilege.getMeta( ss ).getVersion()
+                    + ",scmDirid = " + scmDirectory.getId() );
         }
     }
 
     /**
      * @Description: 为了检查权限，连接rest删除文件夹
-     * @param session scm会话
-     * @param node 需要检测的节点对象
-     * @param wsName 工作区名
-     * @param scmDirectory 文件夹
+     * @param session
+     *            scm会话
+     * @param node
+     *            需要检测的节点对象
+     * @param wsName
+     *            工作区名
+     * @param scmDirectory
+     *            文件夹
      * @throws ScmException
      */
     private static void deleteScmDirByRest( ScmSession session,
@@ -188,14 +199,12 @@ public class ScmAuthUtils extends TestScmBase {
         HttpEntity entity = new HttpEntity<>( new LinkedMultiValueMap<>(),
                 requestHeaders );
         try {
-            rest.exchange( "http://" + node.getUrl() +
-                            "/api/v1/directories/id/"
-                            + scmDirectory.getId() + "?workspace_name=" +
-                            wsName, HttpMethod.DELETE, entity,
-                    String.class );
+            rest.exchange( "http://" + node.getUrl() + "/api/v1/directories/id/"
+                    + scmDirectory.getId() + "?workspace_name=" + wsName,
+                    HttpMethod.DELETE, entity, String.class );
         } catch ( HttpClientErrorException e ) {
-            if ( e.getResponseBodyAsString() != null && e
-                    .getResponseBodyAsString().contains( "-109" ) ) {
+            if ( e.getResponseBodyAsString() != null
+                    && e.getResponseBodyAsString().contains( "-109" ) ) {
                 throw new ScmException( -109, e.getResponseBodyAsString() );
             }
         }

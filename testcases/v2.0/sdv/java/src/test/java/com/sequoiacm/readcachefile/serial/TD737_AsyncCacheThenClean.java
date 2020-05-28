@@ -60,10 +60,10 @@ public class TD737_AsyncCacheThenClean extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -148,9 +148,9 @@ public class TD737_AsyncCacheThenClean extends TestScmBase {
     private void readFileFromM() throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( wsM, fileId );
             file.getContent( downloadPath );
         }
@@ -179,9 +179,9 @@ public class TD737_AsyncCacheThenClean extends TestScmBase {
     private void readFileFromB() throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( wsB, fileId );
             file.getContent( downloadPath );
 
@@ -202,8 +202,8 @@ public class TD737_AsyncCacheThenClean extends TestScmBase {
         ScmTask taskInfo = null;
         while ( true ) {
             taskInfo = ScmSystem.Task.getTask( sessionB, taskId );
-            if ( taskInfo.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+            if ( taskInfo
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                 break;
             }
             Thread.sleep( 200 );

@@ -70,9 +70,8 @@ public class Transfer_param_stopTask459 extends TestScmBase {
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             fileId = createFile( ws );
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

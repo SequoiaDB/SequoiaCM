@@ -33,13 +33,11 @@ public class Param_Property2313 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testKeyIsNull() {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
-                    .updateProperty( null, "ALL" )
-                    .build();
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
+                    .updateProperty( null, "ALL" ).build();
             Assert.fail(
-                    " ScmConfigProperties.builder().property(null,\"ALL\") " +
-                            "must be failed when the key is null" );
+                    " ScmConfigProperties.builder().property(null,\"ALL\") "
+                            + "must be failed when the key is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -50,14 +48,12 @@ public class Param_Property2313 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testValueIsNull() {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, null )
                     .build();
-            Assert.fail(
-                    " ScmConfigProperties.builder().property" +
-                            "(ConfigCommonDefind.scm_audit_mask, null) must " +
-                            "be failed when the value is null" );
+            Assert.fail( " ScmConfigProperties.builder().property"
+                    + "(ConfigCommonDefind.scm_audit_mask, null) must "
+                    + "be failed when the value is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

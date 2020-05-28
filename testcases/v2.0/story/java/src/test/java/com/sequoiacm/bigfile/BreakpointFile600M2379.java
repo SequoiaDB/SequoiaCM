@@ -45,10 +45,10 @@ public class BreakpointFile600M2379 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -60,9 +60,9 @@ public class BreakpointFile600M2379 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws ScmException, IOException {
-        //创建断点文件
+        // 创建断点文件
         ScmBreakpointFile breakpointFile = this.createBreakpointFile();
-        //创建scm文件,并将创建的断点文件作为文件的内容
+        // 创建scm文件,并将创建的断点文件作为文件的内容
         breakpointFile2ScmFile( breakpointFile );
     }
 

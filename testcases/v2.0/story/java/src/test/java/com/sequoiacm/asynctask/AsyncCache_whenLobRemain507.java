@@ -52,10 +52,10 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready local file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -74,7 +74,7 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         // ready scm file
         writeFileFromM();
-        //lobRemainFromA();
+        // lobRemainFromA();
         TestSdbTools.Lob.putLob( branceSite, ws_T, fileId, filePath );
     }
 
@@ -117,9 +117,8 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
     private void readFileFromA() throws Exception {
         TestSdbTools.Lob.removeLob( rootSite, ws_T, fileId );
         // read siteA's local cache
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         ScmFile file = ScmFactory.File.getInstance( wsA, fileId );
         file.getContent( downloadPath );
         Assert.assertEquals( TestTools.getMD5( downloadPath ),

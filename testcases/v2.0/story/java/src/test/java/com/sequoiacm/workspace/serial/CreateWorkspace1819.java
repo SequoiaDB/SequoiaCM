@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description CreateWorkspace1818.java 无ws管理权限用户创建ws 
+ * @Description CreateWorkspace1818.java 无ws管理权限用户创建ws
  * @author luweikang
  * @date 2018年6月22日
  */
@@ -82,15 +82,14 @@ public class CreateWorkspace1819 extends TestScmBase {
     }
 
     private void createScmUser() throws ScmException, InterruptedException {
-        ScmUser user = ScmFactory.User
-                .createUser( session1, username, ScmUserPasswordType.LOCAL,
-                        password );
+        ScmUser user = ScmFactory.User.createUser( session1, username,
+                ScmUserPasswordType.LOCAL, password );
         ScmRole role = ScmFactory.Role.createRole( session1, roleName, null );
         ScmUserModifier modifier = new ScmUserModifier();
         ScmResource rs = ScmResourceFactory
                 .createWorkspaceResource( ScmInfo.getWs().getName() );
-        ScmFactory.Role
-                .grantPrivilege( session1, role, rs, ScmPrivilegeType.READ );
+        ScmFactory.Role.grantPrivilege( session1, role, rs,
+                ScmPrivilegeType.READ );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
         session2 = TestScmTools.createSession( rootSite, username, password );

@@ -34,10 +34,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 
 /**
- * @Testcase: SCM-245:seek文件，偏移>文件长度 
- *              1、分中心A写文件 
- *              2、分中心B seek文件，seekSize>文件长度
- *              3、调用read(OutPutStream out)读取文件
+ * @Testcase: SCM-245:seek文件，偏移>文件长度 1、分中心A写文件 2、分中心B seek文件，seekSize>文件长度
+ *            3、调用read(OutPutStream out)读取文件
  * @author huangxiaoni init
  * @date 2017.5.5
  * @modified By wuyan
@@ -63,10 +61,10 @@ public class SeekReadFile245 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -119,9 +117,9 @@ public class SeekReadFile245 extends TestScmBase {
         try {
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
 
             try {
@@ -131,8 +129,8 @@ public class SeekReadFile245 extends TestScmBase {
                 in.read( fos );
             } catch ( ScmException e ) {
                 if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                    Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                            e.getMessage() );
+                    Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                            + e.getMessage() );
                 }
             }
 

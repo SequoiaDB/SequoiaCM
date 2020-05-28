@@ -51,20 +51,19 @@ public class ScmFileUtils extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace work = ScmFactory.Workspace
-                    .getWorkspace( ws.getName(), session );
+            ScmWorkspace work = ScmFactory.Workspace.getWorkspace( ws.getName(),
+                    session );
 
-            cursor = ScmFactory.File
-                    .listInstance( work, ScopeType.SCOPE_CURRENT, condition );
+            cursor = ScmFactory.File.listInstance( work,
+                    ScopeType.SCOPE_CURRENT, condition );
             while ( cursor.hasNext() ) {
                 ScmFileBasicInfo fileInfo = cursor.getNext();
                 fileId = fileInfo.getFileId();
                 ScmFactory.File.deleteInstance( work, fileId, true );
             }
         } catch ( ScmException e ) {
-            logger.error(
-                    "[test] clean scmfile, siteName = " + site.getSiteName() +
-                            ", fileId=" + fileId );
+            logger.error( "[test] clean scmfile, siteName = "
+                    + site.getSiteName() + ", fileId=" + fileId );
             e.printStackTrace();
             throw e;
         } finally {
@@ -81,8 +80,8 @@ public class ScmFileUtils extends TestScmBase {
      * one file, default workspace, check file's meta and data
      */
     public static void checkMetaAndData( WsWrapper ws, ScmId fileId,
-            SiteWrapper[] expSites, java.io.File localPath,
-            String filePath ) throws Exception {
+            SiteWrapper[] expSites, java.io.File localPath, String filePath )
+            throws Exception {
         List< ScmId > fileIdList = new ArrayList<>();
         fileIdList.add( fileId );
         checkMetaAndData( ws, fileIdList, expSites, localPath, filePath );
@@ -99,8 +98,8 @@ public class ScmFileUtils extends TestScmBase {
      * @throws Exception
      */
     public static void checkMetaAndData( WsWrapper ws, List< ScmId > fileIdList,
-            SiteWrapper[] expSites,
-            java.io.File localPath, String filePath ) throws Exception {
+            SiteWrapper[] expSites, java.io.File localPath, String filePath )
+            throws Exception {
         boolean medaChecked = false;
         for ( SiteWrapper site : expSites ) {
             ScmSession session = null;
@@ -108,8 +107,8 @@ public class ScmFileUtils extends TestScmBase {
             ScmId fileId = null;
             try {
                 session = TestScmTools.createSession( site );
-                work = ScmFactory.Workspace
-                        .getWorkspace( ws.getName(), session );
+                work = ScmFactory.Workspace.getWorkspace( ws.getName(),
+                        session );
 
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
                     fileId = fileIdList.get( i );
@@ -159,12 +158,11 @@ public class ScmFileUtils extends TestScmBase {
         // check site number
         int expSiteNum = expSites.length;
         if ( actSiteNum != expSiteNum ) {
-            throw new Exception(
-                    "Failed to check siteNum, ws = " + ws.getName() +
-                            ", fileId = " + fileId.get()
-                            + ", expSiteNum = " + expSiteNum +
-                            ", actSiteNum = " + actSiteNum + ", expSiteIds = "
-                            + expIdList + ", actSiteIds = " + actIdList );
+            throw new Exception( "Failed to check siteNum, ws = " + ws.getName()
+                    + ", fileId = " + fileId.get() + ", expSiteNum = "
+                    + expSiteNum + ", actSiteNum = " + actSiteNum
+                    + ", expSiteIds = " + expIdList + ", actSiteIds = "
+                    + actIdList );
         }
 
         // check site id
@@ -172,12 +170,11 @@ public class ScmFileUtils extends TestScmBase {
             int expSiteId = expIdList.get( i );
             int actSiteId = actIdList.get( i ).intValue();
             if ( actSiteId != expSiteId ) {
-                throw new Exception(
-                        "Failed to check siteId, ws = " + ws.getName() +
-                                ", fileId = " + fileId.get()
-                                + ", expSiteId = " + expSiteId +
-                                ", actSiteId = " + actSiteId + ", expSiteIds = "
-                                + expIdList + ", actSiteIds = " + actIdList );
+                throw new Exception( "Failed to check siteId, ws = "
+                        + ws.getName() + ", fileId = " + fileId.get()
+                        + ", expSiteId = " + expSiteId + ", actSiteId = "
+                        + actSiteId + ", expSiteIds = " + expIdList
+                        + ", actSiteIds = " + actIdList );
             }
         }
     }
@@ -186,18 +183,16 @@ public class ScmFileUtils extends TestScmBase {
      * check scmfile's data
      */
     public static void checkData( ScmWorkspace ws, ScmId fileId,
-            java.io.File localPath, String filePath )
-            throws Exception {
+            java.io.File localPath, String filePath ) throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContentFromLocalSite( downloadPath );
         String expMd5 = TestTools.getMD5( filePath );
         String actMd5 = TestTools.getMD5( downloadPath );
         if ( !expMd5.equals( actMd5 ) ) {
-            throw new Exception( "Failed to check data, " + "expMd5=" + expMd5 +
-                    ", actMd5=" + actMd5 );
+            throw new Exception( "Failed to check data, " + "expMd5=" + expMd5
+                    + ", actMd5=" + actMd5 );
         }
         TestTools.LocalFile.removeFile( downloadPath );
     }

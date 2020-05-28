@@ -48,20 +48,20 @@ public class NotAuthLogin318 extends TestScmBase {
             String user = TestScmBase.scmUserName;
             String passwd = TestScmBase.scmPassword;
             ScmConfigOption scOpt = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName(), user, passwd );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName(),
+                    user, passwd );
             session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
-            ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.SITE, site.getSiteId(),
-                            session );
+            ScmSystem.Configuration.reloadBizConf( ServerScope.SITE,
+                    site.getSiteId(), session );
             try {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.createInstance( ws );
                 Assert.fail(
-                        "business operation shouldn't succeed when login is " +
-                                "not authorized" );
+                        "business operation shouldn't succeed when login is "
+                                + "not authorized" );
             } catch ( ScmException e ) {
                 Assert.assertEquals( e.getErrorCode(),
                         ScmError.HTTP_FORBIDDEN.getErrorCode(),

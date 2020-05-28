@@ -51,12 +51,11 @@ public class AuthServer_GetUserSession1484 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             for ( int i = 0; i < ssNum; i++ ) {
-                ScmSession session = TestScmTools
-                        .createSession( site, username, passwd );
+                ScmSession session = TestScmTools.createSession( site, username,
+                        passwd );
                 ssList.add( session );
             }
         } catch ( ScmException e ) {

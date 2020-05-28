@@ -53,10 +53,10 @@ public class AsyncCacheAndDelete751 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // filePathList.add(filePath);
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -107,12 +107,12 @@ public class AsyncCacheAndDelete751 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -140,11 +140,10 @@ public class AsyncCacheAndDelete751 extends TestScmBase {
                         .getWorkspace( ws_T.getName(), session );
                 ScmFactory.File.asyncCache( ws, fileId );
                 SiteWrapper[] siteList = { sourceSite, targetSite };
-                ScmTaskUtils
-                        .waitAsyncTaskFinished( ws, fileId, siteList.length );
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, siteList, localPath,
-                                filePath );
+                ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                        siteList.length );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, siteList,
+                        localPath, filePath );
             } catch ( Exception e ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );

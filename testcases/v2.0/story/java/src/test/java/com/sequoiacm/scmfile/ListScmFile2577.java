@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.scmutils.ListUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description: SCM-2577 ::  SCM-2577:正逆序分页列取当前文件列表
+ * @Description: SCM-2577 :: SCM-2577:正逆序分页列取当前文件列表
  * @author fanyu
  * @Date:2019年8月28日
  * @version:1.0
@@ -59,11 +59,11 @@ public class ListScmFile2577 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean
+        // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        //prepare file
+        // prepare file
         for ( int i = 0; i < fileNum; i++ ) {
             String fileName = fileNamePrefix + "-" + i;
             ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -77,23 +77,21 @@ public class ListScmFile2577 extends TestScmBase {
             }
             fileIdList.add( scmFile.save() );
         }
-        //prepare filter
-        //all file
+        // prepare filter
+        // all file
         filter1 = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
-        //part of the file
+        // part of the file
         filter2 = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( fileNamePrefix )
-                .and( ScmAttributeName.File.TAGS ).in( "tally" ).get();
-        //one file
+                .is( fileNamePrefix ).and( ScmAttributeName.File.TAGS )
+                .in( "tally" ).get();
+        // one file
         filter3 = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( fileNamePrefix )
-                .and( ScmAttributeName.File.FILE_NAME )
+                .is( fileNamePrefix ).and( ScmAttributeName.File.FILE_NAME )
                 .is( fileNamePrefix + "-" + 50 ).get();
-        //zero file
+        // zero file
         filter4 = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( fileNamePrefix )
-                .and( ScmAttributeName.File.FILE_NAME )
+                .is( fileNamePrefix ).and( ScmAttributeName.File.FILE_NAME )
                 .is( fileNamePrefix + "1-" + 50 ).get();
         getInitScmFileInfo( filter1, fileList1 );
         getInitScmFileInfo( filter2, fileList2 );
@@ -122,54 +120,54 @@ public class ListScmFile2577 extends TestScmBase {
         boolean[] typeAtr4 = new boolean[] { false, true };
 
         return new Object[][] {
-                //filter  skip   limit initScmFiles  sortNameAtr  typeArr
-                //orderby:单个字段 正序
-                //skip=0  limit=1
+                // filter skip limit initScmFiles sortNameAtr typeArr
+                // orderby:单个字段 正序
+                // skip=0 limit=1
                 { filter1, positive, 0, 1, fileList1, sortNameAtr1, typeAtr1 },
-                //skip>0 limt=50
+                // skip>0 limt=50
                 { filter1, positive, 1, 50, fileList1, sortNameAtr1, typeAtr1 },
-                //skip>10 limt=50
+                // skip>10 limt=50
                 { filter2, positive, 10, 100, fileList2, sortNameAtr1,
                         typeAtr1 },
-                //skip == fileList.size
+                // skip == fileList.size
                 { filter3, positive, 1, 10, fileList3, sortNameAtr1, typeAtr1 },
-                //skip > fileList.size
+                // skip > fileList.size
                 { filter4, positive, 1, 10, new ArrayList< ScmFileBasicInfo >(),
                         sortNameAtr1, typeAtr1 },
-                //limit > fileList.size
+                // limit > fileList.size
                 { filter2, positive, 0, fileList2.size() + 1, fileList2,
                         sortNameAtr1, typeAtr1 },
-                //limit = -1
+                // limit = -1
                 { filter2, positive, 10, -1, fileList2, sortNameAtr1,
                         typeAtr1 },
 
-                //orderby:单个字段 逆序
+                // orderby:单个字段 逆序
                 { filter1, negative, 0, 1, fileList1, sortNameAtr1, typeAtr2 },
-                //skip>10 limt=50
+                // skip>10 limt=50
                 { filter2, negative, 10, 100, fileList2, sortNameAtr1,
                         typeAtr2 },
-                //skip == fileList.size
+                // skip == fileList.size
                 { filter3, negative, 1, 10, fileList3, sortNameAtr1, typeAtr2 },
-                //skip > fileList.size
+                // skip > fileList.size
                 { filter4, negative, 1, 10, new ArrayList< ScmFileBasicInfo >(),
                         sortNameAtr1, typeAtr2 },
-                //limit > fileList.size
+                // limit > fileList.size
                 { filter2, negative, 0, fileList2.size() + 1, fileList2,
                         sortNameAtr1, typeAtr2 },
-                //limit = -1
+                // limit = -1
                 { filter2, negative, 0, -1, fileList2, sortNameAtr1, typeAtr2 },
 
-                //orderby:多个字段 正逆序
+                // orderby:多个字段 正逆序
                 { filter1, dPositive, 0, 10, fileList1, sortNameAtr2,
                         typeAtr3 },
-                { filter1, dNegative, 2, 20, fileList1, sortNameAtr2, typeAtr4 }
-        };
+                { filter1, dNegative, 2, 20, fileList1, sortNameAtr2,
+                        typeAtr4 } };
     }
 
     @Test(dataProvider = "dataProvider")
     private void test( BSONObject filter, BSONObject orderby, long skip,
-            long limit, List< ScmFileBasicInfo > list
-            , String[] sortnameArr, boolean[] typeArr ) throws Exception {
+            long limit, List< ScmFileBasicInfo > list, String[] sortnameArr,
+            boolean[] typeArr ) throws Exception {
         List< ScmFileBasicInfo > tmpList = new ArrayList<>();
         tmpList.addAll( list );
         ListUtils.sort( tmpList, sortnameArr, typeArr );
@@ -204,10 +202,10 @@ public class ListScmFile2577 extends TestScmBase {
                                 exp.getMimeType() );
                         count++;
                     } catch ( AssertionError e ) {
-                        throw new Exception( "filter = " + filter.toString() +
-                                ",orderby = " + orderby.toString()
-                                + ",skip = " + skip + ",limit = " + limit +
-                                "，act = " + act.toString() + ",exp = "
+                        throw new Exception( "filter = " + filter.toString()
+                                + ",orderby = " + orderby.toString()
+                                + ",skip = " + skip + ",limit = " + limit
+                                + "，act = " + act.toString() + ",exp = "
                                 + exp.toString(), e );
                     }
                 }
@@ -238,10 +236,9 @@ public class ListScmFile2577 extends TestScmBase {
                 Assert.assertEquals( actPageSize, 0 );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "filter = " + filter.toString() + ",orderby = " +
-                            orderby.toString()
-                            + ",skip = " + skip + ",limit = " + limit, e );
+            throw new Exception( "filter = " + filter.toString() + ",orderby = "
+                    + orderby.toString() + ",skip = " + skip + ",limit = "
+                    + limit, e );
         }
         expSuccessTestCount.getAndIncrement();
     }
@@ -265,9 +262,8 @@ public class ListScmFile2577 extends TestScmBase {
             List< ScmFileBasicInfo > fileList ) throws ScmException {
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
-                            filter );
+            cursor = ScmFactory.File.listInstance( ws,
+                    ScmType.ScopeType.SCOPE_CURRENT, filter );
             while ( cursor.hasNext() ) {
                 fileList.add( cursor.getNext() );
             }
@@ -278,5 +274,3 @@ public class ListScmFile2577 extends TestScmBase {
         }
     }
 }
-
-

@@ -21,9 +21,8 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1517:admin角色创建角色，角色名以“ROLE_”开头
- * 			  ............
- * 			  SCM-1528:查询/删除不存在的角色
+ * @FileName SCM-1517:admin角色创建角色，角色名以“ROLE_”开头 ............
+ *           SCM-1528:查询/删除不存在的角色
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -56,15 +55,14 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
             try {
                 ScmFactory.Role.deleteRole( session, NAME + "_" + i );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         }
 
         // get AUTH_ADMIN role
-        ScmUser adminUser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser adminUser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         authAdminRole = adminUser.getRoles().iterator().next();
 
         // create user, add AUTH_ADMIN role
@@ -104,8 +102,8 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
             ScmFactory.Role.getRole( ss, roleName );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get user after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get user after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         ss.close();
@@ -130,8 +128,8 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
             ScmFactory.Role.getRole( ss, roleName );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get user after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get user after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         ss.close();
@@ -171,8 +169,8 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
             ScmFactory.Role.deleteRole( session, roleName );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete not exist role, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "delete not exist role, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -193,9 +191,8 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
 
     private void createAdminUser() throws ScmException {
         // create user
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         // add AUTH_ADMIN role
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( authAdminRole );

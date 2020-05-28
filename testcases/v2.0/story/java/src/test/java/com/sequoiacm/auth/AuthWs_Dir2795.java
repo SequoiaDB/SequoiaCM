@@ -43,10 +43,10 @@ public class AuthWs_Dir2795 extends TestScmBase {
     private ScmUser user;
     private ScmRole role;
     private String[] dirPaths = { "/2795a", "/2795a/b" };
-    //目录资源列表  Rs = Resource
+    // 目录资源列表 Rs = Resource
     private String[] dirRsList = { "//2795a", "/2795a//b", "/2795a/b//",
             "//2795a/b/", "//", "///" };
-    //目录资源dirRSList对应的目录，方便后面测试
+    // 目录资源dirRSList对应的目录，方便后面测试
     private String[] dirRsToPath = { "/2795a/", "/2795a/b/", "/2795a/b/",
             "/2795a/b/", "/", "/" };
 
@@ -61,7 +61,7 @@ public class AuthWs_Dir2795 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        //创建目录
+        // 创建目录
         for ( String dir : dirPaths ) {
             if ( !ScmFactory.Directory.isInstanceExist( wsA, dir ) ) {
                 ScmFactory.Directory.createInstance( wsA, dir );
@@ -74,16 +74,16 @@ public class AuthWs_Dir2795 extends TestScmBase {
                     ScmPrivilegeType.READ );
             ScmAuthUtils.checkPriority( site, username, passwd, role,
                     wsp.getName() );
-            //检查权限
+            // 检查权限
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site, username, passwd );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                //有权限读取目录
-                ScmDirectory directory = ScmFactory.Directory
-                        .getInstance( ws, dirRsToPath[ i ] );
-                //简单校验
+                // 有权限读取目录
+                ScmDirectory directory = ScmFactory.Directory.getInstance( ws,
+                        dirRsToPath[ i ] );
+                // 简单校验
                 Assert.assertEquals( directory.getPath(), dirRsToPath[ i ] );
             } finally {
                 if ( session != null ) {
@@ -128,9 +128,8 @@ public class AuthWs_Dir2795 extends TestScmBase {
                 throw e;
             }
         }
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( sessionA, rolename, null );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

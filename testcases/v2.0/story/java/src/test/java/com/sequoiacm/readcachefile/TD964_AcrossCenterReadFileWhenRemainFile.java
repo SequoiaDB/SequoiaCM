@@ -51,12 +51,12 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize + "_2.txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_" + fileSize
+                + "_2.txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -80,15 +80,15 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
         // remain file from centerB
         TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath );
-        TestSdbTools.Lob
-                .putLob( branSites.get( 1 ), wsp, fileId, remainFilePath );
+        TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId,
+                remainFilePath );
         // read from centerB
         this.readFileFromB();
         // check result
         SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
                 branSites.get( 1 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -110,14 +110,14 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
 
             Assert.assertEquals( TestTools.getMD5( filePath ),

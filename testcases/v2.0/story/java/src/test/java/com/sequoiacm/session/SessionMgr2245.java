@@ -51,10 +51,10 @@ public class SessionMgr2245 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -176,8 +176,8 @@ public class SessionMgr2245 extends TestScmBase {
     private ScmId write( ScmSession session ) throws ScmException {
         ScmId fileId = null;
         // create file
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( filePath );
         file.setFileName( name + "_" + UUID.randomUUID() );

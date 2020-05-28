@@ -49,10 +49,10 @@ public class DiffNodeDeleteAndReadSameScmFile720 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -63,8 +63,8 @@ public class DiffNodeDeleteAndReadSameScmFile720 extends TestScmBase {
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-            fileId = ScmFileUtils
-                    .create( ws, author + "_" + UUID.randomUUID(), filePath );
+            fileId = ScmFileUtils.create( ws, author + "_" + UUID.randomUUID(),
+                    filePath );
         } catch ( IOException | ScmException e ) {
             Assert.fail( e.getMessage() );
         }
@@ -109,8 +109,8 @@ public class DiffNodeDeleteAndReadSameScmFile720 extends TestScmBase {
         try {
             // check meta
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             // check data
@@ -163,16 +163,16 @@ public class DiffNodeDeleteAndReadSameScmFile720 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 // check results
                 Assert.assertEquals( TestTools.getMD5( filePath ),
                         TestTools.getMD5( downloadPath ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.FILE_NOT_FOUND &&
-                        e.getError() != ScmError.DATA_ERROR ) {
+                if ( e.getError() != ScmError.FILE_NOT_FOUND
+                        && e.getError() != ScmError.DATA_ERROR ) {
                     Assert.fail( e.getMessage() );
                 }
             } finally {

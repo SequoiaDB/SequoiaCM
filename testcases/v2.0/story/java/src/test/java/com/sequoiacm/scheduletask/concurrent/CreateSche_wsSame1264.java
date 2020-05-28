@@ -64,10 +64,10 @@ public class CreateSche_wsSame1264 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -178,14 +178,12 @@ public class CreateSche_wsSame1264 extends TestScmBase {
             ScmSession session = null;
             try {
                 String maxStayTime = "0d";
-                ScmScheduleCopyFileContent content = new
-                        ScmScheduleCopyFileContent(
+                ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                         branSite.getSiteName(), rootSite.getSiteName(),
                         maxStayTime, cond );
-                ScmSchedule sche = ScmSystem.Schedule
-                        .create( ssA, wsp.getName(),
-                                ScheduleType.COPY_FILE, name, "", content,
-                                cron );
+                ScmSchedule sche = ScmSystem.Schedule.create( ssA,
+                        wsp.getName(), ScheduleType.COPY_FILE, name, "",
+                        content, cron );
                 ScmId scheduleId = sche.getId();
                 scheIds.add( scheduleId );
             } catch ( ScmException e ) {

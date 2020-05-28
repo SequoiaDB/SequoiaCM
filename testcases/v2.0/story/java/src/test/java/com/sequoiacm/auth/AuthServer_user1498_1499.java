@@ -23,8 +23,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1498:普通角色删除用户
- * 			 SCM-1499:用户正在被使用，删除该用户
+ * @FileName SCM-1498:普通角色删除用户 SCM-1499:用户正在被使用，删除该用户
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -51,17 +50,16 @@ public class AuthServer_user1498_1499 extends TestScmBase {
                 try {
                     ScmFactory.User.deleteUser( session, NAME + "_" + i );
                 } catch ( ScmException e ) {
-                    logger.info( "clean users in setUp, errorMsg = [" +
-                            e.getError() + "]" );
+                    logger.info( "clean users in setUp, errorMsg = ["
+                            + e.getError() + "]" );
                 }
             }
 
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
 
             // create user
@@ -80,14 +78,14 @@ public class AuthServer_user1498_1499 extends TestScmBase {
     }
 
     private void test_delUserByOrdinaryUser() throws ScmException {
-        ScmSession ss = TestScmTools
-                .createSession( site, NAME + "_0", PASSWORD );
+        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+                PASSWORD );
         try {
             ScmFactory.User.deleteUser( ss, NAME + "_1" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete user by ordinary user, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "delete user by ordinary user, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         ss.close();
@@ -97,8 +95,8 @@ public class AuthServer_user1498_1499 extends TestScmBase {
         String username = NAME + "_1";
         List< ScmSession > ss = new ArrayList<>();
         for ( int i = 0; i < 10; i++ ) {
-            ScmSession tmpSS = TestScmTools
-                    .createSession( site, username, PASSWORD );
+            ScmSession tmpSS = TestScmTools.createSession( site, username,
+                    PASSWORD );
             ss.add( tmpSS );
         }
         ScmFactory.User.deleteUser( session, username );
@@ -116,9 +114,8 @@ public class AuthServer_user1498_1499 extends TestScmBase {
                 ScmFactory.User.getUser( tmpSS, NAME + "_0" );
                 Assert.fail( "expect failed but actual succ." );
             } catch ( ScmException e ) {
-                logger.info(
-                        "using expired session, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "using expired session, errorMsg = ["
+                        + e.getError() + "]" );
             }
         }
     }
@@ -141,9 +138,8 @@ public class AuthServer_user1498_1499 extends TestScmBase {
         ScmFactory.Role.createRole( session, NAME, "" );
 
         for ( int i = 0; i < USER_NUM; i++ ) {
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, NAME + "_" + i,
-                            ScmUserPasswordType.LOCAL, PASSWORD );
+            ScmUser scmUser = ScmFactory.User.createUser( session,
+                    NAME + "_" + i, ScmUserPasswordType.LOCAL, PASSWORD );
 
             ScmUserModifier modifier = new ScmUserModifier();
             modifier.addRole( NAME );

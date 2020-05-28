@@ -68,10 +68,10 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -95,13 +95,13 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
         try {
-            ScmDirectory srcDir = ScmFactory.Directory
-                    .getInstance( wsCRD, srcpath );
-            ScmDirectory dstDir = ScmFactory.Directory
-                    .getInstance( wsCRD, dstpath );
+            ScmDirectory srcDir = ScmFactory.Directory.getInstance( wsCRD,
+                    srcpath );
+            ScmDirectory dstDir = ScmFactory.Directory.getInstance( wsCRD,
+                    dstpath );
             srcDir.move( dstDir );
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsCRD, newpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsCRD,
+                    newpath );
             Assert.assertEquals( actdir.getPath(), newpath + "/" );
 
             // check dir
@@ -138,8 +138,8 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
             dir.rename( newdirName );
 
             // check dir
-            ScmDirectory actDir = ScmFactory.Directory
-                    .getInstance( wsCRD, newpath );
+            ScmDirectory actDir = ScmFactory.Directory.getInstance( wsCRD,
+                    newpath );
             Assert.assertEquals( actDir.getPath(), newpath + "/" );
             ScmDirectory subdir = actDir.createSubdirectory( subdirname );
             subdir.delete();
@@ -188,8 +188,7 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -215,8 +214,8 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -225,8 +224,8 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -270,15 +269,14 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             rs1 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
                     basepath + "/1726_A/1726_B/1726_C/" );
-            rs2 = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path2 );
+            rs2 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path2 );
             deleteDir( wsA, basepath + "/1726_A/1726_B/1726_C/1726_G" );
             deleteDir( wsA, path1 );
             deleteDir( wsA, basepath + "/1726_E/1726_F" );
@@ -297,8 +295,8 @@ public class AuthDir_CreateDelete1726 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, username, passwd, role,
                     wsp.getName() );
             sessionCRD = TestScmTools.createSession( site, username, passwd );
-            wsCRD = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCRD );
+            wsCRD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCRD );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

@@ -62,10 +62,10 @@ public class Transfer_readTaskProgress441 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -121,12 +121,12 @@ public class Transfer_readTaskProgress441 extends TestScmBase {
 
             waitTaskStop();
 
-            Assert.assertEquals( TaskThreadM.getProgress() < 100 ||
-                    TaskThreadM.getProgress() == 100, true );
-            Assert.assertEquals( TaskThreadA.getProgress() < 100 ||
-                    TaskThreadM.getProgress() == 100, true );
-            Assert.assertEquals( TaskThreadB.getProgress() < 100 ||
-                    TaskThreadM.getProgress() == 100, true );
+            Assert.assertEquals( TaskThreadM.getProgress() < 100
+                    || TaskThreadM.getProgress() == 100, true );
+            Assert.assertEquals( TaskThreadA.getProgress() < 100
+                    || TaskThreadM.getProgress() == 100, true );
+            Assert.assertEquals( TaskThreadB.getProgress() < 100
+                    || TaskThreadM.getProgress() == 100, true );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         } finally {
@@ -166,8 +166,8 @@ public class Transfer_readTaskProgress441 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setFileName( authorName + "_" + UUID.randomUUID() );

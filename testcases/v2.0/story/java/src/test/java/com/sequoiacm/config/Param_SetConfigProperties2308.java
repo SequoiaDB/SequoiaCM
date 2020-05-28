@@ -17,7 +17,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 
 /**
  * @author fanyu
- * @Description: SCM-2308 ::  ScmSystem.Configuration. setConfigProperties参数校验
+ * @Description: SCM-2308 :: ScmSystem.Configuration. setConfigProperties参数校验
  * @Date:2018年12月10日
  * @version:1.0
  */
@@ -36,10 +36,10 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
                     ScmConfigProperties.builder()
                             .service( site.getSiteServiceName() )
                             .updateProperty( ConfigCommonDefind.scm_audit_mask,
-                                    "ALL" ).build() );
-            Assert.fail(
-                    "ScmSystem.Configuration.setConfigProperties must be " +
-                            "failed when session is null" );
+                                    "ALL" )
+                            .build() );
+            Assert.fail( "ScmSystem.Configuration.setConfigProperties must be "
+                    + "failed when session is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -56,10 +56,11 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
                     ScmConfigProperties.builder()
                             .service( site.getSiteServiceName() )
                             .updateProperty( ConfigCommonDefind.scm_audit_mask,
-                                    "ALL" ).build() );
+                                    "ALL" )
+                            .build() );
             Assert.fail(
-                    "  ScmSystem.Configuration.setConfigProperties must be " +
-                            "failed when session is closed" );
+                    "  ScmSystem.Configuration.setConfigProperties must be "
+                            + "failed when session is closed" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
                 Assert.fail( e.getMessage() );
@@ -74,8 +75,8 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
             session = TestScmTools.createSession( site );
             ScmSystem.Configuration.setConfigProperties( session, null );
             Assert.fail(
-                    "  ScmSystem.Configuration.setConfigProperties must be " +
-                            "failed when ConfigProperties is null" );
+                    "  ScmSystem.Configuration.setConfigProperties must be "
+                            + "failed when ConfigProperties is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -92,14 +93,14 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmSystem.Configuration
-                    .setConfigProperties( session, ScmConfigProperties.builder()
+            ScmSystem.Configuration.setConfigProperties( session,
+                    ScmConfigProperties.builder()
                             .updateProperty( ConfigCommonDefind.scm_audit_mask,
                                     "ALL" )
                             .build() );
             Assert.fail(
-                    "  ScmSystem.Configuration.setConfigProperties must be " +
-                            "failed when target is null" );
+                    "  ScmSystem.Configuration.setConfigProperties must be "
+                            + "failed when target is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -116,13 +117,12 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmSystem.Configuration
-                    .setConfigProperties( session, ScmConfigProperties.builder()
-                            .service( site.getSiteServiceName() )
-                            .build() );
+            ScmSystem.Configuration.setConfigProperties( session,
+                    ScmConfigProperties.builder()
+                            .service( site.getSiteServiceName() ).build() );
             Assert.fail(
-                    "  ScmSystem.Configuration.setConfigProperties must be " +
-                            "failed when property is null" );
+                    "  ScmSystem.Configuration.setConfigProperties must be "
+                            + "failed when property is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

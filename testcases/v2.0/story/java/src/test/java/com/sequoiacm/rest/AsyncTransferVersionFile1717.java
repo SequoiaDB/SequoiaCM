@@ -96,12 +96,10 @@ public class AsyncTransferVersionFile1717 extends TestScmBase {
         rest.connect( branSite.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         rest.setRequestMethod( HttpMethod.POST )
-                .setApi(
-                        "/files/" + fileId + "/async-transfer?workspace_name=" +
-                                wsA.getName() )
+                .setApi( "/files/" + fileId + "/async-transfer?workspace_name="
+                        + wsA.getName() )
                 .setParameter( "major_version", 1 )
-                .setParameter( "minor_version", 0 )
-                .exec();
+                .setParameter( "minor_version", 0 ).exec();
         rest.disconnect();
     }
 }

@@ -61,10 +61,10 @@ public class UpdateSche_upExtraCondition1253 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -96,8 +96,8 @@ public class UpdateSche_upExtraCondition1253 extends TestScmBase {
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
             this.createScheduleTask( cond );
             SiteWrapper[] expSites1 = { rootSite, branSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum / 2, expSites1 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum / 2,
+                    expSites1 );
 
             SiteWrapper[] expSites2 = { branSite };
             ScmScheduleUtils.checkScmFile( wsA, fileIds, fileNum / 2, fileNum,

@@ -58,8 +58,8 @@ public class ListHealth2207 extends TestScmBase {
     private void testGet() throws Exception {
         ScmCursor< ScmHealth > cursor = null;
         try {
-            cursor = ScmSystem.Monitor
-                    .listHealth( session, site.getSiteServiceName() );
+            cursor = ScmSystem.Monitor.listHealth( session,
+                    site.getSiteServiceName() );
             while ( cursor.hasNext() ) {
                 ScmHealth str = cursor.getNext();
                 Assert.assertEquals( str.getStatus(), "UP" );

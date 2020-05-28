@@ -60,10 +60,10 @@ public class DeleteInstance_crossSite428 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -126,25 +126,26 @@ public class DeleteInstance_crossSite428 extends TestScmBase {
         this.read( file, downloadPath );
 
         // check results
-        /*SiteWrapper[] expSites = { rootSite, branSites.get(0), branSites.get
-		(1) };
-		ScmFileUtils.checkMetaAndData(wsp, fileId, expSites, localPath,
-		filePath);*/
+        /*
+         * SiteWrapper[] expSites = { rootSite, branSites.get(0), branSites.get
+         * (1) }; ScmFileUtils.checkMetaAndData(wsp, fileId, expSites,
+         * localPath, filePath);
+         */
     }
 
     private void checkResults() throws Exception {
         // check meta
         BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-        long cnt = ScmFactory.File
-                .countInstance( wsA, ScopeType.SCOPE_CURRENT, cond );
+        long cnt = ScmFactory.File.countInstance( wsA, ScopeType.SCOPE_CURRENT,
+                cond );
         Assert.assertEquals( cnt, 0 );
 
         // check data
         ScmWorkspace[] wsArr = { wsM, wsA, wsB };
         for ( int i = 0; i < wsArr.length; i++ ) {
             try {
-                ScmFileUtils
-                        .checkData( wsArr[ i ], fileId, localPath, filePath );
+                ScmFileUtils.checkData( wsArr[ i ], fileId, localPath,
+                        filePath );
                 Assert.assertFalse( true,
                         "File is unExisted, except throw e, but success." );
             } catch ( ScmException e ) {

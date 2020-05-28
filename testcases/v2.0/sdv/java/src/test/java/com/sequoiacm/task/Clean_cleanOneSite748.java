@@ -65,10 +65,10 @@ public class Clean_cleanOneSite748 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -122,8 +122,8 @@ public class Clean_cleanOneSite748 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionM );
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
                 TestSdbTools.Task.deleteMeta( taskId );
                 TestTools.LocalFile.removeFile( localPath );
@@ -145,8 +145,8 @@ public class Clean_cleanOneSite748 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setFileName( author + "_" + UUID.randomUUID() );
@@ -161,13 +161,13 @@ public class Clean_cleanOneSite748 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -183,8 +183,8 @@ public class Clean_cleanOneSite748 extends TestScmBase {
     }
 
     private ScmId cleanAllFile( ScmSession session ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
         return ScmSystem.Task.startCleanTask( ws, condition );
@@ -192,8 +192,7 @@ public class Clean_cleanOneSite748 extends TestScmBase {
 
     private void checkResult() throws Exception {
         SiteWrapper[] expSiteIdList = { rootSite, branceSiteList.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList, expSiteIdList, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteIdList,
+                localPath, filePath );
     }
 }

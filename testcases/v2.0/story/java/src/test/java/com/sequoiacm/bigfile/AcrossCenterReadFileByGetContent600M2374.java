@@ -51,10 +51,10 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -69,7 +69,7 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite" })//SEQUOIACM-415
+    @Test(groups = { "fourSite" }) // SEQUOIACM-415
     private void test() throws Exception {
         this.writeFileFromA();
         this.readFileFromB();
@@ -94,12 +94,12 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
         // write scmfile
         fileId = ScmFileUtils.create( ws, name, filePath );
         System.out.println(
-                "fileId = " + fileId.get() + ",writeFileFromA file size = " +
-                        new File( filePath ).length() );
+                "fileId = " + fileId.get() + ",writeFileFromA file size = "
+                        + new File( filePath ).length() );
         // check results
         SiteWrapper[] expSites = { branSites.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
     }
 
     private void readFileFromB() throws Exception {
@@ -107,19 +107,19 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             OutputStream fos = new FileOutputStream( new File( downloadPath ) );
             scmfile.getContent( fos );
             fos.close();
-            System.out.println( "fileId = " + fileId.get() +
-                    "readFileFromB downloadPath size = " +
-                    new File( downloadPath ).length() );
+            System.out.println( "fileId = " + fileId.get()
+                    + "readFileFromB downloadPath size = "
+                    + new File( downloadPath ).length() );
 
             // check results
             Assert.assertEquals( TestTools.getMD5( filePath ),

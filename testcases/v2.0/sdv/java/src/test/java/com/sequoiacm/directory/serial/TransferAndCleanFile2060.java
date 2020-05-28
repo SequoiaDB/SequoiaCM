@@ -40,8 +40,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:specify directory to create multiple files,than transfer and
- * clean file mathching directory
- * testlink-case:SCM-2060
+ * clean file mathching directory testlink-case:SCM-2060
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -65,8 +64,8 @@ public class TransferAndCleanFile2060 extends TestScmBase {
 
     private ScmDirectory scmDir;
     private String dirBasePath = "/CreatefileWiteDir2060";
-    private String fullPath =
-            dirBasePath + "/2060_a/2060_b/2060_c/2060_e/2060_f/";
+    private String fullPath = dirBasePath
+            + "/2060_a/2060_b/2060_c/2060_e/2060_f/";
     private String authorName = "CreateFileWithDir2060";
     private String fileName = "filedir2060";
     private byte[] writeData1 = new byte[ 1024 * 100 ];
@@ -110,8 +109,8 @@ public class TransferAndCleanFile2060 extends TestScmBase {
                 TestSdbTools.Task.deleteMeta( transferTaskId );
                 TestSdbTools.Task.deleteMeta( cleanTaskId );
                 for ( String fileId : fileIdList ) {
-                    ScmFactory.File
-                            .deleteInstance( wsM, new ScmId( fileId ), true );
+                    ScmFactory.File.deleteInstance( wsM, new ScmId( fileId ),
+                            true );
                 }
                 ScmDirUtils.deleteDir( wsA, fullPath );
             }
@@ -148,26 +147,26 @@ public class TransferAndCleanFile2060 extends TestScmBase {
     private void startTransferTask( ScmWorkspace ws, ScmSession session )
             throws Exception {
         condition = ScmQueryBuilder.start( ScmAttributeName.File.DIRECTORY_ID )
-                .is( scmDir.getId() )
-                .put( ScmAttributeName.File.SIZE ).is( writeData1.length )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+                .is( scmDir.getId() ).put( ScmAttributeName.File.SIZE )
+                .is( writeData1.length ).put( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
         transferTaskId = ScmSystem.Task.startTransferTask( ws, condition );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, transferTaskId );
     }
 
     private void startCleanTask( ScmWorkspace ws, ScmSession session )
             throws Exception {
         cleanTaskId = ScmSystem.Task.startCleanTask( ws, condition );
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, cleanTaskId );
     }
 
     private void checkTransferResult( ScmWorkspace ws ) throws Exception {
-        //check the transfered file,check the sitelist and data
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        // check the transfered file,check the sitelist and data
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         ScmFileBasicInfo file;
         List< ScmId > transferfileIdList = new ArrayList< ScmId >();
@@ -184,12 +183,12 @@ public class TransferAndCleanFile2060 extends TestScmBase {
         int expFileNum = 5;
         Assert.assertEquals( size, expFileNum );
 
-        //check the no transfer file by current version
+        // check the no transfer file by current version
         BSONObject condition1 = ScmQueryBuilder
                 .start( ScmAttributeName.File.DIRECTORY_ID )
-                .is( scmDir.getId() )
-                .put( ScmAttributeName.File.SIZE ).is( writeData2.length )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+                .is( scmDir.getId() ).put( ScmAttributeName.File.SIZE )
+                .is( writeData2.length ).put( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
         ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
                 .listInstance( ws, ScopeType.SCOPE_CURRENT, condition1 );
         int size1 = 0;
@@ -205,9 +204,9 @@ public class TransferAndCleanFile2060 extends TestScmBase {
     }
 
     private void checkCleanResult( ScmWorkspace ws ) throws Exception {
-        //check the cleaned file,check the sitelist and data
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        // check the cleaned file,check the sitelist and data
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         ScmFileBasicInfo file;
         List< ScmId > transferfileIdList = new ArrayList< ScmId >();
@@ -224,12 +223,12 @@ public class TransferAndCleanFile2060 extends TestScmBase {
         int expFileNum = 5;
         Assert.assertEquals( size, expFileNum );
 
-        //check the no clean file
+        // check the no clean file
         BSONObject condition1 = ScmQueryBuilder
                 .start( ScmAttributeName.File.DIRECTORY_ID )
-                .is( scmDir.getId() )
-                .put( ScmAttributeName.File.SIZE ).is( writeData2.length )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+                .is( scmDir.getId() ).put( ScmAttributeName.File.SIZE )
+                .is( writeData2.length ).put( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
         ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
                 .listInstance( ws, ScopeType.SCOPE_CURRENT, condition1 );
         int size1 = 0;
@@ -257,8 +256,8 @@ public class TransferAndCleanFile2060 extends TestScmBase {
     }
 
     private ScmId createFileWithDir( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName,
-            ScmDirectory dir ) throws ScmException {
+            byte[] data, String authorName, ScmDirectory dir )
+            throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
 
         file.setContent( new ByteArrayInputStream( data ) );
@@ -269,13 +268,13 @@ public class TransferAndCleanFile2060 extends TestScmBase {
             file.setDirectory( dir );
         }
         file.setMimeType( fileName + ".txt" );
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag(
-                "我是一个标签2060                                                  " +
-                        "                                                    " +
-                        "                                                    " +
-                        "                            "
+                "我是一个标签2060                                                  "
+                        + "                                                    "
+                        + "                                                    "
+                        + "                            "
                         + "                                " );
         tags.addTag( "THIS IS TAG 2060!" );
         tags.addTag( "tag *&^^^^^*90234@#$%!~asf" );

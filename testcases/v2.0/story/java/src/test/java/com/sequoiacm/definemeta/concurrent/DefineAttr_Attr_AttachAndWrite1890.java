@@ -82,16 +82,16 @@ public class DefineAttr_Attr_AttachAndWrite1890 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Class.deleteInstance( ws, class1.getId() );
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
             if ( !runSuccess && attrList.size() != 0 ) {
                 System.out.println( "class = " + class1.toString() );
                 ScmFactory.Class.deleteInstance( ws, class1.getId() );
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
         } catch ( BaseException | ScmException e ) {

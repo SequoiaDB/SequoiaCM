@@ -11,7 +11,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.TestScmBase;
 
 public class ScmTaskUtils extends TestScmBase {
-    //	private static final Logger logger = Logger.getLogger(ScmTaskUtils
+    // private static final Logger logger = Logger.getLogger(ScmTaskUtils
     // .class);
     private static final int defaultTimeOut = 5 * 60; // 5min
 
@@ -40,26 +40,24 @@ public class ScmTaskUtils extends TestScmBase {
         int retryTimes = 0;
         while ( true ) {
             ScmTask task = ScmSystem.Task.getTask( session, taskId );
-            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ==
-                    task.getRunningFlag() ) {
+            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH == task
+                    .getRunningFlag() ) {
                 break;
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ==
-                    task.getRunningFlag() ) {
+            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_ABORT == task
+                    .getRunningFlag() ) {
                 throw new Exception(
-                        "failed, the task running flag is abort, task info : " +
-                                "\n" +
-                                task.toString() );
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ==
-                    task.getRunningFlag() ) {
+                        "failed, the task running flag is abort, task info : "
+                                + "\n" + task.toString() );
+            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == task
+                    .getRunningFlag() ) {
                 throw new Exception(
-                        "failed, the task running flag is cancel, task info :" +
-                                " \n" +
-                                task.toString() );
+                        "failed, the task running flag is cancel, task info :"
+                                + " \n" + task.toString() );
             } else if ( retryTimes >= maxRetryTimes ) {
                 throw new Exception(
-                        "failed to wait task finished, maxRetryTimes=" +
-                                maxRetryTimes
-                                + ", task info : \n" + task.toString() );
+                        "failed to wait task finished, maxRetryTimes="
+                                + maxRetryTimes + ", task info : \n"
+                                + task.toString() );
             }
             Thread.sleep( sleepTime );
             retryTimes++;
@@ -90,8 +88,7 @@ public class ScmTaskUtils extends TestScmBase {
      * @throws Exception
      */
     public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int expSiteNum, int timeOutSec )
-            throws Exception {
+            int expSiteNum, int timeOutSec ) throws Exception {
         int sleepTime = 200; // millisecond
         int maxRetryTimes = ( timeOutSec * 1000 ) / sleepTime;
         int retryTimes = 0;

@@ -40,20 +40,17 @@ public class TestScmBase {
     protected static String ldapPassword;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
-                        "SSHUSER", "SSHPASSWD",
-                        "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-                        "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-                        "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
+            "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
+            "LDAPPASSWD", "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
-            String NTPSERVER, String LOCALHOSTNAME,
-            String SSHUSER, String SSHPASSWD,
-            String MAINSDBURL, String SDBUSER, String SDBPASSWD,
-            String GATEWAYS, String ROOTSITESVCNAME, String SCMUSER,
-            String SCMPASSWD,
-            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH )
-            throws ScmException {
+            String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
+            String SSHPASSWD, String MAINSDBURL, String SDBUSER,
+            String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
+            String SCMUSER, String SCMPASSWD, String LDAPUSER,
+            String LDAPPASSWD, String SCMPASSWDPATH ) throws ScmException {
 
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
@@ -133,8 +130,8 @@ public class TestScmBase {
                         .createSession( SessionType.AUTH_SESSION, scOpt );
                 break;
             } catch ( ScmException e ) {
-                if ( ScmError.HTTP_NOT_FOUND != e.getError() ||
-                        i == tryNum - 1 ) {
+                if ( ScmError.HTTP_NOT_FOUND != e.getError()
+                        || i == tryNum - 1 ) {
                     e.printStackTrace();
                     throw e;
                 }

@@ -28,9 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1615:删除已存在的标签
- *				 SCM-1616:删除不存在的标签
- *				SCM-1617:获取不存在的标签
+ * @Testcase: SCM-1615:删除已存在的标签 SCM-1616:删除不存在的标签 SCM-1617:获取不存在的标签
  * @author huangxiaoni init
  * @date 2017.6.22
  */
@@ -66,9 +64,9 @@ public class DefineAttr_tags_deleteOrGetTag_1615_to_1617 extends TestScmBase {
         runSuccess = true;
     }
 
-    //SCM-1615:删除已存在的标签
+    // SCM-1615:删除已存在的标签
     private void test_delTag01() throws Exception {
-        //test scm file
+        // test scm file
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.removeTag( "k1" );
         // check results
@@ -77,7 +75,7 @@ public class DefineAttr_tags_deleteOrGetTag_1615_to_1617 extends TestScmBase {
         Assert.assertFalse( tags.contains( "k1" ), tags.toString() );
         Assert.assertTrue( tags.contains( "k2" ), tags.toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.removeTag( "k1" );
         // check results
@@ -88,9 +86,9 @@ public class DefineAttr_tags_deleteOrGetTag_1615_to_1617 extends TestScmBase {
 
     }
 
-    //SCM-1616:删除不存在的标签
+    // SCM-1616:删除不存在的标签
     private void test_delTag02() throws Exception {
-        //test scm file
+        // test scm file
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.removeTag( "k5555" );
         // check results
@@ -99,7 +97,7 @@ public class DefineAttr_tags_deleteOrGetTag_1615_to_1617 extends TestScmBase {
         Assert.assertFalse( tags.contains( "k1" ), tags.toString() );
         Assert.assertTrue( tags.contains( "k2" ), tags.toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.removeTag( "k5555" );
         // check results
@@ -109,14 +107,14 @@ public class DefineAttr_tags_deleteOrGetTag_1615_to_1617 extends TestScmBase {
         Assert.assertTrue( tags1.contains( "k2" ), tags.toString() );
     }
 
-    //SCM-1617:获取不存在的标签
+    // SCM-1617:获取不存在的标签
     private void test_getTag() throws Exception {
-        //test scm file
+        // test scm file
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags tags = file.getTags();
         Assert.assertFalse( tags.contains( "k5555" ) );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags tags1 = batch.getTags();
         Assert.assertFalse( tags1.contains( "k5555" ) );

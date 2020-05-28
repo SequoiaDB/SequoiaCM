@@ -36,8 +36,7 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description 异步迁移任务，更新scopeType类型 test test 
- * 				c:原任务scopeType为当前版本，更新为历史版本
+ * @Description 异步迁移任务，更新scopeType类型 test test c:原任务scopeType为当前版本，更新为历史版本
  * @author luweikang
  * @date 2018年6月15日
  * @modify By wuyan
@@ -126,13 +125,11 @@ public class ScheduleUpdateScopeType1807c extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
                 .get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_CURRENT );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                queryCond, ScopeType.SCOPE_CURRENT );
         String cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( sessionS, wsp.getName(), ScheduleType.COPY_FILE,
-                        scheduleName, "",
-                        content, cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( sessionS, wsp.getName(),
+                ScheduleType.COPY_FILE, scheduleName, "", content, cron );
         scheduleId = sche.getId();
     }
 
@@ -141,8 +138,8 @@ public class ScheduleUpdateScopeType1807c extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
                 .get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_ALL );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                queryCond, ScopeType.SCOPE_ALL );
         ScmSchedule sche = ScmSystem.Schedule.get( sessionS, scheduleId );
         sche.updateContent( content );
     }

@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description: SCM-1928 :: 更新属性正常功能测试 
+ * @Description: SCM-1928 :: 更新属性正常功能测试
  * @author fanyu
  * @Date:2018年7月5日
  * @version:1.0
@@ -51,8 +51,8 @@ public class DefineAttr_Attr_Update1928 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         craeteAttr();
-        ScmAttribute updateAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute updateAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         updateAttr.setDescription( desc + "_1" );
         updateAttr.setDisplayName( attrname + "_display_2" );
         updateAttr.setRequired( false );
@@ -63,8 +63,8 @@ public class DefineAttr_Attr_Update1928 extends TestScmBase {
 
         updateAttr.setCheckRule( rule );
 
-        ScmAttribute actattr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actattr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( actattr, attr, rule );
         runSuccess = true;
     }

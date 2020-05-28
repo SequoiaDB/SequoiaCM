@@ -37,7 +37,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签 
+ * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -61,10 +61,10 @@ public class UpdateFileThenCUDTagAttr1946 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -98,11 +98,11 @@ public class UpdateFileThenCUDTagAttr1946 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //create file and breakpointFile
+        // create file and breakpointFile
         createFile( name );
         ScmBreakpointFile breakpointFile = createBreakpointFile( name,
                 filePath );
-        //update file
+        // update file
         updateFile( fileId, breakpointFile, properties, tags );
         check( fileId, tags, properties );
         // update
@@ -156,8 +156,7 @@ public class UpdateFileThenCUDTagAttr1946 extends TestScmBase {
     }
 
     private void updateFile( ScmId fileId, ScmBreakpointFile breakpointFile,
-            ScmClassProperties properties, ScmTags tag )
-            throws ScmException {
+            ScmClassProperties properties, ScmTags tag ) throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         try {
             file.updateContent( breakpointFile );

@@ -64,14 +64,14 @@ public class OverWriteFile2677 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        updateFilePath1 = localPath + File.separator + "localFileA_" +
-                new Random().nextInt( 1024 * 1024 ) + ".txt";
-        updateFilePath2 = localPath + File.separator + "localFileB_" +
-                new Random().nextInt( 1024 * 1024 ) + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        updateFilePath1 = localPath + File.separator + "localFileA_"
+                + new Random().nextInt( 1024 * 1024 ) + ".txt";
+        updateFilePath2 = localPath + File.separator + "localFileB_"
+                + new Random().nextInt( 1024 * 1024 ) + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -83,16 +83,16 @@ public class OverWriteFile2677 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean batch
+        // clean batch
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, cond );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                cond );
         while ( cursor.hasNext() ) {
             ScmFactory.Batch.deleteInstance( ws, cursor.getNext().getId() );
         }
         cursor.close();
-        //create batch and attach file
+        // create batch and attach file
         batch = ScmFactory.Batch.createInstance( ws );
         batch.setName( batchName );
         batchId = batch.save();
@@ -117,8 +117,8 @@ public class OverWriteFile2677 extends TestScmBase {
         }
         threadExec.run();
         for ( int i = 0; i < fileNum; i++ ) {
-            ScmFile actFile = ScmFactory.File
-                    .getInstanceByPath( ws, "/" + fileNameList.get( i ) );
+            ScmFile actFile = ScmFactory.File.getInstanceByPath( ws,
+                    "/" + fileNameList.get( i ) );
             newFileIdList.add( actFile.getFileId() );
             if ( actFile.getAuthor().equals( flag1 ) ) {
                 checkFile( actFile, flag1,
@@ -130,7 +130,7 @@ public class OverWriteFile2677 extends TestScmBase {
                         updateFilePath2 );
             }
         }
-        //get batch and check 覆盖后的文件与批次关系解除
+        // get batch and check 覆盖后的文件与批次关系解除
         ScmBatch scmBatch = ScmFactory.Batch.getInstance( ws, batchId );
         Assert.assertEquals( scmBatch.listFiles().size(), 0,
                 scmBatch.toString() );
@@ -155,10 +155,10 @@ public class OverWriteFile2677 extends TestScmBase {
     }
 
     private ScmId prepareFile( String fileName ) throws ScmException {
-        //create tags
+        // create tags
         ScmTags scmTags = new ScmTags();
         scmTags.addTag( fileName );
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         file.setAuthor( fileName );
@@ -179,9 +179,9 @@ public class OverWriteFile2677 extends TestScmBase {
             Assert.assertEquals( file.getTags().toSet().size(), 0 );
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             Assert.assertNotNull( file.getCreateTime().getTime() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
@@ -259,4 +259,3 @@ public class OverWriteFile2677 extends TestScmBase {
         }
     }
 }
-

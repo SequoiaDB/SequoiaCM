@@ -79,8 +79,8 @@ public class Audit2343 extends TestScmBase {
     // scm.audit.userType.LOCAL="" scm.audit.user.test=META_ATTR_DML
     private void test1() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
         Map< String, String > confMap1 = new HashMap< String, String >();
@@ -88,7 +88,7 @@ public class Audit2343 extends TestScmBase {
                 "META_ATTR_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
 
-        //check
+        // check
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword, false,
                 false );
         checkAudit( name, name, true, false );
@@ -97,15 +97,15 @@ public class Audit2343 extends TestScmBase {
     // scm.audit.userType.LOCAL=META_ATTR_DML scm.audit.user.test=""
     private void test2() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "META_ATTR_DML" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "META_ATTR_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
         Map< String, String > confMap1 = new HashMap< String, String >();
         confMap1.put( ConfigCommonDefind.scm_audit_user + name, "" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
 
-        //check
+        // check
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword, true,
                 false );
         checkAudit( name, name, false, false );
@@ -114,15 +114,15 @@ public class Audit2343 extends TestScmBase {
     // scm.audit.userType.LOCAL="" scm.audit.user.test=""
     private void test3() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
         Map< String, String > confMap1 = new HashMap< String, String >();
         confMap1.put( ConfigCommonDefind.scm_audit_user + name, "" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
 
-        //check
+        // check
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword, false,
                 false );
         checkAudit( name, name, false, false );
@@ -142,12 +142,12 @@ public class Audit2343 extends TestScmBase {
                     .append( ScmAttributeName.Audit.USERNAME, username );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, attrName1 ), isLogged1,
-                    "Has the configuration been updated? attrId = " +
-                            attrId.get() );
+                    "Has the configuration been updated? attrId = "
+                            + attrId.get() );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson2, attrId.get() ),
-                    isLogged2, "Has the configuration been updated? attrId = " +
-                            attrId.get() );
+                    isLogged2, "Has the configuration been updated? attrId = "
+                            + attrId.get() );
         } finally {
             if ( attrId != null ) {
                 ScmFactory.Attribute.deleteInstance( ws, attrId );
@@ -161,15 +161,14 @@ public class Audit2343 extends TestScmBase {
         ScmId attrId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            //create
-            ScmAttribute attr = ScmFactory.Attribute
-                    .createInstance( ws, new ScmAttributeConf()
-                            .setName( attrName )
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            // create
+            ScmAttribute attr = ScmFactory.Attribute.createInstance( ws,
+                    new ScmAttributeConf().setName( attrName )
                             .setType( AttributeType.STRING ) );
             attrId = attr.getId();
-            //query
+            // query
             ScmFactory.Attribute.getInstance( ws, attr.getId() );
         } finally {
             if ( session != null ) {

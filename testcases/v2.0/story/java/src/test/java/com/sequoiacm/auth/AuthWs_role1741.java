@@ -76,8 +76,8 @@ public class AuthWs_role1741 extends TestScmBase {
                     ScmPrivilegeType.ALL );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "grantPrivilege but role not exist, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "grantPrivilege but role not exist, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         runSuccess = true;
@@ -92,8 +92,8 @@ public class AuthWs_role1741 extends TestScmBase {
                     ScmFactory.Role.deleteRole( session, NAME );
                 } catch ( ScmException e ) {
                     logger.info(
-                            "delete not eixst role in tear down, errorMsg = " +
-                                    e.getError() );
+                            "delete not eixst role in tear down, errorMsg = "
+                                    + e.getError() );
                 }
             }
         } finally {
@@ -104,9 +104,8 @@ public class AuthWs_role1741 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

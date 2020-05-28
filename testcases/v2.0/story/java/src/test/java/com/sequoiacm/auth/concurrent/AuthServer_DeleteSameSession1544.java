@@ -46,9 +46,8 @@ public class AuthServer_DeleteSameSession1544 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             session1 = TestScmTools.createSession( site, username, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -86,10 +85,10 @@ public class AuthServer_DeleteSameSession1544 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmFactory.Session
-                        .deleteSession( session, session1.getSessionId() );
-                ScmFactory.Session
-                        .getSessionInfo( session, session1.getSessionId() );
+                ScmFactory.Session.deleteSession( session,
+                        session1.getSessionId() );
+                ScmFactory.Session.getSessionInfo( session,
+                        session1.getSessionId() );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.HTTP_NOT_FOUND
                         && e.getError() != ScmError.HTTP_BAD_REQUEST ) {

@@ -56,8 +56,8 @@ public class AuthWs_Param_CreateDirectoryResource1793 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsIsNull() {
-        ScmResource rs = ScmResourceFactory
-                .createDirectoryResource( null, "/" );
+        ScmResource rs = ScmResourceFactory.createDirectoryResource( null,
+                "/" );
         try {
             grantPriAndAttachRole( sessionA, rs, user, role,
                     ScmPrivilegeType.READ );
@@ -145,8 +145,8 @@ public class AuthWs_Param_CreateDirectoryResource1793 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -174,9 +174,8 @@ public class AuthWs_Param_CreateDirectoryResource1793 extends TestScmBase {
 
     private void prepare() {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
         } catch ( ScmException e ) {
             e.printStackTrace();

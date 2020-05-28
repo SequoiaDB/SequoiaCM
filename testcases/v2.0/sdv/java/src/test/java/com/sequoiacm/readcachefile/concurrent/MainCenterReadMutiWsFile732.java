@@ -51,10 +51,10 @@ public class MainCenterReadMutiWsFile732 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -86,10 +86,10 @@ public class MainCenterReadMutiWsFile732 extends TestScmBase {
                 fileIdList.get( 2 ) );
         rThread3.start( 10 );
 
-        if ( !( rThread1.isSuccess() && rThread2.isSuccess() &&
-                rThread3.isSuccess() ) ) {
-            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() +
-                    rThread3.getErrorMsg() );
+        if ( !( rThread1.isSuccess() && rThread2.isSuccess()
+                && rThread3.isSuccess() ) ) {
+            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg()
+                    + rThread3.getErrorMsg() );
         }
         checkResult( fileIdList.get( 0 ), wsList.get( 0 ) );
         checkResult( fileIdList.get( 1 ), wsList.get( 1 ) );
@@ -123,8 +123,8 @@ public class MainCenterReadMutiWsFile732 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             Assert.assertEquals( file.getWorkspaceName(), ws.getName() );
@@ -148,23 +148,20 @@ public class MainCenterReadMutiWsFile732 extends TestScmBase {
     private void checkMetadataAndLobs() throws Exception {
         // check meta data
         SiteWrapper[] expSites = { rootSite, branSite };
-        ScmFileUtils
-                .checkMetaAndData( wsList.get( 0 ), fileIdList.subList( 0, 1 ),
-                        expSites, localPath, filePath );
-        ScmFileUtils
-                .checkMetaAndData( wsList.get( 1 ), fileIdList.subList( 1, 2 ),
-                        expSites, localPath, filePath );
-        ScmFileUtils
-                .checkMetaAndData( wsList.get( 2 ), fileIdList.subList( 2, 3 ),
-                        expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsList.get( 0 ),
+                fileIdList.subList( 0, 1 ), expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsList.get( 1 ),
+                fileIdList.subList( 1, 2 ), expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsList.get( 2 ),
+                fileIdList.subList( 2, 3 ), expSites, localPath, filePath );
     }
 
     private void prepareFiles( SiteWrapper site, WsWrapper wsp ) {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setContent( filePath );
             scmfile.setFileName( author + "_" + UUID.randomUUID() );
@@ -199,9 +196,9 @@ public class MainCenterReadMutiWsFile732 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 Assert.assertEquals( TestTools.getMD5( filePath ),
                         TestTools.getMD5( downloadPath ) );

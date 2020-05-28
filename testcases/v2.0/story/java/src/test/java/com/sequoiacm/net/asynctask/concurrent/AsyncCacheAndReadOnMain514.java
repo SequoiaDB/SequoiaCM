@@ -65,10 +65,10 @@ public class AsyncCacheAndReadOnMain514 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -147,9 +147,9 @@ public class AsyncCacheAndReadOnMain514 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );
@@ -170,9 +170,8 @@ public class AsyncCacheAndReadOnMain514 extends TestScmBase {
                 ScmTaskUtils.waitAsyncTaskFinished( wsM, fileIdList.get( i ),
                         expSiteList.length );
             }
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

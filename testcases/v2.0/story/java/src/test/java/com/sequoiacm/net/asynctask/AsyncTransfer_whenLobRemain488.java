@@ -56,10 +56,10 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -82,12 +82,12 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        //remain LOB
+        // remain LOB
         TestSdbTools.Lob.putLob( targetSite, ws_T, fileId, filePath );
-        ScmWorkspace wsA = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), sessionA );
+        ScmWorkspace wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionA );
         ScmFactory.File.asyncTransfer( wsA, fileId );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
@@ -114,8 +114,8 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         ScmFile scmfile = ScmFactory.File.createInstance( ws );
         scmfile.setContent( filePath );
         scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
@@ -126,12 +126,12 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );

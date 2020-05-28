@@ -32,8 +32,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:specify directory to create multiple files,one of the version
- * files specifies the directory
- * testlink-case:SCM-2065b
+ * files specifies the directory testlink-case:SCM-2065b
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -62,7 +61,7 @@ public class CreateMutiVerFileWithDir2065b extends TestScmBase {
         session = TestScmTools.createSession( branSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-        //clean file and dirs
+        // clean file and dirs
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -75,8 +74,8 @@ public class CreateMutiVerFileWithDir2065b extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        fileId = VersionUtils
-                .createFileByStream( ws, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( ws, fileName, writeData,
+                authorName );
         updateFileWithDirAndCheckContent( ws );
         checkFileDir( ws, fileId, dirNames );
         runSuccess = true;
@@ -102,7 +101,7 @@ public class CreateMutiVerFileWithDir2065b extends TestScmBase {
 
     private void updateFileWithDirAndCheckContent( ScmWorkspace ws )
             throws Exception {
-        //update ten times and add different directory to the version file
+        // update ten times and add different directory to the version file
         int times = 10;
         String fullPath = "";
         for ( int i = 0; i < times; i++ ) {
@@ -111,31 +110,30 @@ public class CreateMutiVerFileWithDir2065b extends TestScmBase {
             dirNames.add( fullPath );
             ScmDirUtils.updateContentWithDir( ws, fileId, updateData, scmDir );
 
-            //check the update file datacontent
+            // check the update file datacontent
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             int majorVersion = file.getMajorVersion();
             String fullFileName = fullPath + "/" + fileName;
-            ScmDirUtils
-                    .CheckFileContentByStream( ws, fullFileName, majorVersion,
-                            updateData );
+            ScmDirUtils.CheckFileContentByStream( ws, fullFileName,
+                    majorVersion, updateData );
         }
     }
 
     private void checkFileDir( ScmWorkspace ws, ScmId fileId,
             List< String > dirNames ) throws ScmException {
-        //all files are under the last folder
+        // all files are under the last folder
         String lastDirName = dirNames.get( 9 );
-        ScmDirectory scmDir = ScmFactory.Directory
-                .getInstance( ws, lastDirName );
+        ScmDirectory scmDir = ScmFactory.Directory.getInstance( ws,
+                lastDirName );
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         Assert.assertEquals( file.getDirectory().toString(),
                 scmDir.toString() );
 
-        //file does not exist under the original directory
+        // file does not exist under the original directory
         for ( int i = 0; i < 9; i++ ) {
             String orgDir = dirNames.get( i );
-            ScmDirectory scmDirTemp = ScmFactory.Directory
-                    .getInstance( ws, orgDir );
+            ScmDirectory scmDirTemp = ScmFactory.Directory.getInstance( ws,
+                    orgDir );
             ScmCursor< ScmFileBasicInfo > fileCursor = scmDirTemp
                     .listFiles( null );
             int count = 0;

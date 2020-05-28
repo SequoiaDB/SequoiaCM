@@ -88,13 +88,11 @@ public class UpdateAndTransferFile1696 extends TestScmBase {
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, curFileVersion, expHisSiteList );
         if ( curFileVersion == 1 ) {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, historyVersion,
-                            filedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    historyVersion, filedata );
         } else {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, currentVersion,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    currentVersion, updatedata );
         }
 
         runSuccess = true;

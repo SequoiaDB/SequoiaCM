@@ -34,7 +34,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-1587:属性类型为bool，属性表未配置校验规则，required覆盖必填和非必填
- *			   SCM-1835:属性类型为bool，属性表配置校验规则，required覆盖必填和非必填
+ *            SCM-1835:属性类型为bool，属性表配置校验规则，required覆盖必填和非必填
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -44,7 +44,7 @@ public class DefineAttr_type_boolValid_1587_1835 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
-    //	private static final Logger logger = Logger.getLogger
+    // private static final Logger logger = Logger.getLogger
     // (DefineAttr_dateValid_1584_1585.class);
     private boolean runSuccess = false;
     private int failTimes = 0;
@@ -88,7 +88,7 @@ public class DefineAttr_type_boolValid_1587_1835 extends TestScmBase {
         }
     }
 
-    @Test// jira-310
+    @Test // jira-310
     private void test_setPropIsTrue() throws Exception {
         // set class properties
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );

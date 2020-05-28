@@ -53,8 +53,8 @@ public class Transfer_fileSize10M411 extends TestScmBase {
     private boolean runSuccess = false;
     private File localPath = null;
     private String filePath = null;
-    private int FILE_SIZE =
-            new Random().nextInt( 1024 * 1024 * 5 ) + 1024 * 1024 * 10;
+    private int FILE_SIZE = new Random().nextInt( 1024 * 1024 * 5 )
+            + 1024 * 1024 * 10;
     private String authorName = "TransferFile10M411";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
@@ -67,10 +67,10 @@ public class Transfer_fileSize10M411 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -155,13 +155,13 @@ public class Transfer_fileSize10M411 extends TestScmBase {
             SiteWrapper rootSite = ScmInfo.getRootSite();
             // login
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -170,13 +170,12 @@ public class Transfer_fileSize10M411 extends TestScmBase {
                         TestTools.getMD5( downloadPath ) );
                 // check meta data
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             }
         } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + " node INFO" + branceSite.toString() +
-                    " fileId = " + fileId.get() );
+            Assert.fail( e.getMessage() + " node INFO" + branceSite.toString()
+                    + " fileId = " + fileId.get() );
         } finally {
             if ( fos != null )
                 fos.close();

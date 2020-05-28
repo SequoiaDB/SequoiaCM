@@ -28,9 +28,9 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:ayncTransfer file,target site and source site data sources
- * are different
- * testlink-case:SCM-2098 
+ * test content:ayncTransfer file,target site and source site data sources are
+ * different testlink-case:SCM-2098
+ * 
  * @author wuyan
  * @Date 2018.07.17
  * @version 1.00
@@ -69,8 +69,8 @@ public class AsyncTransferFile2098 extends TestScmBase {
         }
         if ( dbDataSoureCount == branSitelist.size() ) {
             throw new SkipException(
-                    "all bransite are connected to sequoiadb datasourse, " +
-                            "skip!" );
+                    "all bransite are connected to sequoiadb datasourse, "
+                            + "skip!" );
         }
         wsp = ScmInfo.getWs();
         sessionA = TestScmTools.createSession( branSite );

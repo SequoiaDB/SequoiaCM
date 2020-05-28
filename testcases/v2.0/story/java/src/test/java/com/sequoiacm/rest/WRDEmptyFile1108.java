@@ -57,10 +57,10 @@ public class WRDEmptyFile1108 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -97,9 +97,8 @@ public class WRDEmptyFile1108 extends TestScmBase {
         }
     }
 
-    private void writeAndCheck()
-            throws JSONException, UnsupportedEncodingException,
-            FileNotFoundException {
+    private void writeAndCheck() throws JSONException,
+            UnsupportedEncodingException, FileNotFoundException {
         JSONObject desc = null;
         // write
         try {
@@ -131,12 +130,12 @@ public class WRDEmptyFile1108 extends TestScmBase {
         // check
         String fileInfo;
         try {
-            fileInfo = rest.setApi(
-                    "files/id/" + fileId + "?workspace_name=" + ws.getName() )
+            fileInfo = rest
+                    .setApi( "files/id/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setRequestMethod( HttpMethod.HEAD )
-                    .setResponseType( String.class )
-                    .exec().getHeaders().get( "file" )
-                    .toString();
+                    .setResponseType( String.class ).exec().getHeaders()
+                    .get( "file" ).toString();
             fileInfo = URLDecoder.decode( fileInfo, "UTF-8" );
             JSONObject fileInfo2JSON = new JSONObject(
                     fileInfo.substring( 1, fileInfo.length() - 1 ) );
@@ -160,11 +159,11 @@ public class WRDEmptyFile1108 extends TestScmBase {
         OutputStream fileStream = null;
         InputStream in = null;
         try {
-            downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            ResponseEntity< ? > resource = rest.reset().setApi(
-                    "files/" + fileId + "?workspace_name=" + ws.getName() )
+            downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
+            ResponseEntity< ? > resource = rest.reset()
+                    .setApi( "files/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setRequestMethod( HttpMethod.GET )
                     .setRequestHeaders( "Authorization", "Scm " + sessionId )
                     .setResponseType( Resource.class ).exec();
@@ -180,9 +179,8 @@ public class WRDEmptyFile1108 extends TestScmBase {
             }
 
             Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ),
-                    "filePath = " + filePath + ",downloadPath = " +
-                            downloadPath );
+                    TestTools.getMD5( downloadPath ), "filePath = " + filePath
+                            + ",downloadPath = " + downloadPath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -197,9 +195,9 @@ public class WRDEmptyFile1108 extends TestScmBase {
     }
 
     private void deleteAndCheck() throws Exception {
-        rest.reset().setApi(
-                "files/" + fileId + "?workspace_name=" + ws.getName() +
-                        "&is_physical=true" )
+        rest.reset()
+                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                        + "&is_physical=true" )
                 .setRequestMethod( HttpMethod.DELETE )
                 .setResponseType( Resource.class ).exec();
         try {

@@ -49,10 +49,10 @@ public class TransferByPut1100 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,8 +80,8 @@ public class TransferByPut1100 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        JSONObject options = new JSONObject()
-                .put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", author ) );
         String response1 = rest.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.PUT )
                 .setParameter( "task_type", "1" )
@@ -102,9 +102,10 @@ public class TransferByPut1100 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
-                    rest.reset().setApi(
-                            "files/" + fileId.get() + "?workspace_name=" +
-                                    ws.getName() + "&is_physical=true" )
+                    rest.reset()
+                            .setApi( "files/" + fileId.get()
+                                    + "?workspace_name=" + ws.getName()
+                                    + "&is_physical=true" )
                             .setRequestMethod( HttpMethod.DELETE )
                             .setResponseType( String.class ).exec();
                     TestSdbTools.Task.deleteMeta( new ScmId( taskId ) );
@@ -154,19 +155,17 @@ public class TransferByPut1100 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest )
-            throws HttpClientErrorException, JSONException,
+            RestWrapper rest ) throws HttpClientErrorException, JSONException,
             FileNotFoundException {
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc)
+                // .setParameter("file", resource)
+                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
-                .setResponseType( String.class ).exec()
-                .getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;

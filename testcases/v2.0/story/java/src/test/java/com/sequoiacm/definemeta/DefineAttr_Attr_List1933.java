@@ -165,7 +165,8 @@ public class DefineAttr_Attr_List1933 extends TestScmBase {
                         .is( desc + "_1" ).get() )
                 .or( ScmQueryBuilder
                         .start( ScmAttributeName.Attribute.DESCRIPTION )
-                        .in( desc ).get() ).get();
+                        .in( desc ).get() )
+                .get();
         return cond;
     }
 }

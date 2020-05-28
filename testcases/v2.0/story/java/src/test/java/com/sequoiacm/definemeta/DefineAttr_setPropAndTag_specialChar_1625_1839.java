@@ -37,8 +37,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1625:setClassProperty接口校验
- * 			   SCM-1839:setTag接口校验
+ * @Testcase: SCM-1625:setClassProperty接口校验 SCM-1839:setTag接口校验
  * @author huangxiaoni init
  * @date 2017.6.26
  */
@@ -105,9 +104,8 @@ public class DefineAttr_setPropAndTag_specialChar_1625_1839
         Assert.assertEquals( actPropMap, expPropMap );
 
         Set< String > actTags = file.getTags().toSet();
-        Assert.assertEquals( actTags.size(), tagSet.size(),
-                "actTags = " + actTags.toString() + ",tagSet = " +
-                        tagSet.toString() );
+        Assert.assertEquals( actTags.size(), tagSet.size(), "actTags = "
+                + actTags.toString() + ",tagSet = " + tagSet.toString() );
         Assert.assertEquals( actTags.containsAll( tagSet ), true );
         runSuccess = true;
     }

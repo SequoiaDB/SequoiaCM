@@ -41,8 +41,8 @@ public class AsyncTransfer1208 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile.txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -59,8 +59,8 @@ public class AsyncTransfer1208 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "files/" + fileId + "/async-transfer?workspace_name=" +
-                        ws.getName() )
+                .setApi( "files/" + fileId + "/async-transfer?workspace_name="
+                        + ws.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         Assert.assertEquals( "\"\"", response );
         checkAsyncTransfer( rest, ws, fileId );
@@ -68,8 +68,8 @@ public class AsyncTransfer1208 extends TestScmBase {
         try {
             String inexistentId = "ffffffffffffffff";
             response = rest.setRequestMethod( HttpMethod.POST )
-                    .setApi( "files/" + inexistentId +
-                            "/async-transfer?workspace_name=" + ws.getName() )
+                    .setApi( "files/" + inexistentId
+                            + "/async-transfer?workspace_name=" + ws.getName() )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
             Assert.fail( "async-transfer should not succeed" );
@@ -95,11 +95,11 @@ public class AsyncTransfer1208 extends TestScmBase {
         desc.put( "mime_type", "text/plain" );
 
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "files?workspace_name=" + ws.getName() )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc.toString())
+                // .setParameter("file", resource)
+                // .setParameter("description", desc.toString())
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -110,8 +110,8 @@ public class AsyncTransfer1208 extends TestScmBase {
 
     private void deleteFile( WsWrapper ws, String fileId ) {
         rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName() +
-                        "&is_physical=true" )
+                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                        + "&is_physical=true" )
                 .setResponseType( Resource.class ).exec();
     }
 
@@ -122,8 +122,8 @@ public class AsyncTransfer1208 extends TestScmBase {
         boolean checkOk = false;
         for ( int i = 0; i < times; ++i ) {
             String response = rest.setRequestMethod( HttpMethod.HEAD )
-                    .setApi( "files/id/" + fileId + "?workspace_name=" +
-                            ws.getName() )
+                    .setApi( "files/id/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setResponseType( String.class ).exec().getHeaders()
                     .get( "file" ).toString();
             response = URLDecoder.decode( response, "UTF-8" );

@@ -47,8 +47,8 @@ public class CreateSameBatch1284 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -58,10 +58,10 @@ public class CreateSameBatch1284 extends TestScmBase {
         attr.setType( AttributeType.STRING );
         attr.setDescription( "I am a Attribute1284" );
         attr.setDisplayName( attrName + "_display" );
-        ScmAttribute scmAttribute = ScmFactory.Attribute
-                .createInstance( ws, attr );
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1284" );
+        ScmAttribute scmAttribute = ScmFactory.Attribute.createInstance( ws,
+                attr );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1284" );
         scmClass.attachAttr( scmAttribute.getId() );
 
         scmClassId = scmClass.getId();
@@ -82,8 +82,8 @@ public class CreateSameBatch1284 extends TestScmBase {
         }
 
         int actBatchNum = 0;
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject( "name", batchName ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "name", batchName ) );
         try {
             while ( cursor.hasNext() ) {
                 ScmBatchInfo info = cursor.getNext();

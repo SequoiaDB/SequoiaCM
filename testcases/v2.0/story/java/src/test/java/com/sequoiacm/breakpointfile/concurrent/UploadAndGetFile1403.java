@@ -27,8 +27,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:upload and Get the same breakpoint file concurrently
- * testlink case:seqDB-1403
+ * test content:upload and Get the same breakpoint file concurrently testlink
+ * case:seqDB-1403
+ * 
  * @author wuyan
  * @Date 2018.05.22
  * @version 1.00
@@ -51,10 +52,10 @@ public class UploadAndGetFile1403 extends TestScmBase {
     @BeforeClass
     private void setUp() {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -74,10 +75,8 @@ public class UploadAndGetFile1403 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        UploadBreakpointFileThread uploadBreakpointFile = new
-                UploadBreakpointFileThread();
-        GetBreakpointFileThread getBreakpointFile = new
-                GetBreakpointFileThread();
+        UploadBreakpointFileThread uploadBreakpointFile = new UploadBreakpointFileThread();
+        GetBreakpointFileThread getBreakpointFile = new GetBreakpointFileThread();
         uploadBreakpointFile.start();
         getBreakpointFile.start();
         Assert.assertTrue( uploadBreakpointFile.isSuccess(),
@@ -115,24 +114,23 @@ public class UploadAndGetFile1403 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
 
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( fileName );
         file.setTitle( fileName );
         fileId = file.save();
 
-        //down file
-        downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );
 
-        //delete file
+        // delete file
         ScmFactory.File.deleteInstance( ws, fileId, true );
         TestTools.LocalFile.removeFile( downloadPath );
     }
@@ -152,8 +150,8 @@ public class UploadAndGetFile1403 extends TestScmBase {
                         ScmChecksumType.CRC32 );
                 long uploadsize = breakpointFile.getUploadSize();
                 if ( uploadsize < uploadedSize ) {
-                    Assert.fail( "get size must be larger than uploaded size:" +
-                            uploadsize );
+                    Assert.fail( "get size must be larger than uploaded size:"
+                            + uploadsize );
                 }
 
             } finally {

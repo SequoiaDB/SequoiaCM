@@ -73,12 +73,12 @@ public class LessThanEquals354 extends TestScmBase {
                     .lessThanEquals( 123 ).get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"key\" : { \"$lte\" : 123}}" )
-                            .replaceAll( "\\s*", "" ) );
+                    ( "{ \"key\" : { \"$lte\" : 123}}" ).replaceAll( "\\s*",
+                            "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess = true;

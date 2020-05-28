@@ -63,10 +63,10 @@ public class Transfer_readFileWhenTransfering432 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -159,9 +159,8 @@ public class Transfer_readFileWhenTransfering432 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             try {
-                taskId = ScmSystem.Task
-                        .startTransferTask( wsA, cond, ScopeType.SCOPE_CURRENT,
-                                targetSite.getSiteName() );
+                taskId = ScmSystem.Task.startTransferTask( wsA, cond,
+                        ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
                 waitTaskRunning();
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );

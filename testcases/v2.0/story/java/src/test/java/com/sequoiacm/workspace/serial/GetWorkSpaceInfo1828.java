@@ -27,8 +27,7 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * test content:get workspace dataSrcinfo
- * testlink-case:SCM-1828
+ * test content:get workspace dataSrcinfo testlink-case:SCM-1828
  *
  * @author wuyan
  * @Date 2018.06.21
@@ -68,16 +67,13 @@ public class GetWorkSpaceInfo1828 extends TestScmBase {
     }
 
     private void createAndGetWorkSpace() throws ScmException {
-        //create ws
+        // create ws
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         ScmMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
-                rootSite.getSiteName(),
-                ScmShardingType.YEAR,
-                TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
-                        .get( 0 ) );
+                rootSite.getSiteName(), ScmShardingType.YEAR, TestSdbTools
+                        .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 ) );
 
         siteList = ScmInfo.getAllSites();
         List< String > siteNames = new ArrayList< String >();
@@ -104,7 +100,7 @@ public class GetWorkSpaceInfo1828 extends TestScmBase {
         conf.setName( wsName );
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace( session, conf );
 
-        //get ws and check the result
+        // get ws and check the result
         List< ScmDataLocation > list = ws.getDataLocations();
         ScmSdbDataLocation scmSdbDataLocation = ( ScmSdbDataLocation ) list
                 .get( 0 );

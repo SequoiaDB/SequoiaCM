@@ -60,10 +60,10 @@ public class Transfer_inDiffWs740 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -102,10 +102,10 @@ public class Transfer_inDiffWs740 extends TestScmBase {
             StartTransferTaskInWs3 tfWs3 = new StartTransferTaskInWs3();
             tfWs3.start();
 
-            if ( !( tfWs1.isSuccess() && tfWs2.isSuccess() &&
-                    tfWs3.isSuccess() ) ) {
-                Assert.fail( tfWs1.getErrorMsg() + tfWs2.getErrorMsg() +
-                        tfWs3.getErrorMsg() );
+            if ( !( tfWs1.isSuccess() && tfWs2.isSuccess()
+                    && tfWs3.isSuccess() ) ) {
+                Assert.fail( tfWs1.getErrorMsg() + tfWs2.getErrorMsg()
+                        + tfWs3.getErrorMsg() );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -187,8 +187,8 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );
@@ -231,8 +231,8 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );
@@ -275,8 +275,8 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );

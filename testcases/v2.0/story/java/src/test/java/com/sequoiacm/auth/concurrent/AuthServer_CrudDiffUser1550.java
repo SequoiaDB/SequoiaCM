@@ -54,10 +54,8 @@ public class AuthServer_CrudDiffUser1550 extends TestScmBase {
         }
         try {
             for ( int i = 0; i < userNum; i++ ) {
-                ScmUser user = ScmFactory.User
-                        .createUser( session, username + "_" + i,
-                                ScmUserPasswordType.LOCAL,
-                                passwd );
+                ScmUser user = ScmFactory.User.createUser( session,
+                        username + "_" + i, ScmUserPasswordType.LOCAL, passwd );
                 userList.add( user );
             }
         } catch ( ScmException e ) {
@@ -165,8 +163,8 @@ public class AuthServer_CrudDiffUser1550 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmUser actuser = ScmFactory.User
-                        .getUser( session, userList.get( 1 ).getUsername() );
+                ScmUser actuser = ScmFactory.User.getUser( session,
+                        userList.get( 1 ).getUsername() );
                 check( actuser, userList.get( 1 ) );
             } catch ( ScmException e ) {
                 e.printStackTrace();
@@ -189,8 +187,8 @@ public class AuthServer_CrudDiffUser1550 extends TestScmBase {
             try {
                 ScmUserModifier modifier = new ScmUserModifier();
                 modifier.setPasswordType( ScmUserPasswordType.LDAP );
-                ScmUser actUser = ScmFactory.User
-                        .alterUser( session, userList.get( 2 ), modifier );
+                ScmUser actUser = ScmFactory.User.alterUser( session,
+                        userList.get( 2 ), modifier );
                 check( actUser, userList.get( 2 ) );
             } catch ( ScmException e ) {
                 e.printStackTrace();

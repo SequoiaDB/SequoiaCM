@@ -48,10 +48,10 @@ public class BreakpointFile1379 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -71,11 +71,11 @@ public class BreakpointFile1379 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
 
-        //断点文件未上传完毕,转化为SCM文件
+        // 断点文件未上传完毕,转化为SCM文件
         this.breakpointFile2ScmFile( breakpointFile );
-        //检查断点文件
+        // 检查断点文件
         this.checkBreakpointFile();
-        //检查SCM文件
+        // 检查SCM文件
         this.checkFile();
 
     }

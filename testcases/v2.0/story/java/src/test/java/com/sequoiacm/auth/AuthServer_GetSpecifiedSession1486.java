@@ -46,9 +46,8 @@ public class AuthServer_GetSpecifiedSession1486 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             session1 = TestScmTools.createSession( site, username, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -59,8 +58,8 @@ public class AuthServer_GetSpecifiedSession1486 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            ScmSessionInfo ssInfo = ScmFactory.Session
-                    .getSessionInfo( session, session1.getSessionId() );
+            ScmSessionInfo ssInfo = ScmFactory.Session.getSessionInfo( session,
+                    session1.getSessionId() );
             Assert.assertEquals( ssInfo.getSessionId(), session1.getSessionId(),
                     session1.toString() );
             Assert.assertEquals( ssInfo.getUsername(), session1.getUser(),

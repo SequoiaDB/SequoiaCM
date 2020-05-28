@@ -58,10 +58,10 @@ public class ReadFileByOff250 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -70,7 +70,7 @@ public class ReadFileByOff250 extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
 
-        //clean file
+        // clean file
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -112,8 +112,8 @@ public class ReadFileByOff250 extends TestScmBase {
         try {
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            in = ScmFactory.File
-                    .createInputStream( InputStreamType.SEEKABLE, scmfile );
+            in = ScmFactory.File.createInputStream( InputStreamType.SEEKABLE,
+                    scmfile );
             in.seek( SeekType.SCM_FILE_SEEK_SET, seekSize );
             byte[] buffer = new byte[ off + len - 1 ];
             in.read( buffer, off, len );
@@ -121,8 +121,8 @@ public class ReadFileByOff250 extends TestScmBase {
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT
-                    || !e.getMessage().contains( "indexOutOfBound," +
-                    "arraySize:2097151,off:1048575,len:1048577" ) ) {
+                    || !e.getMessage().contains( "indexOutOfBound,"
+                            + "arraySize:2097151,off:1048575,len:1048577" ) ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }

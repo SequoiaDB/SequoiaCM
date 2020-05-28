@@ -37,8 +37,7 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: Clean the current version file 
- * testlink-case: SCM-1667
+ * test content: Clean the current version file testlink-case: SCM-1667
  *
  * @author wuyan
  * @Date 2018.06.08
@@ -72,15 +71,15 @@ public class CleanCurVersionFile1667 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize1 + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize2 + ".txt";
+        filePath1 = localPath + File.separator + "localFile_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize2
+                + ".txt";
         TestTools.LocalFile.createFile( filePath1, fileSize1 );
         TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
@@ -123,8 +122,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
             if ( runSuccess ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
-                    ScmFactory.File
-                            .deleteInstance( wsL, new ScmId( fileId ), true );
+                    ScmFactory.File.deleteInstance( wsL, new ScmId( fileId ),
+                            true );
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
@@ -143,9 +142,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
     private void writeAndUpdateFile( ScmWorkspace ws ) throws ScmException {
         for ( int i = 0; i < fileNum; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = VersionUtils
-                    .createFileByStream( ws, subfileName, writedata,
-                            authorName );
+            ScmId fileId = VersionUtils.createFileByStream( ws, subfileName,
+                    writedata, authorName );
             if ( i % 2 == 0 ) {
                 VersionUtils.updateContentByFile( ws, subfileName, fileId,
                         filePath1 );
@@ -158,8 +156,7 @@ public class CleanCurVersionFile1667 extends TestScmBase {
     }
 
     private void startCleanTaskByCurrentVerFile( ScmWorkspace ws,
-            ScmSession session, ScopeType scopeType )
-            throws Exception {
+            ScmSession session, ScopeType scopeType ) throws Exception {
         condition = ScmQueryBuilder.start().put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileSize1 )
                 .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
@@ -172,16 +169,16 @@ public class CleanCurVersionFile1667 extends TestScmBase {
     private void checkCurrentVerFileSiteInfo( ScmWorkspace ws,
             int currentVersion ) throws Exception {
         // check the clean file,check the sitelist and data
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
 
         SiteWrapper[] expCurSiteList = { lastSite };
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
             ScmId fileId = file.getFileId();
-            VersionUtils
-                    .checkSite( ws, fileId, currentVersion, expCurSiteList );
+            VersionUtils.checkSite( ws, fileId, currentVersion,
+                    expCurSiteList );
             size++;
         }
         cursor.close();
@@ -199,8 +196,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
         while ( cursor1.hasNext() ) {
             ScmFileBasicInfo file1 = cursor1.getNext();
             ScmId fileId1 = file1.getFileId();
-            VersionUtils
-                    .checkSite( ws, fileId1, currentVersion, expCurSiteList1 );
+            VersionUtils.checkSite( ws, fileId1, currentVersion,
+                    expCurSiteList1 );
             size1++;
         }
         cursor1.close();
@@ -212,8 +209,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
         // all history version file only on the lastSite
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_HISTORY, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_HISTORY, condition );
         SiteWrapper[] expHisSiteList = { lastSite, cleanSite };
         int size = 0;
         while ( cursor.hasNext() ) {
@@ -223,8 +220,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
 
             VersionUtils.checkSite( ws, fileId, version, expHisSiteList );
             size++;
-            ScmWorkspace ws1 = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionL );
+            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionL );
             VersionUtils.checkSite( ws1, fileId, version, expHisSiteList );
         }
         cursor.close();
@@ -236,8 +233,8 @@ public class CleanCurVersionFile1667 extends TestScmBase {
             throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = new ScmId( fileIdList.get( i ) );
-            ScmFile file = ScmFactory.File
-                    .getInstance( wsL, fileId, version, 0 );
+            ScmFile file = ScmFactory.File.getInstance( wsL, fileId, version,
+                    0 );
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             file.getContent( outputStream );
         }

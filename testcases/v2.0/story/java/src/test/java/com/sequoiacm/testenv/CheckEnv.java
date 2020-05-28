@@ -53,8 +53,8 @@ public class CheckEnv extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" },
-          dependsOnMethods = { "test_checkScmServer" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, dependsOnMethods = {
+            "test_checkScmServer" })
     private void test_checkPrivilege() throws Exception {
         for ( SiteWrapper site : siteList ) {
             for ( WsWrapper ws : wsList ) {
@@ -63,8 +63,8 @@ public class CheckEnv extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" },
-          dependsOnMethods = { "test_checkScmServer" })
+    @Test(groups = { "twoSite", "fourSite" }, dependsOnMethods = {
+            "test_checkScmServer" })
     private void test_checkScheduleServer() throws Exception {
         List< SiteWrapper > siteList = ScmInfo
                 .getBranchSites( ScmInfo.getAllSites().size() - 1 );
@@ -113,8 +113,8 @@ public class CheckEnv extends TestScmBase {
         ScmId scheduleId = null;
         try {
             // login
-            //SiteWrapper branSite = ScmInfo.getBranchSite();
-            //WsWrapper wsp = ScmInfo.getWs();
+            // SiteWrapper branSite = ScmInfo.getBranchSite();
+            // WsWrapper wsp = ScmInfo.getWs();
             ss = TestScmTools.createSession( branSite );
 
             // create schedule
@@ -123,16 +123,13 @@ public class CheckEnv extends TestScmBase {
             int sleepTime = 10 * 1000; // 10s
             BSONObject queryCond = ScmQueryBuilder.start( "checkenv" ).is( "0" )
                     .get();
-            ScmScheduleCleanFileContent content = new
-                    ScmScheduleCleanFileContent(
-                    branSite.getSiteName(), "0d",
-                    queryCond );
+            ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
+                    branSite.getSiteName(), "0d", queryCond );
             while ( true ) {
                 try {
-                    ScmSchedule sche = ScmSystem.Schedule
-                            .create( ss, wsp.getName(), ScheduleType.CLEAN_FILE,
-                                    "checkenv",
-                                    "", content, "* * * * * ? 2029" );
+                    ScmSchedule sche = ScmSystem.Schedule.create( ss,
+                            wsp.getName(), ScheduleType.CLEAN_FILE, "checkenv",
+                            "", content, "* * * * * ? 2029" );
                     scheduleId = sche.getId();
                     ScmSystem.Schedule.delete( ss, scheduleId );
                     break;
@@ -173,8 +170,8 @@ public class CheckEnv extends TestScmBase {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 break;
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ||
-                        i == 59 ) {
+                if ( e.getError() != ScmError.OPERATION_UNSUPPORTED
+                        || i == 59 ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() + ",i = " + i );
                 }

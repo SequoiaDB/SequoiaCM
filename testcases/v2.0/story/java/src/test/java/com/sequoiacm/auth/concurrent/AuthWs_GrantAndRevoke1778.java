@@ -120,8 +120,8 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
         modifier.addRole( role );
@@ -151,9 +151,8 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
 
         try {
             ScmFactory.Directory.deleteInstance( ws, subpath );
-            Assert.fail(
-                    "the user does not have priority to delete subpath = " +
-                            subpath );
+            Assert.fail( "the user does not have priority to delete subpath = "
+                    + subpath );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 e.printStackTrace();
@@ -198,13 +197,12 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
     }
 
     private void prepare() throws Exception {
-        rs = ScmResourceFactory
-                .createDirectoryResource( wsp.getName(), dirpath );
+        rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                dirpath );
         ScmFactory.Directory.createInstance( wsA, dirpath );
 
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( sessionA, rolename, null );
         grantPriAndAttachRole( sessionA, rs, user, role,
                 ScmPrivilegeType.DELETE );

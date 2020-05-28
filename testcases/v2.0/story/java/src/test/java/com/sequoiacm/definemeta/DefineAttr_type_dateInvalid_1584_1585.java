@@ -35,7 +35,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-1584:属性类型为date，属性表未配置校验规则，非必填
- *			   SCM-1585:属性类型为date，属性表配置date时间格式，必填
+ *            SCM-1585:属性类型为date，属性表配置date时间格式，必填
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -49,7 +49,7 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
     private static ScmSession session = null;
     private boolean runSuccess = false;
     private int failTimes = 0;
-    //private static final String CLASS_ID = "test_class_id_date_004";
+    // private static final String CLASS_ID = "test_class_id_date_004";
     private String CLASS_ID = null;
     private ScmClass class1 = null;
     private List< ScmAttribute > attrList = new ArrayList< ScmAttribute >();
@@ -101,8 +101,8 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -118,8 +118,8 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -135,8 +135,8 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -152,8 +152,8 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -170,9 +170,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -189,9 +189,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -208,9 +208,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -227,9 +227,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -246,9 +246,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -265,9 +265,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -284,9 +284,9 @@ public class DefineAttr_type_dateInvalid_1584_1585 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }

@@ -63,8 +63,8 @@ public class SelectErrorFilterHisVersionFile1687 extends TestScmBase {
         errorFilter.put( "author", fileName );
         ScmCursor< ScmFileBasicInfo > fileCursor = null;
         try {
-            fileCursor = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_ALL, errorFilter );
+            fileCursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_ALL,
+                    errorFilter );
             Assert.fail( "using not exist field queries should fail" );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getErrorCode(),

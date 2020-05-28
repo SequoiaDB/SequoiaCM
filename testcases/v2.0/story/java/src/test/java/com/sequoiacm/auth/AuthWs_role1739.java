@@ -93,8 +93,8 @@ public class AuthWs_role1739 extends TestScmBase {
             ScmFactory.Resource.getResourceById( session, resourceId );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get not exist resource, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get not exist resource, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -109,8 +109,8 @@ public class AuthWs_role1739 extends TestScmBase {
                     ScmFactory.Role.deleteRole( session, NAME );
                 } catch ( ScmException e ) {
                     logger.info(
-                            "delete not eixst role in tear down, errorMsg = " +
-                                    e.getError() );
+                            "delete not eixst role in tear down, errorMsg = "
+                                    + e.getError() );
                 }
                 ScmFactory.Directory.deleteInstance( ws, DIR_PATH );
             }
@@ -122,9 +122,8 @@ public class AuthWs_role1739 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

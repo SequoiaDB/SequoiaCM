@@ -39,9 +39,9 @@ public class CleanEnvForHdfs extends TestScmBase {
                     HdfsUtils.deletePath( site, rootPath );
                 }
             } else {
-                log.info( site.getSiteName() +
-                        "'s datasourcetype is not hbase,it is " +
-                        site.getDataType() );
+                log.info( site.getSiteName()
+                        + "'s datasourcetype is not hbase,it is "
+                        + site.getDataType() );
             }
         }
     }

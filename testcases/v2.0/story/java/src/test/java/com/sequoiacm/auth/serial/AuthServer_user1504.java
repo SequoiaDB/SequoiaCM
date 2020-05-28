@@ -57,16 +57,16 @@ public class AuthServer_user1504 extends TestScmBase {
     // svn: 4408
     private void test_setLdapPasswd()
             throws ScmException, InterruptedException {
-        ScmUser scmUser = ScmFactory.User
-                .getUser( session, TestScmBase.ldapUserName );
+        ScmUser scmUser = ScmFactory.User.getUser( session,
+                TestScmBase.ldapUserName );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.setPassword( "", "test" );
         try {
             ScmFactory.User.alterUser( session, scmUser, modifier );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "ldap password can not modify, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "ldap password can not modify, errorMsg = ["
+                    + e.getError() + "]" );
         }
         // check results
         scmUser = ScmFactory.User.getUser( session, TestScmBase.ldapUserName );
@@ -74,15 +74,14 @@ public class AuthServer_user1504 extends TestScmBase {
         Assert.assertEquals( scmUser.getPasswordType(),
                 ScmUserPasswordType.LDAP );
         Assert.assertTrue( scmUser.isEnabled() );
-        ScmSession ss = TestScmTools
-                .createSession( site, TestScmBase.ldapUserName,
-                        TestScmBase.ldapPassword );
+        ScmSession ss = TestScmTools.createSession( site,
+                TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();
 
         try {
-            TestScmTools
-                    .createSession( site, TestScmBase.ldapUserName, "test" );
+            TestScmTools.createSession( site, TestScmBase.ldapUserName,
+                    "test" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "password error, errorMsg = [" + e.getError() + "]" );
@@ -91,8 +90,8 @@ public class AuthServer_user1504 extends TestScmBase {
 
     private void test_setToLocalNoPasswd()
             throws ScmException, InterruptedException {
-        ScmUser scmUser = ScmFactory.User
-                .getUser( session, TestScmBase.ldapUserName );
+        ScmUser scmUser = ScmFactory.User.getUser( session,
+                TestScmBase.ldapUserName );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.setPasswordType( ScmUserPasswordType.LOCAL );
         try {
@@ -100,26 +99,24 @@ public class AuthServer_user1504 extends TestScmBase {
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             // e.printStackTrace();
-            logger.info(
-                    "set to local user but not set password, errorMsg = [" +
-                            e.getError() + "]" );
+            logger.info( "set to local user but not set password, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results
         scmUser = ScmFactory.User.getUser( session, TestScmBase.ldapUserName );
         Assert.assertEquals( scmUser.getPasswordType(),
                 ScmUserPasswordType.LDAP );
-        ScmSession ss = TestScmTools
-                .createSession( site, TestScmBase.ldapUserName,
-                        TestScmBase.ldapPassword );
+        ScmSession ss = TestScmTools.createSession( site,
+                TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();
     }
 
     private void test_setLocalPasswd()
             throws ScmException, InterruptedException {
-        ScmUser scmUser = ScmFactory.User
-                .getUser( session, TestScmBase.ldapUserName );
+        ScmUser scmUser = ScmFactory.User.getUser( session,
+                TestScmBase.ldapUserName );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.setPasswordType( ScmUserPasswordType.LOCAL );
         modifier.setPassword( "", PASSWORD );
@@ -131,8 +128,8 @@ public class AuthServer_user1504 extends TestScmBase {
                 ScmUserPasswordType.LOCAL );
         Assert.assertTrue( scmUser.isEnabled() );
 
-        ScmSession ss = TestScmTools
-                .createSession( site, TestScmBase.ldapUserName, PASSWORD );
+        ScmSession ss = TestScmTools.createSession( site,
+                TestScmBase.ldapUserName, PASSWORD );
         ss.isClosed();
         ss.close();
     }

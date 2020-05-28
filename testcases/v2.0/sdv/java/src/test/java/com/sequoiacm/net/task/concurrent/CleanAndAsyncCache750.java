@@ -63,10 +63,10 @@ public class CleanAndAsyncCache750 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -94,8 +94,8 @@ public class CleanAndAsyncCache750 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             ScmFactory.File.asyncCache( ws, fileId );
 
             taskId = cleanScmFile( ws );
@@ -132,8 +132,8 @@ public class CleanAndAsyncCache750 extends TestScmBase {
     }
 
     private void writeScmFile( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         ScmFile scmfile = ScmFactory.File.createInstance( ws );
         scmfile.setFileName( author + UUID.randomUUID() );
         scmfile.setAuthor( author );
@@ -145,12 +145,12 @@ public class CleanAndAsyncCache750 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );
@@ -175,9 +175,8 @@ public class CleanAndAsyncCache750 extends TestScmBase {
             SiteWrapper[] expSiteList = { targetSite };
             List< ScmId > fileIdList = new ArrayList< ScmId >();
             fileIdList.add( fileId );
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

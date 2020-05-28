@@ -52,12 +52,12 @@ public class UpdateFileAndTag1942 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath1 = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -90,12 +90,10 @@ public class UpdateFileAndTag1942 extends TestScmBase {
         // check
         checkAttr( fileIdList.get( 0 ), name + "_0", fileSize / 2, currVersion,
                 tags1 );
-        VersionUtils
-                .CheckFileContentByFile( ws, fileIdList.get( 0 ), currVersion,
-                        filePath2, localPath );
-        VersionUtils
-                .CheckFileContentByFile( ws, fileIdList.get( 0 ), histVersion,
-                        filePath2, localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileIdList.get( 0 ),
+                currVersion, filePath2, localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileIdList.get( 0 ),
+                histVersion, filePath2, localPath );
         SiteWrapper[] expSites = { site };
         ScmFileUtils.checkMeta( ws, fileIdList.get( 0 ), expSites );
         runSuccess1 = true;
@@ -116,12 +114,10 @@ public class UpdateFileAndTag1942 extends TestScmBase {
         // check
         checkAttr( fileIdList.get( 1 ), name + "_1", fileSize / 2, currVersion,
                 tags1 );
-        VersionUtils
-                .CheckFileContentByFile( ws, fileIdList.get( 1 ), currVersion,
-                        filePath2, localPath );
-        VersionUtils
-                .CheckFileContentByFile( ws, fileIdList.get( 1 ), histVersion,
-                        filePath2, localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileIdList.get( 1 ),
+                currVersion, filePath2, localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileIdList.get( 1 ),
+                histVersion, filePath2, localPath );
         SiteWrapper[] expSites = { site };
         ScmFileUtils.checkMeta( ws, fileIdList.get( 1 ), expSites );
         runSuccess2 = true;
@@ -178,9 +174,9 @@ public class UpdateFileAndTag1942 extends TestScmBase {
     private void updateFile( ScmId fileId, ScmTags tags, String filePath )
             throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        //file.setTags(tags);
+        // file.setTags(tags);
         file.updateContent( filePath );
-        //update tags
+        // update tags
         ScmFile file1 = ScmFactory.File.getInstance( ws, fileId );
         file1.setTags( tags );
     }

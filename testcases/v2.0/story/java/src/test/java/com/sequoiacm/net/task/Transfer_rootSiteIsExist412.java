@@ -70,10 +70,10 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -124,8 +124,8 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
 
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( wsM, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( wsM, fileIdList.get( i ),
+                            true );
                     ;
                 }
                 TestTools.LocalFile.removeFile( localPath );
@@ -163,9 +163,9 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
             for ( int i = readBegin; i < readEnd; ++i ) {
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -185,11 +185,10 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
         String end = String.format( "%03d", transferEnd );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                .and( title )
-                .greaterThan( begin ).and( title ).lessThan( end ).get();
-        return ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+                .and( title ).greaterThan( begin ).and( title ).lessThan( end )
+                .get();
+        return ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
     }
 
     private void checkTransfered( int checkBegin, int checkEnd )
@@ -200,16 +199,16 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             // read content
             for ( int i = checkBegin; i < checkEnd; ++i ) {
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -221,8 +220,7 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
             ScmFileUtils.checkMetaAndData( ws_T,
                     fileIdList.subList( checkBegin, checkEnd ), expSiteList,
-                    localPath,
-                    filePath );
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         } finally {
@@ -240,8 +238,7 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
             SiteWrapper[] expSiteList = { sourceSite };
             ScmFileUtils.checkMetaAndData( ws_T,
                     fileIdList.subList( checkBegin, checkEnd ), expSiteList,
-                    localPath,
-                    filePath );
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

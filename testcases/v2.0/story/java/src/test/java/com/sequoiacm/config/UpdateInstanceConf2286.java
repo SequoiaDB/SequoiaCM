@@ -38,12 +38,12 @@ public class UpdateInstanceConf2286 extends TestScmBase {
     @Test(groups = { "oneSite" })
     private void test() throws Exception {
         ScmConfigProperties.Builder builder = ScmConfigProperties.builder();
-        //builder set instance
+        // builder set instance
         List< NodeWrapper > nodes = site.getNodes( site.getNodeNum() );
         for ( NodeWrapper node : nodes ) {
             builder.instance( node.getUrl() );
         }
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
@@ -63,7 +63,7 @@ public class UpdateInstanceConf2286 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( site, fileName );
     }
 

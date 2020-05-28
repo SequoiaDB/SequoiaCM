@@ -37,9 +37,10 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.exception.BaseException;
 
-/**在ws1和ws2并发做如下操作（每个并发均包含如下操作）：
- *  1）写文件； 2）本地读文件； 3）跨中心读文件；
- *  4）迁移任务迁移文件； 5）清理任务清理文件； 6）单个文件异步缓存
+/**
+ * 在ws1和ws2并发做如下操作（每个并发均包含如下操作）： 1）写文件； 2）本地读文件； 3）跨中心读文件； 4）迁移任务迁移文件；
+ * 5）清理任务清理文件； 6）单个文件异步缓存
+ * 
  * @Description:TODO
  * @author fanyu
  * @Date:2017年9月12日
@@ -56,10 +57,10 @@ public class AllOperWithDiffWs739 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         filePathList.add( filePath );
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -168,9 +169,9 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( this.wsName, session );
                 file = ScmFactory.File.getInstance( ws, fileId );
-                downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                        TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
             } catch ( Exception e ) {
                 e.printStackTrace();
@@ -210,8 +211,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmId taskId = null;
             try {
                 session = TestScmTools.createSession( siteList.get( 0 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
@@ -231,8 +232,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( siteList.get( 0 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFactory.File.asyncCache( ws, fileId );
                 SiteWrapper[] expSiteList = { siteList.get( 0 ),
                         siteList.get( 1 ) };
@@ -252,8 +253,8 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( siteList.get( 0 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFactory.File.asyncTransfer( ws, fileId );
                 SiteWrapper[] expSiteList = { siteList.get( 0 ),
                         siteList.get( 1 ) };

@@ -59,15 +59,15 @@ public class AuthWsDir_None1731 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws InterruptedException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -93,8 +93,8 @@ public class AuthWsDir_None1731 extends TestScmBase {
     private void testListDir() {
         ScmCursor< ScmDirectory > cursor = null;
         try {
-            cursor = ScmFactory.Directory
-                    .listInstance( wsUM, new BasicBSONObject() );
+            cursor = ScmFactory.Directory.listInstance( wsUM,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -110,8 +110,8 @@ public class AuthWsDir_None1731 extends TestScmBase {
     private void testListSche() {
         ScmCursor< ScmScheduleBasicInfo > cursor = null;
         try {
-            cursor = ScmSystem.Schedule
-                    .list( sessionUB, new BasicBSONObject() );
+            cursor = ScmSystem.Schedule.list( sessionUB,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -144,8 +144,8 @@ public class AuthWsDir_None1731 extends TestScmBase {
     private void testListTask() {
         ScmCursor< ScmTaskBasicInfo > cursor = null;
         try {
-            cursor = ScmSystem.Task
-                    .listTask( sessionUB, new BasicBSONObject() );
+            cursor = ScmSystem.Task.listTask( sessionUB,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -203,15 +203,14 @@ public class AuthWsDir_None1731 extends TestScmBase {
 
     private void prepare() {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionM, username, ScmUserPasswordType.LOCAL,
-                            passwd );
-            sessionUM = TestScmTools
-                    .createSession( rootsite, username, passwd );
-            sessionUB = TestScmTools
-                    .createSession( branchsite, username, passwd );
-            wsUM = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionUM );
+            user = ScmFactory.User.createUser( sessionM, username,
+                    ScmUserPasswordType.LOCAL, passwd );
+            sessionUM = TestScmTools.createSession( rootsite, username,
+                    passwd );
+            sessionUB = TestScmTools.createSession( branchsite, username,
+                    passwd );
+            wsUM = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionUM );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

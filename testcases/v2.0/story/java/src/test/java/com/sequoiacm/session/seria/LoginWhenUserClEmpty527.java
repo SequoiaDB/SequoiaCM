@@ -68,13 +68,11 @@ public class LoginWhenUserClEmpty527 extends TestScmBase {
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
                     TestScmBase.gateWayList.get( 0 ) + "/" + site,
-                    TestScmBase.scmUserName,
-                    TestScmBase.scmPassword );
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
             Assert.fail( "login shouldn't succeed when user cl is empty!" );
         } catch ( ScmException e ) {
-            if ( -301 !=
-                    e.getErrorCode() ) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
+            if ( -301 != e.getErrorCode() ) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -86,8 +84,8 @@ public class LoginWhenUserClEmpty527 extends TestScmBase {
         try {
             restoreCL( userCL );
         } catch ( BaseException e ) {
-            logger.error( "fail to restore userCL, original records: " +
-                    oldUserRecs );
+            logger.error( "fail to restore userCL, original records: "
+                    + oldUserRecs );
             Assert.fail( e.getMessage() );
         } finally {
             if ( sdb != null ) {

@@ -77,21 +77,24 @@ public class Audit2340 extends TestScmBase {
         try {
             dirId = createAndQueryDir();
             fileId = createFile();
-            Assert.assertEquals( ConfUtil.checkAudit( session,
-                    new BasicBSONObject()
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "CREATE_DIR" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                                    TestScmBase.scmUserName )
-                    , dirName ), true,
+                                    TestScmBase.scmUserName ),
+                            dirName ),
+                    true,
                     "Has the configuration been updated?dirName = " + dirName );
-            Assert.assertEquals( ConfUtil.checkAudit( session,
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "CREATE_FILE" )
-                            .append( ScmAttributeName.Audit.USERNAME,
-                                    TestScmBase.scmUserName )
-                    , fileId.get() ), false,
-                    "Has the configuration been updated?fileId = " +
-                            fileId.get() );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session,
+                            new BasicBSONObject()
+                                    .append( ScmAttributeName.Audit.TYPE,
+                                            "CREATE_FILE" )
+                                    .append( ScmAttributeName.Audit.USERNAME,
+                                            TestScmBase.scmUserName ),
+                            fileId.get() ),
+                    false, "Has the configuration been updated?fileId = "
+                            + fileId.get() );
         } finally {
             if ( dirId != null ) {
                 ScmFactory.Directory.deleteInstance( ws, dirName );
@@ -107,13 +110,13 @@ public class Audit2340 extends TestScmBase {
         String dirId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            //create dir
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, dirName );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            // create dir
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    dirName );
             dirId = dir.getId();
-            //query dir
+            // query dir
             ScmFactory.Directory.getInstance( ws, dirName );
         } finally {
             if ( session != null ) {
@@ -128,8 +131,8 @@ public class Audit2340 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();

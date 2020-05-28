@@ -66,6 +66,7 @@ public class BreakpointUtil extends TestScmBase {
 
     /**
      * create breakpointFile and upload part file
+     * 
      * @param ws
      * @param filePath
      * @param fileName
@@ -122,8 +123,8 @@ public class BreakpointUtil extends TestScmBase {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
                 throw new SkipException(
-                        "breakpoint file only support sequoiadb datasourse, " +
-                                "skip!" );
+                        "breakpoint file only support sequoiadb datasourse, "
+                                + "skip!" );
             }
         }
     }

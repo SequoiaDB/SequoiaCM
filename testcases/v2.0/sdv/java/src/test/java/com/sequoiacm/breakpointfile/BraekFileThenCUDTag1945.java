@@ -54,10 +54,10 @@ public class BraekFileThenCUDTag1945 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -87,7 +87,7 @@ public class BraekFileThenCUDTag1945 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //breakpointFile transfer to ScmFile
+        // breakpointFile transfer to ScmFile
         ScmBreakpointFile breakpointFile = createBreakpointFile( name,
                 filePath );
         breakpointFile2ScmFile( breakpointFile, name, tags );
@@ -137,8 +137,7 @@ public class BraekFileThenCUDTag1945 extends TestScmBase {
     }
 
     private void breakpointFile2ScmFile( ScmBreakpointFile breakpointFile,
-            String name, ScmTags tags )
-            throws ScmException {
+            String name, ScmTags tags ) throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( name );
@@ -173,9 +172,8 @@ public class BraekFileThenCUDTag1945 extends TestScmBase {
         Assert.assertEquals( file.getAuthor(), name );
         Assert.assertEquals( file.getTags().toSet().size(), 1 );
         Assert.assertEquals( file.getTags().toSet().containsAll( tag.toSet() ),
-                true,
-                "fileTags = " + file.getTags().toString() + ",expTags = " +
-                        tag.toString() );
+                true, "fileTags = " + file.getTags().toString() + ",expTags = "
+                        + tag.toString() );
     }
 
     private void checkDel( ScmId fileId ) throws ScmException {

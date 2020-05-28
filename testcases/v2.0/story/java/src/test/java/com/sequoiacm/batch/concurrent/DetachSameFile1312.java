@@ -40,8 +40,8 @@ public class DetachSameFile1312 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( "file1311" );
@@ -90,10 +90,10 @@ public class DetachSameFile1312 extends TestScmBase {
                 batch.detachFile( fileId );
                 successTimes.getAndIncrement();
             } catch ( ScmException e ) {
-                //TODO:错误码不对
-//				if (e.getError() != ScmError.FILE_NOT_IN_BATCH) {
-//					throw e;
-//				}
+                // TODO:错误码不对
+                // if (e.getError() != ScmError.FILE_NOT_IN_BATCH) {
+                // throw e;
+                // }
             }
         }
 

@@ -56,10 +56,10 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -138,11 +138,10 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
     private void checkResult() {
         try {
             SiteWrapper[] expSiteIdList = { branceSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsA, fileId, expSiteIdList.length );
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileId, expSiteIdList, localPath,
-                            filePath );
+            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
+                    expSiteIdList.length );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

@@ -27,12 +27,12 @@ public class NodeWrapper {
     }
 
     public int getPort() {
-        //TODO:it is a temporary method,using restful default port
+        // TODO:it is a temporary method,using restful default port
         return ( int ) nodeInfo.get( "port" );
     }
 
     public int getRestPort() {
-        //get default value
+        // get default value
         return ( int ) nodeInfo.get( "port" );
     }
 

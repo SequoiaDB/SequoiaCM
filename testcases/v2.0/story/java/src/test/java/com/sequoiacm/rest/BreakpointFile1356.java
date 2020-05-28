@@ -54,13 +54,12 @@ public class BreakpointFile1356 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        checkFilePath =
-                localPath + File.separator + "localFile_check" + fileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        checkFilePath = localPath + File.separator + "localFile_check"
+                + fileSize + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -74,22 +73,22 @@ public class BreakpointFile1356 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
 
-        //创建空的断点文件
+        // 创建空的断点文件
         this.createBreakpointFile();
 
-        //指定错误的offset
+        // 指定错误的offset
         this.uploadBreakpointFileFail();
 
-        //续传断点文件
+        // 续传断点文件
         this.uploadBreakpointFile();
 
-        //断点文件转化为SCM文件
+        // 断点文件转化为SCM文件
         this.breakpointFile2ScmFile();
 
-        //检查文件
+        // 检查文件
         this.checkScmFile();
 
-        //使用缺少ws参数的rest请求获取断点文件信息
+        // 使用缺少ws参数的rest请求获取断点文件信息
         this.errorRequest();
     }
 
@@ -113,11 +112,10 @@ public class BreakpointFile1356 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "/breakpointfiles/" + fileName + "?workspace_name=" +
-                        ws.getName() )
+                .setApi( "/breakpointfiles/" + fileName + "?workspace_name="
+                        + ws.getName() )
                 .setParameter( "checksum_type", ChecksumType.ADLER32.name() )
-                .setParameter( "is_last_content", false )
-                .exec();
+                .setParameter( "is_last_content", false ).exec();
         rest.disconnect();
     }
 
@@ -126,8 +124,8 @@ public class BreakpointFile1356 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         rest.setRequestMethod( HttpMethod.PUT )
-                .setApi( "/breakpointfiles/" + fileName + "?workspace_name=" +
-                        ws.getName() + "&&offset=0&&is_last_content=true" )
+                .setApi( "/breakpointfiles/" + fileName + "?workspace_name="
+                        + ws.getName() + "&&offset=0&&is_last_content=true" )
                 .setInputStream( new FileInputStream( new File( filePath ) ) )
                 .exec();
         rest.disconnect();
@@ -142,8 +140,7 @@ public class BreakpointFile1356 extends TestScmBase {
                     .setApi( "/breakpointfiles/" + fileName )
                     .setParameter( "checksum_type",
                             ChecksumType.ADLER32.name() )
-                    .setParameter( "is_last_content", false )
-                    .exec();
+                    .setParameter( "is_last_content", false ).exec();
             Assert.fail(
                     "use error option create breakpointFile should error" );
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {
@@ -160,10 +157,10 @@ public class BreakpointFile1356 extends TestScmBase {
             rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                     TestScmBase.scmPassword );
             rest.setRequestMethod( HttpMethod.PUT )
-                    .setApi( "/breakpointfiles/" + fileName +
-                            "?workspace_name=" + ws.getName() +
-                            "&&offset=524288&&is_last_content=true" )
-                    //.setParameter("file", new FileSystemResource(filePath))
+                    .setApi( "/breakpointfiles/" + fileName + "?workspace_name="
+                            + ws.getName()
+                            + "&&offset=524288&&is_last_content=true" )
+                    // .setParameter("file", new FileSystemResource(filePath))
                     .setInputStream(
                             new FileInputStream( new File( filePath ) ) )
                     .exec();
@@ -185,14 +182,13 @@ public class BreakpointFile1356 extends TestScmBase {
                 TestScmBase.scmPassword );
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "/files?workspace_name=" + ws.getName() )
-                //.setRequestHeaders("description", description.toString())
-                //.setInputStream(new FileInputStream(fileName))
+                // .setRequestHeaders("description", description.toString())
+                // .setInputStream(new FileInputStream(fileName))
                 .setParameter( "breakpoint_file", fileName )
-                //.setParameter("description", description.toString())
-                //.setRequestHeaders("breakpoint_file", fileName)
+                // .setParameter("description", description.toString())
+                // .setRequestHeaders("breakpoint_file", fileName)
                 .setRequestHeaders( "description", description.toString() )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         BSONObject obj = ( BSONObject ) JSON.parse( response );
         BSONObject file = ( BSONObject ) obj.get( "file" );
         fileId = ( String ) file.get( "id" );
@@ -200,8 +196,8 @@ public class BreakpointFile1356 extends TestScmBase {
     }
 
     private void checkScmFile() throws ScmException, IOException {
-        ScmFile scmFile = ScmFactory.File
-                .getInstance( ws, new ScmId( fileId ) );
+        ScmFile scmFile = ScmFactory.File.getInstance( ws,
+                new ScmId( fileId ) );
         scmFile.getContent( checkFilePath );
         Assert.assertEquals( TestTools.getMD5( checkFilePath ),
                 TestTools.getMD5( filePath ),

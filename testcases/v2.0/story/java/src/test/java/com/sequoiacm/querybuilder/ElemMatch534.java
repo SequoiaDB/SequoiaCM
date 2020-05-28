@@ -75,13 +75,12 @@ public class ElemMatch534 extends TestScmBase {
             cond = ScmQueryBuilder.start( key ).elemMatch( obj )
                     .and( ScmAttributeName.File.AUTHOR ).is( author ).get();
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"" + key + "\"" + " : { \"$elemMatch\" : " +
-                            obj.toString()
-                            + "} , \"author\" : " + "\"" + author + "\"}" )
-                            .replaceAll( "\\s*", "" ) );
+                    ( "{ \"" + key + "\"" + " : { \"$elemMatch\" : "
+                            + obj.toString() + "} , \"author\" : " + "\""
+                            + author + "\"}" ).replaceAll( "\\s*", "" ) );
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() + " cond = " + cond );

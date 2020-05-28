@@ -26,10 +26,8 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1509:查询所有用户
- * 			  SCM-1511:指定filter条件过滤查询
- * 			  SCM-1513:指定的角色不存在，查询该角色下的用户
- * 			  SCM-1516:查询和删除不存在的用户
+ * @FileName SCM-1509:查询所有用户 SCM-1511:指定filter条件过滤查询 SCM-1513:指定的角色不存在，查询该角色下的用户
+ *           SCM-1516:查询和删除不存在的用户
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -56,9 +54,8 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME + "_" + i );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         }
 
@@ -70,8 +67,8 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
         }
 
         // get AUTH_ADMIN role
-        ScmUser adminUser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser adminUser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         authAdminRole = adminUser.getRoles().iterator().next();
 
         this.createUser();
@@ -95,12 +92,11 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_listUserByFilter() throws ScmException {
         BSONObject cond = ScmQueryBuilder.start( "password_type" ).is( "LOCAL" )
-                .and( "enabled" ).is( false )
-                .and( "has_role" ).is( NAME )
+                .and( "enabled" ).is( false ).and( "has_role" ).is( NAME )
                 .get();
 
-        ScmCursor< ScmUser > cursor = ScmFactory.User
-                .listUsers( session, cond );
+        ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
+                cond );
         ArrayList< ScmUser > rtUsers = new ArrayList< ScmUser >();
         while ( cursor.hasNext() ) {
             ScmUser user = cursor.getNext();
@@ -135,8 +131,8 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
             ScmFactory.User.deleteUser( session, "test" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete not exist user, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "delete not exist user, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -176,24 +172,21 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
         ScmRole role = ScmFactory.Role.createRole( session, NAME, "" );
 
         // create admin user
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME + "_0", ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME + "_0",
+                ScmUserPasswordType.LOCAL, PASSWORD );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( authAdminRole );
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
         // create ordinary user
-        scmUser = ScmFactory.User
-                .createUser( session, NAME + "_1", ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        scmUser = ScmFactory.User.createUser( session, NAME + "_1",
+                ScmUserPasswordType.LOCAL, PASSWORD );
         modifier = new ScmUserModifier();
         modifier.setEnabled( false );
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
-        scmUser = ScmFactory.User
-                .createUser( session, NAME + "_2", ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        scmUser = ScmFactory.User.createUser( session, NAME + "_2",
+                ScmUserPasswordType.LOCAL, PASSWORD );
         modifier = new ScmUserModifier();
         modifier.addRole( role );
         modifier.setEnabled( false );

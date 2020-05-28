@@ -55,15 +55,15 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
 
     private SiteWrapper rootSite = null;
     private SiteWrapper branceSite = null;
-    //private NodeWrapper node = null;
+    // private NodeWrapper node = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready local file
             TestTools.LocalFile.removeFile( localPath );
@@ -72,7 +72,7 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
 
             rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
-            //node = branceSite.getNode();
+            // node = branceSite.getNode();
             ws_T = ScmInfo.getWs();
 
             BSONObject ors1 = ScmQueryBuilder.start()
@@ -104,8 +104,8 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
             asyncTransfer.start();
 
             if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
-                Assert.fail( transferTask.getErrorMsg() +
-                        asyncTransfer.getErrorMsg() );
+                Assert.fail( transferTask.getErrorMsg()
+                        + asyncTransfer.getErrorMsg() );
             }
 
         } catch ( Exception e ) {
@@ -179,8 +179,7 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
                 ScmFileUtils.checkMetaAndData( ws_T,
                         fileIdList.subList( 0, fileNum / 2 ), expSiteList,
-                        localPath,
-                        filePath );
+                        localPath, filePath );
             } finally {
                 if ( sessionA != null ) {
                     sessionA.close();
@@ -203,9 +202,8 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
                     ScmFactory.File.asyncTransfer( wsA, fileIdList.get( i ) );
                     // check results
                     SiteWrapper[] expSiteList = { rootSite, branceSite };
-                    ScmTaskUtils
-                            .waitAsyncTaskFinished( wsA, fileIdList.get( i ),
-                                    expSiteList.length );
+                    ScmTaskUtils.waitAsyncTaskFinished( wsA,
+                            fileIdList.get( i ), expSiteList.length );
                     ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( i ),
                             expSiteList, localPath, filePath );
                 }

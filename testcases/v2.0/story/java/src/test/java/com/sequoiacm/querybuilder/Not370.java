@@ -89,18 +89,16 @@ public class Not370 extends TestScmBase {
                 cond = cond.and( ScmAttributeName.File.AUTHOR )
                         .is( authorName );
                 String subStr = "{ \"" + key + "\" : \"" + value + "\"}";
-                String expCond = "{ \"$not\" : [ " + subStr + " , " + subStr +
-                        "] , \"author\" : \"" + authorName
-                        + "\"}";
+                String expCond = "{ \"$not\" : [ " + subStr + " , " + subStr
+                        + "] , \"author\" : \"" + authorName + "\"}";
 
                 Assert.assertEquals(
                         cond.get().toString().replaceAll( "\\s*", "" ),
                         expCond.replaceAll( "\\s*", "" ) );
 
                 // count
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                                cond.get() );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond.get() );
                 Assert.assertEquals( count, 1 );
             }
 
@@ -121,18 +119,17 @@ public class Not370 extends TestScmBase {
                     .is( "inexistentname" ).get();
 
             BSONObject cond = ScmQueryBuilder.start().not( obj1, obj2 )
-                    .and( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
+                    .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
-            String expCond = "{ \"$not\" : [ " + obj1.toString() + " , " +
-                    obj2.toString() + "] , " + "\"author\" : \""
-                    + authorName + "\"}";
+            String expCond = "{ \"$not\" : [ " + obj1.toString() + " , "
+                    + obj2.toString() + "] , " + "\"author\" : \"" + authorName
+                    + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess2 = true;

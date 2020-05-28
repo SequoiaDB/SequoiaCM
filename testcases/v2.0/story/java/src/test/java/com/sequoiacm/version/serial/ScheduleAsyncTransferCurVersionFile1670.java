@@ -121,8 +121,8 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                branSite.getSiteName(), rootSite.getSiteName(),
-                "0d", queryCond, ScopeType.SCOPE_CURRENT );
+                branSite.getSiteName(), rootSite.getSiteName(), "0d", queryCond,
+                ScopeType.SCOPE_CURRENT );
         String cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
                 ScheduleType.COPY_FILE, scheduleName, "", content, cron );

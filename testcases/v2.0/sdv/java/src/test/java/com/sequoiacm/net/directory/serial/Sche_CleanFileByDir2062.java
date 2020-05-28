@@ -41,8 +41,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:create ScheduleCleanTask,match directory to clean up files in
- * the directory
- * testlink-case:SCM-2062
+ * the directory testlink-case:SCM-2062
  *
  * @author wuyan
  * @Date 2018.07.13
@@ -69,10 +68,8 @@ public class Sche_CleanFileByDir2062 extends TestScmBase {
     private String cron = null;
     private ScmDirectory scmDir1;
     private ScmDirectory scmDir2;
-    private String fullPath1 =
-            "/CreatefileWiteDir2062a/2062_a/2062_b/2062_c/2062_e/2062_f/";
-    private String fullPath2 =
-            "/CreatefileWiteDir2062b/2062_a/2062_b/2062_c/2062_e/2062_f/";
+    private String fullPath1 = "/CreatefileWiteDir2062a/2062_a/2062_b/2062_c/2062_e/2062_f/";
+    private String fullPath2 = "/CreatefileWiteDir2062b/2062_a/2062_b/2062_c/2062_e/2062_f/";
     private String authorName = "CreateFileWithDir2062";
     private String fileName = "filedir2060";
     private byte[] writeData1 = new byte[ 1024 * 2 ];
@@ -109,10 +106,10 @@ public class Sche_CleanFileByDir2062 extends TestScmBase {
         readFileFromSouceSite( wsL, fileIdList1 );
         readFileFromSouceSite( wsL, fileIdList2 );
 
-        //clean current version file
+        // clean current version file
         createScheduleTask( sessionC );
 
-        //check siteinfo
+        // check siteinfo
         int currentVersion = 1;
         SiteWrapper[] expCurSiteList1 = { lastSite };
         VersionUtils.checkScheTaskFileSites( wsC, fileIdList1, currentVersion,
@@ -162,8 +159,8 @@ public class Sche_CleanFileByDir2062 extends TestScmBase {
     }
 
     private ScmId createFileWithDir( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName,
-            ScmDirectory dir ) throws ScmException {
+            byte[] data, String authorName, ScmDirectory dir )
+            throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
 
         file.setContent( new ByteArrayInputStream( data ) );
@@ -174,13 +171,13 @@ public class Sche_CleanFileByDir2062 extends TestScmBase {
             file.setDirectory( dir );
         }
         file.setMimeType( fileName + ".txt" );
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag(
-                "我是一个标签2062                                                  " +
-                        "                                                    " +
-                        "                                                    " +
-                        "                            "
+                "我是一个标签2062                                                  "
+                        + "                                                    "
+                        + "                                                    "
+                        + "                            "
                         + "                                " );
         tags.addTag( "THIS IS TAG 2062!" );
         tags.addTag( "tag *&^^^^^*90234@#$%!~asf" );

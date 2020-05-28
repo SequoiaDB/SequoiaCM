@@ -24,8 +24,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:delete breakpointfile by other site
- * testlink-case:SCM-1390
+ * test content:delete breakpointfile by other site testlink-case:SCM-1390
+ * 
  * @author wuyan
  * @Date 2018.05.15
  * @version 1.00
@@ -48,10 +48,10 @@ public class DeleteBreakpointFile1390 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -100,7 +100,7 @@ public class DeleteBreakpointFile1390 extends TestScmBase {
 
     private void deleteBreakpointfile() throws ScmException, IOException {
 
-        //delete the breakpointfile by other site
+        // delete the breakpointfile by other site
         try {
             ScmFactory.BreakpointFile.deleteInstance( wsB, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
@@ -111,7 +111,7 @@ public class DeleteBreakpointFile1390 extends TestScmBase {
             }
         }
 
-        //check the breakpointfile exist
+        // check the breakpointfile exist
         Assert.assertNotNull(
                 ScmFactory.BreakpointFile.getInstance( wsA, fileName ),
                 "file exist!" );

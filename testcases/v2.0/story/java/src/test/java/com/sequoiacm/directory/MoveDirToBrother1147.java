@@ -70,17 +70,15 @@ public class MoveDirToBrother1147 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            ScmDirectory dir3 = ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1147_b/1147_d" );
+            ScmDirectory dir3 = ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1147_b/1147_d" );
             createFile( ws, dir3 );
             // eg:dirBasePath + "/b/d/e" mv d to dirBasePath + "/b/c" dir
-            dir3.move( ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1147_b/1147_c" ) );
+            dir3.move( ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1147_b/1147_c" ) );
             // check sub path
-            check( fileIdList.get( 0 ), ScmFactory.Directory
-                            .getInstance( ws, dirBasePath +
-                                    "/1147_b/1147_c/1147_d" ),
-                    ws );
+            check( fileIdList.get( 0 ), ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1147_b/1147_c/1147_d" ), ws );
             createFile( ws, dir3 );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -149,8 +147,8 @@ public class MoveDirToBrother1147 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

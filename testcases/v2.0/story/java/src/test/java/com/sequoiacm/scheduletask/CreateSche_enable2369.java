@@ -67,10 +67,10 @@ public class CreateSche_enable2369 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException, ParseException {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -101,7 +101,7 @@ public class CreateSche_enable2369 extends TestScmBase {
         this.readyScmFile( wsA, fileNum, fileNum + 10 );
         ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
 
-        //checkTask info
+        // checkTask info
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Schedule.ID )
                 .is( scheduleId.get() ).get();
         checkTaskInfo( cond );
@@ -142,9 +142,8 @@ public class CreateSche_enable2369 extends TestScmBase {
     private void createScheduleTask() throws ScmException {
         String maxStayTime = "0d";
         // create schedule task
-        content = new ScmScheduleCopyFileContent(
-                branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                queryCond );
+        content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                rootSite.getSiteName(), maxStayTime, queryCond );
         cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                 ScheduleType.COPY_FILE, name, "", content, cron, true );
@@ -164,8 +163,8 @@ public class CreateSche_enable2369 extends TestScmBase {
     }
 
     private void checkTaskInfo( BSONObject cond ) throws ScmException {
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( ssA, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                cond );
         try {
             while ( cursor.hasNext() ) {
                 ScmTaskBasicInfo info = cursor.getNext();

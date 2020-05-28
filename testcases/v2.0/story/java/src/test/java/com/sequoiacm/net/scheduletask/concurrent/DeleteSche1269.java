@@ -64,10 +64,10 @@ public class DeleteSche1269 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -91,7 +91,7 @@ public class DeleteSche1269 extends TestScmBase {
 
         // scheduleServer host time is not sync with SCM host time, cause may
         // not match scmFile
-        //ScmScheduleUtils.sleepStrategy(ssA, wsA, scheduleId, fileIds.get
+        // ScmScheduleUtils.sleepStrategy(ssA, wsA, scheduleId, fileIds.get
         // (fileNum - 1), fileNum);
     }
 

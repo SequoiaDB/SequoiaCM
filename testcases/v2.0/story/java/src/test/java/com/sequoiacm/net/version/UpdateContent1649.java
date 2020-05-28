@@ -24,9 +24,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:write to file from siteA,than update Content of  the current
- * scm file from siteB
- * testlink-case:SCM-1649
+ * test content:write to file from siteA,than update Content of the current scm
+ * file from siteB testlink-case:SCM-1649
  *
  * @author wuyan
  * @Date 2018.06.04
@@ -52,10 +51,10 @@ public class UpdateContent1649 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + updateSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + updateSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -73,13 +72,13 @@ public class UpdateContent1649 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        //updateContent from siteB
+        // updateContent from siteB
         updateContentByFile();
 
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion = 1;
-        //check the sitelist/currentversion/size
+        // check the sitelist/currentversion/size
         SiteWrapper[] expSiteListA = { branSites.get( 0 ) };
         SiteWrapper[] expSiteListB = { branSites.get( 1 ) };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expSiteListB );
@@ -87,7 +86,7 @@ public class UpdateContent1649 extends TestScmBase {
         VersionUtils.checkFileCurrentVersion( wsA, fileId, currentVersion );
         VersionUtils.checkFileSize( wsA, fileId, currentVersion, updateSize );
         VersionUtils.checkFileSize( wsA, fileId, historyVersion, writeSize );
-        //check fileContent
+        // check fileContent
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
                 filedata );
         VersionUtils.CheckFileContentByFile( wsB, fileName, currentVersion,

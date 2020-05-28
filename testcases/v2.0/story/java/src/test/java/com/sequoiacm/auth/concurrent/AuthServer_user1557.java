@@ -89,13 +89,12 @@ public class AuthServer_user1557 extends TestScmBase {
             TestScmTools.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "login with the old password, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "login with the old password, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
-        ScmSession ss = TestScmTools
-                .createSession( site, NAME, "new_" + PASSWORD );
+        ScmSession ss = TestScmTools.createSession( site, NAME,
+                "new_" + PASSWORD );
         ss.close();
 
         runSuccess = true;
@@ -155,8 +154,8 @@ public class AuthServer_user1557 extends TestScmBase {
 
                 Random random = new Random();
                 int tmpI = random.nextInt( ssIdList.size() );
-                ScmFactory.Session
-                        .deleteSession( session, ssIdList.get( tmpI ) );
+                ScmFactory.Session.deleteSession( session,
+                        ssIdList.get( tmpI ) );
             } catch ( ScmException e ) {
                 if ( ScmError.HTTP_NOT_FOUND != e.getError() ) {
                     e.printStackTrace();

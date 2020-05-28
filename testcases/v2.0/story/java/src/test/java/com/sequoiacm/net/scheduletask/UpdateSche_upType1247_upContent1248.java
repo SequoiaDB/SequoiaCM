@@ -35,8 +35,7 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @FileName SCM-1247:原type为清理，只更新类型为迁移
- * 			   SCM-1248:原type为清理，更新站点信息错误
+ * @FileName SCM-1247:原type为清理，只更新类型为迁移 SCM-1248:原type为清理，更新站点信息错误
  * @Author huangxiaoni
  * @Date 2018-04-17
  * @Version 1.00
@@ -67,10 +66,10 @@ public class UpdateSche_upType1247_upContent1248 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -163,9 +162,9 @@ public class UpdateSche_upType1247_upContent1248 extends TestScmBase {
 
             // read scmFile at the branSite
             ScmFile file2 = ScmFactory.File.getInstance( wsA, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file2.getContent( downloadPath );
         }
     }
@@ -173,9 +172,9 @@ public class UpdateSche_upType1247_upContent1248 extends TestScmBase {
     private void createCopeSchedule() {
         try {
             ScheduleType taskType = ScheduleType.CLEAN_FILE;
-            content = new ScmScheduleCleanFileContent(
-                    branSite.getSiteName(), maxStayTime, queryCond );
-            //System.out.println(content.toBSONObject());
+            content = new ScmScheduleCleanFileContent( branSite.getSiteName(),
+                    maxStayTime, queryCond );
+            // System.out.println(content.toBSONObject());
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     taskType, name, "desc", content, cron );
             scheduleId = sche.getId();

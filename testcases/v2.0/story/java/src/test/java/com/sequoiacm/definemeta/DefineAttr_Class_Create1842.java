@@ -47,11 +47,11 @@ public class DefineAttr_Class_Create1842 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //create
+        // create
         expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-        //get
-        ScmClass actClass = ScmFactory.Class
-                .getInstance( ws, expClass.getId() );
+        // get
+        ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                expClass.getId() );
 
         Assert.assertEquals( actClass.getId(), expClass.getId() );
         Assert.assertEquals( actClass.getName(), classname );

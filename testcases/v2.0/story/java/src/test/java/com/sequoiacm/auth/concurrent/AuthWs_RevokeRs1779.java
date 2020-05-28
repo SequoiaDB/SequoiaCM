@@ -105,8 +105,8 @@ public class AuthWs_RevokeRs1779 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFactory.Directory.getInstance( ws, dirpath );
             Assert.fail( "the user does not have priority to read" );
         } catch ( ScmException e ) {
@@ -118,8 +118,8 @@ public class AuthWs_RevokeRs1779 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
         modifier.addRole( role );
@@ -158,15 +158,14 @@ public class AuthWs_RevokeRs1779 extends TestScmBase {
 
     private void prepare() throws Exception {
         ScmFactory.Directory.createInstance( wsA, dirpath );
-        rs = ScmResourceFactory
-                .createDirectoryResource( wsp.getName(), dirpath );
+        rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                dirpath );
 
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         for ( String rolename : rolenames ) {
-            ScmRole role = ScmFactory.Role
-                    .createRole( sessionA, rolename, null );
+            ScmRole role = ScmFactory.Role.createRole( sessionA, rolename,
+                    null );
             roleList.add( role );
             grantPriAndAttachRole( sessionA, rs, user, role,
                     ScmPrivilegeType.READ );

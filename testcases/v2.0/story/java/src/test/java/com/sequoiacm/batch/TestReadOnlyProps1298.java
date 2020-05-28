@@ -35,8 +35,8 @@ public class TestReadOnlyProps1298 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
         // TODO: should create new user
     }
 
@@ -56,8 +56,8 @@ public class TestReadOnlyProps1298 extends TestScmBase {
         batch.setName( "new_name1298" );
         Assert.assertEquals( batch.getCreateUser(), TestScmBase.scmUserName );
         Assert.assertEquals( batch.getUpdateUser(), TestScmBase.scmUserName );
-        long timeDiff = batch.getUpdateTime().getTime() -
-                batch.getCreateTime().getTime();
+        long timeDiff = batch.getUpdateTime().getTime()
+                - batch.getCreateTime().getTime();
         if ( timeDiff < sleepTimeBeforeUpdate ) {
             Assert.fail( "update time is wrong" );
         }

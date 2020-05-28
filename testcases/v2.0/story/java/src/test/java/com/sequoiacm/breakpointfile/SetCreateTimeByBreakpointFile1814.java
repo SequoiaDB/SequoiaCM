@@ -25,7 +25,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:set createTime when then setContent to file 
+ * test content:set createTime when then setContent to file
  * testlink-case:SCM-1814
  *
  * @author wuyan
@@ -55,20 +55,20 @@ public class SetCreateTimeByBreakpointFile1814 extends TestScmBase {
     private void test() throws Exception {
         long currentTimestamp = new Date().getTime();
 
-        //test a: the setCreateTime interval within one month
+        // test a: the setCreateTime interval within one month
         long timestamp1 = currentTimestamp - 10000;
         String fileName1 = "file1814a";
         createBreakpointFile( ws, fileName1, filedata1, timestamp1 );
         setContentFileAndcheckResult( fileName1, filedata1, timestamp1 );
 
-        //test b :at least 31 days between different months,the timestamp is
+        // test b :at least 31 days between different months,the timestamp is
         // 2678400000ms
         long timestamp2 = currentTimestamp - 2678400000l;
         String fileName2 = "file1814b";
         createBreakpointFile( ws, fileName2, filedata2, timestamp2 );
         setContentFileAndcheckResult( fileName2, filedata2, timestamp2 );
 
-        //test c :not the same year at least 365 days,,the timestamp is
+        // test c :not the same year at least 365 days,,the timestamp is
         // 31536000000ms
         long timestamp3 = currentTimestamp - 51536000000l;
         String fileName3 = "file1814c";
@@ -113,13 +113,13 @@ public class SetCreateTimeByBreakpointFile1814 extends TestScmBase {
         Date actCreateTime = file.getCreateTime();
         Assert.assertEquals( actCreateTime, date );
 
-        //download file and check file data
+        // download file and check file data
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );
         byte[] fileData = outputStream.toByteArray();
         Assert.assertEquals( fileData, expData );
 
-        //delete the file
+        // delete the file
         ScmFactory.File.deleteInstance( ws, fileId, true );
     }
 

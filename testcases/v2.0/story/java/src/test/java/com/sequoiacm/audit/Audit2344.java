@@ -53,13 +53,13 @@ public class Audit2344 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "WS_DML|WS_DQL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "WS_DML|WS_DQL" );
         confMap.put( ConfigCommonDefind.scm_audit_user + name,
                 "WS_DQL|WS_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
-        //check
+        // check
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword, wsName1,
                 true, true );
         checkAudit( name, name, wsName2, true, true );
@@ -105,10 +105,10 @@ public class Audit2344 extends TestScmBase {
         ScmWorkspace ws;
         try {
             session = TestScmTools.createSession( site, username, password );
-            //create
-            ws = ScmWorkspaceUtil
-                    .createWS( session, wsName, ScmInfo.getSiteNum() );
-            //query
+            // create
+            ws = ScmWorkspaceUtil.createWS( session, wsName,
+                    ScmInfo.getSiteNum() );
+            // query
             ScmFactory.Workspace.getWorkspace( wsName, session );
         } finally {
             if ( session != null ) {

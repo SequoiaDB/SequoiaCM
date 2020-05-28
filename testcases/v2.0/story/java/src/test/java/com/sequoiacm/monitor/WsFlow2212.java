@@ -49,10 +49,10 @@ public class WsFlow2212 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -66,8 +66,8 @@ public class WsFlow2212 extends TestScmBase {
             }
             ScmWorkspaceUtil.createWS( session, wsNames[ 0 ], 1 );
             ScmWorkspaceUtil.createWS( session, wsNames[ 1 ], 2 );
-            ScmWorkspaceUtil
-                    .createWS( session, wsNames[ 2 ], ScmInfo.getSiteNum() );
+            ScmWorkspaceUtil.createWS( session, wsNames[ 2 ],
+                    ScmInfo.getSiteNum() );
 
             for ( String wsName : wsNames ) {
                 ScmWorkspaceUtil.wsSetPriority( session, wsName );
@@ -86,10 +86,10 @@ public class WsFlow2212 extends TestScmBase {
         Assert.assertEquals( getFlowByWsName( wsNames[ 2 ] ), null );
 
         // upload file in wsNames[0] in rootsite
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsNames[ 0 ], session );
-        ScmId fileId = ScmFileUtils
-                .create( ws, name + "_" + UUID.randomUUID(), filePath );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsNames[ 0 ],
+                session );
+        ScmId fileId = ScmFileUtils.create( ws, name + "_" + UUID.randomUUID(),
+                filePath );
         BasicBSONObject ws1_flow = getFlowByWsName( wsNames[ 0 ] );
         // check
         Assert.assertEquals( ws1_flow.getLong( uploadKey ), fileSize );
@@ -100,10 +100,10 @@ public class WsFlow2212 extends TestScmBase {
         // upload file in wsNames[2] in branchsite
         SiteWrapper siteA = ScmInfo.getBranchSite();
         ScmSession sessionA = TestScmTools.createSession( siteA );
-        ScmWorkspace ws2 = ScmFactory.Workspace
-                .getWorkspace( wsNames[ 2 ], sessionA );
-        ScmId fileId1 = ScmFileUtils
-                .create( ws2, name + "_" + UUID.randomUUID(), filePath );
+        ScmWorkspace ws2 = ScmFactory.Workspace.getWorkspace( wsNames[ 2 ],
+                sessionA );
+        ScmId fileId1 = ScmFileUtils.create( ws2,
+                name + "_" + UUID.randomUUID(), filePath );
         // check
         BasicBSONObject ws3_flow = getFlowByWsName( wsNames[ 2 ] );
         Assert.assertEquals( ws3_flow.getLong( uploadKey ), fileSize );
@@ -114,10 +114,10 @@ public class WsFlow2212 extends TestScmBase {
         Assert.assertEquals( getFlowByWsName( wsNames[ 1 ] ), null );
 
         // upload file and download file in wsNames[1] in rootsite
-        ScmWorkspace ws1 = ScmFactory.Workspace
-                .getWorkspace( wsNames[ 1 ], session );
-        ScmId fileId2 = ScmFileUtils
-                .create( ws1, name + "_" + UUID.randomUUID(), filePath );
+        ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsNames[ 1 ],
+                session );
+        ScmId fileId2 = ScmFileUtils.create( ws1,
+                name + "_" + UUID.randomUUID(), filePath );
         downloadFile( ws1, fileId2 );
         // check
         BasicBSONObject ws2_flow = getFlowByWsName( wsNames[ 1 ] );
@@ -185,9 +185,9 @@ public class WsFlow2212 extends TestScmBase {
         OutputStream fileOutputStream = null;
         try {
             file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fileOutputStream = new FileOutputStream( new File( downloadPath ) );
             file.getContent( fileOutputStream );
             fileOutputStream.close();

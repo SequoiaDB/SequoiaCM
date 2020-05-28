@@ -47,7 +47,7 @@ public class ListContentServer2587 extends TestScmBase {
             contentServers = ScmSystem.ServiceCenter
                     .getContentServerInstanceList( session );
             Assert.assertEquals( contentServers.size(), nodes.size() );
-            //内容无法进行精确的校验，只能判断不为空
+            // 内容无法进行精确的校验，只能判断不为空
             for ( ScmServiceInstance scmServiceInstance : contentServers ) {
                 Assert.assertEquals(
                         ports.contains( scmServiceInstance.getPort() ), true );

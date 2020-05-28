@@ -114,9 +114,8 @@ public class Transfer_getCurWhenMatch0Record423 extends TestScmBase {
 
     private void startTask() {
         try {
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() + "  ws = " + ws + " cond = " + cond );
             e.printStackTrace();
@@ -129,15 +128,15 @@ public class Transfer_getCurWhenMatch0Record423 extends TestScmBase {
         while ( true ) {
             try {
                 task = ScmSystem.Task.getTask( sessionA, taskId );
-                if ( task.getRunningFlag() ==
-                        CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                if ( task
+                        .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                     BSONObject cond = ScmQueryBuilder
                             .start( ScmAttributeName.Task.TYPE ).is( "aaa2" )
                             .get();
                     cursor = ScmSystem.Task.listTask( sessionA, cond );
                     break;
-                } else if ( task.getRunningFlag() ==
-                        CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
+                } else if ( task
+                        .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
                     throw new Exception( "task was aborted" );
                 }
             } catch ( Exception e ) {

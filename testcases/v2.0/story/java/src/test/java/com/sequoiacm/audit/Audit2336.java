@@ -57,13 +57,15 @@ public class Audit2336 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "FILE_DML|DIR_DML" );
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "FILE_DML" );
+        confMap.put(
+                ConfigCommonDefind.scm_audit_userType
+                        + ScmUserPasswordType.LOCAL.name(),
+                "FILE_DML|DIR_DML" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "FILE_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
-        //the type of TestScmBase.scmUserName is local
+        // the type of TestScmBase.scmUserName is local
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword, true,
                 true );
         checkAudit( name, name, true, false );
@@ -94,14 +96,14 @@ public class Audit2336 extends TestScmBase {
             BSONObject bson2 = new BasicBSONObject()
                     .append( ScmAttributeName.Audit.TYPE, "CREATE_DIR" )
                     .append( ScmAttributeName.Audit.USERNAME, username );
-            //check audit is logged by new configuration
+            // check audit is logged by new configuration
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, fileId.get() ),
-                    isLogged1, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged1, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
             Assert.assertEquals( ConfUtil.checkAudit( session, bson2, dirPath ),
-                    isLogged2, "Has the configuration been updated? dirId = " +
-                            dir.getId() );
+                    isLogged2, "Has the configuration been updated? dirId = "
+                            + dir.getId() );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -118,8 +120,8 @@ public class Audit2336 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();

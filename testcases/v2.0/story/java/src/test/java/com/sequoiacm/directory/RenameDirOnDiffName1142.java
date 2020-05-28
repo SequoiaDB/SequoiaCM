@@ -53,10 +53,10 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -69,9 +69,9 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
                     .start( ScmAttributeName.File.AUTHOR ).is( eleName ).get();
             ScmFileUtils.cleanFile( wsp, cond );
             deleteDir( ws, dirBasePath );
-            //ScmFactory.Directory.deleteInstance(ws, dirBasePath);
+            // ScmFactory.Directory.deleteInstance(ws, dirBasePath);
             createDir( ws, dirBasePath );
-            //ScmFactory.Directory.createInstance(ws, dirBasePath);
+            // ScmFactory.Directory.createInstance(ws, dirBasePath);
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -81,8 +81,8 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         createDirAndFile( ws );
-        ScmDirectory dir = ScmFactory.Directory
-                .getInstance( ws, dirBasePath + "/" + eleName1 );
+        ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                dirBasePath + "/" + eleName1 );
         // rename as the same before
         newName = eleName1;
         dir.rename( newName );
@@ -100,8 +100,8 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
-                ScmFactory.Directory
-                        .deleteInstance( ws, dirBasePath + "/" + newName );
+                ScmFactory.Directory.deleteInstance( ws,
+                        dirBasePath + "/" + newName );
                 ScmFactory.Directory.deleteInstance( ws, dirBasePath );
             }
         } catch ( Exception e ) {
@@ -116,8 +116,8 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
 
     private void createDirAndFile( ScmWorkspace ws ) throws ScmException {
         try {
-            subdir = ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName1 );
+            subdir = ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName1 );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( eleName + "_file" );
             file.setAuthor( eleName );
@@ -178,8 +178,8 @@ public class RenameDirOnDiffName1142 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

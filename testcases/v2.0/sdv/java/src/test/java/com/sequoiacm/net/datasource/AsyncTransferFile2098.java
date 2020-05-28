@@ -29,9 +29,9 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:ayncTransfer file,target site and source site data sources
- * are different
- * testlink-case:SCM-2098 
+ * test content:ayncTransfer file,target site and source site data sources are
+ * different testlink-case:SCM-2098
+ * 
  * @author wuyan
  * @Date 2018.07.17
  * @modify Date 2018.07.30
@@ -71,8 +71,8 @@ public class AsyncTransferFile2098 extends TestScmBase {
 
         if ( dbDataSoureCount == siteList.size() - 1 ) {
             throw new SkipException(
-                    "target and source site are connected to same datasourse," +
-                            " skip!" );
+                    "target and source site are connected to same datasourse,"
+                            + " skip!" );
         }
 
         sessionA = TestScmTools.createSession( aysncTransferSite );

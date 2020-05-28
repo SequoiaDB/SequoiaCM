@@ -47,9 +47,8 @@ import com.sequoiadb.exception.BaseException;
 
 /*
  * 1、A线程在分中心A创建迁移任务； 2、“开始迁移任务”过程中（任务状态为init，调用ScmTask.getRunningFlag()接口获取任务状态）
- * B线程修改该文件属性满足迁移条件（修改前不满足）； 3、检查A、B线程执行结果正确性；
- * 
- * 备注： 我不能确定有没有撞到Init阶段，因为没有特征。但这是我能想到能撞到的最好的办法了。
+ * B线程修改该文件属性满足迁移条件（修改前不满足）； 3、检查A、B线程执行结果正确性； 备注：
+ * 我不能确定有没有撞到Init阶段，因为没有特征。但这是我能想到能撞到的最好的办法了。
  */
 
 public class Transfer_updateWhenTaskInit433 extends TestScmBase {
@@ -75,10 +74,10 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -150,8 +149,8 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
     private void bulkUpdateFileName( ScmWorkspace ws, int start, int end,
             String newFileName ) throws ScmException {
         for ( int i = start; i < end; ++i ) {
-            ScmFile scmfile = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( i ) );
+            ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( i ) );
             scmfile.setFileName( newFileName + "_" + i + UUID.randomUUID() );
         }
     }
@@ -169,9 +168,9 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
     private void checkTransfered( int start, int end ) {
         try {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList.subList( start, end ),
-                            expSiteList, localPath, filePath );
+            ScmFileUtils.checkMetaAndData( ws_T,
+                    fileIdList.subList( start, end ), expSiteList, localPath,
+                    filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -184,16 +183,16 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             // read content
             for ( int i = start; i < end; ++i ) {
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -258,8 +257,8 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
         public void exec() throws Exception {
             try {
                 for ( int i = start; i < end; ++i ) {
-                    ScmFile scmfile = ScmFactory.File
-                            .getInstance( ws, fileIdList.get( i ) );
+                    ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                            fileIdList.get( i ) );
                     scmfile.setFileName( newFileName + "_" + i );
                     scmfile.setAuthor( newFileName );
                 }

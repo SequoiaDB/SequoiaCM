@@ -56,10 +56,10 @@ public class CreateDirAndFile1169 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -205,8 +205,8 @@ public class CreateDirAndFile1169 extends TestScmBase {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setContent( filePath );
                 file.setFileName( author + "_" + UUID.randomUUID() );
@@ -238,8 +238,8 @@ public class CreateDirAndFile1169 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 String path = fullPath1 + "/1169_" + UUID.randomUUID();
-                ScmDirectory dir = ScmFactory.Directory
-                        .createInstance( ws, path );
+                ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                        path );
                 pathList.add( path );
                 // check
                 BSONObject expBSON = new BasicBSONObject();

@@ -45,10 +45,10 @@ public class StopTasks1212 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -107,11 +107,11 @@ public class StopTasks1212 extends TestScmBase {
         desc.put( "title", authorName );
         desc.put( "mime_type", "text/plain" );
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "files?workspace_name=" + ws.getName() )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc.toString())
+                // .setParameter("file", resource)
+                // .setParameter("description", desc.toString())
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -122,18 +122,17 @@ public class StopTasks1212 extends TestScmBase {
 
     private void deleteFile( RestWrapper rest, WsWrapper ws, String fileId ) {
         rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName() +
-                        "&is_physical=true" )
+                .setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                        + "&is_physical=true" )
                 .setResponseType( Resource.class ).exec();
     }
 
     private String transferFiles( RestWrapper rest, WsWrapper ws )
             throws Exception {
-        JSONObject options = new JSONObject()
-                .put( "filter", new JSONObject().put( "author", authorName ) );
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", authorName ) );
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "tasks" )
-                .setParameter( "task_type", "2" )
+                .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();

@@ -62,8 +62,8 @@ public class CreateSche_wsOrSiteNotExist1236 extends TestScmBase {
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
                     queryCond );
-            ScmSystem.Schedule.create( ss, "wsNotExist",
-                    ScheduleType.COPY_FILE, name, "", content, cron );
+            ScmSystem.Schedule.create( ss, "wsNotExist", ScheduleType.COPY_FILE,
+                    name, "", content, cron );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "ws not exist, errorMsg = [" + e.getError() + "]" );
@@ -80,8 +80,8 @@ public class CreateSche_wsOrSiteNotExist1236 extends TestScmBase {
                     ScheduleType.COPY_FILE, name, "", content, cron );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "source site not exist, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "source site not exist, errorMsg = [" + e.getError()
+                    + "]" );
         }
     }
 
@@ -95,8 +95,8 @@ public class CreateSche_wsOrSiteNotExist1236 extends TestScmBase {
                     ScheduleType.COPY_FILE, name, "", content, cron );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "target site not exist, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "target site not exist, errorMsg = [" + e.getError()
+                    + "]" );
         }
     }
 

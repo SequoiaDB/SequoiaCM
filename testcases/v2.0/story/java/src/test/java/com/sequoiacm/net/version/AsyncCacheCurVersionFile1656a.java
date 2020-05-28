@@ -27,8 +27,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:update Content of the current scm file, than ayncCache the
- * current version file
- * testlink-case:SCM-1656
+ * current version file testlink-case:SCM-1656
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -111,8 +110,8 @@ public class AsyncCacheCurVersionFile1656a extends TestScmBase {
         ScmFactory.File.asyncCache( wsA, fileId, majorVersion, 0 );
 
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsS, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsS, fileId, majorVersion,
+                sitenums );
 
     }
 

@@ -34,9 +34,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content : the historyVersion file in both the sourceSite and the
- * targetSite,
- * 					transfer the history version file again. 
- * testlink-case: SCM-1663
+ * targetSite, transfer the history version file again. testlink-case: SCM-1663
  *
  * @author wuyan
  * @Date 2018.06.07
@@ -79,8 +77,8 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         sessionT = TestScmTools.createSession( targetSite );
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
 
-        fileId = VersionUtils
-                .createFileByStream( wsS, fileName, filedata, authorName );
+        fileId = VersionUtils.createFileByStream( wsS, fileName, filedata,
+                authorName );
         VersionUtils.updateContentByStream( wsS, fileId, updatedata );
     }
 
@@ -100,8 +98,8 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         // check the siteinfo is the same
         Assert.assertEquals( firstSiteInfo.toString(),
                 secondSiteInfo.toString(),
-                "fisrt get siteList:" + firstSiteInfo.toString() +
-                        " 2nd get siteList:" + secondSiteInfo.toString() );
+                "fisrt get siteList:" + firstSiteInfo.toString()
+                        + " 2nd get siteList:" + secondSiteInfo.toString() );
         // check the history file data
         VersionUtils.CheckFileContentByStream( wsS, fileName, historyVersion,
                 filedata );
@@ -133,9 +131,8 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        ScmId taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_HISTORY,
-                        targetSite.getSiteName() );
+        ScmId taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_HISTORY, targetSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
@@ -145,8 +142,8 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
         // get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsS, fileId, majorVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( wsS, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

@@ -30,9 +30,8 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content :the historyVersion file in both the rootSite and the branSite, 
- *               transfer the history version file again.
- * testlink-case:SCM-1663
+ * test content :the historyVersion file in both the rootSite and the branSite,
+ * transfer the history version file again. testlink-case:SCM-1663
  *
  * @author wuyan
  * @Date 2018.06.07
@@ -67,15 +66,15 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        fileId = VersionUtils
-                .createFileByStream( wsA, fileName, filedata, authorName );
+        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata,
+                authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         int historyVersion = 1;
-        //asyncTransfer the  history file, is both on rootSite and branchSite
+        // asyncTransfer the history file, is both on rootSite and branchSite
         AsyncTransferHisVersionFile( historyVersion );
         Collection< ScmFileLocation > firstSiteInfo = getSiteInfo(
                 historyVersion );
@@ -85,12 +84,12 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         Collection< ScmFileLocation > secondSiteInfo = getSiteInfo(
                 historyVersion );
 
-        //check the siteinfo is the same
+        // check the siteinfo is the same
         Assert.assertEquals( firstSiteInfo.toString(),
-                secondSiteInfo.toString(), "fisrt get siteList:"
-                        + firstSiteInfo.toString() + " 2nd get siteList:" +
-                        secondSiteInfo.toString() );
-        //check the history file data
+                secondSiteInfo.toString(),
+                "fisrt get siteList:" + firstSiteInfo.toString()
+                        + " 2nd get siteList:" + secondSiteInfo.toString() );
+        // check the history file data
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
                 filedata );
         runSuccess = true;
@@ -129,18 +128,18 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_HISTORY );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_HISTORY );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
-        //get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        // get the create and last access time
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

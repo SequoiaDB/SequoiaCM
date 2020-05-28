@@ -35,8 +35,7 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer the history version file
- * testlink-case:SCM-1661
+ * test content:Transfer the history version file testlink-case:SCM-1661
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -68,15 +67,15 @@ public class TransferHisVersionFile1661 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize1 + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize2 + ".txt";
+        filePath1 = localPath + File.separator + "localFile_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize2
+                + ".txt";
         TestTools.LocalFile.createFile( filePath1, fileSize1 );
         TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
@@ -114,8 +113,8 @@ public class TransferHisVersionFile1661 extends TestScmBase {
             if ( runSuccess ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
-                    ScmFactory.File
-                            .deleteInstance( wsT, new ScmId( fileId ), true );
+                    ScmFactory.File.deleteInstance( wsT, new ScmId( fileId ),
+                            true );
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
@@ -137,13 +136,11 @@ public class TransferHisVersionFile1661 extends TestScmBase {
             String subfileName = fileName + "_" + i;
 
             if ( i % 2 == 0 ) {
-                fileId = VersionUtils
-                        .createFileByFile( ws, subfileName, filePath1,
-                                authorName );
+                fileId = VersionUtils.createFileByFile( ws, subfileName,
+                        filePath1, authorName );
             } else {
-                fileId = VersionUtils
-                        .createFileByFile( ws, subfileName, filePath2,
-                                authorName );
+                fileId = VersionUtils.createFileByFile( ws, subfileName,
+                        filePath2, authorName );
 
             }
             fileIdList.add( fileId.get() );
@@ -162,27 +159,27 @@ public class TransferHisVersionFile1661 extends TestScmBase {
         taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType,
                 targetSite.getSiteName() );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
     private void checkHistoryVerFileSiteAndDataInfo( ScmWorkspace ws,
             int historyVersion ) throws Exception {
-        //check the transfered file,check the sitelist and data
+        // check the transfered file,check the sitelist and data
         BSONObject condition = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileSize1 )
                 .put( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_HISTORY, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_HISTORY, condition );
         int size = 0;
-        //check transfered file siteinfo and data
+        // check transfered file siteinfo and data
         SiteWrapper[] expHisSiteList = { targetSite, sourceSite };
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
             ScmId fileId = file.getFileId();
-            VersionUtils
-                    .checkSite( ws, fileId, historyVersion, expHisSiteList );
+            VersionUtils.checkSite( ws, fileId, historyVersion,
+                    expHisSiteList );
             VersionUtils.CheckFileContentByFile( ws, fileId, historyVersion,
                     filePath1, localPath );
             size++;
@@ -191,7 +188,7 @@ public class TransferHisVersionFile1661 extends TestScmBase {
         int expFileNum = 5;
         Assert.assertEquals( size, expFileNum );
 
-        //check the no transfer file by history version
+        // check the no transfer file by history version
         BSONObject condition1 = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.SIZE ).lessThan( fileSize1 )
                 .put( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
@@ -203,8 +200,8 @@ public class TransferHisVersionFile1661 extends TestScmBase {
         while ( cursor1.hasNext() ) {
             ScmFileBasicInfo file1 = cursor1.getNext();
             ScmId fileId1 = file1.getFileId();
-            VersionUtils
-                    .checkSite( ws, fileId1, historyVersion, expCurSiteList1 );
+            VersionUtils.checkSite( ws, fileId1, historyVersion,
+                    expCurSiteList1 );
             size1++;
         }
         cursor1.close();
@@ -213,11 +210,11 @@ public class TransferHisVersionFile1661 extends TestScmBase {
 
     private void checkCurVersionFileInfo( ScmWorkspace ws, int version )
             throws ScmException {
-        //all current version file only on the branSite
+        // all current version file only on the branSite
         BSONObject condition = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         SiteWrapper[] expCurSiteList = { sourceSite };
         int size = 0;
         while ( cursor.hasNext() ) {

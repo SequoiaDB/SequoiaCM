@@ -76,14 +76,14 @@ public class GreaterThan340 extends TestScmBase {
                     .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
                     .get();
 
-            String expCond = "{ \"" + key + "\" : { \"$gt\" : " + value + "}" +
-                    " , \"author\" : \"GreaterThan340\"}";
+            String expCond = "{ \"" + key + "\" : { \"$gt\" : " + value + "}"
+                    + " , \"author\" : \"GreaterThan340\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess1 = true;
@@ -102,15 +102,14 @@ public class GreaterThan340 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder.start( key ).greaterThan( value )
                     .put( "k2" ).greaterThan( " " ).get();
 
-            String expCond =
-                    "{ \"" + key + "\" : { \"$gt\" : " + value + "} , " +
-                            "\"k2\" : { \"$gt\" : \" \"}}";
+            String expCond = "{ \"" + key + "\" : { \"$gt\" : " + value + "} , "
+                    + "\"k2\" : { \"$gt\" : \" \"}}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;

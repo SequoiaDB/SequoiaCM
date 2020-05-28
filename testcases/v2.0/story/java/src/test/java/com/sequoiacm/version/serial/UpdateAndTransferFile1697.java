@@ -67,8 +67,8 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils
-                .createBreakpointFileByStream( wsA, fileName, updatedata );
+        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
+                updatedata );
 
     }
 
@@ -94,13 +94,11 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, curFileVersion, expHisSiteList );
         if ( curFileVersion == 1 ) {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, historyVersion,
-                            filedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    historyVersion, filedata );
         } else {
-            VersionUtils
-                    .CheckFileContentByStream( wsM, fileName, currentVersion,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( wsM, fileName,
+                    currentVersion, updatedata );
         }
 
         runSuccess = true;

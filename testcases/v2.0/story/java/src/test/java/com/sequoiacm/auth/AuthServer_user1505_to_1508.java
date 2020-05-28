@@ -26,10 +26,8 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1505:禁用其他用户，清理当前用户下会话
- * 			  SCM-1506:禁用其他用户，不清理当前用户下会话
- * 			  SCM-1507:禁用当前用户
- * 			  SCM-1508:重复禁用
+ * @FileName SCM-1505:禁用其他用户，清理当前用户下会话 SCM-1506:禁用其他用户，不清理当前用户下会话
+ *           SCM-1507:禁用当前用户 SCM-1508:重复禁用
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -59,8 +57,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         }
 
         // get AUTH_ADMIN role
-        ScmUser adminUser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser adminUser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         authAdminRole = adminUser.getRoles().iterator().next();
 
         this.createUser();
@@ -97,8 +95,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         List< ScmSession > ss = new ArrayList<>();
         int ssNum = 10;
         for ( int i = 0; i < ssNum; i++ ) {
-            ScmSession tmpSS = TestScmTools
-                    .createSession( site, NAME, PASSWORD );
+            ScmSession tmpSS = TestScmTools.createSession( site, NAME,
+                    PASSWORD );
             ss.add( tmpSS );
         }
 
@@ -115,9 +113,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
             TestScmTools.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "login but the user disabled, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "login but the user disabled, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results for clean sessions
@@ -129,9 +126,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
                 ScmFactory.User.getUser( tmpSS, NAME );
                 Assert.fail( "expect failed but actual succ." );
             } catch ( ScmException e ) {
-                logger.info(
-                        "using expired session, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "using expired session, errorMsg = ["
+                        + e.getError() + "]" );
             }
         }
 
@@ -149,8 +145,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         List< ScmSession > ss = new ArrayList<>();
         int ssNum = 10;
         for ( int i = 0; i < ssNum; i++ ) {
-            ScmSession tmpSS = TestScmTools
-                    .createSession( site, NAME, PASSWORD );
+            ScmSession tmpSS = TestScmTools.createSession( site, NAME,
+                    PASSWORD );
             ss.add( tmpSS );
         }
 
@@ -167,9 +163,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
             TestScmTools.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "login but the user disabled, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "login but the user disabled, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results for clean sessions
@@ -204,8 +199,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
             ScmFactory.User.alterUser( ss, scmUser, modifier );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "disabled current user, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "disabled current user, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         // check results
@@ -254,9 +249,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
     }
 
     private void createUser() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( authAdminRole );
         ScmFactory.User.alterUser( session, scmUser, modifier );

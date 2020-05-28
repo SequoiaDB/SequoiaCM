@@ -54,10 +54,10 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -124,12 +124,12 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
             Assert.fail( "get  file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //get current and history version file
+        // get current and history version file
         int minVersion = 1;
         int maxVersion = 4;
         for ( int i = minVersion; i <= maxVersion; i++ ) {
@@ -139,8 +139,8 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
                         "get currentVersion file must bu fail!version=" + i );
             } catch ( ScmException e ) {
                 if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                    Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                            e.getMessage() );
+                    Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                            + e.getMessage() );
                 }
             }
         }

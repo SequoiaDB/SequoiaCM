@@ -44,10 +44,10 @@ public class UpdateConf2299 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -81,7 +81,7 @@ public class UpdateConf2299 extends TestScmBase {
         Assert.assertEquals( uThread2.isSuccess(), true,
                 uThread2.getErrorMsg() );
         Assert.assertEquals( cThread.isSuccess(), true, cThread.getErrorMsg() );
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( site, fileName );
     }
 
@@ -121,8 +121,8 @@ public class UpdateConf2299 extends TestScmBase {
             ScmId fileId = null;
             try {
                 session = TestScmTools.createSession( site );
-                ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                        session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( fileName + "_" + UUID.randomUUID() );
                 file.setContent( filePath );

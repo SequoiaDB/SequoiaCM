@@ -62,10 +62,10 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -145,14 +145,14 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
         try {
             // login
             sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionB );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionB );
 
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmId fileId = fileIdList.get( i );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 file.getContent( downloadPath );
             }
@@ -166,13 +166,13 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( int i = 0; i < fileNum; i++ ) {
                 BSONObject cond = new BasicBSONObject( "id",
                         fileIdList.get( i ).get() );
-                long cnt = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long cnt = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( cnt, 0 );
             }
         } catch ( ScmException e ) {

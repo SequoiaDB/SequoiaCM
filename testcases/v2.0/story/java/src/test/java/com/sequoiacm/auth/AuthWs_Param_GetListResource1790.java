@@ -69,8 +69,8 @@ public class AuthWs_Param_GetListResource1790 extends TestScmBase {
         ScmCursor< ScmResource > cursor = null;
         try {
             int i = 0;
-            cursor = ScmFactory.Resource
-                    .listResourceByWorkspace( sessionA, wsp.getName() );
+            cursor = ScmFactory.Resource.listResourceByWorkspace( sessionA,
+                    wsp.getName() );
             while ( cursor.hasNext() ) {
                 cursor.getNext();
                 i++;
@@ -90,8 +90,8 @@ public class AuthWs_Param_GetListResource1790 extends TestScmBase {
     private void testGetRsById() {
         ScmCursor< ScmPrivilege > cursor = null;
         try {
-            cursor = ScmFactory.Privilege
-                    .listPrivilegesByResource( sessionA, dirrs );
+            cursor = ScmFactory.Privilege.listPrivilegesByResource( sessionA,
+                    dirrs );
             int i = 0;
             while ( cursor.hasNext() ) {
                 ScmPrivilege pri = cursor.getNext();
@@ -100,8 +100,8 @@ public class AuthWs_Param_GetListResource1790 extends TestScmBase {
             }
             Assert.assertEquals( i, 1 );
 
-            ScmResource rs = ScmFactory.Resource
-                    .getResourceById( sessionA, rsId );
+            ScmResource rs = ScmFactory.Resource.getResourceById( sessionA,
+                    rsId );
             Assert.assertNotNull( rs.getType() );
             Assert.assertEquals( rs.toStringFormat(),
                     wsp.getName() + ":/AuthWs_Param_GetListResource1790" );
@@ -197,8 +197,8 @@ public class AuthWs_Param_GetListResource1790 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -236,13 +236,12 @@ public class AuthWs_Param_GetListResource1790 extends TestScmBase {
     private void prepare() throws InterruptedException {
         try {
             ScmFactory.Directory.createInstance( wsA, dirpath );
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
             wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), dirpath );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    dirpath );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
                     ScmPrivilegeType.READ );
             grantPriAndAttachRole( sessionA, wsrs, user, role,

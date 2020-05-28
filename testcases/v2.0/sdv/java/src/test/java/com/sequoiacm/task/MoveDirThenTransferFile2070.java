@@ -67,10 +67,10 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -107,8 +107,8 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
     private void test() throws Exception {
         // rename dir
         ScmDirectory srcdir = ScmFactory.Directory.getInstance( ws1, dirPath );
-        ScmDirectory destdir = ScmFactory.Directory
-                .getInstance( ws1, "/2070_A" );
+        ScmDirectory destdir = ScmFactory.Directory.getInstance( ws1,
+                "/2070_A" );
         srcdir.move( destdir );
 
         // create file in /2070_A/2070_D
@@ -116,13 +116,11 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
 
         // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( name )
-                .and( ScmAttributeName.File.DIRECTORY_ID ).is( srcdir.getId() )
-                .get();
+                .is( name ).and( ScmAttributeName.File.DIRECTORY_ID )
+                .is( srcdir.getId() ).get();
         System.out.println( "cond = " + cond.toString() );
-        taskId = ScmSystem.Task
-                .startTransferTask( ws1, cond, ScopeType.SCOPE_CURRENT,
-                        site2.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws1, cond,
+                ScopeType.SCOPE_CURRENT, site2.getSiteName() );
         waitTaskStop();
 
         // check meta data
@@ -175,9 +173,8 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
                     ( SiteWrapper[] ) expSiteList, localPath, filePath );
         } else {
             SiteWrapper[] expSiteList = { site1, site2 };
-            ScmFileUtils
-                    .checkMetaAndData( wsp, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSiteList,
+                    localPath, filePath );
         }
     }
 
@@ -225,8 +222,8 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -235,8 +232,8 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

@@ -47,16 +47,14 @@ public class FileOprBySameDir2206 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper site = null;
-    private String fullPath =
-            "/CreatefileWiteDir2206/2206_a/2206_b/2206_c/2206_e/2207_f/";
+    private String fullPath = "/CreatefileWiteDir2206/2206_a/2206_b/2206_c/2206_e/2207_f/";
     private String authorName = "file2206";
     private ScmDirectory scmDir;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private byte[] writeData = new byte[ 1024 * 2 ];
     private byte[] updateData = new byte[ 1024 * 3 ];
-    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque<
-            ScmId >();
+    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque< ScmId >();
 
     @BeforeClass()
     private void setUp() throws ScmException {
@@ -199,7 +197,7 @@ public class FileOprBySameDir2206 extends TestScmBase {
                 file.setDirectory( scmDir );
                 ScmId fileId = file.save();
 
-                //check file content
+                // check file content
                 checkFileContent( wsTmp, fileId, writeData );
                 checkFileDir( wsTmp, fileId, scmDir );
                 fileIdQue.offer( fileId );
@@ -223,7 +221,7 @@ public class FileOprBySameDir2206 extends TestScmBase {
                 ScmFile file = ScmFactory.File.getInstance( wsTmp, fileId );
                 file.updateContent( new ByteArrayInputStream( updateData ) );
 
-                //check file content
+                // check file content
                 checkFileContent( wsTmp, fileId, updateData );
             } finally {
                 if ( session != null ) {
@@ -248,11 +246,11 @@ public class FileOprBySameDir2206 extends TestScmBase {
                     ScmFactory.File.getInstance( wsTmp, fileId );
                     Assert.fail( "get file must bu fail!" );
                 } catch ( ScmException e ) {
-                    //System.out.println("---remove file and get error is
+                    // System.out.println("---remove file and get error is
                     // :"+e.getError());
                     if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                        Assert.fail( "expError:FILE NOT FOUND  actError:" +
-                                e.getError() + e.getMessage() );
+                        Assert.fail( "expError:FILE NOT FOUND  actError:"
+                                + e.getError() + e.getMessage() );
                     }
                 }
             } finally {

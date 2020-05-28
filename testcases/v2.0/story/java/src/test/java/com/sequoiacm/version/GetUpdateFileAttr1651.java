@@ -22,9 +22,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:write to a file , and updatecontent of the file,
- *              gets property information for the specified version file 
- * testlink-case:SCM-1651
+ * test content:write to a file , and updatecontent of the file, gets property
+ * information for the specified version file testlink-case:SCM-1651
  *
  * @author wuyan
  * @Date 2018.06.04
@@ -53,18 +52,18 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //write /update the file
+        // write /update the file
         fileId = VersionUtils.createFileByStream( ws, fileName, writeData );
         VersionUtils.updateContentByStream( ws, fileId, updateData );
 
-        //get the file attribute
+        // get the file attribute
         int currentVersion = 2;
         int historyVersion = 1;
-        //test a: get history file attributes
+        // test a: get history file attributes
         getHistoryFileAttr( historyVersion );
-        //test b: get current file attributes
+        // test b: get current file attributes
         getCurrentFileAttr( currentVersion );
-        //test c: get file attributes,the version is not exist
+        // test c: get file attributes,the version is not exist
         getVersionNoExist();
 
     }
@@ -84,13 +83,13 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
 
     private void getCurrentFileAttr( int currentVersion ) throws ScmException {
 
-        //get site
+        // get site
         SiteWrapper[] expSiteList = { site };
         VersionUtils.checkSite( ws, fileId, currentVersion, expSiteList );
 
-        //get filename/user/size/version/ws
-        ScmFile file = ScmFactory.File
-                .getInstanceByPath( ws, fileName, currentVersion, 0 );
+        // get filename/user/size/version/ws
+        ScmFile file = ScmFactory.File.getInstanceByPath( ws, fileName,
+                currentVersion, 0 );
         Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
         Assert.assertEquals( file.getUpdateUser(), TestScmBase.scmUserName );
         Assert.assertEquals( file.getFileName(), fileName );
@@ -101,13 +100,13 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
     }
 
     private void getHistoryFileAttr( int historyVersion ) throws ScmException {
-        //get site
+        // get site
         SiteWrapper[] expSiteList = { site };
         VersionUtils.checkSite( ws, fileId, historyVersion, expSiteList );
 
-        //get filename/user/size/version/ws
-        ScmFile file = ScmFactory.File
-                .getInstanceByPath( ws, fileName, historyVersion, 0 );
+        // get filename/user/size/version/ws
+        ScmFile file = ScmFactory.File.getInstanceByPath( ws, fileName,
+                historyVersion, 0 );
         Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
         Assert.assertEquals( file.getUpdateUser(), TestScmBase.scmUserName );
         Assert.assertEquals( file.getFileName(), fileName );
@@ -123,8 +122,8 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
             Assert.fail( "get  file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

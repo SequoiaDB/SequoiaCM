@@ -72,8 +72,8 @@ public class DefineAttr_class_getClassInfo1722 extends TestScmBase {
     @Test
     private void test_getInstance() throws ScmException {
         try {
-            ScmClass scmClass = ScmFactory.Class
-                    .getInstance( ws, new ScmId( CLASS_ID ) );
+            ScmClass scmClass = ScmFactory.Class.getInstance( ws,
+                    new ScmId( CLASS_ID ) );
             Assert.assertEquals( scmClass.getId().get(), CLASS_ID );
             Assert.assertEquals( scmClass.getName(), name );
             Assert.assertNotNull( scmClass.getCreateTime() );

@@ -66,23 +66,23 @@ public class GreaterThanEquals343 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 1 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 1 ) );
             String key = ScmAttributeName.File.CREATE_TIME;
             long value = file.getCreateTime().getTime();
             BSONObject cond = ScmQueryBuilder.start( key )
                     .greaterThanEquals( value )
-                    .put( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
 
-            String expCond = "{ \"" + key + "\" : { \"$gte\" : " + value + "}" +
-                    " , \"author\" : \"" + author + "\"}";
+            String expCond = "{ \"" + key + "\" : { \"$gte\" : " + value + "}"
+                    + " , \"author\" : \"" + author + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;

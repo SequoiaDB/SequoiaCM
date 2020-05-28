@@ -48,13 +48,12 @@ public class BreakpointFile1396 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        checkfilePath =
-                localPath + File.separator + "localFile_check" + fileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        checkfilePath = localPath + File.separator + "localFile_check"
+                + fileSize + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -74,7 +73,7 @@ public class BreakpointFile1396 extends TestScmBase {
         UploadBreakpointFileThread thread = new UploadBreakpointFileThread();
         thread.start( 10 );
         thread.isSuccess();
-        //检查上传文件MD5
+        // 检查上传文件MD5
         BreakpointUtil.checkScmFile( ws, fileName, filePath, checkfilePath );
 
     }
@@ -97,8 +96,8 @@ public class BreakpointFile1396 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             ScmSession session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                     .getInstance( ws, fileName );
             try {

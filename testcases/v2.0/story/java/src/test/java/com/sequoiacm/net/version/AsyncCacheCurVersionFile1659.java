@@ -30,8 +30,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:the historyVersion file in both the rootSite and the branSite,
- * 				 ayncCache the current version file again. 
- * testlink-case:SCM-1659
+ * ayncCache the current version file again. testlink-case:SCM-1659
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -97,9 +96,9 @@ public class AsyncCacheCurVersionFile1659 extends TestScmBase {
         Collection< ScmFileLocation > secondGetSiteInfo = getSiteInfo(
                 historyVersion );
         Assert.assertEquals( firstGetSiteInfo.toString(),
-                secondGetSiteInfo.toString(), "fisrt get siteList:"
-                        + firstGetSiteInfo.toString() + " 2nd get siteList:" +
-                        secondGetSiteInfo.toString() );
+                secondGetSiteInfo.toString(),
+                "fisrt get siteList:" + firstGetSiteInfo.toString()
+                        + " 2nd get siteList:" + secondGetSiteInfo.toString() );
     }
 
     @AfterClass
@@ -129,8 +128,8 @@ public class AsyncCacheCurVersionFile1659 extends TestScmBase {
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
         // get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

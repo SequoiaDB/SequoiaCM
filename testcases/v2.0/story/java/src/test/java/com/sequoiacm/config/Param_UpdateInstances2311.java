@@ -32,13 +32,12 @@ public class Param_UpdateInstances2311 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
-            ScmConfigProperties.builder()
-                    .instances( null )
+            ScmConfigProperties.builder().instances( null )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instances(null) must be " +
-                            "failed when instances is null" );
+                    " ScmConfigProperties.builder().instances(null) must be "
+                            + "failed when instances is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -49,13 +48,12 @@ public class Param_UpdateInstances2311 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty() {
         try {
-            ScmConfigProperties.builder()
-                    .instances( new ArrayList< String >() )
+            ScmConfigProperties.builder().instances( new ArrayList< String >() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instances must be failed " +
-                            "when the size of instances is 0" );
+                    " ScmConfigProperties.builder().instances must be failed "
+                            + "when the size of instances is 0" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -68,15 +66,14 @@ public class Param_UpdateInstances2311 extends TestScmBase {
         try {
             List< String > list = new ArrayList< String >();
             list.add( site.getNode().getUrl() );
-            ScmConfigProperties.builder()
-                    .instances( list )
+            ScmConfigProperties.builder().instances( list )
                     .instances( new ArrayList< String >() )
                     .service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instances must be failed " +
-                            "when the size of instances is 0" );
+                    " ScmConfigProperties.builder().instances must be failed "
+                            + "when the size of instances is 0" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -89,15 +86,13 @@ public class Param_UpdateInstances2311 extends TestScmBase {
         try {
             List< String > list = new ArrayList< String >();
             list.add( site.getNode().getUrl() );
-            ScmConfigProperties.builder()
-                    .instances( list )
-                    .instances( null )
+            ScmConfigProperties.builder().instances( list ).instances( null )
                     .service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instances(null) must be " +
-                            "failed when instances is null" );
+                    " ScmConfigProperties.builder().instances(null) must be "
+                            + "failed when instances is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

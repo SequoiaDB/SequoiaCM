@@ -55,10 +55,10 @@ public class AsynctransferSameFile492 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -83,8 +83,7 @@ public class AsynctransferSameFile492 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        AsyncTransferFromSubCenterA asyncTransfer = new
-                AsyncTransferFromSubCenterA();
+        AsyncTransferFromSubCenterA asyncTransfer = new AsyncTransferFromSubCenterA();
         asyncTransfer.start( 50 );
 
         if ( !( asyncTransfer.isSuccess() ) ) {
@@ -127,8 +126,8 @@ public class AsynctransferSameFile492 extends TestScmBase {
         SiteWrapper rootSite = ScmInfo.getRootSite();
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsA, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
         } catch ( Exception e ) {

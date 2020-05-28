@@ -81,11 +81,10 @@ public class ElemMatch535 extends TestScmBase {
                     .is( site.getSiteId() ).put( objkey2 ).greaterThan( 123456 )
                     .get();
             BSONObject cond = ScmQueryBuilder.start( key ).elemMatch( obj )
-                    .and( ScmAttributeName.File.TITLE ).is( author )
-                    .get();
+                    .and( ScmAttributeName.File.TITLE ).is( author ).get();
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, fileNum - 2 );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );

@@ -54,10 +54,10 @@ public class DeleteScmFile285 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -100,8 +100,8 @@ public class DeleteScmFile285 extends TestScmBase {
                 DeleteFile deleteFile = delList.get( j );
                 SiteWrapper site = siteList.get( j );
                 Assert.assertTrue( deleteFile.isSuccess(),
-                        "siteId = " + site.getSiteId() + ", msg = " +
-                                deleteFile.getErrorMsg() );
+                        "siteId = " + site.getSiteId() + ", msg = "
+                                + deleteFile.getErrorMsg() );
             }
 
             checkResults();
@@ -127,8 +127,8 @@ public class DeleteScmFile285 extends TestScmBase {
 
     private void writeFile() throws ScmException {
         for ( int i = 0; i < fileNum * threadNum; i++ ) {
-            ScmId fileId = ScmFileUtils
-                    .create( ws, fileName + "_" + i, filePath );
+            ScmId fileId = ScmFileUtils.create( ws, fileName + "_" + i,
+                    filePath );
             fileIdList.add( fileId );
         }
     }
@@ -136,8 +136,8 @@ public class DeleteScmFile285 extends TestScmBase {
     private void checkResults() throws Exception {
         // check meta
         BSONObject cond = new BasicBSONObject( "name", fileName );
-        long cnt = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+        long cnt = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_CURRENT,
+                cond );
         Assert.assertEquals( cnt, 0 );
 
         // check data
@@ -170,8 +170,8 @@ public class DeleteScmFile285 extends TestScmBase {
                 ScmWorkspace sws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), ss );
 
-                for ( int i = fileNum * startNum;
-                      i < fileNum * ( startNum + 1 ); i++ ) {
+                for ( int i = fileNum * startNum; i < fileNum
+                        * ( startNum + 1 ); i++ ) {
                     ScmFactory.File.getInstance( sws, fileIdList.get( i ) )
                             .delete( true );
                 }

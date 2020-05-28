@@ -66,15 +66,14 @@ public class Clean_inDiffWs746 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -89,8 +88,8 @@ public class Clean_inDiffWs746 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
             session = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace
-                    .getWorkspace( ws_TList.get( 0 ).getName(), session );
+            ws = ScmFactory.Workspace.getWorkspace( ws_TList.get( 0 ).getName(),
+                    session );
             ws2 = ScmFactory.Workspace
                     .getWorkspace( ws_TList.get( 1 ).getName(), session );
 
@@ -130,15 +129,14 @@ public class Clean_inDiffWs746 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                /*for (int i = 0; i < fileIdList.size()/2; i++) {
-                    ScmId fileId = fileIdList.get(i);
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}
-				for(int i = fileIdList.size()/2; i < fileIdList.size(); i++){
-					ScmId fileId = fileIdList.get(i);
-					ScmFactory.File.deleteInstance(ws2, fileId, true);
-				}
-				TestTools.LocalFile.removeFile(localPath);*/
+                /*
+                 * for (int i = 0; i < fileIdList.size()/2; i++) { ScmId fileId
+                 * = fileIdList.get(i); ScmFactory.File.deleteInstance(ws,
+                 * fileId, true); } for(int i = fileIdList.size()/2; i <
+                 * fileIdList.size(); i++){ ScmId fileId = fileIdList.get(i);
+                 * ScmFactory.File.deleteInstance(ws2, fileId, true); }
+                 * TestTools.LocalFile.removeFile(localPath);
+                 */
                 BSONObject cond = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();

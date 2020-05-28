@@ -67,10 +67,10 @@ public class Transfer_stopInitTask414 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -195,8 +195,8 @@ public class Transfer_stopInitTask414 extends TestScmBase {
     private void checkTime( Date expDate, Date actDate ) {
         long time = expDate.getTime() - actDate.getTime();
         if ( Math.abs( time ) > 100000 ) {
-            Assert.fail( "time is different: expTime=" + expDate.getTime() +
-                    ",actTime=" + actDate.getTime() );
+            Assert.fail( "time is different: expTime=" + expDate.getTime()
+                    + ",actTime=" + actDate.getTime() );
         }
     }
 

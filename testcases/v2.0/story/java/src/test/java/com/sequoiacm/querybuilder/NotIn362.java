@@ -70,17 +70,16 @@ public class NotIn362 extends TestScmBase {
             List< String > list = new ArrayList<>();
             list.add( "a" );
             BSONObject cond = ScmQueryBuilder.start( "notExist" ).notIn( list )
-                    .and( ScmAttributeName.File.FILE_NAME )
-                    .is( fileName ).get();
+                    .and( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"notExist\" : { \"$nin\" : [ \"a\"]} , \"name\" : " +
-                            "\"" +
-                            fileName + "\"}" ).replaceAll( "\\s*",
-                            "" ) );
+                    ( "{ \"notExist\" : { \"$nin\" : [ \"a\"]} , \"name\" : "
+                            + "\"" + fileName + "\"}" ).replaceAll( "\\s*",
+                                    "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess = true;

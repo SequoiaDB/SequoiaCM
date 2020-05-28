@@ -38,8 +38,7 @@ public class CountTasks1211 extends TestScmBase {
         JSONObject options = new JSONObject().put( "filter",
                 new JSONObject().put( "author", "inexistent_author1211" ) );
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "tasks" )
-                .setParameter( "task_type", "2" )
+                .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -47,16 +46,15 @@ public class CountTasks1211 extends TestScmBase {
                 .getString( "id" );
     }
 
-    //TODO: rest interface not implemented
+    // TODO: rest interface not implemented
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "tasks" )
-                .setResponseType( String.class ).exec().getBody().toString();
+                .setApi( "tasks" ).setResponseType( String.class ).exec()
+                .getBody().toString();
         System.out.println( response );
 
-        response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "tasks" )
+        response = rest.setRequestMethod( HttpMethod.HEAD ).setApi( "tasks" )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( response );
     }

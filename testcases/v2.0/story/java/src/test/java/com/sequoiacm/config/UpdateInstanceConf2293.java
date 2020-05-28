@@ -49,8 +49,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                 builder.instance( node.getUrl() );
             }
             ScmConfigProperties confProp = builder
-                    .instance( site.getNode().getHost() + "::" +
-                            site.getNode().getPort() )
+                    .instance( site.getNode().getHost() + "::"
+                            + site.getNode().getPort() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                             "LOCAL" )
@@ -58,9 +58,9 @@ public class UpdateInstanceConf2293 extends TestScmBase {
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.fail(
-                    "update configuration should be failed when node's url is" +
-                            " invalid,actResults = " +
-                            actResults.toString() );
+                    "update configuration should be failed when node's url is"
+                            + " invalid,actResults = "
+                            + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 e.printStackTrace();
@@ -78,8 +78,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                 builder.instance( node.getUrl() );
             }
             ScmConfigProperties confProp = builder
-                    .instance( site.getNode().getHost() + ":" +
-                            ( site.getNode().getPort() - 1 ) )
+                    .instance( site.getNode().getHost() + ":"
+                            + ( site.getNode().getPort() - 1 ) )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                             "LOCAL" )
@@ -87,9 +87,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.fail(
-                    "update configuration should be failed when node's url is" +
-                            " invalid,actResult = " +
-                            actResults.toString() );
+                    "update configuration should be failed when node's url is"
+                            + " invalid,actResult = " + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 e.printStackTrace();
@@ -106,8 +105,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
             for ( NodeWrapper node : nodes ) {
                 instances.add( node.getUrl() );
             }
-            instances.add( site.getNode().getHost() + ":" +
-                    ( site.getNode().getPort() - 1 ) );
+            instances.add( site.getNode().getHost() + ":"
+                    + ( site.getNode().getPort() - 1 ) );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .instances( instances )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
@@ -116,10 +115,9 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                     .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
-            Assert.fail(
-                    "update configuration should be failed when instances " +
-                            "contains invalid,actResults = " +
-                            actResults.toString() );
+            Assert.fail( "update configuration should be failed when instances "
+                    + "contains invalid,actResults = "
+                    + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 Assert.fail( e.getMessage() );
@@ -145,8 +143,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.fail(
-                    "update configuration should be failed when instances contains invalid,actResults = " +
-                            actResults.toString() );
+                    "update configuration should be failed when instances contains invalid,actResults = "
+                            + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                 Assert.fail( e.getMessage() );

@@ -51,8 +51,7 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
     private String rolename = "LogoutOnManySession1141_r";
     private String passwd = "1141";
     private ScmUser user;
-    private List< ScmSession > sessionList = new CopyOnWriteArrayList<
-            ScmSession >();
+    private List< ScmSession > sessionList = new CopyOnWriteArrayList< ScmSession >();
     private List< ScmId > fileIdList = new CopyOnWriteArrayList< ScmId >();
     private String author = "LogoutOnManySession1141";
     private WsWrapper wsp = null;
@@ -82,8 +81,8 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
         ScmSession session1 = sessionList.remove( ( int ) Math.random() * 10 );
         if ( session1 != null ) {
             try {
-                ScmFactory.Session
-                        .deleteSession( session, session1.getSessionId() );
+                ScmFactory.Session.deleteSession( session,
+                        session1.getSessionId() );
             } catch ( ScmException e ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
@@ -97,14 +96,14 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
             cursor = ScmFactory.Session.listSessions( session, username );
             if ( cursor == null ) {
                 Assert.fail(
-                        "exp session cursor is not null but find cursor is " +
-                                "null success" );
+                        "exp session cursor is not null but find cursor is "
+                                + "null success" );
             }
             while ( cursor.hasNext() ) {
                 if ( cursor.getNext().getSessionId()
                         .equals( session1.getSessionId() ) ) {
-                    Assert.fail( "sesssion close is fail,session1 = " +
-                            session1.toString() );
+                    Assert.fail( "sesssion close is fail,session1 = "
+                            + session1.toString() );
                 }
                 count++;
             }
@@ -157,8 +156,8 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 break;
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ||
-                        i == 59 ) {
+                if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED
+                        || i == 59 ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() + ",i = " + i );
                 }
@@ -194,16 +193,15 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
 
     private void prepare() throws InterruptedException {
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
-            ScmRole role = ScmFactory.Role
-                    .createRole( session, rolename, null );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
+            ScmRole role = ScmFactory.Role.createRole( session, rolename,
+                    null );
             ScmUserModifier modifier = new ScmUserModifier();
             ScmResource rs = ScmResourceFactory
                     .createWorkspaceResource( wsp.getName() );
-            ScmFactory.Role
-                    .grantPrivilege( session, role, rs, ScmPrivilegeType.ALL );
+            ScmFactory.Role.grantPrivilege( session, role, rs,
+                    ScmPrivilegeType.ALL );
             modifier.addRole( role );
             ScmFactory.User.alterUser( session, user, modifier );
             checkPrivilege( site, wsp );
@@ -217,8 +215,8 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools
-                        .createSession( site, username, passwd );
+                ScmSession session = TestScmTools.createSession( site, username,
+                        passwd );
                 sessionList.add( session );
                 int random = ( int ) Math.random() * 20;
                 if ( random % 3 == 0 ) {
@@ -234,8 +232,8 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
             ScmWorkspace ws = null;
             ScmId fileId = null;
             try {
-                ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
+                ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                        session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( author + "_" + UUID.randomUUID() );
                 file.setAuthor( author );

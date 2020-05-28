@@ -58,10 +58,10 @@ public class AsyncTransfer_param_asyncTransfer503 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -89,8 +89,8 @@ public class AsyncTransfer_param_asyncTransfer503 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsNoExist() throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( "test503", sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( "test503",
+                    sessionA );
             ScmFactory.File.asyncTransfer( ws, fileId );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
@@ -152,8 +152,8 @@ public class AsyncTransfer_param_asyncTransfer503 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
-                    forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 )
+                    || forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }

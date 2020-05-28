@@ -64,10 +64,10 @@ public class CreateSche_wsDiff1265 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -77,10 +77,10 @@ public class CreateSche_wsDiff1265 extends TestScmBase {
             branSite = ScmInfo.getBranchSite();
             wss = ScmInfo.getWss( 2 );
             ssA = TestScmTools.createSession( branSite );
-            wsA = ScmFactory.Workspace
-                    .getWorkspace( wss.get( 0 ).getName(), ssA );
-            wsB = ScmFactory.Workspace
-                    .getWorkspace( wss.get( 1 ).getName(), ssA );
+            wsA = ScmFactory.Workspace.getWorkspace( wss.get( 0 ).getName(),
+                    ssA );
+            wsB = ScmFactory.Workspace.getWorkspace( wss.get( 1 ).getName(),
+                    ssA );
 
             // clean environment
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -111,8 +111,8 @@ public class CreateSche_wsDiff1265 extends TestScmBase {
             }
 
             SiteWrapper[] expSites = { rootSite, branSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum / 2, expSites );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum / 2,
+                    expSites );
             ScmScheduleUtils.checkScmFile( wsB, fileIds, fileNum / 2, fileNum,
                     expSites );
         } catch ( Exception e ) {
@@ -174,15 +174,13 @@ public class CreateSche_wsDiff1265 extends TestScmBase {
             ScmSession session = null;
             try {
                 String maxStayTime = "0d";
-                ScmScheduleCopyFileContent content = new
-                        ScmScheduleCopyFileContent(
+                ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                         branSite.getSiteName(), rootSite.getSiteName(),
                         maxStayTime, queryCond );
                 String cron = "* * * * * ?";
-                ScmSchedule sche = ScmSystem.Schedule
-                        .create( ssA, wsp.getName(),
-                                ScheduleType.COPY_FILE, name, "", content,
-                                cron );
+                ScmSchedule sche = ScmSystem.Schedule.create( ssA,
+                        wsp.getName(), ScheduleType.COPY_FILE, name, "",
+                        content, cron );
                 ScmId scheduleId = sche.getId();
                 scheIds.add( scheduleId );
             } catch ( ScmException e ) {

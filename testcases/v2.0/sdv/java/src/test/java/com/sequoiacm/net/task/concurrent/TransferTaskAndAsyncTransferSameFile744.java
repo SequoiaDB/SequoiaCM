@@ -59,15 +59,15 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
 
     private SiteWrapper sourceSite = null;
     private SiteWrapper targetSite = null;
-    //private NodeWrapper node = null;
+    // private NodeWrapper node = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready local file
             TestTools.LocalFile.removeFile( localPath );
@@ -105,15 +105,14 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
             asyncTransfer.start();
 
             if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
-                Assert.fail( transferTask.getErrorMsg() +
-                        asyncTransfer.getErrorMsg() );
+                Assert.fail( transferTask.getErrorMsg()
+                        + asyncTransfer.getErrorMsg() );
             }
 
             // check results
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -158,22 +157,21 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
         int retryTimes = 0;
         while ( true ) {
             ScmTask task = ScmSystem.Task.getTask( session, taskId );
-            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ==
-                    task.getRunningFlag()
-                    || CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ==
-                    task.getRunningFlag() ) {
+            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH == task
+                    .getRunningFlag()
+                    || CommonDefine.TaskRunningFlag.SCM_TASK_ABORT == task
+                            .getRunningFlag() ) {
                 break;
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ==
-                    task.getRunningFlag() ) {
+            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == task
+                    .getRunningFlag() ) {
                 throw new Exception(
-                        "failed, the task running flag is cancel, task info :" +
-                                " \n" +
-                                task.toString() );
+                        "failed, the task running flag is cancel, task info :"
+                                + " \n" + task.toString() );
             } else if ( retryTimes >= maxRetryTimes ) {
                 throw new Exception(
-                        "failed to wait task finished, maxRetryTimes=" +
-                                maxRetryTimes
-                                + ", task info : \n" + task.toString() );
+                        "failed to wait task finished, maxRetryTimes="
+                                + maxRetryTimes + ", task info : \n"
+                                + task.toString() );
             }
             Thread.sleep( sleepTime );
             retryTimes++;
@@ -225,9 +223,8 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
                     int j = new Random().nextInt( fileNum );
                     ScmFactory.File.asyncTransfer( wsA, fileIdList.get( j ) );
                     SiteWrapper[] expSiteList = { sourceSite, targetSite };
-                    ScmTaskUtils
-                            .waitAsyncTaskFinished( wsA, fileIdList.get( j ),
-                                    expSiteList.length );
+                    ScmTaskUtils.waitAsyncTaskFinished( wsA,
+                            fileIdList.get( j ), expSiteList.length );
                     ScmFileUtils.checkMetaAndData( ws_T, fileIdList.get( j ),
                             expSiteList, localPath, filePath );
                 }

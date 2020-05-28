@@ -45,10 +45,10 @@ public class CreateWorkspace2364 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -73,18 +73,18 @@ public class CreateWorkspace2364 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         // write file in workspace
         writeAndRead( wsName );
-        //only check tableName in namespace
+        // only check tableName in namespace
         String tableName = null;
         if ( cal.get( Calendar.MONTH ) + 1 < 10 ) {
-            tableName = wsName + "_SCMFILE_" + cal.get( Calendar.YEAR ) + "0" +
-                    ( cal.get( Calendar.MONTH ) + 1 );
+            tableName = wsName + "_SCMFILE_" + cal.get( Calendar.YEAR ) + "0"
+                    + ( cal.get( Calendar.MONTH ) + 1 );
         } else {
-            tableName = wsName + "_SCMFILE_" + cal.get( Calendar.YEAR ) +
-                    ( cal.get( Calendar.MONTH ) + 1 );
+            tableName = wsName + "_SCMFILE_" + cal.get( Calendar.YEAR )
+                    + ( cal.get( Calendar.MONTH ) + 1 );
         }
         Assert.assertTrue( HbaseUtils.isInNS( site, namespace, tableName ),
-                "expect tableName is in namespace,namespace = " + namespace +
-                        "tableName = " + tableName );
+                "expect tableName is in namespace,namespace = " + namespace
+                        + "tableName = " + tableName );
     }
 
     @AfterClass
@@ -104,9 +104,8 @@ public class CreateWorkspace2364 extends TestScmBase {
         file.setContent( filePath );
         ScmId fileId = file.save();
         ScmFile file1 = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file1.getContent( downloadPath );
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );

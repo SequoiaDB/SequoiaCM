@@ -54,10 +54,10 @@ public class WRQScmFile717 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -128,8 +128,8 @@ public class WRQScmFile717 extends TestScmBase {
         ScmSession sessionA = null;
         try {
             sessionA = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionA );
             for ( int i = 0; i < fileNum; ++i ) {
                 ScmFile scmfile = ScmFactory.File.createInstance( ws );
                 scmfile.setContent( filePath );
@@ -196,10 +196,9 @@ public class WRQScmFile717 extends TestScmBase {
                     file.setAuthor( author + "_W" );
                     ScmId fileId = file.save();
                     file = ScmFactory.File.getInstance( ws, fileId );
-                    String downloadPath = TestTools.LocalFile
-                            .initDownloadPath( localPath,
-                                    TestTools.getMethodName(),
-                                    Thread.currentThread().getId() );
+                    String downloadPath = TestTools.LocalFile.initDownloadPath(
+                            localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
                     file.getContentFromLocalSite( downloadPath );
                     checkWrite( file, fileId, downloadPath );
                 }
@@ -241,9 +240,9 @@ public class WRQScmFile717 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
 
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 checkRead( file, fileId );
             } catch ( Exception e ) {

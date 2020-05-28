@@ -67,16 +67,15 @@ public class Clean_partFile465 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -147,8 +146,8 @@ public class Clean_partFile465 extends TestScmBase {
     }
 
     private void startCleanTaskFromA( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         int value = fileSize + startNum;
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName )
@@ -169,13 +168,13 @@ public class Clean_partFile465 extends TestScmBase {
     }
 
     private void readFileFromM( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
         }
@@ -200,22 +199,19 @@ public class Clean_partFile465 extends TestScmBase {
             String filePath = filePathList.get( i );
             if ( i >= startNum ) {
                 SiteWrapper[] expSiteList = { rootSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             } else {
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             }
         }
     }
 
     private void checkLocationLists(
             List< List< ScmFileLocation > > befLocLists,
-            List< List< ScmFileLocation > > aftLocLists )
-            throws Exception {
+            List< List< ScmFileLocation > > aftLocLists ) throws Exception {
         Assert.assertEquals( befLocLists.size(), aftLocLists.size(),
                 "file count is different!" );
         for ( int i = 0; i < startNum; ++i ) {
@@ -229,8 +225,8 @@ public class Clean_partFile465 extends TestScmBase {
     }
 
     private void checkLastAccessTime( List< ScmFileLocation > befLocList,
-            List< ScmFileLocation > aftLocList,
-            boolean isClean ) throws Exception {
+            List< ScmFileLocation > aftLocList, boolean isClean )
+            throws Exception {
 
         Assert.assertEquals( aftLocList.size(), isClean ? 1 : 2,
                 "site count wrong after clean" );
@@ -260,8 +256,8 @@ public class Clean_partFile465 extends TestScmBase {
         try {
             List< List< ScmFileLocation > > locationLists = new ArrayList<>();
             ss = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    ss );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 List< ScmFileLocation > locationList = file.getLocationList();

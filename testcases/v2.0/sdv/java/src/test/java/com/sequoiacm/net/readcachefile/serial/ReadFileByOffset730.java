@@ -51,10 +51,10 @@ public class ReadFileByOffset730 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -133,9 +133,9 @@ public class ReadFileByOffset730 extends TestScmBase {
 
                 // read content
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
 
                 // FIXME: seek is forbidden. testcase has to be designed again.
                 sis = ScmFactory.File
@@ -143,9 +143,9 @@ public class ReadFileByOffset730 extends TestScmBase {
                 sis.seek( SeekType.SCM_FILE_SEEK_SET, seekSize );
                 String tmpPath;
                 this.readScmFileByOff( sis, downloadPath );
-                tmpPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                tmpPath = TestTools.LocalFile.initDownloadPath( localPath,
+                        TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 TestTools.LocalFile.readFile( filePath, seekSize, tmpPath );
 
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
@@ -169,8 +169,8 @@ public class ReadFileByOffset730 extends TestScmBase {
                         new File( downloadPath ) );
                 byte[] buffer = new byte[ fileSize ];
                 while ( true ) {
-                    int readSize = sisImpl
-                            .read( buffer, 0, fileSize - seekSize );
+                    int readSize = sisImpl.read( buffer, 0,
+                            fileSize - seekSize );
                     if ( readSize <= 0 ) {
                         break;
                     }

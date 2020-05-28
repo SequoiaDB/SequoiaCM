@@ -58,22 +58,22 @@ public class CreateWorkspace2257 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
-        //create and set ScmSdbMetaLocation
+        // create and set ScmSdbMetaLocation
         ScmSdbMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
                 site.getSiteName(), ScmShardingType.YEAR,
                 TestSdbTools.getDomainNames( site.getMetaDsUrl() ).get( 0 ) );
         BSONObject csOpt = createCsOption();
         BSONObject clOpt = createClOption();
 
-        //check getCsOptions() and getClOptions
+        // check getCsOptions() and getClOptions
         Assert.assertEquals( scmMetaLocation.getClOptions(), null );
         Assert.assertEquals( scmMetaLocation.getCsOptions(), null );
 
-        //set CsOptions and ClOptions
+        // set CsOptions and ClOptions
         scmMetaLocation.setCsOptions( csOpt );
         scmMetaLocation.setClOptions( clOpt );
 
-        //check getCsOptions() and getClOptions
+        // check getCsOptions() and getClOptions
         Assert.assertEquals( scmMetaLocation.getClOptions().toString(),
                 clOpt.toString() );
         Assert.assertEquals( scmMetaLocation.getCsOptions().toString(),
@@ -88,12 +88,11 @@ public class CreateWorkspace2257 extends TestScmBase {
 
         // check
         BSONObject clBSON = snapshot( Sequoiadb.SDB_SNAP_CATALOG,
-                "{\"Name\":\"" + wsName + "_META.FILE_" +
-                        Calendar.getInstance().get( Calendar.YEAR ) + "\"}" )
-                .getCurrent();
+                "{\"Name\":\"" + wsName + "_META.FILE_"
+                        + Calendar.getInstance().get( Calendar.YEAR ) + "\"}" )
+                                .getCurrent();
         BSONObject csBSON = snapshot( Sequoiadb.SDB_SNAP_COLLECTIONSPACES,
-                "{\"Name\":\"" + wsName + "_META\"}" )
-                .getCurrent();
+                "{\"Name\":\"" + wsName + "_META\"}" ).getCurrent();
         Assert.assertEquals( csBSON.get( "PageSize" ),
                 csOpt.get( "PageSize" ) );
         Assert.assertEquals( csBSON.get( "LobPageSize" ),
@@ -163,8 +162,7 @@ public class CreateWorkspace2257 extends TestScmBase {
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
         } else if ( siteNum < 1 ) {

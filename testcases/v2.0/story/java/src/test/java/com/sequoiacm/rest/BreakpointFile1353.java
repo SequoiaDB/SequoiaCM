@@ -52,10 +52,10 @@ public class BreakpointFile1353 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -76,14 +76,14 @@ public class BreakpointFile1353 extends TestScmBase {
         BreakpointUtil.createBreakpointFile( ws, filePath, fileName + "_3",
                 1353 * 2048, ScmChecksumType.CRC32 );
 
-        //查询upload_size等于于1353*1024的断点文件
+        // 查询upload_size等于于1353*1024的断点文件
         this.checkBreakpointFileByFilter( ws.getName(),
                 "{'upload_size': 1385472}" );
 
-        //使用不存在的ws获取断点文件信息
+        // 使用不存在的ws获取断点文件信息
         this.checkBreakpointFileError( "ws1353" );
 
-        //使用缺少ws参数的rest请求获取断点文件信息
+        // 使用缺少ws参数的rest请求获取断点文件信息
         this.errorRequest();
     }
 
@@ -125,8 +125,7 @@ public class BreakpointFile1353 extends TestScmBase {
         try {
             rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                     TestScmBase.scmPassword );
-            rest.setRequestMethod( HttpMethod.GET )
-                    .setApi( "/breakpointfiles" )
+            rest.setRequestMethod( HttpMethod.GET ).setApi( "/breakpointfiles" )
                     .exec();
             Assert.fail( "use error option get info should error" );
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {
@@ -144,11 +143,10 @@ public class BreakpointFile1353 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         String response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "/breakpointfiles?workspace_name=" + wsName +
-                        "&&filter={uri}" )
+                .setApi( "/breakpointfiles?workspace_name=" + wsName
+                        + "&&filter={uri}" )
                 .setUriVariables( new Object[] { filter } )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         ArrayList< BSONObject > objList = ( ArrayList< BSONObject > ) JSON
                 .parse( response );
         rest.disconnect();

@@ -62,10 +62,10 @@ public class UpdateSche_upCron1254 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -96,8 +96,8 @@ public class UpdateSche_upCron1254 extends TestScmBase {
             String cron = "* * * * * ?";
             this.createScheduleTask( cron );
             SiteWrapper[] expSites1 = { rootSite, branSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum / 2, expSites1 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum / 2,
+                    expSites1 );
 
             // ready scmFile again
             this.writeScmFile( fileNum / 2, fileNum );
@@ -112,9 +112,9 @@ public class UpdateSche_upCron1254 extends TestScmBase {
                 int tranNum2 = this.getTranferTaskNum();
                 if ( tranNum2 != tranNum && i == 29 ) {
                     printTaskInfo();
-                    Assert.fail( "update failed, " + "tranNum = " + tranNum +
-                            ", tranNum2 = " + tranNum2
-                            + ", scheduleId = " + scheduleId.get() );
+                    Assert.fail( "update failed, " + "tranNum = " + tranNum
+                            + ", tranNum2 = " + tranNum2 + ", scheduleId = "
+                            + scheduleId.get() );
                 } else {
                     System.out.println( "i = " + i );
                     break;
@@ -123,24 +123,24 @@ public class UpdateSche_upCron1254 extends TestScmBase {
 
             int tranNum3 = this.getTranferTaskNum();
             Thread.sleep( 3000 );
-            int maxRetryTimes = 300;  // 5min
+            int maxRetryTimes = 300; // 5min
             int retryTimes = 0;
             while ( true ) {
                 int tranNum4 = this.getTranferTaskNum();
                 if ( tranNum4 > tranNum3 ) {
                     break;
                 } else if ( retryTimes == maxRetryTimes ) {
-                    throw new Exception( "update failed, "
-                            + "tranNum4 = " + tranNum4 + ", tranNum3 = " +
-                            tranNum3 + ", tranNum3 = " + tranNum3 );
+                    throw new Exception( "update failed, " + "tranNum4 = "
+                            + tranNum4 + ", tranNum3 = " + tranNum3
+                            + ", tranNum3 = " + tranNum3 );
                 }
                 retryTimes++;
                 Thread.sleep( 1000 );
             }
             // check results
             SiteWrapper[] expSites2 = { rootSite, branSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum, expSites2 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum,
+                    expSites2 );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -226,7 +226,8 @@ public class UpdateSche_upCron1254 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != cursor ) cursor.close();
+            if ( null != cursor )
+                cursor.close();
         }
         return transferNum;
     }

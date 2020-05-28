@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:specify directory to create multiple files,one of the version
- * files specifies the directory
- * testlink-case:SCM-2065
+ * files specifies the directory testlink-case:SCM-2065
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -47,8 +46,8 @@ public class CreateMutiVerFileWithDir2065a extends TestScmBase {
 
     private ScmDirectory scmDir;
     private String dirBasePath = "/CreatefileWiteDir2065";
-    private String fullPath =
-            dirBasePath + "/2065_a/2065_b/2065_c/2065_e/2065_f/";
+    private String fullPath = dirBasePath
+            + "/2065_a/2065_b/2065_c/2065_e/2065_f/";
     private String authorName = "CreateFileWithDir2065";
     private String fileName = "filedir2065";
     private byte[] writeData = new byte[ 1024 * 10 ];
@@ -70,8 +69,8 @@ public class CreateMutiVerFileWithDir2065a extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        fileId = VersionUtils
-                .createFileByStream( ws, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( ws, fileName, writeData,
+                authorName );
         scmDir = ScmDirUtils.createDir( ws, fullPath );
         updateFileWithDirAndCheckContent( ws );
         checkFileDir( ws, fileId, scmDir );
@@ -96,13 +95,13 @@ public class CreateMutiVerFileWithDir2065a extends TestScmBase {
 
     private void updateFileWithDirAndCheckContent( ScmWorkspace ws )
             throws Exception {
-        //update ten times and add a directory to the second update
+        // update ten times and add a directory to the second update
         int times = 10;
         int addDirTime = 2;
         for ( int i = 0; i < times; i++ ) {
             if ( i == addDirTime ) {
-                ScmDirUtils
-                        .updateContentWithDir( ws, fileId, updateData, scmDir );
+                ScmDirUtils.updateContentWithDir( ws, fileId, updateData,
+                        scmDir );
             } else {
                 VersionUtils.updateContentByStream( ws, fileId, updateData );
             }
@@ -116,9 +115,8 @@ public class CreateMutiVerFileWithDir2065a extends TestScmBase {
             } else {
                 fullFileName = fullPath + fileName;
             }
-            ScmDirUtils
-                    .CheckFileContentByStream( ws, fullFileName, majorVersion,
-                            updateData );
+            ScmDirUtils.CheckFileContentByStream( ws, fullFileName,
+                    majorVersion, updateData );
         }
 
     }

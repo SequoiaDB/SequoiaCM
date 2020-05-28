@@ -115,8 +115,8 @@ public class DefineAttr_Class_Delete1845_1853 extends TestScmBase {
             // create again
             expClass = ScmFactory.Class.createInstance( ws, classname, desc );
 
-            ScmClass actClass = ScmFactory.Class
-                    .getInstance( ws, expClass.getId() );
+            ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                    expClass.getId() );
             check( actClass, expClass );
         } catch ( ScmException e ) {
             e.printStackTrace();

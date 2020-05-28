@@ -54,10 +54,10 @@ public class TD886_WRDFromNodePool extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -90,8 +90,8 @@ public class TD886_WRDFromNodePool extends TestScmBase {
             // check results
             BSONObject cond = ScmQueryBuilder.start()
                     .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            long cnt = ScmFactory.File
-                    .countInstance( wsM, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( wsM,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -143,10 +143,9 @@ public class TD886_WRDFromNodePool extends TestScmBase {
                     ScmId fileId = file.save();
 
                     // read
-                    String downloadPath = TestTools.LocalFile
-                            .initDownloadPath( localPath,
-                                    TestTools.getMethodName(),
-                                    Thread.currentThread().getId() );
+                    String downloadPath = TestTools.LocalFile.initDownloadPath(
+                            localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
                     ScmFile file2 = ScmFactory.File.getInstance( ws, fileId );
                     file2.getContent( downloadPath );
                     Assert.assertEquals( TestTools.getMD5( filePath ),

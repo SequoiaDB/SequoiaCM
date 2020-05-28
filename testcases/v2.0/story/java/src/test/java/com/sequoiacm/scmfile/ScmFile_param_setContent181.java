@@ -43,10 +43,10 @@ public class ScmFile_param_setContent181 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -67,8 +67,8 @@ public class ScmFile_param_setContent181 extends TestScmBase {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + "_" + UUID.randomUUID() );
             file.setTitle( "sequoiacm" );
-            file.setContent( localPath + File.separator + "a" + File.separator +
-                    "a.txt" );
+            file.setContent( localPath + File.separator + "a" + File.separator
+                    + "a.txt" );
             file.save();
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );

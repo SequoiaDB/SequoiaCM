@@ -105,8 +105,8 @@ public class ScmUtil_param_getSecond893 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 ) ||
-                    TestScmBase.forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 )
+                    || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         } catch ( Exception e ) {

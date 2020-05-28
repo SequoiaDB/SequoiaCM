@@ -51,9 +51,8 @@ public class AuthServer_DeleteDiffUser1548 extends TestScmBase {
         }
         try {
             for ( int i = 0; i < userNum; i++ ) {
-                ScmUser user = ScmFactory.User
-                        .createUser( session, username + "_" + i,
-                                ScmUserPasswordType.LOCAL, passwd );
+                ScmUser user = ScmFactory.User.createUser( session,
+                        username + "_" + i, ScmUserPasswordType.LOCAL, passwd );
                 userList.add( user );
             }
         } catch ( ScmException e ) {

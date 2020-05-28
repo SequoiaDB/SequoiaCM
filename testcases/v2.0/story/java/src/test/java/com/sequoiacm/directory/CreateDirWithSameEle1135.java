@@ -92,13 +92,12 @@ public class CreateDirWithSameEle1135 extends TestScmBase {
     private void createDirWithSameDir() throws ScmException {
         ScmDirectory dir = null;
         try {
-            dir = ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName );
-            ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName );
-            Assert.fail(
-                    "dir alreay existed,it should not create same dir " +
-                            "successfully" );
+            dir = ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName );
+            ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName );
+            Assert.fail( "dir alreay existed,it should not create same dir "
+                    + "successfully" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_EXIST ) {
                 e.printStackTrace();
@@ -118,11 +117,11 @@ public class CreateDirWithSameEle1135 extends TestScmBase {
             file.setFileName( eleName );
             file.setDirectory( scmDir );
             fileId = file.save();
-            ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName );
+            ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName );
             Assert.fail(
-                    "parent dir alreay have a file with same name,it should " +
-                            "not create dir successfully" );
+                    "parent dir alreay have a file with same name,it should "
+                            + "not create dir successfully" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.FILE_EXIST ) {
                 e.printStackTrace();
@@ -143,8 +142,8 @@ public class CreateDirWithSameEle1135 extends TestScmBase {
             file.setFileName( eleName + "_file" );
             file.setDirectory( scmDir );
             fileId = file.save();
-            dir = ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName1 );
+            dir = ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName1 );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

@@ -52,10 +52,10 @@ public class RenameDirAndCreateDir1171 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -125,7 +125,7 @@ public class RenameDirAndCreateDir1171 extends TestScmBase {
 
     private void checkFile( String path ) {
         try {
-            //ScmFile file = ScmFactory.File.getInstance(ws, path);
+            // ScmFile file = ScmFactory.File.getInstance(ws, path);
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             Assert.assertEquals( file.getDirectory().getPath(),
                     fullPath2 + "/" );
@@ -177,8 +177,8 @@ public class RenameDirAndCreateDir1171 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -212,8 +212,8 @@ public class RenameDirAndCreateDir1171 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
                 dir.rename( newName );
                 // check
                 BSONObject expBSON1 = new BasicBSONObject();
@@ -223,7 +223,7 @@ public class RenameDirAndCreateDir1171 extends TestScmBase {
                 expBSON1.put( "paName", "RenameDirAndCreateDir1171" );
                 checkDir( fullPath2, expBSON1 );
 
-                //check
+                // check
                 checkFile( fullPath2 + "/" + author );
             } catch ( ScmException e ) {
                 e.printStackTrace();

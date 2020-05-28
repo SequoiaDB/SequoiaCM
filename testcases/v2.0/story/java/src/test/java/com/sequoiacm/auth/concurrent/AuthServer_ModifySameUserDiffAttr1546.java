@@ -38,8 +38,7 @@ public class AuthServer_ModifySameUserDiffAttr1546 extends TestScmBase {
     private String passwd = "1546";
     private String newPasswd = "1546_1";
     private ScmUser user;
-    private List< ScmUserModifier > modiferList = new CopyOnWriteArrayList<
-            ScmUserModifier >();
+    private List< ScmUserModifier > modiferList = new CopyOnWriteArrayList< ScmUserModifier >();
     private AtomicInteger atom = new AtomicInteger( 0 );
 
     @BeforeClass(alwaysRun = true)
@@ -57,13 +56,12 @@ public class AuthServer_ModifySameUserDiffAttr1546 extends TestScmBase {
         }
         try {
             ScmUserModifier modifier = new ScmUserModifier();
-            ScmUser superUser = ScmFactory.User
-                    .getUser( session, TestScmBase.scmUserName );
+            ScmUser superUser = ScmFactory.User.getUser( session,
+                    TestScmBase.scmUserName );
             Collection< ScmRole > superRoles = superUser.getRoles();
             modifier.addRoles( superRoles );
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             ScmFactory.User.alterUser( session, user, modifier );
             for ( int i = 0; i < 3; i++ ) {
                 ScmUserModifier modifier1 = new ScmUserModifier();
@@ -115,8 +113,8 @@ public class AuthServer_ModifySameUserDiffAttr1546 extends TestScmBase {
             try {
                 ScmUserModifier modifier = modiferList
                         .get( atom.getAndIncrement() );
-                ScmUser user1 = ScmFactory.User
-                        .alterUser( session, user, modifier );
+                ScmUser user1 = ScmFactory.User.alterUser( session, user,
+                        modifier );
                 check( user1, modifier );
             } catch ( ScmException e ) {
                 e.printStackTrace();

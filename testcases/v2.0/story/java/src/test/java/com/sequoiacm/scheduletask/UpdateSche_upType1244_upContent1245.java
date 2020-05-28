@@ -35,8 +35,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @FileName SCM-1244:原type 为迁移，只更新类型为清理
- * 			  SCM-1245:原type为迁移，更新站点信息错误
+ * @FileName SCM-1244:原type 为迁移，只更新类型为清理 SCM-1245:原type为迁移，更新站点信息错误
  * @Author huangxiaoni
  * @Date 2018-04-17
  * @Version 1.00
@@ -65,10 +64,10 @@ public class UpdateSche_upType1244_upContent1245 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -155,10 +154,9 @@ public class UpdateSche_upType1244_upContent1245 extends TestScmBase {
     private void createCopeSchedule() {
         try {
             ScheduleType taskType = ScheduleType.COPY_FILE;
-            content = new ScmScheduleCopyFileContent(
-                    branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                    queryCond );
-            //System.out.println(content.toBSONObject());
+            content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, queryCond );
+            // System.out.println(content.toBSONObject());
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     taskType, name, "desc", content, cron );
             scheduleId = sche.getId();

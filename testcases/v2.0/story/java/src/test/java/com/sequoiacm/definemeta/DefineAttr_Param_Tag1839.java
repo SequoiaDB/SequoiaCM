@@ -50,43 +50,43 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         ScmTags tags = new ScmTags();
-        //testValueIsDot
+        // testValueIsDot
         tags.addTag( "." );
-        //testValueIsDollar
+        // testValueIsDollar
         tags.addTag( "$1" );
-        //testValueWithDot
+        // testValueWithDot
         tags.addTag( "18..39" );
-        //testValueWithDollar
+        // testValueWithDollar
         tags.addTag( " 18$39$" );
-        //testValueIsAll
+        // testValueIsAll
         tags.addTag(
                 "1234567890 qertyuiopasdfghjkwzxcvbnml !@#$%^&*(){}|_+:\"<>?" );
-        //testValueIsChinese
+        // testValueIsChinese
         tags.addTag( "标签1" );
         Set< String > expTags = tags.toSet();
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
-        //test scm file
+        // test scm file
         file.setTags( tags );
         file = ScmFactory.File.getInstance( ws, fileId );
         Set< String > actFileTags = file.getTags().toSet();
         Assert.assertEquals( actFileTags, expTags, file.getTags().toString() );
 
-        //test scm batch
+        // test scm batch
         batch.setTags( tags );
         batch = ScmFactory.Batch.getInstance( ws, batch.getId() );
         Set< String > actBatchTags = batch.getTags().toSet();
         Assert.assertEquals( actBatchTags, expTags,
                 batch.getTags().toString() );
 
-        //test remove
+        // test remove
         Set< String > tagSet = tags.toSet();
         for ( String tag : tagSet ) {
             file.removeTag( tag );
             batch.removeTag( tag );
         }
-        //check result
+        // check result
         file = ScmFactory.File.getInstance( ws, fileId );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         Assert.assertEquals( file.getTags().toSet().size(), 0,
@@ -108,7 +108,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
                 throw e;
             }
         }
-        //test scm file
+        // test scm file
         try {
             file.addTag( null );
             Assert.fail( "exp fail but act success" );
@@ -117,7 +117,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
                 throw e;
             }
         }
-        //test scm batch
+        // test scm batch
         try {
             batch.addTag( null );
             Assert.fail( "exp fail but act success" );
@@ -140,7 +140,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
                 throw e;
             }
         }
-        //test scm file
+        // test scm file
         try {
             file.addTag( "" );
             Assert.fail( "exp fail but act success" );
@@ -149,7 +149,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
                 throw e;
             }
         }
-        //test scm batch
+        // test scm batch
         try {
             batch.addTag( "" );
             Assert.fail( "exp fail but act success" );

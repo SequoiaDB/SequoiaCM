@@ -24,8 +24,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:delete breakpoint file 
- * testlink-case:SCM-1387/1391
+ * test content:delete breakpoint file testlink-case:SCM-1387/1391
  *
  * @author wuyan
  * @Date 2018.05.11
@@ -85,8 +84,8 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -111,8 +110,8 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getErrorCode() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getErrorCode()
+                        + e.getMessage() );
             }
         }
     }

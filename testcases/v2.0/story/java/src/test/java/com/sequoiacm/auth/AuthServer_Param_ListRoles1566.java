@@ -15,7 +15,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @Description:SCM-1566 :: listRoles参数校验 
+ * @Description:SCM-1566 :: listRoles参数校验
  * @author fanyu
  * @Date:2018年5月22日
  * @version:1.0
@@ -66,5 +66,3 @@ public class AuthServer_Param_ListRoles1566 extends TestScmBase {
     private void tearDown() {
     }
 }
-
-

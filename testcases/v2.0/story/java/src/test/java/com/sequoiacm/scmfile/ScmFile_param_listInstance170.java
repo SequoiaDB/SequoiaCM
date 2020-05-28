@@ -48,8 +48,8 @@ public class ScmFile_param_listInstance170 extends TestScmBase {
     private void TestWsIsNull() {
         try {
             BSONObject condition = new BasicBSONObject();
-            ScmFactory.File
-                    .listInstance( null, ScopeType.SCOPE_CURRENT, condition );
+            ScmFactory.File.listInstance( null, ScopeType.SCOPE_CURRENT,
+                    condition );
 
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );

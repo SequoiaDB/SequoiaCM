@@ -27,8 +27,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:upload the same breakpoint file concurrently
- * testlink case:seqDB-1395
+ * test content:upload the same breakpoint file concurrently testlink
+ * case:seqDB-1395
+ * 
  * @author wuyan
  * @Date 2018.05.22
  * @version 1.00
@@ -51,10 +52,10 @@ public class UploadSameFile1395 extends TestScmBase {
     @BeforeClass
     private void setUp() {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -73,12 +74,11 @@ public class UploadSameFile1395 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        UploadBreakpointFileThread uploadBreakpointFile = new
-                UploadBreakpointFileThread();
+        UploadBreakpointFileThread uploadBreakpointFile = new UploadBreakpointFileThread();
         uploadBreakpointFile.start( 20 );
         Assert.assertTrue( uploadBreakpointFile.isSuccess(),
                 uploadBreakpointFile.getErrorMsg() );
-        //upload the same breakpointfile only one success
+        // upload the same breakpointfile only one success
         int expSuccessNum = 1;
         Assert.assertEquals( sameUploadOKCount.get(), expSuccessNum );
         checkFileData();
@@ -103,17 +103,16 @@ public class UploadSameFile1395 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
 
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( fileName );
         file.setTitle( fileName );
         fileId = file.save();
 
-        //down file
-        downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
@@ -134,13 +133,12 @@ public class UploadSameFile1395 extends TestScmBase {
                                 ScmChecksumType.ADLER32 );
                 breakpointFile.upload( new File( filePath ) );
 
-                //recorded the numbers of upload file successful
+                // recorded the numbers of upload file successful
                 sameUploadOKCount.getAndIncrement();
             } catch ( ScmException e ) {
                 if ( ScmError.FILE_EXIST != e.getError() ) {
-                    Assert.assertTrue( false,
-                            "same file upload fail " + e.getErrorCode() + ":" +
-                                    e.getMessage() );
+                    Assert.assertTrue( false, "same file upload fail "
+                            + e.getErrorCode() + ":" + e.getMessage() );
                 }
             } finally {
                 if ( session != null ) {

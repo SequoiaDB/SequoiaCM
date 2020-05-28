@@ -92,14 +92,14 @@ public class UpdateVersionFile1716 extends TestScmBase {
             rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                     TestScmBase.scmPassword );
             rest.setRequestMethod( HttpMethod.PUT )
-                    .setApi( "/files/" + fileId + "?workspace_name=" +
-                            ws.getName() )
+                    .setApi( "/files/"
+                            + fileId + "?workspace_name=" + ws.getName() )
                     .setParameter( "major_version", 1 )
                     .setParameter( "file_info",
                             JSON.parse( "{'author':'fileVersion1716_1'}" ) )
                     .setParameter( "breakpoint_file", fileName )
-                    .setResponseType( String.class )
-                    .exec().getHeaders().getFirst( "file_info" ).toString();
+                    .setResponseType( String.class ).exec().getHeaders()
+                    .getFirst( "file_info" ).toString();
         } catch ( HttpClientErrorException e ) {
             Assert.assertEquals( e.getStatusCode().value(),
                     ScmError.HTTP_BAD_REQUEST.getErrorCode(), e.getMessage() );

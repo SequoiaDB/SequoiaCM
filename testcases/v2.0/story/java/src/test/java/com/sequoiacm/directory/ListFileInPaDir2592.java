@@ -56,7 +56,7 @@ public class ListFileInPaDir2592 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean
+        // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -64,7 +64,7 @@ public class ListFileInPaDir2592 extends TestScmBase {
             ScmFactory.Directory.deleteInstance( ws, dirPath );
         }
         scmDirectory = ScmFactory.Directory.createInstance( ws, dirPath );
-        //prepare file
+        // prepare file
         for ( int i = 0; i < fileNum; i++ ) {
             String fileName = fileNamePrefix + "-" + i;
             ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -79,8 +79,8 @@ public class ListFileInPaDir2592 extends TestScmBase {
             }
             fileIdList.add( scmFile.save() );
         }
-        //prepare filter
-        //all file
+        // prepare filter
+        // all file
         filter = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
         getInitScmFileInfo( filter, fileList );
@@ -104,7 +104,7 @@ public class ListFileInPaDir2592 extends TestScmBase {
                 "fileName" };
         boolean[] typeAtr2 = new boolean[] { true, false, true };
         return new Object[][] {
-                //orderby:多个字段正序
+                // orderby:多个字段正序
                 { filter, dPositive1, 0, 10, fileList, sortNameAtr1, typeAtr1 },
                 { filter, dPositive2, 0, 10, fileList, sortNameAtr2,
                         typeAtr2 } };
@@ -123,10 +123,10 @@ public class ListFileInPaDir2592 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            ScmDirectory directory = ScmFactory.Directory
-                    .getInstance( ws, dirPath );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            ScmDirectory directory = ScmFactory.Directory.getInstance( ws,
+                    dirPath );
             while ( tmpSkip < tmpList.size() ) {
                 ScmCursor< ScmFileBasicInfo > cursor = directory
                         .listFiles( filter, tmpSkip, limit, orderby );
@@ -150,11 +150,10 @@ public class ListFileInPaDir2592 extends TestScmBase {
                                 exp.getMimeType() );
                         count++;
                     } catch ( AssertionError e ) {
-                        throw new Exception(
-                                "filter = " + filter + ",orderby = " + orderby
-                                        + ",skip = " + skip + ",limit = "
-                                        + limit + "，act = " + act + ",exp = "
-                                        + exp, e );
+                        throw new Exception( "filter = " + filter
+                                + ",orderby = " + orderby + ",skip = " + skip
+                                + ",limit = " + limit + "，act = " + act
+                                + ",exp = " + exp, e );
                     }
                 }
                 if ( limit == 0 || count == 0 ) {
@@ -184,9 +183,8 @@ public class ListFileInPaDir2592 extends TestScmBase {
                 Assert.assertEquals( actPageSize, 0 );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "filter = " + filter + ",orderby = " + orderby + ",skip = "
-                            + skip + ",limit = " + limit, e );
+            throw new Exception( "filter = " + filter + ",orderby = " + orderby
+                    + ",skip = " + skip + ",limit = " + limit, e );
         }
         expSuccessTestCount.getAndIncrement();
     }
@@ -222,5 +220,3 @@ public class ListFileInPaDir2592 extends TestScmBase {
         }
     }
 }
-
-

@@ -73,9 +73,8 @@ public class AuthWs_role1780 extends TestScmBase {
         try {
             ScmFactory.Directory.deleteInstance( ws, DIR_PATH );
         } catch ( ScmException e ) {
-            logger.info(
-                    "Directory does not exist, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "Directory does not exist, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         // prepare user
@@ -102,9 +101,8 @@ public class AuthWs_role1780 extends TestScmBase {
 
         while ( priCursor.hasNext() ) {
             ScmPrivilege pri = priCursor.getNext();
-            logger.info(
-                    "priority = " + pri.getPrivilegeType() + ",resource = " +
-                            pri.getResourceId() );
+            logger.info( "priority = " + pri.getPrivilegeType() + ",resource = "
+                    + pri.getResourceId() );
         }
         // Assert.assertFalse(priCursor.hasNext());
 
@@ -129,8 +127,8 @@ public class AuthWs_role1780 extends TestScmBase {
                     ScmFactory.Role.deleteRole( session, NAME );
                 } catch ( ScmException e ) {
                     logger.info(
-                            "delete not eixst role in tear down, errorMsg = " +
-                                    e.getError() );
+                            "delete not eixst role in tear down, errorMsg = "
+                                    + e.getError() );
                 }
                 ScmFactory.Directory.deleteInstance( ws, DIR_PATH );
             }
@@ -142,9 +140,8 @@ public class AuthWs_role1780 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

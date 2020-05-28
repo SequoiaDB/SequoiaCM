@@ -52,10 +52,10 @@ public class DeleteWhileQuerying288 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + FILE_SIZE + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -113,8 +113,8 @@ public class DeleteWhileQuerying288 extends TestScmBase {
     private void checkResults() throws Exception {
         try {
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
@@ -136,8 +136,8 @@ public class DeleteWhileQuerying288 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
 
                 BSONObject fileCond = new BasicBSONObject();
-                ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCond );
+                ScmFactory.File.countInstance( ws, ScopeType.SCOPE_CURRENT,
+                        fileCond );
             } finally {
                 if ( session != null ) {
                     session.close();

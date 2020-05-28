@@ -65,10 +65,10 @@ public class Clean_oneSite906 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -98,7 +98,7 @@ public class Clean_oneSite906 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }, enabled = false)//bug:315
+    @Test(groups = { "fourSite" }, enabled = false) // bug:315
     private void test() {
         try {
             this.startCleanTask( sessionA, authorName );
@@ -153,17 +153,17 @@ public class Clean_oneSite906 extends TestScmBase {
         for ( int i = 0; i < fileIdList.size(); i++ ) {
             ScmId fileId = fileIdList.get( i );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         }
     }
 
     private void startCleanTask( ScmSession ss, String fileName )
             throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         taskId = ScmSystem.Task.startCleanTask( ws, condition );
@@ -183,8 +183,8 @@ public class Clean_oneSite906 extends TestScmBase {
     private void checkFreeSite() throws Exception {
         int randNum = 0;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
             randNum = new Random().nextInt( fileNum );
             ScmFileUtils.checkData( ws, fileIdList.get( randNum ), localPath,
                     filePath );

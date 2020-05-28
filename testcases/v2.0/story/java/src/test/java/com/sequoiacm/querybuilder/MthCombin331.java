@@ -67,26 +67,23 @@ public class MthCombin331 extends TestScmBase {
         try {
             // same fields
             ScmQueryBuilder builder = ScmBuilder();
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                            builder.put( ScmAttributeName.File.AUTHOR )
-                                    .is( fileList.get( 0 ).getAuthor() )
-                                    .get() );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT,
+                    builder.put( ScmAttributeName.File.AUTHOR )
+                            .is( fileList.get( 0 ).getAuthor() ).get() );
             Assert.assertEquals( count, fileNum );
 
             ScmQueryBuilder builderByIs1 = ScmBuilderByIs1();
-            long count2 = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                            builderByIs1.put( ScmAttributeName.File.AUTHOR )
-                                    .is( fileList.get( 0 ).getAuthor() )
-                                    .get() );
+            long count2 = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT,
+                    builderByIs1.put( ScmAttributeName.File.AUTHOR )
+                            .is( fileList.get( 0 ).getAuthor() ).get() );
             Assert.assertEquals( count2, fileNum );
 
             // different fields
             ScmQueryBuilder builderByIs2 = ScmBuilderByIs2();
-            long count3 = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                            builderByIs2.get() );
+            long count3 = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, builderByIs2.get() );
             Assert.assertEquals( count3, 1 );
 
             runSuccess = true;
@@ -157,22 +154,20 @@ public class MthCombin331 extends TestScmBase {
 
         builder = ScmQueryBuilder.start( key ).in( inList ).put( key )
                 .notIn( ninList ).or( in, nin ).put( key ).exists( 1 )
-                .put( key )
-                .greaterThan( -1 ).put( key ).greaterThanEquals( 0 ).put( key )
-                .lessThan( 10 ).put( key ).lessThanEquals( 1 )
+                .put( key ).greaterThan( -1 ).put( key ).greaterThanEquals( 0 )
+                .put( key ).lessThan( 10 ).put( key ).lessThanEquals( 1 )
                 .not( notCond ).and( lessThan, greaterThan );
 
         // check builder
         // Note: $in and $nin are conflicted. choose $nin here
-        String bsStr1 = "{ \"major_version\" : { " + "\"$nin\" : [ 0 , -1] , " +
-                "\"$exists\" : 1 , "
-                + "\"$gt\" : -1 , " + "\"$gte\" : 0 , " + "\"$lt\" : 10 , " +
-                "\"$lte\" : 1} , "
+        String bsStr1 = "{ \"major_version\" : { " + "\"$nin\" : [ 0 , -1] , "
+                + "\"$exists\" : 1 , " + "\"$gt\" : -1 , " + "\"$gte\" : 0 , "
+                + "\"$lt\" : 10 , " + "\"$lte\" : 1} , "
                 + "\"$or\" : [ { \"major_version\" : { \"$in\" : [ 0 , 1]}} , "
                 + "{ \"major_version\" : { \"$nin\" : [ 0 , -1]}}] , "
                 + "\"$not\" : [ { \"major_version\" : { \"$lt\" : 0}}] , "
-                + "\"$and\" : [ { \"major_version\" : { \"$lt\" : 2}} , " +
-                "{ \"major_version\" : { \"$gt\" : -1}}]}";
+                + "\"$and\" : [ { \"major_version\" : { \"$lt\" : 2}} , "
+                + "{ \"major_version\" : { \"$gt\" : -1}}]}";
         // System.out.println(builder.get().toString() + "\n" + bsStr1);
         Assert.assertEquals( builder.get().toString().replaceAll( "\\s*", "" ),
                 bsStr1.replaceAll( "\\s*", "" ) );
@@ -204,15 +199,14 @@ public class MthCombin331 extends TestScmBase {
 
         // check builder
         // Note: $in and $nin are conflicted. choose $nin here
-        String bsStr2 = "{ \"major_version\" : { " + "\"$nin\" : [ 0 , -1] , " +
-                "\"$exists\" : 1 , "
-                + "\"$gt\" : -1 , " + "\"$gte\" : 0 , " + "\"$lt\" : 10 , " +
-                "\"$lte\" : 1} , "
+        String bsStr2 = "{ \"major_version\" : { " + "\"$nin\" : [ 0 , -1] , "
+                + "\"$exists\" : 1 , " + "\"$gt\" : -1 , " + "\"$gte\" : 0 , "
+                + "\"$lt\" : 10 , " + "\"$lte\" : 1} , "
                 + "\"$or\" : [ { \"major_version\" : { \"$in\" : [ 0 , 1]}} , "
                 + "{ \"major_version\" : { \"$nin\" : [ 0 , -1]}}] , "
                 + "\"$not\" : [ { \"major_version\" : { \"$lt\" : 0}}] , "
-                + "\"$and\" : [ { \"major_version\" : { \"$lt\" : 2}} , " +
-                "{ \"major_version\" : { \"$gt\" : -1}}] , "
+                + "\"$and\" : [ { \"major_version\" : { \"$lt\" : 2}} , "
+                + "{ \"major_version\" : { \"$gt\" : -1}}] , "
                 + "\"title\" : \"" + authorName + "_0\"}";
         Assert.assertEquals( builder.get().toString().replaceAll( "\\s*", "" ),
                 bsStr2.replaceAll( "\\s*", "" ) );

@@ -51,8 +51,8 @@ public class DefineAttr_Attr_Create1922 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         craeteAttr();
-        ScmAttribute actAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( actAttr, attr );
         runSuccess = true;
     }

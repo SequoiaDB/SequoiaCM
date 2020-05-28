@@ -85,8 +85,8 @@ public class AuthWs_role1742 extends TestScmBase {
                     ScmPrivilegeType.ALL );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "grantPrivilege but ws/dir not exist, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "grantPrivilege but ws/dir not exist, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results
@@ -117,9 +117,8 @@ public class AuthWs_role1742 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

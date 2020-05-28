@@ -28,10 +28,8 @@ public class CleanEnvForCloudDisk extends TestScmBase {
     }
 
     /*
-     *为了方便，假网盘的元数据和scm文件元数据部署在同一个集群上，
-     * 跑用例之前，连接scm文件元数据的db地址清理环境。
-     * 若假网盘的db与scm文件元数据db不在一个集群上，
-     * 请修改连接db地址
+     * 为了方便，假网盘的元数据和scm文件元数据部署在同一个集群上， 跑用例之前，连接scm文件元数据的db地址清理环境。
+     * 若假网盘的db与scm文件元数据db不在一个集群上， 请修改连接db地址
      */
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {

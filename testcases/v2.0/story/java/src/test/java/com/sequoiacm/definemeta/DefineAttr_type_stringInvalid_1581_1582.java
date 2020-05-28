@@ -92,7 +92,7 @@ public class DefineAttr_type_stringInvalid_1581_1582 extends TestScmBase {
         ScmClassProperties properties = new ScmClassProperties(
                 class1.getId().get() );
 
-        properties.addProperty( "test_attr_name_str_1581_1", null ); //invalid
+        properties.addProperty( "test_attr_name_str_1581_1", null ); // invalid
         properties.addProperty( "test_attr_name_str_1581_2", "valid" );
         properties.addProperty( "test_attr_name_str_1581_3", "valid" );
         properties.addProperty( "test_attr_name_str_1581_4", "valid" );
@@ -101,9 +101,9 @@ public class DefineAttr_type_stringInvalid_1581_1582 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            //e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -114,7 +114,7 @@ public class DefineAttr_type_stringInvalid_1581_1582 extends TestScmBase {
         ScmClassProperties properties = new ScmClassProperties(
                 class1.getId().get() );
         properties.addProperty( "test_attr_name_str_1581_1", "valid" );
-        properties.addProperty( "test_attr_name_str_1581_2", null );//invalid
+        properties.addProperty( "test_attr_name_str_1581_2", null );// invalid
         properties.addProperty( "test_attr_name_str_1581_3", "valid" );
         properties.addProperty( "test_attr_name_str_1581_4", "valid" );
         properties.addProperty( "test_attr_name_str_1581_5", "valid" );
@@ -123,8 +123,8 @@ public class DefineAttr_type_stringInvalid_1581_1582 extends TestScmBase {
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             // e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -137,16 +137,15 @@ public class DefineAttr_type_stringInvalid_1581_1582 extends TestScmBase {
         properties.addProperty( "test_attr_name_str_1581_1", "valid" );
         properties.addProperty( "test_attr_name_str_1581_2", "valid" );
         properties.addProperty( "test_attr_name_str_1581_3", "valid" );
-        properties.addProperty( "test_attr_name_str_1581_4",
-                "01234567890" ); // invalid
+        properties.addProperty( "test_attr_name_str_1581_4", "01234567890" ); // invalid
         properties.addProperty( "test_attr_name_str_1581_5", "valid" );
         try {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             // e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }

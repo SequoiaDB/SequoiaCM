@@ -50,10 +50,10 @@ public class DeleteScmFile289 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -83,10 +83,10 @@ public class DeleteScmFile289 extends TestScmBase {
             DeleteScmFile deleteScmFile = new DeleteScmFile();
             deleteScmFile.start( 10 );
 
-            if ( !( getFileInstance.isSuccess() &&
-                    deleteScmFile.isSuccess() ) ) {
-                Assert.fail( getFileInstance.getErrorMsg() +
-                        deleteScmFile.getErrorMsg() );
+            if ( !( getFileInstance.isSuccess()
+                    && deleteScmFile.isSuccess() ) ) {
+                Assert.fail( getFileInstance.getErrorMsg()
+                        + deleteScmFile.getErrorMsg() );
             }
 
             checkResults();
@@ -115,8 +115,8 @@ public class DeleteScmFile289 extends TestScmBase {
     private void checkResults() throws Exception {
         try {
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
@@ -168,9 +168,8 @@ public class DeleteScmFile289 extends TestScmBase {
             } catch ( ScmException e ) {
                 if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
                     e.printStackTrace();
-                    Assert.fail(
-                            "delete file, fileId = " + fileId.get() + ", " +
-                                    e.getMessage() );
+                    Assert.fail( "delete file, fileId = " + fileId.get() + ", "
+                            + e.getMessage() );
                 }
             } finally {
                 if ( session != null ) {

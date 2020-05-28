@@ -65,8 +65,8 @@ public class Audit2350 extends TestScmBase {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + username1,
                 "FILE_DML" );
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "FILE_DQL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "FILE_DQL" );
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "TOKEN" );
         confMap.put( ConfigCommonDefind.scm_audit_mask, "FILE_DQL" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
@@ -101,12 +101,12 @@ public class Audit2350 extends TestScmBase {
                     .append( ScmAttributeName.Audit.USERNAME, username );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, fileId.get() ),
-                    isLogged1, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged1, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson2, fileId.get() ),
-                    isLogged2, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged2, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -120,8 +120,8 @@ public class Audit2350 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();

@@ -52,8 +52,8 @@ public class ListBatch2586 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //prepare batch
-        //prepare batch
+        // prepare batch
+        // prepare batch
         for ( int i = 0; i < batchNum; i++ ) {
             String batchName = batchNamePrefix + "-" + i;
             BSONObject cond = ScmQueryBuilder
@@ -62,8 +62,8 @@ public class ListBatch2586 extends TestScmBase {
                 ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
                         .listInstance( ws, cond );
                 while ( cursor.hasNext() ) {
-                    ScmFactory.Batch
-                            .deleteInstance( ws, cursor.getNext().getId() );
+                    ScmFactory.Batch.deleteInstance( ws,
+                            cursor.getNext().getId() );
                 }
             }
             ScmBatch scmBatch = ScmFactory.Batch.createInstance( ws );
@@ -73,8 +73,8 @@ public class ListBatch2586 extends TestScmBase {
         }
         filter = ScmQueryBuilder.start( ScmAttributeName.Batch.TAGS ).is( tag )
                 .get();
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, filter );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                filter );
         while ( cursor.hasNext() ) {
             batchList.add( cursor.getNext() );
         }
@@ -89,8 +89,8 @@ public class ListBatch2586 extends TestScmBase {
                 .start( ScmAttributeName.Batch.NAME ).is( -1 )
                 .and( ScmAttributeName.Batch.CREATE_TIME ).is( 1 ).get();
         return new Object[][] {
-                //filter  skip   limit initScmFiles  sortnameArr  typeArr
-                //orderby:多个字段 正序
+                // filter skip limit initScmFiles sortnameArr typeArr
+                // orderby:多个字段 正序
                 { filter, orderby, 0, 10, batchList,
                         new String[] { "createTime", "name" },
                         new boolean[] { true, false } },
@@ -112,8 +112,8 @@ public class ListBatch2586 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             while ( tmpSkip < tmpList.size() ) {
                 ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
                         .listInstance( ws, filter, orderby, tmpSkip, limit );
@@ -131,12 +131,11 @@ public class ListBatch2586 extends TestScmBase {
                         Assert.assertEquals( act.getName(), exp.getName() );
                         count++;
                     } catch ( AssertionError e ) {
-                        throw new Exception(
-                                "filter = " + filter.toString() + ",orderby = "
-                                        + orderby + ",skip = " + skip
-                                        + ",limit = " + limit + "，act = " + act
-                                        .toString() + ",exp = " + exp
-                                        .toString(), e );
+                        throw new Exception( "filter = " + filter.toString()
+                                + ",orderby = " + orderby + ",skip = " + skip
+                                + ",limit = " + limit + "，act = "
+                                + act.toString() + ",exp = " + exp.toString(),
+                                e );
                     }
                 }
                 if ( limit == 0 || count == 0 ) {
@@ -166,9 +165,8 @@ public class ListBatch2586 extends TestScmBase {
                 Assert.assertEquals( actPageSize, 0 );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "filter = " + filter + ",orderby = " + orderby + ",skip = "
-                            + skip + ",limit = " + limit, e );
+            throw new Exception( "filter = " + filter + ",orderby = " + orderby
+                    + ",skip = " + skip + ",limit = " + limit, e );
         }
         expSuccessTestCount.getAndIncrement();
     }
@@ -188,5 +186,3 @@ public class ListBatch2586 extends TestScmBase {
         }
     }
 }
-
-

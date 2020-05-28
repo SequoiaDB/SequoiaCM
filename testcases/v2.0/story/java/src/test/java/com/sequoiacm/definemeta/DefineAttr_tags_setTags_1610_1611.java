@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1610:批量重复多次添加
- *				SCM-1611:批量多次添加不重复的标签
+ * @Testcase: SCM-1610:批量重复多次添加 SCM-1611:批量多次添加不重复的标签
  * @author huangxiaoni init
  * @date 2017.6.22
  */
@@ -64,7 +63,7 @@ public class DefineAttr_tags_setTags_1610_1611 extends TestScmBase {
         runSuccess = true;
     }
 
-    //SCM-1610:批量重复多次添加
+    // SCM-1610:批量重复多次添加
     private void test_setTags01() throws Exception {
         // define tags
         Set< String > tagSet = new HashSet<>();
@@ -87,27 +86,27 @@ public class DefineAttr_tags_setTags_1610_1611 extends TestScmBase {
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
         Assert.assertEquals( fileTags.toSet().size(), tagSet2.size(),
-                "fileTags = " + fileTags.toString() + ",tagSet2 = " +
-                        tagSet2.toString() );
+                "fileTags = " + fileTags.toString() + ",tagSet2 = "
+                        + tagSet2.toString() );
         Assert.assertTrue( fileTags.toSet().containsAll( tagSet2 ),
-                "fileTags = " + fileTags.toString() + ",tagSet2 = " +
-                        tagSet2.toString() );
+                "fileTags = " + fileTags.toString() + ",tagSet2 = "
+                        + tagSet2.toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.setTags( tags1 );
         batch.setTags( tags2 );
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags batchTags = batch.getTags();
         Assert.assertEquals( batchTags.toSet().size(), tagSet2.size(),
-                "fileTags = " + batchTags.toString() + ",tagSet2 = " +
-                        tagSet2.toString() );
+                "fileTags = " + batchTags.toString() + ",tagSet2 = "
+                        + tagSet2.toString() );
         Assert.assertTrue( batchTags.toSet().containsAll( tagSet2 ),
-                "fileTags = " + batchTags.toString() + ",tagSet2 = " +
-                        tagSet2.toString() );
+                "fileTags = " + batchTags.toString() + ",tagSet2 = "
+                        + tagSet2.toString() );
     }
 
-    //SCM-1611:批量多次添加不重复的标签
+    // SCM-1611:批量多次添加不重复的标签
     private void test_setTags02() throws Exception {
         // define tags
         Set< String > tagSet = new HashSet<>();
@@ -123,24 +122,23 @@ public class DefineAttr_tags_setTags_1610_1611 extends TestScmBase {
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
         Assert.assertEquals( fileTags.toSet().size(), tagSet.size(),
-                "fileTags = " + fileTags.toString() + ",tagSet2 = " +
-                        tagSet.toString() );
-        Assert.assertTrue( fileTags.toSet().containsAll( tagSet ),
-                "fileTags = " + fileTags.toString() + ",tagSet2 = " +
-                        tagSet.toString() );
+                "fileTags = " + fileTags.toString() + ",tagSet2 = "
+                        + tagSet.toString() );
+        Assert.assertTrue( fileTags.toSet().containsAll( tagSet ), "fileTags = "
+                + fileTags.toString() + ",tagSet2 = " + tagSet.toString() );
 
-        //test scm batch set tags
+        // test scm batch set tags
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.setTags( scmTags );
         // check results
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags batchTags = batch.getTags();
         Assert.assertEquals( batchTags.toSet().size(), tagSet.size(),
-                "fileTags = " + batchTags.toString() + ",tagSet2 = " +
-                        tagSet.toString() );
+                "fileTags = " + batchTags.toString() + ",tagSet2 = "
+                        + tagSet.toString() );
         Assert.assertTrue( batchTags.toSet().containsAll( tagSet ),
-                "fileTags = " + batchTags.toString() + ",tagSet2 = " +
-                        tagSet.toString() );
+                "fileTags = " + batchTags.toString() + ",tagSet2 = "
+                        + tagSet.toString() );
     }
 
     @AfterClass(alwaysRun = true)

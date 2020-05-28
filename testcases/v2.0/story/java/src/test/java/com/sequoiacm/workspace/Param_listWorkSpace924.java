@@ -36,12 +36,11 @@ public class Param_listWorkSpace924 extends TestScmBase {
     private void testSSIsNull() {
         try {
             ScmFactory.Workspace.listWorkspace( null );
-            Assert.fail(
-                    "expect result is fail but actual is success, when " +
-                            "session is null." );
+            Assert.fail( "expect result is fail but actual is success, when "
+                    + "session is null." );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode() ||
-                    !e.getMessage().contains( "session is null" ) ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode()
+                    || !e.getMessage().contains( "session is null" ) ) {
                 Assert.fail( e.getMessage() );
             }
         }
@@ -54,9 +53,8 @@ public class Param_listWorkSpace924 extends TestScmBase {
             session = TestScmTools.createSession( site );
             session.close();
             ScmFactory.Workspace.listWorkspace( session );
-            Assert.fail(
-                    "expect result is fail but actual is success, when " +
-                            "session is unexist." );
+            Assert.fail( "expect result is fail but actual is success, when "
+                    + "session is unexist." );
         } catch ( ScmException e ) {
             if ( e.getErrorCode() != ScmError.SESSION_CLOSED.getErrorCode() ) {
                 e.printStackTrace();

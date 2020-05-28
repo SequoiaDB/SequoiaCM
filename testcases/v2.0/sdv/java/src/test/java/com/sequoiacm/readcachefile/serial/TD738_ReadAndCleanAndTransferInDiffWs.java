@@ -57,10 +57,10 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             rootSite = ScmInfo.getRootSite();
             branSites = ScmInfo.getBranchSites( branSitesNum );
@@ -86,11 +86,11 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
             StartCleanTaskInWs3 cleanInWs3 = new StartCleanTaskInWs3();
             cleanInWs3.start();
 
-            if ( !( readInWs.isSuccess() && transferInWs2.isSuccess() &&
-                    cleanInWs3.isSuccess() ) ) {
+            if ( !( readInWs.isSuccess() && transferInWs2.isSuccess()
+                    && cleanInWs3.isSuccess() ) ) {
                 Assert.fail(
-                        readInWs.getErrorMsg() + transferInWs2.getErrorMsg() +
-                                cleanInWs3.getErrorMsg() );
+                        readInWs.getErrorMsg() + transferInWs2.getErrorMsg()
+                                + cleanInWs3.getErrorMsg() );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -152,9 +152,9 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
             throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( filePath ),
@@ -224,8 +224,8 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         public StartTransferTaskInWs2() throws ScmException {
             try {
                 sessionA = TestScmTools.createSession( branSites.get( 0 ) );
-                wsA = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), sessionA );
+                wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                        sessionA );
                 writeFile( wsA, fileIdList2 );
             } catch ( ScmException e ) {
                 throw e;
@@ -242,15 +242,15 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task
-                        .startTransferTask( wsA, condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( wsA,
+                        condition );
 
                 // check task info
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );
@@ -276,7 +276,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
 
     private class StartCleanTaskInWs3 extends TestThreadBase {
         private WsWrapper wsp = wsList.get( 2 );
-        //private NodeWrapper node = branSites.get(0).getNode();
+        // private NodeWrapper node = branSites.get(0).getNode();
         private ScmSession sessionA = null;
         private ScmWorkspace wsA = null;
 
@@ -288,8 +288,8 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         public StartCleanTaskInWs3() throws Exception {
             try {
                 sessionA = TestScmTools.createSession( branSites.get( 0 ) );
-                wsA = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), sessionA );
+                wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                        sessionA );
                 writeFile( wsA, fileIdList3 );
             } catch ( ScmException e ) {
                 throw e;
@@ -324,8 +324,8 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );

@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1290: 获取已存在的批次实例
- *           SCM-1291: 获取不存在的批次实例
+ * @FileName SCM-1290: 获取已存在的批次实例 SCM-1291: 获取不存在的批次实例
  * @Author linsuqiang
  * @Date 2018-04-19
  * @Version 1.00
@@ -52,8 +51,8 @@ public class GetBatch1290 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -71,10 +70,10 @@ public class GetBatch1290 extends TestScmBase {
         attr.setType( AttributeType.STRING );
         attr.setDescription( "I am a Attribute1290" );
         attr.setDisplayName( attrName + "_display" );
-        ScmAttribute scmAttribute = ScmFactory.Attribute
-                .createInstance( ws, attr );
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1290" );
+        ScmAttribute scmAttribute = ScmFactory.Attribute.createInstance( ws,
+                attr );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1290" );
         scmClass.attachAttr( scmAttribute.getId() );
 
         scmClassId = scmClass.getId();

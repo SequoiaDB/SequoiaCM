@@ -50,10 +50,10 @@ public class OverWriteFile2675 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -66,7 +66,7 @@ public class OverWriteFile2675 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test //over write file by stream
+    @Test // over write file by stream
     private void test1() throws Exception {
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( fileNames[ 0 ] );
@@ -74,12 +74,12 @@ public class OverWriteFile2675 extends TestScmBase {
         scmFile.setContent( new FileInputStream( new File( filePath ) ) );
         ScmId fileId = scmFile.save( new ScmUploadConf( true ) );
         fileIdList.add( fileId );
-        //check file
+        // check file
         checkFile( fileId, fileNames[ 0 ] );
         runSuccess = true;
     }
 
-    @Test //over write file by filePath
+    @Test // over write file by filePath
     private void test2() throws Exception {
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( fileNames[ 1 ] );
@@ -87,7 +87,7 @@ public class OverWriteFile2675 extends TestScmBase {
         scmFile.setContent( filePath );
         ScmId fileId = scmFile.save( new ScmUploadConf( true ) );
         fileIdList.add( fileId );
-        //check file
+        // check file
         checkFile( fileId, fileNames[ 1 ] );
         runSuccess = true;
     }
@@ -122,9 +122,9 @@ public class OverWriteFile2675 extends TestScmBase {
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             Assert.assertNotNull( file.getCreateTime().getTime() );
             Assert.assertNull( file.getBatchId() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),

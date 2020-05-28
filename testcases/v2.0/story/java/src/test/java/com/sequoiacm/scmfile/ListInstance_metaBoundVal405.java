@@ -98,9 +98,9 @@ public class ListInstance_metaBoundVal405 extends TestScmBase {
     private void createFileAndSetAttr() {
         try {
             ScmFile file = ScmFactory.File.createInstance( ws );
-            //file.setAuthor(longStr);
+            // file.setAuthor(longStr);
             file.setFileName( longStr );
-            //file.setPropertyType(null);
+            // file.setPropertyType(null);
             file.setTitle( "" );
             fileId = file.save();
         } catch ( ScmException e ) {

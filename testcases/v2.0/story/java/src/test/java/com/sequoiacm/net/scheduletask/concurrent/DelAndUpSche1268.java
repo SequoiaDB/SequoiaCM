@@ -72,10 +72,10 @@ public class DelAndUpSche1268 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -95,10 +95,10 @@ public class DelAndUpSche1268 extends TestScmBase {
             ssA = TestScmTools.createSession( branSite );
             ssA1 = TestScmTools.createSession( branSite1 );
 
-            wsA = ScmFactory.Workspace
-                    .getWorkspace( wss.get( 0 ).getName(), ssA );
-            wsA1 = ScmFactory.Workspace
-                    .getWorkspace( wss.get( 1 ).getName(), ssA1 );
+            wsA = ScmFactory.Workspace.getWorkspace( wss.get( 0 ).getName(),
+                    ssA );
+            wsA1 = ScmFactory.Workspace.getWorkspace( wss.get( 1 ).getName(),
+                    ssA1 );
 
             // clean environment
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -151,8 +151,8 @@ public class DelAndUpSche1268 extends TestScmBase {
         }
 
         SiteWrapper[] expSites2 = { rootSite1 };
-        ScmScheduleUtils
-                .checkScmFile( wsA1, fileIds, fileNum / 2, fileNum, expSites2 );
+        ScmScheduleUtils.checkScmFile( wsA1, fileIds, fileNum / 2, fileNum,
+                expSites2 );
 
         ScmSchedule sche = ScmSystem.Schedule.get( ssA, scheIds.get( 1 ) );
         Assert.assertEquals( sche.getContent(), newContent );
@@ -204,12 +204,11 @@ public class DelAndUpSche1268 extends TestScmBase {
             SiteWrapper rootSite ) throws ScmException {
         String maxStayTime = "0d";
         ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
-                branSite.getSiteName(),
-                rootSite.getSiteName(), maxStayTime, queryCond );
+                branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
+                queryCond );
         String cron = "* * * * * ?";
-        ScmSchedule sche = ScmSystem.Schedule
-                .create( ssA, wsName, ScheduleType.COPY_FILE, name, "", content,
-                        cron );
+        ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsName,
+                ScheduleType.COPY_FILE, name, "", content, cron );
         ScmId scheduleId = sche.getId();
         scheIds.add( scheduleId );
     }

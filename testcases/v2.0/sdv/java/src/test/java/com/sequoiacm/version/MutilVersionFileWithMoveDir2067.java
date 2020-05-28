@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description: SCM-2067 :: 文件夹下创建多个版本文件，移动文件夹后读取文件 
+ * @Description: SCM-2067 :: 文件夹下创建多个版本文件，移动文件夹后读取文件
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -55,12 +55,11 @@ public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         for ( int i = 1; i <= 3; i++ ) {
-            String filePath = localPath + File.separator + "localFile_" +
-                    ( int ) ( fileSize / Math.pow( 2, i - 1 ) )
-                    + ".txt";
+            String filePath = localPath + File.separator + "localFile_"
+                    + ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) + ".txt";
             TestTools.LocalFile.createFile( filePath,
                     ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) );
             filePathList.add( filePath );
@@ -156,8 +155,8 @@ public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -166,8 +165,8 @@ public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -188,7 +187,7 @@ public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
     }
 
     private void checkFileAttr( String filePath ) throws ScmException {
-        //check fileAtrr
+        // check fileAtrr
         ScmFile file = ScmFactory.File.getInstanceByPath( ws, filePath );
         Assert.assertEquals( file.getFileName(), name );
         Assert.assertEquals( file.getMajorVersion(), 3 );
@@ -207,9 +206,9 @@ public class MutilVersionFileWithMoveDir2067 extends TestScmBase {
             }
         }
 
-        //check
-        ScmDirectory dir1 = ScmFactory.Directory
-                .getInstance( ws, destPath + srcPath );
+        // check
+        ScmDirectory dir1 = ScmFactory.Directory.getInstance( ws,
+                destPath + srcPath );
         ScmFile file1 = dir1.getSubfile( name );
         Assert.assertEquals( file1.getDirectory().getPath(),
                 destPath + srcPath + "/" );

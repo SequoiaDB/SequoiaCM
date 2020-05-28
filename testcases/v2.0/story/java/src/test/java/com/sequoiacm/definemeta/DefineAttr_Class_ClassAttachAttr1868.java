@@ -51,8 +51,8 @@ public class DefineAttr_Class_ClassAttachAttr1868 extends TestScmBase {
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             for ( int i = 0; i < num; i++ ) {
-                ScmClass class1 = ScmFactory.Class
-                        .createInstance( ws, name + "_" + i, desc );
+                ScmClass class1 = ScmFactory.Class.createInstance( ws,
+                        name + "_" + i, desc );
                 classList.add( class1 );
                 attrList.add( craeteAttr( name + "_" + i ) );
             }
@@ -63,7 +63,7 @@ public class DefineAttr_Class_ClassAttachAttr1868 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
-        //one to one
+        // one to one
         try {
             classList.get( 0 ).attachAttr( attrList.get( 0 ).getId() );
             check( classList.get( 0 ), attrList.subList( 0, 1 ) );
@@ -99,19 +99,19 @@ public class DefineAttr_Class_ClassAttachAttr1868 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Class
-                            .deleteInstance( ws, classList.get( i ).getId() );
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Class.deleteInstance( ws,
+                            classList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
             if ( !runSuccess && classList.size() != 0 ) {
                 System.out.println( "class = " + classList.toString() );
                 for ( int i = 0; i < num; i++ ) {
-                    ScmFactory.Class
-                            .deleteInstance( ws, classList.get( i ).getId() );
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attrList.get( i ).getId() );
+                    ScmFactory.Class.deleteInstance( ws,
+                            classList.get( i ).getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attrList.get( i ).getId() );
                 }
             }
         } catch ( BaseException | ScmException e ) {
@@ -141,8 +141,8 @@ public class DefineAttr_Class_ClassAttachAttr1868 extends TestScmBase {
 
     private void check( ScmClass class1, List< ScmAttribute > attrList ) {
         try {
-            ScmClass class2 = ScmFactory.Class
-                    .getInstance( ws, class1.getId() );
+            ScmClass class2 = ScmFactory.Class.getInstance( ws,
+                    class1.getId() );
             List< ScmAttribute > list = class2.listAttrs();
             Assert.assertEquals( list.size(), attrList.size(),
                     list.toString() );

@@ -40,7 +40,7 @@ public class UpdateServiceConf2289 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
@@ -62,9 +62,9 @@ public class UpdateServiceConf2289 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( updatedSite, fileName );
-        //check otherservice's configration is not updated
+        // check otherservice's configration is not updated
         ConfUtil.checkNotTakeEffect( initSite, fileName );
     }
 

@@ -62,10 +62,10 @@ public class UpdateSche_cleanToCope1246 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -96,13 +96,13 @@ public class UpdateSche_cleanToCope1246 extends TestScmBase {
             this.writeScmFile( wsA, 0, fileNum );
             this.readScmFile( wsR, 0, fileNum );
             SiteWrapper[] expSites1 = { rootSite, branSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum, expSites1 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum,
+                    expSites1 );
             // create schedule task, type is clean, and check
             this.createScheduleTask();
             SiteWrapper[] expSites2 = { rootSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum, expSites2 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum,
+                    expSites2 );
 
             // write scmFile again at the rootSite
             this.writeScmFile( wsA, fileNum, fileNum + 3 );
@@ -113,8 +113,8 @@ public class UpdateSche_cleanToCope1246 extends TestScmBase {
                     expSites3 );
 
             SiteWrapper[] expSites4 = { rootSite };
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 0, fileNum, expSites4 );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum,
+                    expSites4 );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -161,9 +161,9 @@ public class UpdateSche_cleanToCope1246 extends TestScmBase {
         for ( int i = startNum; i < endNum; i++ ) {
             ScmId fileId = fileIds.get( i );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         }
     }
@@ -172,8 +172,7 @@ public class UpdateSche_cleanToCope1246 extends TestScmBase {
         try {
             ScheduleType taskType = ScheduleType.CLEAN_FILE;
             String maxStayTime = "0d";
-            ScmScheduleCleanFileContent content = new
-                    ScmScheduleCleanFileContent(
+            ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), maxStayTime, queryCond );
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     taskType, name, "", content, cron );

@@ -54,10 +54,10 @@ public class SameTask1104 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -90,8 +90,8 @@ public class SameTask1104 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        JSONObject options = new JSONObject()
-                .put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", author ) );
         try {
             String response1 = rest1.setApi( "tasks" )
                     .setRequestMethod( HttpMethod.POST )
@@ -105,13 +105,13 @@ public class SameTask1104 extends TestScmBase {
             String response2 = rest2.setRequestMethod( HttpMethod.PUT )
                     .setParameter( "workspace_name", ws.getName() )
                     .setParameter( "options", options.toString() )
-                    .setParameter( "task_type", "2" )
-                    .exec().getBody().toString();
+                    .setParameter( "task_type", "2" ).exec().getBody()
+                    .toString();
             taskId2 = new JSONObject( response2 ).getJSONObject( "task" )
                     .getString( "id" );
             Assert.fail(
-                    "start double task is success when task is duplicate in " +
-                            "same ws" );
+                    "start double task is success when task is duplicate in "
+                            + "same ws" );
         } catch ( HttpServerErrorException e ) {
             HttpStatus status = e.getStatusCode();
             if ( status != HttpStatus.INTERNAL_SERVER_ERROR ) {
@@ -127,9 +127,10 @@ public class SameTask1104 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
-                    rest1.reset().setApi(
-                            "files/" + fileId.get() + "?workspace_name=" +
-                                    ws.getName() + "&is_physical=true" )
+                    rest1.reset()
+                            .setApi( "files/" + fileId.get()
+                                    + "?workspace_name=" + ws.getName()
+                                    + "&is_physical=true" )
                             .setRequestMethod( HttpMethod.DELETE )
                             .setResponseType( String.class ).exec();
                     if ( taskId1 != null ) {
@@ -152,15 +153,14 @@ public class SameTask1104 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest )
-            throws HttpClientErrorException, JSONException,
+            RestWrapper rest ) throws HttpClientErrorException, JSONException,
             FileNotFoundException {
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc)
+                // .setParameter("file", resource)
+                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();

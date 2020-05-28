@@ -52,10 +52,10 @@ public class AcrossCenterReadFileByGetContent242 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -107,8 +107,8 @@ public class AcrossCenterReadFileByGetContent242 extends TestScmBase {
 
         // check results
         SiteWrapper[] expSites = { branSites.get( 0 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
     }
 
     private void readFileFromB() throws Exception {
@@ -118,14 +118,14 @@ public class AcrossCenterReadFileByGetContent242 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             scmfile.getContent( fos );
 

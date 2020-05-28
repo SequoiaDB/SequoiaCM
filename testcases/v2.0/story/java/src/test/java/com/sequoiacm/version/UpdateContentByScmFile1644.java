@@ -25,8 +25,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that scmfile outputStream update Content of  the
- * scmfile
+ * test content:specify that scmfile outputStream update Content of the scmfile
  * testlink-case:SCM-1644
  *
  * @author wuyan
@@ -50,10 +49,10 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -69,11 +68,11 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //test a:scmfile outputStream update Content
+        // test a:scmfile outputStream update Content
         updateContentByAllOutputStream();
-        //test b:scmfile outputStream specified length update Content
+        // test b:scmfile outputStream specified length update Content
         updateContentByPartOutputStream();
-        //check result
+        // check result
         int currentVersion = 3;
         int historyVersion1 = 1;
         int historyVersion2 = 2;
@@ -82,8 +81,8 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
                 filePath, localPath );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion2,
                 contentdata );
-        //http://jira:8080/browse/SEQUOIACM-274
-        //VersionUtil.CheckFileContentByStream(  ws, fileName,
+        // http://jira:8080/browse/SEQUOIACM-274
+        // VersionUtil.CheckFileContentByStream( ws, fileName,
         // currentVersion, partdata );
         VersionUtils.checkFileCurrentVersion( ws, fileId, currentVersion );
 
@@ -103,7 +102,7 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         }
     }
 
-    //test a
+    // test a
     private void updateContentByAllOutputStream() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmOutputStream fileOutStream = ScmFactory.File
@@ -113,7 +112,7 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         fileOutStream.commit();
     }
 
-    //test b
+    // test b
     private void updateContentByPartOutputStream() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmOutputStream fileOutStream = ScmFactory.File

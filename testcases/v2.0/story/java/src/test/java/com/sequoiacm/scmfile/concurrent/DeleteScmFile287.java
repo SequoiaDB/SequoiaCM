@@ -51,10 +51,10 @@ public class DeleteScmFile287 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -84,8 +84,8 @@ public class DeleteScmFile287 extends TestScmBase {
             deleteScmFile.start( 20 );
 
             if ( !( readScmFile.isSuccess() && deleteScmFile.isSuccess() ) ) {
-                Assert.fail( readScmFile.getErrorMsg() +
-                        deleteScmFile.getErrorMsg() );
+                Assert.fail( readScmFile.getErrorMsg()
+                        + deleteScmFile.getErrorMsg() );
             }
 
             checkResults();
@@ -115,8 +115,8 @@ public class DeleteScmFile287 extends TestScmBase {
     private void checkResults() throws Exception {
         try {
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
@@ -140,9 +140,9 @@ public class DeleteScmFile287 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String dwPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String dwPath = TestTools.LocalFile.initDownloadPath( localPath,
+                        TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( dwPath );
                 // check results
                 Assert.assertEquals( TestTools.getMD5( filePath ),
@@ -150,11 +150,11 @@ public class DeleteScmFile287 extends TestScmBase {
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.DATA_ERROR
                         && e.getError() != ScmError.FILE_NOT_FOUND
-                        && e.getError() != ScmError.DATA_NOT_EXIST &&
-                        e.getError() != ScmError.DATA_UNAVAILABLE
+                        && e.getError() != ScmError.DATA_NOT_EXIST
+                        && e.getError() != ScmError.DATA_UNAVAILABLE
                         && e.getError() != ScmError.DATA_CORRUPTED ) {
-                    System.out.println( "read file, fileId = " + fileId.get() +
-                            ", errno = " + e.getErrorCode() );
+                    System.out.println( "read file, fileId = " + fileId.get()
+                            + ", errno = " + e.getErrorCode() );
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -179,9 +179,8 @@ public class DeleteScmFile287 extends TestScmBase {
                 ScmFactory.File.getInstance( ws, fileId ).delete( true );
             } catch ( ScmException e ) {
                 if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                    System.out.println(
-                            "delete file, fileId = " + fileId.get() +
-                                    ", errno = " + e.getErrorCode() );
+                    System.out.println( "delete file, fileId = " + fileId.get()
+                            + ", errno = " + e.getErrorCode() );
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

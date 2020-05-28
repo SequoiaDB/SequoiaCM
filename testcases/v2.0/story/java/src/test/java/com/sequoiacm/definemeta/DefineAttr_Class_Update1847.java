@@ -114,8 +114,7 @@ public class DefineAttr_Class_Update1847 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
@@ -164,9 +163,8 @@ public class DefineAttr_Class_Update1847 extends TestScmBase {
     }
 
     private void prepare() throws Exception {
-        user = ScmFactory.User
-                .createUser( session, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( session, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( session, rolename, null );
         wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
 

@@ -57,8 +57,8 @@ public class Audit2342 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "META_ATTR_DQL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "META_ATTR_DQL" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
         Map< String, String > confMap1 = new HashMap< String, String >();
@@ -66,7 +66,7 @@ public class Audit2342 extends TestScmBase {
                 "META_ATTR_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
 
-        //check
+        // check
         checkAudit( TestScmBase.scmUserName, TestScmBase.scmPassword );
         checkAudit( name, name );
     }
@@ -94,22 +94,21 @@ public class Audit2342 extends TestScmBase {
             if ( username.equals( TestScmBase.scmUserName ) ) {
                 Assert.assertEquals(
                         ConfUtil.checkAudit( session, bson1, attrName ), false,
-                        "Has the configuration been updated? attrId = " +
-                                attrId.get() );
+                        "Has the configuration been updated? attrId = "
+                                + attrId.get() );
                 Assert.assertEquals(
                         ConfUtil.checkAudit( session, bson2, attrId.get() ),
-                        true, "Has the configuration been updated? attrId = " +
-                                attrId.get() );
+                        true, "Has the configuration been updated? attrId = "
+                                + attrId.get() );
             } else {
                 Assert.assertEquals(
                         ConfUtil.checkAudit( session, bson1, attrName ), true,
-                        "Has the configuration been updated? ,attrId = " +
-                                attrId.get() );
+                        "Has the configuration been updated? ,attrId = "
+                                + attrId.get() );
                 Assert.assertEquals(
                         ConfUtil.checkAudit( session, bson2, attrId.get() ),
-                        false,
-                        "Has the configuration been updated? ,attrId = " +
-                                attrId.get() );
+                        false, "Has the configuration been updated? ,attrId = "
+                                + attrId.get() );
             }
         } finally {
             if ( attrId != null ) {
@@ -124,15 +123,14 @@ public class Audit2342 extends TestScmBase {
         ScmId attrId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
-            //create
-            ScmAttribute attr = ScmFactory.Attribute
-                    .createInstance( ws, new ScmAttributeConf()
-                            .setName( attrName )
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            // create
+            ScmAttribute attr = ScmFactory.Attribute.createInstance( ws,
+                    new ScmAttributeConf().setName( attrName )
                             .setType( AttributeType.STRING ) );
             attrId = attr.getId();
-            //query
+            // query
             ScmFactory.Attribute.getInstance( ws, attr.getId() );
         } finally {
             if ( session != null ) {

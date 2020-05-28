@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1612:更新已存在标签
- *				SCM-1613:更新添加新的标签
+ * @Testcase: SCM-1612:更新已存在标签 SCM-1613:更新添加新的标签
  * @author huangxiaoni init
  * @date 2017.6.22
  */
@@ -67,7 +66,7 @@ public class DefineAttr_tags_setTag_1612_1613 extends TestScmBase {
 
     // SCM-1612:更新已存在标签
     private void test_setTag01() throws Exception {
-        //test scm file
+        // test scm file
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.addTag( "k1" );
         file.addTag( "k2" );
@@ -79,7 +78,7 @@ public class DefineAttr_tags_setTag_1612_1613 extends TestScmBase {
         Assert.assertTrue( fileTags.toSet().contains( "k2" ),
                 fileTags.toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.addTag( "k1" );
         batch.addTag( "k2" );
@@ -94,7 +93,7 @@ public class DefineAttr_tags_setTag_1612_1613 extends TestScmBase {
 
     // SCM-1613:更新添加新的标签
     private void test_setTag02() throws Exception {
-        //test scm batch
+        // test scm batch
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.addTag( "k3" );
         file.addTag( "k4" );
@@ -103,7 +102,7 @@ public class DefineAttr_tags_setTag_1612_1613 extends TestScmBase {
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.addTag( "k3" );
         batch.addTag( "k4" );
@@ -112,20 +111,20 @@ public class DefineAttr_tags_setTag_1612_1613 extends TestScmBase {
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags batchTags = batch.getTags();
 
-        //exp tags;
+        // exp tags;
         Set< String > expTagsSet = new HashSet<>();
         expTagsSet.add( "k1" );
         expTagsSet.add( "k2" );
         expTagsSet.add( "k3" );
         expTagsSet.add( "k4" );
         expTagsSet.add( "k5" );
-        //check result
-        Assert.assertEquals( fileTags.toSet(), expTagsSet, "fileTags = "
-                + fileTags.toString() + ",expTagsSet = " +
-                expTagsSet.toString() );
-        Assert.assertEquals( batchTags.toSet(), expTagsSet, "fileTags = "
-                + batchTags.toString() + ",expTagsSet = " +
-                expTagsSet.toString() );
+        // check result
+        Assert.assertEquals( fileTags.toSet(), expTagsSet,
+                "fileTags = " + fileTags.toString() + ",expTagsSet = "
+                        + expTagsSet.toString() );
+        Assert.assertEquals( batchTags.toSet(), expTagsSet,
+                "fileTags = " + batchTags.toString() + ",expTagsSet = "
+                        + expTagsSet.toString() );
     }
 
     @AfterClass(alwaysRun = true)

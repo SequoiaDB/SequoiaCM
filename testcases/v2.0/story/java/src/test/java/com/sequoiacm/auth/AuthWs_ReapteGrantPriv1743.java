@@ -56,10 +56,10 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws InterruptedException, IOException {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -91,10 +91,10 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, usernameArr[ 0 ], passwd,
                     roleList.get( 0 ), wsp );
             // Thread.sleep(20000);
-            session = TestScmTools
-                    .createSession( site, usernameArr[ 0 ], passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            session = TestScmTools.createSession( site, usernameArr[ 0 ],
+                    passwd );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             fileId = ScmFileUtils.create( ws, fileName, filePath );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -126,10 +126,10 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
             // Thread.sleep(20000);
             ScmAuthUtils.checkPriority( site, usernameArr[ 1 ], passwd,
                     roleList.get( 1 ), wsp );
-            session = TestScmTools
-                    .createSession( site, usernameArr[ 1 ], passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            session = TestScmTools.createSession( site, usernameArr[ 1 ],
+                    passwd );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             fileId = ScmFileUtils.create( ws, fileName, filePath );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -167,8 +167,8 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -201,11 +201,10 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
     private void prepare() {
         for ( int i = 0; i < usernameArr.length; i++ ) {
             try {
-                ScmUser user = ScmFactory.User
-                        .createUser( sessionA, usernameArr[ i ],
-                                ScmUserPasswordType.LOCAL, passwd );
-                ScmRole role = ScmFactory.Role
-                        .createRole( sessionA, rolenameArr[ i ], null );
+                ScmUser user = ScmFactory.User.createUser( sessionA,
+                        usernameArr[ i ], ScmUserPasswordType.LOCAL, passwd );
+                ScmRole role = ScmFactory.Role.createRole( sessionA,
+                        rolenameArr[ i ], null );
                 userList.add( user );
                 roleList.add( role );
             } catch ( ScmException e ) {

@@ -61,10 +61,10 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -112,7 +112,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             SiteWrapper[] expSites3 = { rootSite, branSite };
             this.checkScmFile( 0, fileNum, expSites3 );
 
-            //update schedule type,copy to clean
+            // update schedule type,copy to clean
             maxStayTime = "366d";
             updateScheTaskToCleanTask( maxStayTime );
 
@@ -167,7 +167,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -191,7 +192,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -207,7 +209,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -230,7 +233,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -253,7 +257,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -263,13 +268,14 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
         try {
             ss = TestScmTools.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
-            ScmScheduleUtils
-                    .checkScmFile( ws, fileIds, startNum, endNum, expSites );
+            ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,
+                    expSites );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 }

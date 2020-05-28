@@ -44,8 +44,8 @@ public class ReNameFileAndCreateSameNameDir1180 extends TestScmBase {
     private WsWrapper wsp;
     private String dirBasePath = "/ReNameFileAndCreateSameNameDir1180";
     private String fullPath1 = dirBasePath;
-    private String fullPath2 =
-            dirBasePath + "/ReNameFileAndCreateSameNameDir1180";
+    private String fullPath2 = dirBasePath
+            + "/ReNameFileAndCreateSameNameDir1180";
     private ScmId fileId;
     private String author = "ReNameFileAndCreateSameNameDir1180";
     private ScmDirectory dir;
@@ -55,10 +55,10 @@ public class ReNameFileAndCreateSameNameDir1180 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );

@@ -58,8 +58,8 @@ public class HdfsUtils extends TestScmBase {
                 out = new FileOutputStream( filePath );
                 IOUtils.copyBytes( in, out, 4096, true );
             } else {
-                logger.error( "the record does not exist,path = " +
-                        srcPath.toString() );
+                logger.error( "the record does not exist,path = "
+                        + srcPath.toString() );
             }
         } catch ( FileNotFoundException e ) {
             e.printStackTrace();
@@ -90,8 +90,8 @@ public class HdfsUtils extends TestScmBase {
             IOUtils.copyBytes( in, out, 4096, true );
         } catch ( IOException e ) {
             System.out.println(
-                    "===================ERROR==================path = " +
-                            destPath.toString() );
+                    "===================ERROR==================path = "
+                            + destPath.toString() );
             e.printStackTrace();
             logger.error( "mkdir fail,MSG = " + destPath.toString() );
         } finally {

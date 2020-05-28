@@ -26,17 +26,16 @@ public class Param_UpdateService2310 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    //http://jira:8080/browse/SEQUOIACM-403
+    // http://jira:8080/browse/SEQUOIACM-403
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
-            ScmConfigProperties.builder()
-                    .service( null )
+            ScmConfigProperties.builder().service( null )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().service must be failed " +
-                            "when services is null" );
+                    " ScmConfigProperties.builder().service must be failed "
+                            + "when services is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -44,18 +43,17 @@ public class Param_UpdateService2310 extends TestScmBase {
         }
     }
 
-    //http://jira:8080/browse/SEQUOIACM-403
+    // http://jira:8080/browse/SEQUOIACM-403
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull1() {
         try {
-            ScmConfigProperties.builder()
-                    .service( null )
+            ScmConfigProperties.builder().service( null )
                     .service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().service must be failed " +
-                            "when the service contains null" );
+                    " ScmConfigProperties.builder().service must be failed "
+                            + "when the service contains null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

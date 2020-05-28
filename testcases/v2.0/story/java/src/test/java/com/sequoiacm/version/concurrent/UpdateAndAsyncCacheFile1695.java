@@ -26,10 +26,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content by breakPointfile and asyncCache the same
- * file concurrently:
- *               a.update content by breakPointFile
- *               b.asyncCache the file
+ * test content: update Content by breakPointfile and asyncCache the same file
+ * concurrently: a.update content by breakPointFile b.asyncCache the file
  * testlink-case:SCM-1695
  *
  * @author wuyan
@@ -60,8 +58,8 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -88,7 +86,7 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                //ScmFactory.File.deleteInstance(wsM, fileId, true);
+                // ScmFactory.File.deleteInstance(wsM, fileId, true);
             }
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -104,9 +102,10 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
         int currentVersion = 2;
         int historyVersion = 1;
 
-        //asyncCache only one file :current version file or history version file
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, currentVersion, 0 );
+        // asyncCache only one file :current version file or history version
+        // file
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, currentVersion,
+                0 );
         int actSiteNum = file.getLocationList().size();
         SiteWrapper[] expSiteList1 = { rootSite };
         SiteWrapper[] expSiteList2 = { rootSite, branSite };
@@ -120,20 +119,20 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
             Assert.fail( "check Sitelist error!" );
         }
 
-        //check the update result
+        // check the update result
         VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
                 updateData );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 writeData );
 
-        //check the breakpoint is not exist
+        // check the breakpoint is not exist
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

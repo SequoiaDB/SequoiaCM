@@ -53,10 +53,10 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         try {
             // ready file
@@ -84,8 +84,8 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
         ScmSession sessionM = null;
         try {
             sessionM = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionM );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionM );
             ScmFactory.File.asyncTransfer( ws, fileId );
             Assert.fail( "asyncTransfer shouldn't succeed on main site!" );
         } catch ( ScmException e ) {

@@ -66,10 +66,10 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -89,10 +89,10 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
     private void testCreateDir() {
         String subpath = path + "/1726_D";
         try {
-            ScmDirectory expdir = ScmFactory.Directory
-                    .createInstance( wsCR, subpath );
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsCR, subpath );
+            ScmDirectory expdir = ScmFactory.Directory.createInstance( wsCR,
+                    subpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsCR,
+                    subpath );
             Assert.assertEquals( expdir.getPath(), actdir.getPath() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -107,8 +107,8 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
         String subpath = path + "/1726_E";
         try {
             // create dir
-            ScmDirectory actdir = ScmFactory.Directory
-                    .createInstance( wsCR, subpath );
+            ScmDirectory actdir = ScmFactory.Directory.createInstance( wsCR,
+                    subpath );
 
             // CreateFileInDir
             ScmFile file = ScmFactory.File.createInstance( wsCR );
@@ -118,8 +118,8 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
             fileId = file.save();
 
             // check
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsCR, subpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsCR,
+                    subpath );
             ScmFile actfile = dir.getSubfile( fileName );
             Assert.assertEquals( actfile.getDirectory().getPath(),
                     subpath + "/" );
@@ -154,8 +154,7 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -181,8 +180,8 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -191,8 +190,8 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -236,13 +235,12 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
-            rs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
+            rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
             deleteDir( wsA, path + "/1726_D" );
             deleteDir( wsA, path + "/1726_E" );
             createDir( wsA, path );
@@ -255,8 +253,8 @@ public class AuthDir_CreateRead1726 extends TestScmBase {
                     wsp.getName() );
 
             sessionCR = TestScmTools.createSession( site, username, passwd );
-            wsCR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCR );
+            wsCR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

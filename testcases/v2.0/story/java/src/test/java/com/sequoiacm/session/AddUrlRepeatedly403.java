@@ -39,10 +39,9 @@ public class AddUrlRepeatedly403 extends TestScmBase {
             ScmConfigOption scOpt = new ScmConfigOption();
             scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/" + site );
             scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/" + site );
-            String expectRes =
-                    "[" + TestScmBase.gateWayList.get( 0 ) + "/" + site + ", "
-                            + TestScmBase.gateWayList.get( 0 ) + "/" + site +
-                            "]";
+            String expectRes = "[" + TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site + ", " + TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site + "]";
             Assert.assertEquals( scOpt.getUrls().toString(), expectRes );
             ScmSession session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
@@ -67,9 +66,8 @@ public class AddUrlRepeatedly403 extends TestScmBase {
             ScmConfigOption scOpt = new ScmConfigOption();
             scOpt.addUrl( host1 + ":" + port1 );
             scOpt.addUrl( host2 + ":" + port2 );
-            String expectRes =
-                    "[" + host1 + ":" + port1 + ", " + host2 + ":" + port2 +
-                            "]";
+            String expectRes = "[" + host1 + ":" + port1 + ", " + host2 + ":"
+                    + port2 + "]";
             Assert.assertEquals( scOpt.getUrls().toString(), expectRes );
             ScmSession session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );

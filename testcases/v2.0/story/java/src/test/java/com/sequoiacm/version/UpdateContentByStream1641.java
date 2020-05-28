@@ -20,9 +20,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the inputStream update Content of  the current
- * scm file
- * testlink-case:SCM-1641
+ * test content:specify that the inputStream update Content of the current scm
+ * file testlink-case:SCM-1641
  *
  * @author wuyan
  * @Date 2018.06.01
@@ -53,7 +52,7 @@ public class UpdateContentByStream1641 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
 
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion = 1;
         VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,

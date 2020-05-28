@@ -23,9 +23,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:the historyVersion file in both the rootSite and the branSite, 
- *               ayncCache the current version file again.
- * testlink-case:SCM-1659
+ * test content:the historyVersion file in both the rootSite and the branSite,
+ * ayncCache the current version file again. testlink-case:SCM-1659
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -65,27 +64,27 @@ public class AsyncCacheCurVersionFile1659 extends TestScmBase {
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
-        //site A exists the historyVersion file
+        // site A exists the historyVersion file
         asyncCacheFile( historyVersion );
         Collection< ScmFileLocation > firstGetSiteInfo = getSiteInfo(
                 historyVersion );
 
-        //asyncCache the current version file
+        // asyncCache the current version file
         asyncCacheFile( currentVersion );
 
-        //check the currentVersion file data and siteinfo
+        // check the currentVersion file data and siteinfo
         SiteWrapper[] expCurSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsM, fileId, currentVersion, expCurSiteList );
         VersionUtils.CheckFileContentByStream( wsA, fileName, currentVersion,
                 updatedata );
 
-        //check the historyVersion file sitelist
+        // check the historyVersion file sitelist
         Collection< ScmFileLocation > secondGetSiteInfo = getSiteInfo(
                 historyVersion );
         Assert.assertEquals( firstGetSiteInfo.toString(),
-                secondGetSiteInfo.toString(), "fisrt get siteList:"
-                        + firstGetSiteInfo.toString() + " 2nd get siteList:" +
-                        secondGetSiteInfo.toString() );
+                secondGetSiteInfo.toString(),
+                "fisrt get siteList:" + firstGetSiteInfo.toString()
+                        + " 2nd get siteList:" + secondGetSiteInfo.toString() );
     }
 
     @AfterClass
@@ -114,9 +113,9 @@ public class AsyncCacheCurVersionFile1659 extends TestScmBase {
 
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
-        //get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        // get the create and last access time
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

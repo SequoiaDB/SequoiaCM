@@ -47,17 +47,17 @@ public class IsExistDir2254 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        //directory exist
+        // directory exist
         ScmFactory.Directory.createInstance( ws, dirBasePath );
         boolean flag = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
         Assert.assertTrue( flag );
 
-        //directory no exist
+        // directory no exist
         ScmFactory.Directory.deleteInstance( ws, dirBasePath );
         boolean flag1 = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
         Assert.assertFalse( flag1 );
 
-        //create same directory again
+        // create same directory again
         ScmFactory.Directory.createInstance( ws, dirBasePath );
         boolean flag3 = ScmFactory.Directory.isInstanceExist( ws, dirBasePath );
         Assert.assertTrue( flag3 );

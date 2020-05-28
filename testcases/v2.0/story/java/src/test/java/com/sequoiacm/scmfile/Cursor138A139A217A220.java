@@ -50,10 +50,10 @@ public class Cursor138A139A217A220 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -135,8 +135,8 @@ public class Cursor138A139A217A220 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( runSuccess1 || runSuccess2 || runSuccess3 ||
-                    TestScmBase.forceClear ) {
+            if ( runSuccess1 || runSuccess2 || runSuccess3
+                    || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }

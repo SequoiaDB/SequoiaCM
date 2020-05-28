@@ -60,10 +60,10 @@ public class CreateSche_fileAttrNotExist1234 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -133,9 +133,8 @@ public class CreateSche_fileAttrNotExist1234 extends TestScmBase {
         try {
             BSONObject cond = ScmQueryBuilder.start( "test" ).is( 1 ).get();
             String maxStayTime = "0d";
-            content = new ScmScheduleCopyFileContent(
-                    branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                    cond );
+            content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, cond );
             cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );

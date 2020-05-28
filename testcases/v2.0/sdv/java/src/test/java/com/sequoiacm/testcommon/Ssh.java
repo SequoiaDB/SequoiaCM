@@ -29,8 +29,7 @@ public class Ssh {
     private int exitStatus;
     private Session session = null;
     // ssh建立的后台命令集合（key：Channel id ，value：Channel）
-    private Map< Integer, Channel > backgroundCMD = new HashMap< Integer,
-            Channel >();
+    private Map< Integer, Channel > backgroundCMD = new HashMap< Integer, Channel >();
 
     public Ssh( String host ) throws JSchException {
         this( host, TestScmBase.sshUserName, TestScmBase.sshPassword );
@@ -138,11 +137,9 @@ public class Ssh {
             getResult( channel, Integer.MAX_VALUE );
 
             if ( exitStatus != 0 ) {
-                throw new Exception(
-                        "ssh failed to execute commond '" + command +
-                                "',stderr:"
-                                + stderr + " ,stdout:" + stdout + ",errcode: " +
-                                exitStatus );
+                throw new Exception( "ssh failed to execute commond '" + command
+                        + "',stderr:" + stderr + " ,stdout:" + stdout
+                        + ",errcode: " + exitStatus );
             }
         } catch ( IOException | JSchException e ) {
             throw e;
@@ -202,8 +199,8 @@ public class Ssh {
         Channel channel = backgroundCMD.get( channelId );
         if ( channel == null ) {
             throw new Exception(
-                    "ssh can not find this channel id(can not check channel " +
-                            "id twice)" );
+                    "ssh can not find this channel id(can not check channel "
+                            + "id twice)" );
         }
         backgroundCMD.remove( channelId );
         try {
@@ -232,17 +229,15 @@ public class Ssh {
         String dir = null;
         try {
 
-            ssh.exec(
-                    "ps -ef | grep sequoiacm-content-server  | grep -v grep |" +
-                            "  head -n 1  | awk -F \" \" '{print $NF}'" );
+            ssh.exec( "ps -ef | grep sequoiacm-content-server  | grep -v grep |"
+                    + "  head -n 1  | awk -F \" \" '{print $NF}'" );
             String str = ssh.getStdout();
             if ( str.length() <= 0 || !str.startsWith( "--logging.config=" ) ) {
                 throw new Exception(
-                        "failed to get scm install dir:ps -ef | grep " +
-                                "sequoiacm-content-server  | grep -v grep |  " +
-                                "head -n 1  | awk -F \\\" \\\" '{print $NF}'," +
-                                " stdout="
-                                + str );
+                        "failed to get scm install dir:ps -ef | grep "
+                                + "sequoiacm-content-server  | grep -v grep |  "
+                                + "head -n 1  | awk -F \\\" \\\" '{print $NF}',"
+                                + " stdout=" + str );
             }
             String confFile = str.substring( "--logging.config=".length() );
             dir = confFile.substring( 0, confFile.indexOf( "lib" ) );
@@ -262,9 +257,9 @@ public class Ssh {
             String str = ssh.getStdout();
             if ( str.length() <= 0 ) {
                 throw new Exception(
-                        "exec command:cat /etc/default/sequoiadb |grep " +
-                                "INSTALL_DIR can not find sequoiadb install " +
-                                "dir" );
+                        "exec command:cat /etc/default/sequoiadb |grep "
+                                + "INSTALL_DIR can not find sequoiadb install "
+                                + "dir" );
             }
             dir = str.substring( str.indexOf( "=" ) + 1, str.length() - 1 );
         } finally {

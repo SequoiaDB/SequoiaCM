@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-1608:批量添加多个标签，不重复
- * 			   SCM-1609:批量添加多个标签，部分重复
+ * @Testcase: SCM-1608:批量添加多个标签，不重复 SCM-1609:批量添加多个标签，部分重复
  * @author huangxiaoni init
  * @date 2017.6.22
  */
@@ -80,20 +79,19 @@ public class DefineAttr_tags_setTags_1608_1609 extends TestScmBase {
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
         Assert.assertEquals( fileTags.toSet().size(), tagSet.size() );
-        Assert.assertTrue( fileTags.toSet().containsAll( tagSet ),
-                "fileTags = " + fileTags.toString() + ",set = " +
-                        tagSet.toString() );
+        Assert.assertTrue( fileTags.toSet().containsAll( tagSet ), "fileTags = "
+                + fileTags.toString() + ",set = " + tagSet.toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.setTags( scmTags );
-        //check result
+        // check result
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags batchTags = batch.getTags();
         Assert.assertEquals( batchTags.toSet().size(), tagSet.size() );
         Assert.assertTrue( batchTags.toSet().containsAll( tagSet ),
-                "fileTags = " + fileTags.toString() + ",set = " +
-                        tagSet.toString() );
+                "fileTags = " + fileTags.toString() + ",set = "
+                        + tagSet.toString() );
     }
 
     private void test_setTags02() throws Exception {
@@ -109,24 +107,24 @@ public class DefineAttr_tags_setTags_1608_1609 extends TestScmBase {
         // test scm file set tags
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.setTags( scmTags );
-        //服务端标签重复
+        // 服务端标签重复
         file.addTag( "test2" );
         // check results
         file = ScmFactory.File.getInstance( ws, fileId );
         ScmTags fileTags = file.getTags();
         Assert.assertEquals( fileTags.toSet(), scmTags.toSet(),
-                "fileTags = " + fileTags.toString() + ",set = " +
-                        scmTags.toString().toString() );
+                "fileTags = " + fileTags.toString() + ",set = "
+                        + scmTags.toString().toString() );
 
-        //test scm batch
+        // test scm batch
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.setTags( scmTags );
         // check results
         batch = ScmFactory.Batch.getInstance( ws, batchId );
         ScmTags batchTags = batch.getTags();
         Assert.assertEquals( batchTags.toSet(), scmTags.toSet(),
-                "fileTags = " + fileTags.toString() + ",set = " +
-                        scmTags.toString().toString() );
+                "fileTags = " + fileTags.toString() + ",set = "
+                        + scmTags.toString().toString() );
 
     }
 

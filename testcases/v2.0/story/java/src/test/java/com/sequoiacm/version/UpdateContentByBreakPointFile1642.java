@@ -25,9 +25,9 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the breakpoint file update Content of  the
- * current scm file
- * testlink-case:SCM-1642 
+ * test content:specify that the breakpoint file update Content of the current
+ * scm file testlink-case:SCM-1642
+ * 
  * @author wuyan
  * @Date 2018.06.01
  * @version 1.00
@@ -49,10 +49,10 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         VersionUtils.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -71,9 +71,8 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
 
         int currentVersion = 2;
         int historyVersion = 1;
-        VersionUtils
-                .CheckFileContentByFile( ws, fileName, currentVersion, filePath,
-                        localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileName, currentVersion,
+                filePath, localPath );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 filedata );
         VersionUtils.checkFileCurrentVersion( ws, fileId, currentVersion );
@@ -95,9 +94,9 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
     }
 
     private void updateContentByBreakPointFile() throws ScmException {
-        //create breakpointfile
+        // create breakpointfile
         createBreakPointFile();
-        //updataContent of file
+        // updataContent of file
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
@@ -117,8 +116,8 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

@@ -73,15 +73,14 @@ public class NotIn359 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder.start( key ).notIn( value )
                     .and( key2 ).is( value2 ).get();
 
-            String bsStr = "{ \"" + key + "\" : { \"$nin\" : [ \"" + value +
-                    "\"]} , \"" + key2 + "\" : \"" + value2
-                    + "\"}";
+            String bsStr = "{ \"" + key + "\" : { \"$nin\" : [ \"" + value
+                    + "\"]} , \"" + key2 + "\" : \"" + value2 + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;
@@ -103,16 +102,14 @@ public class NotIn359 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder.start( key ).notIn( list )
                     .and( key2 ).is( value2 ).get();
 
-            String bsStr =
-                    "{ " + "\"" + key + "\" : { \"$nin\" : [ \"" + value +
-                            "\"]} , \"" + key2 + "\" : \""
-                            + value2 + "\"}";
+            String bsStr = "{ " + "\"" + key + "\" : { \"$nin\" : [ \"" + value
+                    + "\"]} , \"" + key2 + "\" : \"" + value2 + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess = true;

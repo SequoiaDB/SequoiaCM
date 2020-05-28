@@ -42,8 +42,8 @@ public class Count_whenNoFile401 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace
-                    .getWorkspace( ScmInfo.getWs().getName(), session );
+            ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                    session );
             cleanUpFiles( ws );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -54,12 +54,11 @@ public class Count_whenNoFile401 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() {
         try {
-            long actCount = ScmFactory.File
-                    .countInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
-                            new BasicBSONObject() );
-            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                    .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT,
-                            new BasicBSONObject() );
+            long actCount = ScmFactory.File.countInstance( ws,
+                    ScmType.ScopeType.SCOPE_CURRENT, new BasicBSONObject() );
+            ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance(
+                    ws, ScmType.ScopeType.SCOPE_CURRENT,
+                    new BasicBSONObject() );
             while ( cursor.hasNext() ) {
                 System.out.println( cursor.getNext().toString() );
             }
@@ -79,8 +78,8 @@ public class Count_whenNoFile401 extends TestScmBase {
 
     private void cleanUpFiles( ScmWorkspace ws ) throws ScmException {
         BSONObject opt = ( BSONObject ) JSON.parse( "{}" );
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, opt );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScmType.ScopeType.SCOPE_CURRENT, opt );
         while ( cursor.hasNext() ) {
             ScmId fileId = cursor.getNext().getFileId();
             ScmFactory.File.deleteInstance( ws, fileId, true );

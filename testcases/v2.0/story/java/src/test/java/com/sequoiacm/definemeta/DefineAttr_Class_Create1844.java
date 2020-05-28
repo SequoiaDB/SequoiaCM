@@ -61,8 +61,8 @@ public class DefineAttr_Class_Create1844 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionNA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionNA );
             ScmFactory.Class.createInstance( ws, classname, desc );
             Assert.fail( "the user does not have priority to do something" );
         } catch ( ScmException e ) {
@@ -81,10 +81,10 @@ public class DefineAttr_Class_Create1844 extends TestScmBase {
                 ScmPrivilegeType.CREATE );
         ScmFactory.Role.revokePrivilege( session, role, wsrs,
                 ScmPrivilegeType.DELETE );
-        ScmFactory.Role
-                .revokePrivilege( session, role, wsrs, ScmPrivilegeType.READ );
-        ScmFactory.Role
-                .revokePrivilege( session, role, dirrs, ScmPrivilegeType.ALL );
+        ScmFactory.Role.revokePrivilege( session, role, wsrs,
+                ScmPrivilegeType.READ );
+        ScmFactory.Role.revokePrivilege( session, role, dirrs,
+                ScmPrivilegeType.ALL );
         ScmFactory.Role.deleteRole( session, role );
         ScmFactory.User.deleteUser( session, user );
         if ( session != null ) {
@@ -93,8 +93,7 @@ public class DefineAttr_Class_Create1844 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
@@ -126,13 +125,12 @@ public class DefineAttr_Class_Create1844 extends TestScmBase {
     }
 
     private void prepare() throws Exception {
-        user = ScmFactory.User
-                .createUser( session, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( session, username,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( session, rolename, null );
         wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-        dirrs = ScmResourceFactory
-                .createDirectoryResource( wsp.getName(), "/" );
+        dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                "/" );
 
         grantPriAndAttachRole( session, wsrs, user, role,
                 ScmPrivilegeType.UPDATE );

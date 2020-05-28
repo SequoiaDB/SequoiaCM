@@ -69,9 +69,8 @@ public class MthCombin332 extends TestScmBase {
         ScmQueryBuilder builder = null;
         try {
             builder = ScmBuilder();
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT,
-                            builder.get() );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, builder.get() );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;
@@ -160,34 +159,30 @@ public class MthCombin332 extends TestScmBase {
                 .put( ScmAttributeName.File.UPDATE_TIME )
                 .greaterThanEquals( 1000000 ).put( ScmAttributeName.File.SIZE )
                 .lessThan( 10 ).put( ScmAttributeName.File.MINOR_VERSION )
-                .lessThanEquals( 2 ).not( notCond )
-                .and( lessThan, greaterThan ).put( keyE3 ).elemMatch( objE );
+                .lessThanEquals( 2 ).not( notCond ).and( lessThan, greaterThan )
+                .put( keyE3 ).elemMatch( objE );
 
         // check builder
-        String bsStr1 =
-                "{ " + "\"name\" : { \"$in\" : [ \"" + fileName + "1\" , \"" +
-                        fileName + "2\"]} , "
-                        + "\"id\" : { \"$nin\" : [ \"" +
-                        fileList.get( 2 ).getFileId().get() + "\" , \""
-                        + fileList.get( 3 ).getFileId().get() + "\"]} , " +
-                        "\"$or\" : [ { \"name\" : { \"$in\" : [ \"" + fileName
-                        + "1\" , \"" + fileName + "2\"]}} , " +
-                        "{ \"id\" : { \"$nin\" : [ \""
-                        + fileList.get( 2 ).getFileId().get() + "\" , \"" +
-                        fileList.get( 3 ).getFileId().get() + "\"]}}] , "
-                        + "\"title\" : { \"$exists\" : 1} , " +
-                        "\"create_time\" : { \"$gt\" : 100000} , "
-                        + "\"update_time\" : { \"$gte\" : 1000000} , " +
-                        "\"size\" : { \"$lt\" : 10} , "
-                        + "\"minor_version\" : { \"$lte\" : 2} , " +
-                        "\"$not\" : [ { \"major_version\" : { \"$lt\" : 0}}] , "
-                        +
-                        "\"$and\" : [ { \"minor_version\" : { \"$lt\" : 1}} , { \"major_version\" : { \"$gt\" : 0}}] , "
-                        +
-                        "\"site_list\" : { \"$elemMatch\" : { \"site_id\" : " +
-                        site.getSiteId()
-                        + " , \"last_access_time\" : { \"$gt\" : 12345}}}" +
-                        "}";
+        String bsStr1 = "{ " + "\"name\" : { \"$in\" : [ \"" + fileName
+                + "1\" , \"" + fileName + "2\"]} , "
+                + "\"id\" : { \"$nin\" : [ \""
+                + fileList.get( 2 ).getFileId().get() + "\" , \""
+                + fileList.get( 3 ).getFileId().get() + "\"]} , "
+                + "\"$or\" : [ { \"name\" : { \"$in\" : [ \"" + fileName
+                + "1\" , \"" + fileName + "2\"]}} , "
+                + "{ \"id\" : { \"$nin\" : [ \""
+                + fileList.get( 2 ).getFileId().get() + "\" , \""
+                + fileList.get( 3 ).getFileId().get() + "\"]}}] , "
+                + "\"title\" : { \"$exists\" : 1} , "
+                + "\"create_time\" : { \"$gt\" : 100000} , "
+                + "\"update_time\" : { \"$gte\" : 1000000} , "
+                + "\"size\" : { \"$lt\" : 10} , "
+                + "\"minor_version\" : { \"$lte\" : 2} , "
+                + "\"$not\" : [ { \"major_version\" : { \"$lt\" : 0}}] , "
+                + "\"$and\" : [ { \"minor_version\" : { \"$lt\" : 1}} , { \"major_version\" : { \"$gt\" : 0}}] , "
+                + "\"site_list\" : { \"$elemMatch\" : { \"site_id\" : "
+                + site.getSiteId()
+                + " , \"last_access_time\" : { \"$gt\" : 12345}}}" + "}";
 
         Assert.assertEquals( builder.get().toString().replaceAll( "\\s*", "" ),
                 bsStr1.replaceAll( "\\s*", "" ) );

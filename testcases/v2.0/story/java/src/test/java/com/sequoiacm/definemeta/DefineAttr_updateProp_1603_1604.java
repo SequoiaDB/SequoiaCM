@@ -91,8 +91,8 @@ public class DefineAttr_updateProp_1603_1604 extends TestScmBase {
             file.setClassProperty( "test", 123 );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "there is no the property in the class, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "there is no the property in the class, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results

@@ -69,12 +69,11 @@ public class CheckResource extends TestScmBase {
                     String ssId = ssInfo.get( "_id" ).toString();
                     String ssCreateTime = ssInfo.get( "creationTime" )
                             .toString();
-                    sessionList.add( "[_id:" + ssId + ", createTime:" +
-                            ssCreateTime + "]" );
+                    sessionList.add( "[_id:" + ssId + ", createTime:"
+                            + ssCreateTime + "]" );
                 }
-                logger.error(
-                        "remain session \nremainNum = " + cnt + ", session = " +
-                                sessionList );
+                logger.error( "remain session \nremainNum = " + cnt
+                        + ", session = " + sessionList );
             }
         } finally {
             if ( null != cursor ) {
@@ -107,9 +106,9 @@ public class CheckResource extends TestScmBase {
                         String name = ( String ) info.get( "name" );
                         fileList.add( name );
                     }
-                    logger.error( "remain scmfile \nwsName = " + wsName +
-                            ", remainNum = " + cnt + ", "
-                            + "scmfile name = " + fileList );
+                    logger.error( "remain scmfile \nwsName = " + wsName
+                            + ", remainNum = " + cnt + ", " + "scmfile name = "
+                            + fileList );
                 }
             }
         } finally {

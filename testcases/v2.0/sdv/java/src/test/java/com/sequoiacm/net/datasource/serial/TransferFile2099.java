@@ -37,8 +37,8 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:Transfer file,target site and source site data sources are
- * different
- * testlink-case:SCM-2099
+ * different testlink-case:SCM-2099
+ * 
  * @author wuyan
  * @Date 2018.07.17
  * @modify Date 2018.07.30
@@ -68,15 +68,15 @@ public class TransferFile2099 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize1 + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize2 + ".txt";
+        filePath1 = localPath + File.separator + "localFile_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize2
+                + ".txt";
         TestTools.LocalFile.createFile( filePath1, fileSize1 );
         TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
@@ -96,8 +96,8 @@ public class TransferFile2099 extends TestScmBase {
 
         if ( dbDataSoureCount == siteList.size() - 1 ) {
             throw new SkipException(
-                    "target and source site are connected to same datasourse," +
-                            " skip!" );
+                    "target and source site are connected to same datasourse,"
+                            + " skip!" );
         }
 
         wsp = ScmInfo.getWs();
@@ -147,11 +147,10 @@ public class TransferFile2099 extends TestScmBase {
                 .put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileSize2 )
                 .put( ScmAttributeName.File.AUTHOR ).is( fileName ).get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, taskCondition, ScopeType.SCOPE_CURRENT,
-                        targetSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, taskCondition,
+                ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
@@ -161,22 +160,20 @@ public class TransferFile2099 extends TestScmBase {
             String subfileName = fileName + "_" + i;
             ScmId fileId = null;
             if ( i % 2 == 0 ) {
-                fileId = VersionUtils
-                        .createFileByFile( ws, subfileName, filePath1,
-                                authorName );
+                fileId = VersionUtils.createFileByFile( ws, subfileName,
+                        filePath1, authorName );
             } else {
-                fileId = VersionUtils
-                        .createFileByFile( ws, subfileName, filePath2,
-                                authorName );
+                fileId = VersionUtils.createFileByFile( ws, subfileName,
+                        filePath2, authorName );
             }
             fileIdList.add( fileId );
         }
     }
 
     private void checkTransferResult( ScmWorkspace ws ) throws Exception {
-        //check the transfered file,check the sitelist and data
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, taskCondition );
+        // check the transfered file,check the sitelist and data
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, taskCondition );
         int size = 0;
         ScmFileBasicInfo file;
         List< ScmId > transferfileIdList = new ArrayList< ScmId >();
@@ -189,15 +186,14 @@ public class TransferFile2099 extends TestScmBase {
         cursor.close();
         int expTransferFileNums = 5;
         Assert.assertEquals( size, expTransferFileNums );
-        //check transfered file siteinfo and data
+        // check transfered file siteinfo and data
         SiteWrapper[] expCurSiteList = { targetSite, sourceSite };
         ScmFileUtils.checkMetaAndData( wsp, transferfileIdList, expCurSiteList,
                 localPath, filePath2 );
 
-        //check the no transfered file,check the sitelist
+        // check the no transfered file,check the sitelist
         BSONObject findCondition = ScmQueryBuilder.start()
-                .put( ScmAttributeName.File.SIZE )
-                .lessThan( fileSize2 )
+                .put( ScmAttributeName.File.SIZE ).lessThan( fileSize2 )
                 .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
         ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File

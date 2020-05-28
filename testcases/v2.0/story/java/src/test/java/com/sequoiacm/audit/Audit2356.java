@@ -63,17 +63,17 @@ public class Audit2356 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    //bug:442
+    // bug:442
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_user + username3, "ALL" );
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "ALL" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "ALL" );
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
         confMap.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
         ConfUtil.updateConf( serviceName, confMap );
-        //check
+        // check
         checkAudit( username1, username1 );
         checkAudit( username2, username2 );
         checkAudit( username3, TestScmBase.ldapPassword );
@@ -98,98 +98,104 @@ public class Audit2356 extends TestScmBase {
             session = TestScmTools.createSession( site, username, password );
             doAll( session );
             BSONObject[] bsonArray = {
-                    //USER CRUD
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "CREATE_USER" )
+                    // USER CRUD
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE,
+                                    "CREATE_USER" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
+                                    username ),
                     new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "USER_DQL" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "DELETE_USER" )
+                                    username ),
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE,
+                                    "DELETE_USER" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "UPDATE_USER" )
+                                    username ),
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE,
+                                    "UPDATE_USER" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    //ROLE CRD
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "CREATE_ROLE" )
+                                    username ),
+                    // ROLE CRD
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE,
+                                    "CREATE_ROLE" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
+                                    username ),
                     new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "ROLE_DQL" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "DELETE_ROLE" )
+                                    username ),
+                    new BasicBSONObject()
+                            .append( ScmAttributeName.Audit.TYPE,
+                                    "DELETE_ROLE" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    //grant revoke
+                                    username ),
+                    // grant revoke
                     new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "GRANT" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
+                                    username ),
                     new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "REVOKE" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ),
-                    //login
+                                    username ),
+                    // login
                     new BasicBSONObject()
                             .append( ScmAttributeName.Audit.TYPE, "LOGIN" )
                             .append( ScmAttributeName.Audit.USERNAME,
-                            username ) };
+                                    username ) };
 
-            //USER CRUD
+            // USER CRUD
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 0 ], newUsername ),
-                    true, "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    true, "Has the configuration been updated? newUsername = "
+                            + newUsername );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 1 ], newUsername ),
-                    true, "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    true, "Has the configuration been updated? newUsername = "
+                            + newUsername );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 2 ], newUsername ),
-                    true, "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    true, "Has the configuration been updated? newUsername = "
+                            + newUsername );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 3 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
 
-            //ROLE CRD
+            // ROLE CRD
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 4 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 5 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 6 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
 
-            //grant revoke and login
+            // grant revoke and login
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 7 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bsonArray[ 8 ], newRolename ),
-                    true, "Has the configuration been updated? newRolename = " +
-                            newRolename );
-            Assert.assertEquals( ConfUtil.checkAudit( session, bsonArray[ 9 ],
-                    session.getSessionId() ), true,
-                    "Has the configuration been updated? newUsername = " +
-                            newUsername );
+                    true, "Has the configuration been updated? newRolename = "
+                            + newRolename );
+            Assert.assertEquals(
+                    ConfUtil.checkAudit( session, bsonArray[ 9 ],
+                            session.getSessionId() ),
+                    true, "Has the configuration been updated? newUsername = "
+                            + newUsername );
         } finally {
-            //logout
+            // logout
             if ( session != null ) {
                 session.close();
             }
@@ -204,8 +210,8 @@ public class Audit2356 extends TestScmBase {
         ScmFactory.User.getUser( session, newUsername );
 
         // ROLE_DML
-        ScmRole role = ScmFactory.Role
-                .createRole( session, newRolename, newRolename );
+        ScmRole role = ScmFactory.Role.createRole( session, newRolename,
+                newRolename );
         // ROLE _DQL
         ScmFactory.Role.getRole( session, newRolename );
 
@@ -215,7 +221,7 @@ public class Audit2356 extends TestScmBase {
         ScmFactory.Role.grantPrivilege( session, role, resource,
                 ScmPrivilegeType.ALL );
 
-        //REVOKE
+        // REVOKE
         ScmFactory.Role.revokePrivilege( session, role, resource,
                 ScmPrivilegeType.ALL );
 

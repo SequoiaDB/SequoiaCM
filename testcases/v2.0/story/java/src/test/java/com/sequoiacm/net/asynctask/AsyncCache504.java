@@ -57,10 +57,10 @@ public class AsyncCache504 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -86,7 +86,7 @@ public class AsyncCache504 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)//bug:315
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false) // bug:315
     private void test() throws Exception {
         AsyncCacheFromSubCenterB();
         checkResult();
@@ -135,8 +135,8 @@ public class AsyncCache504 extends TestScmBase {
     private void checkResult() {
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ) };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
             checkFreeSite();

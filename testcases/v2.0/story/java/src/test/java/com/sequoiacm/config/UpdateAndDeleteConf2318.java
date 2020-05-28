@@ -72,7 +72,7 @@ public class UpdateAndDeleteConf2318 extends TestScmBase {
             ConfUtil.checkDeletedConf( node.getUrl(), list );
         }
 
-        //update
+        // update
         ScmSession session1 = null;
         try {
             session1 = TestScmTools.createSession( site );
@@ -80,7 +80,8 @@ public class UpdateAndDeleteConf2318 extends TestScmBase {
                     ScmConfigProperties.builder()
                             .service( site.getSiteServiceName() )
                             .updateProperty( ConfigCommonDefind.scm_audit_mask,
-                                    "ALL" ).build() );
+                                    "ALL" )
+                            .build() );
         } finally {
             if ( session1 != null ) {
                 session1.close();

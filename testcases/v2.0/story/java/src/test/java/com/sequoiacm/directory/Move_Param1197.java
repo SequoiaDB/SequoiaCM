@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1197 :: ScmDirectory中的move参数校验 
+ * @Description:SCM-1197 :: ScmDirectory中的move参数校验
  * @author fanyu
  * @Date:2018年4月27日
  * @version:1.0
@@ -62,12 +62,12 @@ public class Move_Param1197 extends TestScmBase {
             ScmDirectory subDir = ScmFactory.Directory.getInstance( ws, path );
             subDir.move( ScmFactory.Directory.getInstance( ws, newPaPath ) );
             String expPath = dirBasePath + "/文件夹a_1197/1197_e/1197_f/1197_g/";
-            ScmDirectory subDir1 = ScmFactory.Directory
-                    .getInstance( ws, expPath );
+            ScmDirectory subDir1 = ScmFactory.Directory.getInstance( ws,
+                    expPath );
             Assert.assertEquals( subDir1.getPath(), expPath );
             String noexistPath = fullPath2;
-            ScmDirectory subdir2 = ScmFactory.Directory
-                    .getInstance( ws, noexistPath );
+            ScmDirectory subdir2 = ScmFactory.Directory.getInstance( ws,
+                    noexistPath );
             Assert.fail( "expect fail but success," + subdir2.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
@@ -100,8 +100,8 @@ public class Move_Param1197 extends TestScmBase {
         String path = fullPath1;
         String inexistPath = dirBasePath + "/1197_f";
         try {
-            ScmDirectory destDir = ScmFactory.Directory
-                    .createInstance( ws, inexistPath );
+            ScmDirectory destDir = ScmFactory.Directory.createInstance( ws,
+                    inexistPath );
             destDir.delete();
             ScmDirectory dir = ScmFactory.Directory.getInstance( ws, path );
             dir.move( destDir );
@@ -119,8 +119,8 @@ public class Move_Param1197 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess1 && runSuccess2 && runSuccess3 ||
-                    TestScmBase.forceClear ) {
+            if ( runSuccess1 && runSuccess2 && runSuccess3
+                    || TestScmBase.forceClear ) {
                 deleteDir( ws, fullPath1 + "/1197_e/1197_f/1197_g" );
             }
         } catch ( Exception e ) {
@@ -146,8 +146,8 @@ public class Move_Param1197 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -177,6 +177,3 @@ public class Move_Param1197 extends TestScmBase {
         return pathList;
     }
 }
-
-
-

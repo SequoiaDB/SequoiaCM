@@ -52,10 +52,10 @@ public class CreateFileWithSpecifiedDir1137 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -68,7 +68,7 @@ public class CreateFileWithSpecifiedDir1137 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
             ScmFileUtils.cleanFile( wsp, cond );
-            //ScmFactory.Directory.deleteInstance(ws, dirBasePath);
+            // ScmFactory.Directory.deleteInstance(ws, dirBasePath);
             deleteDir( ws, dirBasePath );
 
             scmDir = ScmFactory.Directory.createInstance( ws, dirBasePath );
@@ -110,13 +110,12 @@ public class CreateFileWithSpecifiedDir1137 extends TestScmBase {
 
         // create file with specified does not exist dir
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/unexist" );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/unexist" );
             ScmFactory.Directory.deleteInstance( ws, dirBasePath + "/unexist" );
             createFileBySpecifiedDir( dir );
-            Assert.fail(
-                    "create file successfully when specified dir does not " +
-                            "exist" );
+            Assert.fail( "create file successfully when specified dir does not "
+                    + "exist" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
                 e.printStackTrace();
@@ -173,7 +172,7 @@ public class CreateFileWithSpecifiedDir1137 extends TestScmBase {
             Assert.assertNotNull( file.getFileName() );
             Assert.assertEquals( file.getAuthor(), author );
             Assert.assertEquals( file.getTitle(), author );
-            //Assert.assertEquals(file.getMimeType(),MimeType.PPT);
+            // Assert.assertEquals(file.getMimeType(),MimeType.PPT);
             Assert.assertEquals( file.getSize(), fileSize );
             Assert.assertEquals( file.getMinorVersion(), 0 );
             Assert.assertEquals( file.getMajorVersion(), 1 );

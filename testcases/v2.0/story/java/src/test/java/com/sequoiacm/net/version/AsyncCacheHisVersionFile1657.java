@@ -27,8 +27,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:update Content of the current scm file, than ayncCache the
- * history version file
- * testlink-case:SCM-1657
+ * history version file testlink-case:SCM-1657
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -112,8 +111,8 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
             // cache
             ScmFactory.File.asyncCache( wsC, fileId, majorVersion, 0 );
         } catch ( ScmException e ) {
-            Assert.fail( "asynccAche file fail!" + e.getErrorCode() +
-                    e.getStackTrace() );
+            Assert.fail( "asynccAche file fail!" + e.getErrorCode()
+                    + e.getStackTrace() );
         }
     }
 }

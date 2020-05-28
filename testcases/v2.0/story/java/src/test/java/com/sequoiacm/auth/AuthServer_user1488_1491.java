@@ -44,16 +44,14 @@ public class AuthServer_user1488_1491 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -71,9 +69,8 @@ public class AuthServer_user1488_1491 extends TestScmBase {
 
     private void test_createUser() throws ScmException, InterruptedException {
         // create user and role
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         ScmRole scmRole = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( scmRole );
@@ -92,9 +89,8 @@ public class AuthServer_user1488_1491 extends TestScmBase {
 
     private void test_repeatCreateUser() throws ScmException {
         try {
-            ScmFactory.User
-                    .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                            PASSWORD );
+            ScmFactory.User.createUser( session, NAME,
+                    ScmUserPasswordType.LOCAL, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info(
@@ -108,8 +104,8 @@ public class AuthServer_user1488_1491 extends TestScmBase {
             ScmFactory.User.getUser( session, NAME );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get user after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get user after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
     }
 

@@ -48,9 +48,8 @@ public class AuthServer_GetAllSession1483 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             session1 = TestScmTools.createSession( site, username, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();

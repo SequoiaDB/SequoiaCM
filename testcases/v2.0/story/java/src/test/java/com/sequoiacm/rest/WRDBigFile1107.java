@@ -56,10 +56,10 @@ public class WRDBigFile1107 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -96,9 +96,8 @@ public class WRDBigFile1107 extends TestScmBase {
         }
     }
 
-    private void writeAndCheck()
-            throws JSONException, UnsupportedEncodingException,
-            FileNotFoundException {
+    private void writeAndCheck() throws JSONException,
+            UnsupportedEncodingException, FileNotFoundException {
         JSONObject desc = null;
         // write
         try {
@@ -112,8 +111,8 @@ public class WRDBigFile1107 extends TestScmBase {
             String wResponse = rest
                     .setApi( "files?workspace_name=" + ws.getName() )
                     .setRequestMethod( HttpMethod.POST )
-                    //.setParameter("file", resource)
-                    //.setParameter("description", desc.toString())
+                    // .setParameter("file", resource)
+                    // .setParameter("description", desc.toString())
                     .setRequestHeaders( "description", desc.toString() )
                     .setInputStream( new FileInputStream( file ) )
                     .setResponseType( String.class ).exec().getBody()
@@ -127,11 +126,11 @@ public class WRDBigFile1107 extends TestScmBase {
         // check
         String fileInfo;
         try {
-            fileInfo = rest.reset().setApi(
-                    "files/id/" + fileId + "?workspace_name=" + ws.getName() )
-                    .setRequestMethod( HttpMethod.HEAD )
-                    .exec()
-                    .getHeaders().get( "file" ).toString();
+            fileInfo = rest.reset()
+                    .setApi( "files/id/" + fileId + "?workspace_name="
+                            + ws.getName() )
+                    .setRequestMethod( HttpMethod.HEAD ).exec().getHeaders()
+                    .get( "file" ).toString();
             fileInfo = URLDecoder.decode( fileInfo, "UTF-8" );
             JSONObject fileInfo2JSON = new JSONObject(
                     fileInfo.substring( 1, fileInfo.length() - 1 ) );
@@ -155,14 +154,13 @@ public class WRDBigFile1107 extends TestScmBase {
         OutputStream fileStream = null;
         InputStream in = null;
         try {
-            downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            ResponseEntity< ? > resource = rest.setApi(
-                    "files/" + fileId + "?workspace_name=" + ws.getName() )
+            downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
+            ResponseEntity< ? > resource = rest
+                    .setApi( "files/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setRequestMethod( HttpMethod.GET )
-                    .setResponseType( Resource.class )
-                    .exec();
+                    .setResponseType( Resource.class ).exec();
             fileStream = new FileOutputStream( new File( downloadPath ) );
             Resource rs = ( Resource ) resource.getBody();
             if ( rs != null ) {
@@ -175,9 +173,8 @@ public class WRDBigFile1107 extends TestScmBase {
             }
 
             Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ),
-                    "filePath = " + filePath + ",downloadPath = " +
-                            downloadPath );
+                    TestTools.getMD5( downloadPath ), "filePath = " + filePath
+                            + ",downloadPath = " + downloadPath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -192,12 +189,10 @@ public class WRDBigFile1107 extends TestScmBase {
     }
 
     private void deleteAndCheck() throws Exception {
-        rest.setApi( "files/" + fileId + "?workspace_name=" + ws.getName() +
-                "&is_physical=true" )
-                .setRequestMethod( HttpMethod.DELETE )
+        rest.setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                + "&is_physical=true" ).setRequestMethod( HttpMethod.DELETE )
                 .setRequestHeaders( "Authorization", "Scm " + sessionId )
-                .setResponseType( Resource.class )
-                .exec();
+                .setResponseType( Resource.class ).exec();
         try {
             SiteWrapper[] expSites = { ScmInfo.getRootSite() };
             ScmFileUtils.checkMetaAndData( ws, new ScmId( fileId ), expSites,
@@ -210,4 +205,3 @@ public class WRDBigFile1107 extends TestScmBase {
         }
     }
 }
-

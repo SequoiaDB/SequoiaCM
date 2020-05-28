@@ -95,8 +95,8 @@ public class AuthWs_UserAndRole2110 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        user = ScmFactory.User
-                .createUser( session, name, ScmUserPasswordType.LOCAL, passwd );
+        user = ScmFactory.User.createUser( session, name,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( session, name, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

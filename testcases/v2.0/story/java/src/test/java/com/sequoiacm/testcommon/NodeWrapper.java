@@ -35,7 +35,7 @@ public class NodeWrapper {
     }
 
     public int getRestPort() {
-        //get default value
+        // get default value
         return ( int ) nodeInfo.get( "port" );
     }
 

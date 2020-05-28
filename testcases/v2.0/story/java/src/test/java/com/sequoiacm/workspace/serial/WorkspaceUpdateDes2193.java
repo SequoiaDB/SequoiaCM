@@ -67,4 +67,3 @@ public class WorkspaceUpdateDes2193 extends TestScmBase {
         Assert.assertEquals( ws.getDescription(), description );
     }
 }
-

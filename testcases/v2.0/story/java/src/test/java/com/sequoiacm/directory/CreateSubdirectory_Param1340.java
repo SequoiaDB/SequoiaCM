@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1340 :: createSubdirectory参数校验 
+ * @Description: SCM-1340 :: createSubdirectory参数校验
  * @author fanyu
  * @Date:2018年4月27日
  * @version:1.0
@@ -87,8 +87,8 @@ public class CreateSubdirectory_Param1340 extends TestScmBase {
     private void testPaPathInexist() {
         String paPath = dirBasePath + "/testPaPathInexist";
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, paPath );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    paPath );
             dir.delete();
             ScmDirectory subdir = dir.createSubdirectory( "testPaPathInexist" );
             Assert.fail( "expect fail but success," + subdir.toString() );
@@ -146,4 +146,3 @@ public class CreateSubdirectory_Param1340 extends TestScmBase {
         }
     }
 }
-

@@ -60,8 +60,8 @@ public class AuthWs_Param_GrantPrivilege1788 extends TestScmBase {
         try {
             session = TestScmTools.createSession( site );
             session.close();
-            ScmFactory.Role
-                    .grantPrivilege( session, role, rs, ScmPrivilegeType.READ );
+            ScmFactory.Role.grantPrivilege( session, role, rs,
+                    ScmPrivilegeType.READ );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
                 e.printStackTrace();
@@ -74,8 +74,8 @@ public class AuthWs_Param_GrantPrivilege1788 extends TestScmBase {
     private void testSSIsNull() throws ScmException {
         ScmSession session = null;
         try {
-            ScmFactory.Role
-                    .grantPrivilege( session, role, rs, ScmPrivilegeType.READ );
+            ScmFactory.Role.grantPrivilege( session, role, rs,
+                    ScmPrivilegeType.READ );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 e.printStackTrace();
@@ -195,9 +195,8 @@ public class AuthWs_Param_GrantPrivilege1788 extends TestScmBase {
 
     private void prepare() {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
         } catch ( ScmException e ) {

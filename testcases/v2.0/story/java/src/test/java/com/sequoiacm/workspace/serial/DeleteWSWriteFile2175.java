@@ -26,8 +26,7 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * test content:删除ws后继续对该ws写文件
- * testlink-case:SCM-2175
+ * test content:删除ws后继续对该ws写文件 testlink-case:SCM-2175
  *
  * @author luweikang
  * @Date 2018.06.21
@@ -70,8 +69,8 @@ public class DeleteWSWriteFile2175 extends TestScmBase {
             file.save();
             Assert.fail( "ws is not exist, upload file should faild" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST &&
-                    e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
+            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST
+                    && e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 throw e;
             }
         } finally {

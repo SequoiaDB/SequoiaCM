@@ -54,10 +54,10 @@ public class AcrossCenterReadFile235 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -111,9 +111,8 @@ public class AcrossCenterReadFile235 extends TestScmBase {
     private void writeFileFromA() throws Exception {
         try {
             // write scmfile
-            fileId = ScmFileUtils
-                    .create( work, fileName + "_" + UUID.randomUUID(),
-                            filePath );
+            fileId = ScmFileUtils.create( work,
+                    fileName + "_" + UUID.randomUUID(), filePath );
 
             // check results
             SiteWrapper[] expSites = { branSites.get( 0 ) };
@@ -131,14 +130,14 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             session = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read scmfile
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );
@@ -151,7 +150,7 @@ public class AcrossCenterReadFile235 extends TestScmBase {
                     branSites.get( 1 ) };
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                     filePath );
-            //checkFreeSite(branSites.get(2));
+            // checkFreeSite(branSites.get(2));
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -172,14 +171,14 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         try {
             // login
             ss = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );
@@ -210,14 +209,14 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.DATA_NOT_EXIST &&
-                    e.getError() != ScmError.DATA_ERROR ) {//TODO:jira:158
+            if ( e.getError() != ScmError.DATA_NOT_EXIST
+                    && e.getError() != ScmError.DATA_ERROR ) {// TODO:jira:158
                 Assert.fail( e.getMessage() );
             }
         } finally {

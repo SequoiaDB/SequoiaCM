@@ -68,16 +68,15 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -102,7 +101,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         }
     }
 
-    //bug:SEQUOIACM-194
+    // bug:SEQUOIACM-194
     @Test(groups = { "twoSite", "fourSite" })
     private void test() {
         try {
@@ -155,10 +154,10 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
             while ( true ) {
                 Thread.sleep( 50 );
                 if ( taskId != null ) {
-                    ScmTask taskInfo = ScmSystem.Task
-                            .getTask( session, taskId );
-                    if ( taskInfo.getRunningFlag() !=
-                            CommonDefine.TaskRunningFlag.SCM_TASK_INIT ) {
+                    ScmTask taskInfo = ScmSystem.Task.getTask( session,
+                            taskId );
+                    if ( taskInfo
+                            .getRunningFlag() != CommonDefine.TaskRunningFlag.SCM_TASK_INIT ) {
                         break;
                     }
                 }
@@ -185,14 +184,14 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmId fileId = fileIdList.get( i );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 file.getContent( downloadPath );
             }
@@ -210,14 +209,12 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
             int siteNum = siteNumList.get( i );
             if ( siteNum == 1 ) {
                 SiteWrapper[] expSiteList = { targetSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             } else if ( siteNum == 2 ) {
                 SiteWrapper[] expSiteList = { sourceSite, targetSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             }
         }
     }
@@ -227,11 +224,11 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( int i = 0; i < fileNum; i++ ) {
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
                 int actSiteNum = file.getLocationList().size();
                 siteNumList.add( actSiteNum );
             }
@@ -264,19 +261,20 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
                 // check result
                 // task runningFlag
                 while ( true ) {
-                    ScmTask taskInfo = ScmSystem.Task
-                            .getTask( session, taskId );
+                    ScmTask taskInfo = ScmSystem.Task.getTask( session,
+                            taskId );
                     if ( taskInfo.getStopTime() != null ) {
-                        if ( taskInfo.getRunningFlag() ==
-                                CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                        if ( taskInfo
+                                .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                             Assert.assertEquals( taskInfo.getProgress(), 100 );
-                        } else if ( taskInfo.getRunningFlag() ==
-                                CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
+                        } else if ( taskInfo
+                                .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
                             // task detail
                             try ( Sequoiadb db = TestSdbTools
-                                    .getSdb( TestScmBase.mainSdbUrl ) ) {
-                                DBCollection clDB = db.getCollectionSpace(
-                                        TestSdbTools.SCM_CS )
+                                    .getSdb( TestScmBase.mainSdbUrl )) {
+                                DBCollection clDB = db
+                                        .getCollectionSpace(
+                                                TestSdbTools.SCM_CS )
                                         .getCollection(
                                                 TestSdbTools.SCM_CL_TASK );
                                 BSONObject matcher = new BasicBSONObject();
@@ -321,8 +319,8 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
                     ScmId fileId = fileIdList.get( i );
 
                     try {
-                        ScmFile file = ScmFactory.File
-                                .getInstance( ws, fileId );
+                        ScmFile file = ScmFactory.File.getInstance( ws,
+                                fileId );
                         String downloadPath = TestTools.LocalFile
                                 .initDownloadPath( localPath,
                                         TestTools.getMethodName(),

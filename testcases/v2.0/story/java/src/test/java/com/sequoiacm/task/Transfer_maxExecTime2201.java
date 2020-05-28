@@ -62,10 +62,10 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -89,7 +89,7 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() {
         try {
-            //set maxExecTime = 0;
+            // set maxExecTime = 0;
             prepareFiles( ws );
             long maxExecTime = 0L;
             startTask( maxExecTime );
@@ -98,7 +98,7 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
             checkTaskAttribute( taskIdList.get( 0 ), maxExecTime );
             checkTransContent( fileIdList.subList( 0, fileNum ) );
 
-            //set maxExecTime < 0;
+            // set maxExecTime < 0;
             prepareFiles( ws );
             maxExecTime = -1L;
             startTask( maxExecTime );
@@ -107,7 +107,7 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
             checkTaskAttribute( taskIdList.get( 1 ), maxExecTime );
             checkTransContent( fileIdList.subList( fileNum, 2 * fileNum ) );
 
-            //set maxExecTime > 0;
+            // set maxExecTime > 0;
             prepareFiles( ws );
             maxExecTime = 1000 * 60 * 60L;
             startTask( maxExecTime );
@@ -138,9 +138,8 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                     .get();
-            ScmId taskId = ScmSystem.Task
-                    .startTransferTask( ws, cond, ScopeType.SCOPE_CURRENT,
-                            maxExecTime );
+            ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScopeType.SCOPE_CURRENT, maxExecTime );
             taskIdList.add( taskId );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -180,13 +179,13 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
             SiteWrapper rootSite = ScmInfo.getRootSite();
             // login
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
             for ( ScmId fileId : fileIdList ) {
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -195,14 +194,13 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
                         TestTools.getMD5( downloadPath ) );
                 // check meta data
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.fail( e.getMessage() + " node INFO" + branceSite.toString() +
-                    " fileIdList = " + fileIdList.toString() );
+            Assert.fail( e.getMessage() + " node INFO" + branceSite.toString()
+                    + " fileIdList = " + fileIdList.toString() );
         } finally {
             if ( fos != null )
                 fos.close();

@@ -190,7 +190,7 @@ public class DefineAttr_type_intValid_1578_1579 extends TestScmBase {
             }
 
             ScmAttribute attr = ScmFactory.Attribute.createInstance( ws, conf );
-            //attr attach class
+            // attr attach class
             class1.attachAttr( attr.getId() );
             attrList.add( attr );
         }

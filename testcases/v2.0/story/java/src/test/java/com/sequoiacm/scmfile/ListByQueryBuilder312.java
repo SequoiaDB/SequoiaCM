@@ -175,21 +175,17 @@ public class ListByQueryBuilder312 extends TestScmBase {
         BSONObject and = ScmQueryBuilder.start().and( lessThan, greaterThan )
                 .get();
 
-        ScmQueryBuilder builder = ScmQueryBuilder.start()
-                .and( or, exist, greaterThan, greaterThanEquals, lessThan, is,
-                        not, and );
+        ScmQueryBuilder builder = ScmQueryBuilder.start().and( or, exist,
+                greaterThan, greaterThanEquals, lessThan, is, not, and );
 
         // System.out.println(cond.toString());
-        String bsStr =
-                "{ \"$and\" : [ { \"$or\" : [ { \"name\" : { \"$in\" : [ \"" +
-                        fileName + "0\" , \"" + fileName
-                        + "1\"]}} , { \"name\" : { \"$nin\" : [ \"" + fileName +
-                        "1\" , \"" + fileName
-                        +
-                        "2\"]}}]} , { \"name\" : { \"$exists\" : 1}} , { \"major_version\" : { \"$gt\" : -1}} , { \"major_version\" : { \"$gte\" : 1}} , { \"major_version\" : { \"$lt\" : 10}} , { \"name\" : \""
-                        + fileName
-                        +
-                        "0\"} , { \"$not\" : [ { \"major_version\" : { \"$lte\" : 0}}]} , { \"$and\" : [ { \"major_version\" : { \"$lt\" : 10}} , { \"major_version\" : { \"$gt\" : -1}}]}]}";
+        String bsStr = "{ \"$and\" : [ { \"$or\" : [ { \"name\" : { \"$in\" : [ \""
+                + fileName + "0\" , \"" + fileName
+                + "1\"]}} , { \"name\" : { \"$nin\" : [ \"" + fileName
+                + "1\" , \"" + fileName
+                + "2\"]}}]} , { \"name\" : { \"$exists\" : 1}} , { \"major_version\" : { \"$gt\" : -1}} , { \"major_version\" : { \"$gte\" : 1}} , { \"major_version\" : { \"$lt\" : 10}} , { \"name\" : \""
+                + fileName
+                + "0\"} , { \"$not\" : [ { \"major_version\" : { \"$lte\" : 0}}]} , { \"$and\" : [ { \"major_version\" : { \"$lt\" : 10}} , { \"major_version\" : { \"$gt\" : -1}}]}]}";
         Assert.assertEquals( builder.get().toString().replaceAll( "\\s*", "" ),
                 bsStr.replaceAll( "\\s*", "" ) );
 

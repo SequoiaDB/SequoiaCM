@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1900 :: ScmFactory. Class.deleteInstance()参数校验 
+ * @Description: SCM-1900 :: ScmFactory. Class.deleteInstance()参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0

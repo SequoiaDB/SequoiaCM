@@ -69,10 +69,10 @@ public class CreateSche_maxExecTime2204 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -98,37 +98,37 @@ public class CreateSche_maxExecTime2204 extends TestScmBase {
     private void test() throws Exception {
         SiteWrapper[] expSites = { rootSite, branSite };
         try {
-            //set maxExecTime = 0;
+            // set maxExecTime = 0;
             // ready scmFile
             this.readyScmFile( wsA );
             long maxExecTime = 1000 * 60 * 2L;
             this.createScheduleTask( maxExecTime );
             ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
-            //checkTask info
+            // checkTask info
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.Schedule.ID )
                     .is( scheduleId.get() ).and( "max_exec_time" )
                     .is( maxExecTime ).get();
             checkTaskInfo( cond, maxExecTime );
 
-            //update  maxExecTime < 0;
+            // update maxExecTime < 0;
             maxExecTime = -1L;
             this.readyScmFile( wsA );
             updateScheMaxExecTime( maxExecTime );
             ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
-            //checkTask info
+            // checkTask info
             BSONObject cond1 = ScmQueryBuilder
                     .start( ScmAttributeName.Schedule.ID )
                     .is( scheduleId.get() ).and( "max_exec_time" )
                     .is( maxExecTime ).get();
             checkTaskInfo( cond1, maxExecTime );
 
-            //update  maxExecTime > 0;
+            // update maxExecTime > 0;
             maxExecTime = 1000 * 60 * 60L;
             this.readyScmFile( wsA );
             updateScheMaxExecTime( maxExecTime );
             ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
-            //checkTask info
+            // checkTask info
             BSONObject cond2 = ScmQueryBuilder
                     .start( ScmAttributeName.Schedule.ID )
                     .is( scheduleId.get() ).and( "max_exec_time" )
@@ -183,7 +183,7 @@ public class CreateSche_maxExecTime2204 extends TestScmBase {
                     rootSite.getSiteName(), maxStayTime, queryCond,
                     ScopeType.SCOPE_CURRENT, maxExecTime );
             cron = "* * * * * ?";
-            //cron = "0 0/3 * * * ?";
+            // cron = "0 0/3 * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );
             scheduleId = sche.getId();
@@ -208,14 +208,15 @@ public class CreateSche_maxExecTime2204 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
     private void checkTaskInfo( BSONObject cond, long maxExecTime )
             throws ScmException {
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( ssA, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                cond );
         try {
             while ( cursor.hasNext() ) {
                 ScmTaskBasicInfo info = cursor.getNext();

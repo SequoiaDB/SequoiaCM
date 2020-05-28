@@ -50,10 +50,10 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -65,8 +65,8 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
                     .getBranchSites( siteNum - 1 );
             for ( SiteWrapper branSite : branSites ) {
                 DatasourceType dsType = branSite.getDataType();
-                if ( dsType.equals( DatasourceType.CEPH_S3 ) ||
-                        dsType.equals( DatasourceType.CEPH_SWIFT ) ) {
+                if ( dsType.equals( DatasourceType.CEPH_S3 )
+                        || dsType.equals( DatasourceType.CEPH_SWIFT ) ) {
                     cephSite = branSite;
                     cephDsType = dsType;
                     break;
@@ -115,13 +115,13 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( site );
-            ScmWorkspace wss = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace wss = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             ScmFile file = ScmFactory.File.getInstance( wss, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( filePath ),
                     TestTools.getMD5( downloadPath ) );

@@ -81,10 +81,10 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -95,8 +95,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             sessionA = TestScmTools.createSession( branchsite );
             sessionA1 = TestScmTools.createSession( rootsite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-            wsA1 = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionA1 );
+            wsA1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionA1 );
             cleanEnv();
             prepare();
         } catch ( ScmException e ) {
@@ -131,13 +131,13 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch = ScmFactory.Batch.createInstance( wsA );
             expBatch.setName( batchName );
             batchId = expBatch.save();
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsUR, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsUR,
+                    expBatch.getId() );
             // update
             actBatch.setName( newbatchName );
 
-            ScmBatch finaBatch = ScmFactory.Batch
-                    .getInstance( wsUR, expBatch.getId() );
+            ScmBatch finaBatch = ScmFactory.Batch.getInstance( wsUR,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), finaBatch.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -165,8 +165,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch1 = ScmFactory.Batch.getInstance( wsUR, batchId );
             expBatch1.attachFile( fileId );
 
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsA, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsA,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), expBatch1.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -195,8 +195,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch1 = ScmFactory.Batch.getInstance( wsUR, batchId );
             expBatch1.detachFile( fileId );
 
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsA, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsA,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), expBatch1.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -213,8 +213,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
 
     private void testUpdateFile() throws ScmException {
         String fileName = "AuthWs_Update1723_file" + "_" + UUID.randomUUID();
-        String newfileName =
-                "AuthWs_Update1723_file_new" + "_" + UUID.randomUUID();
+        String newfileName = "AuthWs_Update1723_file_new" + "_"
+                + UUID.randomUUID();
         ScmId fileId = null;
         try {
             ScmFile expfile = ScmFactory.File.createInstance( wsA );
@@ -244,8 +244,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -270,8 +270,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -296,8 +296,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -323,8 +323,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             fileId = expfile.save();
@@ -354,16 +354,14 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                     .is( scheName ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchsite.getSiteName(),
-                    rootsite.getSiteName(), maxStayTime, queryCond );
+                    branchsite.getSiteName(), rootsite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
-            ScmSchedule actSche = ScmSystem.Schedule
-                    .get( sessionUR, expSche.getId() );
+            ScmSchedule actSche = ScmSystem.Schedule.get( sessionUR,
+                    expSche.getId() );
 
             actSche.updateContent( content );
             actSche.updateCron( crond );
@@ -381,8 +379,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -403,9 +400,9 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             fileIdList.add( fileId );
 
             ScmFile file = ScmFactory.File.getInstance( wsA1, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
@@ -429,15 +426,15 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             fileId = ScmFileUtils.create( wsA, fileName, filePath );
             fileIdList.add( fileId );
             ScmFile file = ScmFactory.File.getInstance( wsA1, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
-            taskId = ScmSystem.Task
-                    .startCleanTask( wsUR, condition, ScopeType.SCOPE_CURRENT );
+            taskId = ScmSystem.Task.startCleanTask( wsUR, condition,
+                    ScopeType.SCOPE_CURRENT );
             taskIdList.add( taskId );
 
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
@@ -461,8 +458,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
             taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
-                    ScopeType.SCOPE_CURRENT,
-                    rootsite.getSiteName() );
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
 
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
@@ -486,8 +482,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
             taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
-                    ScopeType.SCOPE_CURRENT,
-                    rootsite.getSiteName() );
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
 
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
@@ -512,8 +507,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
             taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
-                    ScopeType.SCOPE_CURRENT,
-                    rootsite.getSiteName() );
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
 
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
@@ -575,9 +569,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
@@ -586,12 +579,12 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             grantPriAndAttachRole( sessionA, rs, user, role,
                     ScmPrivilegeType.READ );
 
-            ScmAuthUtils
-                    .checkPriority( branchsite, username, passwd, role, wsp );
-            sessionUR = TestScmTools
-                    .createSession( branchsite, username, passwd );
-            wsUR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionUR );
+            ScmAuthUtils.checkPriority( branchsite, username, passwd, role,
+                    wsp );
+            sessionUR = TestScmTools.createSession( branchsite, username,
+                    passwd );
+            wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionUR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

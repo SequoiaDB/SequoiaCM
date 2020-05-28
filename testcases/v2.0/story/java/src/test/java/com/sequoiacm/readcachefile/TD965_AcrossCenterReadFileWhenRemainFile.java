@@ -47,12 +47,12 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize + "_2.txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_" + fileSize
+                + "_2.txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, "test", fileSize );
@@ -72,8 +72,8 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
         // remain file from centerB
         TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath );
-        TestSdbTools.Lob
-                .putLob( branSites.get( 1 ), wsp, fileId, remainFilePath );
+        TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId,
+                remainFilePath );
         // read from centerB
         this.readFileFromB();
         // check meta,because the metadata is directly modified when
@@ -93,10 +93,10 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         try {
             sessionM = TestScmTools.createSession( rootSite );
             sessionB = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace wsM = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionM );
-            ScmWorkspace wsB = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionB );
+            ScmWorkspace wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionM );
+            ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionB );
             ScmFileUtils.checkData( wsM, fileId, localPath, remainFilePath );
             ScmFileUtils.checkData( wsB, fileId, localPath, remainFilePath );
         } finally {
@@ -128,14 +128,14 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( branSites.get( 1 ) );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         } finally {
             if ( session != null ) {
@@ -148,14 +148,14 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         } finally {
             if ( session != null ) {

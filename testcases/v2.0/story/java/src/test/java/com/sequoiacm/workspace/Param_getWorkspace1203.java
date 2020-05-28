@@ -41,9 +41,8 @@ public class Param_getWorkspace1203 extends TestScmBase {
     private void testWsNameIsNull() {
         try {
             ScmFactory.Workspace.getWorkspace( null, session );
-            Assert.fail(
-                    "expect result is fail but actual is success, when ws " +
-                            "name is null." );
+            Assert.fail( "expect result is fail but actual is success, when ws "
+                    + "name is null." );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getErrorCode(),
                     ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
@@ -54,9 +53,8 @@ public class Param_getWorkspace1203 extends TestScmBase {
     private void testSessionIsNull() {
         try {
             ScmFactory.Workspace.getWorkspace( wsp.getName(), null );
-            Assert.fail(
-                    "expect result is fail but actual is success, when " +
-                            "session is null." );
+            Assert.fail( "expect result is fail but actual is success, when "
+                    + "session is null." );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getErrorCode(),
                     ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );

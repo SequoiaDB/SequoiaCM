@@ -50,8 +50,8 @@ public class WorkspaceRemoveSite2184 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws ScmException, InterruptedException, IOException {
         int siteNum = ScmInfo.getSiteNum();
-        ScmWorkspace wsM = ScmWorkspaceUtil
-                .createWS( sessionM, wsName, siteNum );
+        ScmWorkspace wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
+                siteNum );
         ScmWorkspaceUtil.wsSetPriority( sessionA, wsName );
         wsUploadFile( fileName + "A1_" );
 
@@ -97,4 +97,3 @@ public class WorkspaceRemoveSite2184 extends TestScmBase {
         }
     }
 }
-

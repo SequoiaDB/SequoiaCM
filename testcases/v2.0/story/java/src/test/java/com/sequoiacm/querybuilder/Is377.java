@@ -72,22 +72,21 @@ public class Is377 extends TestScmBase {
     private void testQuery() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 1 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 1 ) );
             String key1 = ScmAttributeName.File.AUTHOR;
             String val1 = authorName;
             String key2 = ScmAttributeName.File.FILE_NAME;
             String val2 = file.getFileName();
             BSONObject cond = ScmQueryBuilder.start( key1 ).is( val1 )
                     .and( key2 ).is( val2 ).get();
-            String expStr =
-                    "{ \"author\" : \"" + val1 + "\" , \"name\" : \"" + val2 +
-                            "\" }";
+            String expStr = "{ \"author\" : \"" + val1 + "\" , \"name\" : \""
+                    + val2 + "\" }";
             Assert.assertEquals( cond.toString(), expStr );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;

@@ -81,23 +81,23 @@ public class Or382 extends TestScmBase {
 
             List< BSONObject > list = new ArrayList< BSONObject >();
             BSONObject cond1 = ScmQueryBuilder.start().or( obj, obj )
-                    .put( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
             BSONObject cond2 = ScmQueryBuilder.start().or( obj ).or( obj )
-                    .put( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
             list.add( cond1 );
             list.add( cond2 );
             for ( BSONObject cond : list ) {
                 String subStr = "{ \"" + key + "\" : \"" + value + "\"}";
-                String expCond = "{ \"$or\" : [ " + subStr + " , " + subStr +
-                        "] , \"author\" : \"" + authorName + "\"}";
+                String expCond = "{ \"$or\" : [ " + subStr + " , " + subStr
+                        + "] , \"author\" : \"" + authorName + "\"}";
                 Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                         expCond.replaceAll( "\\s*", "" ) );
 
                 // count
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 1 );
             }
 
@@ -118,18 +118,18 @@ public class Or382 extends TestScmBase {
                     .is( "inexistentname" ).get();
 
             BSONObject cond = ScmQueryBuilder.start().or( obj1, obj2 )
-                    .put( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
 
-            String expCond = "{ \"$or\" : [ " + obj1.toString() + " , " +
-                    obj2.toString() + "] , \"author\" : \""
-                    + authorName + "\"}";
+            String expCond = "{ \"$or\" : [ " + obj1.toString() + " , "
+                    + obj2.toString() + "] , \"author\" : \"" + authorName
+                    + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess2 = true;

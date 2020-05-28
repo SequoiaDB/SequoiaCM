@@ -57,8 +57,7 @@ public class ConfUtil extends TestScmBase {
     private static RestTemplate rest = null;
 
     static {
-        HttpComponentsClientHttpRequestFactory factory = new
-                HttpComponentsClientHttpRequestFactory();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setConnectionRequestTimeout( 10000 );
         factory.setConnectTimeout( 10000 );
         factory.setBufferRequestBody( false );
@@ -72,19 +71,17 @@ public class ConfUtil extends TestScmBase {
         try {
             SiteWrapper site = ScmInfo.getSite();
             session = TestScmTools.createSession( site );
-            //restore audit configuration
+            // restore audit configuration
             ScmConfigProperties confProp = null;
             if ( serviceName != null ) {
-                confProp = ScmConfigProperties.builder()
-                        .service( serviceName )
+                confProp = ScmConfigProperties.builder().service( serviceName )
                         .updateProperty( ConfigCommonDefind.scm_audit_mask,
                                 "ALL" )
                         .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                                 "TOKEN" )
                         .build();
             } else {
-                confProp = ScmConfigProperties.builder()
-                        .allInstance()
+                confProp = ScmConfigProperties.builder().allInstance()
                         .updateProperty( ConfigCommonDefind.scm_audit_mask,
                                 "ALL" )
                         .updateProperty( ConfigCommonDefind.scm_audit_userMask,
@@ -109,9 +106,7 @@ public class ConfUtil extends TestScmBase {
             SiteWrapper site = ScmInfo.getSite();
             session = TestScmTools.createSession( site );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
-                    .service( serviceName )
-                    .updateProperties( confMap )
-                    .build();
+                    .service( serviceName ).updateProperties( confMap ).build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             System.out.println( "update results = " + actResults.toString() );
@@ -154,9 +149,7 @@ public class ConfUtil extends TestScmBase {
         keyList.addAll( keySet );
         if ( !keySet.isEmpty() ) {
             ScmConfigProperties confProp = ScmConfigProperties.builder()
-                    .deleteProperties( keyList )
-                    .service( serviceName )
-                    .build();
+                    .deleteProperties( keyList ).service( serviceName ).build();
             ScmUpdateConfResultSet deleteResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             System.out.println( "delete result = " + deleteResult.toString() );
@@ -171,8 +164,8 @@ public class ConfUtil extends TestScmBase {
                 createScheuleAndCheck();
             } catch ( Exception e ) {
                 Assert.assertEquals( e.getMessage().contains( "not logged" ),
-                        true, "configuration is not effective,msg = " +
-                                e.getMessage() );
+                        true, "configuration is not effective,msg = "
+                                + e.getMessage() );
             }
             break;
         case "auth-server":
@@ -180,16 +173,16 @@ public class ConfUtil extends TestScmBase {
                 createUserAndCheck();
             } catch ( Exception e ) {
                 Assert.assertEquals( e.getMessage().contains( "not logged" ),
-                        true, "configuration is not effective,msg = " +
-                                e.getMessage() );
+                        true, "configuration is not effective,msg = "
+                                + e.getMessage() );
             }
             break;
         default:
             List< SiteWrapper > sites = ScmInfo.getAllSites();
             for ( SiteWrapper site : sites ) {
                 if ( site.getSiteServiceName().equals( serviceName ) ) {
-                    checkNotTakeEffect( site, TestTools.getClassName() + "_" +
-                            UUID.randomUUID() );
+                    checkNotTakeEffect( site, TestTools.getClassName() + "_"
+                            + UUID.randomUUID() );
                     break;
                 }
             }
@@ -206,21 +199,18 @@ public class ConfUtil extends TestScmBase {
             session = TestScmTools.createSession( site );
             WsWrapper wsp = ScmInfo.getWs();
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            //create file
+            // create file
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + "_" + UUID.randomUUID() );
             fileId = file.save();
-            //check audit
+            // check audit
             boolean isLogged = checkAudit( session, new BasicBSONObject()
-                            .append( ScmAttributeName.Audit.TYPE,
-                                    "CREATE_FILE" ),
+                    .append( ScmAttributeName.Audit.TYPE, "CREATE_FILE" ),
                     fileId.get() );
             if ( isLogged ) {
                 printCurrConf( site.getNode().getUrl() );
-                Assert.fail(
-                        "the service's configration should not be updated," +
-                                "serviceName = " +
-                                site.getSiteServiceName() );
+                Assert.fail( "the service's configration should not be updated,"
+                        + "serviceName = " + site.getSiteServiceName() );
             }
         } finally {
             if ( fileId != null ) {
@@ -244,8 +234,8 @@ public class ConfUtil extends TestScmBase {
             List< SiteWrapper > sites = ScmInfo.getAllSites();
             for ( SiteWrapper site : sites ) {
                 if ( site.getSiteServiceName().equals( serviceName ) ) {
-                    checkTakeEffect( site, TestTools.getClassName() + "_" +
-                            UUID.randomUUID() );
+                    checkTakeEffect( site, TestTools.getClassName() + "_"
+                            + UUID.randomUUID() );
                     break;
                 }
             }
@@ -260,17 +250,16 @@ public class ConfUtil extends TestScmBase {
         ScmWorkspace ws = null;
         try {
             session = TestScmTools.createSession( site );
-            //create file
+            // create file
             WsWrapper wsp = ScmInfo.getWs();
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + "_" + UUID.randomUUID() );
             fileId = file.save();
 
-            //check audit
+            // check audit
             boolean isLogged = checkAudit( session, new BasicBSONObject()
-                            .append( ScmAttributeName.Audit.TYPE,
-                                    "CREATE_FILE" ),
+                    .append( ScmAttributeName.Audit.TYPE, "CREATE_FILE" ),
                     fileId.get() );
             if ( !isLogged ) {
                 printCurrConf( site.getNode().getUrl() );
@@ -288,11 +277,11 @@ public class ConfUtil extends TestScmBase {
     }
 
     /**
-     *1.successResult.getInstance() return hostname:port,
-     * but site.getUrl() from db maybe return ip:port,
-     * so just check successResult.getInstance()  is not null.
-     * 2.we do not know the content of failResult.getErrorMessage(),
-     * so just check failResult.getErrorMessage() is not null.
+     * 1.successResult.getInstance() return hostname:port, but site.getUrl()
+     * from db maybe return ip:port, so just check successResult.getInstance()
+     * is not null. 2.we do not know the content of
+     * failResult.getErrorMessage(), so just check failResult.getErrorMessage()
+     * is not null.
      */
     public static void checkResultSet( ScmUpdateConfResultSet actResults,
             int expSuccessNum, int expFailNum, List< String > okServices,
@@ -310,10 +299,9 @@ public class ConfUtil extends TestScmBase {
                     actResults.toString() );
             Assert.assertEquals( isInSiteList( successResult, okServices ),
                     true,
-                    "act servicesName is not in exp ServiceNames,actResults =" +
-                            " " +
-                            actResults.toString()
-                            + ",expOKResults = " + okServices.toString() );
+                    "act servicesName is not in exp ServiceNames,actResults ="
+                            + " " + actResults.toString() + ",expOKResults = "
+                            + okServices.toString() );
         }
         for ( ScmUpdateConfResult failResult : failResults ) {
             Assert.assertNotNull( failResult.getInstance(),
@@ -322,10 +310,9 @@ public class ConfUtil extends TestScmBase {
                     actResults.toString() );
             Assert.assertEquals( isInSiteList( failResult, failedSrevices ),
                     true,
-                    "act servicesName is not in exp ServiceNames,actResults =" +
-                            " " +
-                            actResults.toString()
-                            + ",expBadResults = " + okServices.toString() );
+                    "act servicesName is not in exp ServiceNames,actResults ="
+                            + " " + actResults.toString() + ",expBadResults = "
+                            + okServices.toString() );
         }
     }
 
@@ -337,8 +324,9 @@ public class ConfUtil extends TestScmBase {
                 Assert.assertEquals( actMap.get( entry.getKey() ),
                         entry.getValue(), actMap.toString() );
             } else {
-                Assert.fail( "failed to update configuration,actMap = " +
-                        actMap.toString() + ",expMap = " + expMap.toString() );
+                Assert.fail( "failed to update configuration,actMap = "
+                        + actMap.toString() + ",expMap = "
+                        + expMap.toString() );
             }
         }
     }
@@ -347,8 +335,8 @@ public class ConfUtil extends TestScmBase {
         Map actMap = getConfByRest( addr );
         for ( String key : keys ) {
             if ( actMap.containsKey( key ) ) {
-                Assert.fail( "failed to delete configuration,keys = " +
-                        keys.toString() + ",actMap = " + actMap.toString() );
+                Assert.fail( "failed to delete configuration,keys = "
+                        + keys.toString() + ",actMap = " + actMap.toString() );
             }
         }
     }
@@ -365,21 +353,19 @@ public class ConfUtil extends TestScmBase {
             ScmScheduleContent content = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), "0d", new BasicBSONObject() );
             String cron = "* * * * * ? 2022";
-            ScmSchedule sche = ScmSystem.Schedule
-                    .create( session, wsp.getName(),
-                            ScheduleType.CLEAN_FILE, scheName, scheName,
-                            content, cron );
+            ScmSchedule sche = ScmSystem.Schedule.create( session,
+                    wsp.getName(), ScheduleType.CLEAN_FILE, scheName, scheName,
+                    content, cron );
             scheduleId = sche.getId();
-            //check audit
+            // check audit
             boolean isLogged = checkAudit( session, new BasicBSONObject()
-                            .append( ScmAttributeName.Audit.TYPE,
-                                    "CREATE_SCHEDULE" ),
+                    .append( ScmAttributeName.Audit.TYPE, "CREATE_SCHEDULE" ),
                     scheName );
             if ( !isLogged ) {
                 List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
                         .getServiceInstanceList( session, "schedule-server" );
-                printCurrConf( instances.get( 0 ).getIp() + ":" +
-                        instances.get( 0 ).getPort() );
+                printCurrConf( instances.get( 0 ).getIp() + ":"
+                        + instances.get( 0 ).getPort() );
                 throw new Exception(
                         "scheName = " + scheName + " is not logged" );
             }
@@ -400,19 +386,17 @@ public class ConfUtil extends TestScmBase {
         ScmUser user = null;
         try {
             session = TestScmTools.createSession( site );
-            user = ScmFactory.User
-                    .createUser( session, userName, ScmUserPasswordType.LOCAL,
-                            TestTools.getClassName() );
-            //check audit
+            user = ScmFactory.User.createUser( session, userName,
+                    ScmUserPasswordType.LOCAL, TestTools.getClassName() );
+            // check audit
             boolean isLogged = checkAudit( session, new BasicBSONObject()
-                            .append( ScmAttributeName.Audit.TYPE,
-                                    "CREATE_USER" ),
+                    .append( ScmAttributeName.Audit.TYPE, "CREATE_USER" ),
                     userName );
             if ( !isLogged ) {
                 List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
                         .getServiceInstanceList( session, "auth-server" );
-                printCurrConf( instances.get( 0 ).getIp() + ":" +
-                        instances.get( 0 ).getPort() );
+                printCurrConf( instances.get( 0 ).getIp() + ":"
+                        + instances.get( 0 ).getPort() );
                 throw new Exception(
                         "user = " + user.getUsername() + " is not logged" );
             }
@@ -428,7 +412,7 @@ public class ConfUtil extends TestScmBase {
 
     public static boolean checkAudit( ScmSession session, BSONObject bson,
             String str ) throws ScmException {
-        //check audit
+        // check audit
         ScmCursor< ScmAuditInfo > infoCursor = null;
         boolean isLogged = false;
         try {
@@ -449,19 +433,19 @@ public class ConfUtil extends TestScmBase {
     }
 
     public static void createUser( WsWrapper wsp, String name,
-            ScmUserPasswordType passwordType,
-            ScmPrivilegeType[] privileges ) throws Exception {
+            ScmUserPasswordType passwordType, ScmPrivilegeType[] privileges )
+            throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
             ScmUser scmUser = null;
             if ( passwordType.equals( ScmUserPasswordType.LDAP ) ) {
-                scmUser = ScmFactory.User
-                        .createUser( session, name, passwordType, "" );
+                scmUser = ScmFactory.User.createUser( session, name,
+                        passwordType, "" );
             } else {
-                scmUser = ScmFactory.User
-                        .createUser( session, name, passwordType, name );
+                scmUser = ScmFactory.User.createUser( session, name,
+                        passwordType, name );
             }
             ScmRole role = ScmFactory.Role.createRole( session, name, "desc" );
             ScmResource rs = ScmResourceFactory

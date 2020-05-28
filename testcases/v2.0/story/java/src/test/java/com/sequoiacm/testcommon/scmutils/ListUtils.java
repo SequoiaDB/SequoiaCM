@@ -8,25 +8,21 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * ①.list元素对象类型任意
- *         ---->使用泛型解决
+ * ①.list元素对象类型任意 ---->使用泛型解决
  *
- * ②.可以按照list元素对象的任意多个属性进行排序,即可以同时指定多个属性进行排序
- *         --->使用java的可变参数解决
+ * ②.可以按照list元素对象的任意多个属性进行排序,即可以同时指定多个属性进行排序 --->使用java的可变参数解决
  *
  * ③.list元素对象属性的类型可以是数字(byte、short、int、long、float、double等，包括正数、负数、0)、字符串
  * (char、String)、日期(java.util.Date)
- *         --->对于数字：统一转换为固定长度的字符串解决,比如数字3和123，转换为"003"和"123" ;
- *         再比如"-15"和"7"转换为"-015"和"007"
- *         --->对于日期：可以先把日期转化为long类型的数字，数字的解决方法如上
+ * --->对于数字：统一转换为固定长度的字符串解决,比如数字3和123，转换为"003"和"123" ;
+ * 再比如"-15"和"7"转换为"-015"和"007" --->对于日期：可以先把日期转化为long类型的数字，数字的解决方法如上
  *
- * ④.list元素对象的属性可以没有相应的getter和setter方法
- *         --->可以使用java反射进行获取private和protected修饰的属性值
+ * ④.list元素对象的属性可以没有相应的getter和setter方法 --->可以使用java反射进行获取private和protected修饰的属性值
  *
  * ⑤.list元素对象的对象的每个属性都可以指定是升序还是降序
- *           -->使用2个重写的方法(一个方法满足所有属性都按照升序(降序)，另外一个方法满足每个属性都能指定是升序(降序))
+ * -->使用2个重写的方法(一个方法满足所有属性都按照升序(降序)，另外一个方法满足每个属性都能指定是升序(降序))
  *
- *@author yinaibang
+ * @author yinaibang
  */
 public class ListUtils {
     /**
@@ -49,8 +45,8 @@ public class ListUtils {
                 int ret = 0;
                 try {
                     for ( int i = 0; i < sortnameArr.length; i++ ) {
-                        ret = ListUtils
-                                .compareObject( sortnameArr[ i ], isAsc, a, b );
+                        ret = ListUtils.compareObject( sortnameArr[ i ], isAsc,
+                                a, b );
                         if ( 0 != ret ) {
                             break;
                         }
@@ -67,8 +63,10 @@ public class ListUtils {
      * 给list的每个属性都指定是升序还是降序
      *
      * @param list
-     * @param sortnameArr  参数数组
-     * @param typeArr      每个属性对应的升降序数组， true升序，false降序
+     * @param sortnameArr
+     *            参数数组
+     * @param typeArr
+     *            每个属性对应的升降序数组， true升序，false降序
      */
 
     public static < E > void sort( List< E > list, final String[] sortnameArr,
@@ -81,9 +79,8 @@ public class ListUtils {
                 int ret = 0;
                 try {
                     for ( int i = 0; i < sortnameArr.length; i++ ) {
-                        ret = ListUtils
-                                .compareObject( sortnameArr[ i ], typeArr[ i ],
-                                        a, b );
+                        ret = ListUtils.compareObject( sortnameArr[ i ],
+                                typeArr[ i ], a, b );
                         if ( 0 != ret ) {
                             break;
                         }

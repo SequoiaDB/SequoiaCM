@@ -39,14 +39,13 @@ public class AuthServer2178 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        //create user
-        rest.setServerType( "auth-server" )
-                .setRequestMethod( HttpMethod.POST )
+        // create user
+        rest.setServerType( "auth-server" ).setRequestMethod( HttpMethod.POST )
                 .setApi( "/users/" + username )
                 .setParameter( "password", password )
                 .setResponseType( String.class ).exec();
 
-        //create role
+        // create role
         String response3 = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.POST )
                 .setApi( "/roles/" + username )
@@ -54,7 +53,7 @@ public class AuthServer2178 extends TestScmBase {
                 .setResponseType( String.class ).exec().getBody().toString();
         String roleId = new JSONObject( response3 ).getString( "role_id" );
 
-        //grant role
+        // grant role
         rest.setServerType( "content-server" )
                 .setRequestMethod( HttpMethod.PUT )
                 .setApi( "/roles/" + "ROLE_" + username + "/grant" )
@@ -63,26 +62,23 @@ public class AuthServer2178 extends TestScmBase {
                 .setParameter( "privilege", "ALL" )
                 .setResponseType( String.class ).exec();
 
-        //user attach role
-        rest.setServerType( "auth-server" )
-                .setRequestMethod( HttpMethod.PUT )
+        // user attach role
+        rest.setServerType( "auth-server" ).setRequestMethod( HttpMethod.PUT )
                 .setApi( "/users/" + username )
                 .setParameter( "add_roles", username )
                 .setResponseType( String.class ).exec();
 
-        //get privilege version
+        // get privilege version
         String response = rest.setServerType( "auth-server" )
-                .setRequestMethod( HttpMethod.GET )
-                .setApi( "/privileges" )
+                .setRequestMethod( HttpMethod.GET ).setApi( "/privileges" )
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONObject privileges = new JSONObject( response );
         Assert.assertEquals( privileges.getInt( "version" ) > 1, true,
                 privileges.getInt( "version" ) + "" );
 
-        //list relations
+        // list relations
         String response1 = rest.setServerType( "auth-server" )
-                .setRequestMethod( HttpMethod.GET )
-                .setApi( "/relations" )
+                .setRequestMethod( HttpMethod.GET ).setApi( "/relations" )
                 .setParameter( "role_id", roleId )
                 .setParameter( "role_name", username )
                 .setParameter( "resource_type", "workspace" )
@@ -101,7 +97,7 @@ public class AuthServer2178 extends TestScmBase {
             }
         }
 
-        //get relation
+        // get relation
         String response2 = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/relations/" + privilegeId )
@@ -112,10 +108,9 @@ public class AuthServer2178 extends TestScmBase {
         Assert.assertEquals( privilegeInfo.getString( "privilege" ), "ALL",
                 privilegeInfo.toString() );
 
-        //list resources
+        // list resources
         String response4 = rest.setServerType( "auth-server" )
-                .setRequestMethod( HttpMethod.GET )
-                .setApi( "/resources" )
+                .setRequestMethod( HttpMethod.GET ).setApi( "/resources" )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response4 = " + response4 );
         JSONArray resources = new JSONArray( response4 );
@@ -130,7 +125,7 @@ public class AuthServer2178 extends TestScmBase {
             }
         }
 
-        //get resources by id
+        // get resources by id
         String response5 = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/resources/" + resourcesId )
@@ -149,7 +144,7 @@ public class AuthServer2178 extends TestScmBase {
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response6 = " + response6 );
 
-        //revoke
+        // revoke
         rest.setServerType( "content-server" )
                 .setRequestMethod( HttpMethod.PUT )
                 .setApi( "/roles/" + "ROLE_" + username + "/revoke" )
@@ -161,14 +156,14 @@ public class AuthServer2178 extends TestScmBase {
         // delete role
         rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/roles/" + username )
-                .setResponseType( String.class ).exec();
+                .setApi( "/roles/" + username ).setResponseType( String.class )
+                .exec();
 
         // delete users
         rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/users/" + username )
-                .setResponseType( String.class ).exec();
+                .setApi( "/users/" + username ).setResponseType( String.class )
+                .exec();
     }
 
     @AfterClass(alwaysRun = true)

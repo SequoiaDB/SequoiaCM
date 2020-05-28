@@ -49,10 +49,10 @@ public class WsFlow2213 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -68,7 +68,7 @@ public class WsFlow2213 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        //upload
+        // upload
         ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsName, session );
         ScmFileUtils.create( ws1, name + "_" + UUID.randomUUID(), filePath );
         BasicBSONObject ws2213_flow_before = getFlowByWsName( wsName );
@@ -77,16 +77,16 @@ public class WsFlow2213 extends TestScmBase {
         ScmWorkspaceUtil.createWS( session, wsName, 2 );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         ScmWorkspace ws2 = ScmFactory.Workspace.getWorkspace( wsName, session );
-        ScmId fileId2 = ScmFileUtils
-                .create( ws2, name + "_" + UUID.randomUUID(), filePath );
+        ScmId fileId2 = ScmFileUtils.create( ws2,
+                name + "_" + UUID.randomUUID(), filePath );
         downloadFile( ws2, fileId2 );
         BasicBSONObject ws2213_flow_after = getFlowByWsName( wsName );
 
-        //check
-        Assert.assertEquals( ws2213_flow_after.getLong( uploadKey ) -
-                ws2213_flow_before.getLong( uploadKey ), fileSize );
-        Assert.assertEquals( ws2213_flow_after.getLong( downloadKey ) -
-                ws2213_flow_before.getLong( downloadKey ), fileSize );
+        // check
+        Assert.assertEquals( ws2213_flow_after.getLong( uploadKey )
+                - ws2213_flow_before.getLong( uploadKey ), fileSize );
+        Assert.assertEquals( ws2213_flow_after.getLong( downloadKey )
+                - ws2213_flow_before.getLong( downloadKey ), fileSize );
     }
 
     @AfterClass(alwaysRun = true)
@@ -126,9 +126,9 @@ public class WsFlow2213 extends TestScmBase {
         OutputStream fileOutputStream = null;
         try {
             file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fileOutputStream = new FileOutputStream( new File( downloadPath ) );
             file.getContent( fileOutputStream );
             fileOutputStream.close();

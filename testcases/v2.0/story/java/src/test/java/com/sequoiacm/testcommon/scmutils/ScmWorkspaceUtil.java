@@ -51,13 +51,11 @@ public class ScmWorkspaceUtil extends TestScmBase {
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         ScmMetaLocation scmMetaLocation = null;
         scmMetaLocation = new ScmSdbMetaLocation( rootSite.getSiteName(),
-                ScmShardingType.YEAR,
-                TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
-                        .get( 0 ) );
+                ScmShardingType.YEAR, TestSdbTools
+                        .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 ) );
 
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
@@ -127,8 +125,8 @@ public class ScmWorkspaceUtil extends TestScmBase {
             ScmPrivilegeType privilege )
             throws ScmException, InterruptedException {
 
-        ScmUser superuser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser superuser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
         ScmFactory.Role.grantPrivilege( session,
                 superuser.getRoles().iterator().next(), rs, privilege );
@@ -149,8 +147,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     public static ScmWorkspace createWs( ScmSession session, String wsName,
-            String metaStr, String dataStr )
-            throws Exception {
+            String metaStr, String dataStr ) throws Exception {
         Ssh ssh = null;
         try {
             ssh = new Ssh( ScmInfo.getRootSite().getNode().getHost() );
@@ -159,26 +156,23 @@ public class ScmWorkspaceUtil extends TestScmBase {
             String installPath = ssh.getScmInstallDir();
 
             // create workspace
-            String cmd =
-                    installPath + "/bin/scmadmin.sh createws -n " + wsName +
-                            " -m \"" + metaStr + "\" -d \""
-                            + dataStr + "\" --url \"" +
-                            TestScmBase.gateWayList.get( 0 ) + "/" +
-                            ScmInfo.getRootSite().getSiteName().toLowerCase() +
-                            "\" --user " + TestScmBase.scmUserName +
-                            " --password " + TestScmBase.scmUserName;
+            String cmd = installPath + "/bin/scmadmin.sh createws -n " + wsName
+                    + " -m \"" + metaStr + "\" -d \"" + dataStr + "\" --url \""
+                    + TestScmBase.gateWayList.get( 0 ) + "/"
+                    + ScmInfo.getRootSite().getSiteName().toLowerCase()
+                    + "\" --user " + TestScmBase.scmUserName + " --password "
+                    + TestScmBase.scmUserName;
             ssh.exec( cmd );
             String resultMsg = ssh.getStdout();
             if ( !resultMsg.contains( "success" ) ) {
-                throw new Exception(
-                        "Failed to create ws[" + wsName + "], msg:\n" +
-                                resultMsg );
+                throw new Exception( "Failed to create ws[" + wsName
+                        + "], msg:\n" + resultMsg );
             }
 
             // reloadbizconf after create new workspace
-            List< BSONObject > infoList = ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE,
-                            ScmInfo.getRootSite().getSiteId(), session );
+            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
+                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
+                    session );
             logger.info( "infoList after reloadbizconf: \n" + infoList );
             return ScmFactory.Workspace.getWorkspace( wsName, session );
         } finally {
@@ -261,8 +255,8 @@ public class ScmWorkspaceUtil extends TestScmBase {
             dataLocation = new ScmCephSwiftDataLocation( siteName );
             break;
         default:
-            Assert.fail( "dataSourceType not match: " +
-                    site.getDataType().toString() );
+            Assert.fail( "dataSourceType not match: "
+                    + site.getDataType().toString() );
         }
 
         ws.addDataLocation( dataLocation );

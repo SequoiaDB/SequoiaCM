@@ -62,10 +62,10 @@ public class Clean_maxExecTime2202 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -92,7 +92,7 @@ public class Clean_maxExecTime2202 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         try {
-            //set maxExecTime = 0;
+            // set maxExecTime = 0;
             prepareFiles();
             long maxExecTime = 0L;
             startTask( maxExecTime );
@@ -101,7 +101,7 @@ public class Clean_maxExecTime2202 extends TestScmBase {
             checkCleanTaskResult( taskIdList.get( 0 ), maxExecTime,
                     fileIdList.subList( 0, fileNum ) );
 
-            //set maxExecTime < 0;
+            // set maxExecTime < 0;
             prepareFiles();
             maxExecTime = -1L;
             startTask( maxExecTime );
@@ -110,7 +110,7 @@ public class Clean_maxExecTime2202 extends TestScmBase {
             checkCleanTaskResult( taskIdList.get( 1 ), maxExecTime,
                     fileIdList.subList( fileNum, 2 * fileNum ) );
 
-            //set maxExecTime > 0;
+            // set maxExecTime > 0;
             prepareFiles();
             maxExecTime = 1000 * 60 * 60L;
             startTask( maxExecTime );
@@ -175,13 +175,13 @@ public class Clean_maxExecTime2202 extends TestScmBase {
         try {
             // login
             sessionM = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionM );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionM );
             // read content
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         } finally {
             if ( sessionM != null )
@@ -204,9 +204,8 @@ public class Clean_maxExecTime2202 extends TestScmBase {
             Assert.assertEquals( task.getMaxExecTime(), maxExecTime );
             // check meta data
             SiteWrapper[] expSiteList = { rootSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -217,9 +216,8 @@ public class Clean_maxExecTime2202 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                     .get();
-            ScmId taskId = ScmSystem.Task
-                    .startCleanTask( wsA, cond, ScopeType.SCOPE_CURRENT,
-                            maxExecTime );
+            ScmId taskId = ScmSystem.Task.startCleanTask( wsA, cond,
+                    ScopeType.SCOPE_CURRENT, maxExecTime );
             taskIdList.add( taskId );
         } catch ( ScmException e ) {
             e.printStackTrace();

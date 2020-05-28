@@ -73,15 +73,15 @@ public class NotIn361 extends TestScmBase {
                     .and( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
 
-            String bsStr =
-                    "{ \"" + key + "\" : { \"$nin\" : [ ]} , \"name\" : \"" +
-                            fileName + "\"}";
+            String bsStr = "{ \"" + key
+                    + "\" : { \"$nin\" : [ ]} , \"name\" : \"" + fileName
+                    + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess1 = true;

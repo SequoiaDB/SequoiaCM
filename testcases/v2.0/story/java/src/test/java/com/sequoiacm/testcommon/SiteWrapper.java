@@ -89,8 +89,8 @@ public class SiteWrapper {
             sdb = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
             DBCollection cl = sdb.getCollectionSpace( TestSdbTools.SCM_CS )
                     .getCollection( TestSdbTools.SCM_CL_SITE );
-            String matcher = "{ \"id\" : " + this.getSiteId() +
-                    ", \"data.configuration\" : {$exists:1} }";
+            String matcher = "{ \"id\" : " + this.getSiteId()
+                    + ", \"data.configuration\" : {$exists:1} }";
             cursor = cl.query( matcher, null, null, null );
             while ( cursor.hasNext() ) {
                 BSONObject data = ( BSONObject ) cursor.getNext().get( "data" );

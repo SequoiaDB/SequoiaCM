@@ -64,13 +64,12 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
     private void setUp() {
         try {
             // ready localfile
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -143,8 +142,8 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
     private void checkDeletion() throws ScmException {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( author ).get();
-        long count = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+        long count = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_CURRENT,
+                cond );
         Assert.assertEquals( count, 0, "files are residual after deletion." );
     }
 
@@ -175,8 +174,8 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
         private void checkAsyncTransfer( ScmId fileId, int i )
                 throws Exception {
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePathList.get( i ) );
         }

@@ -49,16 +49,14 @@ public class AuthServer_userAndRole_nameContainDot1833 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -69,9 +67,8 @@ public class AuthServer_userAndRole_nameContainDot1833 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
         // create user and role
-        ScmUser user = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser user = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         ScmRole role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

@@ -34,9 +34,8 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the current version file,than set Scopetype is history
- * or all version,
- *              specify the filed in condition are not in the history table. 
+ * test content:Clean the current version file,than set Scopetype is history or
+ * all version, specify the filed in condition are not in the history table.
  * testlink-case:SCM-1806
  *
  * @author wuyan
@@ -75,8 +74,8 @@ public class Sche_UpdateScopeByClean1806 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        fileId = VersionUtils
-                .createFileByStream( wsA, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
+                authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updateData );
     }
 
@@ -87,15 +86,15 @@ public class Sche_UpdateScopeByClean1806 extends TestScmBase {
         readFile( wsM, currentVersion );
         readFile( wsM, historyVersion );
 
-        //clean current version file
+        // clean current version file
         createScheduleTask( sessionA );
 
-        //update task to clean history version file
+        // update task to clean history version file
         updateScheTaskToHisVersionFile();
-        //write current version file again at the branSite
+        // write current version file again at the branSite
         updateScheTaskToAllVersionFile();
 
-        //check clean current version file result
+        // check clean current version file result
         SiteWrapper[] expCurSiteList = { rootSite };
         List< ScmId > fileIdList = new ArrayList<>();
         fileIdList.add( fileId );
@@ -148,8 +147,8 @@ public class Sche_UpdateScopeByClean1806 extends TestScmBase {
             Assert.fail( "update scopeType to SCOPE_HISTORY must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.HTTP_BAD_REQUEST != e.getError() ) {
-                Assert.fail( "expErrorCode:400  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:400  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -163,8 +162,8 @@ public class Sche_UpdateScopeByClean1806 extends TestScmBase {
             Assert.fail( "update scopeType to SCOPE_ALL must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.HTTP_BAD_REQUEST != e.getError() ) {
-                Assert.fail( "expErrorCode:400  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:400  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

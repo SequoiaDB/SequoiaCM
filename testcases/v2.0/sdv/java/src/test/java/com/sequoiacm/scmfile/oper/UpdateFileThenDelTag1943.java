@@ -52,14 +52,13 @@ public class UpdateFileThenDelTag1943 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         for ( int i = 1; i <= filePathNum; i++ ) {
-            String filePath = localPath + File.separator + "localFile_" +
-                    ( int ) ( fileSize / Math.pow( 2, i - 1 ) )
-                    + ".txt";
+            String filePath = localPath + File.separator + "localFile_"
+                    + ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) + ".txt";
             TestTools.LocalFile.createFile( filePath,
                     ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) );
             filePathList.add( filePath );

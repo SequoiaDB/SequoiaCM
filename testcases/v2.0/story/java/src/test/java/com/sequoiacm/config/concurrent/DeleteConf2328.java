@@ -48,10 +48,10 @@ public class DeleteConf2328 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -92,8 +92,8 @@ public class DeleteConf2328 extends TestScmBase {
                         .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                         .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                         .build();
-                result = ScmSystem.Configuration
-                        .setConfigProperties( session, confProp );
+                result = ScmSystem.Configuration.setConfigProperties( session,
+                        confProp );
 
                 List< String > list = new ArrayList< String >();
                 list.add( ConfigCommonDefind.scm_audit_mask );
@@ -121,11 +121,11 @@ public class DeleteConf2328 extends TestScmBase {
             String wsName = "ws2328_" + UUID.randomUUID();
             try {
                 session = TestScmTools.createSession( site );
-                ScmWorkspaceUtil
-                        .createWS( session, wsName, ScmInfo.getSiteNum() );
+                ScmWorkspaceUtil.createWS( session, wsName,
+                        ScmInfo.getSiteNum() );
                 ScmWorkspaceUtil.wsSetPriority( session, wsName );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( fileName + "_" + UUID.randomUUID() );
                 file.setContent( filePath );

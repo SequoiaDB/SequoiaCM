@@ -68,10 +68,10 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -113,7 +113,7 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
                     .is( maxExecTime ).get();
             checkTaskInfo( cond, maxExecTime );
 
-            //update  maxExecTime < 0;
+            // update maxExecTime < 0;
             maxExecTime = -1L;
             this.readyScmFile();
             updateScheMaxExecTime( maxExecTime );
@@ -125,13 +125,12 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
                     .is( maxExecTime ).get();
             checkTaskInfo( cond1, maxExecTime );
 
-            //update  maxExecTime > 0;
+            // update maxExecTime > 0;
             maxExecTime = 1000 * 60 * 5L;
             this.readyScmFile();
             updateScheMaxExecTime( maxExecTime );
-            ScmScheduleUtils
-                    .checkScmFile( wsA, fileIds, 2 * fileNum, 3 * fileNum,
-                            expSites );
+            ScmScheduleUtils.checkScmFile( wsA, fileIds, 2 * fileNum,
+                    3 * fileNum, expSites );
             BSONObject cond2 = ScmQueryBuilder
                     .start( ScmAttributeName.Schedule.ID )
                     .is( scheduleId.get() ).and( "max_exec_time" )
@@ -188,9 +187,8 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
 
     private void readScmFile( ScmWorkspace ws, ScmId fileId ) throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
     }
 
@@ -198,8 +196,7 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
         try {
             ScheduleType taskType = ScheduleType.CLEAN_FILE;
             String maxStayTime = "0d";
-            ScmScheduleCleanFileContent content = new
-                    ScmScheduleCleanFileContent(
+            ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), maxStayTime, queryCond );
             content.setMaxExecTime( maxExecTime );
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
@@ -226,14 +223,15 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
     private void checkTaskInfo( BSONObject cond, long maxExecTime )
             throws ScmException {
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( ssA, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                cond );
         try {
             while ( cursor.hasNext() ) {
                 ScmTaskBasicInfo info = cursor.getNext();

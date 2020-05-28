@@ -45,9 +45,8 @@ public class AuthServer_LoginOnDisableUser1479 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -64,12 +63,11 @@ public class AuthServer_LoginOnDisableUser1479 extends TestScmBase {
             modifier.setEnabled( false );
             ScmFactory.User.alterUser( session, user, modifier );
             // login
-            session1 = TestScmTools
-                    .createSession( site, user.getUsername(), passwd );
+            session1 = TestScmTools.createSession( site, user.getUsername(),
+                    passwd );
             Assert.fail(
-                    "expect disable user login fail but act success.session1 " +
-                            "= " +
-                            session1.toString() );
+                    "expect disable user login fail but act success.session1 "
+                            + "= " + session1.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_UNAUTHORIZED ) {
                 e.printStackTrace();

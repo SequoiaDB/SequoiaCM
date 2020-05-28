@@ -56,9 +56,9 @@ public class DefineAttr_tags_addAndSetTags1620 extends TestScmBase {
         this.prepareScmFile();
     }
 
-    @Test(enabled = false)//SEQUOIACM-439
+    @Test(enabled = false) // SEQUOIACM-439
     private void test() throws ScmException {
-        //Random random = new Random();
+        // Random random = new Random();
         AddTags addTags = new AddTags();
         SetTags setTags = new SetTags();
         addTags.start( 20 );
@@ -77,17 +77,16 @@ public class DefineAttr_tags_addAndSetTags1620 extends TestScmBase {
         expSet1.add( "3" );
         expSet1.add( "4" );
 
-/*
-        Set<String>  expSet3 = new HashSet<>();
-		expSet3.add("3");
-		expSet3.add("6");
-*/
+        /*
+         * Set<String> expSet3 = new HashSet<>(); expSet3.add("3");
+         * expSet3.add("6");
+         */
         Set< String > expSet4 = new HashSet<>();
         expSet4.add( "3" );
         expSet4.add( "4" );
         expSet4.add( "5" );
         expSet4.add( "6" );
-        if ( !actSet.equals( expSet1 ) && /*!actSet.equals(expSet3) &&*/
+        if ( !actSet.equals( expSet1 ) && /* !actSet.equals(expSet3) && */
                 !actSet.equals( expSet4 ) ) {
             Assert.fail(
                     "check results failed. actMap = " + actSet.toString() );

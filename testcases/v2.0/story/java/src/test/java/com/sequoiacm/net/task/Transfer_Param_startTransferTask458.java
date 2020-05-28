@@ -90,9 +90,8 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder.start( "test" )
                     .greaterThanEquals( "aa" )
                     .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-            taskId = ScmSystem.Task
-                    .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
             ScmTaskUtils.waitTaskFinish( session, taskId );
             // check task info
             ScmTask taskInfo = ScmSystem.Task.getTask( session, taskId );
@@ -110,13 +109,12 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testWsNotExist() throws ScmException {
         try {
-            ScmWorkspace ws1 = ScmFactory.Workspace
-                    .getWorkspace( "testaaa", session );
+            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( "testaaa",
+                    session );
             BSONObject condition = ScmQueryBuilder.start( "test" )
                     .greaterThanEquals( "aa" ).get();
-            ScmSystem.Task
-                    .startTransferTask( ws1, condition, ScopeType.SCOPE_CURRENT,
-                            targetSite.getSiteName() );
+            ScmSystem.Task.startTransferTask( ws1, condition,
+                    ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {
@@ -165,8 +163,8 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
-                    forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 )
+                    || forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
             }

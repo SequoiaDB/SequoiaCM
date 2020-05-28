@@ -48,8 +48,8 @@ public class GetServiceInstance2250 extends TestScmBase {
     private void testListByNull() {
         List< ScmServiceInstance > list;
         try {
-            list = ScmSystem.ServiceCenter
-                    .getServiceInstanceList( session, null );
+            list = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                    null );
             for ( ScmServiceInstance instance : list ) {
                 Assert.assertEquals( instance.getStatus(), "UP",
                         instance.toString() );
@@ -69,8 +69,8 @@ public class GetServiceInstance2250 extends TestScmBase {
     private void testListByEmptyStr() {
         List< ScmServiceInstance > list;
         try {
-            list = ScmSystem.ServiceCenter
-                    .getServiceInstanceList( session, "" );
+            list = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                    "" );
             for ( ScmServiceInstance instance : list ) {
                 Assert.assertEquals( instance.getStatus(), "UP",
                         instance.toString() );
@@ -82,9 +82,8 @@ public class GetServiceInstance2250 extends TestScmBase {
             }
             List< ScmServiceInstance > list1 = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, null );
-            Assert.assertEquals( list.size(), list1.size(),
-                    "list = " + list.toString() + ";list1 = " +
-                            list1.toString() );
+            Assert.assertEquals( list.size(), list1.size(), "list = "
+                    + list.toString() + ";list1 = " + list1.toString() );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -97,8 +96,8 @@ public class GetServiceInstance2250 extends TestScmBase {
         List< ScmServiceInstance > list;
         try {
             session = sessionMgr.getSession( SessionType.NOT_AUTH_SESSION );
-            list = ScmSystem.ServiceCenter
-                    .getServiceInstanceList( session, null );
+            list = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                    null );
             for ( ScmServiceInstance instance : list ) {
                 Assert.assertEquals( instance.getStatus(), "UP",
                         instance.toString() );
@@ -124,8 +123,8 @@ public class GetServiceInstance2250 extends TestScmBase {
         List< ScmServiceInstance > list;
         try {
             session = sessionMgr.getSession( SessionType.NOT_AUTH_SESSION );
-            list = ScmSystem.ServiceCenter
-                    .getServiceInstanceList( session, "" );
+            list = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                    "" );
             for ( ScmServiceInstance instance : list ) {
                 Assert.assertEquals( instance.getStatus(), "UP",
                         instance.toString() );
@@ -137,9 +136,8 @@ public class GetServiceInstance2250 extends TestScmBase {
             }
             List< ScmServiceInstance > list1 = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, null );
-            Assert.assertEquals( list.size(), list1.size(),
-                    "list = " + list.toString() + ";list1 = " +
-                            list1.toString() );
+            Assert.assertEquals( list.size(), list1.size(), "list = "
+                    + list.toString() + ";list1 = " + list1.toString() );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -217,8 +215,8 @@ public class GetServiceInstance2250 extends TestScmBase {
     @Test
     private void testSessionIsNull() {
         try {
-            ScmSystem.ServiceCenter
-                    .getServiceInstanceList( null, site.getSiteServiceName() );
+            ScmSystem.ServiceCenter.getServiceInstanceList( null,
+                    site.getSiteServiceName() );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {

@@ -31,9 +31,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the histroy version file,specify the fields in
- * condition are not in the history table.
- * testlink-case:SCM-1676
+ * test content:Clean the histroy version file,specify the fields in condition
+ * are not in the history table. testlink-case:SCM-1676
  *
  * @author wuyan
  * @Date 2018.06.13
@@ -66,8 +65,8 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-        fileId = VersionUtils
-                .createFileByStream( wsA, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
+                authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updateData );
     }
 
@@ -78,7 +77,7 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
         readFileFromM( wsM, currentVersion );
         readFileFromM( wsM, historyVersion );
 
-        //update clean history version file
+        // update clean history version file
         createScheduleTask( sessionA );
 
         runSuccess = true;
@@ -105,22 +104,21 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
     private void createScheduleTask( ScmSession session ) throws ScmException {
         String maxStayTime = "0d";
         BSONObject condition = ScmQueryBuilder.start()
-                .put( ScmAttributeName.File.AUTHOR )
-                .is( authorName ).get();
+                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         try {
             // create schedule task, specify author in condition are not in
             // the history table.
             ScmScheduleContent content = new ScmScheduleCleanFileContent(
-                    branSite.getSiteName(),
-                    maxStayTime, condition, ScopeType.SCOPE_HISTORY );
+                    branSite.getSiteName(), maxStayTime, condition,
+                    ScopeType.SCOPE_HISTORY );
             String cron = "* * * * * ?";
             ScmSystem.Schedule.create( session, wsp.getName(),
                     ScheduleType.CLEAN_FILE, taskname, "", content, cron );
             Assert.fail( "create clean task must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

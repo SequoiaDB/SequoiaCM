@@ -61,7 +61,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
 
     @DataProvider(name = "dataProvider", parallel = true)
     public Object[][] generateRangData() throws Exception {
-        //单个字段
+        // 单个字段
         List< ScmWorkspaceInfo > positiveList = new ArrayList<>();
         positiveList.addAll( wsList );
         List< ScmWorkspaceInfo > negativeList = new ArrayList<>();
@@ -69,7 +69,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
         ListUtils.sort( positiveList, true, "name" );
         ListUtils.sort( negativeList, false, "name" );
 
-        //多个字段
+        // 多个字段
         List< ScmWorkspaceInfo > dPositiveList = new ArrayList<>();
         dPositiveList.addAll( wsList );
         List< ScmWorkspaceInfo > dNegativeList = new ArrayList<>();
@@ -88,28 +88,30 @@ public class ListWorkSpaces2576 extends TestScmBase {
 
         double expTotalNum = ( double ) wsList.size();
         return new Object[][] {
-                //filter  skip   limit scmRoles  expPageSize expTotalNum
-                //orderby:positive
+                // filter skip limit scmRoles expPageSize expTotalNum
+                // orderby:positive
                 { positive, 0, 1, positiveList,
                         ( int ) Math.ceil( expTotalNum / 1 ), expTotalNum },
                 { positive, 1, 50, positiveList,
                         ( int ) Math.ceil( ( expTotalNum - 1 ) / 50 ),
-                        expTotalNum - 1 }, { positive, 3, 100, positiveList,
-                ( int ) Math.ceil( ( expTotalNum - 3 ) / 100 ),
-                expTotalNum - 3 },
+                        expTotalNum - 1 },
+                { positive, 3, 100, positiveList,
+                        ( int ) Math.ceil( ( expTotalNum - 3 ) / 100 ),
+                        expTotalNum - 3 },
                 { positive, 0, -1, positiveList, 1, expTotalNum },
                 { positive, 10, 0, positiveList, 0, 0 },
-                //orderby:negative
+                // orderby:negative
                 { negative, 0, 1, negativeList,
                         ( int ) Math.ceil( expTotalNum / 1 ), expTotalNum },
                 { negative, 1, 50, negativeList,
                         ( int ) Math.ceil( ( expTotalNum - 1 ) / 50 ),
-                        expTotalNum - 1 }, { negative, 3, 100, negativeList,
-                ( int ) Math.ceil( ( expTotalNum - 3 ) / 100 ),
-                expTotalNum - 3 },
+                        expTotalNum - 1 },
+                { negative, 3, 100, negativeList,
+                        ( int ) Math.ceil( ( expTotalNum - 3 ) / 100 ),
+                        expTotalNum - 3 },
                 { negative, 0, -1, negativeList, 1, expTotalNum },
                 { negative, 10, 0, negativeList, 0, 0 },
-                //orderby:多个字段
+                // orderby:多个字段
                 { dPositive, 0, 10, dPositiveList,
                         ( int ) Math.ceil( expTotalNum / 10 ), expTotalNum },
                 { dNegative, 0, 10, dNegativeList,
@@ -119,8 +121,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
     @Test(dataProvider = "dataProvider")
     private void test( BSONObject orderby, long skip, long limit,
             List< ScmWorkspaceInfo > wsList, int expPageSize,
-            double expTotalNum )
-            throws Exception {
+            double expTotalNum ) throws Exception {
         int actPageSize = 0;
         long tmpSkip = skip;
         double totalNum = 0;
@@ -170,8 +171,8 @@ public class ListWorkSpaces2576 extends TestScmBase {
     @Test
     private void testInvalid() throws Exception {
         try {
-            ScmFactory.Workspace
-                    .listWorkspace( session, new BasicBSONObject(), -1, 0 );
+            ScmFactory.Workspace.listWorkspace( session, new BasicBSONObject(),
+                    -1, 0 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -179,8 +180,8 @@ public class ListWorkSpaces2576 extends TestScmBase {
             }
         }
         try {
-            ScmFactory.Workspace
-                    .listWorkspace( session, new BasicBSONObject(), 0, -2 );
+            ScmFactory.Workspace.listWorkspace( session, new BasicBSONObject(),
+                    0, -2 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -193,8 +194,8 @@ public class ListWorkSpaces2576 extends TestScmBase {
     @Test
     private void testInvalidSession() throws Exception {
         try {
-            ScmFactory.Workspace
-                    .listWorkspace( null, new BasicBSONObject(), -1, 0 );
+            ScmFactory.Workspace.listWorkspace( null, new BasicBSONObject(), -1,
+                    0 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -204,8 +205,8 @@ public class ListWorkSpaces2576 extends TestScmBase {
         ScmSession scmSession = TestScmTools.createSession( site );
         scmSession.close();
         try {
-            ScmFactory.Workspace
-                    .listWorkspace( scmSession, new BasicBSONObject(), 0, 0 );
+            ScmFactory.Workspace.listWorkspace( scmSession,
+                    new BasicBSONObject(), 0, 0 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
@@ -231,5 +232,3 @@ public class ListWorkSpaces2576 extends TestScmBase {
         }
     }
 }
-
-

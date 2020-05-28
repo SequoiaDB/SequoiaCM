@@ -22,9 +22,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the local file update Content of  the current
- * scm file
- * testlink-case:SCM-1640
+ * test content:specify that the local file update Content of the current scm
+ * file testlink-case:SCM-1640
  *
  * @author wuyan
  * @Date 2018.06.01
@@ -46,10 +45,10 @@ public class UpdateContentByFile1640 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -66,12 +65,11 @@ public class UpdateContentByFile1640 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
         VersionUtils.updateContentByFile( ws, fileName, fileId, filePath );
 
-        //check result
+        // check result
         int currentVersion = 2;
         int historyVersion = 1;
-        VersionUtils
-                .CheckFileContentByFile( ws, fileName, currentVersion, filePath,
-                        localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileName, currentVersion,
+                filePath, localPath );
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 filedata );
     }

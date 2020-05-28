@@ -68,8 +68,8 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils
-                .createBreakpointFileByStream( wsA, fileName, updatedata );
+        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
+                updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -83,8 +83,8 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
 
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                 .is( fileId.toString() ).get();
-        taskId = ScmSystem.Task
-                .startCleanTask( wsA, cond, ScopeType.SCOPE_CURRENT );
+        taskId = ScmSystem.Task.startCleanTask( wsA, cond,
+                ScopeType.SCOPE_CURRENT );
 
         Assert.assertTrue( updateFileThread.isSuccess(),
                 updateFileThread.getErrorMsg() );

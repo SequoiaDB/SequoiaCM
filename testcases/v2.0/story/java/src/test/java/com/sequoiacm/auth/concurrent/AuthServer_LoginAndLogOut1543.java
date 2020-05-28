@@ -68,17 +68,15 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         }
         try {
             ScmUserModifier modifier = new ScmUserModifier();
-            ScmUser superUser = ScmFactory.User
-                    .getUser( session, TestScmBase.scmUserName );
+            ScmUser superUser = ScmFactory.User.getUser( session,
+                    TestScmBase.scmUserName );
             Collection< ScmRole > superRoles = superUser.getRoles();
             modifier.addRoles( superRoles );
-            user1 = ScmFactory.User
-                    .createUser( session, username1, ScmUserPasswordType.LOCAL,
-                            passwd1 );
+            user1 = ScmFactory.User.createUser( session, username1,
+                    ScmUserPasswordType.LOCAL, passwd1 );
             ScmFactory.User.alterUser( session, user1, modifier );
-            user2 = ScmFactory.User
-                    .createUser( session, username2, ScmUserPasswordType.LOCAL,
-                            passwd2 );
+            user2 = ScmFactory.User.createUser( session, username2,
+                    ScmUserPasswordType.LOCAL, passwd2 );
             ScmFactory.User.alterUser( session, user2, modifier );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -123,11 +121,11 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools
-                        .createSession( site, username1, passwd1 );
+                ScmSession session = TestScmTools.createSession( site,
+                        username1, passwd1 );
                 String roleName = "LoginAndDoSomething" + UUID.randomUUID();
-                ScmRole expRole = ScmFactory.Role
-                        .createRole( session, roleName, null );
+                ScmRole expRole = ScmFactory.Role.createRole( session, roleName,
+                        null );
                 roleList.add( expRole );
                 check( session, expRole );
             } catch ( ScmException e ) {
@@ -139,8 +137,8 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         private void check( ScmSession session, ScmRole expRole ) {
             ScmRole actRole = null;
             try {
-                actRole = ScmFactory.Role
-                        .getRole( session, expRole.getRoleName() );
+                actRole = ScmFactory.Role.getRole( session,
+                        expRole.getRoleName() );
                 // Assert.assertEquals(actRole.getDescription(),
                 // expRole.getDescription(), actRole.toString());
                 Assert.assertEquals( actRole.getRoleId(), expRole.getRoleId(),
@@ -149,9 +147,8 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
                         expRole.getRoleName(), actRole.toString() );
             } catch ( ScmException e ) {
                 e.printStackTrace();
-                Assert.fail(
-                        e.getMessage() + ",expRole = " + expRole.toString() +
-                                ",actRole = " + actRole );
+                Assert.fail( e.getMessage() + ",expRole = " + expRole.toString()
+                        + ",actRole = " + actRole );
             }
         }
     }
@@ -160,8 +157,8 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools
-                        .createSession( site, username2, passwd2 );
+                ScmSession session = TestScmTools.createSession( site,
+                        username2, passwd2 );
                 session.close();
                 String roleName = "LogoutAndDoSomething";
                 ScmFactory.Role.createRole( session, roleName, null );

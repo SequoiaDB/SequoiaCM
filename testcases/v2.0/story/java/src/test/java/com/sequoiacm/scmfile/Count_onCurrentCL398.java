@@ -79,8 +79,8 @@ public class Count_onCurrentCL398 extends TestScmBase {
                     .greaterThan( lowBound ).and( key )
                     .lessThanEquals( upBound ).get();
 
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, fileNum - 1 );
 
             runSuccess = true;

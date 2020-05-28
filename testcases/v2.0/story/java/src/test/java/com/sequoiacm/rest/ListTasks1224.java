@@ -40,8 +40,7 @@ public class ListTasks1224 extends TestScmBase {
         JSONObject options = new JSONObject().put( "filter",
                 new JSONObject().put( "author", "inexistent_author1224" ) );
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "tasks" )
-                .setParameter( "task_type", "2" )
+                .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();

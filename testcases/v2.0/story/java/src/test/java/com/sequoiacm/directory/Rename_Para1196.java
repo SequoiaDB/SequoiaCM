@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1196 :: ScmDirectory中的rename参数校验 
+ * @Description: SCM-1196 :: ScmDirectory中的rename参数校验
  * @author fanyu
  * @Date:2018年4月26日
  * @version:1.0
@@ -63,8 +63,8 @@ public class Rename_Para1196 extends TestScmBase {
         try {
             ScmDirectory subDir = ScmFactory.Directory.getInstance( ws, path );
             subDir.rename( newName );
-            ScmDirectory subDir1 = ScmFactory.Directory
-                    .getInstance( ws, newPath );
+            ScmDirectory subDir1 = ScmFactory.Directory.getInstance( ws,
+                    newPath );
             Assert.assertEquals( subDir1.getName(), newName );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -112,8 +112,8 @@ public class Rename_Para1196 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess1 || runSuccess2 || runSuccess3 ||
-                    TestScmBase.forceClear ) {
+            if ( runSuccess1 || runSuccess2 || runSuccess3
+                    || TestScmBase.forceClear ) {
                 deleteDir( ws, dirBasePath + "/1196_a/文件夹a_1196/1196_c" );
                 deleteDir( ws, fullPath2 );
             }
@@ -140,8 +140,8 @@ public class Rename_Para1196 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -171,5 +171,3 @@ public class Rename_Para1196 extends TestScmBase {
         return pathList;
     }
 }
-
-

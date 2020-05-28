@@ -56,14 +56,14 @@ public class ListScmFile2579 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //clean
+        // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileNamePrefix ).get();
         ScmFileUtils.cleanFile( wsp, cond );
         byte[] bytes = new byte[ 2 ];
         Random random = new Random();
         random.nextBytes( bytes );
-        //prepare file
+        // prepare file
         for ( int i = 0; i < fileNum; i++ ) {
             String fileName = fileNamePrefix + "-" + i;
             ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -72,17 +72,17 @@ public class ListScmFile2579 extends TestScmBase {
             scmFile.setFileName( fileName );
             fileIdList.add( scmFile.save().get() );
         }
-        //update file
+        // update file
         int count = 3;
         for ( int i = 0; i < fileIdList.size(); i = i + 2 ) {
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, new ScmId( fileIdList.get( i ) ) );
-            //update Count
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    new ScmId( fileIdList.get( i ) ) );
+            // update Count
             for ( int j = 0; j < count; j++ ) {
                 file.updateContent( new ByteArrayInputStream( bytes ) );
             }
         }
-        //prepare filter
+        // prepare filter
         filter = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                 .in( fileIdList ).get();
         getInitScmFileInfo( ScmType.ScopeType.SCOPE_CURRENT, filter,
@@ -94,19 +94,17 @@ public class ListScmFile2579 extends TestScmBase {
     @DataProvider(name = "dataProvider", parallel = true)
     public Object[][] generateRangData() throws Exception {
         return new Object[][] {
-                //orderby:null
+                // orderby:null
                 { ScmType.ScopeType.SCOPE_CURRENT, filter, null, 0, 10,
                         currFileList },
                 { ScmType.ScopeType.SCOPE_HISTORY, filter, null, 2, 5,
-                        histFileList }
-        };
+                        histFileList } };
     }
 
     @Test(dataProvider = "dataProvider")
     private void test( ScmType.ScopeType scopeType, BSONObject filter,
-            BSONObject orderby,
-            long skip, long limit, List< ScmFileBasicInfo > fileList )
-            throws Exception {
+            BSONObject orderby, long skip, long limit,
+            List< ScmFileBasicInfo > fileList ) throws Exception {
         int actPageSize = 0;
         long tmpSkip = skip;
         int totalNum = 0;
@@ -115,8 +113,8 @@ public class ListScmFile2579 extends TestScmBase {
             session = TestScmTools.createSession( site );
             while ( tmpSkip < fileList.size() ) {
                 ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                        .listInstance( ws, scopeType,
-                                filter, orderby, tmpSkip, limit );
+                        .listInstance( ws, scopeType, filter, orderby, tmpSkip,
+                                limit );
                 int count = 0;
                 while ( cursor.hasNext() ) {
                     ScmFileBasicInfo act = cursor.getNext();
@@ -126,10 +124,9 @@ public class ListScmFile2579 extends TestScmBase {
                                 true );
                         count++;
                     } catch ( AssertionError e ) {
-                        throw new Exception(
-                                "filter = " + filter + ",orderby = " + orderby
-                                        + ",skip = " + skip + ",limit = " +
-                                        limit + "，act = " + act, e );
+                        throw new Exception( "filter = " + filter
+                                + ",orderby = " + orderby + ",skip = " + skip
+                                + ",limit = " + limit + "，act = " + act, e );
                     }
                 }
                 if ( limit == 0 || count == 0 ) {
@@ -159,9 +156,8 @@ public class ListScmFile2579 extends TestScmBase {
                 Assert.assertEquals( actPageSize, 0 );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "filter = " + filter.toString() + ",orderby = " + orderby
-                            + ",skip = " + skip + ",limit = " + limit, e );
+            throw new Exception( "filter = " + filter.toString() + ",orderby = "
+                    + orderby + ",skip = " + skip + ",limit = " + limit, e );
         }
         expSuccessTestCount.getAndIncrement();
     }
@@ -171,8 +167,8 @@ public class ListScmFile2579 extends TestScmBase {
         try {
             if ( expSuccessTestCount.get() == 2 || TestScmBase.forceClear ) {
                 for ( String fileId : fileIdList ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, new ScmId( fileId ), true );
+                    ScmFactory.File.deleteInstance( ws, new ScmId( fileId ),
+                            true );
                 }
             }
         } finally {
@@ -198,5 +194,3 @@ public class ListScmFile2579 extends TestScmBase {
         }
     }
 }
-
-

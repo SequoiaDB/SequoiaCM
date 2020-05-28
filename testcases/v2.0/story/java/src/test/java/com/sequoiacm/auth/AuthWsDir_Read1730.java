@@ -42,7 +42,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 /**
  * @author fanyu
  * @Description: SCM-1730 ::
- * 有工作区的READ权限和目录的CREATE/UPDATE/DELETE权限，对表格中的各个接口进行覆盖测试
+ *               有工作区的READ权限和目录的CREATE/UPDATE/DELETE权限，对表格中的各个接口进行覆盖测试
  * @Date:2018年6月7日
  * @version:1.0
  */
@@ -70,10 +70,10 @@ public class AuthWsDir_Read1730 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -94,8 +94,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
     private void testGetDirByPath() {
         String dirpath = path;
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
             Assert.assertEquals( dir.getPath(), dirpath + "/" );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -110,8 +110,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
         String dirpath = path;
         try {
             // get dir
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
 
             // CreateFileInDir
             ScmFile file = ScmFactory.File.createInstance( wsCRUD );
@@ -122,8 +122,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             fileId = file.save();
 
             // get file
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
             ScmFile actfile = actdir.getSubfile( fileName );
             Assert.assertEquals( actfile.getDirectory().getPath(),
                     dirpath + "/" );
@@ -145,8 +145,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
         String dirpath = path;
         try {
             // get dir
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
 
             // CreateFileInDir
             ScmFile file = ScmFactory.File.createInstance( wsCRUD );
@@ -157,9 +157,9 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             fileId = file.save();
 
             ScmFile actfile = ScmFactory.File.getInstance( wsCRUD, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), fileName );
         } catch ( ScmException e ) {
@@ -179,8 +179,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
         String dirpath = path;
         try {
             // get dir
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
 
             // CreateFileInDir
             ScmFile file = ScmFactory.File.createInstance( wsCRUD );
@@ -190,11 +190,11 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             file.setContent( filePath );
             fileId = file.save();
 
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsCRUD, dirpath + "/" + fileName );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsCRUD,
+                    dirpath + "/" + fileName );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), fileName );
         } catch ( ScmException e ) {
@@ -224,11 +224,11 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             file.setContent( filePath );
             fileId = file.save();
 
-            ScmFile actfile = ScmFactory.File
-                    .getInstance( wsCRUD, fileId, 1, 0 );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            ScmFile actfile = ScmFactory.File.getInstance( wsCRUD, fileId, 1,
+                    0 );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), fileName );
         } catch ( ScmException e ) {
@@ -258,12 +258,11 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             file.setContent( filePath );
             fileId = file.save();
 
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsCRUD, dirpath + "/" + fileName, 1,
-                            0 );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsCRUD,
+                    dirpath + "/" + fileName, 1, 0 );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), fileName );
         } catch ( ScmException e ) {
@@ -294,8 +293,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             file.setContent( filePath );
             fileId = file.save();
 
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsCRUD, dirpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsCRUD,
+                    dirpath );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
@@ -341,8 +340,7 @@ public class AuthWsDir_Read1730 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -368,8 +366,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -378,8 +376,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -423,16 +421,15 @@ public class AuthWsDir_Read1730 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             deleteDir( wsA, path );
             createDir( wsA, path );
             rs1 = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            rs2 = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
+            rs2 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
             grantPriAndAttachRole( sessionA, rs1, user, role,
                     ScmPrivilegeType.READ );
             grantPriAndAttachRole( sessionA, rs2, user, role,
@@ -445,8 +442,8 @@ public class AuthWsDir_Read1730 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
             sessionCRUD = TestScmTools.createSession( site, username, passwd );
-            wsCRUD = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCRUD );
+            wsCRUD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCRUD );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

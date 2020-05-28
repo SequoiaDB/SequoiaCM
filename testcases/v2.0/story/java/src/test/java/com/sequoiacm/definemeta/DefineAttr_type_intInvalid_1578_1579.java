@@ -38,7 +38,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-1578:属性类型为int，属性表未配置校验规则，非必填
- * 			   SCM-1579:属性类型为int，属性表配置校验规则为int32有效范围，必填
+ *            SCM-1579:属性类型为int，属性表配置校验规则为int32有效范围，必填
  * @author huangxiaoni init
  * @date 2017.6.18
  */
@@ -95,7 +95,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
 
     @Test
     private void test_setPropInvalidLeftBound01() throws Exception {
-        attrMap.put( "test_attr_name_int_1578_1", -2147483649L ); //invalid
+        attrMap.put( "test_attr_name_int_1578_1", -2147483649L ); // invalid
         attrMap.put( "test_attr_name_int_1578_3", 1 );
         attrMap.put( "test_attr_name_int_1578_4", 1 );
 
@@ -106,9 +106,9 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -117,7 +117,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
     @Test
     private void test_setPropInvalidLeftBound02() throws Exception {
         attrMap.put( "test_attr_name_int_1578_1", 1 );
-        attrMap.put( "test_attr_name_int_1578_3", -2147483649L );//invalid
+        attrMap.put( "test_attr_name_int_1578_3", -2147483649L );// invalid
         attrMap.put( "test_attr_name_int_1578_4", 1 );
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -127,8 +127,8 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -138,7 +138,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
     private void test_setPropInvalidLeftBound03() throws Exception {
         attrMap.put( "test_attr_name_int_1578_1", 1 );
         attrMap.put( "test_attr_name_int_1578_3", 1 );
-        attrMap.put( "test_attr_name_int_1578_4", -1 );//invalid
+        attrMap.put( "test_attr_name_int_1578_4", -1 );// invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -147,8 +147,8 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -156,7 +156,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
 
     @Test
     private void test_setPropInvalidRightBound01() throws Exception {
-        attrMap.put( "test_attr_name_int_1578_1", 2147483648L );//invalid
+        attrMap.put( "test_attr_name_int_1578_1", 2147483648L );// invalid
         attrMap.put( "test_attr_name_int_1578_3", 1 );
         attrMap.put( "test_attr_name_int_1578_4", 1 );
 
@@ -167,9 +167,9 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-//			e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            // e.printStackTrace();
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -178,7 +178,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
     @Test
     private void test_setPropInvalidRightBound02() throws Exception {
         attrMap.put( "test_attr_name_int_1578_1", 1 );
-        attrMap.put( "test_attr_name_int_1578_3", 2147483648L );//invalid
+        attrMap.put( "test_attr_name_int_1578_3", 2147483648L );// invalid
         attrMap.put( "test_attr_name_int_1578_4", 1 );
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -188,8 +188,8 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -199,7 +199,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
     private void test_setPropInvalidRightBound03() throws Exception {
         attrMap.put( "test_attr_name_int_1578_1", 1 );
         attrMap.put( "test_attr_name_int_1578_3", 1 );
-        attrMap.put( "test_attr_name_int_1578_4", 101 );//invalid
+        attrMap.put( "test_attr_name_int_1578_4", 101 );// invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -208,8 +208,8 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -219,7 +219,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
     private void test_setPropInValidIsNull() throws Exception {
         attrMap.put( "test_attr_name_int_1578_1", 1 );
         attrMap.put( "test_attr_name_int_1578_3", 1 );
-        attrMap.put( "test_attr_name_int_1578_4", null );//invalid
+        attrMap.put( "test_attr_name_int_1578_4", null );// invalid
 
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = new ScmClassProperties( CLASS_ID );
@@ -229,8 +229,8 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             e.printStackTrace();
-            logger.info( "attr value is invalid, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "attr value is invalid, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -275,7 +275,7 @@ public class DefineAttr_type_intInvalid_1578_1579 extends TestScmBase {
             }
 
             ScmAttribute attr = ScmFactory.Attribute.createInstance( ws, conf );
-            //attr attach class
+            // attr attach class
             class1.attachAttr( attr.getId() );
             attrList.add( attr );
         }

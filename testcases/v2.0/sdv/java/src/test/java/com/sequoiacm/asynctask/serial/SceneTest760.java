@@ -75,13 +75,13 @@ public class SceneTest760 extends TestScmBase {
         ScmSession ssA = null;
         ScmSession ssB = null;
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
 
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
@@ -203,8 +203,8 @@ public class SceneTest760 extends TestScmBase {
     private void writeFile( ScmSession ss, List< ScmId > fileIdList,
             List< String > filePathList, int writeFileNum )
             throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = 0; i < writeFileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setAuthor( author );
@@ -218,15 +218,15 @@ public class SceneTest760 extends TestScmBase {
     private void readFile( ScmSession ss, List< ScmId > fileIdList,
             List< String > filePathList ) throws ScmException {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    ss );
 
             for ( int i = 0; i < fileIdList.size(); ++i ) {
-                ScmFile scmfile = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 scmfile.getContent( downloadPath );
 
                 Assert.assertEquals( TestTools.getMD5( filePathList.get( i ) ),
@@ -398,8 +398,8 @@ public class SceneTest760 extends TestScmBase {
                 int expSiteNum = 2;
                 for ( ScmId fileId : fileIdList7 ) {
                     ScmFactory.File.asyncCache( ws, fileId );
-                    ScmTaskUtils
-                            .waitAsyncTaskFinished( ws, fileId, expSiteNum );
+                    ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                            expSiteNum );
                 }
                 SiteWrapper[] expSiteArr = { rootSite,
                         branceSiteList.get( 0 ) };
@@ -429,8 +429,8 @@ public class SceneTest760 extends TestScmBase {
                 int expSiteNum = 2;
                 for ( ScmId fileId : fileIdList8 ) {
                     ScmFactory.File.asyncTransfer( ws, fileId );
-                    ScmTaskUtils
-                            .waitAsyncTaskFinished( ws, fileId, expSiteNum );
+                    ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                            expSiteNum );
                 }
                 SiteWrapper[] expSiteArr = { rootSite,
                         branceSiteList.get( 1 ) };

@@ -46,17 +46,17 @@ public class Hbase_createScmFileAndCheckSliceSize951 extends TestScmBase {
 
     private String fileName = "file951";
     private ScmId fileId = null;
-    private int fileSize =
-            1024 * 1024 * 2 + new Random().nextInt( 1024 * 1024 );
+    private int fileSize = 1024 * 1024 * 2
+            + new Random().nextInt( 1024 * 1024 );
     private File localPath = null;
     private String filePath = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -115,9 +115,8 @@ public class Hbase_createScmFileAndCheckSliceSize951 extends TestScmBase {
 
     private void getScmFile() throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );
@@ -127,8 +126,8 @@ public class Hbase_createScmFileAndCheckSliceSize951 extends TestScmBase {
         Connection conn = null;
         try {
             conn = TestSdbTools.getHbaseConnect( site );
-            String tableName = TestSdbTools
-                    .getDataTableNameInHbase( site, wsp );
+            String tableName = TestSdbTools.getDataTableNameInHbase( site,
+                    wsp );
             Table table = conn.getTable( TableName.valueOf( tableName ) );
 
             byte[] buffer = TestTools.getBuffer( filePath );

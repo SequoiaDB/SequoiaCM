@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 
 /**
  * @FileName SCM-1573:修改用户，添加admin角色和普通角色，并删除角色和用户
- * 			  SCM-1575:修改用户，删除当前admin用户的AUTH_ADMIN角色和普通角色
+ *           SCM-1575:修改用户，删除当前admin用户的AUTH_ADMIN角色和普通角色
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -62,8 +62,8 @@ public class AuthServer_user1573_1575 extends TestScmBase {
         }
 
         // get AUTH_ADMIN role
-        ScmUser adminUser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser adminUser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         authAdminRole = adminUser.getRoles().iterator().next();
 
         ScmFactory.User.createUser( session, NAME, ScmUserPasswordType.LOCAL,
@@ -113,8 +113,8 @@ public class AuthServer_user1573_1575 extends TestScmBase {
             ScmFactory.User.alterUser( ss, scmUser, modifier );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete current AUTH_ADMIN role, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "delete current AUTH_ADMIN role, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         // check results

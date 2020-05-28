@@ -45,7 +45,7 @@ public class DeleteInstance_Param1199 extends TestScmBase {
             wsp = ScmInfo.getWs();
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            //ScmFactory.Directory.deleteInstance(ws, dirBasePath);
+            // ScmFactory.Directory.deleteInstance(ws, dirBasePath);
             deleteDir( ws, dirBasePath );
             dir = ScmFactory.Directory.createInstance( ws, dirBasePath );
         } catch ( ScmException e ) {
@@ -82,8 +82,8 @@ public class DeleteInstance_Param1199 extends TestScmBase {
             ScmDirectory subdir1 = dir.getSubdirectory( pathName );
             Assert.assertEquals( subdir1.getPath(),
                     dirBasePath + "/" + pathName + "/" );
-            ScmFactory.Directory
-                    .deleteInstance( ws, dirBasePath + "/" + pathName );
+            ScmFactory.Directory.deleteInstance( ws,
+                    dirBasePath + "/" + pathName );
             ScmDirectory subdir2 = dir.getSubdirectory( pathName );
             Assert.assertEquals( subdir2, null );
         } catch ( ScmException e ) {
@@ -113,14 +113,14 @@ public class DeleteInstance_Param1199 extends TestScmBase {
     private void testPaPathInexist() {
         String paPath = dirBasePath + "/testPaPathInexist_1199";
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .createInstance( ws, paPath );
+            ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                    paPath );
             ScmDirectory subdir = dir.createSubdirectory( "1199_a" );
             subdir.delete();
             dir.delete();
             ScmFactory.Directory.deleteInstance( ws, paPath + "/1199_a" );
-            ScmDirectory checkDir = ScmFactory.Directory
-                    .getInstance( ws, paPath + "/1199_a" );
+            ScmDirectory checkDir = ScmFactory.Directory.getInstance( ws,
+                    paPath + "/1199_a" );
             Assert.assertEquals( checkDir, null );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
@@ -134,8 +134,8 @@ public class DeleteInstance_Param1199 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ||
-                    TestScmBase.forceClear ) {
+            if ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4
+                    || TestScmBase.forceClear ) {
                 ScmFactory.Directory.deleteInstance( ws, dirBasePath );
             }
         } catch ( Exception e ) {

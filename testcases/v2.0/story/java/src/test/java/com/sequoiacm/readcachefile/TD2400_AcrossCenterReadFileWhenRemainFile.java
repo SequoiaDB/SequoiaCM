@@ -58,10 +58,10 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, "test", fileSize );
@@ -80,12 +80,12 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         createRemainFile( remainSizes1, remainFilePathList1 );
         createRemainFile( remainSizes2, remainFilePathList2 );
         return new Object[][] {
-                //mainSite  branchSite
+                // mainSite branchSite
                 { remainFilePathList1.get( 0 ), remainFilePathList2.get( 0 ) },
                 { remainFilePathList1.get( 1 ), remainFilePathList2.get( 1 ) },
                 { remainFilePathList1.get( 2 ), remainFilePathList2.get( 2 ) },
-                { remainFilePathList1.get( 3 ), remainFilePathList2.get( 3 ) }
-        };
+                { remainFilePathList1.get( 3 ),
+                        remainFilePathList2.get( 3 ) } };
     }
 
     @Test(groups = { "fourSite" }, dataProvider = "range-provider")
@@ -96,8 +96,8 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         fileIdList.add( fileId );
         // remain file from centerB
         TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath1 );
-        TestSdbTools.Lob
-                .putLob( branSites.get( 1 ), wsp, fileId, remainFilePath2 );
+        TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId,
+                remainFilePath2 );
         // read from centerB
         this.readFile( fileId, branSites.get( 1 ) );
         // check meta and data,because the metadata is directly modified when
@@ -116,8 +116,8 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         readFile( fileId, rootSite );
         SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
                 branSites.get( 1 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -141,14 +141,14 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
 
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         } finally {
             if ( session != null ) {
@@ -163,8 +163,8 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
             if ( remainSizes[ i ] == fileSize ) {
                 remainFilePathList.add( filePath );
             } else {
-                String tmpfilePath = localPath + File.separator + "localFile_" +
-                        remainSizes[ i ] + ".txt";
+                String tmpfilePath = localPath + File.separator + "localFile_"
+                        + remainSizes[ i ] + ".txt";
                 TestTools.LocalFile.createFile( tmpfilePath, remainSizes[ i ] );
                 remainFilePathList.add( tmpfilePath );
             }

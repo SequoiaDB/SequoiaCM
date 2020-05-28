@@ -60,26 +60,26 @@ public class WsFlow2212_1 extends TestScmBase {
         site = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            ScmId fileId = ScmFileUtils
-                    .create( ws, name + "_" + UUID.randomUUID(), filePath );
+            ScmId fileId = ScmFileUtils.create( ws,
+                    name + "_" + UUID.randomUUID(), filePath );
             fileIdList.add( fileId );
 
             ScmWorkspaceUtil.deleteWs( wsName, session );
             ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( session, wsName );
-            ScmWorkspace ws1 = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
-            fileId1 = ScmFileUtils
-                    .create( ws1, name + "_" + UUID.randomUUID(), filePath );
+            ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            fileId1 = ScmFileUtils.create( ws1, name + "_" + UUID.randomUUID(),
+                    filePath );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -129,14 +129,16 @@ public class WsFlow2212_1 extends TestScmBase {
     }
 
     private void checkResult( BasicBSONObject ws_flow_before ) {
-        //check old ws
+        // check old ws
         BasicBSONObject ws_flow_after = getFlowByWsName( wsp.getName() );
         if ( ws_flow_before != null ) {
-            Assert.assertEquals( ws_flow_after.getLong( uploadKey ) -
-                            ws_flow_before.getLong( uploadKey ),
+            Assert.assertEquals(
+                    ws_flow_after.getLong( uploadKey )
+                            - ws_flow_before.getLong( uploadKey ),
                     fileSize * threadNum );
-            Assert.assertEquals( ws_flow_after.getLong( downloadKey ) -
-                            ws_flow_before.getLong( downloadKey ),
+            Assert.assertEquals(
+                    ws_flow_after.getLong( downloadKey )
+                            - ws_flow_before.getLong( downloadKey ),
                     fileSize * threadNum );
         } else {
             Assert.assertEquals( ws_flow_after.getLong( uploadKey ),
@@ -145,7 +147,7 @@ public class WsFlow2212_1 extends TestScmBase {
                     fileSize * threadNum );
         }
 
-        //check new ws
+        // check new ws
         BasicBSONObject ws2213_flow = getFlowByWsName( wsName );
         Assert.assertEquals( ws2213_flow.getLong( uploadKey ), fileSize );
         Assert.assertEquals( ws2213_flow.getLong( downloadKey ),
@@ -181,9 +183,9 @@ public class WsFlow2212_1 extends TestScmBase {
         OutputStream fileOutputStream = null;
         try {
             file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fileOutputStream = new FileOutputStream( new File( downloadPath ) );
             file.getContent( fileOutputStream );
             fileOutputStream.close();
@@ -205,8 +207,8 @@ public class WsFlow2212_1 extends TestScmBase {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                ScmId fileId = ScmFileUtils
-                        .create( ws, name + "_" + UUID.randomUUID(), filePath );
+                ScmId fileId = ScmFileUtils.create( ws,
+                        name + "_" + UUID.randomUUID(), filePath );
                 fileIdList.add( fileId );
             } catch ( ScmException e ) {
                 e.printStackTrace();
@@ -233,8 +235,8 @@ public class WsFlow2212_1 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsName, session );
+                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                        session );
                 downloadFile( ws, fileId );
             } catch ( ScmException e ) {
                 e.printStackTrace();

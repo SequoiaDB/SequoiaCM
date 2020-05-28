@@ -67,8 +67,8 @@ public class DefineAttr_Attr_Delete1926 extends TestScmBase {
             }
         }
         // check
-        ScmAttribute actAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
         check( actAttr, attr );
         runSuccess = true;
     }

@@ -31,9 +31,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:attach file to the batch,update content by the file,than
- * detach file by batch
- * testlink-case:SCM-2089
+ * test content:attach file to the batch,update content by the file,than detach
+ * file by batch testlink-case:SCM-2089
  *
  * @author wuyan
  * @Date 2018.07.16
@@ -60,10 +59,10 @@ public class DetachFileByBatch2089 extends TestScmBase {
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-        //clean batch
+        // clean batch
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2086" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( ws, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -71,7 +70,7 @@ public class DetachFileByBatch2089 extends TestScmBase {
         }
         cursor.close();
 
-        //create file
+        // create file
         fileId = VersionUtils.createFileByStream( ws, fileName, writeData );
     }
 
@@ -81,11 +80,11 @@ public class DetachFileByBatch2089 extends TestScmBase {
         batchId = createBatchAndAttachFile( ws, batchName, fileId );
         checkBatchInfoByFile( ws, fileId, batchId );
 
-        //detach file by batch , than delete batch
+        // detach file by batch , than delete batch
         detachFileAndDeteleBatch( ws, batchId, fileId );
         checkDetachFileAndDeleteResult( ws, batchId, fileId );
 
-        //delete file
+        // delete file
         deleteFileAndCheckResult( ws, fileId );
         runSuccess = true;
     }
@@ -123,7 +122,7 @@ public class DetachFileByBatch2089 extends TestScmBase {
         ScmId batchId = batch.save();
         batch.attachFile( fileId );
 
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag( "tag2086" );
         batch.setTags( tags );
@@ -136,7 +135,7 @@ public class DetachFileByBatch2089 extends TestScmBase {
         ScmId getBatchId = file.getBatchId();
         Assert.assertEquals( getBatchId, batchId );
 
-        //batch contains a file
+        // batch contains a file
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         List< ScmFile > files = batch.listFiles();
         Assert.assertEquals( files.size(), 1 );
@@ -152,23 +151,23 @@ public class DetachFileByBatch2089 extends TestScmBase {
 
     private void checkDetachFileAndDeleteResult( ScmWorkspace ws, ScmId batchId,
             ScmId fileId ) throws ScmException {
-        //the batch is no exist
+        // the batch is no exist
         try {
             ScmFactory.Batch.getInstance( ws, batchId );
             Assert.fail( "get batch must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.BATCH_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-250  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-250  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //all version file exist
+        // all version file exist
         BSONObject findCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.toString() )
                 .get();
-        long fileCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, findCondition );
+        long fileCount = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                findCondition );
         long fileNums = 11;
         Assert.assertEquals( fileCount, fileNums );
     }
@@ -179,9 +178,9 @@ public class DetachFileByBatch2089 extends TestScmBase {
         BSONObject findCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.toString() )
                 .get();
-        long fileCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, findCondition );
-        //all version file has deleted,the count is 0
+        long fileCount = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                findCondition );
+        // all version file has deleted,the count is 0
         Assert.assertEquals( fileCount, 0 );
     }
 }

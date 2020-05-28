@@ -89,7 +89,7 @@ public class DeleteDir1164 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                //ScmFactory.Directory.deleteInstance(ws, fullPath1);
+                // ScmFactory.Directory.deleteInstance(ws, fullPath1);
                 deleteDir( ws, fullPath1 );
             }
         } catch ( Exception e ) {

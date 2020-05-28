@@ -99,8 +99,8 @@ public class AuthWs_role1781 extends TestScmBase {
                     ScmFactory.Role.deleteRole( session, NAME );
                 } catch ( ScmException e ) {
                     logger.info(
-                            "delete not eixst role in tear down, errorMsg = " +
-                                    e.getError() );
+                            "delete not eixst role in tear down, errorMsg = "
+                                    + e.getError() );
                 }
                 ScmFactory.Directory.deleteInstance( ws, DIR_PATH );
             }
@@ -112,9 +112,8 @@ public class AuthWs_role1781 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );
@@ -151,8 +150,8 @@ public class AuthWs_role1781 extends TestScmBase {
         ScmFactory.Directory.createInstance( ws, DIR_PATH );
 
         // prepare privilege
-        resource = ScmResourceFactory
-                .createDirectoryResource( wsp.getName(), DIR_PATH );
+        resource = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                DIR_PATH );
         ScmFactory.Role.grantPrivilege( session, role, resource,
                 ScmPrivilegeType.ALL );
     }

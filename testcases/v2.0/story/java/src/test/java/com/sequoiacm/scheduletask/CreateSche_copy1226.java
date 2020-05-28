@@ -67,10 +67,10 @@ public class CreateSche_copy1226 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -106,7 +106,7 @@ public class CreateSche_copy1226 extends TestScmBase {
             this.readyScmFile( wsA, fileNum, fileNum + 10 );
             ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
 
-            //checkTask info
+            // checkTask info
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.Schedule.ID )
                     .is( scheduleId.get() ).get();
@@ -174,9 +174,8 @@ public class CreateSche_copy1226 extends TestScmBase {
             Assert.assertEquals( eCond, queryCond );
 
             // create schedule task
-            content = new ScmScheduleCopyFileContent(
-                    branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                    queryCond );
+            content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, queryCond );
             cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );
@@ -190,7 +189,7 @@ public class CreateSche_copy1226 extends TestScmBase {
     private void checkScheduleTaskInfo() {
         try {
             ScmSchedule sche = ScmSystem.Schedule.get( ssA, scheduleId );
-//			System.out.println("sche info :" + sche);
+            // System.out.println("sche info :" + sche);
             Assert.assertEquals( sche.getId(), scheduleId );
             Assert.assertEquals( sche.getType(), ScheduleType.COPY_FILE );
             Assert.assertEquals( sche.getName(), name );
@@ -198,8 +197,9 @@ public class CreateSche_copy1226 extends TestScmBase {
             Assert.assertEquals( sche.getContent(), content );
             Assert.assertEquals( sche.getCron(), cron );
             Assert.assertEquals( sche.getWorkspace(), wsp.getName() );
-            //Assert.assertEquals(sche.getCreaateUser(), TestScmBase.scmUserName);
-            //Assert.assertEquals(sche.getCreateDate(), scheduleId);
+            // Assert.assertEquals(sche.getCreaateUser(),
+            // TestScmBase.scmUserName);
+            // Assert.assertEquals(sche.getCreateDate(), scheduleId);
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -207,8 +207,8 @@ public class CreateSche_copy1226 extends TestScmBase {
     }
 
     private void checkTaskInfo( BSONObject cond ) throws ScmException {
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( ssA, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                cond );
         try {
             while ( cursor.hasNext() ) {
                 ScmTaskBasicInfo info = cursor.getNext();

@@ -61,10 +61,10 @@ public class AsyncTransThenReadThenClean759 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -98,16 +98,14 @@ public class AsyncTransThenReadThenClean759 extends TestScmBase {
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, expSiteNum );
             // check results
             SiteWrapper[] expSiteIdList1 = { sourceSite, targetSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileId, expSiteIdList1, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList1,
+                    localPath, filePath );
 
             readFileFromM();
             // check results
             SiteWrapper[] expSiteIdList2 = { sourceSite, targetSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileId, expSiteIdList2, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList2,
+                    localPath, filePath );
 
             // startCleanTasl
             BSONObject condition = ScmQueryBuilder
@@ -117,9 +115,8 @@ public class AsyncTransThenReadThenClean759 extends TestScmBase {
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
             // check results
             SiteWrapper[] expSiteIdList3 = { targetSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileId, expSiteIdList3, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList3,
+                    localPath, filePath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -157,9 +154,9 @@ public class AsyncTransThenReadThenClean759 extends TestScmBase {
 
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( wks, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis = ScmFactory.File.createInputStream( scmfile );
             sis.read( fos );

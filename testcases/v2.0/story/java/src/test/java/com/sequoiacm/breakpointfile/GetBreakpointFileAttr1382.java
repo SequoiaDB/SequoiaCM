@@ -23,8 +23,8 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:get breakpoint file attribute information
- * testlink-case:SCM-1382
+ * test content:get breakpoint file attribute information testlink-case:SCM-1382
+ * 
  * @author wuyan
  * @Date 2018.05.15
  * @version 1.00
@@ -44,7 +44,7 @@ public class GetBreakpointFileAttr1382 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        //scminfo
+        // scminfo
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
@@ -72,8 +72,8 @@ public class GetBreakpointFileAttr1382 extends TestScmBase {
 
     private void createBreakpointFile() throws ScmException {
         // create file
-        breakpointFile = ScmFactory.BreakpointFile
-                .createInstance( ws, fileName );
+        breakpointFile = ScmFactory.BreakpointFile.createInstance( ws,
+                fileName );
         byte[] data = new byte[ fileSize ];
         new Random().nextBytes( data );
         breakpointFile.upload( new ByteArrayInputStream( data ) );
@@ -95,18 +95,18 @@ public class GetBreakpointFileAttr1382 extends TestScmBase {
         Assert.assertEquals( breakpointFile.isCompleted(), true );
         Assert.assertEquals( breakpointFile.getSiteName(), site.getSiteName() );
 
-        //there is a difference between the results of the comparison
+        // there is a difference between the results of the comparison
         long acceptableOffSet = 5000 * 1000; // unit:ms
-        if ( Math.abs( breakpointFile.getCreateTime().getTime() - localTime ) >
-                acceptableOffSet ) {
-            Assert.fail( "time is different: createTime=" +
-                    breakpointFile.getCreateTime()
-                    + ", localTime=" + localTime );
+        if ( Math.abs( breakpointFile.getCreateTime().getTime()
+                - localTime ) > acceptableOffSet ) {
+            Assert.fail( "time is different: createTime="
+                    + breakpointFile.getCreateTime() + ", localTime="
+                    + localTime );
         }
 
-        //update time later than create time
-        if ( breakpointFile.getUploadTime().getTime() <
-                breakpointFile.getCreateTime().getTime() ) {
+        // update time later than create time
+        if ( breakpointFile.getUploadTime().getTime() < breakpointFile
+                .getCreateTime().getTime() ) {
             Assert.fail( "update time : " + breakpointFile.getCreateTime()
                     + ", localTime=" + localTime );
         }

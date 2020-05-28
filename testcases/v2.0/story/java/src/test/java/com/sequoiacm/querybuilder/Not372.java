@@ -76,13 +76,13 @@ public class Not372 extends TestScmBase {
                     .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"$not\" : [ { \"notExist\" : \" \"}] , \"author\" :" +
-                            " \"" +
-                            authorName + "\"}" ).replaceAll( "\\s*", "" ) );
+                    ( "{ \"$not\" : [ { \"notExist\" : \" \"}] , \"author\" :"
+                            + " \"" + authorName + "\"}" ).replaceAll( "\\s*",
+                                    "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess = true;

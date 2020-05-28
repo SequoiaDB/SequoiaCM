@@ -58,15 +58,15 @@ public class TransferAndClean742 extends TestScmBase {
 
     private SiteWrapper rootSite = null;
     private SiteWrapper branceSite = null;
-    //private NodeWrapper node = null;
+    // private NodeWrapper node = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -74,7 +74,7 @@ public class TransferAndClean742 extends TestScmBase {
 
             rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
-            //node = branceSite.getNode();
+            // node = branceSite.getNode();
             ws_T = ScmInfo.getWs();
 
             // login

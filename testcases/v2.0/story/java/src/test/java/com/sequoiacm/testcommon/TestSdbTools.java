@@ -477,9 +477,8 @@ public class TestSdbTools {
                             .getTable( TableName.valueOf( tableName ) );
                     Put put;
                     byte[] buffer = TestTools.getBuffer( lobPath );
-                    int num = ( int ) Math
-                            .ceil( Double.valueOf( buffer.length ) / ( 1024
-                                    * 1024 ) );
+                    int num = ( int ) Math.ceil(
+                            Double.valueOf( buffer.length ) / ( 1024 * 1024 ) );
                     for ( int i = 0; i < num; i++ ) {
                         int len = 1024 * 1024;
                         if ( i == num - 1 ) {
@@ -497,9 +496,9 @@ public class TestSdbTools {
 
                     put = new Put( Bytes.toBytes( fileId.get() ) );
                     put.addColumn( Bytes.toBytes( "SCM_FILE_META" ),
-                            Bytes.toBytes( "FILE_SIZE" ), Bytes.toBytes(
-                                    String.valueOf(
-                                            new File( lobPath ).length() ) ) );
+                            Bytes.toBytes( "FILE_SIZE" ),
+                            Bytes.toBytes( String.valueOf(
+                                    new File( lobPath ).length() ) ) );
                     table.put( put );
 
                     put = new Put( Bytes.toBytes( fileId.get() ) );
@@ -654,9 +653,9 @@ public class TestSdbTools {
                 }
             }
 
-            List< BSONObject > infoList = ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE,
-                            ScmInfo.getRootSite().getSiteId(), ss );
+            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
+                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
+                    ss );
             logger.info( "infoList after reloadbizconf: \n" + infoList );
             return ScmFactory.Workspace.getWorkspace( wsName, ss );
         }
@@ -710,8 +709,8 @@ public class TestSdbTools {
 
         @Deprecated
         private static int getUniqueWsId( DBCollection wsCL ) {
-            DBCursor cursor = wsCL
-                    .query( null, "{ id: {$include: 1} }", null, null );
+            DBCursor cursor = wsCL.query( null, "{ id: {$include: 1} }", null,
+                    null );
             int idMax = 0;
             while ( cursor.hasNext() ) {
                 int currId = ( int ) cursor.getNext().get( "id" );
@@ -738,11 +737,11 @@ public class TestSdbTools {
             CollectionSpace cs = sdb.createCollectionSpace( wsName + "_META",
                     new BasicBSONObject( "Domain", "domain1" ) );
             cs.createCollection( "FILE", ( BSONObject ) JSON
-                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, " +
-                            "ShardingType: 'range', IsMainCL: true }" ) );
+                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, "
+                            + "ShardingType: 'range', IsMainCL: true }" ) );
             cs.createCollection( "FILE_HISTORY", ( BSONObject ) JSON
-                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, " +
-                            "ShardingType: 'range', IsMainCL: true }" ) );
+                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, "
+                            + "ShardingType: 'range', IsMainCL: true }" ) );
             cs.createCollection( "TRANSACTION_LOG" );
         }
     }
@@ -771,10 +770,10 @@ public class TestSdbTools {
         }
 
         public static void printlnTaskInfos() {
-            List< BSONObject > bsonObjects = TestSdbTools
-                    .query( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
-                            TestScmBase.sdbPassword, SCM_CS, SCM_CL_TASK,
-                            new BasicBSONObject() );
+            List< BSONObject > bsonObjects = TestSdbTools.query(
+                    TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
+                    TestScmBase.sdbPassword, SCM_CS, SCM_CL_TASK,
+                    new BasicBSONObject() );
             for ( BSONObject bsonObject : bsonObjects ) {
                 System.out.println( "taskInfo : " + bsonObject.toString() );
             }

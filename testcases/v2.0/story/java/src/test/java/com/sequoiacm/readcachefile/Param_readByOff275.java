@@ -48,10 +48,10 @@ public class Param_readByOff275 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -115,8 +115,8 @@ public class Param_readByOff275 extends TestScmBase {
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.INVALID_ARGUMENT ||
-                    !e.getMessage().contains( "byteArray is null" ) ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT
+                    || !e.getMessage().contains( "byteArray is null" ) ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }

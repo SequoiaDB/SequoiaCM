@@ -295,13 +295,12 @@ public class ScmInfo {
     }
 
     /**
-     * get all serviceInstance by servicename if there is a new ws to use
-     * this function, otherwise,
-     * recommended to use getScheduleServers()
+     * get all serviceInstance by servicename if there is a new ws to use this
+     * function, otherwise, recommended to use getScheduleServers()
      */
     public static List< ScmServiceInstance > getServiceInstances(
             ScmSession session, String serviceName ) throws ScmException {
-        return ScmSystem.ServiceCenter
-                .getServiceInstanceList( session, serviceName );
+        return ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                serviceName );
     }
 }

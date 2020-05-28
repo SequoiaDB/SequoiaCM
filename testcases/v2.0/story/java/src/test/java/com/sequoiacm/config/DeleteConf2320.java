@@ -56,8 +56,9 @@ public class DeleteConf2320 extends TestScmBase {
 
             Assert.assertTrue( actResult.getFailures().size() == 0,
                     actResult.getFailures().toString() );
-            Assert.assertTrue( actResult.getSuccesses().size() ==
-                            ( scheList.size() + authList.size() ),
+            Assert.assertTrue(
+                    actResult.getSuccesses()
+                            .size() == ( scheList.size() + authList.size() ),
                     actResult.getSuccesses().toString() );
 
             List< String > expKeys = new ArrayList< String >();

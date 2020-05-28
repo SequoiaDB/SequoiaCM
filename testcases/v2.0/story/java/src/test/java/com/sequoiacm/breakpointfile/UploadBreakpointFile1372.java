@@ -28,6 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 /**
  * test content:create empty breakpoint file, than continuation upload file
  * testlink case:seqDB-1372
+ * 
  * @author wuyan
  * @Date 2018.05.18
  * @version 1.00
@@ -52,10 +53,10 @@ public class UploadBreakpointFile1372 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -70,7 +71,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
     private void test() throws Exception {
         continuesUploadFileByCheckSum();
         continuesUploadFileByNoCheckSum();
-        //http://jira:8080/browse/SEQUOIACM-266
+        // http://jira:8080/browse/SEQUOIACM-266
         continuesUploadEmptyFile();
     }
 
@@ -90,9 +91,9 @@ public class UploadBreakpointFile1372 extends TestScmBase {
         }
     }
 
-    //continues upload file ,the file content is not empty
+    // continues upload file ,the file content is not empty
     private void continuesUploadFileByCheckSum() throws Exception {
-        //continues upload file
+        // continues upload file
         ScmChecksumType checksumType = ScmChecksumType.CRC32;
         createEmptyBreakpointFile( checksumType, fileName1 );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
@@ -102,7 +103,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
     }
 
     private void continuesUploadFileByNoCheckSum() throws Exception {
-        //continues upload file
+        // continues upload file
         ScmChecksumType checksumType = ScmChecksumType.NONE;
         createEmptyBreakpointFile( checksumType, fileName2 );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
@@ -113,7 +114,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
     }
 
     private void continuesUploadEmptyFile() throws Exception {
-        //continues upload file
+        // continues upload file
         ScmChecksumType checksumType = ScmChecksumType.ADLER32;
         createEmptyBreakpointFile( checksumType, fileName3 );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
@@ -124,7 +125,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
     }
 
     private ScmId checkUploadFileData( String fileName ) throws Exception {
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
@@ -132,12 +133,11 @@ public class UploadBreakpointFile1372 extends TestScmBase {
         file.setFileName( fileName );
         ScmId fileId = file.save();
 
-        //down file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
@@ -149,7 +149,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
 
     private ScmId checkUploadEmptyFileData( String fileName, byte[] expData )
             throws Exception {
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
@@ -157,7 +157,7 @@ public class UploadBreakpointFile1372 extends TestScmBase {
         file.setFileName( fileName );
         ScmId fileId = file.save();
 
-        //down file
+        // down file
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );
 
@@ -174,8 +174,8 @@ public class UploadBreakpointFile1372 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, checksumType );
         byte[] data = new byte[ 0 ];
-        breakpointFile
-                .incrementalUpload( new ByteArrayInputStream( data ), false );
+        breakpointFile.incrementalUpload( new ByteArrayInputStream( data ),
+                false );
     }
 
 }

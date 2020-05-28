@@ -44,9 +44,8 @@ public class ListSite2588 extends TestScmBase {
                         sites.contains( siteWrapper.getSiteName() ), true );
             }
         } catch ( AssertionError e ) {
-            throw new Exception(
-                    "sites = " + sites.toString() + "\n, siteWrappers = "
-                            + siteWrappers.toString(), e );
+            throw new Exception( "sites = " + sites.toString()
+                    + "\n, siteWrappers = " + siteWrappers.toString(), e );
         } finally {
             if ( session != null ) {
                 session.close();

@@ -52,10 +52,10 @@ public class WriteAndRead729 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         filePathList.add( filePath );
         try {
             rootSite = ScmInfo.getRootSite();
@@ -72,7 +72,7 @@ public class WriteAndRead729 extends TestScmBase {
         }
     }
 
-    //Bug:237
+    // Bug:237
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws ScmException {
         ReadFile rThread = new ReadFile();
@@ -100,8 +100,8 @@ public class WriteAndRead729 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // write
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -131,9 +131,9 @@ public class WriteAndRead729 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 ScmId fileId = fileIdList.get( ( int ) Math.random() % 10 );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 file.getContent( downloadPath );
                 checkResult( file, downloadPath );
             } catch ( Exception e ) {

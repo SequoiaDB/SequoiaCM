@@ -59,10 +59,10 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready local file
             TestTools.LocalFile.removeFile( localPath );
@@ -134,9 +134,8 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
 
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            taskId = ScmSystem.Task
-                    .startTransferTask( wsA, condition, ScopeType.SCOPE_CURRENT,
-                            branceSite.getSiteName() );
+            taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                    ScopeType.SCOPE_CURRENT, branceSite.getSiteName() );
             waitTaskFinish( sessionA, taskId );
 
             // check task info
@@ -169,8 +168,8 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
             wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
             ScmFactory.File.asyncCache( wsA, fileId );
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsA, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
         } catch ( ScmException e ) {
@@ -199,24 +198,24 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
         int retryTimes = 0;
         while ( true ) {
             ScmTask task = ScmSystem.Task.getTask( session, taskId );
-            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ==
-                    task.getRunningFlag() ) {
+            if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH == task
+                    .getRunningFlag() ) {
                 break;
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ==
-                    task.getRunningFlag() ) {
+            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_ABORT == task
+                    .getRunningFlag() ) {
                 throw new Exception(
-                        "failed, the task running flag is abort, task info : \n" +
-                                task.toString() );
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ==
-                    task.getRunningFlag() ) {
+                        "failed, the task running flag is abort, task info : \n"
+                                + task.toString() );
+            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == task
+                    .getRunningFlag() ) {
                 throw new Exception(
-                        "failed, the task running flag is cancel, task info : \n" +
-                                task.toString() );
+                        "failed, the task running flag is cancel, task info : \n"
+                                + task.toString() );
             } else if ( retryTimes >= maxRetryTimes ) {
                 throw new Exception(
-                        "failed to wait task finished, maxRetryTimes=" +
-                                maxRetryTimes
-                                + ", task info : \n" + task.toString() );
+                        "failed to wait task finished, maxRetryTimes="
+                                + maxRetryTimes + ", task info : \n"
+                                + task.toString() );
             }
             Thread.sleep( sleepTime );
             retryTimes++;

@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1133 :: 创建多级文件夹 
+ * @Description:SCM-1133 :: 创建多级文件夹
  * @author fanyu
  * @Date:2018年4月19日
  * @version:1.0
@@ -36,10 +36,10 @@ public class CreateMutiDir1133 extends TestScmBase {
     private ScmSession session;
     private ScmWorkspace ws;
     private String dirBasePath = "/CreateMutiDir1133";
-    private String fullPath1 =
-            dirBasePath + "/1133_a/1133_b/1133_c/1133_e/1133_f";
-    private String fullPath2 =
-            dirBasePath + "_1/1133_x/1133_x/1133_x/1133_x/1133_x";
+    private String fullPath1 = dirBasePath
+            + "/1133_a/1133_b/1133_c/1133_e/1133_f";
+    private String fullPath2 = dirBasePath
+            + "_1/1133_x/1133_x/1133_x/1133_x/1133_x";
     private SiteWrapper site;
     private WsWrapper wsp;
     private String author = "CreateMutiDir1133";
@@ -64,7 +64,7 @@ public class CreateMutiDir1133 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        //create different dir
+        // create different dir
         createDir( ws, fullPath1 );
         BSONObject cond = new BasicBSONObject();
         cond.put( "name", "1133_f" );
@@ -72,7 +72,7 @@ public class CreateMutiDir1133 extends TestScmBase {
         cond.put( "paName", "1133_e" );
         check( ScmFactory.Directory.getInstance( ws, fullPath1 ), cond );
 
-        //create same dir
+        // create same dir
         createDir( ws, fullPath2 );
         BSONObject cond1 = new BasicBSONObject();
         cond1.put( "name", "1133_x" );
@@ -126,8 +126,8 @@ public class CreateMutiDir1133 extends TestScmBase {
                 Assert.fail( e.getMessage() );
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -136,8 +136,8 @@ public class CreateMutiDir1133 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

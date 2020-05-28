@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1725 :: 无接口对应工作区资源的权限，对表格中的各个接口进行覆盖测试 
+ * @Description:SCM-1725 :: 无接口对应工作区资源的权限，对表格中的各个接口进行覆盖测试
  * @author fanyu
  * @Date:2018年6月14日
  * @version:1.0
@@ -59,9 +59,8 @@ public class AuthWs_None1725 extends TestScmBase {
             e.printStackTrace();
         }
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             session = TestScmTools.createSession( site, username, passwd );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( ScmException e ) {
@@ -74,8 +73,8 @@ public class AuthWs_None1725 extends TestScmBase {
     private void testListDir() {
         ScmCursor< ScmDirectory > cursor = null;
         try {
-            cursor = ScmFactory.Directory
-                    .listInstance( ws, new BasicBSONObject() );
+            cursor = ScmFactory.Directory.listInstance( ws,
+                    new BasicBSONObject() );
             Assert.assertNotNull( cursor );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -117,4 +116,3 @@ public class AuthWs_None1725 extends TestScmBase {
         }
     }
 }
-

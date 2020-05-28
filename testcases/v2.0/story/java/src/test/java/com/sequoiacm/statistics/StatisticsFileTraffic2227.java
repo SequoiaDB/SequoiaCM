@@ -34,8 +34,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
- * test content: create file by breakpointfile, statistics upload file traffic, 
- *               and statistics upload file traffic again after delete file.
+ * test content: create file by breakpointfile, statistics upload file traffic,
+ * and statistics upload file traffic again after delete file.
  * testlink-case:SCM-2227
  *
  * @author wuyan
@@ -59,7 +59,7 @@ public class StatisticsFileTraffic2227 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        //check env for breakpointfile
+        // check env for breakpointfile
         List< SiteWrapper > sitelists = ScmInfo.getAllSites();
         int dbDataSoureCount = 0;
         for ( int i = 0; i < sitelists.size(); i++ ) {
@@ -85,24 +85,24 @@ public class StatisticsFileTraffic2227 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get statisticUpload before create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        // get statisticUpload before create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticUpload1 = firstmap.get( "file_upload" );
 
-        //get statisticUpload after create file
+        // get statisticUpload after create file
         createFileByBreakpointfile( ws, fileNums );
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticUpload2 = secondmap.get( "file_upload" );
 
-        //get statisticUpload after delete
+        // get statisticUpload after delete
         deleteFile( ws );
-        HashMap< String, Long > thirdmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        HashMap< String, Long > thirdmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticUpload3 = thirdmap.get( "file_upload" );
 
-        //check statisticUpload result
+        // check statisticUpload result
         long upFiles = statisticUpload2 - statisticUpload1;
         Assert.assertEquals( upFiles, fileNums,
                 "traffic must be the same as filenums!" );
@@ -143,7 +143,7 @@ public class StatisticsFileTraffic2227 extends TestScmBase {
             ScmBreakpointFile breakpointFile = createBreakpointFile( ws,
                     subfileName );
 
-            //setcontent by breakfile
+            // setcontent by breakfile
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setContent( breakpointFile );
             file.setFileName( subfileName );

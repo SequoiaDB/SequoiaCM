@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1905 :: Attribute.createInstance参数校验 
+ * @Description: SCM-1905 :: Attribute.createInstance参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0
@@ -55,11 +55,11 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         conf.setDisplayName( desc );
         conf.setDescription( desc );
         conf.setType( AttributeType.BOOLEAN );
-        //create
+        // create
         ScmAttribute attr = ScmFactory.Attribute.createInstance( ws, conf );
-        //get
-        ScmAttribute actAttr = ScmFactory.Attribute
-                .getInstance( ws, attr.getId() );
+        // get
+        ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                attr.getId() );
 
         Assert.assertEquals( actAttr.getCreateUser(), attr.getCreateUser() );
         Assert.assertEquals( actAttr.getDescription(), desc );
@@ -90,8 +90,8 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
             conf.setDescription( "" );
             conf.setType( AttributeType.BOOLEAN );
             attr = ScmFactory.Attribute.createInstance( ws, conf );
-            ScmAttribute actAttr = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( actAttr.getName(), name );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -116,8 +116,8 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
             conf.setType( AttributeType.BOOLEAN );
 
             attr = ScmFactory.Attribute.createInstance( ws, conf );
-            ScmAttribute actAttr = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( actAttr.getName(), name );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
@@ -182,8 +182,8 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
             conf.setDescription( name );
             conf.setType( AttributeType.BOOLEAN );
             attr = ScmFactory.Attribute.createInstance( ws, conf );
-            ScmAttribute actAttr = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( actAttr.getName(), name );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -207,8 +207,8 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
             conf.setDescription( name );
             conf.setType( AttributeType.BOOLEAN );
             attr = ScmFactory.Attribute.createInstance( ws, conf );
-            ScmAttribute actAttr = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute actAttr = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( actAttr.getName(), name );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -289,7 +289,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
             conf.setDisplayName( desc );
             conf.setDescription( desc );
             conf.setType( AttributeType.BOOLEAN );
-            //create
+            // create
             ScmFactory.Attribute.createInstance( null, conf );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {

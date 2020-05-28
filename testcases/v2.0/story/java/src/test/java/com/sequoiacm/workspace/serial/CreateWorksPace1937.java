@@ -49,8 +49,7 @@ public class CreateWorksPace1937 extends TestScmBase {
     private SiteWrapper branSite2 = null;
     private String metaDomainName = null;
     private String rootDomainName = null;
-    private List< ScmDataLocation > scmDataLocationList = new ArrayList<
-            ScmDataLocation >();
+    private List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
     private ScmSdbMetaLocation scmMetaLocation = null;
 
     @BeforeClass
@@ -145,8 +144,8 @@ public class CreateWorksPace1937 extends TestScmBase {
             data = new ScmCephSwiftDataLocation( siteName );
             break;
         default:
-            Assert.fail( "dataSourceType not match: " +
-                    site.getDataType().toString() );
+            Assert.fail( "dataSourceType not match: "
+                    + site.getDataType().toString() );
         }
         return data;
     }

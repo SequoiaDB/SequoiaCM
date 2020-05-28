@@ -32,7 +32,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description: SCM-2100 SCM-2101 :: 创建文件和更新文件站点数据源分别为hbase和hdfs 
+ * @Description: SCM-2100 SCM-2101 :: 创建文件和更新文件站点数据源分别为hbase和hdfs
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -57,12 +57,12 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        filePath2 = localPath + File.separator + "localFile_" + fileSize / 2 +
-                ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath1 = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize / 2
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -149,7 +149,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
     private void updateFile( ScmWorkspace ws, ScmId fileId, String filePath )
             throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        //file.setTags(tags);
+        // file.setTags(tags);
         file.updateContent( filePath );
     }
 
@@ -160,9 +160,8 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
         Assert.assertEquals( file.getMajorVersion(), currentVerion );
         Assert.assertEquals( file.getSize(), fileSize / 2 );
         Assert.assertEquals( file.getDirectory().getPath(), "/" );
-        //check content
-        VersionUtils
-                .CheckFileContentByFile( ws, fileId, currentVerion, filePath2,
-                        localPath );
+        // check content
+        VersionUtils.CheckFileContentByFile( ws, fileId, currentVerion,
+                filePath2, localPath );
     }
 }

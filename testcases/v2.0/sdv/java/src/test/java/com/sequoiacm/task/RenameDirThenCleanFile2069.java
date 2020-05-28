@@ -67,10 +67,10 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -123,9 +123,8 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
 
         // clean
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( name )
-                .and( ScmAttributeName.File.DIRECTORY_ID ).is( dir.getId() )
-                .get();
+                .is( name ).and( ScmAttributeName.File.DIRECTORY_ID )
+                .is( dir.getId() ).get();
         taskId = ScmSystem.Task.startCleanTask( ws1, cond );
         waitTaskStop();
 
@@ -189,9 +188,8 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
                     expSiteList[ 0 ] = site1;
                     expSiteList[ 1 ] = site2;
                 }
-                ScmFileUtils
-                        .checkMetaAndData( wsp, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList,
+                        localPath, filePath );
             }
         } else {
             for ( ScmId fileId : fileIdList ) {
@@ -232,9 +230,8 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
 
     private void readFile( ScmId fileId ) throws Exception {
         ScmFile file2 = ScmFactory.File.getInstance( ws2, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file2.getContent( downloadPath );
     }
 
@@ -263,8 +260,8 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -273,8 +270,8 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

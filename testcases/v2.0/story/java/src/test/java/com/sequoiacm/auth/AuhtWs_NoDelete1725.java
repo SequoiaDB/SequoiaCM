@@ -68,10 +68,10 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -128,32 +128,33 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
         }
     }
 
-//    @Test(groups = {"twoSite", "fourSite"})
-//    private void testDeleteBreakPointFile() throws ScmException, IOException {
-//        BreakpointUtil.checkDBDataSource();
-//        String fileName = author + UUID.randomUUID();
-//        ScmBreakpointFile expBreakpointFile = null;
-//        try {
-//            expBreakpointFile = ScmFactory.BreakpointFile.createInstance
-// (wsA, fileName);
-//            InputStream inputStream = new BreakpointInputStream(new
-// FileInputStream(new File(filePath)));
-//            expBreakpointFile.incrementalUpload(inputStream, false);
-//            inputStream.close();
-//
-//            ScmFactory.BreakpointFile.deleteInstance(wsND, fileName);
-//            Assert.fail("the user does not have priority to do something");
-//        } catch (ScmException e) {
-//            if (e.getError() != ScmError.OPERATION_UNAUTHORIZED) {
-//                e.printStackTrace();
-//                Assert.fail(e.getMessage());
-//            }
-//        } finally {
-//            if (expBreakpointFile != null) {
-//                ScmFactory.BreakpointFile.deleteInstance(wsA, fileName);
-//            }
-//        }
-//    }
+    // @Test(groups = {"twoSite", "fourSite"})
+    // private void testDeleteBreakPointFile() throws ScmException, IOException
+    // {
+    // BreakpointUtil.checkDBDataSource();
+    // String fileName = author + UUID.randomUUID();
+    // ScmBreakpointFile expBreakpointFile = null;
+    // try {
+    // expBreakpointFile = ScmFactory.BreakpointFile.createInstance
+    // (wsA, fileName);
+    // InputStream inputStream = new BreakpointInputStream(new
+    // FileInputStream(new File(filePath)));
+    // expBreakpointFile.incrementalUpload(inputStream, false);
+    // inputStream.close();
+    //
+    // ScmFactory.BreakpointFile.deleteInstance(wsND, fileName);
+    // Assert.fail("the user does not have priority to do something");
+    // } catch (ScmException e) {
+    // if (e.getError() != ScmError.OPERATION_UNAUTHORIZED) {
+    // e.printStackTrace();
+    // Assert.fail(e.getMessage());
+    // }
+    // } finally {
+    // if (expBreakpointFile != null) {
+    // ScmFactory.BreakpointFile.deleteInstance(wsA, fileName);
+    // }
+    // }
+    // }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testDeleteScmDir() throws ScmException {
@@ -164,8 +165,8 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
             ScmFactory.Directory.deleteInstance( wsND, path );
             expDir = null;
             Assert.fail(
-                    "the user does not have priority to do something,path = " +
-                            path );
+                    "the user does not have priority to do something,path = "
+                            + path );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 e.printStackTrace();
@@ -191,13 +192,11 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( author ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
             ScmSystem.Schedule.delete( sessionND, expSche.getId() );
             Assert.fail( "the user does not have priority to do something" );
         } catch ( ScmException e ) {
@@ -213,8 +212,8 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -267,14 +266,13 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
             ScmDirectory dir = ScmFactory.Directory.createInstance( wsA, path );
             wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
                     ScmPrivilegeType.CREATE );
             grantPriAndAttachRole( sessionA, wsrs, user, role,
@@ -286,8 +284,8 @@ public class AuhtWs_NoDelete1725 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, username, passwd, role,
                     wsp.getName() );
             sessionND = TestScmTools.createSession( site, username, passwd );
-            wsND = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionND );
+            wsND = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionND );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

@@ -58,10 +58,10 @@ public class SeekReadFile2122 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, JSONException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -70,7 +70,7 @@ public class SeekReadFile2122 extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
 
-        //clean file
+        // clean file
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( author ).get();
         ScmFileUtils.cleanFile( wsp, cond );
@@ -106,10 +106,9 @@ public class SeekReadFile2122 extends TestScmBase {
         }
     }
 
-    private void writeFile( RestWrapper rest )
-            throws JSONException, UnsupportedEncodingException,
-            FileNotFoundException {
-        // write 
+    private void writeFile( RestWrapper rest ) throws JSONException,
+            UnsupportedEncodingException, FileNotFoundException {
+        // write
         JSONObject desc = new JSONObject();
         desc.put( "name", author );
         desc.put( "author", author );
@@ -130,25 +129,24 @@ public class SeekReadFile2122 extends TestScmBase {
     }
 
     private void seekReadAndCheck( RestWrapper rest ) throws Exception {
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         OutputStream fileStream = new FileOutputStream(
                 new File( downloadPath ) );
         InputStream in = null;
         long offset = 1024 * 512;
         long length = 1024 * 512;
         try {
-            //seek read
+            // seek read
             long seekSize = offset;
             ResponseEntity< ? > resource = null;
             while ( true ) {
-                resource = rest.setApi( "files/" + fileId + "?workspace_name="
-                        + wsp.getName() + "&offset=" + seekSize + "&length=" +
-                        length )
+                resource = rest
+                        .setApi( "files/" + fileId + "?workspace_name="
+                                + wsp.getName() + "&offset=" + seekSize
+                                + "&length=" + length )
                         .setRequestMethod( HttpMethod.GET )
-                        .setResponseType( Resource.class )
-                        .exec();
+                        .setResponseType( Resource.class ).exec();
                 HttpHeaders hs = resource.getHeaders();
                 int curReadSize = Integer
                         .parseInt( hs.get( "data_length" ).get( 0 ) );
@@ -161,8 +159,8 @@ public class SeekReadFile2122 extends TestScmBase {
                     in = rs.getInputStream();
                     int actReadSize;
                     byte[] buffer = new byte[ ( int ) length ];
-                    while ( ( actReadSize = in
-                            .read( buffer, 0, curReadSize ) ) != -1 ) {
+                    while ( ( actReadSize = in.read( buffer, 0,
+                            curReadSize ) ) != -1 ) {
                         fileStream.write( buffer, 0, actReadSize );
                     }
                 }
@@ -174,16 +172,13 @@ public class SeekReadFile2122 extends TestScmBase {
             }
 
             // check results
-            String tmpPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            TestTools.LocalFile
-                    .readFile( filePath, ( int ) offset, ( int ) length,
-                            tmpPath );
+            String tmpPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
+            TestTools.LocalFile.readFile( filePath, ( int ) offset,
+                    ( int ) length, tmpPath );
             Assert.assertEquals( TestTools.getMD5( tmpPath ),
-                    TestTools.getMD5( downloadPath ),
-                    "tmpPath = " + tmpPath + ",downloadPath = " +
-                            downloadPath );
+                    TestTools.getMD5( downloadPath ), "tmpPath = " + tmpPath
+                            + ",downloadPath = " + downloadPath );
         } finally {
             if ( fileStream != null ) {
                 fileStream.close();
@@ -195,12 +190,9 @@ public class SeekReadFile2122 extends TestScmBase {
     }
 
     private void deleteFile( RestWrapper rest ) throws Exception {
-        rest.setApi( "files/" + fileId + "?workspace_name=" + wsp.getName() +
-                "&is_physical=true" )
-                .setRequestMethod( HttpMethod.DELETE )
+        rest.setApi( "files/" + fileId + "?workspace_name=" + wsp.getName()
+                + "&is_physical=true" ).setRequestMethod( HttpMethod.DELETE )
                 .setRequestHeaders( "Authorization", "Scm " + sessionId )
-                .setResponseType( Resource.class )
-                .exec();
+                .setResponseType( Resource.class ).exec();
     }
 }
-

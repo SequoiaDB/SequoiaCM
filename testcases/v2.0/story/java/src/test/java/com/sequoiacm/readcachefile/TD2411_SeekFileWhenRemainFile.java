@@ -54,10 +54,10 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -81,8 +81,8 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         this.seekFile( branSites.get( 1 ) );
         // check result
         SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         // read from centerM
         this.seekFile( rootSite );
         SiteWrapper[] expSites1 = { rootSite, branSites.get( 0 ),
@@ -112,17 +112,16 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         ScmInputStream in = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             fos = new FileOutputStream( new File( downloadPath ) );
-            in = ScmFactory.File
-                    .createInputStream( ScmType.InputStreamType.SEEKABLE,
-                            scmfile );
+            in = ScmFactory.File.createInputStream(
+                    ScmType.InputStreamType.SEEKABLE, scmfile );
             in.seek( CommonDefine.SeekType.SCM_FILE_SEEK_SET, 0 );
             in.read( fos );
         } finally {

@@ -81,14 +81,14 @@ public class And327 extends TestScmBase {
             list.add( cond2 );
             for ( BSONObject cond : list ) {
                 String subStr = "{ \"" + key + "\" : \"" + value + "\"}";
-                String expCond =
-                        "{ \"$and\" : [ " + subStr + " , " + subStr + "]}";
+                String expCond = "{ \"$and\" : [ " + subStr + " , " + subStr
+                        + "]}";
                 Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                         expCond.replaceAll( "\\s*", "" ) );
 
                 // count
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 1 );
             }
 
@@ -109,14 +109,14 @@ public class And327 extends TestScmBase {
 
             BSONObject cond = ScmQueryBuilder.start().and( obj1, obj2 ).get();
 
-            String expCond = "{ \"$and\" : [ " + obj1.toString() + " , " +
-                    obj2.toString() + "]}";
+            String expCond = "{ \"$and\" : [ " + obj1.toString() + " , "
+                    + obj2.toString() + "]}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;
@@ -147,9 +147,8 @@ public class And327 extends TestScmBase {
         try {
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmFile scmfile = ScmFactory.File.createInstance( ws );
-                scmfile.setFileName(
-                        TestTools.getRandomString( 9 ) + "_" + author + "_" +
-                                i );
+                scmfile.setFileName( TestTools.getRandomString( 9 ) + "_"
+                        + author + "_" + i );
                 scmfile.setAuthor( author );
                 ;
                 ScmId fileId = scmfile.save();

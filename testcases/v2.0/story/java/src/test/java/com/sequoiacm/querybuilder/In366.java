@@ -74,8 +74,8 @@ public class In366 extends TestScmBase {
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     bsStr.replaceAll( "\\s*", "" ) );
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess1 = true;

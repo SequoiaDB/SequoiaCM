@@ -57,10 +57,10 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -108,8 +108,8 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
             }
         }
         // check,breakpointFile is still exist
-        ScmBreakpointFile file = ScmFactory.BreakpointFile
-                .getInstance( ws, name + "_1" );
+        ScmBreakpointFile file = ScmFactory.BreakpointFile.getInstance( ws,
+                name + "_1" );
         Assert.assertEquals( file.getFileName(), name + "_1" );
         Assert.assertEquals( file.getUploadSize(), fileSize );
         ScmFactory.BreakpointFile.deleteInstance( ws, name + "_1" );
@@ -119,8 +119,8 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testOtherDirHasSame() throws Exception {
         // create file in dir
-        ScmDirectory dir = ScmFactory.Directory
-                .getInstance( ws, "/2066_A/2066_B/2066_C" );
+        ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                "/2066_A/2066_B/2066_C" );
         createFile( null, filePath, name + "_2", dir );
 
         // breakpointFile transfer to ScmFile
@@ -145,8 +145,8 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
         Assert.assertEquals( file.getFileName(), name + "_2" );
         Assert.assertEquals( file.getDirectory().getPath(), dirPath );
         SiteWrapper[] expSites = { site };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess2 = true;
     }
 
@@ -173,16 +173,16 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
         Assert.assertEquals( file.getFileName(), name + "_3" );
         Assert.assertEquals( file.getDirectory().getPath(), dirPath );
         SiteWrapper[] expSites = { site };
-        ScmFileUtils
-                .checkMetaAndData( wsp, fileId, expSites, localPath, filePath );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess3 = true;
     }
 
     @AfterClass
     private void tearDown() {
         try {
-            if ( !runSuccess1 || !runSuccess2 || !runSuccess3 ||
-                    TestScmBase.forceClear ) {
+            if ( !runSuccess1 || !runSuccess2 || !runSuccess3
+                    || TestScmBase.forceClear ) {
                 if ( fileIdList != null ) {
                     for ( ScmId fileId : fileIdList ) {
                         System.out.println( "fileId = " + fileId.get() );
@@ -214,8 +214,7 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
     }
 
     private ScmId createFile( ScmBreakpointFile breakpointFile, String filePath,
-            String name, ScmDirectory dir )
-            throws ScmException {
+            String name, ScmDirectory dir ) throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         if ( breakpointFile != null ) {
             file.setContent( breakpointFile );
@@ -244,8 +243,8 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -254,8 +253,8 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

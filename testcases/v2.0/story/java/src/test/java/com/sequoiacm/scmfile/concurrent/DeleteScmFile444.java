@@ -54,10 +54,10 @@ public class DeleteScmFile444 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -114,8 +114,8 @@ public class DeleteScmFile444 extends TestScmBase {
     private void checkResults() throws Exception {
         try {
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
@@ -139,8 +139,8 @@ public class DeleteScmFile444 extends TestScmBase {
                 // delete
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.FILE_NOT_EXIST &&
-                        e.getError() != ScmError.FILE_NOT_FOUND ) {
+                if ( e.getError() != ScmError.FILE_NOT_EXIST
+                        && e.getError() != ScmError.FILE_NOT_FOUND ) {
                     e.printStackTrace();
                     throw e;
                 }

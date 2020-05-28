@@ -37,8 +37,8 @@ public class ScmFile_param_noSave2385 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         Assert.assertTrue( file.toString().contains( fileName ),

@@ -49,8 +49,7 @@ public class UpdateAndDeleteConf2317 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                             "LOCAL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
-                    .deleteProperties( properties )
-                    .build();
+                    .deleteProperties( properties ).build();
             session = TestScmTools.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );

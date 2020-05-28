@@ -74,8 +74,8 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
 
         fileId = VersionUtils.createFileByStream( wsS, fileName, filedata );
-        sbFile = VersionUtils
-                .createBreakpointFileByStream( wsS, fileName, updatedata );
+        sbFile = VersionUtils.createBreakpointFileByStream( wsS, fileName,
+                updatedata );
 
     }
 
@@ -89,8 +89,8 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         UpdateFileThread updateFileThread = new UpdateFileThread();
         updateFileThread.start();
 
-        int asyncileVersion = VersionUtils
-                .waitAsyncTaskFinished2( wsT, fileId, historyVersion, 2 );
+        int asyncileVersion = VersionUtils.waitAsyncTaskFinished2( wsT, fileId,
+                historyVersion, 2 );
 
         Assert.assertTrue( updateFileThread.isSuccess(),
                 updateFileThread.getErrorMsg() );
@@ -98,13 +98,11 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         SiteWrapper[] expHisSiteList = { targetSite, sourceSite };
         VersionUtils.checkSite( wsS, fileId, asyncileVersion, expHisSiteList );
         if ( asyncileVersion == historyVersion ) {
-            VersionUtils
-                    .CheckFileContentByStream( wsT, fileName, asyncileVersion,
-                            filedata );
+            VersionUtils.CheckFileContentByStream( wsT, fileName,
+                    asyncileVersion, filedata );
         } else {
-            VersionUtils
-                    .CheckFileContentByStream( wsT, fileName, asyncileVersion,
-                            updatedata );
+            VersionUtils.CheckFileContentByStream( wsT, fileName,
+                    asyncileVersion, updatedata );
         }
 
         runSuccess = true;

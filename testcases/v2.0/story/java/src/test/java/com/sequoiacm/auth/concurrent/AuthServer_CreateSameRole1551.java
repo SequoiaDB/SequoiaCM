@@ -66,13 +66,12 @@ public class AuthServer_CreateSameRole1551 extends TestScmBase {
         }
         try {
             ScmUserModifier modifier = new ScmUserModifier();
-            ScmUser superUser = ScmFactory.User
-                    .getUser( session, TestScmBase.scmUserName );
+            ScmUser superUser = ScmFactory.User.getUser( session,
+                    TestScmBase.scmUserName );
             Collection< ScmRole > superRoles = superUser.getRoles();
             modifier.addRoles( superRoles );
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             ScmFactory.User.alterUser( session, user, modifier );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -111,14 +110,14 @@ public class AuthServer_CreateSameRole1551 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmRole role = ScmFactory.Role
-                        .createRole( session, roleName, null );
+                ScmRole role = ScmFactory.Role.createRole( session, roleName,
+                        null );
                 atom.getAndIncrement();
                 check( role );
             } catch ( ScmException e ) {
                 e.printStackTrace();
-                if ( e.getError() != ScmError.HTTP_BAD_REQUEST &&
-                        e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
+                if ( e.getError() != ScmError.HTTP_BAD_REQUEST && e
+                        .getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
                     Assert.fail( e.getMessage() );
                 }
             }

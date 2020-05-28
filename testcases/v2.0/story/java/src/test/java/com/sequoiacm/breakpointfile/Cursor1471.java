@@ -23,8 +23,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:operator when cursonr open
- * testlink case:seqDB-1471
+ * test content:operator when cursonr open testlink case:seqDB-1471
+ * 
  * @author wuyan
  * @Date 2018.05.11
  * @version 1.00
@@ -37,18 +37,17 @@ public class Cursor1471 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     private String fileName = "breakpointfile1471";
-    private int fileSize = 1024 * 3;
-    ;
+    private int fileSize = 1024 * 3;;
     private File localPath = null;
     private String filePath = null;
 
     @BeforeClass
     private void setUp() {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         try {
             TestTools.LocalFile.removeFile( localPath );
@@ -81,7 +80,7 @@ public class Cursor1471 extends TestScmBase {
         }
         cursor.close();
 
-        //check result,the file is not exist
+        // check result,the file is not exist
         ScmCursor< ScmBreakpointFile > cursor1 = ScmFactory.BreakpointFile
                 .listInstance( ws, condition );
         Assert.assertEquals( cursor1.hasNext(), false );

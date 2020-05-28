@@ -48,7 +48,7 @@ public class GetWorkSpace1099 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //getwsList(match all)
+        // getwsList(match all)
         String response1 = rest.setApi( "workspaces" )
                 .setRequestMethod( HttpMethod.GET )
                 .setParameter( "filter", "{ name: { $exist: 1 } }" )
@@ -57,10 +57,10 @@ public class GetWorkSpace1099 extends TestScmBase {
         List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
         // just check num
         Assert.assertEquals( wsList.size(), wsListInfo.length(),
-                "wsListByRest = " + wsListInfo.toString() + ",wsListByDb = " +
-                        wsList.toString() );
+                "wsListByRest = " + wsListInfo.toString() + ",wsListByDb = "
+                        + wsList.toString() );
 
-        //getwsList(match none)
+        // getwsList(match none)
         response1 = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "workspaces?filter={uri}" )
                 .setUriVariables( new Object[] {
@@ -71,7 +71,7 @@ public class GetWorkSpace1099 extends TestScmBase {
         Assert.assertEquals( 0, wsListInfo.length(),
                 "no ws should be returned" );
 
-        //check getws
+        // check getws
         String response2 = rest.reset().setApi( "workspaces/" + ws.getName() )
                 .setRequestMethod( HttpMethod.GET )
                 .setResponseType( String.class ).exec().getBody().toString();

@@ -39,14 +39,11 @@ public class Param_Properties2314 extends TestScmBase {
         try {
             Map< String, String > conf = new HashMap< String, String >();
             conf.put( ConfigCommonDefind.scm_audit_mask, "ALL" );
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
-                    .updateProperties( conf )
-                    .updateProperties( null )
-                    .build();
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
+                    .updateProperties( conf ).updateProperties( null ).build();
             Assert.fail(
-                    " ScmConfigProperties.builder().properties(null) must be " +
-                            "failed when the properties is null" );
+                    " ScmConfigProperties.builder().properties(null) must be "
+                            + "failed when the properties is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -57,13 +54,12 @@ public class Param_Properties2314 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty() {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .updateProperties( new HashMap< String, String >() )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().properties(null) must be " +
-                            "failed when the properties is null" );
+                    " ScmConfigProperties.builder().properties(null) must be "
+                            + "failed when the properties is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -106,8 +102,7 @@ public class Param_Properties2314 extends TestScmBase {
             ScmConfigProperties conf = ScmConfigProperties.builder()
                     .service( site.getSiteServiceName() )
                     .updateProperties( new HashMap< String, String >() )
-                    .updateProperty( "", "" )
-                    .build();
+                    .updateProperty( "", "" ).build();
             ScmUpdateConfResultSet set = ScmSystem.Configuration
                     .setConfigProperties( session, conf );
             Assert.assertTrue( set.getFailures().size() <= site.getNodeNum(),

@@ -31,13 +31,12 @@ public class Param_UpdateServices2309 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
-            ScmConfigProperties.builder()
-                    .services( null )
+            ScmConfigProperties.builder().services( null )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().services must be failed " +
-                            "when services is null" );
+                    " ScmConfigProperties.builder().services must be failed "
+                            + "when services is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -48,13 +47,12 @@ public class Param_UpdateServices2309 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty1() {
         try {
-            ScmConfigProperties.builder()
-                    .services( new ArrayList< String >() )
+            ScmConfigProperties.builder().services( new ArrayList< String >() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().services must be failed " +
-                            "when the size of services is 0" );
+                    " ScmConfigProperties.builder().services must be failed "
+                            + "when the size of services is 0" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -65,14 +63,13 @@ public class Param_UpdateServices2309 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testEmpty2() {
         try {
-            ScmConfigProperties.builder()
-                    .services( new ArrayList< String >() )
+            ScmConfigProperties.builder().services( new ArrayList< String >() )
                     .service( site.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().services must be failed " +
-                            "when the size of services is 0" );
+                    " ScmConfigProperties.builder().services must be failed "
+                            + "when the size of services is 0" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

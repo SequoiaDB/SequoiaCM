@@ -47,10 +47,10 @@ public class UpdateVersionFile1715 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -69,8 +69,8 @@ public class UpdateVersionFile1715 extends TestScmBase {
 
         restUpdateVersionFile();
 
-        VersionUtils
-                .CheckFileContentByFile( ws, fileId, 2, filePath, localPath );
+        VersionUtils.CheckFileContentByFile( ws, fileId, 2, filePath,
+                localPath );
 
         runSuccess = true;
     }
@@ -96,13 +96,12 @@ public class UpdateVersionFile1715 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
         rest.setRequestMethod( HttpMethod.PUT )
-                .setApi(
-                        "/files/" + fileId + "?workspace_name=" + ws.getName() +
-                                "&&major_version=1&&minor_version=0" )
-                //.setParameter("file", new FileSystemResource(filePath))
+                .setApi( "/files/" + fileId + "?workspace_name=" + ws.getName()
+                        + "&&major_version=1&&minor_version=0" )
+                // .setParameter("file", new FileSystemResource(filePath))
                 .setInputStream( new FileInputStream( new File( filePath ) ) )
-                .setResponseType( String.class )
-                .exec().getHeaders().getFirst( "file_info" ).toString();
+                .setResponseType( String.class ).exec().getHeaders()
+                .getFirst( "file_info" ).toString();
         rest.disconnect();
 
     }

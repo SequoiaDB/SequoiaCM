@@ -31,9 +31,8 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:create a file under a dir,than update Content of the file,
- * than ayncCache the current version file
- * testlink-case:SCM-2058
+ * test content:create a file under a dir,than update Content of the file, than
+ * ayncCache the current version file testlink-case:SCM-2058
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -57,8 +56,8 @@ public class UpdateAndAsyncCacheFile2058 extends TestScmBase {
 
     private ScmDirectory scmDir;
     private String dirBasePath = "/CreatefileWiteDir2058";
-    private String fullPath =
-            dirBasePath + "/2058_a/2058_b/2058_c/2058_e/2058_f/";
+    private String fullPath = dirBasePath
+            + "/2058_a/2058_b/2058_c/2058_e/2058_f/";
     private String author = "CreateFileWithDir2058";
     private String fileName = "filedir2058";
     private byte[] fileData = new byte[ 1024 * 100 ];
@@ -88,22 +87,22 @@ public class UpdateAndAsyncCacheFile2058 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         scmDir = createDir( wsS, fullPath );
-        fileId = ScmDirUtils
-                .createFileWithDir( wsS, fileName, fileData, author, scmDir );
+        fileId = ScmDirUtils.createFileWithDir( wsS, fileName, fileData, author,
+                scmDir );
         VersionUtils.updateContentByStream( wsU, fileId, updateData );
 
         int currentVersion = 2;
         int historyVersion = 1;
         asyncCacheCurrentVersionFile( wsC, currentVersion );
 
-        //check the currentVersion file data and siteinfo,dirinfo
+        // check the currentVersion file data and siteinfo,dirinfo
         SiteWrapper[] expCurSiteList = { cacheSite, updateSite };
         VersionUtils.checkSite( wsU, fileId, currentVersion, expCurSiteList );
         VersionUtils.CheckFileContentByStream( wsS, fullPath + fileName,
                 currentVersion, updateData );
         checkFileDir( wsS, scmDir );
 
-        //check the historyVersion file only on the sourcesite
+        // check the historyVersion file only on the sourcesite
         SiteWrapper[] expHisSiteList = { sourceSite };
         VersionUtils.checkSite( wsS, fileId, historyVersion, expHisSiteList );
 
@@ -138,8 +137,8 @@ public class UpdateAndAsyncCacheFile2058 extends TestScmBase {
         ScmFactory.File.asyncCache( ws, fileId, majorVersion, 0 );
 
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( ws, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( ws, fileId, majorVersion,
+                sitenums );
 
     }
 
@@ -154,8 +153,8 @@ public class UpdateAndAsyncCacheFile2058 extends TestScmBase {
                 Assert.fail( e.getMessage() );
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void checkFileDir( ScmWorkspace ws, ScmDirectory scmDir )
@@ -171,8 +170,8 @@ public class UpdateAndAsyncCacheFile2058 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

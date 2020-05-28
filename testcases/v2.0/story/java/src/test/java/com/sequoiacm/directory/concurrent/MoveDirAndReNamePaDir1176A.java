@@ -50,10 +50,10 @@ public class MoveDirAndReNamePaDir1176A extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -179,8 +179,8 @@ public class MoveDirAndReNamePaDir1176A extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -215,10 +215,10 @@ public class MoveDirAndReNamePaDir1176A extends TestScmBase {
         public void exec() {
             try {
                 String srcPath = fullPath2;
-                ScmDirectory destDir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
-                ScmDirectory srcDir = ScmFactory.Directory
-                        .getInstance( ws, srcPath );
+                ScmDirectory destDir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
+                ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                        srcPath );
                 srcDir.move( destDir );
                 Assert.fail( "exp fail but act success," + srcDir.toString() );
             } catch ( ScmException e ) {

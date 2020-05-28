@@ -33,7 +33,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1179 :: 创建文件和删除其父文件夹并发 
+ * @Description:SCM-1179 :: 创建文件和删除其父文件夹并发
  * @author fanyu
  * @Date:2018年5月2日
  * @version:1.0
@@ -55,10 +55,10 @@ public class CreateFileAndDeletePaDir1179 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -233,4 +233,3 @@ public class CreateFileAndDeletePaDir1179 extends TestScmBase {
         }
     }
 }
-

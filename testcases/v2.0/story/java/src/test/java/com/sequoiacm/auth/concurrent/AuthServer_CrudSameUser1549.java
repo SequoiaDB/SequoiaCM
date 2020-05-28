@@ -45,9 +45,8 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
             }
         }
         try {
-            user = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -105,8 +104,8 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmUser actuser = ScmFactory.User
-                        .getUser( session, user.getUsername() );
+                ScmUser actuser = ScmFactory.User.getUser( session,
+                        user.getUsername() );
                 check( actuser, user );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
@@ -121,9 +120,10 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
             Assert.assertEquals( actuser.getUserId(), user.getUserId() );
             Assert.assertEquals( actuser.getUsername(), user.getUsername() );
             Assert.assertEquals( actuser.getPasswordType()
-                    .equals( ScmUserPasswordType.LOCAL ) ||
-                    actuser.getPasswordType()
-                            .equals( ScmUserPasswordType.LDAP ), true );
+                    .equals( ScmUserPasswordType.LOCAL )
+                    || actuser.getPasswordType()
+                            .equals( ScmUserPasswordType.LDAP ),
+                    true );
         }
     }
 
@@ -133,8 +133,8 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
             try {
                 ScmUserModifier modifier = new ScmUserModifier();
                 modifier.setPasswordType( ScmUserPasswordType.LDAP );
-                ScmUser actUser = ScmFactory.User
-                        .alterUser( session, user, modifier );
+                ScmUser actUser = ScmFactory.User.alterUser( session, user,
+                        modifier );
                 check( actUser, user );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
@@ -149,9 +149,10 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
             Assert.assertEquals( actuser.getUserId(), user.getUserId() );
             Assert.assertEquals( actuser.getUsername(), user.getUsername() );
             Assert.assertEquals( actuser.getPasswordType()
-                    .equals( ScmUserPasswordType.LOCAL ) ||
-                    actuser.getPasswordType()
-                            .equals( ScmUserPasswordType.LDAP ), true );
+                    .equals( ScmUserPasswordType.LOCAL )
+                    || actuser.getPasswordType()
+                            .equals( ScmUserPasswordType.LDAP ),
+                    true );
         }
     }
 }

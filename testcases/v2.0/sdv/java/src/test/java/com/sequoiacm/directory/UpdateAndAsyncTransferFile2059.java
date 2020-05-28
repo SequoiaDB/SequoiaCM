@@ -28,9 +28,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:create a file under a dir,than update Content of the file,
- * than ayncTransfer the current version file
- * testlink-case:SCM-2059
+ * test content:create a file under a dir,than update Content of the file, than
+ * ayncTransfer the current version file testlink-case:SCM-2059
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -50,11 +49,10 @@ public class UpdateAndAsyncTransferFile2059 extends TestScmBase {
     private ScmDirectory scmDir1;
     private ScmDirectory scmDir2;
     private String dirBasePath = "/CreatefileWiteDir2059";
-    private String fullPath1 = dirBasePath +
-            "/2059_a/2059_b/2059_c/2059_e/2059_f/2059_g/2059_h/2059_i/2059_g/";
-    private String fullPath2 =
-            "/2059_updatedir/2059_b/2059_c/2059_update/2059_1/2059_2" +
-                    "/2059_update3/";
+    private String fullPath1 = dirBasePath
+            + "/2059_a/2059_b/2059_c/2059_e/2059_f/2059_g/2059_h/2059_i/2059_g/";
+    private String fullPath2 = "/2059_updatedir/2059_b/2059_c/2059_update/2059_1/2059_2"
+            + "/2059_update3/";
     private String authorName = "CreateFileWithDir2059";
     private String fileName = "filedir2059";
     private byte[] writeData = new byte[ 1024 * 10 ];
@@ -83,29 +81,28 @@ public class UpdateAndAsyncTransferFile2059 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        fileId = ScmDirUtils
-                .createFileWithDir( wsA, fileName, writeData, authorName,
-                        scmDir1 );
+        fileId = ScmDirUtils.createFileWithDir( wsA, fileName, writeData,
+                authorName, scmDir1 );
         ScmDirUtils.updateContentWithDir( wsA, fileId, updateData, scmDir2 );
 
         int currentVersion = 2;
         int historyVersion = 1;
         asyncTransferCurrentVersionFile( wsA, currentVersion );
 
-        //check the currentVersion file data and siteinfo
+        // check the currentVersion file data and siteinfo
         SiteWrapper[] expCurSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsM, fileId, currentVersion, expCurSiteList );
         VersionUtils.CheckFileContentByStream( wsA, fullPath2 + fileName,
                 currentVersion, updateData );
 
-        //check the historyVersion file ,only on the rootSite,dir change to
+        // check the historyVersion file ,only on the rootSite,dir change to
         // fullpath2
         SiteWrapper[] expHisSiteList = { branSite };
         VersionUtils.checkSite( wsA, fileId, historyVersion, expHisSiteList );
         VersionUtils.CheckFileContentByStream( wsA, fullPath2 + fileName,
                 historyVersion, writeData );
 
-        //check the file dir attribute
+        // check the file dir attribute
         checkFileDirAttr( wsA, scmDir1, scmDir2, currentVersion,
                 historyVersion );
 
@@ -136,24 +133,24 @@ public class UpdateAndAsyncTransferFile2059 extends TestScmBase {
             int majorVersion ) throws Exception {
         ScmFactory.File.asyncTransfer( ws, fileId, majorVersion, 0 );
 
-        //wait task finished
+        // wait task finished
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( ws, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( ws, fileId, majorVersion,
+                sitenums );
     }
 
     private void checkFileDirAttr( ScmWorkspace ws, ScmDirectory oldDir,
             ScmDirectory newDir, int currentVersion, int historyVersion )
             throws ScmException {
-        //check the current file
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, currentVersion, 0 );
+        // check the current file
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, currentVersion,
+                0 );
         Assert.assertEquals( file.getDirectory().toString(),
                 newDir.toString() );
 
-        //check the history file,move to the update file directory:fullPath2
-        ScmFile hisFile = ScmFactory.File
-                .getInstance( ws, fileId, historyVersion, 0 );
+        // check the history file,move to the update file directory:fullPath2
+        ScmFile hisFile = ScmFactory.File.getInstance( ws, fileId,
+                historyVersion, 0 );
         Assert.assertEquals( hisFile.getDirectory().toString(),
                 newDir.toString() );
         try {
@@ -161,8 +158,8 @@ public class UpdateAndAsyncTransferFile2059 extends TestScmBase {
             Assert.fail( "get  file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }

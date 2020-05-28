@@ -67,10 +67,10 @@ public class Transfer_readWhenTaskRunning431 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -143,8 +143,8 @@ public class Transfer_readWhenTaskRunning431 extends TestScmBase {
     }
 
     private ScmId transferAllFile( ScmSession session ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         return ScmSystem.Task.startTransferTask( ws, condition );
@@ -153,9 +153,8 @@ public class Transfer_readWhenTaskRunning431 extends TestScmBase {
     private void checkTransfered() {
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -174,8 +173,8 @@ public class Transfer_readWhenTaskRunning431 extends TestScmBase {
                 for ( int i = fileNum - 1; i >= 0; --i ) {
                     ScmId fileId = fileIdList.get( i );
                     synchronized ( fileId ) {
-                        ScmFile scmfile = ScmFactory.File
-                                .getInstance( ws, fileId );
+                        ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                                fileId );
                         String downloadPath = TestTools.LocalFile
                                 .initDownloadPath( localPath,
                                         TestTools.getMethodName(),
@@ -195,36 +194,34 @@ public class Transfer_readWhenTaskRunning431 extends TestScmBase {
                 }
             }
             /*
-			 * ScmTask taskInfo = ScmSystem.Task.getTask(ss, taskId); int
-			 * status
-			 * = taskInfo.getRunningFlag(); try { if (isRunning()) { if (status
-			 * == CommonDefine.TaskRunningFlag.SCM_TASK_RUNNING) { // 2:running
-			 * readFilesInversely(ss); } else if (status ==
-			 * CommonDefine.TaskRunningFlag.SCM_TASK_ABORT) { throw new
-			 * Exception("task was aborted, taskId = " + taskId.get()); } else
-			 * if (status == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH) {
-			 * throw new Exception("task was finished, taskId = " +
-			 * taskId.get()); } else { throw new Exception(
-			 * "task was canceled,taskId = " + taskId.get()); }
-			 * System.out.println("---runningFlag: " + status); } else {
-			 * System.out.println("---runningFlag: " + status);
-			 * TestSdbTools.Task.deleteMeta(taskId); throw new Exception(
-			 * "task was not running,taskInfo = " + taskInfo.toString()); } }
-			 */
+             * ScmTask taskInfo = ScmSystem.Task.getTask(ss, taskId); int status
+             * = taskInfo.getRunningFlag(); try { if (isRunning()) { if (status
+             * == CommonDefine.TaskRunningFlag.SCM_TASK_RUNNING) { // 2:running
+             * readFilesInversely(ss); } else if (status ==
+             * CommonDefine.TaskRunningFlag.SCM_TASK_ABORT) { throw new
+             * Exception("task was aborted, taskId = " + taskId.get()); } else
+             * if (status == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH) {
+             * throw new Exception("task was finished, taskId = " +
+             * taskId.get()); } else { throw new Exception(
+             * "task was canceled,taskId = " + taskId.get()); }
+             * System.out.println("---runningFlag: " + status); } else {
+             * System.out.println("---runningFlag: " + status);
+             * TestSdbTools.Task.deleteMeta(taskId); throw new Exception(
+             * "task was not running,taskInfo = " + taskInfo.toString()); } }
+             */
         }
 
-		/*
-		 * private boolean isRunning() throws Exception { ScmSession session =
-		 * null; boolean isRunningFlag = false; try { session =
-		 * TestScmTools.createSession(rootSite); ScmWorkspace ws =
-		 * ScmFactory.Workspace.getWorkspace(ws_T.getName(), session); int
-		 * tryNum = 10; for (int i = 0; i < tryNum; i++) { for (ScmId fileId :
-		 * fileIdList) { ScmFile file = ScmFactory.File.getInstance(ws,
-		 * fileId);
-		 * int num = file.getLocationList().size(); if (num == 2) {
-		 * isRunningFlag = true; break; } } Thread.sleep(100); } } catch
-		 * (ScmException e) { Assert.fail(e.getMessage()); } finally { if (null
-		 * != session) { session.close(); } } return isRunningFlag; }
-		 */
+        /*
+         * private boolean isRunning() throws Exception { ScmSession session =
+         * null; boolean isRunningFlag = false; try { session =
+         * TestScmTools.createSession(rootSite); ScmWorkspace ws =
+         * ScmFactory.Workspace.getWorkspace(ws_T.getName(), session); int
+         * tryNum = 10; for (int i = 0; i < tryNum; i++) { for (ScmId fileId :
+         * fileIdList) { ScmFile file = ScmFactory.File.getInstance(ws, fileId);
+         * int num = file.getLocationList().size(); if (num == 2) {
+         * isRunningFlag = true; break; } } Thread.sleep(100); } } catch
+         * (ScmException e) { Assert.fail(e.getMessage()); } finally { if (null
+         * != session) { session.close(); } } return isRunningFlag; }
+         */
     }
 }

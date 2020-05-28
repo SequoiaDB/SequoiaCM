@@ -99,23 +99,22 @@ public class DeleteWorkSpace1821 extends TestScmBase {
                 }
             }
         }
-        ScmUser user = ScmFactory.User
-                .createUser( session, newUsername, ScmUserPasswordType.LOCAL,
-                        newPassword );
+        ScmUser user = ScmFactory.User.createUser( session, newUsername,
+                ScmUserPasswordType.LOCAL, newPassword );
         ScmRole role = ScmFactory.Role.createRole( session, roleName, null );
         ScmUserModifier modifier = new ScmUserModifier();
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
-        ScmFactory.Role
-                .grantPrivilege( session, role, rs, ScmPrivilegeType.CREATE );
-        ScmFactory.Role
-                .grantPrivilege( session, role, rs, ScmPrivilegeType.READ );
+        ScmFactory.Role.grantPrivilege( session, role, rs,
+                ScmPrivilegeType.CREATE );
+        ScmFactory.Role.grantPrivilege( session, role, rs,
+                ScmPrivilegeType.READ );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session, user, modifier );
 
-        ScmSession newSession = TestScmTools
-                .createSession( site, newUsername, newPassword );
+        ScmSession newSession = TestScmTools.createSession( site, newUsername,
+                newPassword );
 
-        //delete ws fail by no privilege user
+        // delete ws fail by no privilege user
         try {
             ScmFactory.Workspace.deleteWorkspace( newSession, wsName, true );
         } catch ( ScmException e ) {
@@ -123,10 +122,10 @@ public class DeleteWorkSpace1821 extends TestScmBase {
                     e.getMessage() );
         }
 
-        //write success of the ws
+        // write success of the ws
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsName, newSession );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                newSession );
         byte[] writeData = new byte[ 1024 * 200 ];
         VersionUtils.createFileByStream( ws, "file1821", writeData );
     }

@@ -41,8 +41,7 @@ public class GetTaskDetail1210 extends TestScmBase {
         JSONObject options = new JSONObject(
                 "{ 'filter': { 'author': 'inexistent_author1210' } }" );
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "tasks" )
-                .setParameter( "task_type", "2" )
+                .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
@@ -53,9 +52,8 @@ public class GetTaskDetail1210 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "tasks/" + taskId )
-                .setResponseType( String.class ).exec().getHeaders()
-                .get( "task" ).toString();
+                .setApi( "tasks/" + taskId ).setResponseType( String.class )
+                .exec().getHeaders().get( "task" ).toString();
         JSONObject obj = new JSONArray( response ).getJSONObject( 0 );
         Assert.assertEquals( taskId, obj.getString( "id" ) );
 

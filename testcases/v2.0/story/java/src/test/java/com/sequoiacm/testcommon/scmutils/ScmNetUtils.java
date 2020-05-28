@@ -22,6 +22,7 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * return the root site;
+     * 
      * @return
      * @throws ScmException
      */
@@ -32,6 +33,7 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * return the last level site;
+     * 
      * @return
      * @throws ScmException
      */
@@ -44,6 +46,7 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * return a random site, but not include last site
+     * 
      * @return
      * @throws ScmException
      */
@@ -58,6 +61,7 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * return a list of two site,the level of list.get(0) < list.get(1);
+     * 
      * @return
      * @throws ScmException
      */
@@ -75,6 +79,7 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * retuen sort an array of sites
+     * 
      * @return
      * @throws ScmException
      */
@@ -87,8 +92,8 @@ public class ScmNetUtils extends TestScmBase {
 
     /**
      * return a list of two site,the level is random, list.get(0) sourceSite,
-     * list.get(1) targetSite
-     * use: transfer or asyncCache
+     * list.get(1) targetSite use: transfer or asyncCache
+     * 
      * @return
      * @throws ScmException
      */
@@ -108,8 +113,8 @@ public class ScmNetUtils extends TestScmBase {
     }
 
     /**
-     * return tow site, site adjacent
-     * use: asyncTransfer
+     * return tow site, site adjacent use: asyncTransfer
+     * 
      * @return
      * @throws ScmException
      */
@@ -132,8 +137,8 @@ public class ScmNetUtils extends TestScmBase {
         List< SiteWrapper > allSiteList = ScmInfo.getAllSites();
         for ( BSONObject dataLocation : dataLocationList ) {
             for ( SiteWrapper siteWrapper : allSiteList ) {
-                if ( ( int ) dataLocation.get( SITE_ID ) ==
-                        siteWrapper.getSiteId() ) {
+                if ( ( int ) dataLocation.get( SITE_ID ) == siteWrapper
+                        .getSiteId() ) {
                     siteList.add( siteWrapper );
                 }
             }

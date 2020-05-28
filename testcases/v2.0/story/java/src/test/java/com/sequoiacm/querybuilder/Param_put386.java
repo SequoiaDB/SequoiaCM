@@ -47,8 +47,8 @@ public class Param_put386 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder.start( "key1" ).is( "value1" )
                     .put( null ).is( "value2" ).get();
             Assert.fail(
-                    "build condition when key is null shouldn't succeed. cond: " +
-                            cond );
+                    "build condition when key is null shouldn't succeed. cond: "
+                            + cond );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 e.printStackTrace();

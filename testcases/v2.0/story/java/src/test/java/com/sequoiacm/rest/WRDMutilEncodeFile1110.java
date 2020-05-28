@@ -49,7 +49,7 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
     private File localPath = null;
     private List< String > fileIdList = new ArrayList< String >();
     private int fileSize = 1024 * 100;
-    //private String author = "WRDMutilEncodeFile1110";
+    // private String author = "WRDMutilEncodeFile1110";
     private RestWrapper rest = null;
     private String[] charset = { "utf-8", "GBK", "GB2312" };
     private String[] filePaths = new String[ 3 ];
@@ -68,8 +68,8 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
             String fileBlock1 = new String( fileBlock );
             while ( written < size ) {
                 int toWrite = size - written;
-                int len = fileBlock1.length() < toWrite ? fileBlock1.length() :
-                        toWrite;
+                int len = fileBlock1.length() < toWrite ? fileBlock1.length()
+                        : toWrite;
                 fos.write( fileBlock1.toCharArray(), 0, len );
                 written += len;
             }
@@ -85,15 +85,14 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < charset.length; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                charset[ i ] + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + charset[ i ] + ".txt";
                 createFile( filePath, fileSize, charset[ i ] );
                 filePaths[ i ] = filePath;
             }
@@ -131,9 +130,8 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
         }
     }
 
-    private void writeAndCheck( String filePath )
-            throws JSONException, UnsupportedEncodingException,
-            FileNotFoundException {
+    private void writeAndCheck( String filePath ) throws JSONException,
+            UnsupportedEncodingException, FileNotFoundException {
         JSONObject desc = null;
         String fileId = null;
         // write
@@ -145,12 +143,12 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
             desc.put( "title", this.getClass().getSimpleName() );
             desc.put( "mime_type", "text/plain" );
             File file = new File( filePath );
-            //FileSystemResource resource = new FileSystemResource(file);
+            // FileSystemResource resource = new FileSystemResource(file);
             String wResponse = rest
                     .setApi( "files?workspace_name=" + ws.getName() )
                     .setRequestMethod( HttpMethod.POST )
-                    //.setParameter("file", resource)
-                    //.setParameter("description", desc.toString())
+                    // .setParameter("file", resource)
+                    // .setParameter("description", desc.toString())
                     .setRequestHeaders( "description", desc.toString() )
                     .setInputStream( new FileInputStream( file ) )
                     .setResponseType( String.class ).exec().getBody()
@@ -165,8 +163,9 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
         // check
         String fileInfo;
         try {
-            fileInfo = rest.setApi(
-                    "files/id/" + fileId + "?workspace_name=" + ws.getName() )
+            fileInfo = rest
+                    .setApi( "files/id/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setRequestMethod( HttpMethod.HEAD ).exec().getHeaders()
                     .get( "file" ).toString();
             fileInfo = URLDecoder.decode( fileInfo, "UTF-8" );
@@ -192,11 +191,11 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
         OutputStream fileStream = null;
         InputStream in = null;
         try {
-            downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            ResponseEntity< ? > resource = rest.setApi(
-                    "files/" + fileId + "?workspace_name=" + ws.getName() )
+            downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
+            ResponseEntity< ? > resource = rest
+                    .setApi( "files/" + fileId + "?workspace_name="
+                            + ws.getName() )
                     .setRequestMethod( HttpMethod.GET )
                     .setResponseType( Resource.class ).exec();
             fileStream = new FileOutputStream( new File( downloadPath ) );
@@ -210,9 +209,8 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
                 }
             }
             Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ),
-                    "filePath = " + filePath + ",downloadPath = " +
-                            downloadPath );
+                    TestTools.getMD5( downloadPath ), "filePath = " + filePath
+                            + ",downloadPath = " + downloadPath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -228,9 +226,8 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
 
     private void deleteAndCheck( String fileId, String filePath )
             throws Exception {
-        rest.setApi( "files/" + fileId + "?workspace_name=" + ws.getName() +
-                "&is_physical=true" )
-                .setRequestMethod( HttpMethod.DELETE )
+        rest.setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
+                + "&is_physical=true" ).setRequestMethod( HttpMethod.DELETE )
                 .setResponseType( Resource.class ).exec();
         try {
             SiteWrapper[] expSites = { ScmInfo.getRootSite() };

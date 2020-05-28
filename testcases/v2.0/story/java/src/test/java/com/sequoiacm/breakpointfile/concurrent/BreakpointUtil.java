@@ -28,8 +28,8 @@ public class BreakpointUtil extends TestScmBase {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
                 throw new SkipException(
-                        "breakpoint file only support sequoiadb datasourse, " +
-                                "skip!" );
+                        "breakpoint file only support sequoiadb datasourse, "
+                                + "skip!" );
             }
         }
     }
@@ -50,7 +50,7 @@ class BreakpointStream extends InputStream {
     @Override
     public int available() throws IOException {
         return in.available();
-        //return 0;
+        // return 0;
     }
 
     @Override
@@ -65,4 +65,3 @@ class BreakpointStream extends InputStream {
     }
 
 }
-

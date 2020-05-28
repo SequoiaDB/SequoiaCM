@@ -45,13 +45,12 @@ public class UpdateContentByFile600M2378 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        updateFilePath =
-                localPath + File.separator + "localFile_" + updateFileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        updateFilePath = localPath + File.separator + "localFile_"
+                + updateFileSize + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -67,9 +66,9 @@ public class UpdateContentByFile600M2378 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
-        //test a:updateContent by 600M file
+        // test a:updateContent by 600M file
         updateContentByFile( updateFilePath );
-        //check result
+        // check result
         int currentVersion = 2;
         VersionUtils.CheckFileContentByFile( ws, fileName, currentVersion,
                 updateFilePath, localPath );
@@ -88,7 +87,7 @@ public class UpdateContentByFile600M2378 extends TestScmBase {
         }
     }
 
-    //test a:updateContent by 600M file
+    // test a:updateContent by 600M file
     private void updateContentByFile( String filePath ) throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.updateContent( filePath );

@@ -57,9 +57,8 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
         ScmWorkspaceUtil.createWS( sessionA, wsName2, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( sessionA, wsName2 );
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             wsrs = ScmResourceFactory.createWorkspaceResource( wsName1 );
@@ -83,8 +82,8 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName1, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
+                    session );
             ScmFactory.Directory.createInstance( ws, dirpath );
             ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirpath );
             Assert.assertEquals( dir.getPath(), dirpath + "/" );
@@ -104,8 +103,8 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
         String fileName = "2281";
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName1, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
+                    session );
 
             // create file
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -143,8 +142,8 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );

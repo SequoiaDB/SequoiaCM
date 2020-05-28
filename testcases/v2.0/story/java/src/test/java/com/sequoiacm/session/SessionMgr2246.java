@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-2246 :: 关闭ScmSessionMgr，获取session,再次关闭ScmSessionMgr 
+ * @Description:SCM-2246 :: 关闭ScmSessionMgr，获取session,再次关闭ScmSessionMgr
  * @author fanyu
  * @Date:2018年9月21日
  * @version:1.0
@@ -50,10 +50,10 @@ public class SessionMgr2246 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -75,10 +75,10 @@ public class SessionMgr2246 extends TestScmBase {
 
     @Test
     private void testAuth() throws Exception {
-        //close sessionMgr
+        // close sessionMgr
         sessionMgr.close();
 
-        //write file by session
+        // write file by session
         try {
             write( session );
             // check results
@@ -90,7 +90,7 @@ public class SessionMgr2246 extends TestScmBase {
             Assert.fail( e.getMessage() );
         }
 
-        //use closed sessionMgr to get session
+        // use closed sessionMgr to get session
         ScmSession session = null;
         try {
             session = sessionMgr.getSession( SessionType.AUTH_SESSION );
@@ -105,7 +105,7 @@ public class SessionMgr2246 extends TestScmBase {
             }
         }
 
-        //close sessionMgr again
+        // close sessionMgr again
         sessionMgr.close();
         runSuccess = true;
     }
@@ -152,8 +152,8 @@ public class SessionMgr2246 extends TestScmBase {
     private ScmId write( ScmSession session ) throws ScmException {
         ScmId fileId = null;
         // create file
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( filePath );
         file.setFileName( name + "_" + UUID.randomUUID() );

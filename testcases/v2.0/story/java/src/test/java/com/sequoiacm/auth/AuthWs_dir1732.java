@@ -40,9 +40,8 @@ public class AuthWs_dir1732 extends TestScmBase {
     private static final String NAME = "authws1732";
     private static final String PASSWORD = NAME;
     private static final String[] DIR_PATH_ARRAY = { "/" + NAME + "_a/",
-            "/" + NAME + "_a/" + NAME + "_a1/",
-            "/" + NAME + "_b/", "/" + NAME + "_c/",
-            "/" + NAME + "_a/" + NAME + "_b1/" };
+            "/" + NAME + "_a/" + NAME + "_a1/", "/" + NAME + "_b/",
+            "/" + NAME + "_c/", "/" + NAME + "_a/" + NAME + "_b1/" };
     private static ScmRole role = null;
     // private static final String[]
     // DIR_PATH_ARRAY = {"/" + NAME + "_a/",
@@ -91,9 +90,8 @@ public class AuthWs_dir1732 extends TestScmBase {
                         "i = " + i + ", dirPath = " + DIR_PATH_ARRAY[ i ] );
                 ScmFactory.Directory.deleteInstance( ws, DIR_PATH_ARRAY[ i ] );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean dirPath in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean dirPath in setUp, errorMsg = ["
+                        + e.getError() + "]" );
             }
         }
 
@@ -104,9 +102,8 @@ public class AuthWs_dir1732 extends TestScmBase {
 
         // prepare resource
         for ( int i = 0; i < DIR_PATH_ARRAY.length - 1; i++ ) {
-            ScmResource resource = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(),
-                            DIR_PATH_ARRAY[ i ] );
+            ScmResource resource = ScmResourceFactory.createDirectoryResource(
+                    wsp.getName(), DIR_PATH_ARRAY[ i ] );
             resources.add( resource );
         }
 
@@ -125,22 +122,22 @@ public class AuthWs_dir1732 extends TestScmBase {
 
         ScmAuthUtils.checkPriority( site, NAME, NAME, role, wsp.getName() );
 
-	/*
-     * ScmCursor<ScmPrivilege> cursor =
-	 * ScmFactory.Privilege.listPrivileges(session, role); while
-	 * (cursor.hasNext()) { ScmPrivilege info = cursor.getNext();
-	 * System.out.println("---"+info.getResource().toStringFormat());
-	 * System.out.println("---"+info.getResourceId());
-	 * System.out.println("---"+info.getPrivilege()); System.out.println();
-	 * }
-	 */
+        /*
+         * ScmCursor<ScmPrivilege> cursor =
+         * ScmFactory.Privilege.listPrivileges(session, role); while
+         * (cursor.hasNext()) { ScmPrivilege info = cursor.getNext();
+         * System.out.println("---"+info.getResource().toStringFormat());
+         * System.out.println("---"+info.getResourceId());
+         * System.out.println("---"+info.getPrivilege()); System.out.println();
+         * }
+         */
 
         // operation business
         ScmSession tSS = null;
         try {
             tSS = TestScmTools.createSession( site, NAME, PASSWORD );
-            ScmWorkspace tWS = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), tSS );
+            ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    tSS );
 
             String path = DIR_PATH_ARRAY[ DIR_PATH_ARRAY.length - 1 ];
             System.out.println( "path = " + path );
@@ -159,20 +156,18 @@ public class AuthWs_dir1732 extends TestScmBase {
     private void tearDown() throws ScmException, InterruptedException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.Role
-                        .revokePrivilege( session, role, resources.get( 0 ),
-                                ScmPrivilegeType.CREATE );
+                ScmFactory.Role.revokePrivilege( session, role,
+                        resources.get( 0 ), ScmPrivilegeType.CREATE );
                 for ( int i = 1; i < DIR_PATH_ARRAY.length - 1; i++ ) {
-                    ScmFactory.Role
-                            .revokePrivilege( session, role, resources.get( i ),
-                                    ScmPrivilegeType.READ );
+                    ScmFactory.Role.revokePrivilege( session, role,
+                            resources.get( i ), ScmPrivilegeType.READ );
                 }
                 ScmFactory.User.deleteUser( session, NAME );
                 ScmFactory.Role.deleteRole( session, NAME );
 
                 for ( int i = DIR_PATH_ARRAY.length - 1; i >= 0; i-- ) {
-                    ScmFactory.Directory
-                            .deleteInstance( ws, DIR_PATH_ARRAY[ i ] );
+                    ScmFactory.Directory.deleteInstance( ws,
+                            DIR_PATH_ARRAY[ i ] );
                 }
             }
         } finally {
@@ -183,9 +178,8 @@ public class AuthWs_dir1732 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         role = ScmFactory.Role.createRole( session, NAME, "" );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( role );

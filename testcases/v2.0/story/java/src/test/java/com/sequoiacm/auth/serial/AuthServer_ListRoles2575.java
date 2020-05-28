@@ -79,24 +79,28 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
                 .get();
         double expTotalNum = scmRoles.size();
         return new Object[][] {
-                //filter  skip   limit scmRoles  expPageSize expTotalNum
-                //orderby:positive
+                // filter skip limit scmRoles expPageSize expTotalNum
+                // orderby:positive
                 { positive, 0, 1, positiveList,
                         ( int ) Math.ceil( expTotalNum / 1 ), expTotalNum },
                 { positive, 1, 50, positiveList,
                         ( int ) Math.ceil( ( ( expTotalNum - 1 ) ) / 50 ),
-                        expTotalNum - 1 }, { positive, 30, 100, positiveList,
-                ( int ) Math.ceil( ( ( expTotalNum - 30 ) ) / 100 ),
-                expTotalNum - 30 }, { positive, 10, 0, positiveList, 0, 0 },
+                        expTotalNum - 1 },
+                { positive, 30, 100, positiveList,
+                        ( int ) Math.ceil( ( ( expTotalNum - 30 ) ) / 100 ),
+                        expTotalNum - 30 },
+                { positive, 10, 0, positiveList, 0, 0 },
                 { positive, 5, -1, positiveList, 1, expTotalNum - 5 },
-                //orderby:negative
+                // orderby:negative
                 { negative, 0, 1, negativeList,
                         ( int ) Math.ceil( ( expTotalNum ) / 1 ), expTotalNum },
                 { negative, 1, 50, negativeList,
                         ( int ) Math.ceil( ( ( expTotalNum - 1 ) ) / 50 ),
-                        expTotalNum - 1 }, { negative, 10, 100, negativeList,
-                ( int ) Math.ceil( ( ( expTotalNum - 10 ) ) / 100 ),
-                expTotalNum - 10 }, { negative, 10, 0, negativeList, 0, 0 },
+                        expTotalNum - 1 },
+                { negative, 10, 100, negativeList,
+                        ( int ) Math.ceil( ( ( expTotalNum - 10 ) ) / 100 ),
+                        expTotalNum - 10 },
+                { negative, 10, 0, negativeList, 0, 0 },
                 { negative, 5, -1, negativeList, 1, expTotalNum - 5 } };
     }
 
@@ -108,8 +112,8 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
         long tmpSkip = skip;
         double totalNum = 0;
         while ( tmpSkip < expScmRoles.size() ) {
-            ScmCursor< ScmRole > cursor = ScmFactory.Role
-                    .listRoles( session, orderby, tmpSkip, limit );
+            ScmCursor< ScmRole > cursor = ScmFactory.Role.listRoles( session,
+                    orderby, tmpSkip, limit );
             int count = 0;
             while ( cursor.hasNext() ) {
                 ScmRole info = cursor.getNext();
@@ -173,8 +177,8 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
         ScmSession scmSession = TestScmTools.createSession( site );
         scmSession.close();
         try {
-            ScmFactory.User
-                    .listUsers( scmSession, new BasicBSONObject(), 0, 1 );
+            ScmFactory.User.listUsers( scmSession, new BasicBSONObject(), 0,
+                    1 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
@@ -200,5 +204,3 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
         }
     }
 }
-
-

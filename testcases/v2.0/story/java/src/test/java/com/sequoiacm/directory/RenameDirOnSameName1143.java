@@ -57,10 +57,10 @@ public class RenameDirOnSameName1143 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -86,8 +86,8 @@ public class RenameDirOnSameName1143 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         // create test dir
-        ScmDirectory dir = ScmFactory.Directory
-                .createInstance( ws, dirBasePath + "/" + eleName2 );
+        ScmDirectory dir = ScmFactory.Directory.createInstance( ws,
+                dirBasePath + "/" + eleName2 );
         // rename test dir when parent's dir has same name file
         try {
             dir.rename( eleName );
@@ -123,10 +123,10 @@ public class RenameDirOnSameName1143 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
-                ScmFactory.Directory
-                        .deleteInstance( ws, dirBasePath + "/" + eleName1 );
-                ScmFactory.Directory
-                        .deleteInstance( ws, dirBasePath + "/" + newName );
+                ScmFactory.Directory.deleteInstance( ws,
+                        dirBasePath + "/" + eleName1 );
+                ScmFactory.Directory.deleteInstance( ws,
+                        dirBasePath + "/" + newName );
                 ScmFactory.Directory.deleteInstance( ws, dirBasePath );
             }
         } catch ( Exception e ) {
@@ -142,8 +142,8 @@ public class RenameDirOnSameName1143 extends TestScmBase {
     private void createDirAndFile( ScmWorkspace ws, ScmDirectory dir )
             throws ScmException {
         try {
-            ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName1 );
+            ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName1 );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( eleName );
             file.setAuthor( eleName );

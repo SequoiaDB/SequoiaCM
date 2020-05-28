@@ -23,7 +23,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of  the same file concurrently
+ * test content: update Content of the same file concurrently
  * testlink-case:SCM-1688
  *
  * @author wuyan
@@ -52,8 +52,8 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -77,15 +77,15 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
                         .getExceptions().get( 0 );
                 Assert.assertEquals( e.getError(),
                         ScmError.FILE_VERSION_MISMATCHING,
-                        "updateContent2 fail:" +
-                                updateContentThread2.getErrorMsg() );
+                        "updateContent2 fail:"
+                                + updateContentThread2.getErrorMsg() );
                 checkUpdateContentResult( wsM, updateData1 );
             } else if ( updateContentThread2.isSuccess() ) {
                 checkAllUpdateContentResult( wsM, updateData1, updateData2 );
             } else {
                 Assert.fail(
-                        "the results can only by updated successfully or one " +
-                                "update succeeds" );
+                        "the results can only by updated successfully or one "
+                                + "update succeeds" );
             }
         } else if ( !updateContentThread1.isSuccess() ) {
             Assert.assertTrue( updateContentThread2.isSuccess(),
@@ -93,9 +93,8 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
             ScmException e = ( ScmException ) updateContentThread1
                     .getExceptions().get( 0 );
             Assert.assertEquals( e.getError(),
-                    ScmError.FILE_VERSION_MISMATCHING,
-                    "updateContent1 fail:" +
-                            updateContentThread1.getErrorMsg() );
+                    ScmError.FILE_VERSION_MISMATCHING, "updateContent1 fail:"
+                            + updateContentThread1.getErrorMsg() );
             checkUpdateContentResult( wsM, updateData2 );
             ;
         }
@@ -118,32 +117,30 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
     private void checkAllUpdateContentResult( ScmWorkspace ws,
             byte[] updatedata1, byte[] updatedata2 ) throws Exception {
         int historyVersion1 = 1;
-        //first updateContent version
+        // first updateContent version
         int historyVersion2 = 2;
-        //second updateContent version
+        // second updateContent version
         int currentVersion = 3;
 
-        ScmFile file = ScmFactory.File
-                .getInstance( ws, fileId, currentVersion, 0 );
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, currentVersion,
+                0 );
         long fileSize = file.getSize();
 
-        //check the updateContent
+        // check the updateContent
         if ( fileSize == updatedata1.length ) {
             VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
                     updatedata1 );
-            VersionUtils
-                    .CheckFileContentByStream( ws, fileName, historyVersion2,
-                            updatedata2 );
+            VersionUtils.CheckFileContentByStream( ws, fileName,
+                    historyVersion2, updatedata2 );
         } else if ( fileSize == updatedata2.length ) {
             VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
                     updatedata2 );
-            VersionUtils
-                    .CheckFileContentByStream( ws, fileName, historyVersion2,
-                            updatedata1 );
+            VersionUtils.CheckFileContentByStream( ws, fileName,
+                    historyVersion2, updatedata1 );
         } else {
             Assert.fail( "update file content is error!" );
         }
-        //check the write content
+        // check the write content
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion1,
                 writeData );
     }

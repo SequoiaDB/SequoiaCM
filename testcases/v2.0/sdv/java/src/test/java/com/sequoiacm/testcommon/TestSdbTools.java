@@ -331,8 +331,7 @@ public class TestSdbTools {
         }
 
         private static void putDataInHbase( SiteWrapper site, WsWrapper ws,
-                ScmId fileId, String lobPath )
-                throws Exception {
+                ScmId fileId, String lobPath ) throws Exception {
             Connection conn = null;
             try {
                 conn = getHbaseConnect( site );
@@ -348,9 +347,8 @@ public class TestSdbTools {
                             .getTable( TableName.valueOf( tableName ) );
                     Put put;
                     byte[] buffer = TestTools.getBuffer( lobPath );
-                    int num = ( int ) Math
-                            .ceil( Double.valueOf( buffer.length ) /
-                                    ( 1024 * 1024 ) );
+                    int num = ( int ) Math.ceil(
+                            Double.valueOf( buffer.length ) / ( 1024 * 1024 ) );
                     for ( int i = 0; i < num; i++ ) {
                         int len = 1024 * 1024;
                         if ( i == num - 1 ) {

@@ -53,10 +53,10 @@ public class WriteAndReadInMutiWs716 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             site = ScmInfo.getSite();
             wsList = ScmInfo.getWss( wsNum );
@@ -85,10 +85,10 @@ public class WriteAndReadInMutiWs716 extends TestScmBase {
                     fileIdList2 );
             wThread3.start();
 
-            if ( !( wThread1.isSuccess() && wThread2.isSuccess() &&
-                    wThread3.isSuccess() ) ) {
-                Assert.fail( wThread1.getErrorMsg() + wThread2.getErrorMsg() +
-                        wThread3.getErrorMsg() );
+            if ( !( wThread1.isSuccess() && wThread2.isSuccess()
+                    && wThread3.isSuccess() ) ) {
+                Assert.fail( wThread1.getErrorMsg() + wThread2.getErrorMsg()
+                        + wThread3.getErrorMsg() );
             }
 
             // read
@@ -104,10 +104,10 @@ public class WriteAndReadInMutiWs716 extends TestScmBase {
                     fileIdList2 );
             rThread3.start();
 
-            if ( !( rThread1.isSuccess() && rThread2.isSuccess() &&
-                    rThread3.isSuccess() ) ) {
-                Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() +
-                        rThread3.getErrorMsg() );
+            if ( !( rThread1.isSuccess() && rThread2.isSuccess()
+                    && rThread3.isSuccess() ) ) {
+                Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg()
+                        + rThread3.getErrorMsg() );
             }
 
         } catch ( Exception e ) {
@@ -187,10 +187,9 @@ public class WriteAndReadInMutiWs716 extends TestScmBase {
 
                 for ( ScmId fileId : fileIdList ) {
                     ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                    String downloadPath = TestTools.LocalFile
-                            .initDownloadPath( localPath,
-                                    TestTools.getMethodName(),
-                                    Thread.currentThread().getId() );
+                    String downloadPath = TestTools.LocalFile.initDownloadPath(
+                            localPath, TestTools.getMethodName(),
+                            Thread.currentThread().getId() );
                     file.getContent( downloadPath );
                     Assert.assertEquals( TestTools.getMD5( filePath ),
                             TestTools.getMD5( downloadPath ) );

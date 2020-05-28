@@ -24,13 +24,13 @@ import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1889 :: 删除属性和更新属性并发 
+ * @Description: SCM-1889 :: 删除属性和更新属性并发
  * @author fanyu
  * @Date:2018年7月6日
  * @version:1.0
  */
 public class DefineAttr_Attr_DeleteAndUpdate1889 extends TestScmBase {
-    //private boolean runSuccess = false;
+    // private boolean runSuccess = false;
     private String attrname = "DeleteAndUpdate1889";
     private String desc = "DeleteAndUpdate1889";
     private ScmAttribute attr = null;

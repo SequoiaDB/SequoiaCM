@@ -56,10 +56,10 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -103,25 +103,24 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
                 sos.commit();
                 Assert.fail( "exp fail but act success" );
             } catch ( ScmException e ) {
-                if ( e.getError() !=
-                        ScmError.OUTPUT_STREAM_CLOSED ) { //
+                if ( e.getError() != ScmError.OUTPUT_STREAM_CLOSED ) { //
                     // EN_SCM_OUTPUTSTREAM_IS_CLOSED(-610)
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
             }
-            //check file count
+            // check file count
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             // check results
             ScmFile file2 = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file2.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( filePath ) );
@@ -154,22 +153,22 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
 
             sos.cancel();
 
-            //check file count
+            // check file count
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            //SEQUOIACM-414
+            // SEQUOIACM-414
             for ( int i = 0; i < 6; i++ ) {
                 Thread.sleep( 10 );
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 1 );
             }
 
             // check results
             ScmFile file2 = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file2.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( filePath ) );
@@ -202,11 +201,11 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
             // check results
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            //SEQUOIACM-414
+            // SEQUOIACM-414
             for ( int i = 0; i < 6; i++ ) {
                 Thread.sleep( 10 );
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 0 );
             }
         } catch ( ScmException e ) {
@@ -236,8 +235,7 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
                 sos.commit();
                 Assert.fail( "exp fail but act success" );
             } catch ( ScmException e ) {
-                if ( e.getError() !=
-                        ScmError.OUTPUT_STREAM_CLOSED ) { // EN_SCM_OUTPUTSTREAM_IS_CLOSED(-610)
+                if ( e.getError() != ScmError.OUTPUT_STREAM_CLOSED ) { // EN_SCM_OUTPUTSTREAM_IS_CLOSED(-610)
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -246,11 +244,11 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
             // check results
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            //SEQUOIACM-414
+            // SEQUOIACM-414
             for ( int i = 0; i < 6; i++ ) {
                 Thread.sleep( 10 );
-                long count = ScmFactory.File
-                        .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+                long count = ScmFactory.File.countInstance( ws,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( count, 0 );
             }
         } catch ( ScmException e ) {
@@ -263,8 +261,8 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 ) ||
-                    TestScmBase.forceClear ) {
+            if ( ( runSuccess1 && runSuccess2 && runSuccess3 && runSuccess4 )
+                    || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }

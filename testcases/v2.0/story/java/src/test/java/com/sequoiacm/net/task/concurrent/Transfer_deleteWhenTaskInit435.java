@@ -47,9 +47,7 @@ import com.sequoiadb.exception.BaseException;
 
 /*
  * 1、A线程在分中心A创建迁移任务； 2、“开始迁移任务”过程中（任务状态为init，调用ScmTask.getRunningFlag()接口获取任务状态）
- * B线程删除该文件； 3、检查A、B线程执行结果正确性；
- * 
- * 备注：大部分时候撞上的还是running状态。但我想不到办法保证撞上Init状态。
+ * B线程删除该文件； 3、检查A、B线程执行结果正确性； 备注：大部分时候撞上的还是running状态。但我想不到办法保证撞上Init状态。
  */
 
 public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
@@ -73,10 +71,10 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -164,16 +162,16 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
         try {
             // login
             session = TestScmTools.createSession( targetSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    session );
 
             // read content
             for ( int i = 0; i < fileIdList.size(); ++i ) {
                 ScmId fileId = fileIdList.get( i );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( scmfile );
                 sis.read( fos );
@@ -246,8 +244,8 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
             try {
                 int len = fileIdList.size();
                 for ( int i = len - 1; i >= 0; --i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
             } finally {
                 if ( sessionA != null ) {

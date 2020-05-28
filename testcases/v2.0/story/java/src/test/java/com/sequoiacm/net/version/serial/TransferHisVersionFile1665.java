@@ -32,8 +32,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:Transfer the history version file, specify the version is not
- * exist
- * testlink-case:SCM-1665
+ * exist testlink-case:SCM-1665
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -73,8 +72,8 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         wsS = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionS );
         sessionT = TestScmTools.createSession( targetSite );
         wsT = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionT );
-        fileId = VersionUtils
-                .createFileByStream( wsS, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsS, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -87,7 +86,7 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         Assert.assertEquals( taskInfo.getSuccessCount(), 0 );
         Assert.assertEquals( taskInfo.getActualCount(), 0 );
 
-        //check the currentVersion file data and siteinfo
+        // check the currentVersion file data and siteinfo
         SiteWrapper[] expSiteList = { sourceSite };
         VersionUtils.checkSite( wsS, fileId, currentVersion, expSiteList );
         runSuccess = true;
@@ -117,11 +116,10 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_HISTORY,
-                        targetSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_HISTORY, targetSite.getSiteName() );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 

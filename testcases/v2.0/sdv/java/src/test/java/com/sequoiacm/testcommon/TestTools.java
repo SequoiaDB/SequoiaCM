@@ -28,7 +28,7 @@ public class TestTools {
      */
     public static String getMD5( String pathName ) throws IOException {
         File file = new File( pathName );
-        try ( FileInputStream fis = new FileInputStream( file ) ) {
+        try ( FileInputStream fis = new FileInputStream( file )) {
             byte[] buffer = new byte[ ( int ) file.length() ];
             fis.read( buffer );
             return getMD5( buffer );
@@ -62,8 +62,7 @@ public class TestTools {
      * @return character string
      */
     public static String getRandomString( int length ) {
-        String str =
-                "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String str = "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random = new Random();
         StringBuffer sb = new StringBuffer();
         for ( int i = 0; i < length; i++ ) {
@@ -91,8 +90,8 @@ public class TestTools {
         byte[] buffer = new byte[ ( int ) fileSize ];
         int offset = 0;
         int numRead = 0;
-        while ( offset < buffer.length && ( numRead = fi
-                .read( buffer, offset, buffer.length - offset ) ) >= 0 ) {
+        while ( offset < buffer.length && ( numRead = fi.read( buffer, offset,
+                buffer.length - offset ) ) >= 0 ) {
             offset += numRead;
         }
         // 确保所有数据均被读取
@@ -149,9 +148,8 @@ public class TestTools {
             // print local date after set date
             ssh.exec( "date" );
             String localDate = ssh.getStdout().split( "\n" )[ 0 ];
-            System.out.println(
-                    "host = " + host + ", localDate = " + localDate +
-                            ", after set system time" );
+            System.out.println( "host = " + host + ", localDate = " + localDate
+                    + ", after set system time" );
         } finally {
             if ( null != ssh ) {
                 ssh.disconnect();
@@ -190,9 +188,8 @@ public class TestTools {
             // print local date after set date
             ssh.exec( "date" );
             String localDate = ssh.getStdout().split( "\n" )[ 0 ];
-            System.out.println(
-                    "host = " + host + ", localDate = " + localDate +
-                            ", after restore system time" );
+            System.out.println( "host = " + host + ", localDate = " + localDate
+                    + ", after restore system time" );
 
             if ( !restoreOk ) {
                 throw lastException;
@@ -250,8 +247,7 @@ public class TestTools {
          * @throws IOException
          */
         public static void readFile( String sourceFile, int size,
-                String outputFile )
-                throws FileNotFoundException, IOException {
+                String outputFile ) throws FileNotFoundException, IOException {
             RandomAccessFile raf = null;
             OutputStream fos = null;
             try {
@@ -355,8 +351,8 @@ public class TestTools {
                 new Random().nextBytes( fileBlock );
                 while ( written < size ) {
                     int toWrite = size - written;
-                    int len = fileBlock.length < toWrite ? fileBlock.length :
-                            toWrite;
+                    int len = fileBlock.length < toWrite ? fileBlock.length
+                            : toWrite;
                     fos.write( fileBlock, 0, len );
                     written += len;
                 }
@@ -388,8 +384,9 @@ public class TestTools {
                 fos = new FileOutputStream( file );
                 while ( written < size ) {
                     int toWrite = size - written;
-                    int len = contentBytes.length < toWrite ?
-                            contentBytes.length : toWrite;
+                    int len = contentBytes.length < toWrite
+                            ? contentBytes.length
+                            : toWrite;
                     fos.write( contentBytes, 0, len );
                     written += len;
                 }
@@ -412,10 +409,9 @@ public class TestTools {
                 int randomId = new Random().nextInt( 10000 );
                 String downLoadDir = localPath + File.separator + methodName;
                 createDir( downLoadDir );
-                downloadPath =
-                        downLoadDir + File.separator + "thread-" + threadId +
-                                "_" + System.currentTimeMillis()
-                                + "_" + randomId + ".lob";
+                downloadPath = downLoadDir + File.separator + "thread-"
+                        + threadId + "_" + System.currentTimeMillis() + "_"
+                        + randomId + ".lob";
             } catch ( Exception e ) {
                 logger.info( "downloadPath\n" + downloadPath );
                 throw e;

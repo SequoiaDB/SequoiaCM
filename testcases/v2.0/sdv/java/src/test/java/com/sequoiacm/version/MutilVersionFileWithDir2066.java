@@ -54,12 +54,11 @@ public class MutilVersionFileWithDir2066 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         for ( int i = 1; i <= 3; i++ ) {
-            String filePath = localPath + File.separator + "localFile_" +
-                    ( int ) ( fileSize / Math.pow( 2, i - 1 ) )
-                    + ".txt";
+            String filePath = localPath + File.separator + "localFile_"
+                    + ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) + ".txt";
             TestTools.LocalFile.createFile( filePath,
                     ( int ) ( fileSize / Math.pow( 2, i - 1 ) ) );
             filePathList.add( filePath );
@@ -160,8 +159,8 @@ public class MutilVersionFileWithDir2066 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -170,8 +169,8 @@ public class MutilVersionFileWithDir2066 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

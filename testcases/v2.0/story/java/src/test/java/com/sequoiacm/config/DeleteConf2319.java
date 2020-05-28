@@ -38,7 +38,7 @@ public class DeleteConf2319 extends TestScmBase {
     private void test() throws Exception {
         deleteConf();
         deleteConf();
-        //check
+        // check
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 

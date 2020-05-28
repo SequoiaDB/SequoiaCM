@@ -66,16 +66,15 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -154,28 +153,27 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
 
     private void stopTaskFromSubCenterA( ScmSession ss )
             throws ScmException, InterruptedException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         int value = fileSize + startNum;
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.SIZE ).greaterThanEquals( value )
                 .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        rootSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
         // check task info
         ScmTask taskInfo = null;
         while ( true ) {
             taskInfo = ScmSystem.Task.getTask( ss, taskId );
             Thread.sleep( new Random().nextInt( 1000 ) );
-            if ( taskInfo.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_RUNNING ) {
+            if ( taskInfo
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_RUNNING ) {
                 ScmSystem.Task.stopTask( ss, taskId );
 
                 taskInfo = ScmSystem.Task.getTask( ss, taskId );
-                if ( taskInfo.getRunningFlag() ==
-                        CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ) {
+                if ( taskInfo
+                        .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ) {
                     Assert.assertNotEquals( taskInfo.getProgress(), 100 );
                 }
             } else if ( taskInfo.getStopTime() != null ) {
@@ -206,14 +204,12 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
             int siteNum = siteNumList.get( i );
             if ( siteNum == 2 ) {
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             } else {
                 SiteWrapper[] expSiteList = { branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
                 ;
             }
         }
@@ -223,15 +219,15 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
     }
 
     private void readFileFromMainCenter( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = startNum; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
             String filePath = filePathList.get( i );
 
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
 
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
@@ -247,8 +243,8 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
         try {
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), ss );
             for ( int i = 0; i < fileNum; i++ ) {
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
                 int actSiteNum = file.getLocationList().size();
                 siteNumList.add( actSiteNum );
             }
@@ -267,12 +263,11 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 randNum = new Random().nextInt( fileNum );
-                ScmFileUtils
-                        .checkData( ws, fileIdList.get( randNum ), localPath,
-                                filePathList.get( randNum ) );
+                ScmFileUtils.checkData( ws, fileIdList.get( randNum ),
+                        localPath, filePathList.get( randNum ) );
                 Assert.assertFalse( true,
-                        "expect result is fail but actual is success.wsName" +
-                                ws_T.getName() );
+                        "expect result is fail but actual is success.wsName"
+                                + ws_T.getName() );
             }
         } catch ( ScmException e ) {
             if ( ScmError.DATA_NOT_EXIST != e.getError() ) {

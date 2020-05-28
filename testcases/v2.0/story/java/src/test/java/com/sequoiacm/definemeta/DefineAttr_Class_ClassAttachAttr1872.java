@@ -74,8 +74,8 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            ScmClass class2 = ScmFactory.Class
-                    .getInstance( wsu, class1.getId() );
+            ScmClass class2 = ScmFactory.Class.getInstance( wsu,
+                    class1.getId() );
             class2.attachAttr( attr.getId() );
             Assert.fail( "the user does not have priority to do something" );
         } catch ( ScmException e ) {
@@ -86,8 +86,8 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
         }
 
         try {
-            ScmClass class3 = ScmFactory.Class
-                    .getInstance( ws, class1.getId() );
+            ScmClass class3 = ScmFactory.Class.getInstance( ws,
+                    class1.getId() );
             Assert.assertEquals( class3.listAttrs().size(), 0 );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -102,13 +102,13 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
                 ScmPrivilegeType.UPDATE );
         ScmFactory.Role.revokePrivilege( session, role, wsrs,
                 ScmPrivilegeType.CREATE );
-        ScmFactory.Role
-                .revokePrivilege( session, role, wsrs, ScmPrivilegeType.READ );
+        ScmFactory.Role.revokePrivilege( session, role, wsrs,
+                ScmPrivilegeType.READ );
         ScmFactory.Role.revokePrivilege( session, role, wsrs,
                 ScmPrivilegeType.DELETE );
 
-        ScmFactory.Role
-                .revokePrivilege( session, role, dirrs, ScmPrivilegeType.ALL );
+        ScmFactory.Role.revokePrivilege( session, role, dirrs,
+                ScmPrivilegeType.ALL );
         ScmFactory.Role.deleteRole( session, role );
         ScmFactory.User.deleteUser( session, user );
         try {
@@ -142,8 +142,7 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
@@ -178,12 +177,12 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
         class1 = ScmFactory.Class.createInstance( ws, name, desc );
         attr = craeteAttr( name );
 
-        user = ScmFactory.User
-                .createUser( session, name, ScmUserPasswordType.LOCAL, passwd );
+        user = ScmFactory.User.createUser( session, name,
+                ScmUserPasswordType.LOCAL, passwd );
         role = ScmFactory.Role.createRole( session, name, null );
         wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-        dirrs = ScmResourceFactory
-                .createDirectoryResource( wsp.getName(), "/" );
+        dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                "/" );
 
         grantPriAndAttachRole( session, wsrs, user, role,
                 ScmPrivilegeType.UPDATE );

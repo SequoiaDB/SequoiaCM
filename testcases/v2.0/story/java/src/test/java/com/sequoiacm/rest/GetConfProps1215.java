@@ -34,9 +34,8 @@ public class GetConfProps1215 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi(
-                        "conf-properties?keys=scm.rootsite.meta.url,scm" +
-                                ".rootsite.meta.user,an.inexistent.key" )
+                .setApi( "conf-properties?keys=scm.rootsite.meta.url,scm"
+                        + ".rootsite.meta.user,an.inexistent.key" )
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONObject conf = new JSONObject( response ).getJSONObject( "conf" );
         Assert.assertNotEquals( "null",

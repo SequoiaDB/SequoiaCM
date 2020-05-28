@@ -47,10 +47,10 @@ public class ReloadConfAndWrite309 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -131,8 +131,9 @@ public class ReloadConfAndWrite309 extends TestScmBase {
                 String user = TestScmBase.scmUserName;
                 String passwd = TestScmBase.scmPassword;
                 ScmConfigOption scOpt = new ScmConfigOption(
-                        TestScmBase.gateWayList.get( 0 ) + "/" +
-                                rootSite.getSiteServiceName(), user, passwd );
+                        TestScmBase.gateWayList.get( 0 ) + "/"
+                                + rootSite.getSiteServiceName(),
+                        user, passwd );
                 session = ScmFactory.Session
                         .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
                 ScmSystem.Configuration.reloadBizConf( ServerScope.ALL_SITE,

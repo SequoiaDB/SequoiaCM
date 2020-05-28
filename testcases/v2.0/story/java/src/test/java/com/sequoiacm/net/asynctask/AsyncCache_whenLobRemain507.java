@@ -53,10 +53,10 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready local file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -81,14 +81,14 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
 
         // ready scm file
         writeFileFromM();
-        //lobRemainFromA();
+        // lobRemainFromA();
         TestSdbTools.Lob.putLob( targetSite, ws_T, fileId, filePath );
     }
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
@@ -125,9 +125,8 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
     private void readFileFromA() throws Exception {
         TestSdbTools.Lob.removeLob( sourceSite, ws_T, fileId );
         // read siteA's local cache
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         ScmFile file = ScmFactory.File.getInstance( wsA, fileId );
         file.getContent( downloadPath );
         Assert.assertEquals( TestTools.getMD5( downloadPath ),

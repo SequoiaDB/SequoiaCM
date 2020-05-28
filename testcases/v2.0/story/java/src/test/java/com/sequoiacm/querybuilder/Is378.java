@@ -86,8 +86,8 @@ public class Is378 extends TestScmBase {
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 1 );
 
             runSuccess1 = true;
@@ -106,14 +106,14 @@ public class Is378 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder.start( key ).is( value )
                     .put( "k2" ).is( " " ).get();
 
-            String expCond =
-                    "{ \"" + key + "\" : " + value + " , " + "\"k2\" : \" \"}";
+            String expCond = "{ \"" + key + "\" : " + value + " , "
+                    + "\"k2\" : \" \"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;

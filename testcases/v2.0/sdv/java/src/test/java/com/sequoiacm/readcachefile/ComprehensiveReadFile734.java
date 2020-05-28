@@ -62,10 +62,10 @@ public class ComprehensiveReadFile734 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -155,11 +155,11 @@ public class ComprehensiveReadFile734 extends TestScmBase {
     private void readFile( ScmWorkspace ws ) throws ScmException {
         try {
             for ( int i = 0; i < fileIdList.size(); ++i ) {
-                ScmFile scmfile = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                ScmFile scmfile = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 scmfile.getContent( downloadPath );
 
                 Assert.assertEquals( TestTools.getMD5( downloadPath ),
@@ -179,8 +179,7 @@ public class ComprehensiveReadFile734 extends TestScmBase {
 
     private void checkLocationLists1(
             List< List< ScmFileLocation > > befLocLists,
-            List< List< ScmFileLocation > > aftLocLists )
-            throws Exception {
+            List< List< ScmFileLocation > > aftLocLists ) throws Exception {
         Assert.assertEquals( befLocLists.size(), aftLocLists.size(),
                 "file count is different!" );
         for ( int i = 0; i < befLocLists.size(); ++i ) {
@@ -191,8 +190,7 @@ public class ComprehensiveReadFile734 extends TestScmBase {
 
     private void checkLocationLists2(
             List< List< ScmFileLocation > > befLocLists,
-            List< List< ScmFileLocation > > aftLocLists )
-            throws Exception {
+            List< List< ScmFileLocation > > aftLocLists ) throws Exception {
         int i = 0;
         try {
             for ( i = 0; i < writefileNum; ++i ) {
@@ -211,16 +209,15 @@ public class ComprehensiveReadFile734 extends TestScmBase {
     }
 
     private void checkLastAccessTime( List< ScmFileLocation > befLocList,
-            List< ScmFileLocation > aftLocList, int siteId )
-            throws Exception {
+            List< ScmFileLocation > aftLocList, int siteId ) throws Exception {
 
         Date befDate = getLastAccessTime( befLocList, siteId );
         Date aftDate = getLastAccessTime( aftLocList, siteId );
 
         Assert.assertTrue( ( aftDate.getTime() > befDate.getTime() ),
-                "checkLastAccessTime failed, siteId=" + siteId
-                        + ", beforeTime=" + aftDate.getTime() + "afterTime=" +
-                        aftDate.getTime() );
+                "checkLastAccessTime failed, siteId=" + siteId + ", beforeTime="
+                        + aftDate.getTime() + "afterTime="
+                        + aftDate.getTime() );
     }
 
     private Date getLastAccessTime( List< ScmFileLocation > locList,

@@ -66,13 +66,13 @@ public class AttachFileToBatch2088 extends TestScmBase {
         session = TestScmTools.createSession( site );
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        //ScmFactory.File.deleteInstance(ws, new ScmId
+        // ScmFactory.File.deleteInstance(ws, new ScmId
         // ("5b4d84d64000010000000216"), true);
 
-        //clean batch
+        // clean batch
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2088" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( ws, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -126,7 +126,7 @@ public class AttachFileToBatch2088 extends TestScmBase {
         ScmId batchId = batch.save();
         batch.attachFile( fileId );
 
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag( "tag2088" );
         batch.setTags( tags );
@@ -139,14 +139,14 @@ public class AttachFileToBatch2088 extends TestScmBase {
         ScmId getBatchId = file.getBatchId();
         Assert.assertEquals( getBatchId, batchId );
 
-        //batch contains a file
+        // batch contains a file
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         List< ScmFile > files = batch.listFiles();
         ScmFile fileInfo = files.get( 0 );
         Assert.assertEquals( files.size(), 1 );
         Assert.assertEquals( file.toString(), fileInfo.toString() );
 
-        //check file content
+        // check file content
         VersionUtils.CheckFileContentByStream( ws, fileInfo.getFileName(),
                 fileInfo.getMajorVersion(), writeData );
     }

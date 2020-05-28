@@ -68,10 +68,10 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -134,10 +134,10 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
             fileId = expfile.save();
 
             // move file
-            ScmFile file = ScmFactory.File
-                    .getInstanceByPath( wsUR, dirpath + "/" + fileName );
-            ScmDirectory newDir = ScmFactory.Directory
-                    .getInstance( wsUR, newpath );
+            ScmFile file = ScmFactory.File.getInstanceByPath( wsUR,
+                    dirpath + "/" + fileName );
+            ScmDirectory newDir = ScmFactory.Directory.getInstance( wsUR,
+                    newpath );
             file.setDirectory( newDir );
             Assert.fail( "the user does not have priority to do something" );
         } catch ( ScmException e ) {
@@ -189,8 +189,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
         try {
             // get dir
             dir = ScmFactory.Directory.getInstance( wsA, dirPath );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionA );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
             expfile.setFileName( fileName );
             expfile.setDirectory( dir );
@@ -220,8 +220,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
         String dirPath = path;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // get dir
             dir = ScmFactory.Directory.getInstance( ws, dirPath );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -256,8 +256,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
         String dirPath = path;
         try {
             session = TestScmTools.createSession( branchsite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             // get dir
             dir = ScmFactory.Directory.getInstance( ws, dirPath );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -306,8 +306,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -327,8 +327,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -337,8 +337,8 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -384,13 +384,12 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
-            rs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
+            rs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
             createDir( wsA, path );
             createDir( wsA, path1 );
             grantPriAndAttachRole( sessionA, rs, user, role,
@@ -401,10 +400,10 @@ public class AuthDir_NoUpdateRead1726 extends TestScmBase {
                     ScmPrivilegeType.DELETE );
 
             ScmAuthUtils.checkPriority( rootsite, username, passwd, role, wsp );
-            sessionUR = TestScmTools
-                    .createSession( branchsite, username, passwd );
-            wsUR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionUR );
+            sessionUR = TestScmTools.createSession( branchsite, username,
+                    passwd );
+            wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionUR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

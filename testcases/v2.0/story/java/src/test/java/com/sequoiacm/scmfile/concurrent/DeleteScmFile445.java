@@ -63,10 +63,10 @@ public class DeleteScmFile445 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -109,11 +109,11 @@ public class DeleteScmFile445 extends TestScmBase {
             DeleteFromB deleteFromB = new DeleteFromB();
             deleteFromB.start();
 
-            if ( !( deleteFromM.isSuccess() && deleteFromA.isSuccess() &&
-                    deleteFromB.isSuccess() ) ) {
+            if ( !( deleteFromM.isSuccess() && deleteFromA.isSuccess()
+                    && deleteFromB.isSuccess() ) ) {
                 Assert.fail(
-                        deleteFromM.getErrorMsg() + deleteFromA.getErrorMsg() +
-                                deleteFromB.getErrorMsg() );
+                        deleteFromM.getErrorMsg() + deleteFromA.getErrorMsg()
+                                + deleteFromB.getErrorMsg() );
             }
 
             checkResults();
@@ -144,8 +144,8 @@ public class DeleteScmFile445 extends TestScmBase {
 
     private void prepareScmFiles() throws ScmException {
         for ( int i = 0; i < fileNum; i++ ) {
-            ScmId fileId = ScmFileUtils
-                    .create( wsA, fileName + "_" + i, filePath );
+            ScmId fileId = ScmFileUtils.create( wsA, fileName + "_" + i,
+                    filePath );
             fileIdList.add( fileId );
         }
     }
@@ -158,14 +158,13 @@ public class DeleteScmFile445 extends TestScmBase {
                     // check meta
                     BSONObject cond = new BasicBSONObject(
                             ScmAttributeName.File.FILE_ID, fileId.get() );
-                    long cnt = ScmFactory.File
-                            .countInstance( wsM, ScopeType.SCOPE_CURRENT,
-                                    cond );
+                    long cnt = ScmFactory.File.countInstance( wsM,
+                            ScopeType.SCOPE_CURRENT, cond );
                     Assert.assertEquals( cnt, 0 );
                     ScmFileUtils.checkData( wsArr[ j ], fileId, localPath,
                             filePath );
-                    Assert.assertFalse( true, "File is unExisted, " +
-                            "except throw e, but success." );
+                    Assert.assertFalse( true, "File is unExisted, "
+                            + "except throw e, but success." );
                 } catch ( ScmException e ) {
                     Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
                             e.getMessage() );

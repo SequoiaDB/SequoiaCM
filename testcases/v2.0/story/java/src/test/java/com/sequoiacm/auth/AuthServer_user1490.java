@@ -42,16 +42,14 @@ public class AuthServer_user1490 extends TestScmBase {
             try {
                 ScmFactory.User.deleteUser( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean users in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean users in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
             try {
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -68,13 +66,12 @@ public class AuthServer_user1490 extends TestScmBase {
 
         // create user by ordinary user
         try {
-            ScmFactory.User
-                    .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                            PASSWORD );
+            ScmFactory.User.createUser( session, NAME,
+                    ScmUserPasswordType.LOCAL, PASSWORD );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "create user by ordinary user failed, errorMsg = " +
-                    e.getError() );
+            logger.info( "create user by ordinary user failed, errorMsg = "
+                    + e.getError() );
         }
 
         ss.close();
@@ -97,12 +94,11 @@ public class AuthServer_user1490 extends TestScmBase {
     }
 
     private void createUserAndRole() throws ScmException {
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
 
         ScmFactory.Role.createRole( session, NAME, "" );
-//		System.out.println(role.getRoleName());
+        // System.out.println(role.getRoleName());
 
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( NAME );

@@ -58,17 +58,16 @@ public class CreateSche_wsSame1264 extends TestScmBase {
     private BSONObject queryCond = null;
 
     private List< ScmId > scheIds = new CopyOnWriteArrayList< ScmId >();
-    private List< CreateSchedule > crtSches = new CopyOnWriteArrayList<
-            CreateSchedule >();
+    private List< CreateSchedule > crtSches = new CopyOnWriteArrayList< CreateSchedule >();
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -87,7 +86,7 @@ public class CreateSche_wsSame1264 extends TestScmBase {
                     .is( name ).get();
             ScmFileUtils.cleanFile( wsp, queryCond );
 
-            //ScmSystem.Schedule.delete(ssA, new ScmId
+            // ScmSystem.Schedule.delete(ssA, new ScmId
             // ("5b6a77464000650000000001"));
             // ready scmFile
             this.readyScmFile( wsA );
@@ -183,14 +182,12 @@ public class CreateSche_wsSame1264 extends TestScmBase {
             ScmSession session = null;
             try {
                 String maxStayTime = "0d";
-                ScmScheduleCopyFileContent content = new
-                        ScmScheduleCopyFileContent(
+                ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                         branSite.getSiteName(), rootSite.getSiteName(),
                         maxStayTime, cond );
-                ScmSchedule sche = ScmSystem.Schedule
-                        .create( ssA, wsp.getName(),
-                                ScheduleType.COPY_FILE, name, "", content,
-                                cron );
+                ScmSchedule sche = ScmSystem.Schedule.create( ssA,
+                        wsp.getName(), ScheduleType.COPY_FILE, name, "",
+                        content, cron );
                 ScmId scheduleId = sche.getId();
                 scheIds.add( scheduleId );
             } catch ( ScmException e ) {

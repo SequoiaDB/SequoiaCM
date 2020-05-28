@@ -57,16 +57,15 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".2txt";
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".2txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( remainFilePath, fileSize / 2 );
         rootSite = ScmInfo.getRootSite();
@@ -78,10 +77,10 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
         session = TestScmTools.createSession( branceSiteList.get( 0 ) );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         writeFileFromSubCenterA();
-        //make remain in rootsite and branchSite
+        // make remain in rootsite and branchSite
         TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath );
-        TestSdbTools.Lob
-                .putLob( branceSiteList.get( 1 ), wsp, fileId, filePath );
+        TestSdbTools.Lob.putLob( branceSiteList.get( 1 ), wsp, fileId,
+                filePath );
     }
 
     @Test(groups = { "fourSite" })
@@ -160,9 +159,9 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis = ScmFactory.File.createInputStream( file );
                 sis.read( fos );

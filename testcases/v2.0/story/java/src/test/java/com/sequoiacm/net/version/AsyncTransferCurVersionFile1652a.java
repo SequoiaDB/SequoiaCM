@@ -27,8 +27,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:update Content of the current scm file, than ayncTransfer the
- * current version file
- * testlink-case:SCM-1652
+ * current version file testlink-case:SCM-1652
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -91,7 +90,7 @@ public class AsyncTransferCurVersionFile1652a extends TestScmBase {
     @AfterClass
     private void tearDown() {
         try {
-            //ScmFactory.File.deleteInstance(wsS, fileId, true);
+            // ScmFactory.File.deleteInstance(wsS, fileId, true);
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
@@ -110,8 +109,8 @@ public class AsyncTransferCurVersionFile1652a extends TestScmBase {
 
         // wait task finished
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsA, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsA, fileId, majorVersion,
+                sitenums );
     }
 
 }

@@ -66,8 +66,8 @@ public class ScmFile_param_deleteInstance462 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testNoExistWsArg() throws Exception {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( "testaaa", sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( "testaaa",
+                    sessionA );
             ScmFactory.File.deleteInstance( ws, fileId, true );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );

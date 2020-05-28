@@ -53,10 +53,10 @@ public class CursorByTotalSizeMoreThan100M216 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -85,8 +85,8 @@ public class CursorByTotalSizeMoreThan100M216 extends TestScmBase {
         try {
             BSONObject condition = new BasicBSONObject(
                     ScmAttributeName.File.AUTHOR, fileName );
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+            cursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_CURRENT,
+                    condition );
 
             int size = 0;
             ScmFileBasicInfo file;

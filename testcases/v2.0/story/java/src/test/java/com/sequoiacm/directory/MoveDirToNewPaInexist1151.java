@@ -57,11 +57,11 @@ public class MoveDirToNewPaInexist1151 extends TestScmBase {
     private void test() {
         ScmDirectory dir2 = null;
         try {
-            ScmDirectory dir3 = ScmFactory.Directory
-                    .createInstance( ws, "/1151_a" );
+            ScmDirectory dir3 = ScmFactory.Directory.createInstance( ws,
+                    "/1151_a" );
             ScmFactory.Directory.deleteInstance( ws, "/1151_a" );
-            dir2 = ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1151_b" );
+            dir2 = ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1151_b" );
             // eg:dirBasePath + "/b/c/d" mv b to d dir
             dir2.move( dir3 );
         } catch ( ScmException e ) {
@@ -71,8 +71,8 @@ public class MoveDirToNewPaInexist1151 extends TestScmBase {
             }
         }
         try {
-            ScmDirectory dir = ScmFactory.Directory
-                    .getInstance( ws, fullPath1 );
+            ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                    fullPath1 );
             Assert.assertEquals( dir.getPath(), fullPath1 + "/" );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -110,8 +110,8 @@ public class MoveDirToNewPaInexist1151 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

@@ -25,9 +25,7 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @FileName SCM-1256:更新不存在的任务
- * 			   SCM-1263:删除不存在的任务
- * 			   SCM-1259:获取不存在的任务详细信息
+ * @FileName SCM-1256:更新不存在的任务 SCM-1263:删除不存在的任务 SCM-1259:获取不存在的任务详细信息
  * @Author huangxiaoni
  * @Date 2018-04-17
  * @Version 1.00
@@ -72,9 +70,8 @@ public class UDQSche_taskNotExist1256 extends TestScmBase {
             ScmSystem.Schedule.delete( ssA, scheduleId );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "delete not exist schedule, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "delete not exist schedule, errorMsg = ["
+                    + e.getError() + "]" );
         }
     }
 
@@ -84,9 +81,8 @@ public class UDQSche_taskNotExist1256 extends TestScmBase {
             sche.updateName( "test" );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "update not exist schedule, errorMsg = [" + e.getError() +
-                            "]" );
+            logger.info( "update not exist schedule, errorMsg = ["
+                    + e.getError() + "]" );
         }
     }
 
@@ -95,8 +91,8 @@ public class UDQSche_taskNotExist1256 extends TestScmBase {
             ScmSystem.Schedule.get( ssA, scheduleId );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get not exist schedule, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get not exist schedule, errorMsg = [" + e.getError()
+                    + "]" );
         }
     }
 

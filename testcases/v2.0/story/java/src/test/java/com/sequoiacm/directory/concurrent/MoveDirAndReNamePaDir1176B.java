@@ -119,8 +119,8 @@ public class MoveDirAndReNamePaDir1176B extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -155,10 +155,10 @@ public class MoveDirAndReNamePaDir1176B extends TestScmBase {
         public void exec() {
             try {
                 String srcPath = fullPath2;
-                ScmDirectory destDir = ScmFactory.Directory
-                        .getInstance( ws, fullPath1 );
-                ScmDirectory srcDir = ScmFactory.Directory
-                        .getInstance( ws, srcPath );
+                ScmDirectory destDir = ScmFactory.Directory.getInstance( ws,
+                        fullPath1 );
+                ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                        srcPath );
                 srcDir.move( destDir );
 
                 // check

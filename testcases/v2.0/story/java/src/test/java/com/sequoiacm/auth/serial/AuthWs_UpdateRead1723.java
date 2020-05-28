@@ -80,10 +80,10 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -131,13 +131,13 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch = ScmFactory.Batch.createInstance( wsA );
             expBatch.setName( batchName );
             batchId = expBatch.save();
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsUR, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsUR,
+                    expBatch.getId() );
             // update
             actBatch.setName( newbatchName );
 
-            ScmBatch finaBatch = ScmFactory.Batch
-                    .getInstance( wsUR, expBatch.getId() );
+            ScmBatch finaBatch = ScmFactory.Batch.getInstance( wsUR,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), finaBatch.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -165,8 +165,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch1 = ScmFactory.Batch.getInstance( wsUR, batchId );
             expBatch1.attachFile( fileId );
 
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsA, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsA,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), expBatch1.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -195,8 +195,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmBatch expBatch1 = ScmFactory.Batch.getInstance( wsUR, batchId );
             expBatch1.detachFile( fileId );
 
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsA, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsA,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), expBatch1.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -213,8 +213,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
 
     private void testUpdateFile() throws ScmException {
         String fileName = "AuthWs_Update1723_file" + "_" + UUID.randomUUID();
-        String newfileName =
-                "AuthWs_Update1723_file_new" + "_" + UUID.randomUUID();
+        String newfileName = "AuthWs_Update1723_file_new" + "_"
+                + UUID.randomUUID();
         ScmId fileId = null;
         try {
             ScmFile expfile = ScmFactory.File.createInstance( wsA );
@@ -244,8 +244,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             fileId = createFile( wsM, name );
             ScmFactory.File.asyncCache( wsUR, fileId );
             SiteWrapper[] expSiteList = { rootsite, site };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList, localPath,
                     filePath );
         } catch ( ScmException e ) {
@@ -261,8 +261,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             fileId = createFile( wsM, name );
             ScmFactory.File.asyncCache( wsUR, fileId, 1, 0 );
             SiteWrapper[] expSiteList = { rootsite, site };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList, localPath,
                     filePath );
         } catch ( ScmException e ) {
@@ -278,8 +278,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             fileId = createFile( wsA, name );
             ScmFactory.File.asyncTransfer( wsUR, fileId );
             SiteWrapper[] expSiteList = { ScmInfo.getRootSite(), site };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList, localPath,
                     filePath );
         } catch ( ScmException e ) {
@@ -297,8 +297,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0 );
 
             SiteWrapper[] expSiteList = { ScmInfo.getRootSite(), site };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSiteList, localPath,
                     filePath );
         } catch ( ScmException e ) {
@@ -318,16 +318,14 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                     .is( scheName ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
-            ScmSchedule actSche = ScmSystem.Schedule
-                    .get( sessionUR, expSche.getId() );
+            ScmSchedule actSche = ScmSystem.Schedule.get( sessionUR,
+                    expSche.getId() );
 
             actSche.updateContent( content );
             actSche.updateCron( crond );
@@ -355,9 +353,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             taskIdList.add( taskId );
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
             SiteWrapper[] expSiteList = { rootsite };
-            ScmFileUtils
-                    .checkMetaAndData( wsp, fileIdList1, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( wsp, fileIdList1, expSiteList,
+                    localPath, filePath );
         } catch ( AssertionError e ) {
             throw new Exception( "testCleanTask taskId = " + taskId.get(), e );
         }
@@ -376,10 +373,10 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmSystem.Task.stopTask( sessionUR, taskId );
             waitTaskStop( taskId );
             task = ScmSystem.Task.getTask( sessionUR, taskId );
-            Assert.assertEquals( task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
-                    || task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH, true );
+            Assert.assertEquals( task
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
+                    || task.getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH,
+                    true );
         } catch ( AssertionError e ) {
             throw new Exception(
                     "testCancelCleanTask task = " + task.toString(), e );
@@ -394,16 +391,16 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             prepareCleanFile( wsM, name, fileNum );
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
-            ScmId taskId = ScmSystem.Task
-                    .startCleanTask( wsUR, condition, ScopeType.SCOPE_CURRENT );
+            ScmId taskId = ScmSystem.Task.startCleanTask( wsUR, condition,
+                    ScopeType.SCOPE_CURRENT );
             taskIdList.add( taskId );
             ScmSystem.Task.stopTask( sessionUR, taskId );
             waitTaskStop( taskId );
             task = ScmSystem.Task.getTask( sessionUR, taskId );
-            Assert.assertEquals( task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
-                    || task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH, true );
+            Assert.assertEquals( task
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
+                    || task.getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH,
+                    true );
         } catch ( AssertionError e ) {
             throw new Exception(
                     "testCleanTaskByScope task = " + task.toString(), e );
@@ -441,10 +438,10 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             ScmSystem.Task.stopTask( sessionUR, taskId );
             waitTaskStop( taskId );
             task = ScmSystem.Task.getTask( sessionUR, taskId );
-            Assert.assertEquals( task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
-                    || task.getRunningFlag() ==
-                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH, true );
+            Assert.assertEquals( task
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL
+                    || task.getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH,
+                    true );
         } catch ( AssertionError e ) {
             throw new Exception(
                     "testCancelTransferTask task = " + task.toString(), e );
@@ -480,8 +477,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
             taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
-                    ScopeType.SCOPE_CURRENT,
-                    rootsite.getSiteName() );
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
 
             ScmTaskUtils.waitTaskFinish( sessionM, taskId );
@@ -495,8 +491,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -590,9 +585,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
     private void readFile( ScmWorkspace ws, ScmId fileId ) throws Exception {
         // read file
         ScmFile file = ScmFactory.File.getInstance( wsA, fileId );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
     }
 
@@ -617,9 +611,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
@@ -630,8 +623,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
 
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
             sessionUR = TestScmTools.createSession( site, username, passwd );
-            wsUR = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionUR );
+            wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionUR );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

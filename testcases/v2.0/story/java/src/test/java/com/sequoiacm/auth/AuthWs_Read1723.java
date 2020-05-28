@@ -79,10 +79,10 @@ public class AuthWs_Read1723 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -124,8 +124,8 @@ public class AuthWs_Read1723 extends TestScmBase {
             ScmBatch expBatch = ScmFactory.Batch.createInstance( wsA );
             expBatch.setName( batchName );
             batchId = expBatch.save();
-            ScmBatch actBatch = ScmFactory.Batch
-                    .getInstance( wsR, expBatch.getId() );
+            ScmBatch actBatch = ScmFactory.Batch.getInstance( wsR,
+                    expBatch.getId() );
             Assert.assertEquals( actBatch.getName(), expBatch.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -179,8 +179,8 @@ public class AuthWs_Read1723 extends TestScmBase {
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsA, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsA,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -238,8 +238,8 @@ public class AuthWs_Read1723 extends TestScmBase {
             fileId = file.save();
 
             // get file
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsR, dirpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsR,
+                    dirpath );
             ScmFile actfile = actdir.getSubfile( fileName );
             Assert.assertEquals( actfile.getDirectory().getPath(),
                     dirpath + "/" );
@@ -276,8 +276,8 @@ public class AuthWs_Read1723 extends TestScmBase {
             file.setContent( filePath );
             fileId = file.save();
 
-            ScmDirectory actdir = ScmFactory.Directory
-                    .getInstance( wsR, dirpath );
+            ScmDirectory actdir = ScmFactory.Directory.getInstance( wsR,
+                    dirpath );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
                     .get();
@@ -307,8 +307,8 @@ public class AuthWs_Read1723 extends TestScmBase {
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
-            expBreakpointFile = ScmFactory.BreakpointFile
-                    .createInstance( wsA, fileName );
+            expBreakpointFile = ScmFactory.BreakpointFile.createInstance( wsA,
+                    fileName );
             InputStream inputStream = new BreakpointInputStream(
                     new FileInputStream( new File( filePath ) ) );
             expBreakpointFile.incrementalUpload( inputStream, false );
@@ -341,9 +341,9 @@ public class AuthWs_Read1723 extends TestScmBase {
             fileId = expfile.save();
 
             ScmFile actfile = ScmFactory.File.getInstance( wsR, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), actfile.getFileName() );
         } catch ( ScmException e ) {
@@ -367,11 +367,11 @@ public class AuthWs_Read1723 extends TestScmBase {
             expfile.setAuthor( fileName );
             fileId = expfile.save();
 
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsR, "/" + fileName );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsR,
+                    "/" + fileName );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), actfile.getFileName() );
         } catch ( ScmException e ) {
@@ -396,9 +396,9 @@ public class AuthWs_Read1723 extends TestScmBase {
             fileId = expfile.save();
 
             ScmFile actfile = ScmFactory.File.getInstance( wsR, fileId, 1, 0 );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), actfile.getFileName() );
         } catch ( ScmException e ) {
@@ -422,11 +422,11 @@ public class AuthWs_Read1723 extends TestScmBase {
             expfile.setAuthor( fileName );
             fileId = expfile.save();
 
-            ScmFile actfile = ScmFactory.File
-                    .getInstanceByPath( wsR, "/" + fileName, 1, 0 );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            ScmFile actfile = ScmFactory.File.getInstanceByPath( wsR,
+                    "/" + fileName, 1, 0 );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             actfile.getContent( downloadPath );
             Assert.assertEquals( actfile.getFileName(), actfile.getFileName() );
         } catch ( ScmException e ) {
@@ -451,16 +451,14 @@ public class AuthWs_Read1723 extends TestScmBase {
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                     .is( scheName ).get();
             ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                    branchSite.getSiteName(),
-                    rootSite.getSiteName(), maxStayTime, queryCond );
+                    branchSite.getSiteName(), rootSite.getSiteName(),
+                    maxStayTime, queryCond );
             String crond = "* * * * * ? 2029";
-            expSche = ScmSystem.Schedule
-                    .create( sessionA, wsp.getName(), ScheduleType.COPY_FILE,
-                            scheName, null,
-                            content, crond );
+            expSche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
+                    ScheduleType.COPY_FILE, scheName, null, content, crond );
 
-            ScmSchedule actSche = ScmSystem.Schedule
-                    .get( sessionR, expSche.getId() );
+            ScmSchedule actSche = ScmSystem.Schedule.get( sessionR,
+                    expSche.getId() );
             Assert.assertEquals( actSche.getName(), expSche.getName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -502,8 +500,7 @@ public class AuthWs_Read1723 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -553,9 +550,8 @@ public class AuthWs_Read1723 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             rs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );

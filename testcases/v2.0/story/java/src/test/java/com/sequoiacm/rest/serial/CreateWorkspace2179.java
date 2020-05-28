@@ -36,7 +36,7 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description CreateWorkspace2179.java  创建workspace 
+ * @Description CreateWorkspace2179.java 创建workspace
  * @author luweikang
  * @date 2018年5月24日
  */
@@ -83,8 +83,7 @@ public class CreateWorkspace2179 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "/workspaces/" + wsName )
                 .setParameter( "workspace_conf", dataJson )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         BSONObject obj = ( BSONObject ) JSON.parse( response );
         rest.disconnect();
         ScmWorkspace ws = null;
@@ -98,8 +97,9 @@ public class CreateWorkspace2179 extends TestScmBase {
                     throw e;
                 }
             }
-            if ( i == 14 ) Assert.fail(
-                    "create ws is not done in 15 seconds: " + obj.toString() );
+            if ( i == 14 )
+                Assert.fail( "create ws is not done in 15 seconds: "
+                        + obj.toString() );
         }
 
         Assert.assertEquals( ws.getDataLocations().size(),
@@ -121,9 +121,8 @@ public class CreateWorkspace2179 extends TestScmBase {
         List< BSONObject > scmDataLocationList = new ArrayList< BSONObject >();
         ScmMetaLocation scmMetaLocation = null;
         scmMetaLocation = new ScmSdbMetaLocation( rootSite.getSiteName(),
-                ScmShardingType.YEAR,
-                TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
-                        .get( 0 ) );
+                ScmShardingType.YEAR, TestSdbTools
+                        .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 ) );
 
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
@@ -145,16 +144,16 @@ public class CreateWorkspace2179 extends TestScmBase {
                                 .getBSONObject() );
                 break;
             case "hbase":
-                scmDataLocationList.add( new ScmHbaseDataLocation( siteName )
-                        .getBSONObject() );
+                scmDataLocationList.add(
+                        new ScmHbaseDataLocation( siteName ).getBSONObject() );
                 break;
             case "hdfs":
-                scmDataLocationList.add( new ScmHdfsDataLocation( siteName )
-                        .getBSONObject() );
+                scmDataLocationList.add(
+                        new ScmHdfsDataLocation( siteName ).getBSONObject() );
                 break;
             case "ceph_s3":
-                scmDataLocationList.add( new ScmCephS3DataLocation( siteName )
-                        .getBSONObject() );
+                scmDataLocationList.add(
+                        new ScmCephS3DataLocation( siteName ).getBSONObject() );
                 break;
             case "ceph_swift":
                 scmDataLocationList

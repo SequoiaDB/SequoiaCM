@@ -98,8 +98,8 @@ public class NotEquals375 extends TestScmBase {
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             // 考虑与其他用例并行，这里只是弱覆盖，确保bson可执行即可
             if ( count < 2 ) {
                 Assert.fail( "expect count is 2 or more, but found " + count );

@@ -73,10 +73,10 @@ public class Transfer_transferCond463 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -120,8 +120,8 @@ public class Transfer_transferCond463 extends TestScmBase {
             BSONObject timeLte = siteIdIs2.and( lastAccessTime )
                     .lessThanEquals( endTime ).get();
 
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 0 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 0 ) );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR )
                     .is( file.getAuthor() )
@@ -137,18 +137,17 @@ public class Transfer_transferCond463 extends TestScmBase {
                     .and( ScmAttributeName.File.PROPERTIES ).exists( 1 )
                     .and( ScmAttributeName.File.PROPERTY_TYPE ).exists( 0 )
                     .and( ScmAttributeName.File.SITE_LIST ).elemMatch( timeGt )
-                    .and( ScmAttributeName.File.SITE_LIST )
-                    .elemMatch( timeLte ).and( ScmAttributeName.File.SIZE )
-                    .exists( 1 ).and( ScmAttributeName.File.TITLE )
-                    .is( file.getTitle() )
+                    .and( ScmAttributeName.File.SITE_LIST ).elemMatch( timeLte )
+                    .and( ScmAttributeName.File.SIZE ).exists( 1 )
+                    .and( ScmAttributeName.File.TITLE ).is( file.getTitle() )
                     .and( ScmAttributeName.File.UPDATE_TIME ).exists( 1 )
                     .and( ScmAttributeName.File.UPDATE_USER )
                     .is( TestScmBase.scmUserName )
                     .and( ScmAttributeName.File.USER )
                     .is( TestScmBase.scmUserName ).get();
             System.out.println( "cond = " + cond );
-            long actCount = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long actCount = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             System.out
                     .println( "======================actCount = " + actCount );
             taskId = transferByCond( sessionA, cond );
@@ -169,8 +168,8 @@ public class Transfer_transferCond463 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                     ;
                 }
                 TestTools.LocalFile.removeFile( localPath );
@@ -192,8 +191,8 @@ public class Transfer_transferCond463 extends TestScmBase {
             ssh = new Ssh( branceSite.getNode().getHost() );
             ssh.exec( "date '+%Y-%m-%d %H:%M:%S'" );
             localDate = ssh.getStdout();
-            System.out.println( "host = " + branceSite.getNode().getHost() +
-                    ", localDate = " + localDate );
+            System.out.println( "host = " + branceSite.getNode().getHost()
+                    + ", localDate = " + localDate );
         } finally {
             if ( ssh != null ) {
                 ssh.disconnect();
@@ -218,8 +217,8 @@ public class Transfer_transferCond463 extends TestScmBase {
 
     private ScmId transferByCond( ScmSession session, BSONObject cond )
             throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         expStartTime = getDate();
         ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond );
         return taskId;
@@ -229,9 +228,8 @@ public class Transfer_transferCond463 extends TestScmBase {
         try {
             SiteWrapper rootSite = ScmInfo.getRootSite();
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -253,24 +251,22 @@ public class Transfer_transferCond463 extends TestScmBase {
         Date actStartTime = task.getStartTime();
         Date actStopTime = task.getStopTime();
         if ( actStartTime.getTime() > actStopTime.getTime() ) {
-            Assert.fail(
-                    "taskId :" + taskId.get() + "startTime: " + actStartTime +
-                            "stopTime: " + actStopTime
-                            + ", startTime shouldn't greater than stopTime!" );
+            Assert.fail( "taskId :" + taskId.get() + "startTime: "
+                    + actStartTime + "stopTime: " + actStopTime
+                    + ", startTime shouldn't greater than stopTime!" );
         }
         long acceptableOffset = 100000; // 100s
-        if ( Math.abs( actStartTime.getTime() - expStartTime.getTime() ) >
-                acceptableOffset ) {
-            Assert.fail( "taskId :" + taskId.get() + "actStartTime: " +
-                    actStartTime + ", expStartTime: " + expStartTime
+        if ( Math.abs( actStartTime.getTime()
+                - expStartTime.getTime() ) > acceptableOffset ) {
+            Assert.fail( "taskId :" + taskId.get() + "actStartTime: "
+                    + actStartTime + ", expStartTime: " + expStartTime
                     + ", startTime is not reasonable" );
         }
-        if ( Math.abs( actStopTime.getTime() - expStopTime.getTime() ) >
-                acceptableOffset ) {
-            Assert.fail(
-                    "taskId :" + taskId.get() + "actStopTime: " + actStopTime +
-                            "expStopTime: " + expStopTime +
-                            ", stopTime is not reasonable" );
+        if ( Math.abs( actStopTime.getTime()
+                - expStopTime.getTime() ) > acceptableOffset ) {
+            Assert.fail( "taskId :" + taskId.get() + "actStopTime: "
+                    + actStopTime + "expStopTime: " + expStopTime
+                    + ", stopTime is not reasonable" );
         }
     }
 

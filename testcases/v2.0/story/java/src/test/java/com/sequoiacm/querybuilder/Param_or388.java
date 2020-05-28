@@ -47,9 +47,8 @@ public class Param_or388 extends TestScmBase {
             String key = null;
             BSONObject cond = ScmQueryBuilder.start( key ).or().get();
             Assert.fail(
-                    "build condition when object is null shouldn't succeed. " +
-                            "cond: " +
-                            cond );
+                    "build condition when object is null shouldn't succeed. "
+                            + "cond: " + cond );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 e.printStackTrace();

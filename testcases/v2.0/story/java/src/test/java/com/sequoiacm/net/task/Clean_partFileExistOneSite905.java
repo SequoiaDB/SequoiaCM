@@ -70,10 +70,10 @@ public class Clean_partFileExistOneSite905 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -117,8 +117,8 @@ public class Clean_partFileExistOneSite905 extends TestScmBase {
             ScmTaskUtils.waitTaskFinish( sessionA, taskId );
 
             ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-            int totolFileSize = fileIdList1.size() + fileIdList2.size() +
-                    fileIdList3.size() + fileIdList4.size();
+            int totolFileSize = fileIdList1.size() + fileIdList2.size()
+                    + fileIdList3.size() + fileIdList4.size();
             Assert.assertEquals( taskInfo.getRunningFlag(),
                     CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
             Assert.assertEquals( taskInfo.getProgress(), 100 );
@@ -189,17 +189,17 @@ public class Clean_partFileExistOneSite905 extends TestScmBase {
         for ( int i = 0; i < fileIdList.size(); i++ ) {
             ScmId fileId = fileIdList.get( i );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
         }
     }
 
     private void startCleanTask( ScmSession ss, String author )
             throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
         taskId = ScmSystem.Task.startCleanTask( ws, condition );
@@ -221,8 +221,7 @@ public class Clean_partFileExistOneSite905 extends TestScmBase {
 
         // clean files
         SiteWrapper[] expSiteList2 = { siteList.get( 2 ) };
-        ScmFileUtils
-                .checkMetaAndData( ws_T, fileIdList4, expSiteList2, localPath,
-                        filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList4, expSiteList2,
+                localPath, filePath );
     }
 }

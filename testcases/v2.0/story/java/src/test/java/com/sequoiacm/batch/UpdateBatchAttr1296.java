@@ -47,8 +47,8 @@ public class UpdateBatchAttr1296 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -62,10 +62,10 @@ public class UpdateBatchAttr1296 extends TestScmBase {
         oldAttr.setType( AttributeType.STRING );
         oldAttr.setDescription( "I am a Attribute1296" );
         oldAttr.setDisplayName( oldAttrName + "_display" );
-        ScmAttribute oldScmAttribute = ScmFactory.Attribute
-                .createInstance( ws, oldAttr );
-        ScmClass oldScmClass = ScmFactory.Class
-                .createInstance( ws, oldClassName, "i am a old class1296" );
+        ScmAttribute oldScmAttribute = ScmFactory.Attribute.createInstance( ws,
+                oldAttr );
+        ScmClass oldScmClass = ScmFactory.Class.createInstance( ws,
+                oldClassName, "i am a old class1296" );
         oldScmClass.attachAttr( oldScmAttribute.getId() );
 
         oldScmClassId = oldScmClass.getId();
@@ -97,10 +97,10 @@ public class UpdateBatchAttr1296 extends TestScmBase {
         newAttr.setType( AttributeType.STRING );
         newAttr.setDescription( "I am a Attribute1296" );
         newAttr.setDisplayName( newAttrName + "_display" );
-        ScmAttribute newScmAttribute = ScmFactory.Attribute
-                .createInstance( ws, newAttr );
-        ScmClass newScmClass = ScmFactory.Class
-                .createInstance( ws, newClassName, "i am a new class1296" );
+        ScmAttribute newScmAttribute = ScmFactory.Attribute.createInstance( ws,
+                newAttr );
+        ScmClass newScmClass = ScmFactory.Class.createInstance( ws,
+                newClassName, "i am a new class1296" );
         newScmClass.attachAttr( newScmAttribute.getId() );
 
         newScmClassId = newScmClass.getId();

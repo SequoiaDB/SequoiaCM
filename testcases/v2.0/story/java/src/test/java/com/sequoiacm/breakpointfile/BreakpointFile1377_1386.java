@@ -51,10 +51,10 @@ public class BreakpointFile1377_1386 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -68,12 +68,11 @@ public class BreakpointFile1377_1386 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws JSONException, ScmException, IOException {
 
-        BreakpointUtil
-                .createBreakpointFile( ws1, filePath, fileName, 1024 * 512,
-                        ScmChecksumType.CRC32 );
-        //跨站点上传断点文件
+        BreakpointUtil.createBreakpointFile( ws1, filePath, fileName,
+                1024 * 512, ScmChecksumType.CRC32 );
+        // 跨站点上传断点文件
         this.uploadBreakpointFile();
-        //跨站点查询断点文件信息
+        // 跨站点查询断点文件信息
         this.checkBreakpointFile();
 
     }

@@ -33,8 +33,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content: update Content,then update defineAttributes and add new
- * defineAttributes
- * testlink-case:SCM-1939
+ * defineAttributes testlink-case:SCM-1939
  *
  * @author wuyan
  * @Date 2018.07.11
@@ -59,10 +58,10 @@ public class UpdateContentAndDefineAttr1939 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -86,7 +85,7 @@ public class UpdateContentAndDefineAttr1939 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                //clean property and class
+                // clean property and class
                 ScmFactory.Class.deleteInstance( ws, scmClassId );
                 ScmFactory.Attribute.deleteInstance( ws, setAttrId );
                 ScmFactory.Attribute.deleteInstance( ws, updateAttrId );
@@ -104,13 +103,13 @@ public class UpdateContentAndDefineAttr1939 extends TestScmBase {
 
     private String setDefineAttr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        //set property
-        String attrStr = "{name:'attr1939_string', display_name:'name1939_1'," +
-                " description:'Attribute 1938_1', type:'STRING', " +
-                "required:true}";
+        // set property
+        String attrStr = "{name:'attr1939_string', display_name:'name1939_1',"
+                + " description:'Attribute 1938_1', type:'STRING', "
+                + "required:true}";
         ScmAttribute attribute = createAttr( attrStr );
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1939" );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1939" );
         setAttrId = attribute.getId();
         scmClass.attachAttr( setAttrId );
         scmClassId = scmClass.getId();
@@ -120,7 +119,7 @@ public class UpdateContentAndDefineAttr1939 extends TestScmBase {
                 "test1939 set define attr!" );
         file.setClassProperties( properties );
 
-        //check property
+        // check property
         Assert.assertEquals( file.getClassProperties().toString(),
                 properties.toString() );
         return attribute.getName();
@@ -128,33 +127,33 @@ public class UpdateContentAndDefineAttr1939 extends TestScmBase {
 
     private void updateContentAndSetAttr( String oldAttrName )
             throws Exception {
-        //update content
+        // update content
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         byte[] testdata = new byte[ 1024 * 2 ];
         new Random().nextBytes( testdata );
         file.updateContent( new ByteArrayInputStream( testdata ) );
 
-        //set new property
-        String attrStr = "{name:'attr1939_date', " +
-                "display_name:'dispalyName1939_2', description:'I am a " +
-                "Attribute 1939_2', type:'DATE', required:false}";
+        // set new property
+        String attrStr = "{name:'attr1939_date', "
+                + "display_name:'dispalyName1939_2', description:'I am a "
+                + "Attribute 1939_2', type:'DATE', required:false}";
         ScmAttribute attribute = createAttr( attrStr );
         ScmClass scmClass = ScmFactory.Class.getInstance( ws, scmClassId );
         updateAttrId = attribute.getId();
         scmClass.attachAttr( updateAttrId );
         ScmClassProperties properties = new ScmClassProperties(
                 scmClassId.toString() );
-        properties
-                .addProperty( attribute.getName(), "2018-07-11-01:01:00.000" );
+        properties.addProperty( attribute.getName(),
+                "2018-07-11-01:01:00.000" );
         properties.addProperty( oldAttrName, "update the defineAttr !" );
         file.setClassProperties( properties );
 
-        //check update content
+        // check update content
         int majorVersion = file.getMajorVersion();
         VersionUtils.CheckFileContentByStream( ws, fileName, majorVersion,
                 testdata );
 
-        //check property
+        // check property
         checkSetPropertyResult( scmClassId, properties );
     }
 

@@ -66,15 +66,14 @@ public class Clean_inDiffNode747 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -89,8 +88,8 @@ public class Clean_inDiffNode747 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
             session = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace
-                    .getWorkspace( ws_TList.get( 0 ).getName(), session );
+            ws = ScmFactory.Workspace.getWorkspace( ws_TList.get( 0 ).getName(),
+                    session );
             ws2 = ScmFactory.Workspace
                     .getWorkspace( ws_TList.get( 1 ).getName(), session );
 
@@ -130,10 +129,11 @@ public class Clean_inDiffNode747 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                /*for (int i = 0; i < fileIdList.size(); i++) {
-                    ScmId fileId = fileIdList.get(i);
-					ScmFactory.File.deleteInstance(ws, fileId, true);
-				}*/
+                /*
+                 * for (int i = 0; i < fileIdList.size(); i++) { ScmId fileId =
+                 * fileIdList.get(i); ScmFactory.File.deleteInstance(ws, fileId,
+                 * true); }
+                 */
                 BSONObject cond = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
@@ -185,14 +185,12 @@ public class Clean_inDiffNode747 extends TestScmBase {
                 fileIdList1.add( fileId );
                 if ( i >= startNum ) {
                     SiteWrapper[] expSiteList = { rootSite };
-                    ScmFileUtils
-                            .checkMetaAndData( ws_TList.get( 0 ), fileIdList1,
-                                    expSiteList, localPath, filePath );
+                    ScmFileUtils.checkMetaAndData( ws_TList.get( 0 ),
+                            fileIdList1, expSiteList, localPath, filePath );
                 } else {
                     SiteWrapper[] expSiteList = { rootSite, branceSite };
-                    ScmFileUtils
-                            .checkMetaAndData( ws_TList.get( 0 ), fileIdList1,
-                                    expSiteList, localPath, filePath );
+                    ScmFileUtils.checkMetaAndData( ws_TList.get( 0 ),
+                            fileIdList1, expSiteList, localPath, filePath );
                 }
             }
         } catch ( Exception e ) {
@@ -223,8 +221,8 @@ public class Clean_inDiffNode747 extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( ss, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );
@@ -267,8 +265,8 @@ public class Clean_inDiffNode747 extends TestScmBase {
                 ScmTask taskInfo = null;
                 while ( true ) {
                     taskInfo = ScmSystem.Task.getTask( ss, taskId );
-                    if ( taskInfo.getRunningFlag() ==
-                            CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                    if ( taskInfo
+                            .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                         break;
                     }
                     Thread.sleep( 200 );

@@ -67,10 +67,10 @@ public class DeleteSche_taskRunning1261 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -91,7 +91,7 @@ public class DeleteSche_taskRunning1261 extends TestScmBase {
 
         // ready schedule
         this.createScheduleTask();
-        //to wait for the task to run
+        // to wait for the task to run
         ScmScheduleUtils.isRunningOfSche( ssA, scheduleId );
     }
 
@@ -102,14 +102,14 @@ public class DeleteSche_taskRunning1261 extends TestScmBase {
         SiteWrapper[] expSites1 = { rootSite, branSite };
         ScmScheduleUtils.checkScmFile( wsA, fileIds, 0, fileNum, expSites1 );
 
-        //the schedule was deleted, task is not running again
+        // the schedule was deleted, task is not running again
         this.readyScmFile( wsA, fileNum, fileNum + 10 );
         SiteWrapper[] expSites2 = { branSite };
-        ScmScheduleUtils
-                .checkScmFile( wsA, fileIds, fileNum, fileNum + 10, expSites2 );
+        ScmScheduleUtils.checkScmFile( wsA, fileIds, fileNum, fileNum + 10,
+                expSites2 );
 
         try {
-            //check shedule was deleted
+            // check shedule was deleted
             ScmSystem.Schedule.get( ssA, scheduleId );
             Assert.fail( "expect fail but actual succ." );
         } catch ( ScmException e ) {
@@ -172,9 +172,8 @@ public class DeleteSche_taskRunning1261 extends TestScmBase {
     private void createScheduleTask() throws ScmException {
         try {
             String maxStayTime = "0d";
-            content = new ScmScheduleCopyFileContent(
-                    branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                    queryCond );
+            content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, queryCond );
             System.out.println( content.toBSONObject() );
             cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),

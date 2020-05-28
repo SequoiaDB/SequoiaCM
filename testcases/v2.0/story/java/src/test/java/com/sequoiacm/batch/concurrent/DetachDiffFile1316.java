@@ -47,8 +47,8 @@ public class DetachDiffFile1316 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
 
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
@@ -87,8 +87,8 @@ public class DetachDiffFile1316 extends TestScmBase {
                                 new BasicBSONObject( "title", batchName ) );
                 while ( cursor.hasNext() ) {
                     ScmFileBasicInfo info = cursor.getNext();
-                    ScmFactory.File
-                            .deleteInstance( ws, info.getFileId(), true );
+                    ScmFactory.File.deleteInstance( ws, info.getFileId(),
+                            true );
                 }
                 cursor.close();
             }

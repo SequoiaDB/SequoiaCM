@@ -42,8 +42,8 @@ public class ScmFile_param_getContent182 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
@@ -60,8 +60,8 @@ public class ScmFile_param_getContent182 extends TestScmBase {
     private void testPathNotExist() {
         try {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            file.getContent( localPath + File.separator + "a" + File.separator +
-                    "a.txt" );
+            file.getContent( localPath + File.separator + "a" + File.separator
+                    + "a.txt" );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {

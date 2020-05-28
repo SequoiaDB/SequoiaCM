@@ -27,8 +27,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content: there are multiple versions of the file ,than delete the
- * scmfile
- * testlink-case:SCM-1677
+ * scmfile testlink-case:SCM-1677
  *
  * @author wuyan
  * @Date 2018.06.11
@@ -53,10 +52,10 @@ public class DeleteUpdateScmFile1677 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -116,10 +115,10 @@ public class DeleteUpdateScmFile1677 extends TestScmBase {
         BSONObject fileCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        long currentCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCond );
-        long historyCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_HISTORY, fileCond );
+        long currentCount = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_CURRENT, fileCond );
+        long historyCount = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_HISTORY, fileCond );
         long expCount = 0;
         Assert.assertEquals( currentCount, expCount,
                 " the currentVersion file must be delete" );

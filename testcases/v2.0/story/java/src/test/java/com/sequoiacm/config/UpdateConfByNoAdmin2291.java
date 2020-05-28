@@ -65,20 +65,19 @@ public class UpdateConfByNoAdmin2291 extends TestScmBase {
     private void test() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools
-                    .createSession( updatedSite, username, passwd );
+            session = TestScmTools.createSession( updatedSite, username,
+                    passwd );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
                     .service( updatedSite.getSiteServiceName() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
-            Assert.fail(
-                    "update configuration should be failed by normal user," +
-                            "actResults = " +
-                            actResults.toString() );
+            Assert.fail( "update configuration should be failed by normal user,"
+                    + "actResults = " + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_FORBIDDEN ) {
                 Assert.fail( e.getMessage() );
@@ -88,7 +87,7 @@ public class UpdateConfByNoAdmin2291 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration do not take effect
+        // check updated configuration do not take effect
         ConfUtil.checkNotTakeEffect( updatedSite, fileName );
     }
 
@@ -105,9 +104,8 @@ public class UpdateConfByNoAdmin2291 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            ScmUser scmUser = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             ScmRole role = ScmFactory.Role.createRole( session, rolename, "" );
             ScmUserModifier modifier = new ScmUserModifier();
             ScmResource resource = ScmResourceFactory
@@ -116,8 +114,8 @@ public class UpdateConfByNoAdmin2291 extends TestScmBase {
                     ScmPrivilegeType.ALL );
             modifier.addRole( rolename );
             ScmFactory.User.alterUser( session, scmUser, modifier );
-            ScmAuthUtils
-                    .checkPriority( updatedSite, username, passwd, role, wsp );
+            ScmAuthUtils.checkPriority( updatedSite, username, passwd, role,
+                    wsp );
         } finally {
             if ( session != null ) {
                 session.close();

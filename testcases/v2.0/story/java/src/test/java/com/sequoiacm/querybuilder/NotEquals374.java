@@ -84,14 +84,14 @@ public class NotEquals374 extends TestScmBase {
                     .put( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
                     .get();
 
-            String expCond = "{ \"" + key + "\" : { \"$ne\" : " + value +
-                    "} , \"author\" : \"" + authorName + "\"}";
+            String expCond = "{ \"" + key + "\" : { \"$ne\" : " + value
+                    + "} , \"author\" : \"" + authorName + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 2 );
 
             runSuccess1 = true;
@@ -113,14 +113,14 @@ public class NotEquals374 extends TestScmBase {
                     .get();
 
             String expCond = "{ \"" + key + "\" : { \"$ne\" : " + value + "} , "
-                    + "\"k2\" : { \"$ne\" : \" \"} , \"author\" : \"" +
-                    authorName + "\"}";
+                    + "\"k2\" : { \"$ne\" : \" \"} , \"author\" : \""
+                    + authorName + "\"}";
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     expCond.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;

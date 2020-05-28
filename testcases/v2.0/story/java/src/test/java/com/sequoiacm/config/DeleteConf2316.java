@@ -40,7 +40,7 @@ public class DeleteConf2316 extends TestScmBase {
     @Test(groups = { "oneSite" })
     private void test() throws Exception {
         testAllInstnace();
-        //null is allInstance
+        // null is allInstance
         ConfUtil.restore( null );
 
         testInstnace();
@@ -79,13 +79,13 @@ public class DeleteConf2316 extends TestScmBase {
             list.add( ConfigCommonDefind.scm_audit_mask );
             list.add( ConfigCommonDefind.scm_audit_userMask );
 
-            //check content-server
+            // check content-server
             for ( NodeWrapper node : ScmInfo.getAllNodes() ) {
                 ConfUtil.checkDeletedConf( node.getUrl(), list );
             }
             ConfUtil.checkNotTakeEffect( site, fileName );
 
-            //check schedule-server
+            // check schedule-server
             List< ScmServiceInstance > scheList = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, "schedule-server" );
             for ( ScmServiceInstance instance : scheList ) {
@@ -93,7 +93,7 @@ public class DeleteConf2316 extends TestScmBase {
                         instance.getIp() + ":" + instance.getPort(), list );
             }
 
-            //check auth-server
+            // check auth-server
             List< ScmServiceInstance > authList = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, "auth-server" );
             for ( ScmServiceInstance instance : authList ) {

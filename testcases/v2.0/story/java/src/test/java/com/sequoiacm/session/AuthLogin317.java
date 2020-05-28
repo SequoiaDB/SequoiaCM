@@ -38,12 +38,12 @@ public class AuthLogin317 extends TestScmBase {
         try {
             try {
                 ScmConfigOption scOpt = new ScmConfigOption();
-                ScmFactory.Session
-                        .createSession( SessionType.AUTH_SESSION, scOpt );
+                ScmFactory.Session.createSession( SessionType.AUTH_SESSION,
+                        scOpt );
                 Assert.fail( "login success with invalid parameter" );
             } catch ( ScmException e ) {
-                if ( e.getErrorCode() !=
-                        ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                        .getErrorCode() ) {
                     throw e;
                 }
             }
@@ -51,12 +51,12 @@ public class AuthLogin317 extends TestScmBase {
             try {
                 ScmConfigOption scOpt2 = new ScmConfigOption(
                         TestScmBase.gateWayList.get( 0 ) + "/" + site );
-                ScmFactory.Session
-                        .createSession( SessionType.AUTH_SESSION, scOpt2 );
+                ScmFactory.Session.createSession( SessionType.AUTH_SESSION,
+                        scOpt2 );
                 Assert.fail( "login success with invalid parameter" );
             } catch ( ScmException e ) {
-                if ( e.getErrorCode() !=
-                        ScmError.INVALID_ARGUMENT.getErrorCode() ) {
+                if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                        .getErrorCode() ) {
                     throw e;
                 }
             }

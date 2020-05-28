@@ -84,10 +84,10 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
         sessionL = TestScmTools.createSession( lastSite );
         wsL = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionL );
 
-        //clean batch
+        // clean batch
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2083" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( wsL, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( wsL,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -95,7 +95,7 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
         }
         cursor.close();
 
-        //create file and update content
+        // create file and update content
         fileId1 = VersionUtils.createFileByStream( wsC, fileName1, writeData1 );
         fileId2 = VersionUtils.createFileByStream( wsC, fileName2, writeData2 );
         fileIdList.add( fileId1.get() );
@@ -143,7 +143,7 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
                 .get();
         taskId = ScmSystem.Task.startCleanTask( ws, condition );
 
-        //wait task finish
+        // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
@@ -154,7 +154,7 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
         ScmId batchId = batch.save();
         batch.attachFile( fileId );
 
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag( "tag2083" );
         batch.setTags( tags );
@@ -164,10 +164,10 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
     private void checkCleanFileSiteAndDataInfo( ScmWorkspace ws,
             String fileName ) throws Exception {
         int currentVersion = 2;
-        //check the cleaned file,check the sitelist and data	,only clean
+        // check the cleaned file,check the sitelist and data ,only clean
         // current file
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         SiteWrapper[] expSiteList = { lastSite };
         while ( cursor.hasNext() ) {
@@ -175,13 +175,12 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
             ScmId fileId = file.getFileId();
             int majorVersion = file.getMajorVersion();
             if ( majorVersion == currentVersion ) {
-                //check sitelist and transfered fileContent of the
+                // check sitelist and transfered fileContent of the
                 // currentVersion file
-                VersionUtils
-                        .checkSite( ws, fileId, currentVersion, expSiteList );
-                VersionUtils
-                        .CheckFileContentByStream( ws, fileName, majorVersion,
-                                updateData1 );
+                VersionUtils.checkSite( ws, fileId, currentVersion,
+                        expSiteList );
+                VersionUtils.CheckFileContentByStream( ws, fileName,
+                        majorVersion, updateData1 );
             } else {
                 Assert.fail( "the file version is error!" + majorVersion );
             }
@@ -196,12 +195,12 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
             throws ScmException {
         int currentVersion = 2;
         int historyVersion = 1;
-        //check the no transfer file by batch2
+        // check the no transfer file by batch2
         BSONObject condition = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.BATCH_ID ).is( batchId2.toString() )
                 .get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         SiteWrapper[] expSiteList = { lastSite, cleanSite };
         while ( cursor.hasNext() ) {
@@ -219,7 +218,7 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
         int expFileNum = 1;
         Assert.assertEquals( size, expFileNum );
 
-        //check the no transfer file by history version file
+        // check the no transfer file by history version file
         BSONObject condition1 = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
@@ -230,8 +229,8 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
             ScmId fileId1 = file1.getFileId();
             int majorVersion1 = file1.getMajorVersion();
             if ( majorVersion1 == historyVersion ) {
-                VersionUtils
-                        .checkSite( ws, fileId1, majorVersion1, expSiteList );
+                VersionUtils.checkSite( ws, fileId1, majorVersion1,
+                        expSiteList );
             } else {
                 Assert.fail( "the file version is error!" + majorVersion1 );
             }
@@ -246,19 +245,15 @@ public class CleanFileByBatchCond2083 extends TestScmBase {
         int currentVersion = 2;
         int historyVersion = 1;
         for ( int i = 0; i < fileIdList.size(); i++ ) {
-            //read current version file
-            ScmFile currentFile = ScmFactory.File
-                    .getInstance( ws, new ScmId( fileIdList.get( i ) ),
-                            currentVersion, 0 );
-            ByteArrayOutputStream currentOutputStream = new
-                    ByteArrayOutputStream();
+            // read current version file
+            ScmFile currentFile = ScmFactory.File.getInstance( ws,
+                    new ScmId( fileIdList.get( i ) ), currentVersion, 0 );
+            ByteArrayOutputStream currentOutputStream = new ByteArrayOutputStream();
             currentFile.getContent( currentOutputStream );
-            //read history version file
-            ScmFile historyFile = ScmFactory.File
-                    .getInstance( ws, new ScmId( fileIdList.get( i ) ),
-                            historyVersion, 0 );
-            ByteArrayOutputStream historyOutputStream = new
-                    ByteArrayOutputStream();
+            // read history version file
+            ScmFile historyFile = ScmFactory.File.getInstance( ws,
+                    new ScmId( fileIdList.get( i ) ), historyVersion, 0 );
+            ByteArrayOutputStream historyOutputStream = new ByteArrayOutputStream();
             historyFile.getContent( historyOutputStream );
         }
     }

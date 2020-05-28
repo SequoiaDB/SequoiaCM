@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 
 /**
  * @author fanyu
- * @Description: SCM-2307 ::  ScmSystem.ServiceCenter.listService参数校验
+ * @Description: SCM-2307 :: ScmSystem.ServiceCenter.listService参数校验
  * @Date:2018年12月04日
  * @version:1.0
  */
@@ -46,9 +46,8 @@ public class Param_ListService2307 extends TestScmBase {
                 }
             }
             Assert.assertTrue( flag,
-                    "site.getSiteServiceName() must be in services,services =" +
-                            " " +
-                            services.toString() );
+                    "site.getSiteServiceName() must be in services,services ="
+                            + " " + services.toString() );
         } finally {
             if ( session != null ) {
                 session.close();
@@ -61,8 +60,8 @@ public class Param_ListService2307 extends TestScmBase {
         try {
             ScmSystem.ServiceCenter.getServiceList( null );
             Assert.fail(
-                    "ServiceCenter.getServiceList must be failed when session" +
-                            " is null" );
+                    "ServiceCenter.getServiceList must be failed when session"
+                            + " is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -89,11 +88,11 @@ public class Param_ListService2307 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testSSIsNull1() {
         try {
-            ScmSystem.ServiceCenter
-                    .getServiceInstanceList( null, site.getSiteServiceName() );
+            ScmSystem.ServiceCenter.getServiceInstanceList( null,
+                    site.getSiteServiceName() );
             Assert.fail(
-                    "ServiceCenter.getServiceInstanceList must be failed when" +
-                            " session is null" );
+                    "ServiceCenter.getServiceInstanceList must be failed when"
+                            + " session is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -109,8 +108,8 @@ public class Param_ListService2307 extends TestScmBase {
             ScmSystem.ServiceCenter.getServiceInstanceList( session,
                     site.getSiteServiceName() );
             Assert.fail(
-                    "ServiceCenter.getServiceInstanceList must be failed when" +
-                            " session is closed" );
+                    "ServiceCenter.getServiceInstanceList must be failed when"
+                            + " session is closed" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
                 Assert.fail( e.getMessage() );

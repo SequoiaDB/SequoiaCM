@@ -66,10 +66,10 @@ public class DelAndUpSche1267 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -94,7 +94,7 @@ public class DelAndUpSche1267 extends TestScmBase {
 
         // scheduleServer host time is not sync with SCM host time, cause may
         // not match scmFile
-        //ScmScheduleUtils.sleepStrategy(ssA, wsA, scheduleId, fileIds.get
+        // ScmScheduleUtils.sleepStrategy(ssA, wsA, scheduleId, fileIds.get
         // (fileNum - 1), fileNum);
     }
 
@@ -200,14 +200,13 @@ public class DelAndUpSche1267 extends TestScmBase {
 
                 ScheduleType taskType = ScheduleType.CLEAN_FILE;
                 String maxStayTime = "0d";
-                ScmScheduleCleanFileContent content = new
-                        ScmScheduleCleanFileContent(
+                ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
                         branSite.getSiteName(), maxStayTime, queryCond );
                 sche.updateSchedule( taskType, content );
             } catch ( ScmException e ) {
                 if ( ScmError.HTTP_NOT_FOUND != e.getError()
-                        &&
-                        ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError() ) {
+                        && ScmError.HTTP_INTERNAL_SERVER_ERROR != e
+                                .getError() ) {
                     throw e;
                 }
             } finally {

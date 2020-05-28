@@ -27,9 +27,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:listInstance by the history and all scm file, 
- *               the querey condtion contains fields other than the history
- *               version table
+ * test content:listInstance by the history and all scm file, the querey
+ * condtion contains fields other than the history version table
  * testlink-case:SCM-1683
  *
  * @author wuyan
@@ -57,8 +56,8 @@ public class ListInstanceByScope1683 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-        fileId = VersionUtils
-                .createFileByStream( ws, fileName, writedata, authorName );
+        fileId = VersionUtils.createFileByStream( ws, fileName, writedata,
+                authorName );
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
     }
 
@@ -86,17 +85,16 @@ public class ListInstanceByScope1683 extends TestScmBase {
 
     private void listInstanceByHistoryVersion() throws ScmException {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.AUTHOR )
-                .is( authorName ).get();
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_HISTORY, condition );
+            cursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_HISTORY,
+                    condition );
             Assert.fail( "list history version file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         } finally {
             if ( cursor != null ) {
@@ -107,17 +105,16 @@ public class ListInstanceByScope1683 extends TestScmBase {
 
     private void listInstanceByAllVersion() throws ScmException {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_NAME )
-                .is( fileName ).get();
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_ALL, condition );
+            cursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_ALL,
+                    condition );
             Assert.fail( "list all version file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-                Assert.fail( "expErrorCode:-101  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
             }
         } finally {
             if ( cursor != null ) {

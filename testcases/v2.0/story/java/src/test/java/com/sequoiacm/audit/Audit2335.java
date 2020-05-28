@@ -61,38 +61,38 @@ public class Audit2335 extends TestScmBase {
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
     }
 
-    //bug:442
+    // bug:442
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
-        //test local
+        // test local
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "FILE_DML" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "FILE_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( name1, name1 );
-        //test token
+        // test token
         Map< String, String > confMap1 = new HashMap< String, String >();
-        confMap1.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.TOKEN.name(), "FILE_DML" );
+        confMap1.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.TOKEN.name(), "FILE_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap1 );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( name2, name2 );
 
-        //test ldap
+        // test ldap
         Map< String, String > confMap2 = new HashMap< String, String >();
-        confMap2.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LDAP.name(), "FILE_DML" );
+        confMap2.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LDAP.name(), "FILE_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap2 );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( TestScmBase.ldapUserName, TestScmBase.ldapPassword );
 
-        //test All
+        // test All
         Map< String, String > confMap3 = new HashMap< String, String >();
         confMap3.put( ConfigCommonDefind.scm_audit_userType + "ALL",
                 "FILE_DML" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap3 );
-        //Verify that audit logs are generated as configured
+        // Verify that audit logs are generated as configured
         checkAudit( name1, name1 );
         checkAudit( name2, name2 );
         checkAudit( TestScmBase.ldapUserName, TestScmBase.ldapPassword );
@@ -109,7 +109,7 @@ public class Audit2335 extends TestScmBase {
         }
     }
 
-    //create file to generate audit log  and check audit
+    // create file to generate audit log and check audit
     private void checkAudit( String username, String password )
             throws ScmException {
         ScmId fileId = null;
@@ -118,10 +118,10 @@ public class Audit2335 extends TestScmBase {
                     fileName + "_" + UUID.randomUUID() );
             Assert.assertEquals( ConfUtil.checkAudit( session,
                     new BasicBSONObject().append( ScmAttributeName.Audit.TYPE,
-                            "CREATE_FILE" )
-                    , fileId.get() ), true,
-                    "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                            "CREATE_FILE" ),
+                    fileId.get() ), true,
+                    "Has the configuration been updated? fileId = "
+                            + fileId.get() );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -135,8 +135,8 @@ public class Audit2335 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, password );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();

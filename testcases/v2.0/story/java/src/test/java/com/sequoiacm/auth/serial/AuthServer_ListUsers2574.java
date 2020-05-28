@@ -67,9 +67,8 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
                     throw e;
                 }
             }
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, userName, ScmUserPasswordType.LOCAL,
-                            userName );
+            ScmUser scmUser = ScmFactory.User.createUser( session, userName,
+                    ScmUserPasswordType.LOCAL, userName );
             ScmUserModifier modifier = new ScmUserModifier();
             modifier.addRole( scmRole );
             ScmFactory.User.alterUser( session, scmUser, modifier );
@@ -87,21 +86,21 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
                 .and( ScmAttributeName.User.HAS_ROLE ).is( roleName + "1" )
                 .get();
         return new Object[][] {
-                //filter  skip   limit  expPageSize  expTotalRecord
-                //fileter:null
+                // filter skip limit expPageSize expTotalRecord
+                // fileter:null
                 { cond1, 0, 1, ( int ) Math.ceil( ( double ) userNum / 1 ),
                         userNum },
-                //skip:1
+                // skip:1
                 { cond1, 1, 50,
                         ( int ) Math.ceil( ( ( double ) userNum - 1 ) / 50 ),
                         userNum - 1 },
-                //limit:0
+                // limit:0
                 { cond1, 10, 0, 0, 0 },
-                //limit:-1
+                // limit:-1
                 { cond1, 0, -1, 1, userNum },
-                //limit:100
+                // limit:100
                 { cond2, 10, 100, 0, 0 },
-                //fileter:cond2
+                // fileter:cond2
                 { cond2, 100, 100, 0, 0 } };
     }
 
@@ -112,8 +111,8 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         long tmpSkip = skip;
         int totalNum = 0;
         while ( tmpSkip < userNum ) {
-            ScmCursor< ScmUser > cursor = ScmFactory.User
-                    .listUsers( session, filter, tmpSkip, limit );
+            ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
+                    filter, tmpSkip, limit );
             int count = 0;
             while ( cursor.hasNext() ) {
                 ScmUser info = cursor.getNext();
@@ -178,8 +177,8 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         ScmSession scmSession = TestScmTools.createSession( site );
         scmSession.close();
         try {
-            ScmFactory.User
-                    .listUsers( scmSession, new BasicBSONObject(), 0, 1 );
+            ScmFactory.User.listUsers( scmSession, new BasicBSONObject(), 0,
+                    1 );
             Assert.fail( "exp failed but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.SESSION_CLOSED ) {
@@ -206,5 +205,3 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         }
     }
 }
-
-

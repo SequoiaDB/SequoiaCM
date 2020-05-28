@@ -61,8 +61,8 @@ public class TestScmListener implements IInvokedMethodListener, ITestListener {
             Object info = field.get( result.getInstance() );
             for ( int j = 0; j < testPubClass.length; j++ ) {
                 if ( type.equals( testPubClass[ j ] ) ) {
-                    logger.info( "[" + className + "] " + field.getName() +
-                            " info \n[" + info + "]" );
+                    logger.info( "[" + className + "] " + field.getName()
+                            + " info \n[" + info + "]" );
                 }
             }
         }

@@ -113,16 +113,16 @@ public class DefineAttr_propAndTypeMismatch1600 extends TestScmBase {
             file.setClassProperty( "test_attr_name_int_1600", "test" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_int_1600", null );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -134,16 +134,16 @@ public class DefineAttr_propAndTypeMismatch1600 extends TestScmBase {
             file.setClassProperty( "test_attr_name_string_1600", 123 );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_string_1600", null );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -155,32 +155,32 @@ public class DefineAttr_propAndTypeMismatch1600 extends TestScmBase {
             file.setClassProperty( "test_attr_name_date_1600", 2147483647 );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_date_1600", new Date() );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_date_1600", new Date() );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_date_1600", null );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -192,24 +192,24 @@ public class DefineAttr_propAndTypeMismatch1600 extends TestScmBase {
             file.setClassProperty( "test_attr_name_bool_1600", "test" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_bool_1600", "" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_bool_1600", null );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }
@@ -221,24 +221,24 @@ public class DefineAttr_propAndTypeMismatch1600 extends TestScmBase {
             file.setClassProperty( "test_attr_name_double_1600", "1.0" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_double_1600", 1 );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         try {
             file.setClassProperty( "test_attr_name_double_1600", null );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "prop and type mismatch, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "prop and type mismatch, errorMsg = [" + e.getError()
+                    + "]" );
         }
         runSuccess = true;
     }

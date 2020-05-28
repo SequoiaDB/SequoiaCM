@@ -34,9 +34,8 @@ public class CountWorkspaces1205 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         Object response = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "workspaces" )
-                .setResponseType( String.class ).exec().getHeaders()
-                .get( "X-SCM-Count" );
+                .setApi( "workspaces" ).setResponseType( String.class ).exec()
+                .getHeaders().get( "X-SCM-Count" );
         // TODO: check result
         System.out.println( response );
         // JSONObject result = JSON.parseObject(response);
@@ -44,8 +43,8 @@ public class CountWorkspaces1205 extends TestScmBase {
         Assert.assertEquals( ScmInfo.getWsNum(), actWsNum );
 
         response = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "workspaces" )
-                .setResponseType( String.class ).exec().getHeaders().toString();
+                .setApi( "workspaces" ).setResponseType( String.class ).exec()
+                .getHeaders().toString();
         // TODO: check result
         System.out.println( response );
     }

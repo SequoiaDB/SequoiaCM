@@ -65,10 +65,10 @@ public class DeleteScmFile286 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -120,11 +120,11 @@ public class DeleteScmFile286 extends TestScmBase {
             DeleteFromB deleteFromB = new DeleteFromB();
             deleteFromB.start();
 
-            if ( !( deleteFromM.isSuccess() && deleteFromA.isSuccess() &&
-                    deleteFromB.isSuccess() ) ) {
+            if ( !( deleteFromM.isSuccess() && deleteFromA.isSuccess()
+                    && deleteFromB.isSuccess() ) ) {
                 Assert.fail(
-                        deleteFromM.getErrorMsg() + deleteFromA.getErrorMsg() +
-                                deleteFromB.getErrorMsg() );
+                        deleteFromM.getErrorMsg() + deleteFromA.getErrorMsg()
+                                + deleteFromB.getErrorMsg() );
             }
 
             this.checkResults();
@@ -161,16 +161,16 @@ public class DeleteScmFile286 extends TestScmBase {
 
     private void prepareScmFiles() throws ScmException {
         for ( int i = 0; i < fileNum; i++ ) {
-            ScmId mFileId = ScmFileUtils
-                    .create( wsM, fileName + "_M" + i, filePath );
+            ScmId mFileId = ScmFileUtils.create( wsM, fileName + "_M" + i,
+                    filePath );
             mainFileIds.add( mFileId );
 
-            ScmId aFileId = ScmFileUtils
-                    .create( wsA, fileName + "_A" + i, filePath );
+            ScmId aFileId = ScmFileUtils.create( wsA, fileName + "_A" + i,
+                    filePath );
             aSlvFileIds.add( aFileId );
 
-            ScmId bFileId = ScmFileUtils
-                    .create( wsB, fileName + "_B" + i, filePath );
+            ScmId bFileId = ScmFileUtils.create( wsB, fileName + "_B" + i,
+                    filePath );
             bSlvFileIds.add( bFileId );
         }
     }
@@ -189,9 +189,8 @@ public class DeleteScmFile286 extends TestScmBase {
                         // check meta
                         BSONObject cond = new BasicBSONObject(
                                 ScmAttributeName.File.FILE_ID, fileId.get() );
-                        long cnt = ScmFactory.File
-                                .countInstance( wsM, ScopeType.SCOPE_CURRENT,
-                                        cond );
+                        long cnt = ScmFactory.File.countInstance( wsM,
+                                ScopeType.SCOPE_CURRENT, cond );
                         Assert.assertEquals( cnt, 0 );
                         ScmFileUtils.checkData( wsArr[ i ], fileId, localPath,
                                 filePath );

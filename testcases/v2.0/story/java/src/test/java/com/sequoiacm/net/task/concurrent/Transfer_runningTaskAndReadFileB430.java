@@ -66,16 +66,15 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -120,8 +119,8 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
                 CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
         Assert.assertEquals( taskInfo.getProgress(), 100 );
         Assert.assertEquals( taskInfo.getEstimateCount(), fileNum );
-//		Assert.assertEquals(taskInfo.getActualCount(), fileNum);    //unfixed
-// value
+        // Assert.assertEquals(taskInfo.getActualCount(), fileNum); //unfixed
+        // value
         Assert.assertEquals( taskInfo.getFailCount(),
                 taskInfo.getActualCount() - taskInfo.getSuccessCount() );
         Assert.assertEquals( taskInfo.getSuccessCount(),
@@ -193,14 +192,14 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
                 // check result
                 // task runningFlag
                 while ( true ) {
-                    ScmTask taskInfo = ScmSystem.Task
-                            .getTask( session, taskId );
+                    ScmTask taskInfo = ScmSystem.Task.getTask( session,
+                            taskId );
                     if ( taskInfo.getStopTime() != null ) {
-                        if ( taskInfo.getRunningFlag() ==
-                                CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                        if ( taskInfo
+                                .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
                             break;
-                        } else if ( taskInfo.getRunningFlag() ==
-                                CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
+                        } else if ( taskInfo
+                                .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
                             logger.error(
                                     "taskInfo: \n" + taskInfo.toString() );
                             throw new Exception( "task is abort." );
@@ -231,8 +230,8 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
                     ScmId fileId = fileIdList.get( i );
 
                     try {
-                        ScmFile file = ScmFactory.File
-                                .getInstance( ws, fileId );
+                        ScmFile file = ScmFactory.File.getInstance( ws,
+                                fileId );
                         String downloadPath = TestTools.LocalFile
                                 .initDownloadPath( localPath,
                                         TestTools.getMethodName(),

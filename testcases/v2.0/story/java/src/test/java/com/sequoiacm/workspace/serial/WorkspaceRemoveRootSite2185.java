@@ -56,4 +56,3 @@ public class WorkspaceRemoveRootSite2185 extends TestScmBase {
         }
     }
 }
-

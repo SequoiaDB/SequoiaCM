@@ -41,8 +41,8 @@ public class ScmFile_param_createInstance168 extends TestScmBase {
     private void TestNotExitWS() {
         boolean rst = false;
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( "abc", session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( "abc",
+                    session );
             ScmFactory.File.createInstance( ws );
             rst = true;
             Assert.assertFalse( rst,

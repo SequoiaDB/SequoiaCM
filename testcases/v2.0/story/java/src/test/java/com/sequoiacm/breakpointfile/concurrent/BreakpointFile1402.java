@@ -51,13 +51,12 @@ public class BreakpointFile1402 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        checkFilePath =
-                localPath + File.separator + "localFile_check" + fileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        checkFilePath = localPath + File.separator + "localFile_check"
+                + fileSize + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -69,14 +68,12 @@ public class BreakpointFile1402 extends TestScmBase {
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test()
-            throws JSONException, ScmException, InterruptedException,
-            IOException {
+    private void test() throws JSONException, ScmException,
+            InterruptedException, IOException {
 
         this.CreateBreakpointFile();
 
-        SetBreakpointFile2ScmFileThread setFileThread = new
-                SetBreakpointFile2ScmFileThread();
+        SetBreakpointFile2ScmFileThread setFileThread = new SetBreakpointFile2ScmFileThread();
         setFileThread.start();
 
         createScmFileThread createThread = new createScmFileThread();
@@ -107,8 +104,8 @@ public class BreakpointFile1402 extends TestScmBase {
     private void CreateBreakpointFile() throws ScmException {
 
         ScmBreakpointFile breakpointFile;
-        breakpointFile = ScmFactory.BreakpointFile
-                .createInstance( ws, fileName, ScmChecksumType.ADLER32 );
+        breakpointFile = ScmFactory.BreakpointFile.createInstance( ws, fileName,
+                ScmChecksumType.ADLER32 );
         breakpointFile.upload( new File( filePath ) );
     }
 

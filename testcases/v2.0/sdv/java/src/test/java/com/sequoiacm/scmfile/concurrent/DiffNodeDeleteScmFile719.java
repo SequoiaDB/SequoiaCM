@@ -51,10 +51,10 @@ public class DiffNodeDeleteScmFile719 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -83,10 +83,10 @@ public class DiffNodeDeleteScmFile719 extends TestScmBase {
         DeleteScmFile dThread3 = new DeleteScmFile( fileIdList.get( 1 ) );
         dThread3.start( 5 );
 
-        if ( !( dThread1.isSuccess() && dThread2.isSuccess() &&
-                dThread3.isSuccess() ) ) {
-            Assert.fail( dThread1.getErrorMsg() + dThread2.getErrorMsg() +
-                    dThread3.getErrorMsg() );
+        if ( !( dThread1.isSuccess() && dThread2.isSuccess()
+                && dThread3.isSuccess() ) ) {
+            Assert.fail( dThread1.getErrorMsg() + dThread2.getErrorMsg()
+                    + dThread3.getErrorMsg() );
         }
         runSuccess = true;
     }
@@ -112,8 +112,8 @@ public class DiffNodeDeleteScmFile719 extends TestScmBase {
         try {
             // check meta
             BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long cnt = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( cnt, 0 );
 
             // check data
@@ -155,8 +155,8 @@ public class DiffNodeDeleteScmFile719 extends TestScmBase {
                 ScmFactory.File.getInstance( wks, this.fileId ).delete( true );
                 checkResults( wks, this.fileId );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.FILE_NOT_FOUND &&
-                        e.getError() != ScmError.DATA_ERROR ) {
+                if ( e.getError() != ScmError.FILE_NOT_FOUND
+                        && e.getError() != ScmError.DATA_ERROR ) {
                     Assert.fail( e.getMessage() );
                 }
             } finally {

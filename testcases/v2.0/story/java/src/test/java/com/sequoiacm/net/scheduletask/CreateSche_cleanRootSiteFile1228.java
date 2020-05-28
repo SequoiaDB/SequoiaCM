@@ -53,9 +53,8 @@ public class CreateSche_cleanRootSiteFile1228 extends TestScmBase {
             String maxStayTime = "0d";
             BSONObject queryCond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
-            ScmScheduleCleanFileContent content =
-                    new ScmScheduleCleanFileContent( rootSite.getSiteName(),
-                            maxStayTime, queryCond );
+            ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
+                    rootSite.getSiteName(), maxStayTime, queryCond );
             String cron = "* * * * * ?";
             ScmSystem.Schedule.create( ss, wsp.getName(),
                     ScheduleType.CLEAN_FILE, name, "", content, cron );

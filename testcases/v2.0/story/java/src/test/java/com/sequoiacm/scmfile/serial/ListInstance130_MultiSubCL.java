@@ -66,13 +66,13 @@ public class ListInstance130_MultiSubCL extends TestScmBase {
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
 
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( fileName ).get();
-            cursor = ScmFactory.File
-                    .listInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            cursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_CURRENT,
+                    cond );
 
             int size = 0;
             while ( cursor.hasNext() ) {
@@ -97,8 +97,8 @@ public class ListInstance130_MultiSubCL extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             if ( runSuccess || forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -117,7 +117,7 @@ public class ListInstance130_MultiSubCL extends TestScmBase {
 
     private void prepareScmFile() throws ScmException {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
-        //create files from (current_year-fileNum) to current_year
+        // create files from (current_year-fileNum) to current_year
         for ( int i = 0; i < fileNum; i++ ) {
             cal.set( Calendar.YEAR, cal.get( Calendar.YEAR ) - 1 );
             ScmFile file = ScmFactory.File.createInstance( ws );

@@ -40,8 +40,8 @@ public class ListBatch2594 extends TestScmBase {
     @Test
     private void test() throws Exception {
         try {
-            ScmFactory.Batch
-                    .listInstance( ws, new BasicBSONObject(), null, -1, 1 );
+            ScmFactory.Batch.listInstance( ws, new BasicBSONObject(), null, -1,
+                    1 );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -50,8 +50,8 @@ public class ListBatch2594 extends TestScmBase {
         }
 
         try {
-            ScmFactory.Batch
-                    .listInstance( ws, new BasicBSONObject(), null, 1, -2 );
+            ScmFactory.Batch.listInstance( ws, new BasicBSONObject(), null, 1,
+                    -2 );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -60,8 +60,8 @@ public class ListBatch2594 extends TestScmBase {
         }
 
         try {
-            ScmFactory.Batch
-                    .listInstance( null, new BasicBSONObject(), null, 1, -1 );
+            ScmFactory.Batch.listInstance( null, new BasicBSONObject(), null, 1,
+                    -1 );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
@@ -86,5 +86,3 @@ public class ListBatch2594 extends TestScmBase {
         }
     }
 }
-
-

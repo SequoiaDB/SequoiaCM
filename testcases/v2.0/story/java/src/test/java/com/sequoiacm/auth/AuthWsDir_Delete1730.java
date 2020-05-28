@@ -40,7 +40,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 /**
  * @author fanyu
  * @Description:SCM-1730 ::
- * 有工作区CREATE/UPDATE/READ的权限和目录的DELETE权限，对表格中的各个接口进行覆盖测试
+ *                       有工作区CREATE/UPDATE/READ的权限和目录的DELETE权限，对表格中的各个接口进行覆盖测试
  * @Date:2018年6月12日
  * @version:1.0
  */
@@ -68,10 +68,10 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -160,8 +160,7 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -186,8 +185,8 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -196,8 +195,8 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -241,14 +240,13 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             wsrs = ScmResourceFactory.createWorkspaceResource( wsp.getName() );
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path );
             deleteDir( wsA, path );
             createDir( wsA, path );
             grantPriAndAttachRole( sessionA, dirrs, user, role,
@@ -264,8 +262,8 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
             sessionCRUD = TestScmTools.createSession( site, username, passwd );
-            wsCRUD = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCRUD );
+            wsCRUD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCRUD );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

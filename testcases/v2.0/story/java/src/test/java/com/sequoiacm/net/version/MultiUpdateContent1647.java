@@ -24,8 +24,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update file contexts multiple times 
- * testlink-case:SCM-1647
+ * test content:update file contexts multiple times testlink-case:SCM-1647
  *
  * @author wuyan
  * @Date 2018.06.01
@@ -43,30 +42,29 @@ public class MultiUpdateContent1647 extends TestScmBase {
     @DataProvider(name = "datasizeProvider")
     public Object[][] generateDataSize() {
         return new Object[][] {
-                //the parameter : major_version / datasize
-                //the first write to the file, version is 1
+                // the parameter : major_version / datasize
+                // the first write to the file, version is 1
                 new Object[] { 1, 1024 * 100 },
-                //the first updateContext, version is 2
+                // the first updateContext, version is 2
                 new Object[] { 2, 1024 * 255 },
-                //the second updateContext, version is 3
+                // the second updateContext, version is 3
                 new Object[] { 3, 1024 * 2 },
-                //the 3rd updateContext, version is 4
+                // the 3rd updateContext, version is 4
                 new Object[] { 4, 1024 * 20 },
-                //the 4th updateContext, version is 5
+                // the 4th updateContext, version is 5
                 new Object[] { 5, 1024 * 1024 * 2 },
-                //the 5th updateContext, version is 6
+                // the 5th updateContext, version is 6
                 new Object[] { 6, 1024 * 3 },
-                //the sixth updateContext, version is 7
+                // the sixth updateContext, version is 7
                 new Object[] { 7, 1024 * 2 },
-                //the 7th updateContext, version is 8
+                // the 7th updateContext, version is 8
                 new Object[] { 8, 1024 * 2 },
-                //the 8th updateContext, version is 9
+                // the 8th updateContext, version is 9
                 new Object[] { 9, 1024 * 500 },
-                //the 9th updateContext, version is 10
+                // the 9th updateContext, version is 10
                 new Object[] { 10, 1024 * 800 },
-                //the 10th updateContext, version is 11
-                new Object[] { 11, 1024 * 1024 * 2 },
-        };
+                // the 10th updateContext, version is 11
+                new Object[] { 11, 1024 * 1024 * 2 }, };
     }
 
     @BeforeClass
@@ -78,23 +76,23 @@ public class MultiUpdateContent1647 extends TestScmBase {
 
     }
 
-    @Test(dataProvider = "datasizeProvider",
-          groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(dataProvider = "datasizeProvider", groups = { "oneSite", "twoSite",
+            "fourSite" })
     private void testUpdateContent( int version, int dataSize )
             throws Exception {
         byte[] contentdata = new byte[ dataSize ];
-        //version is 1,first write to the file
+        // version is 1,first write to the file
         if ( version == 1 ) {
-            fileId = VersionUtils
-                    .createFileByStream( ws, fileName, contentdata );
+            fileId = VersionUtils.createFileByStream( ws, fileName,
+                    contentdata );
         } else {
-            //updatecontent of the file
+            // updatecontent of the file
             updateContentByStream( contentdata );
         }
 
-        //check result
-        VersionUtils
-                .CheckFileContentByStream( ws, fileName, version, contentdata );
+        // check result
+        VersionUtils.CheckFileContentByStream( ws, fileName, version,
+                contentdata );
         VersionUtils.checkFileCurrentVersion( ws, fileId, version );
         checkFileSize( version, dataSize );
     }

@@ -23,9 +23,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update Content of  the current scm file from siteA,than
- * download the updatefile from siteB
- * testlink-case:SCM-1650
+ * test content:update Content of the current scm file from siteA,than download
+ * the updatefile from siteB testlink-case:SCM-1650
  *
  * @author wuyan
  * @Date 2018.06.04
@@ -51,10 +50,10 @@ public class UpdateContent1650 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + updateSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + updateSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -71,20 +70,20 @@ public class UpdateContent1650 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        //write and updateContent from siteA
+        // write and updateContent from siteA
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByFile( wsA, fileName, fileId, filePath );
 
-        //download file from siteB and check result
+        // download file from siteB and check result
         int currentVersion = 2;
         int historyVersion = 1;
-        //check fileContent
+        // check fileContent
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
                 filedata );
         VersionUtils.CheckFileContentByFile( wsB, fileName, currentVersion,
                 filePath, localPath );
 
-        //check the sitelist/currentversion/size
+        // check the sitelist/currentversion/size
         SiteWrapper[] expSiteList = { branSites.get( 0 ), branSites.get( 1 ),
                 ScmInfo.getRootSite() };
         SiteWrapper[] expSiteListA = { branSites.get( 0 ) };

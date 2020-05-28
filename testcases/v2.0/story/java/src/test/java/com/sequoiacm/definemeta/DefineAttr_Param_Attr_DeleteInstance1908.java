@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1908 :: Attribute.deleteInstance参数校验 
+ * @Description:SCM-1908 :: Attribute.deleteInstance参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0
@@ -46,7 +46,7 @@ public class DefineAttr_Param_Attr_DeleteInstance1908 extends TestScmBase {
             conf.setDisplayName( desc );
             conf.setDescription( desc );
             conf.setType( AttributeType.BOOLEAN );
-            //create
+            // create
             attr = ScmFactory.Attribute.createInstance( ws, conf );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );

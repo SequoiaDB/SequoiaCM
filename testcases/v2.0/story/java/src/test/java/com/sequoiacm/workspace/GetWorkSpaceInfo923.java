@@ -53,8 +53,7 @@ public class GetWorkSpaceInfo923 extends TestScmBase {
         DBCursor dbcursor = null;
         try {
             cursor = ScmFactory.Workspace.listWorkspace( session );
-            List< ScmWorkspaceInfo > infoList = new ArrayList<
-                    ScmWorkspaceInfo >();
+            List< ScmWorkspaceInfo > infoList = new ArrayList< ScmWorkspaceInfo >();
             while ( cursor.hasNext() ) {
                 ScmWorkspaceInfo info = cursor.getNext();
                 infoList.add( info );
@@ -66,7 +65,7 @@ public class GetWorkSpaceInfo923 extends TestScmBase {
                 BSONObject obj = dbcursor.getNext();
                 int id = ( int ) obj.get( "id" );
                 for ( ScmWorkspaceInfo info : infoList ) {
-                    //System.out.println("info = " + info.toString());
+                    // System.out.println("info = " + info.toString());
                     if ( id == info.getId() ) {
                         Assert.assertEquals( info.getName(),
                                 ( String ) obj.get( "name" ) );
@@ -74,14 +73,15 @@ public class GetWorkSpaceInfo923 extends TestScmBase {
                                 obj.get( "meta_location" ) );
                         Assert.assertEquals( info.getDataLocation(),
                                 obj.get( "data_location" ) );
-                        /*deprecated interface
-						Assert.assertEquals(info.getDataOption(), obj.get
-						("data_options"));
-						Assert.assertEquals(info.getDataShardingType(), obj
-						.get("data_sharding_type"));
-						Assert.assertEquals(info.getMetaShardingType(),
-						(String) obj.get("meta_sharding_type"));
-						*/
+                        /*
+                         * deprecated interface
+                         * Assert.assertEquals(info.getDataOption(), obj.get
+                         * ("data_options"));
+                         * Assert.assertEquals(info.getDataShardingType(), obj
+                         * .get("data_sharding_type"));
+                         * Assert.assertEquals(info.getMetaShardingType(),
+                         * (String) obj.get("meta_sharding_type"));
+                         */
                     }
                 }
             }

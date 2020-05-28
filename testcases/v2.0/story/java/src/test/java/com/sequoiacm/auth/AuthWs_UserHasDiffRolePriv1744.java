@@ -57,10 +57,10 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -83,8 +83,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             fileId = ScmFileUtils.create( ws, fileName, filePath );
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -107,8 +107,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
         ScmDirectory actdir = null;
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             expdir = ScmFactory.Directory.createInstance( ws, "/1744_1" );
             expdir.createSubdirectory( "1174_A" );
 
@@ -143,9 +143,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
                         rs = ScmResourceFactory
                                 .createDirectoryResource( wsp.getName(), "/" );
                     }
-                    ScmFactory.Role
-                            .revokePrivilege( sessionA, roleList.get( i ), rs,
-                                    privileges[ i ] );
+                    ScmFactory.Role.revokePrivilege( sessionA,
+                            roleList.get( i ), rs, privileges[ i ] );
                     ScmFactory.Role.deleteRole( sessionA, roleList.get( i ) );
                 } catch ( Exception e ) {
                     e.printStackTrace();
@@ -167,8 +166,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
         modifier.addRole( role );
@@ -197,9 +196,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
     }
 
     private void prepare() throws Exception {
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         ScmResource rs = ScmResourceFactory
                 .createWorkspaceResource( wsp.getName() );
         for ( int i = 0; i < rolenameArr.length; i++ ) {
@@ -208,8 +206,8 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
                     rs = ScmResourceFactory
                             .createDirectoryResource( wsp.getName(), "/" );
                 }
-                ScmRole role = ScmFactory.Role
-                        .createRole( sessionA, rolenameArr[ i ], null );
+                ScmRole role = ScmFactory.Role.createRole( sessionA,
+                        rolenameArr[ i ], null );
                 grantPriAndAttachRole( sessionA, rs, user, role,
                         privileges[ i ] );
                 ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );

@@ -74,15 +74,15 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath1 =
-                localPath + File.separator + "localFile_" + fileSize1 + ".txt";
-        filePath2 =
-                localPath + File.separator + "localFile_" + fileSize2 + ".txt";
+        filePath1 = localPath + File.separator + "localFile_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile_" + fileSize2
+                + ".txt";
         TestTools.LocalFile.createFile( filePath1, fileSize1 );
         TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
@@ -108,10 +108,10 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
         readFile( wsL, currentVersion );
         readFile( wsL, historyVersion );
 
-        //clean current version file
+        // clean current version file
         createScheduleTask( sessionA );
 
-        //check siteinfo
+        // check siteinfo
         SiteWrapper[] expCurSiteList = { lastSite };
         VersionUtils.checkScheTaskFileSites( wsA, fileIdList, currentVersion,
                 expCurSiteList );
@@ -120,12 +120,12 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
         VersionUtils.checkScheTaskFileSites( wsL, fileIdList, historyVersion,
                 exphHisSiteList );
 
-        //update task to clean history version file
+        // update task to clean history version file
         updateScheTaskToHisVersionFile();
-        //write current version file again at the branSite
+        // write current version file again at the branSite
         readFile( wsA, currentVersion );
 
-        //check siteinfo
+        // check siteinfo
         SiteWrapper[] expCurSiteList1 = { lastSite, cleanSite };
         VersionUtils.checkScheTaskFileSites( wsA, fileIdList, currentVersion,
                 expCurSiteList1 );
@@ -161,9 +161,8 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
     private void writeAndUpdateFile( ScmWorkspace ws ) throws ScmException {
         for ( int i = 0; i < fileNum; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = VersionUtils
-                    .createFileByStream( ws, subfileName, writedata,
-                            authorName );
+            ScmId fileId = VersionUtils.createFileByStream( ws, subfileName,
+                    writedata, authorName );
             if ( i % 2 == 0 ) {
                 VersionUtils.updateContentByFile( ws, subfileName, fileId,
                         filePath1 );
@@ -200,11 +199,11 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
     private void readFile( ScmWorkspace ws, int version ) throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileId, version, 0 );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId, version,
+                    0 );
             file.getContent( downloadPath );
         }
     }

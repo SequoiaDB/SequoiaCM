@@ -35,8 +35,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:create a file under a dir,than update Content of the file,
- * delete file
- * testlink-case:SCM-2064
+ * delete file testlink-case:SCM-2064
  *
  * @author wuyan
  * @Date 2018.07.12
@@ -55,8 +54,8 @@ public class DeleteFileWithDir2064 extends TestScmBase {
 
     private ScmDirectory scmDir;
     private String dirBasePath = "/CreatefileWiteDir2064";
-    private String fullPath =
-            dirBasePath + "/2064_a/2064_b/2064_c/2064_e/2064_f/";
+    private String fullPath = dirBasePath
+            + "/2064_a/2064_b/2064_c/2064_e/2064_f/";
     private String authorName = "CreateFileWithDir2064";
     private String fileName = "filedir2064";
     private byte[] writeData = new byte[ 1024 * 100 ];
@@ -117,11 +116,11 @@ public class DeleteFileWithDir2064 extends TestScmBase {
     }
 
     private void checkWriteAndUpdateResult( ScmWorkspace ws ) throws Exception {
-        //check the current file,check the  filesize
+        // check the current file,check the filesize
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         int size = 0;
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
@@ -143,7 +142,7 @@ public class DeleteFileWithDir2064 extends TestScmBase {
         int expFileNum = 10;
         Assert.assertEquals( size, expFileNum );
 
-        //check the history file ,the history version is 1
+        // check the history file ,the history version is 1
         BSONObject condition1 = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
@@ -171,17 +170,17 @@ public class DeleteFileWithDir2064 extends TestScmBase {
         BSONObject fileCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
 
-        long currentCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCondition );
+        long currentCount = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_CURRENT, fileCondition );
         Assert.assertEquals( currentCount, 0 );
-        long historyCount = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_HISTORY, fileCondition );
+        long historyCount = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_HISTORY, fileCondition );
         Assert.assertEquals( historyCount, 0 );
     }
 
     private ScmId createFileWithDir( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName,
-            ScmDirectory dir ) throws ScmException {
+            byte[] data, String authorName, ScmDirectory dir )
+            throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( new ByteArrayInputStream( data ) );
         file.setFileName( fileName );

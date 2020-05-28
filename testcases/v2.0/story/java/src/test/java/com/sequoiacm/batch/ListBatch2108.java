@@ -34,14 +34,13 @@ public class ListBatch2108 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        List< ScmCursor< ScmBatchInfo > > list = new ArrayList< ScmCursor<
-                ScmBatchInfo > >();
+        List< ScmCursor< ScmBatchInfo > > list = new ArrayList< ScmCursor< ScmBatchInfo > >();
         for ( int i = 0; i < 10; i++ ) {
             ScmCursor< ScmBatchInfo > cursor1 = ScmFactory.Batch
                     .listInstance( ws, new BasicBSONObject() );

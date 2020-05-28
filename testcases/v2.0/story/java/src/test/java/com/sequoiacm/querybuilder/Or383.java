@@ -101,8 +101,8 @@ public class Or383 extends TestScmBase {
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             // 考虑与其他用例并行，这里只是弱覆盖，确保bson可执行即可
             if ( count < 1 ) {
                 Assert.fail( "expect count is 2 or more, but found " + count );
@@ -136,9 +136,8 @@ public class Or383 extends TestScmBase {
         try {
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmFile scmfile = ScmFactory.File.createInstance( ws );
-                scmfile.setFileName(
-                        authorName + "_" + TestTools.getRandomString( 10 ) +
-                                i );
+                scmfile.setFileName( authorName + "_"
+                        + TestTools.getRandomString( 10 ) + i );
                 scmfile.setAuthor( authorName );
                 scmfile.setTitle( TestTools.getRandomString( 10 ) + i );
                 scmfile.setMimeType( TestTools.getRandomString( 10 ) + i );
@@ -152,8 +151,9 @@ public class Or383 extends TestScmBase {
 
     private Object[][] kvsArr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 0 ) );
-        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
-                file.getFileId().get() },
+        return new Object[][] {
+                new Object[] { ScmAttributeName.File.FILE_ID,
+                        file.getFileId().get() },
                 new Object[] { ScmAttributeName.File.FILE_NAME,
                         file.getFileName() },
                 new Object[] { ScmAttributeName.File.AUTHOR, file.getAuthor() },

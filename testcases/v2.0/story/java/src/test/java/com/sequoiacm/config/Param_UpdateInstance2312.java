@@ -29,17 +29,16 @@ public class Param_UpdateInstance2312 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    //	SEQUOIACM-403
+    // SEQUOIACM-403
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testNull() {
         try {
-            ScmConfigProperties.builder()
-                    .instance( null )
+            ScmConfigProperties.builder().instance( null )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instance(null) must be " +
-                            "failed when the instances is null" );
+                    " ScmConfigProperties.builder().instance(null) must be "
+                            + "failed when the instances is null" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );
@@ -47,20 +46,18 @@ public class Param_UpdateInstance2312 extends TestScmBase {
         }
     }
 
-    //	SEQUOIACM-403
+    // SEQUOIACM-403
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testHybrid() {
         try {
             List< String > list = new ArrayList< String >();
             list.add( site.getNode().getUrl() );
-            ScmConfigProperties.builder()
-                    .instances( list )
-                    .instance( null )
+            ScmConfigProperties.builder().instances( list ).instance( null )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .build();
             Assert.fail(
-                    " ScmConfigProperties.builder().instance(null)  must be " +
-                            "failed when the instances  is 0" );
+                    " ScmConfigProperties.builder().instance(null)  must be "
+                            + "failed when the instances  is 0" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 Assert.fail( e.getMessage() );

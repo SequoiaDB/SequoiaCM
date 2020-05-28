@@ -53,9 +53,8 @@ public class CountAllVersionFile1686 extends TestScmBase {
 
         fileIdList = new ArrayList< ScmId >();
         for ( int i = 1; i < 6; i++ ) {
-            ScmId fileId = VersionUtils
-                    .createFileByStream( ws, fileName + "_" + i, filedata,
-                            fileName );
+            ScmId fileId = VersionUtils.createFileByStream( ws,
+                    fileName + "_" + i, filedata, fileName );
             fileIdList.add( fileId );
             for ( int j = 1; j < i; j++ ) {
                 VersionUtils.updateContentByStream( ws, fileId, updatedata );
@@ -66,7 +65,7 @@ public class CountAllVersionFile1686 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
 
-        //组合major_version
+        // 组合major_version
         BSONObject filter1 = new BasicBSONObject();
         BSONObject[] option1 = {
                 new BasicBSONObject( "id", fileIdList.get( 0 ).get() ),
@@ -75,7 +74,7 @@ public class CountAllVersionFile1686 extends TestScmBase {
         filter1.put( "$and", option1 );
         listInstanceByOption( ws, filter1, 1 );
 
-        //组合size/major_version
+        // 组合size/major_version
         BSONObject filter2 = new BasicBSONObject();
         BSONObject[] option2 = {
                 new BasicBSONObject( "id", fileIdList.get( 2 ).get() ),
@@ -85,7 +84,7 @@ public class CountAllVersionFile1686 extends TestScmBase {
         filter2.put( "$and", option2 );
         listInstanceByOption( ws, filter2, 1 );
 
-        //组合name/major_version
+        // 组合name/major_version
         BSONObject filter3 = new BasicBSONObject();
         BSONObject[] option3 = {
                 new BasicBSONObject( "id", fileIdList.get( 4 ).get() ),
@@ -104,8 +103,8 @@ public class CountAllVersionFile1686 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
             }
         } catch ( Exception e ) {

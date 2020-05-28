@@ -54,12 +54,12 @@ public class AuthWs_ListResource2280 extends TestScmBase {
             sessionA = TestScmTools.createSession( site );
             ScmWorkspaceUtil.deleteWs( wsName1, sessionA );
             ScmWorkspaceUtil.deleteWs( wsName2, sessionA );
-            ScmWorkspaceUtil
-                    .createWS( sessionA, wsName1, ScmInfo.getSiteNum() );
+            ScmWorkspaceUtil.createWS( sessionA, wsName1,
+                    ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( sessionA, wsName1 );
 
-            ScmWorkspaceUtil
-                    .createWS( sessionA, wsName2, ScmInfo.getSiteNum() );
+            ScmWorkspaceUtil.createWS( sessionA, wsName2,
+                    ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( sessionA, wsName2 );
 
             wsA = ScmFactory.Workspace.getWorkspace( wsName1, sessionA );
@@ -83,14 +83,14 @@ public class AuthWs_ListResource2280 extends TestScmBase {
         ScmCursor< ScmResource > cursor = null;
         try {
             int i = 0;
-            cursor = ScmFactory.Resource
-                    .listResourceByWorkspace( sessionA, wsName2 );
+            cursor = ScmFactory.Resource.listResourceByWorkspace( sessionA,
+                    wsName2 );
             while ( cursor.hasNext() ) {
                 ScmResource resource = cursor.getNext();
                 System.out.println( "resource = " + resource.toStringFormat() );
                 if ( !( resource.toStringFormat().equals( wsName2 )
-                        || resource.toStringFormat().equals(
-                        wsName2 + ":/AuthWs_Param_GetListResource2280" ) ) ) {
+                        || resource.toStringFormat().equals( wsName2
+                                + ":/AuthWs_Param_GetListResource2280" ) ) ) {
                     Assert.fail( "exp true but act false" );
                 }
                 i++;
@@ -114,14 +114,14 @@ public class AuthWs_ListResource2280 extends TestScmBase {
             ScmWorkspaceUtil.deleteWs( wsName2, sessionA );
             int i = 0;
             // test list wsName1 = "ws_2280_A" resource
-            cursor = ScmFactory.Resource
-                    .listResourceByWorkspace( sessionA, wsName1 );
+            cursor = ScmFactory.Resource.listResourceByWorkspace( sessionA,
+                    wsName1 );
             while ( cursor.hasNext() ) {
                 ScmResource resource = cursor.getNext();
                 System.out.println( "resource = " + resource.toStringFormat() );
                 if ( !( resource.toStringFormat().equals( wsName1 )
-                        || resource.toStringFormat().equals(
-                        wsName1 + ":/AuthWs_Param_GetListResource2280" ) ) ) {
+                        || resource.toStringFormat().equals( wsName1
+                                + ":/AuthWs_Param_GetListResource2280" ) ) ) {
                     Assert.fail( "exp true but act false" );
                 }
                 i++;
@@ -129,8 +129,8 @@ public class AuthWs_ListResource2280 extends TestScmBase {
             Assert.assertEquals( i == 2, true );
 
             // create file for check
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName1, sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
+                    sessionA );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( "testDelSamePrefixWs" );
             file.save();
@@ -162,8 +162,8 @@ public class AuthWs_ListResource2280 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
         modifier.addRole( role );
@@ -191,18 +191,17 @@ public class AuthWs_ListResource2280 extends TestScmBase {
 
     private void prepare() {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             ScmFactory.Directory.createInstance( wsA, dirpath );
             ScmFactory.Directory.createInstance( wsB, dirpath );
 
-            dirrs = ScmResourceFactory
-                    .createDirectoryResource( wsName1, dirpath );
-            dirrs1 = ScmResourceFactory
-                    .createDirectoryResource( wsName2, dirpath );
+            dirrs = ScmResourceFactory.createDirectoryResource( wsName1,
+                    dirpath );
+            dirrs1 = ScmResourceFactory.createDirectoryResource( wsName2,
+                    dirpath );
             grantPriAndAttachRole( sessionA, dirrs, user, role,
                     ScmPrivilegeType.READ );
             grantPriAndAttachRole( sessionA, dirrs, user, role,

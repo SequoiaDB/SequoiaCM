@@ -40,8 +40,8 @@ public class ListInstanceWithCond1287 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     // TODO: fail for SEQUOIACM-233
@@ -57,8 +57,8 @@ public class ListInstanceWithCond1287 extends TestScmBase {
         }
 
         int total = 0;
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject( "name", batchName ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "name", batchName ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             Assert.assertEquals( batchName, info.getName() );

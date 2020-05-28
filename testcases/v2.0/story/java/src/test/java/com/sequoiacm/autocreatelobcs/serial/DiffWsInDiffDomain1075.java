@@ -52,8 +52,8 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + 0 + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -101,14 +101,14 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
     private void testDiffWsInDiffDomain() throws Exception {
 
         String metaStr1 = "{site:\'" + rootSite.getSiteName() + "\',domain:\'"
-                + createDomain( rootSite, domainNameList.get( 0 ), true ) +
-                "\'}";
+                + createDomain( rootSite, domainNameList.get( 0 ), true )
+                + "\'}";
         String dataStr1 = createDataStr( domainNameList );
 
         ScmWorkspaceUtil.createWs( session, wsName1, metaStr1, dataStr1 );
 
-        ScmUser superuser = ScmFactory.User
-                .getUser( session, TestScmBase.scmUserName );
+        ScmUser superuser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName1 );
         ScmFactory.Role.grantPrivilege( session,
                 superuser.getRoles().iterator().next(), rs,
@@ -117,8 +117,8 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
         for ( int i = 0; i < 60; i++ ) {
             try {
                 Thread.sleep( 1000 );
-                ScmWorkspace ws1 = ScmFactory.Workspace
-                        .getWorkspace( wsName1, session );
+                ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsName1,
+                        session );
                 ScmId fileId = ScmFileUtils.create( ws1, fileName, filePath );
                 fileIdList.add( fileId );
                 success = true;
@@ -138,13 +138,13 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
         for ( int i = 0; i < siteList.size() - 1; i++ ) {
             if ( siteList.get( i ).getDataType()
                     .equals( DatasourceType.SEQUOIADB ) ) {
-                dataStr += "{site:\'" + siteList.get( i ).getSiteName() +
-                        "\',domain:\'"
+                dataStr += "{site:\'" + siteList.get( i ).getSiteName()
+                        + "\',domain:\'"
                         + createDomain( siteList.get( i ),
-                        domainNameList.get( i % domainNameList.size() ), false )
-                        +
-                        "\',data_sharding_type:{collection_space:\'year\'," +
-                        "collection:\'month\'}},";
+                                domainNameList.get( i % domainNameList.size() ),
+                                false )
+                        + "\',data_sharding_type:{collection_space:\'year\',"
+                        + "collection:\'month\'}},";
 
             } else {
                 dataStr += "{site:\'" + siteList.get( i ).getSiteName() + "'},";
@@ -153,11 +153,12 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
         SiteWrapper lastSite = siteList.get( siteList.size() - 1 );
         if ( lastSite.getDataType() == DatasourceType.SEQUOIADB ) {
             dataStr += "{site:\'" + lastSite.getSiteName() + "\',domain:\'"
-                    + createDomain( lastSite, domainNameList
-                    .get( siteList.size() % domainNameList.size() ), false )
-                    +
-                    "\',data_sharding_type:{collection_space:\'year\'," +
-                    "collection:\'month\'}}]";
+                    + createDomain( lastSite,
+                            domainNameList.get(
+                                    siteList.size() % domainNameList.size() ),
+                            false )
+                    + "\',data_sharding_type:{collection_space:\'year\',"
+                    + "collection:\'month\'}}]";
         } else {
             dataStr += "{site:\'" + lastSite.getSiteName() + "\'}]";
         }
@@ -226,8 +227,8 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
             }
             try {
                 for ( String domainName : domainNameList ) {
-                    System.out.println( "domainName1 = " + domainName + " : " +
-                            site.toString() );
+                    System.out.println( "domainName1 = " + domainName + " : "
+                            + site.toString() );
                     db.dropDomain( domainName );
                 }
             } catch ( BaseException e ) {

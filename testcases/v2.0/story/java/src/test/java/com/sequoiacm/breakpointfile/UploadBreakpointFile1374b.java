@@ -26,8 +26,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:breakpoint continuation file in input stream
- * testlink case:seqDB-1374
+ * test content:breakpoint continuation file in input stream testlink
+ * case:seqDB-1374
+ * 
  * @author wuyan
  * @Date 2018.05.18
  * @version 1.00
@@ -98,7 +99,7 @@ public class UploadBreakpointFile1374b extends TestScmBase {
     }
 
     private void checkUploadFileData() throws Exception {
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
@@ -106,12 +107,11 @@ public class UploadBreakpointFile1374b extends TestScmBase {
         file.setFileName( fileName );
         fileId = file.save();
 
-        //down file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results

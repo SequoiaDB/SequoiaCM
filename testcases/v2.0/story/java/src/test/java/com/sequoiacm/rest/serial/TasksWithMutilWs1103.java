@@ -57,10 +57,10 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -112,18 +112,14 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileNum; i++ ) {
-                    rest1.reset()
-                            .setApi( "files/" + fileIdList1.get( i ).get() +
-                                    "?workspace_name=" +
-                                    wsList.get( 0 ).getName() +
-                                    "&is_physical=true" )
+                    rest1.reset().setApi( "files/" + fileIdList1.get( i ).get()
+                            + "?workspace_name=" + wsList.get( 0 ).getName()
+                            + "&is_physical=true" )
                             .setRequestMethod( HttpMethod.DELETE )
                             .setResponseType( String.class ).exec();
-                    rest2.reset()
-                            .setApi( "files/" + fileIdList2.get( i ).get() +
-                                    "?workspace_name=" +
-                                    wsList.get( 1 ).getName() +
-                                    "&is_physical=true" )
+                    rest2.reset().setApi( "files/" + fileIdList2.get( i ).get()
+                            + "?workspace_name=" + wsList.get( 1 ).getName()
+                            + "&is_physical=true" )
                             .setRequestMethod( HttpMethod.DELETE )
                             .setResponseType( String.class ).exec();
                     TestSdbTools.Task.deleteMeta( new ScmId( taskId1 ) );
@@ -142,8 +138,8 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     private void transferAndCheck() throws JSONException {
-        JSONObject options = new JSONObject()
-                .put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", author ) );
         String response1 = rest2.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.POST )
                 .setParameter( "task_type", "1" )
@@ -156,8 +152,8 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     private void cleanAnCheck() throws JSONException {
-        JSONObject options = new JSONObject()
-                .put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject().put( "filter",
+                new JSONObject().put( "author", author ) );
         try {
             String response1 = rest2.setApi( "tasks" )
                     .setRequestMethod( HttpMethod.PUT )
@@ -209,9 +205,8 @@ public class TasksWithMutilWs1103 extends TestScmBase {
             throws JSONException {
         // check site
         try {
-            ScmFileUtils
-                    .checkMetaAndData( ws, fileIdList, expSiteList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList,
+                    localPath, filePath );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -225,19 +220,17 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest )
-            throws HttpClientErrorException, JSONException,
+            RestWrapper rest ) throws HttpClientErrorException, JSONException,
             FileNotFoundException {
         File file = new File( filePath );
-        //FileSystemResource resource = new FileSystemResource(file);
+        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                //.setParameter("file", resource)
-                //.setParameter("description", desc)
+                // .setParameter("file", resource)
+                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
-                .setResponseType( String.class ).exec()
-                .getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;

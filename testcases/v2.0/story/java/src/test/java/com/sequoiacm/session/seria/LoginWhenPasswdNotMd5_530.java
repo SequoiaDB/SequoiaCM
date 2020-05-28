@@ -61,13 +61,11 @@ public class LoginWhenPasswdNotMd5_530 extends TestScmBase {
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
                     TestScmBase.gateWayList.get( 0 ) + "/" + site,
-                    TestScmBase.scmUserName,
-                    TestScmBase.scmPassword );
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
             ScmFactory.Session.createSession( SessionType.AUTH_SESSION, scOpt );
             Assert.fail( "login shouldn't succeed when password is not md5!" );
         } catch ( ScmException e ) {
-            if ( -301 !=
-                    e.getErrorCode() ) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
+            if ( -301 != e.getErrorCode() ) { // EN_SCM_BUSINESS_LOGIN_FAILED(-301)
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );
             }
@@ -79,10 +77,8 @@ public class LoginWhenPasswdNotMd5_530 extends TestScmBase {
         try {
             restorePasswd( userCL, TestScmBase.scmUserName );
         } catch ( BaseException e ) {
-            System.out
-                    .println( "fail to restore passwd, user: " +
-                            TestScmBase.scmUserName + " old passwd: " +
-                            oldPasswd );
+            System.out.println( "fail to restore passwd, user: "
+                    + TestScmBase.scmUserName + " old passwd: " + oldPasswd );
             Assert.fail( e.getMessage() );
         } finally {
             if ( sdb != null ) {
@@ -97,8 +93,8 @@ public class LoginWhenPasswdNotMd5_530 extends TestScmBase {
         // save password to restore then
         DBCursor cursor = null;
         try {
-            cursor = userCL
-                    .query( "{ user: '" + userName + "' }", null, null, null );
+            cursor = userCL.query( "{ user: '" + userName + "' }", null, null,
+                    null );
             BSONObject rec = cursor.getNext();
             oldPasswd = ( String ) rec.get( "password" );
         } finally {

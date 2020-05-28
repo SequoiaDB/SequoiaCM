@@ -62,10 +62,10 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -133,8 +133,8 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
@@ -145,8 +145,8 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
     }
 
     private ScmId transferAllFile( ScmSession session ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         return ScmSystem.Task.startTransferTask( ws, condition );
@@ -155,9 +155,9 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
     private void checkTransfered() {
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList.subList( 0, fileNum ),
-                            expSiteList, localPath, filePath );
+            ScmFileUtils.checkMetaAndData( ws_T,
+                    fileIdList.subList( 0, fileNum ), expSiteList, localPath,
+                    filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
@@ -172,9 +172,8 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 synchronized ( fileIdList ) {
-                    ScmId fileId = ScmFileUtils
-                            .create( ws, authorName + UUID.randomUUID(),
-                                    filePath );
+                    ScmId fileId = ScmFileUtils.create( ws,
+                            authorName + UUID.randomUUID(), filePath );
                     fileIdList.add( fileId );
                 }
             } finally {

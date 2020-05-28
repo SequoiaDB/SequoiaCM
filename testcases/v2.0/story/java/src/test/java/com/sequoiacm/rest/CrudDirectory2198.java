@@ -56,7 +56,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setResponseType( String.class ).exec().getBody().toString();
         id1 = new JSONObject( response ).getString( "id" );
 
-        //create directory by parentId + name
+        // create directory by parentId + name
         String response1 = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "/directories" )
                 .setParameter( "workspace_name", wsp.getName() )
@@ -65,12 +65,12 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setResponseType( String.class ).exec().getBody().toString();
         id2 = new JSONObject( response1 ).getString( "id" );
 
-        //get directory by Id
+        // get directory by Id
         String response2 = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "/directories/id/" + id1 + "?workspace_name=" +
-                        wsp.getName() )
-                .setResponseType( String.class )
-                .exec().getHeaders().getFirst( "directory" );
+                .setApi( "/directories/id/" + id1 + "?workspace_name="
+                        + wsp.getName() )
+                .setResponseType( String.class ).exec().getHeaders()
+                .getFirst( "directory" );
         response2 = URLDecoder.decode( response2, "UTF-8" );
         JSONObject dirInfo1 = new JSONObject( response2 );
         Assert.assertEquals( dirInfo1.getString( "name" ),
@@ -79,12 +79,12 @@ public class CrudDirectory2198 extends TestScmBase {
         Assert.assertEquals( dirInfo1.getString( "parent_directory_id" ),
                 rootId );
 
-        //get directory by path
+        // get directory by path
         String response3 = rest.setRequestMethod( HttpMethod.HEAD )
-                .setApi( "/directories/path/" + fullPath2 + "?workspace_name=" +
-                        wsp.getName() )
-                .setResponseType( String.class )
-                .exec().getHeaders().getFirst( "directory" );
+                .setApi( "/directories/path/" + fullPath2 + "?workspace_name="
+                        + wsp.getName() )
+                .setResponseType( String.class ).exec().getHeaders()
+                .getFirst( "directory" );
         response3 = URLDecoder.decode( response3, "UTF-8" );
         JSONObject dirInfo2 = new JSONObject( response3 );
         Assert.assertEquals( dirInfo2.getString( "name" ),
@@ -93,88 +93,79 @@ public class CrudDirectory2198 extends TestScmBase {
         Assert.assertEquals( dirInfo2.getString( "parent_directory_id" ),
                 rootId );
 
-        //get path by directory id
+        // get path by directory id
         String response4 = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "/directories/id/" + id1 + "/path?workspace_name=" +
-                        wsp.getName() )
+                .setApi( "/directories/id/" + id1 + "/path?workspace_name="
+                        + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONObject dirInfo3 = new JSONObject( response4 );
         Assert.assertEquals( dirInfo3.getString( "path" ), fullPath1 + "/" );
 
-        //list directory
+        // list directory
         JSONObject desc1 = new JSONObject();
         desc1.put( "id", id1 );
         String response5 = rest.setRequestMethod( HttpMethod.GET )
-                .setApi( "/metadatas/classes?workspace_name=" + wsp.getName() +
-                        "&filter={uri}" )
-                .setUriVariables( new Object[] { desc1.toString() } )
-                .exec().getBody().toString();
+                .setApi( "/metadatas/classes?workspace_name=" + wsp.getName()
+                        + "&filter={uri}" )
+                .setUriVariables( new Object[] { desc1.toString() } ).exec()
+                .getBody().toString();
         JSONArray dirInfo4 = new JSONArray( response5 );
         System.out.println( "dirInfo3 = " + dirInfo4 );
 
-        //rename directory by id
+        // rename directory by id
         String newName = "CrudDirectory2198_A_New";
         String response6 = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "/directories/id/" + id1 + "/rename" )
                 .setParameter( "workspace_name", wsp.getName() )
-                .setParameter( "name", newName )
-                .exec().getBody().toString();
+                .setParameter( "name", newName ).exec().getBody().toString();
         JSONObject dirInfo5 = new JSONObject( response6 );
         Assert.assertNotNull( dirInfo5 );
 
-        //rename directory by path
+        // rename directory by path
         String newName1 = "CrudDirectory2198_B_New";
         String response7 = rest.setRequestMethod( HttpMethod.PUT )
-                .setApi( "/directories/path/" + "/CrudDirectory2198_B" +
-                        "/rename" )
+                .setApi( "/directories/path/" + "/CrudDirectory2198_B"
+                        + "/rename" )
                 .setParameter( "workspace_name", wsp.getName() )
-                .setParameter( "name", newName1 )
-                .exec().getBody()
-                .toString();
+                .setParameter( "name", newName1 ).exec().getBody().toString();
         JSONObject dirInfo6 = new JSONObject( response7 );
         Assert.assertNotNull( dirInfo6 );
 
-        //move directory by id
+        // move directory by id
         String response8 = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "/directories/id/" + id1 + "/move" )
                 .setParameter( "parent_directory_path",
                         "/CrudDirectory2198_B_New" )
-                .setParameter( "workspace_name", wsp.getName() )
-                .exec().getBody()
-                .toString();
+                .setParameter( "workspace_name", wsp.getName() ).exec()
+                .getBody().toString();
         JSONObject dirInfo7 = new JSONObject( response8 );
         Assert.assertNotNull( dirInfo7 );
 
         // move directory by path
         String response9 = rest.setRequestMethod( HttpMethod.PUT )
-                .setApi( "/directories/path/" +
-                        "/CrudDirectory2198_B_New/CrudDirectory2198_A_New" +
-                        "/move" )
+                .setApi( "/directories/path/"
+                        + "/CrudDirectory2198_B_New/CrudDirectory2198_A_New"
+                        + "/move" )
                 .setParameter( "parent_directory_path", "/" )
-                .setParameter( "workspace_name", wsp.getName() )
-                .exec().getBody()
-                .toString();
+                .setParameter( "workspace_name", wsp.getName() ).exec()
+                .getBody().toString();
         JSONObject dirInfo8 = new JSONObject( response9 );
         Assert.assertNotNull( dirInfo8 );
 
-        //delete directory by path
-        rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/directories/path/" +
-                        "/CrudDirectory2198_B_New?workspace_name=" +
-                        wsp.getName() )
+        // delete directory by path
+        rest.setRequestMethod( HttpMethod.DELETE ).setApi( "/directories/path/"
+                + "/CrudDirectory2198_B_New?workspace_name=" + wsp.getName() )
                 .exec();
 
-        rest.setRequestMethod( HttpMethod.DELETE )
-                .setApi( "/directories/id/" + id1 + "?workspace_name=" +
-                        wsp.getName() )
+        rest.setRequestMethod( HttpMethod.DELETE ).setApi(
+                "/directories/id/" + id1 + "?workspace_name=" + wsp.getName() )
                 .exec();
 
         // check delete
         try {
             rest.setRequestMethod( HttpMethod.GET )
-                    .setApi(
-                            "/directories/id/" + id1 + "/path?workspace_name=" +
-                                    wsp.getName() )
+                    .setApi( "/directories/id/" + id1 + "/path?workspace_name="
+                            + wsp.getName() )
                     .setResponseType( String.class ).exec()
                     .getStatusCodeValue();
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {

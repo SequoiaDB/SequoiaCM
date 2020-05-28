@@ -21,8 +21,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:update Content of the current scm file, than ayncTransfer the
- * current version file
- * testlink-case:SCM-1652
+ * current version file testlink-case:SCM-1652
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -64,13 +63,13 @@ public class AsyncTransferCurVersionFile1652a extends TestScmBase {
         int historyVersion = 1;
         asyncTransferCurrentVersionFile( currentVersion );
 
-        //check the currentVersion file data and siteinfo
+        // check the currentVersion file data and siteinfo
         SiteWrapper[] expCurSiteList = { rootSite, branSite };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
         VersionUtils.CheckFileContentByStream( wsM, fileName, currentVersion,
                 updatedata );
 
-        //check the historyVersion file only on the branSiteA
+        // check the historyVersion file only on the branSiteA
         SiteWrapper[] expHisSiteList = { branSite };
         VersionUtils.checkSite( wsA, fileId, historyVersion, expHisSiteList );
     }
@@ -95,10 +94,10 @@ public class AsyncTransferCurVersionFile1652a extends TestScmBase {
             throws Exception {
         ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
 
-        //wait task finished
+        // wait task finished
         int sitenums = 2;
-        VersionUtils
-                .waitAsyncTaskFinished( wsM, fileId, majorVersion, sitenums );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+                sitenums );
     }
 
 }

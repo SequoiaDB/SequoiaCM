@@ -31,9 +31,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content: update Content by breakpoint file and delete the same file
- * concurrently:
- *               a.update content by breakpointfile
- *               b.delete the file
+ * concurrently: a.update content by breakpointfile b.delete the file
  * testlink-case:SCM-1691
  *
  * @author wuyan
@@ -67,8 +65,8 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-        fileId = VersionUtils
-                .createFileByStream( wsM, fileName, writeData, authorName );
+        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+                authorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -77,8 +75,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         byte[] updateData = new byte[ updateSize ];
 
         createBreakPointFile( wsA, updateData );
-        UpdateContentByBreakpointFile updateFile = new
-                UpdateContentByBreakpointFile();
+        UpdateContentByBreakpointFile updateFile = new UpdateContentByBreakpointFile();
         DeleteFile deleteFile = new DeleteFile();
         deleteFile.start();
         updateFile.start();
@@ -90,17 +87,17 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
                 ScmException e = ( ScmException ) updateFile.getExceptions()
                         .get( 0 );
                 Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
-                        "updateContent by breakpointfile fail:" +
-                                updateFile.getErrorMsg() );
+                        "updateContent by breakpointfile fail:"
+                                + updateFile.getErrorMsg() );
                 checkDeleteFileResult( wsA );
-                //update fail,the breakpointfile is exist,than delete
+                // update fail,the breakpointfile is exist,than delete
                 ScmFactory.BreakpointFile.deleteInstance( wsA, fileName );
             } else if ( updateFile.isSuccess() ) {
                 checkDeleteFileResult( wsA );
             } else {
                 Assert.fail(
-                        "the results can only by updated successfully or one " +
-                                "update succeeds" );
+                        "the results can only by updated successfully or one "
+                                + "update succeeds" );
             }
         } else if ( !deleteFile.isSuccess() ) {
             Assert.assertTrue( updateFile.isSuccess(),
@@ -139,23 +136,23 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
     }
 
     private void checkDeleteFileResult( ScmWorkspace ws ) throws Exception {
-        //check the FILE is not exist
+        // check the FILE is not exist
         try {
             ScmFactory.File.getInstanceByPath( ws, fileName );
             Assert.fail( "get file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
 
-        //count histroy and current version file are not exist
+        // count histroy and current version file are not exist
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        long count = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_ALL, condition );
+        long count = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_ALL,
+                condition );
         long expFileConut = 0;
         Assert.assertEquals( count, expFileConut );
     }
@@ -169,14 +166,14 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion,
                 writeData );
 
-        //check the breakpoint is not exist
+        // check the breakpoint is not exist
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -210,7 +207,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 
-                //random waiting 100ms to delete
+                // random waiting 100ms to delete
                 Random random = new Random();
                 int time = random.nextInt( 100 );
                 Thread.sleep( time );

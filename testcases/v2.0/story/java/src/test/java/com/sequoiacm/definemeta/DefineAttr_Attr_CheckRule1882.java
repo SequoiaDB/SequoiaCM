@@ -59,8 +59,8 @@ public class DefineAttr_Attr_CheckRule1882 extends TestScmBase {
     private void testDefault() {
         try {
             ScmAttribute attr = craeteAttr( attrname + "_1", null );
-            ScmAttribute attr1 = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute attr1 = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( attr1.getCheckRule().toStringFormat(),
                     "{ \"max_length\" : -1 }" );
         } catch ( ScmException e ) {
@@ -76,8 +76,8 @@ public class DefineAttr_Attr_CheckRule1882 extends TestScmBase {
             ScmStringRule rule = new ScmStringRule();
             rule.setMaxLength( 18 );
             ScmAttribute attr = craeteAttr( attrname + "_2", rule );
-            ScmAttribute attr1 = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute attr1 = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( attr1.getCheckRule().toStringFormat(),
                     "{ \"max_length\" : 18 }" );
         } catch ( ScmException e ) {
@@ -92,8 +92,8 @@ public class DefineAttr_Attr_CheckRule1882 extends TestScmBase {
         try {
             ScmStringRule rule = new ScmStringRule( 100 );
             ScmAttribute attr = craeteAttr( attrname + "_3", rule );
-            ScmAttribute attr1 = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute attr1 = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( attr1.getCheckRule().toStringFormat(),
                     "{ \"max_length\" : 100 }" );
         } catch ( ScmException e ) {
@@ -109,8 +109,8 @@ public class DefineAttr_Attr_CheckRule1882 extends TestScmBase {
             ScmStringRule rule = new ScmStringRule(
                     new BasicBSONObject().append( "max_length", 20 ) );
             ScmAttribute attr = craeteAttr( attrname + "_4", rule );
-            ScmAttribute attr1 = ScmFactory.Attribute
-                    .getInstance( ws, attr.getId() );
+            ScmAttribute attr1 = ScmFactory.Attribute.getInstance( ws,
+                    attr.getId() );
             Assert.assertEquals( attr1.getCheckRule().toStringFormat(),
                     "{ \"max_length\" : 20 }" );
         } catch ( ScmException e ) {

@@ -65,10 +65,10 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -90,10 +90,10 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
         String srcpath = path2;
         String dstpath = path1;
         try {
-            ScmDirectory srcDir = ScmFactory.Directory
-                    .getInstance( wsCRD, srcpath );
-            ScmDirectory dstDir = ScmFactory.Directory
-                    .getInstance( wsCRD, dstpath );
+            ScmDirectory srcDir = ScmFactory.Directory.getInstance( wsCRD,
+                    srcpath );
+            ScmDirectory dstDir = ScmFactory.Directory.getInstance( wsCRD,
+                    dstpath );
             srcDir.move( dstDir );
             Assert.fail( "the user does not have priority to do something" );
         } catch ( ScmException e ) {
@@ -147,8 +147,7 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges ) {
         try {
             ScmUserModifier modifier = new ScmUserModifier();
             ScmFactory.Role.grantPrivilege( sessionA, role, rs, privileges );
@@ -174,8 +173,8 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -184,8 +183,8 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }
@@ -229,15 +228,14 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
 
     private void prepare() throws Exception {
         try {
-            user = ScmFactory.User
-                    .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            user = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             role = ScmFactory.Role.createRole( sessionA, rolename, null );
 
             rs1 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
                     basepath + "/1726_A/1726_B/1726_C/" );
-            rs2 = ScmResourceFactory
-                    .createDirectoryResource( wsp.getName(), path2 );
+            rs2 = ScmResourceFactory.createDirectoryResource( wsp.getName(),
+                    path2 );
             deleteDir( wsA, path1 );
             deleteDir( wsA, path2 );
             createDir( wsA, path1 );
@@ -255,8 +253,8 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
                     wsp.getName() );
 
             sessionCRD = TestScmTools.createSession( site, username, passwd );
-            wsCRD = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), sessionCRD );
+            wsCRD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    sessionCRD );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

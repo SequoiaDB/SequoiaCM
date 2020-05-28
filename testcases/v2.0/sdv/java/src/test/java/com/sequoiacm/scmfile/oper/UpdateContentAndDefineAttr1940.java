@@ -33,7 +33,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content,then delete defineAttributes 
+ * test content: update Content,then delete defineAttributes
  * testlink-case:SCM-1940
  *
  * @author wuyan
@@ -48,8 +48,7 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
     private boolean runSuccess = false;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-    private ArrayList< ScmAttribute > attrList = new ArrayList< ScmAttribute
-            >();
+    private ArrayList< ScmAttribute > attrList = new ArrayList< ScmAttribute >();
     private String fileName = "updatefile1940";
     private String className = "class1940";
     private ScmId scmClassId = null;
@@ -59,10 +58,10 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -91,11 +90,11 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                //clean property and class
+                // clean property and class
                 ScmFactory.Class.deleteInstance( ws, scmClassId );
                 for ( ScmAttribute attribute : attrList ) {
-                    ScmFactory.Attribute
-                            .deleteInstance( ws, attribute.getId() );
+                    ScmFactory.Attribute.deleteInstance( ws,
+                            attribute.getId() );
                 }
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
@@ -111,19 +110,19 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
 
     private ScmClassProperties setDefineAttr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        //set property
-        String attrStr1 = "{name:'attr1940_string', " +
-                "display_name:'name1940_1', description:'Attribute 1940_1', " +
-                "type:'STRING', required:true}";
-        String attrStr2 = "{name:'attr1940_date', display_name:'name1940_2', " +
-                "description:'Attribute 1938_2', type:'DATE', required:false}";
-        String attrStr3 = "{name:'attr1940_double', " +
-                "display_name:'name1940_3', description:'中文', type:'DOUBLE', " +
-                "required:false}";
-        String attrStr4 = "{name:'attr1940_int', display_name:'name1940_4', " +
-                "description:'test int', type:'INTEGER', required:true}";
-        String attrStr5 = "{name:'attr1940_bool', display_name:'name1940_5', " +
-                "description:'test bool', type:'BOOLEAN', required:true}";
+        // set property
+        String attrStr1 = "{name:'attr1940_string', "
+                + "display_name:'name1940_1', description:'Attribute 1940_1', "
+                + "type:'STRING', required:true}";
+        String attrStr2 = "{name:'attr1940_date', display_name:'name1940_2', "
+                + "description:'Attribute 1938_2', type:'DATE', required:false}";
+        String attrStr3 = "{name:'attr1940_double', "
+                + "display_name:'name1940_3', description:'中文', type:'DOUBLE', "
+                + "required:false}";
+        String attrStr4 = "{name:'attr1940_int', display_name:'name1940_4', "
+                + "description:'test int', type:'INTEGER', required:true}";
+        String attrStr5 = "{name:'attr1940_bool', display_name:'name1940_5', "
+                + "description:'test bool', type:'BOOLEAN', required:true}";
 
         attrList.add( createAttr( attrStr1 ) );
         attrList.add( createAttr( attrStr2 ) );
@@ -131,8 +130,8 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
         attrList.add( createAttr( attrStr4 ) );
         attrList.add( createAttr( attrStr5 ) );
 
-        ScmClass scmClass = ScmFactory.Class
-                .createInstance( ws, className, "i am a class1940" );
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws, className,
+                "i am a class1940" );
         scmClassId = scmClass.getId();
 
         for ( ScmAttribute attribute : attrList ) {
@@ -149,7 +148,7 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
         properties.addProperty( attrList.get( 4 ).getName(), true );
         file.setClassProperties( properties );
 
-        //check property
+        // check property
         Assert.assertEquals( file.getClassProperties().toString(),
                 properties.toString() );
         return properties;
@@ -158,24 +157,24 @@ public class UpdateContentAndDefineAttr1940 extends TestScmBase {
 
     private void updateContentAndCheckAttr( byte[] updateData,
             ScmClassProperties properties ) throws Exception {
-        //update content
+        // update content
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         new Random().nextBytes( updateData );
         file.updateContent( new ByteArrayInputStream( updateData ) );
 
-        //check update content
+        // check update content
         int majorVersion = file.getMajorVersion();
         VersionUtils.CheckFileContentByStream( ws, fileName, majorVersion,
                 updateData );
 
-        //check property
+        // check property
         checkSetPropertyResult( scmClassId, properties );
     }
 
     private void deleteProperties() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmClassProperties properties = file.getClassProperties();
-        //only non-required attributes can be deleted
+        // only non-required attributes can be deleted
         properties.deleteProperty( attrList.get( 1 ).getName() );
         properties.deleteProperty( attrList.get( 2 ).getName() );
 

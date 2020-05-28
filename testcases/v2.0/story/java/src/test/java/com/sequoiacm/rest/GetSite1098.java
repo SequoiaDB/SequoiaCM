@@ -49,8 +49,8 @@ public class GetSite1098 extends TestScmBase {
         JSONArray siteListInfo = new JSONArray( response );
         List< SiteWrapper > siteList = ScmInfo.getAllSites();
         Assert.assertEquals( siteList.size(), siteListInfo.length(),
-                "wsListByRest = " + siteListInfo.toString() +
-                        ",wsListByDb = " + siteList.toString() );
+                "wsListByRest = " + siteListInfo.toString() + ",wsListByDb = "
+                        + siteList.toString() );
 
         response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "sites?filter={uri}" )
@@ -66,7 +66,7 @@ public class GetSite1098 extends TestScmBase {
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONObject siteInfo = new JSONObject( response2 )
                 .getJSONObject( "site" );
-        //check 
+        // check
         Assert.assertEquals( siteInfo.getString( "name" ), site.getSiteName() );
         Assert.assertEquals( siteInfo.getInt( "id" ), site.getSiteId() );
         JSONObject data = siteInfo.getJSONObject( "data" );
@@ -82,4 +82,3 @@ public class GetSite1098 extends TestScmBase {
         }
     }
 }
-

@@ -76,8 +76,8 @@ public class UpdateAndDeleteConf2327 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
                             "LOCAL" )
                     .build();
-            actResult = ScmSystem.Configuration
-                    .setConfigProperties( session, confProp );
+            actResult = ScmSystem.Configuration.setConfigProperties( session,
+                    confProp );
             List< String > expServiceNames = new ArrayList< String >();
             expServiceNames.add( site.getSiteServiceName() );
             ConfUtil.checkResultSet( actResult, site.getNodeNum(), 0,
@@ -85,8 +85,8 @@ public class UpdateAndDeleteConf2327 extends TestScmBase {
         } catch ( ScmException e ) {
             e.printStackTrace();
             if ( actResult != null ) {
-                Assert.fail( e.getMessage() + ",actResult = " +
-                        actResult.toString() );
+                Assert.fail( e.getMessage() + ",actResult = "
+                        + actResult.toString() );
             }
         } finally {
             if ( session != null ) {

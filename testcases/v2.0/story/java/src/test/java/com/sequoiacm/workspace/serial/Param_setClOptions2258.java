@@ -68,8 +68,8 @@ public class Param_setClOptions2258 extends TestScmBase {
             ScmWorkspaceUtil.wsSetPriority( session, wsName1 );
 
             // create file
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName1, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( wsName1 );
             file.save();
@@ -97,8 +97,8 @@ public class Param_setClOptions2258 extends TestScmBase {
             ScmWorkspaceUtil.wsSetPriority( session, wsName2 );
 
             // create file
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsName2, session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName2,
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( wsName2 );
             file.save();
@@ -132,8 +132,7 @@ public class Param_setClOptions2258 extends TestScmBase {
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
         } else if ( siteNum < 1 ) {

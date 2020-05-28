@@ -44,8 +44,7 @@ public class DeleteConf2321 extends TestScmBase {
             properties.add( ConfigCommonDefind.scm_audit_userMask );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .service( site.getSiteServiceName() )
-                    .deleteProperties( properties )
-                    .build();
+                    .deleteProperties( properties ).build();
             session = TestScmTools.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );

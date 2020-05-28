@@ -33,7 +33,7 @@ import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 
 /**
- * @Description: SCM-2329 ::  并发删除配置和操作异步调度任务
+ * @Description: SCM-2329 :: 并发删除配置和操作异步调度任务
  * @author fanyu
  * @Date:2018年12月04日
  * @version:1.0
@@ -48,8 +48,8 @@ public class DeleteConf2329 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        scheList = ScmSystem.ServiceCenter
-                .getServiceInstanceList( session, serviceName );
+        scheList = ScmSystem.ServiceCenter.getServiceInstanceList( session,
+                serviceName );
         ConfUtil.deleteAuditConf( serviceName );
     }
 
@@ -62,7 +62,7 @@ public class DeleteConf2329 extends TestScmBase {
         Assert.assertEquals( dThraed.isSuccess(), true, dThraed.getErrorMsg() );
         Assert.assertEquals( cThread.isSuccess(), true, cThread.getErrorMsg() );
 
-        //check local configuration
+        // check local configuration
         List< String > list = new ArrayList< String >();
         list.add( ConfigCommonDefind.scm_audit_mask );
         list.add( ConfigCommonDefind.scm_audit_userMask );
@@ -70,7 +70,7 @@ public class DeleteConf2329 extends TestScmBase {
             ConfUtil.checkDeletedConf(
                     instance.getIp() + ":" + instance.getPort(), list );
         }
-        //check configuration do not take effect
+        // check configuration do not take effect
         ConfUtil.checkNotTakeEffect( serviceName );
     }
 
@@ -107,8 +107,8 @@ public class DeleteConf2329 extends TestScmBase {
             } catch ( ScmException e ) {
                 e.printStackTrace();
                 if ( actResult != null ) {
-                    Assert.fail( "delete conf failed, actResult = " +
-                            actResult.toString() );
+                    Assert.fail( "delete conf failed, actResult = "
+                            + actResult.toString() );
                 }
             } finally {
                 if ( session != null ) {
@@ -125,22 +125,21 @@ public class DeleteConf2329 extends TestScmBase {
             List< SiteWrapper > sites = ScmNetUtils.getCleanSites( wsp );
             SiteWrapper branSite = sites.get( 1 );
             ScmSession session = null;
-            String scheName =
-                    TestTools.getClassName() + "_" + UUID.randomUUID();
+            String scheName = TestTools.getClassName() + "_"
+                    + UUID.randomUUID();
             ScmId scheduleId = null;
             try {
                 session = TestScmTools.createSession( branSite );
                 ScmScheduleContent content = new ScmScheduleCleanFileContent(
                         branSite.getSiteName(), "0d", new BasicBSONObject() );
                 String cron = "* * * * * ? 2022";
-                ScmSchedule sche = ScmSystem.Schedule
-                        .create( session, wsp.getName(),
-                                ScheduleType.CLEAN_FILE, scheName, scheName,
-                                content, cron );
+                ScmSchedule sche = ScmSystem.Schedule.create( session,
+                        wsp.getName(), ScheduleType.CLEAN_FILE, scheName,
+                        scheName, content, cron );
                 scheduleId = sche.getId();
                 if ( scheduleId != null ) {
-                    ScmSchedule sch = ScmSystem.Schedule
-                            .get( session, scheduleId );
+                    ScmSchedule sch = ScmSystem.Schedule.get( session,
+                            scheduleId );
                     Assert.assertEquals( sch.getId(), scheduleId );
                 }
             } finally {
@@ -159,4 +158,3 @@ public class DeleteConf2329 extends TestScmBase {
         }
     }
 }
-

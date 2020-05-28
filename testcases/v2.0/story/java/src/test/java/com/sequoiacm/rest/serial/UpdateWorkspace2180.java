@@ -32,7 +32,7 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description CreateWorkspace2179.java  更新workspace 
+ * @Description CreateWorkspace2179.java 更新workspace
  * @author luweikang
  * @date 2018年5月24日
  */
@@ -126,15 +126,14 @@ public class UpdateWorkspace2180 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "/workspaces/" + wsName )
                 .setParameter( "updator", updator.toString() )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         BSONObject obj = ( BSONObject ) JSON.parse( response );
         System.out.println( obj );
         rest.disconnect();
         for ( int i = 0; i < 15; i++ ) {
             Thread.sleep( 1000 );
-            ScmWorkspace updateWs = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace updateWs = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             List< ScmDataLocation > dataList = updateWs.getDataLocations();
             List< String > nameList = new ArrayList<>();
             for ( ScmDataLocation data : dataList ) {
@@ -148,9 +147,9 @@ public class UpdateWorkspace2180 extends TestScmBase {
                     return;
                 }
             }
-            if ( i == 14 ) Assert.fail(
-                    "remove site is not done in 15 seconds: " +
-                            obj.toString() );
+            if ( i == 14 )
+                Assert.fail( "remove site is not done in 15 seconds: "
+                        + obj.toString() );
         }
     }
 
@@ -169,14 +168,13 @@ public class UpdateWorkspace2180 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "/workspaces/" + wsName )
                 .setParameter( "updator", updator.toString() )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         BSONObject obj = ( BSONObject ) JSON.parse( response );
         rest.disconnect();
         for ( int i = 0; i < 15; i++ ) {
             Thread.sleep( 1000 );
-            ScmWorkspace updateWs = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace updateWs = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             List< ScmDataLocation > dataList = updateWs.getDataLocations();
             List< String > nameList = new ArrayList<>();
             for ( ScmDataLocation data : dataList ) {
@@ -191,8 +189,9 @@ public class UpdateWorkspace2180 extends TestScmBase {
                     return;
                 }
             }
-            if ( i == 14 ) Assert.fail(
-                    "add site is not done in 15 seconds: " + obj.toString() );
+            if ( i == 14 )
+                Assert.fail( "add site is not done in 15 seconds: "
+                        + obj.toString() );
         }
 
     }
@@ -212,14 +211,13 @@ public class UpdateWorkspace2180 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "/workspaces/" + wsName )
                 .setParameter( "updator", updator.toString() )
-                .setResponseType( String.class )
-                .exec().getBody().toString();
+                .setResponseType( String.class ).exec().getBody().toString();
         BSONObject obj = ( BSONObject ) JSON.parse( response );
         rest.disconnect();
         for ( int i = 0; i < 15; i++ ) {
             Thread.sleep( 1000 );
-            ScmWorkspace updateWs = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace updateWs = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             List< ScmDataLocation > dataList = updateWs.getDataLocations();
             List< String > nameList = new ArrayList<>();
             for ( ScmDataLocation data : dataList ) {
@@ -231,13 +229,14 @@ public class UpdateWorkspace2180 extends TestScmBase {
                     return;
                 }
             }
-            if ( i == 14 ) Assert.fail(
-                    "add site is not done in 15 seconds: " + obj.toString() );
+            if ( i == 14 )
+                Assert.fail( "add site is not done in 15 seconds: "
+                        + obj.toString() );
         }
         for ( int i = 0; i < 15; i++ ) {
             Thread.sleep( 1000 );
-            ScmWorkspace updateWs = ScmFactory.Workspace
-                    .getWorkspace( wsName, session );
+            ScmWorkspace updateWs = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
             List< ScmDataLocation > dataList = updateWs.getDataLocations();
             List< String > nameList = new ArrayList<>();
             for ( ScmDataLocation data : dataList ) {
@@ -246,16 +245,16 @@ public class UpdateWorkspace2180 extends TestScmBase {
             for ( int j = 0; j < dataList.size(); j++ ) {
 
                 if ( !nameList.contains( branchSite2.getSiteName() ) ) {
-                    System.out.println( "------------------------------------" +
-                            ws.getDataLocations().size() );
+                    System.out.println( "------------------------------------"
+                            + ws.getDataLocations().size() );
                     Assert.assertEquals( updateWs.getDataLocations().size(),
                             ScmInfo.getSiteNum() - 1, obj.toString() );
                     return;
                 }
             }
-            if ( i == 14 ) Assert.fail(
-                    "remove site is not done in 15 seconds: " +
-                            obj.toString() );
+            if ( i == 14 )
+                Assert.fail( "remove site is not done in 15 seconds: "
+                        + obj.toString() );
         }
     }
 

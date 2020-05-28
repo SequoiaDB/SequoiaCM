@@ -61,8 +61,8 @@ public class LoginAndLogout222 extends TestScmBase {
             ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             Assert.fail( "getWorkspace succeed when session is closed!" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.SESSION_CLOSED.getErrorCode() &&
-                    !e.getMessage().toString()
+            if ( e.getErrorCode() != ScmError.SESSION_CLOSED.getErrorCode()
+                    && !e.getMessage().toString()
                             .contains( "Session has been Closed" ) ) {
                 e.printStackTrace();
                 Assert.fail( e.getMessage() );

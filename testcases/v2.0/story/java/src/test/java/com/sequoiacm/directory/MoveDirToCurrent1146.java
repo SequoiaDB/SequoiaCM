@@ -28,7 +28,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1146 :: 文件夹移动到同级文件夹 
+ * @Description:SCM-1146 :: 文件夹移动到同级文件夹
  * @author fanyu
  * @Date:2018年4月24日
  * @version:1.0
@@ -67,11 +67,11 @@ public class MoveDirToCurrent1146 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            ScmDirectory srcDir = ScmFactory.Directory
-                    .getInstance( ws, fullPath );
+            ScmDirectory srcDir = ScmFactory.Directory.getInstance( ws,
+                    fullPath );
             // eg:/a/b/c mv c to current dir
-            srcDir.move( ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/1146_b" ) );
+            srcDir.move( ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/1146_b" ) );
             // check sub path
             check( fileId, srcDir, ws );
             srcDir.createSubdirectory( eleName + "_test" );
@@ -153,8 +153,8 @@ public class MoveDirToCurrent1146 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -163,8 +163,8 @@ public class MoveDirToCurrent1146 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

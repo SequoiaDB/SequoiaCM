@@ -55,15 +55,14 @@ public class ReloadConfFromMainCenter308 extends TestScmBase {
                     node.getHost() + ":" + node.getRestPort() );
             session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
-            List< BSONObject > list = ScmSystem.Configuration
-                    .reloadBizConf( ServerScope.ALL_SITE, node.getSiteId(),
-                            session );
+            List< BSONObject > list = ScmSystem.Configuration.reloadBizConf(
+                    ServerScope.ALL_SITE, node.getSiteId(), session );
 
             // check results
             List< NodeWrapper > expNodeList = ScmInfo.getNodeList();
-            String errStr = "reloadBizConf failed, actual infoList after " +
-                    "reloadBizConf: \n" + list + "expect nodeInfo: \n" +
-                    expNodeList;
+            String errStr = "reloadBizConf failed, actual infoList after "
+                    + "reloadBizConf: \n" + list + "expect nodeInfo: \n"
+                    + expNodeList;
 
             Assert.assertEquals( list.size(), expNodeList.size(), errStr );
 

@@ -59,10 +59,10 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -86,15 +86,12 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
             sessionB = TestScmTools.createSession( branSites.get( 1 ) );
             wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
-            mFileId = ScmFileUtils
-                    .create( wsM, fileName + "_M" + UUID.randomUUID(),
-                            filePath );
-            aFileId = ScmFileUtils
-                    .create( wsA, fileName + "_A" + UUID.randomUUID(),
-                            filePath );
-            bFileId = ScmFileUtils
-                    .create( wsB, fileName + "_B" + UUID.randomUUID(),
-                            filePath );
+            mFileId = ScmFileUtils.create( wsM,
+                    fileName + "_M" + UUID.randomUUID(), filePath );
+            aFileId = ScmFileUtils.create( wsA,
+                    fileName + "_A" + UUID.randomUUID(), filePath );
+            bFileId = ScmFileUtils.create( wsB,
+                    fileName + "_B" + UUID.randomUUID(), filePath );
         } catch ( IOException | ScmException e ) {
             Assert.fail( e.getMessage() );
         }
@@ -112,10 +109,10 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
             ReadFileFromB readFromB = new ReadFileFromB();
             readFromB.start( 20 );
 
-            if ( !( readFromM.isSuccess() && readFromA.isSuccess() &&
-                    readFromB.isSuccess() ) ) {
-                Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg() +
-                        readFromB.getErrorMsg() );
+            if ( !( readFromM.isSuccess() && readFromA.isSuccess()
+                    && readFromB.isSuccess() ) ) {
+                Assert.fail( readFromM.getErrorMsg() + readFromA.getErrorMsg()
+                        + readFromB.getErrorMsg() );
             }
 
         } catch ( Exception e ) {
@@ -160,9 +157,9 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, mFileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 sis = ScmFactory.File.createInputStream( file );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis.read( fos );
@@ -173,9 +170,8 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // check meta data and lobs
                 SiteWrapper[] expSites = { rootSite };
-                ScmFileUtils
-                        .checkMetaAndData( wsp, mFileId, expSites, localPath,
-                                downloadPath );
+                ScmFileUtils.checkMetaAndData( wsp, mFileId, expSites,
+                        localPath, downloadPath );
             } finally {
                 if ( fos != null )
                     fos.close();
@@ -201,9 +197,9 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, aFileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 sis = ScmFactory.File.createInputStream( file );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis.read( fos );
@@ -214,9 +210,8 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // check meta data and lobs
                 SiteWrapper[] expSites = { branSites.get( 0 ) };
-                ScmFileUtils
-                        .checkMetaAndData( wsp, aFileId, expSites, localPath,
-                                downloadPath );
+                ScmFileUtils.checkMetaAndData( wsp, aFileId, expSites,
+                        localPath, downloadPath );
             } finally {
                 if ( fos != null )
                     fos.close();
@@ -242,9 +237,9 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // read
                 ScmFile file = ScmFactory.File.getInstance( ws, bFileId );
-                String downloadPath = TestTools.LocalFile
-                        .initDownloadPath( localPath, TestTools.getMethodName(),
-                                Thread.currentThread().getId() );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
                 sis = ScmFactory.File.createInputStream( file );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 sis.read( fos );
@@ -255,9 +250,8 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
 
                 // check meta data and lobs
                 SiteWrapper[] expSites = { branSites.get( 1 ) };
-                ScmFileUtils
-                        .checkMetaAndData( wsp, bFileId, expSites, localPath,
-                                downloadPath );
+                ScmFileUtils.checkMetaAndData( wsp, bFileId, expSites,
+                        localPath, downloadPath );
             } finally {
                 if ( fos != null )
                     fos.close();

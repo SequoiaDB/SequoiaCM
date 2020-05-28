@@ -41,8 +41,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:create ScheduleCleanTask,match directory to transfer files in
- * the directory
- * testlink-case:SCM-2061
+ * the directory testlink-case:SCM-2061
  *
  * @author wuyan
  * @Date 2018.07.13
@@ -64,10 +63,8 @@ public class Sche_TransferFileByDir2061 extends TestScmBase {
 
     private ScmDirectory scmDir1;
     private ScmDirectory scmDir2;
-    private String fullPath1 =
-            "/CreatefileWiteDir2061a/2061_a/2061_b/2061_c/2061_e/2061_f/";
-    private String fullPath2 =
-            "/CreatefileWiteDir2061b/2061_a/2061_b/2061_c/2061_e/2061_f/";
+    private String fullPath1 = "/CreatefileWiteDir2061a/2061_a/2061_b/2061_c/2061_e/2061_f/";
+    private String fullPath2 = "/CreatefileWiteDir2061b/2061_a/2061_b/2061_c/2061_e/2061_f/";
     private String authorName = "CreateFileWithDir2061";
     private String fileName = "filedir2061";
     private String scheduleName = "schedule2061";
@@ -103,10 +100,10 @@ public class Sche_TransferFileByDir2061 extends TestScmBase {
         scmDir2 = ScmDirUtils.createDir( wsA, fullPath2 );
         writeFileWithDir( wsA, scmDir2, fileIdList2, writeData2 );
 
-        //transfer file
+        // transfer file
         createScheduleTask( sessionA, scmDir1 );
 
-        //check siteinfo
+        // check siteinfo
         int currentVersion = 1;
         SiteWrapper[] expCurSiteList1 = { targetSite, sourceSite };
         VersionUtils.checkScheTaskFileSites( wsA, fileIdList1, currentVersion,
@@ -156,8 +153,8 @@ public class Sche_TransferFileByDir2061 extends TestScmBase {
     }
 
     private ScmId createFileWithDir( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName,
-            ScmDirectory dir ) throws ScmException {
+            byte[] data, String authorName, ScmDirectory dir )
+            throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
 
         file.setContent( new ByteArrayInputStream( data ) );
@@ -168,13 +165,13 @@ public class Sche_TransferFileByDir2061 extends TestScmBase {
             file.setDirectory( dir );
         }
         file.setMimeType( fileName + ".txt" );
-        //add tags
+        // add tags
         ScmTags tags = new ScmTags();
         tags.addTag(
-                "我是一个标签2061                                                  " +
-                        "                                                    " +
-                        "                                                    " +
-                        "                            "
+                "我是一个标签2061                                                  "
+                        + "                                                    "
+                        + "                                                    "
+                        + "                            "
                         + "                                " );
         tags.addTag( "THIS IS TAG 2061!" );
         tags.addTag( "tag *&^^^^^*90234@#$%!~asf" );
@@ -189,8 +186,8 @@ public class Sche_TransferFileByDir2061 extends TestScmBase {
                 .put( ScmAttributeName.File.DIRECTORY_ID ).in( scmDir.getId() )
                 .get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                sourceSite.getSiteName(), targetSite.getSiteName(),
-                "0d", condition, ScopeType.SCOPE_CURRENT );
+                sourceSite.getSiteName(), targetSite.getSiteName(), "0d",
+                condition, ScopeType.SCOPE_CURRENT );
         // create schedule task
         String cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( sessionA, wsp.getName(),

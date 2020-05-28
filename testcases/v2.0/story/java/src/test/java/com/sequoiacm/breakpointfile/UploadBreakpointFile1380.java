@@ -27,6 +27,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 /**
  * test content:mulitple upload an breakpoint file by file
  * testlink-case:SCM-1380
+ * 
  * @author wuyan
  * @Date 2018.05.22
  * @version 1.00
@@ -47,10 +48,10 @@ public class UploadBreakpointFile1380 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -88,20 +89,20 @@ public class UploadBreakpointFile1380 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, ScmChecksumType.ADLER32 );
 
-        //multiple upload file
+        // multiple upload file
         int[] dataSizes = { 1024 * 50, 1024 * 1024, 1024 * 1024 * 2 };
         for ( int i = 0; i < 3; i++ ) {
             InputStream inputStream = new BreakpointStream( filePath,
                     dataSizes[ i ] );
             if ( i != 0 ) {
-                inputStream
-                        .read( new byte[ dataSizes[ i ] ], 0, dataSizes[ i ] );
+                inputStream.read( new byte[ dataSizes[ i ] ], 0,
+                        dataSizes[ i ] );
             }
             breakpointFile.incrementalUpload( inputStream, false );
             inputStream.close();
         }
 
-        //upload over
+        // upload over
         breakpointFile.upload( new File( filePath ) );
 
         // check file's attribute
@@ -113,17 +114,16 @@ public class UploadBreakpointFile1380 extends TestScmBase {
 
     private void checkFileData( ScmBreakpointFile breakpointFile )
             throws Exception {
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( fileName );
         file.setTitle( fileName );
         fileId = file.save();
 
-        //down file
-        String downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results

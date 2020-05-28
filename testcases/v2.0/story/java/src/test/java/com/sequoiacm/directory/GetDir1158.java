@@ -23,7 +23,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1158 :: 获取根文件夹/获取多级文件夹下的文件夹 
+ * @Description:SCM-1158 :: 获取根文件夹/获取多级文件夹下的文件夹
  * @author fanyu
  * @Date:2018年4月25日
  * @version:1.0
@@ -63,7 +63,7 @@ public class GetDir1158 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         try {
-            //check root dir
+            // check root dir
             ScmDirectory dir1 = ScmFactory.Directory.getInstance( ws, "/" );
             BSONObject cond1 = new BasicBSONObject();
             cond1.put( "name", "/" );
@@ -74,7 +74,7 @@ public class GetDir1158 extends TestScmBase {
             cond1.put( "user", "admin" );
             check( dir1, cond1 );
 
-            //check other dir
+            // check other dir
             ScmDirectory dir2 = dir.getSubdirectory( "1158_c" );
             BSONObject cond2 = new BasicBSONObject();
             cond2.put( "name", "1158_c" );
@@ -142,8 +142,8 @@ public class GetDir1158 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -173,4 +173,3 @@ public class GetDir1158 extends TestScmBase {
         return pathList;
     }
 }
-

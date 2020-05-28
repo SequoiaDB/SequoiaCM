@@ -60,15 +60,14 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             for ( int i = 0; i < fileNum; i++ ) {
-                String filePath =
-                        localPath + File.separator + "localFile_" + fileSize +
-                                i + ".txt";
+                String filePath = localPath + File.separator + "localFile_"
+                        + fileSize + i + ".txt";
                 TestTools.LocalFile.createFile( filePath, fileSize + i );
                 filePathList.add( filePath );
             }
@@ -99,7 +98,7 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
     private void testTransfer() {
         try {
             startTaskFromSubCenterA( wsA );
-            //waitTransferPartFile(fileIdList);
+            // waitTransferPartFile(fileIdList);
             waitTaskRunning();
             ScmSystem.Task.stopTask( sessionA, taskId );
             waitTaskstop( sessionA );
@@ -155,9 +154,8 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.SIZE ).greaterThanEquals( value )
                 .get();
-        taskId = ScmSystem.Task
-                .startTransferTask( ws, condition, ScopeType.SCOPE_CURRENT,
-                        rootSite.getSiteName() );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
     }
 
     private void checkMetaAndLobs() throws Exception {
@@ -168,14 +166,12 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
             int siteNum = siteNumList.get( i );
             if ( siteNum == 2 ) {
                 SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             } else {
                 SiteWrapper[] expSiteList = { branceSite };
-                ScmFileUtils
-                        .checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                                filePath );
+                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
+                        localPath, filePath );
             }
         }
     }
@@ -185,9 +181,9 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
             ScmId fileId = fileIdList.get( i );
             String filePath = filePathList.get( i );
 
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
 
@@ -200,8 +196,8 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
     private List< Integer > getSiteNumList( ScmWorkspace ws ) {
         try {
             for ( int i = 0; i < fileNum; i++ ) {
-                ScmFile file = ScmFactory.File
-                        .getInstance( ws, fileIdList.get( i ) );
+                ScmFile file = ScmFactory.File.getInstance( ws,
+                        fileIdList.get( i ) );
                 int actSiteNum = file.getLocationList().size();
                 siteNumList.add( actSiteNum );
             }
@@ -226,10 +222,9 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
             startTime = ScmSystem.Task.getTask( sessionA, taskId )
                     .getStartTime();
             if ( stopTime != null ) {
-                throw new Exception(
-                        "startTime = " + startTime + ", stopTime = " + stopTime
-                                + ", stopTime is not null, taskId = " +
-                                taskId.get() );
+                throw new Exception( "startTime = " + startTime
+                        + ", stopTime = " + stopTime
+                        + ", stopTime is not null, taskId = " + taskId.get() );
             }
         }
     }

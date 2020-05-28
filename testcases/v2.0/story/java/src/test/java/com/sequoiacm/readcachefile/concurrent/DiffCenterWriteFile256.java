@@ -54,10 +54,10 @@ public class DiffCenterWriteFile256 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -86,11 +86,10 @@ public class DiffCenterWriteFile256 extends TestScmBase {
             WriteFileFromB WriteFromB = new WriteFileFromB();
             WriteFromB.start( 15 );
 
-            if ( !( writeFromM.isSuccess() && WriteFromA.isSuccess() &&
-                    WriteFromB.isSuccess() ) ) {
-                Assert.fail(
-                        writeFromM.getErrorMsg() + WriteFromA.getErrorMsg() +
-                                WriteFromB.getErrorMsg() );
+            if ( !( writeFromM.isSuccess() && WriteFromA.isSuccess()
+                    && WriteFromB.isSuccess() ) ) {
+                Assert.fail( writeFromM.getErrorMsg() + WriteFromA.getErrorMsg()
+                        + WriteFromB.getErrorMsg() );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -123,12 +122,11 @@ public class DiffCenterWriteFile256 extends TestScmBase {
         ScmId fileId = null;
         try {
             ss = TestScmTools.createSession( site );
-            ScmWorkspace wks = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace wks = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
-            fileId = ScmFileUtils
-                    .create( wks, fileName + "_" + UUID.randomUUID(),
-                            filePath );
+            fileId = ScmFileUtils.create( wks,
+                    fileName + "_" + UUID.randomUUID(), filePath );
             fileIdList.add( fileId );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
@@ -146,14 +144,14 @@ public class DiffCenterWriteFile256 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             ss = TestScmTools.createSession( site );
-            ScmWorkspace wks = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace wks = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             // read
             ScmFile file = ScmFactory.File.getInstance( wks, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             sis = ScmFactory.File.createInputStream( file );
             fos = new FileOutputStream( new File( downloadPath ) );
             sis.read( fos );
@@ -183,9 +181,8 @@ public class DiffCenterWriteFile256 extends TestScmBase {
                     readFile( branSites.get( 0 ), fileId );
                     // check meta data
                     SiteWrapper[] expSites = { rootSite, branSites.get( 0 ) };
-                    ScmFileUtils
-                            .checkMetaAndData( wsp, fileId, expSites, localPath,
-                                    filePath );
+                    ScmFileUtils.checkMetaAndData( wsp, fileId, expSites,
+                            localPath, filePath );
                 }
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );
@@ -206,9 +203,8 @@ public class DiffCenterWriteFile256 extends TestScmBase {
                     // check meta data
                     SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
                             branSites.get( 1 ) };
-                    ScmFileUtils
-                            .checkMetaAndData( wsp, fileId, expSites, localPath,
-                                    filePath );
+                    ScmFileUtils.checkMetaAndData( wsp, fileId, expSites,
+                            localPath, filePath );
                 }
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );
@@ -228,9 +224,8 @@ public class DiffCenterWriteFile256 extends TestScmBase {
                     readFile( rootSite, fileId );
                     // check meta data
                     SiteWrapper[] expSites = { rootSite, branSites.get( 1 ) };
-                    ScmFileUtils
-                            .checkMetaAndData( wsp, fileId, expSites, localPath,
-                                    filePath );
+                    ScmFileUtils.checkMetaAndData( wsp, fileId, expSites,
+                            localPath, filePath );
                 }
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );

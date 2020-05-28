@@ -60,15 +60,14 @@ public class Transfer_rootSiteRemainLob413 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         for ( int i = 0; i < fileNum; i++ ) {
-            String filePath =
-                    localPath + File.separator + "localFile_" + fileSize + i +
-                            ".txt";
+            String filePath = localPath + File.separator + "localFile_"
+                    + fileSize + i + ".txt";
             TestTools.LocalFile.createFile( filePath, fileSize + i );
             filePathList.add( filePath );
         }
@@ -92,8 +91,8 @@ public class Transfer_rootSiteRemainLob413 extends TestScmBase {
         writeFileFromSubCenterA( sessionA );
         // lob remain in mainSite
         ScmId fileId = fileIdList.get( startNum );
-        TestSdbTools.Lob
-                .putLob( rootSite, ws_T, fileId, filePathList.get( startNum ) );
+        TestSdbTools.Lob.putLob( rootSite, ws_T, fileId,
+                filePathList.get( startNum ) );
         startTaskFromSubCenterA( sessionA );
         ScmTaskUtils.waitTaskFinish( sessionA, taskId );
         // check results
@@ -124,8 +123,8 @@ public class Transfer_rootSiteRemainLob413 extends TestScmBase {
     }
 
     private void writeFileFromSubCenterA( ScmSession ss ) throws ScmException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = 0; i < fileNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setContent( filePathList.get( i ) );
@@ -138,8 +137,8 @@ public class Transfer_rootSiteRemainLob413 extends TestScmBase {
 
     private void startTaskFromSubCenterA( ScmSession ss )
             throws ScmException, InterruptedException {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                 .put( ScmAttributeName.File.SIZE )
@@ -169,15 +168,15 @@ public class Transfer_rootSiteRemainLob413 extends TestScmBase {
     }
 
     private void readFileFromMainCenter( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = startNum; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
             String filePath = filePathList.get( i );
             TestSdbTools.Lob.removeLob( branceSite, ws_T, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
             // check content

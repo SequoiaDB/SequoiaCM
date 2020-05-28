@@ -23,9 +23,8 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:the historyVersion file in both the rootSite and the branSite, 
- *               ayncCache the history version file again.
- * testlink-case:SCM-1658
+ * test content:the historyVersion file in both the rootSite and the branSite,
+ * ayncCache the history version file again. testlink-case:SCM-1658
  *
  * @author wuyan
  * @Date 2018.06.05
@@ -64,7 +63,7 @@ public class ReAsyncCacheHisVersionFile1658 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         int historyVersion = 1;
-        //asyncCache history file
+        // asyncCache history file
         AsyncCacheHisVersionFile( historyVersion );
         Collection< ScmFileLocation > firstSiteInfo = getSiteInfo(
                 historyVersion );
@@ -73,12 +72,12 @@ public class ReAsyncCacheHisVersionFile1658 extends TestScmBase {
         Collection< ScmFileLocation > secondSiteInfo = getSiteInfo(
                 historyVersion );
 
-        //check the siteinfo is the same
+        // check the siteinfo is the same
         Assert.assertEquals( firstSiteInfo.toString(),
-                secondSiteInfo.toString(), "fisrt get siteList:"
-                        + firstSiteInfo.toString() + " 2nd get siteList:" +
-                        secondSiteInfo.toString() );
-        //check the history file data
+                secondSiteInfo.toString(),
+                "fisrt get siteList:" + firstSiteInfo.toString()
+                        + " 2nd get siteList:" + secondSiteInfo.toString() );
+        // check the history file data
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
                 filedata );
     }
@@ -109,9 +108,9 @@ public class ReAsyncCacheHisVersionFile1658 extends TestScmBase {
 
     private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
             throws ScmException {
-        //get the create and last access time
-        ScmFile file = ScmFactory.File
-                .getInstance( wsA, fileId, majorVersion, 0 );
+        // get the create and last access time
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
+                0 );
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }

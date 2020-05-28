@@ -34,8 +34,8 @@ public class CreateNoNameBatch1285 extends TestScmBase {
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
-        ws = ScmFactory.Workspace
-                .getWorkspace( ScmInfo.getWs().getName(), session );
+        ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
+                session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -60,8 +60,8 @@ public class CreateNoNameBatch1285 extends TestScmBase {
     }
 
     private int countBatch( ScmWorkspace ws ) throws Exception {
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, new BasicBSONObject() );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject() );
         int total = 0;
         while ( cursor.hasNext() ) {
             cursor.getNext();

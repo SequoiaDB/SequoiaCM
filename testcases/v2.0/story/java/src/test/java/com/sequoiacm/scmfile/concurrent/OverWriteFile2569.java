@@ -62,13 +62,12 @@ public class OverWriteFile2569 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        updateFilePath =
-                localPath + File.separator + "localFile_" + ( fileSize + 1 ) +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        updateFilePath = localPath + File.separator + "localFile_"
+                + ( fileSize + 1 ) + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -79,13 +78,13 @@ public class OverWriteFile2569 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch
-                .listInstance( ws, cond );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                cond );
         while ( cursor.hasNext() ) {
             ScmFactory.Batch.deleteInstance( ws, cursor.getNext().getId() );
         }
         cursor.close();
-        //create batch  and prepare file
+        // create batch and prepare file
         batch = ScmFactory.Batch.createInstance( ws );
         batch.setName( batchName );
         batchId = batch.save();
@@ -102,15 +101,15 @@ public class OverWriteFile2569 extends TestScmBase {
             threadExec.addWorker( new AttachFile( origFileIdList.get( i ) ) );
         }
         threadExec.run();
-        //check result
+        // check result
         String newVal = nameBase + "-new";
         ScmTags newScmTags = new ScmTags();
         newScmTags.addTag( newVal );
         ScmTags oldScmTags = new ScmTags();
         oldScmTags.addTag( nameBase );
         for ( int i = 0; i < fileNum; i++ ) {
-            ScmFile actFile = ScmFactory.File
-                    .getInstanceByPath( ws, nameBase + "-" + i );
+            ScmFile actFile = ScmFactory.File.getInstanceByPath( ws,
+                    nameBase + "-" + i );
             if ( actFile.getAuthor().equals( newVal ) ) {
                 checkFile( actFile, newVal, fileSize + 1, updateFilePath,
                         newScmTags );
@@ -141,10 +140,10 @@ public class OverWriteFile2569 extends TestScmBase {
     }
 
     private ScmId prepareFile( String fileName ) throws ScmException {
-        //create tags
+        // create tags
         ScmTags scmTags = new ScmTags();
         scmTags.addTag( fileName );
-        //create file
+        // create file
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         file.setAuthor( fileName );
@@ -168,9 +167,9 @@ public class OverWriteFile2569 extends TestScmBase {
                     expScmTags.toSet().size() );
             Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
             Assert.assertNotNull( file.getCreateTime().getTime() );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             // check content
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
@@ -189,12 +188,12 @@ public class OverWriteFile2569 extends TestScmBase {
         public OverWriteFile( String fileName ) throws ScmException {
             this.fileName = fileName;
             this.session = TestScmTools.createSession( site );
-            this.ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            this.ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             this.scmFile = ScmFactory.File.createInstance( ws );
             this.scmFile.setFileName( this.fileName );
             this.scmFile.setContent( updateFilePath );
-            //overwrite is true
+            // overwrite is true
             String newVal = nameBase + "-new";
             this.scmFile.setAuthor( newVal );
             this.scmFile.setTitle( newVal );
@@ -240,4 +239,3 @@ public class OverWriteFile2569 extends TestScmBase {
         }
     }
 }
-

@@ -66,10 +66,10 @@ public class CreateSche_coverAllFileAttr1233 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -158,7 +158,7 @@ public class CreateSche_coverAllFileAttr1233 extends TestScmBase {
         try {
             ScmId fileId = fileIds.get( 0 );
             ScmFile file = ScmFactory.File.getInstance( wsA, fileId );
-//			System.out.println(file);
+            // System.out.println(file);
             ScmFileLocation fileLt = file.getLocationList().get( 0 );
             BSONObject lastATObj = ScmQueryBuilder
                     .start( ScmAttributeName.File.LAST_ACCESS_TIME )
@@ -197,21 +197,20 @@ public class CreateSche_coverAllFileAttr1233 extends TestScmBase {
                     .and( ScmAttributeName.File.SITE_LIST )
                     .elemMatch( createTM )
                     .and( ScmAttributeName.File.SITE_LIST ).elemMatch( siteId )
-//					.and(ScmAttributeName.File.FOLDER_ID).is(file
-// .getDirectory())
-//					.and(ScmAttributeName.File.BATCH_ID).is(file.getBatchId())
-//					.and(ScmAttributeName.File.PROPERTIES).is(file
-// .getProperties())
-//					.and(ScmAttributeName.File.PROPERTY_TYPE).is(file
-// .getPropertyType())
+                    // .and(ScmAttributeName.File.FOLDER_ID).is(file
+                    // .getDirectory())
+                    // .and(ScmAttributeName.File.BATCH_ID).is(file.getBatchId())
+                    // .and(ScmAttributeName.File.PROPERTIES).is(file
+                    // .getProperties())
+                    // .and(ScmAttributeName.File.PROPERTY_TYPE).is(file
+                    // .getPropertyType())
                     .get();
             System.out.println( cond );
 
             String maxStayTime = "0d";
-            content = new ScmScheduleCopyFileContent(
-                    branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                    cond );
-            //System.out.println(content.toBSONObject());
+            content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, cond );
+            // System.out.println(content.toBSONObject());
             cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );

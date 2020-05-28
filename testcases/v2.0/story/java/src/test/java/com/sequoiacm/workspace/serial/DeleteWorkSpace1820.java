@@ -22,8 +22,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import com.sequoiadb.exception.BaseException;
 
 /**
- * test content:delete workspace 
- * testlink-case:SCM-1820
+ * test content:delete workspace testlink-case:SCM-1820
  *
  * @author wuyan
  * @Date 2018.06.21
@@ -95,7 +94,7 @@ public class DeleteWorkSpace1820 extends TestScmBase {
     }
 
     private void deleteWorkspace() throws ScmException, InterruptedException {
-        //delete ws , enforced is false
+        // delete ws , enforced is false
         try {
             ScmFactory.Workspace.deleteWorkspace( session, wsName, false );
             Assert.fail( "exist file,delete ws fail!" );
@@ -104,7 +103,7 @@ public class DeleteWorkSpace1820 extends TestScmBase {
                     e.getMessage() );
         }
 
-        //delete ws , enforced is true
+        // delete ws , enforced is true
         ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
         try {
             for ( int j = 0; j < 10; j++ ) {

@@ -124,8 +124,8 @@ public class AuthWs_Resource1777 extends TestScmBase {
     }
 
     private void grantPriAndAttachRole( ScmSession session, ScmResource rs,
-            ScmUser user, ScmRole role,
-            ScmPrivilegeType privileges ) throws ScmException {
+            ScmUser user, ScmRole role, ScmPrivilegeType privileges )
+            throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
         ScmFactory.Role.grantPrivilege( session, role, rs, privileges );
         modifier.addRole( role );
@@ -136,8 +136,8 @@ public class AuthWs_Resource1777 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site, username, passwd );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirpath );
             Assert.assertEquals( dir.getPath(), dirpath + "/" );
         } catch ( ScmException e ) {
@@ -175,12 +175,11 @@ public class AuthWs_Resource1777 extends TestScmBase {
             rsList.add( rs );
         }
 
-        user = ScmFactory.User
-                .createUser( sessionA, username, ScmUserPasswordType.LOCAL,
-                        passwd );
+        user = ScmFactory.User.createUser( sessionA, username,
+                ScmUserPasswordType.LOCAL, passwd );
         for ( String rolename : rolenames ) {
-            ScmRole role = ScmFactory.Role
-                    .createRole( sessionA, rolename, null );
+            ScmRole role = ScmFactory.Role.createRole( sessionA, rolename,
+                    null );
             roleList.add( role );
         }
     }

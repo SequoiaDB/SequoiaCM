@@ -74,9 +74,8 @@ public class DefineAttr_type_intRequired_notSet_1577 extends TestScmBase {
             file.setClassProperties( properties );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info(
-                    "attr is required, but not set the attr, errorMsg = [" +
-                            e.getError() + "]" );
+            logger.info( "attr is required, but not set the attr, errorMsg = ["
+                    + e.getError() + "]" );
         }
         runSuccess = true;
     }

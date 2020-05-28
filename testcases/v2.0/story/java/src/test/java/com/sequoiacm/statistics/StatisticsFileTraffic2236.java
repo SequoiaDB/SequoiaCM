@@ -34,9 +34,8 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: statistics upload and download file traffic, when create
- * file and down file
- * testlink-case:SCM-2236
+ * test content: statistics upload and download file traffic, when create file
+ * and down file testlink-case:SCM-2236
  *
  * @author wuyan
  * @Date 2018.09.13
@@ -52,8 +51,7 @@ public class StatisticsFileTraffic2236 extends TestScmBase {
 
     private String fileName = "file12236";
     private String authorName = "author12236";
-    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque<
-            ScmId >();
+    private LinkedBlockingDeque< ScmId > fileIdQue = new LinkedBlockingDeque< ScmId >();
     private int fileNums = 20;
     private int fileSize = 1024 * 10;
     private byte[] fileData = new byte[ fileSize ];
@@ -91,7 +89,7 @@ public class StatisticsFileTraffic2236 extends TestScmBase {
         Assert.assertTrue( refreshAndStatistics.isSuccess(),
                 refreshAndStatistics.getErrorMsg() );
 
-        //check the create file nums
+        // check the create file nums
         Assert.assertEquals( fileIdQue.size(), fileNums );
 
         runSuccess = true;
@@ -137,15 +135,14 @@ public class StatisticsFileTraffic2236 extends TestScmBase {
                 ScmId fileId = file.save();
                 fileIdQue.offer( fileId );
 
-                //down file
+                // down file
                 ScmFile file1 = ScmFactory.File.getInstance( ws, fileId );
-                ByteArrayOutputStream outputStream = new
-                        ByteArrayOutputStream();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 file1.getContent( outputStream );
 
-                //check the file content
-                VersionUtils
-                        .CheckFileContentByStream( ws, fileName, 1, fileData );
+                // check the file content
+                VersionUtils.CheckFileContentByStream( ws, fileName, 1,
+                        fileData );
             } finally {
                 if ( session != null ) {
                     session.close();
@@ -163,8 +160,8 @@ public class StatisticsFileTraffic2236 extends TestScmBase {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                HashMap trafficInfo = StatisticsUtils
-                        .statisticsFile( ws, session );
+                HashMap trafficInfo = StatisticsUtils.statisticsFile( ws,
+                        session );
                 long statisticDownload = ( long ) trafficInfo
                         .get( "file_download" );
                 long statisticUpload = ( long ) trafficInfo

@@ -24,8 +24,7 @@ public class RestWrapper {
     private static Random random = new Random();
 
     static {
-        HttpComponentsClientHttpRequestFactory factory = new
-                HttpComponentsClientHttpRequestFactory();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setConnectionRequestTimeout( 10000 );
         factory.setConnectTimeout( 10000 );
         factory.setBufferRequestBody( false );
@@ -119,17 +118,17 @@ public class RestWrapper {
             } else if ( this.api.equals( "logout" ) ) {
                 this.url = "http://" + gateWay + "/auth/" + this.api;
             } else {
-                this.url = "http://" + gateWay + "/" + this.addr + "/api/" +
-                        this.getVersion() + "/" + this.api;
+                this.url = "http://" + gateWay + "/" + this.addr + "/api/"
+                        + this.getVersion() + "/" + this.api;
             }
         } else if ( this.serverType.equals( "schedule-server" ) ) {
             List< ScmServiceInstance > schedules = ScmInfo.getScheServerList();
             if ( !schedules.isEmpty() ) {
                 ScmServiceInstance schedule = schedules
                         .get( random.nextInt( schedules.size() ) );
-                this.url = "http://" + schedule.getIp() + ":" +
-                        schedule.getPort() + "/api/" + this.getVersion() + "/" +
-                        this.api;
+                this.url = "http://" + schedule.getIp() + ":"
+                        + schedule.getPort() + "/api/" + this.getVersion() + "/"
+                        + this.api;
             }
         } else if ( this.serverType.equals( "auth-server" ) ) {
             List< ScmServiceInstance > authServers = ScmInfo
@@ -137,9 +136,9 @@ public class RestWrapper {
             if ( !authServers.isEmpty() ) {
                 ScmServiceInstance authserver = authServers
                         .get( random.nextInt( authServers.size() ) );
-                this.url = "http://" + authserver.getIp() + ":" +
-                        authserver.getPort() + "/api/" + this.getVersion() +
-                        "/" + this.api;
+                this.url = "http://" + authserver.getIp() + ":"
+                        + authserver.getPort() + "/api/" + this.getVersion()
+                        + "/" + this.api;
             }
         }
         return this;
@@ -178,12 +177,11 @@ public class RestWrapper {
         try {
             if ( this.uriVariables != null ) {
                 response = rest.exchange( this.url, this.requestMethod,
-                        this.requestEntity,
-                        this.responseType, this.uriVariables );
+                        this.requestEntity, this.responseType,
+                        this.uriVariables );
             } else {
                 response = rest.exchange( this.url, this.requestMethod,
-                        this.requestEntity,
-                        this.responseType );
+                        this.requestEntity, this.responseType );
             }
         } catch ( HttpClientErrorException e ) {
             System.out.println(
@@ -212,7 +210,8 @@ public class RestWrapper {
     }
 
     /**
-     * @param serverType the serverType to set
+     * @param serverType
+     *            the serverType to set
      */
     public RestWrapper setServerType( String serverType ) {
         this.serverType = serverType;

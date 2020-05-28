@@ -35,9 +35,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @FileName SCM-1242:更新name/desc
- * 			  SCM-1243:原type为迁移，更新为清理，并更新源和目标站点满足清理条件
- * 			  SCM-1246:原type为清理，更新为迁移，并更新源和目标站点满足迁移条件
+ * @FileName SCM-1242:更新name/desc SCM-1243:原type为迁移，更新为清理，并更新源和目标站点满足清理条件
+ *           SCM-1246:原type为清理，更新为迁移，并更新源和目标站点满足迁移条件
  * @Author huangxiaoni
  * @Date 2018-04-17
  * @Version 1.00
@@ -64,10 +63,10 @@ public class UpdateSche_copyToClean1242_1243 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -154,7 +153,7 @@ public class UpdateSche_copyToClean1242_1243 extends TestScmBase {
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
                     queryCond );
-            //System.out.println(content.toBSONObject());
+            // System.out.println(content.toBSONObject());
             ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                     taskType, name, "desc", content, cron );
             scheduleId = sche.getId();
@@ -198,8 +197,9 @@ public class UpdateSche_copyToClean1242_1243 extends TestScmBase {
             Assert.assertEquals( sche2.getContent(), content );
             Assert.assertEquals( sche2.getCron(), cron );
             Assert.assertEquals( sche2.getWorkspace(), wsp.getName() );
-            //Assert.assertEquals(sche2.getCreaateUser(), TestScmBase.scmUserName);
-            //Assert.assertEquals(sche2.getCreateDate(), scheduleId);
+            // Assert.assertEquals(sche2.getCreaateUser(),
+            // TestScmBase.scmUserName);
+            // Assert.assertEquals(sche2.getCreateDate(), scheduleId);
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

@@ -22,8 +22,9 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:create breakpoint file,upload empty data
- * testlink case:seqDB-1364
+ * test content:create breakpoint file,upload empty data testlink
+ * case:seqDB-1364
+ * 
  * @author wuyan
  * @Date 2018.05.11
  * @version 1.00
@@ -60,12 +61,12 @@ public class CreateBreakpointFile1364 extends TestScmBase {
         breakpointFile.upload( new ByteArrayInputStream( data ) );
 
         // check file's attribute
-        //empty file is check the filesize is 0
+        // empty file is check the filesize is 0
         Assert.assertEquals( breakpointFile.getUploadSize(), 0 );
         Assert.assertEquals( breakpointFile.getWorkspace(), ws );
         Assert.assertEquals( breakpointFile.isCompleted(), true );
 
-        //check the data of the file
+        // check the data of the file
         checkBreakPointData( data, breakpointFile );
     }
 

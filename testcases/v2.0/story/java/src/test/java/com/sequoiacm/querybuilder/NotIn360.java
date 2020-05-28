@@ -98,8 +98,8 @@ public class NotIn360 extends TestScmBase {
                     bsStr.replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess = true;
@@ -130,9 +130,8 @@ public class NotIn360 extends TestScmBase {
         try {
             for ( int i = 0; i < fileNum; i++ ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
-                file.setFileName(
-                        authorName + "_" + TestTools.getRandomString( 10 ) +
-                                i );
+                file.setFileName( authorName + "_"
+                        + TestTools.getRandomString( 10 ) + i );
                 file.setAuthor( authorName );
                 file.setTitle( TestTools.getRandomString( 10 ) + i );
                 file.setMimeType( TestTools.getRandomString( 10 ) + i );
@@ -146,8 +145,9 @@ public class NotIn360 extends TestScmBase {
 
     private Object[][] kvsArr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileIdList.get( 1 ) );
-        return new Object[][] { new Object[] { ScmAttributeName.File.FILE_ID,
-                file.getFileId().get() },
+        return new Object[][] {
+                new Object[] { ScmAttributeName.File.FILE_ID,
+                        file.getFileId().get() },
                 new Object[] { ScmAttributeName.File.FILE_NAME,
                         file.getFileName() },
                 new Object[] { ScmAttributeName.File.AUTHOR, file.getAuthor() },

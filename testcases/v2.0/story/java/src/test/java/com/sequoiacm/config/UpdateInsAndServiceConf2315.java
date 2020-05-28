@@ -32,12 +32,12 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test1() throws ScmException {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .instance( site.getNode().getUrl() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {
@@ -50,12 +50,12 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test2() throws ScmException {
         try {
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .allInstance()
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {
@@ -70,12 +70,12 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
         try {
             List< String > instances = new ArrayList< String >();
             instances.add( site.getNode().getUrl() );
-            ScmConfigProperties.builder()
-                    .service( site.getSiteServiceName() )
+            ScmConfigProperties.builder().service( site.getSiteServiceName() )
                     .instances( instances )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {
@@ -90,12 +90,12 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
         try {
             List< String > services = new ArrayList< String >();
             services.add( site.getSiteServiceName() );
-            ScmConfigProperties.builder()
-                    .services( services )
+            ScmConfigProperties.builder().services( services )
                     .instance( site.getNode().getUrl() )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {
@@ -110,12 +110,11 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
         try {
             List< String > services = new ArrayList< String >();
             services.add( site.getSiteServiceName() );
-            ScmConfigProperties.builder()
-                    .services( services )
-                    .allInstance()
+            ScmConfigProperties.builder().services( services ).allInstance()
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {
@@ -133,11 +132,11 @@ public class UpdateInsAndServiceConf2315 extends TestScmBase {
             List< String > instances = new ArrayList< String >();
             instances.add( site.getNode().getUrl() );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
-                    .services( services )
-                    .instances( instances )
+                    .services( services ).instances( instances )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             Assert.fail(
                     "instance and service is not allowed to set together" );
         } catch ( ScmException e ) {

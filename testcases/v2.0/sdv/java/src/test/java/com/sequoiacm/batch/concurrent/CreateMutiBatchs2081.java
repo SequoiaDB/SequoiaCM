@@ -37,8 +37,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * test content:create multiple batchs concurrent
- * testlink-case:SCM-2081
+ * test content:create multiple batchs concurrent testlink-case:SCM-2081
  *
  * @author wuyan
  * @Date 2018.07.16
@@ -53,8 +52,7 @@ public class CreateMutiBatchs2081 extends TestScmBase {
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private byte[] writeData = new byte[ 1024 * 3 ];
-    private LinkedBlockingDeque< ScmId > batchIdQue = new
-            LinkedBlockingDeque< ScmId >();
+    private LinkedBlockingDeque< ScmId > batchIdQue = new LinkedBlockingDeque< ScmId >();
 
     @BeforeClass()
     private void setUp() throws ScmException {
@@ -64,8 +62,8 @@ public class CreateMutiBatchs2081 extends TestScmBase {
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject tagBson = new BasicBSONObject( "tags", "tag2081" );
-        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.
-                listInstance( ws, new BasicBSONObject( "tags", tagBson ) );
+        ScmCursor< ScmBatchInfo > cursor = ScmFactory.Batch.listInstance( ws,
+                new BasicBSONObject( "tags", tagBson ) );
         while ( cursor.hasNext() ) {
             ScmBatchInfo info = cursor.getNext();
             ScmId batchId = info.getId();
@@ -150,7 +148,7 @@ public class CreateMutiBatchs2081 extends TestScmBase {
             ScmId batchId = ( ScmId ) iterator.next();
             ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
 
-            //each batch contains a file
+            // each batch contains a file
             List< ScmFile > files = batch.listFiles();
             Assert.assertEquals( files.size(), 1 );
         }
@@ -161,24 +159,24 @@ public class CreateMutiBatchs2081 extends TestScmBase {
         while ( !batchIdQue.isEmpty() ) {
             ScmId batchId = batchIdQue.take();
 
-            //check delete result
+            // check delete result
             ScmFactory.Batch.deleteInstance( ws, batchId );
             try {
                 ScmFactory.Batch.getInstance( ws, batchId );
                 Assert.fail( "get batch must bu fail!" );
             } catch ( ScmException e ) {
                 if ( ScmError.BATCH_NOT_FOUND != e.getError() ) {
-                    Assert.fail( "expErrorCode:-250  actError:" + e.getError() +
-                            e.getMessage() );
+                    Assert.fail( "expErrorCode:-250  actError:" + e.getError()
+                            + e.getMessage() );
                 }
             }
         }
 
-        //check file by Batch
+        // check file by Batch
         BSONObject fileCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        long remainFileNum = ScmFactory.File
-                .countInstance( ws, ScopeType.SCOPE_CURRENT, fileCondition );
+        long remainFileNum = ScmFactory.File.countInstance( ws,
+                ScopeType.SCOPE_CURRENT, fileCondition );
         int expFileNum = 0;
         Assert.assertEquals( remainFileNum, expFileNum );
     }

@@ -70,18 +70,18 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
     private void test() throws Exception {
         createFiles( wsA, fileNums );
 
-        //get statisticDownload after create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload after create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload1 = firstmap.get( "file_download" );
         asyncTransferFile( wsA );
 
-        //get statisticDownload after asyncTransfer file
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( wsA, sessionA );
+        // get statisticDownload after asyncTransfer file
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( wsA,
+                sessionA );
         long statisticDownload2 = secondmap.get( "file_download" );
 
-        //check statisticDownload result, statistic no download file
+        // check statisticDownload result, statistic no download file
         Assert.assertEquals( statisticDownload2, statisticDownload1,
                 "statistic traffic must be no change!" );
         runSuccess = true;
@@ -121,8 +121,8 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
 
             // waiting for asyncTransfer success
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
             ;
         }
     }

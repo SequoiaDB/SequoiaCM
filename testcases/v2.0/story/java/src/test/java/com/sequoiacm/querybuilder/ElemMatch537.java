@@ -73,25 +73,24 @@ public class ElemMatch537 extends TestScmBase {
     private void testInvalidKey() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 1 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 1 ) );
             String key = ScmAttributeName.File.TITLE;
             BSONObject value = ScmQueryBuilder
                     .start( ScmAttributeName.File.SITE_ID )
                     .is( site.getSiteId() ).get();
             BSONObject cond = ScmQueryBuilder.start( key ).elemMatch( value )
-                    .and( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .and( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"title\" : { \"$elemMatch\" : { \"site_id\" : " +
-                            site.getSiteId()
-                            + "}} , \"author\" : \"" + authorName + "\"}" )
-                            .replaceAll( "\\s*", "" ) );
+                    ( "{ \"title\" : { \"$elemMatch\" : { \"site_id\" : "
+                            + site.getSiteId() + "}} , \"author\" : \""
+                            + authorName + "\"}" ).replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess1 = true;
@@ -104,24 +103,24 @@ public class ElemMatch537 extends TestScmBase {
     private void testInvalidElemKey() throws Exception {
         try {
             // build condition
-            ScmFile file = ScmFactory.File
-                    .getInstance( ws, fileIdList.get( 1 ) );
+            ScmFile file = ScmFactory.File.getInstance( ws,
+                    fileIdList.get( 1 ) );
             String key = ScmAttributeName.File.SITE_LIST;
             BSONObject value = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR )
                     .is( site.getSiteId() ).get();
             BSONObject cond = ScmQueryBuilder.start( key ).elemMatch( value )
-                    .and( ScmAttributeName.File.AUTHOR )
-                    .is( file.getAuthor() ).get();
+                    .and( ScmAttributeName.File.AUTHOR ).is( file.getAuthor() )
+                    .get();
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
                     ( "{ \"site_list\" : { \"$elemMatch\" : { \"author\" : "
-                            + site.getSiteId() + "}} , \"author\" : \"" +
-                            authorName + "\"}" ).replaceAll( "\\s*", "" ) );
+                            + site.getSiteId() + "}} , \"author\" : \""
+                            + authorName + "\"}" ).replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess2 = true;

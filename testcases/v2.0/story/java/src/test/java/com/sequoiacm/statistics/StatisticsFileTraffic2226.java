@@ -64,9 +64,9 @@ public class StatisticsFileTraffic2226 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get statisticDownload before create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        // get statisticDownload before create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticDownload1 = firstmap.get( "file_download" );
         long statisticUpload1 = firstmap.get( "file_upload" );
 
@@ -74,13 +74,13 @@ public class StatisticsFileTraffic2226 extends TestScmBase {
         downloadFile( ws );
         deleteFile( ws );
 
-        //get statisticUpload after download
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        // get statisticUpload after download
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticDownload2 = secondmap.get( "file_download" );
         long statisticUpload2 = secondmap.get( "file_upload" );
 
-        //check statistic file download and upload result
+        // check statistic file download and upload result
         long upFiles = statisticUpload2 - statisticUpload1;
         Assert.assertEquals( upFiles, fileNums );
         long downloadFiles = statisticDownload2 - statisticDownload1;
@@ -110,9 +110,8 @@ public class StatisticsFileTraffic2226 extends TestScmBase {
             throws ScmException {
         for ( int i = 0; i < fileNums; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = StatisticsUtils
-                    .createFileByStream( ws, subfileName, fileData,
-                            authorName );
+            ScmId fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                    fileData, authorName );
             fileIds.add( fileId );
         }
     }

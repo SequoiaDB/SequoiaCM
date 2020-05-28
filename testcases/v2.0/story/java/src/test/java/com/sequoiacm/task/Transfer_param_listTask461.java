@@ -64,10 +64,10 @@ public class Transfer_param_listTask461 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -78,8 +78,8 @@ public class Transfer_param_listTask461 extends TestScmBase {
             ws_T = ScmInfo.getWs();
 
             sessionA = TestScmTools.createSession( branceSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( ws_T.getName(), sessionA );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                    sessionA );
 
             prepareFiles( sessionA );
 
@@ -106,9 +106,8 @@ public class Transfer_param_listTask461 extends TestScmBase {
             ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
                     .listTask( sessionA, cond );
             if ( cursor.hasNext() ) {
-                Assert.fail(
-                        "list shouldn't have result when matcher has " +
-                                "inexistent attribute" );
+                Assert.fail( "list shouldn't have result when matcher has "
+                        + "inexistent attribute" );
             }
             cursor.close();
         } catch ( Exception e ) {
@@ -155,8 +154,8 @@ public class Transfer_param_listTask461 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
                 for ( int i = 0; i < fileNum; ++i ) {
-                    ScmFactory.File
-                            .deleteInstance( ws, fileIdList.get( i ), true );
+                    ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
+                            true );
                 }
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
@@ -171,8 +170,8 @@ public class Transfer_param_listTask461 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         for ( int i = 0; i < fileNum; ++i ) {
             ScmFile scmfile = ScmFactory.File.createInstance( ws );
             scmfile.setFileName( authorName + "_" + UUID.randomUUID() );

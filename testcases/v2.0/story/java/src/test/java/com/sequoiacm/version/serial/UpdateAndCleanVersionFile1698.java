@@ -77,8 +77,8 @@ public class UpdateAndCleanVersionFile1698 extends TestScmBase {
 
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
                 .is( fileId.toString() ).get();
-        taskId = ScmSystem.Task
-                .startCleanTask( wsA, cond, ScopeType.SCOPE_CURRENT );
+        taskId = ScmSystem.Task.startCleanTask( wsA, cond,
+                ScopeType.SCOPE_CURRENT );
 
         Assert.assertTrue( updateFileThread.isSuccess(),
                 updateFileThread.getErrorMsg() );

@@ -39,8 +39,7 @@ public class ReloadBizConf1214 extends TestScmBase {
     // this test just check the return value.
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.POST )
-                .setApi( "/reload-bizconf" )
-                .setParameter( "scope", 1 )
+                .setApi( "/reload-bizconf" ).setParameter( "scope", 1 )
                 .setResponseType( String.class ).exec().getBody().toString();
         JSONArray result = JSON.parseArray( response );
         Assert.assertTrue( result.size() > 0 );

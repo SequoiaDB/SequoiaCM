@@ -74,10 +74,8 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
                     .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
-            Assert.fail(
-                    "delete configuration should be failed by normal user," +
-                            "actResults = " +
-                            actResults.toString() );
+            Assert.fail( "delete configuration should be failed by normal user,"
+                    + "actResults = " + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_FORBIDDEN ) {
                 Assert.fail( e.getMessage() );
@@ -87,7 +85,7 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration do not take effect
+        // check updated configuration do not take effect
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
@@ -104,9 +102,8 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmUser scmUser = ScmFactory.User
-                    .createUser( session, username, ScmUserPasswordType.LOCAL,
-                            passwd );
+            ScmUser scmUser = ScmFactory.User.createUser( session, username,
+                    ScmUserPasswordType.LOCAL, passwd );
             ScmRole role = ScmFactory.Role.createRole( session, rolename, "" );
             ScmUserModifier modifier = new ScmUserModifier();
             ScmResource resource = ScmResourceFactory

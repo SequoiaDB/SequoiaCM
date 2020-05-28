@@ -35,7 +35,7 @@ import com.sequoiacm.testcommon.TestScmBase;
  */
 public class StatisticsUtils extends TestScmBase {
 
-    //get the timestamp of the Day,eg "2018-09-12" is 1536681600000
+    // get the timestamp of the Day,eg "2018-09-12" is 1536681600000
     public static long getTimestampOfTheDay() {
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd" );
@@ -53,12 +53,11 @@ public class StatisticsUtils extends TestScmBase {
     public static HashMap< String, Long > statisticsFile( ScmWorkspace ws,
             ScmSession session ) throws ScmException {
         long currentTimestamp = getTimestampOfTheDay();
-        ScmSystem.Statistics
-                .refresh( session, StatisticsType.TRAFFIC, ws.getName() );
+        ScmSystem.Statistics.refresh( session, StatisticsType.TRAFFIC,
+                ws.getName() );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.Traffic.WORKSPACE_NAME )
-                .is( ws.getName() )
-                .put( ScmAttributeName.Traffic.RECORD_TIME )
+                .is( ws.getName() ).put( ScmAttributeName.Traffic.RECORD_TIME )
                 .is( currentTimestamp ).get();
 
         ScmCursor< ScmStatisticsTraffic > cursor = ScmSystem.Statistics
@@ -79,7 +78,7 @@ public class StatisticsUtils extends TestScmBase {
         }
         cursor.close();
 
-        //no statistics ,the traffic is 0
+        // no statistics ,the traffic is 0
         if ( size == 0 ) {
             long traffic = 0;
             map.put( "file_upload", traffic );
@@ -91,8 +90,8 @@ public class StatisticsUtils extends TestScmBase {
     public static HashMap< String, Long > statisticsFileDelta( ScmWorkspace ws,
             ScmSession session ) throws ScmException {
         long currentTimestamp = getTimestampOfTheDay();
-        ScmSystem.Statistics
-                .refresh( session, StatisticsType.FILE_DELTA, ws.getName() );
+        ScmSystem.Statistics.refresh( session, StatisticsType.FILE_DELTA,
+                ws.getName() );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.Traffic.WORKSPACE_NAME )
                 .is( ws.getName() )
@@ -147,5 +146,3 @@ public class StatisticsUtils extends TestScmBase {
         return fileId;
     }
 }
-
-

@@ -47,8 +47,8 @@ public class CreateSche_ParamEnable2371 extends TestScmBase {
         schedule.delete();
         try {
             schedule.disable();
-            Assert.fail( "exp fail but act success,scheduleId = " +
-                    schedule.getId().get() );
+            Assert.fail( "exp fail but act success,scheduleId = "
+                    + schedule.getId().get() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
                 throw e;
@@ -57,8 +57,8 @@ public class CreateSche_ParamEnable2371 extends TestScmBase {
 
         try {
             schedule.enable();
-            Assert.fail( "exp fail but act success,scheduleId = " +
-                    schedule.getId().get() );
+            Assert.fail( "exp fail but act success,scheduleId = "
+                    + schedule.getId().get() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
                 throw e;

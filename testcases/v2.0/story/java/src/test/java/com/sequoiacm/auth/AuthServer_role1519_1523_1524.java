@@ -20,9 +20,8 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 
 /**
- * @FileName SCM-1519:普通角色创建角色
- * 			  SCM-1523:admin角色删除普通角色，且被删除的角色已被用户所拥有
- * 			  SCM-1524:普通角色删除角色
+ * @FileName SCM-1519:普通角色创建角色 SCM-1523:admin角色删除普通角色，且被删除的角色已被用户所拥有
+ *           SCM-1524:普通角色删除角色
  * @Author huangxioni
  * @Date 2018/5/16
  */
@@ -54,9 +53,8 @@ public class AuthServer_role1519_1523_1524 extends TestScmBase {
             try {
                 ScmFactory.Role.deleteRole( session, NAME + "_" + i );
             } catch ( ScmException e ) {
-                logger.info(
-                        "clean roles in setUp, errorMsg = [" + e.getError() +
-                                "]" );
+                logger.info( "clean roles in setUp, errorMsg = [" + e.getError()
+                        + "]" );
             }
         }
 
@@ -86,8 +84,8 @@ public class AuthServer_role1519_1523_1524 extends TestScmBase {
             ScmFactory.Role.createRole( ss, NAME + "_2", "" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "create role by ordinary user, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "create role by ordinary user, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         ss.close();
@@ -101,8 +99,8 @@ public class AuthServer_role1519_1523_1524 extends TestScmBase {
             ScmFactory.Role.getRole( session, NAME + "_0" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "get role after delete, errorMsg = [" + e.getError() +
-                    "]" );
+            logger.info( "get role after delete, errorMsg = [" + e.getError()
+                    + "]" );
         }
 
         runSuccess = true;
@@ -115,8 +113,8 @@ public class AuthServer_role1519_1523_1524 extends TestScmBase {
             ScmFactory.Role.deleteRole( ss, NAME + "_1" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
-            logger.info( "delete role by ordinary user, errorMsg = [" +
-                    e.getError() + "]" );
+            logger.info( "delete role by ordinary user, errorMsg = ["
+                    + e.getError() + "]" );
         }
 
         ss.close();
@@ -139,9 +137,8 @@ public class AuthServer_role1519_1523_1524 extends TestScmBase {
 
     private void createOrdinaryUser() throws ScmException {
         // create user
-        ScmUser scmUser = ScmFactory.User
-                .createUser( session, NAME, ScmUserPasswordType.LOCAL,
-                        PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, NAME,
+                ScmUserPasswordType.LOCAL, PASSWORD );
         // create role
         for ( int i = 0; i < ROLE_NUM; i++ ) {
             ScmFactory.Role.createRole( session, NAME + "_" + i, "test" );

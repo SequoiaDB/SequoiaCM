@@ -45,7 +45,7 @@ public class UpdateServiceConf2290 extends TestScmBase {
     }
 
     private void testInvalidParam() throws ScmException, InterruptedException {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
@@ -65,14 +65,14 @@ public class UpdateServiceConf2290 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration do not take effect
+        // check updated configuration do not take effect
         ConfUtil.checkNotTakeEffect( updatedSite, fileName );
-        //restore
+        // restore
         ConfUtil.deleteAuditConf( updatedSite.getSiteServiceName() );
     }
 
     private void testRightParam() throws Exception {
-        //update configuration and check results
+        // update configuration and check results
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( updatedSite );
@@ -82,7 +82,8 @@ public class UpdateServiceConf2290 extends TestScmBase {
                     .updateProperty( ConfigCommonDefind.scm_audit_mask,
                             "FILE_DML" )
                     .updateProperty( ConfigCommonDefind.scm_audit_userMask,
-                            "LOCAL" ).build();
+                            "LOCAL" )
+                    .build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > expServiceNames = new ArrayList< String >();
@@ -94,9 +95,9 @@ public class UpdateServiceConf2290 extends TestScmBase {
                 session.close();
             }
         }
-        //check updated configuration take effect
+        // check updated configuration take effect
         ConfUtil.checkTakeEffect( updatedSite, fileName );
-        //check otherservice's configration is not updated
+        // check otherservice's configration is not updated
         ConfUtil.checkNotTakeEffect( initSite, fileName );
     }
 

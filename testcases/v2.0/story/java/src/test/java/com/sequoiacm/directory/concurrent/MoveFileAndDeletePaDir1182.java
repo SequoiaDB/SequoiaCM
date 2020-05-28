@@ -52,10 +52,10 @@ public class MoveFileAndDeletePaDir1182 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -173,8 +173,8 @@ public class MoveFileAndDeletePaDir1182 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -225,8 +225,8 @@ public class MoveFileAndDeletePaDir1182 extends TestScmBase {
         public void exec() {
             try {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                ScmDirectory dir = ScmFactory.Directory
-                        .getInstance( ws, dirBasePath );
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        dirBasePath );
                 file.setDirectory( dir );
                 check( fileId, dir );
             } catch ( ScmException e ) {

@@ -61,14 +61,14 @@ public class Clean_byLastAccessTime473 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             ws_T = ScmInfo.getWs();
@@ -132,16 +132,16 @@ public class Clean_byLastAccessTime473 extends TestScmBase {
     }
 
     private void startCleanTaskFromA( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
 
         BSONObject obj = ScmQueryBuilder.start( ScmAttributeName.File.SITE_ID )
                 .is( branceSite.getSiteId() )
                 .and( ScmAttributeName.File.LAST_ACCESS_TIME )
                 .greaterThanEquals( lastAccessTimeList.get( startNum ) ).get();
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( authorName )
-                .put( ScmAttributeName.File.SITE_LIST ).elemMatch( obj ).get();
+                .is( authorName ).put( ScmAttributeName.File.SITE_LIST )
+                .elemMatch( obj ).get();
 
         taskId = ScmSystem.Task.startCleanTask( ws, cond );
     }
@@ -158,22 +158,22 @@ public class Clean_byLastAccessTime473 extends TestScmBase {
     }
 
     private void readFileFromM( ScmSession ss ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), ss );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                ss );
         for ( int i = 0; i < fileNum; i++ ) {
             // read file
             ScmId fileId = fileIdList.get( i );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             file.getContent( downloadPath );
 
             // get lastAccessTime
             file = ScmFactory.File.getInstance( ws, fileId );
             for ( int j = 0; j < file.getLocationList().size(); j++ ) {
-                if ( file.getLocationList().get( j ).getSiteId() ==
-                        branceSite.getSiteId() ) {
+                if ( file.getLocationList().get( j ).getSiteId() == branceSite
+                        .getSiteId() ) {
                     long lastAccessTime = file.getLocationList().get( j )
                             .getDate().getTime();
                     lastAccessTimeList.add( lastAccessTime );
@@ -187,13 +187,12 @@ public class Clean_byLastAccessTime473 extends TestScmBase {
             SiteWrapper[] expSiteList1 = { rootSite };
             ScmFileUtils.checkMetaAndData( ws_T,
                     fileIdList.subList( startNum, fileNum ), expSiteList1,
-                    localPath,
-                    filePath );
+                    localPath, filePath );
 
             SiteWrapper[] expSiteList2 = { rootSite, branceSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileIdList.subList( 0, startNum ),
-                            expSiteList2, localPath, filePath );
+            ScmFileUtils.checkMetaAndData( ws_T,
+                    fileIdList.subList( 0, startNum ), expSiteList2, localPath,
+                    filePath );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }

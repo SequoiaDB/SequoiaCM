@@ -46,13 +46,12 @@ public class BreakpointFile1397 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        checkFilePath =
-                localPath + File.separator + "localFile_check" + fileSize +
-                        ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        checkFilePath = localPath + File.separator + "localFile_check"
+                + fileSize + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
@@ -71,12 +70,10 @@ public class BreakpointFile1397 extends TestScmBase {
         BreakpointUtil.createBreakpointFile( ws, filePath, "TestFile1392_4",
                 1024 * 4096, ScmChecksumType.CRC32 );
 
-        CreateBreakpointFileThread createThread1 = new
-                CreateBreakpointFileThread(
+        CreateBreakpointFileThread createThread1 = new CreateBreakpointFileThread(
                 "TestFile1392_1" );
         createThread1.start();
-        CreateBreakpointFileThread createThread2 = new
-                CreateBreakpointFileThread(
+        CreateBreakpointFileThread createThread2 = new CreateBreakpointFileThread(
                 "TestFile1392_2" );
         createThread2.start();
 
@@ -92,14 +89,14 @@ public class BreakpointFile1397 extends TestScmBase {
         thread1.isSuccess();
         thread2.isSuccess();
 
-        BreakpointUtil
-                .checkScmFile( ws, "TestFile1392_1", filePath, checkFilePath );
-        BreakpointUtil
-                .checkScmFile( ws, "TestFile1392_2", filePath, checkFilePath );
-        BreakpointUtil
-                .checkScmFile( ws, "TestFile1392_3", filePath, checkFilePath );
-        BreakpointUtil
-                .checkScmFile( ws, "TestFile1392_4", filePath, checkFilePath );
+        BreakpointUtil.checkScmFile( ws, "TestFile1392_1", filePath,
+                checkFilePath );
+        BreakpointUtil.checkScmFile( ws, "TestFile1392_2", filePath,
+                checkFilePath );
+        BreakpointUtil.checkScmFile( ws, "TestFile1392_3", filePath,
+                checkFilePath );
+        BreakpointUtil.checkScmFile( ws, "TestFile1392_4", filePath,
+                checkFilePath );
     }
 
     @AfterClass

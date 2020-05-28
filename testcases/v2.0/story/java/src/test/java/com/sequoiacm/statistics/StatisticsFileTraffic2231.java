@@ -28,8 +28,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
- * test content: create file, statistics  file numbers delta and size delta.
- * *
+ * test content: create file, statistics file numbers delta and size delta. *
  * testlink-case:SCM-2231
  *
  * @author wuyan
@@ -64,7 +63,7 @@ public class StatisticsFileTraffic2231 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get file_delta before create file
+        // get file_delta before create file
         HashMap< String, Long > firstmap = StatisticsUtils
                 .statisticsFileDelta( ws, session );
         long count_delta1 = firstmap.get( "count_delta" );
@@ -72,13 +71,13 @@ public class StatisticsFileTraffic2231 extends TestScmBase {
 
         createFiles( ws, fileNums );
 
-        //get file_delta after create file
+        // get file_delta after create file
         HashMap< String, Long > secondmap = StatisticsUtils
                 .statisticsFileDelta( ws, session );
         long count_delta2 = secondmap.get( "count_delta" );
         long size_delta2 = secondmap.get( "size_delta" );
 
-        //check statistic file_delta result
+        // check statistic file_delta result
         Assert.assertEquals( count_delta2 - count_delta1, fileNums,
                 "count_delta must be the filenums!" );
         Assert.assertEquals( size_delta2 - size_delta1, fileSize * fileNums,

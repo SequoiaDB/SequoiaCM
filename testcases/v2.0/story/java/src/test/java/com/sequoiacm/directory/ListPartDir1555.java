@@ -67,13 +67,11 @@ public class ListPartDir1555 extends TestScmBase {
                     .is( TestScmBase.scmUserName )
                     .and( ScmAttributeName.Directory.UPDATE_USER )
                     .is( TestScmBase.scmUserName )
-                    .and( ScmAttributeName.Directory.NAME )
-                    .is( dirName )
+                    .and( ScmAttributeName.Directory.NAME ).is( dirName )
                     .and( ScmAttributeName.Directory.CREATE_TIME )
                     .greaterThan( 0 )
                     .and( ScmAttributeName.Directory.UPDATE_TIME )
-                    .greaterThan( 0 )
-                    .get();
+                    .greaterThan( 0 ).get();
             ScmCursor< ScmDirectory > dirCursor = ScmFactory.Directory
                     .listInstance( ws, cond );
             while ( dirCursor.hasNext() ) {
@@ -99,15 +97,12 @@ public class ListPartDir1555 extends TestScmBase {
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.Directory.USER )
                     .greaterThanEquals( TestScmBase.scmUserName )
-                    .and( ScmAttributeName.Directory.UPDATE_USER )
-                    .exists( 1 )
-                    .and( ScmAttributeName.Directory.NAME )
-                    .is( dirName )
+                    .and( ScmAttributeName.Directory.UPDATE_USER ).exists( 1 )
+                    .and( ScmAttributeName.Directory.NAME ).is( dirName )
                     .and( ScmAttributeName.Directory.CREATE_TIME )
                     .greaterThan( 0 )
                     .and( ScmAttributeName.Directory.UPDATE_TIME )
-                    .greaterThan( 0 )
-                    .get();
+                    .greaterThan( 0 ).get();
             ScmCursor< ScmDirectory > dirCursor = ScmFactory.Directory
                     .listInstance( ws, cond );
             while ( dirCursor.hasNext() ) {
@@ -153,8 +148,8 @@ public class ListPartDir1555 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {

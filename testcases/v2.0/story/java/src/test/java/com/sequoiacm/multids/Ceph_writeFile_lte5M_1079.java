@@ -45,12 +45,12 @@ public class Ceph_writeFile_lte5M_1079 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath_3m = localPath + File.separator + "localFile_" + fileSize_3m +
-                ".txt";
-        filePath_5m = localPath + File.separator + "localFile_" + fileSize_3m +
-                ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath_3m = localPath + File.separator + "localFile_" + fileSize_3m
+                + ".txt";
+        filePath_5m = localPath + File.separator + "localFile_" + fileSize_3m
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -98,9 +98,9 @@ public class Ceph_writeFile_lte5M_1079 extends TestScmBase {
     private void readScmFile( ScmId fileId, String filePath ) {
         try {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile
-                    .initDownloadPath( localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
             file.getContent( downloadPath );
             Assert.assertEquals( TestTools.getMD5( filePath ),
                     TestTools.getMD5( downloadPath ) );

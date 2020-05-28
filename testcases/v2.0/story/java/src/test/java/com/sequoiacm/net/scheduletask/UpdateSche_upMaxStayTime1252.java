@@ -47,7 +47,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private SiteWrapper branSite = null;
     private WsWrapper wsp = null;
     private List< ScmId > fileIds = new ArrayList<>();
-    private Long fileCreatetime;  //unit: s
+    private Long fileCreatetime; // unit: s
     private File localPath = null;
     private String filePath = null;
     private BSONObject queryCond = null;
@@ -58,10 +58,10 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private void setUp() {
         try {
             // ready local file
-            localPath = new File( TestScmBase.dataDirectory + File.separator +
-                    TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize +
-                    ".txt";
+            localPath = new File( TestScmBase.dataDirectory + File.separator
+                    + TestTools.getClassName() );
+            filePath = localPath + File.separator + "localFile_" + fileSize
+                    + ".txt";
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -88,7 +88,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         Long aMonthTime = 32 * 24 * 3600 * 1000L;
-        int sleepTime = 1500; //ms
+        int sleepTime = 1500; // ms
         try {
             // write scmFile
             this.readyScmFile( 0, fileNum / 2 );
@@ -141,8 +141,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( branSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             for ( int i = startNum; i < endNum; i++ ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -159,7 +159,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -171,7 +172,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
                     queryCond );
-            //System.out.println(content.toBSONObject());
+            // System.out.println(content.toBSONObject());
             String cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( ss, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );
@@ -184,7 +185,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -200,7 +202,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -223,7 +226,8 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 
@@ -232,15 +236,16 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( branSite );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), ss );
-            ScmScheduleUtils
-                    .checkScmFile( ws, fileIds, startNum, endNum, expSites );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
+            ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,
+                    expSites );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
-            if ( null != ss ) ss.close();
+            if ( null != ss )
+                ss.close();
         }
     }
 }

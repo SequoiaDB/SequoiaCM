@@ -28,8 +28,9 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:upload and delete the same breakpoint file concurrently
- * testlink case:seqDB-1400
+ * test content:upload and delete the same breakpoint file concurrently testlink
+ * case:seqDB-1400
+ * 
  * @author wuyan
  * @Date 2018.05.22
  * @version 1.00
@@ -51,10 +52,10 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
     @BeforeClass(enabled = true)
     private void setUp() throws IOException, ScmException {
         BreakpointUtil.checkDBDataSource();
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -69,10 +70,8 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        UploadBreakpointFileThread uploadBreakpointFile = new
-                UploadBreakpointFileThread();
-        DeleteBreakpointFileThread deleteBreakpointFile = new
-                DeleteBreakpointFileThread();
+        UploadBreakpointFileThread uploadBreakpointFile = new UploadBreakpointFileThread();
+        DeleteBreakpointFileThread deleteBreakpointFile = new DeleteBreakpointFileThread();
         uploadBreakpointFile.start();
         deleteBreakpointFile.start();
         if ( uploadBreakpointFile.isSuccess() ) {
@@ -82,8 +81,8 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
                 ScmException e = ( ScmException ) deleteBreakpointFile
                         .getExceptions().get( 0 );
                 Assert.assertEquals( ScmError.INVALID_ARGUMENT, e.getError(),
-                        "delete must fail:" +
-                                deleteBreakpointFile.getErrorMsg() );
+                        "delete must fail:"
+                                + deleteBreakpointFile.getErrorMsg() );
                 checkFileData();
             } else {
                 Assert.assertFalse( true, "delete must be fail" );
@@ -94,12 +93,12 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
             ScmException e = ( ScmException ) uploadBreakpointFile
                     .getExceptions().get( 0 );
 
-            if ( ScmError.INVALID_ARGUMENT != e.getError() &&
-                    ScmError.FILE_NOT_FOUND != e.getError()
+            if ( ScmError.INVALID_ARGUMENT != e.getError()
+                    && ScmError.FILE_NOT_FOUND != e.getError()
                     && ScmError.HTTP_NOT_FOUND != e.getError() ) {
                 Assert.assertFalse( true,
-                        "upload should fail e:" + e.getErrorCode() + ":" +
-                                uploadBreakpointFile.getErrorMsg() );
+                        "upload should fail e:" + e.getErrorCode() + ":"
+                                + uploadBreakpointFile.getErrorMsg() );
             }
             checkDeleteResult();
         }
@@ -129,14 +128,14 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
     }
 
     private void checkDeleteResult() throws Exception {
-        //the breakpointfile is not exist
+        // the breakpointfile is not exist
         try {
             ScmFactory.BreakpointFile.getInstance( ws, fileName );
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError() +
-                        e.getMessage() );
+                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
+                        + e.getMessage() );
             }
         }
     }
@@ -145,24 +144,23 @@ public class UploadAndDeleteFile1400 extends TestScmBase {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
 
-        //save to file, than down file check the file data
+        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setContent( breakpointFile );
         file.setFileName( fileName );
         file.setTitle( fileName );
         fileId = file.save();
 
-        //down file
-        downloadPath = TestTools.LocalFile
-                .initDownloadPath( localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
+        // down file
+        downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContent( downloadPath );
 
         // check results
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );
 
-        //delete file
+        // delete file
         ScmFactory.File.deleteInstance( ws, fileId, true );
         TestTools.LocalFile.removeFile( downloadPath );
     }

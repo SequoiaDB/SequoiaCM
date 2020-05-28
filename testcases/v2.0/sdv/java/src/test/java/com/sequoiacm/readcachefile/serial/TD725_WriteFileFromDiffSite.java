@@ -57,10 +57,10 @@ public class TD725_WriteFileFromDiffSite extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -97,28 +97,24 @@ public class TD725_WriteFileFromDiffSite extends TestScmBase {
             WriteFromB WriteFromB = new WriteFromB();
             WriteFromB.start( 10 );
 
-            if ( !( WriteFromM.isSuccess() && WriteFromA.isSuccess() &&
-                    WriteFromB.isSuccess() ) ) {
-                Assert.fail(
-                        WriteFromM.getErrorMsg() + WriteFromA.getErrorMsg() +
-                                WriteFromB.getErrorMsg() );
+            if ( !( WriteFromM.isSuccess() && WriteFromA.isSuccess()
+                    && WriteFromB.isSuccess() ) ) {
+                Assert.fail( WriteFromM.getErrorMsg() + WriteFromA.getErrorMsg()
+                        + WriteFromB.getErrorMsg() );
             }
 
             // check results
             SiteWrapper[] expSites1 = { rootSite };
-            ScmFileUtils
-                    .checkMetaAndData( wsp, fileIdList1, expSites1, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( wsp, fileIdList1, expSites1,
+                    localPath, filePath );
 
             SiteWrapper[] expSites2 = { branSites.get( 0 ) };
-            ScmFileUtils
-                    .checkMetaAndData( wsp, fileIdList2, expSites2, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( wsp, fileIdList2, expSites2,
+                    localPath, filePath );
 
             SiteWrapper[] expSites3 = { branSites.get( 1 ) };
-            ScmFileUtils
-                    .checkMetaAndData( wsp, fileIdList3, expSites3, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( wsp, fileIdList3, expSites3,
+                    localPath, filePath );
 
             // recovery host's system time
             TestTools.restoreSystemTime( rootSite.getNode().getHost() );

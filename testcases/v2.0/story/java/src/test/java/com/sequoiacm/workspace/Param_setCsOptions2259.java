@@ -113,8 +113,7 @@ public class Param_setCsOptions2259 extends TestScmBase {
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList<
-                ScmDataLocation >();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
         } else if ( siteNum < 1 ) {

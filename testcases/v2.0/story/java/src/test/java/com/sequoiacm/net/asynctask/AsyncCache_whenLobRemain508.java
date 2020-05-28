@@ -52,10 +52,10 @@ public class AsyncCache_whenLobRemain508 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         // ready local file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -80,10 +80,9 @@ public class AsyncCache_whenLobRemain508 extends TestScmBase {
 
         // ready scm file
         writeFileFromM();
-        //lobRemainFromA();
-        String remainfilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".txt";
+        // lobRemainFromA();
+        String remainfilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".txt";
         TestTools.LocalFile.createFile( remainfilePath, fileSize / 2 );
         TestSdbTools.Lob.putLob( targetSite, ws_T, fileId, remainfilePath );
     }
@@ -91,7 +90,7 @@ public class AsyncCache_whenLobRemain508 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,

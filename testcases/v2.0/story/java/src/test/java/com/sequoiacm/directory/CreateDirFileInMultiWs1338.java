@@ -56,10 +56,10 @@ public class CreateDirFileInMultiWs1338 extends TestScmBase {
         site = ScmInfo.getSite();
         wspList = ScmInfo.getWss( wsNum );
         session = TestScmTools.createSession( site );
-        ws1 = ScmFactory.Workspace
-                .getWorkspace( wspList.get( 0 ).getName(), session );
-        ws2 = ScmFactory.Workspace
-                .getWorkspace( wspList.get( 1 ).getName(), session );
+        ws1 = ScmFactory.Workspace.getWorkspace( wspList.get( 0 ).getName(),
+                session );
+        ws2 = ScmFactory.Workspace.getWorkspace( wspList.get( 1 ).getName(),
+                session );
 
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( eleName ).get();
@@ -128,8 +128,8 @@ public class CreateDirFileInMultiWs1338 extends TestScmBase {
             file.setDirectory( dir );
             fileId = file.save();
             fileIdList.add( fileId );
-            ScmFactory.Directory
-                    .createInstance( ws, dirBasePath + "/" + eleName );
+            ScmFactory.Directory.createInstance( ws,
+                    dirBasePath + "/" + eleName );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -182,8 +182,8 @@ public class CreateDirFileInMultiWs1338 extends TestScmBase {
             try {
                 ScmFactory.Directory.deleteInstance( ws, pathList.get( i ) );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.DIR_NOT_FOUND &&
-                        e.getError() != ScmError.DIR_NOT_EMPTY ) {
+                if ( e.getError() != ScmError.DIR_NOT_FOUND
+                        && e.getError() != ScmError.DIR_NOT_EMPTY ) {
                     e.printStackTrace();
                     Assert.fail( e.getMessage() );
                 }

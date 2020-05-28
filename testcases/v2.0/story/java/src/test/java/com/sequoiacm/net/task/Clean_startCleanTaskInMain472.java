@@ -56,10 +56,10 @@ public class Clean_startCleanTaskInMain472 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() {
 
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -135,9 +135,8 @@ public class Clean_startCleanTaskInMain472 extends TestScmBase {
         // check meta data
         try {
             SiteWrapper[] expSiteIdList = { rootSite };
-            ScmFileUtils
-                    .checkMetaAndData( ws_T, fileId, expSiteIdList, localPath,
-                            filePath );
+            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList,
+                    localPath, filePath );
         } catch ( Exception e ) {
         }
     }

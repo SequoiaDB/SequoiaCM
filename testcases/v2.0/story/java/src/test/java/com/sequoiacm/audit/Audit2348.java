@@ -52,13 +52,13 @@ public class Audit2348 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
         Map< String, String > confMap = new HashMap< String, String >();
-        confMap.put( ConfigCommonDefind.scm_audit_userType +
-                ScmUserPasswordType.LOCAL.name(), "FILE_DML" );
+        confMap.put( ConfigCommonDefind.scm_audit_userType
+                + ScmUserPasswordType.LOCAL.name(), "FILE_DML" );
         confMap.put( ConfigCommonDefind.scm_audit_mask, "DIR_DML" );
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );
         ConfUtil.updateConf( site.getSiteServiceName(), confMap );
 
-        //check
+        // check
         checkAudit( true, false );
     }
 
@@ -87,12 +87,11 @@ public class Audit2348 extends TestScmBase {
                             TestScmBase.scmUserName );
             Assert.assertEquals(
                     ConfUtil.checkAudit( session, bson1, fileId.get() ),
-                    isLogged1, "Has the configuration been updated? fileId = " +
-                            fileId.get() );
+                    isLogged1, "Has the configuration been updated? fileId = "
+                            + fileId.get() );
             Assert.assertEquals( ConfUtil.checkAudit( session, bson2, dirName ),
-                    isLogged2,
-                    "Has the configuration been updated? dirPath = " +
-                            dirName );
+                    isLogged2, "Has the configuration been updated? dirPath = "
+                            + dirName );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -108,8 +107,8 @@ public class Audit2348 extends TestScmBase {
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName );
             fileId = file.save();
@@ -126,8 +125,8 @@ public class Audit2348 extends TestScmBase {
         ScmDirectory dir = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             dir = ScmFactory.Directory.createInstance( ws, dirName );
         } finally {
             if ( session != null ) {

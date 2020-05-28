@@ -70,17 +70,17 @@ public class NotEquals376 extends TestScmBase {
         try {
             // build condition
             BSONObject cond = ScmQueryBuilder.start( "key" ).notEquals( 123 )
-                    .put( ScmAttributeName.File.FILE_NAME )
-                    .is( fileName ).get();
+                    .put( ScmAttributeName.File.FILE_NAME ).is( fileName )
+                    .get();
             ;
 
             Assert.assertEquals( cond.toString().replaceAll( "\\s*", "" ),
-                    ( "{ \"key\" : { \"$ne\" : 123} , \"name\" : \"" +
-                            fileName + "\"}" ).replaceAll( "\\s*", "" ) );
+                    ( "{ \"key\" : { \"$ne\" : 123} , \"name\" : \"" + fileName
+                            + "\"}" ).replaceAll( "\\s*", "" ) );
 
             // count
-            long count = ScmFactory.File
-                    .countInstance( ws, ScopeType.SCOPE_CURRENT, cond );
+            long count = ScmFactory.File.countInstance( ws,
+                    ScopeType.SCOPE_CURRENT, cond );
             Assert.assertEquals( count, 0 );
 
             runSuccess = true;

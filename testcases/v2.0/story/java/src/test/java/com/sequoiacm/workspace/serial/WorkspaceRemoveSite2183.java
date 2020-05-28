@@ -52,12 +52,12 @@ public class WorkspaceRemoveSite2183 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws ScmException, InterruptedException, IOException {
         int siteNum = ScmInfo.getSiteNum();
-        ScmWorkspace wsM = ScmWorkspaceUtil
-                .createWS( sessionM, wsName, siteNum );
+        ScmWorkspace wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
+                siteNum );
         ScmWorkspaceUtil.wsSetPriority( sessionM, wsName );
         wsUploadFile();
-        ScmWorkspace wsA = ScmFactory.Workspace
-                .getWorkspace( wsName, sessionA );
+        ScmWorkspace wsA = ScmFactory.Workspace.getWorkspace( wsName,
+                sessionA );
         ScmWorkspaceUtil.wsRemoveSite( wsM, siteA.getSiteName() );
         for ( int i = 0; i < idList.size(); i++ ) {
             ScmFactory.File.deleteInstance( wsM, idList.get( i ), true );
@@ -111,4 +111,3 @@ public class WorkspaceRemoveSite2183 extends TestScmBase {
         }
     }
 }
-

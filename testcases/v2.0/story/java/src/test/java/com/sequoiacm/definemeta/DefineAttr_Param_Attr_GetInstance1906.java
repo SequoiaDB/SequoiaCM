@@ -46,7 +46,7 @@ public class DefineAttr_Param_Attr_GetInstance1906 extends TestScmBase {
             conf.setDisplayName( desc );
             conf.setDescription( desc );
             conf.setType( AttributeType.BOOLEAN );
-            //create
+            // create
             attr = ScmFactory.Attribute.createInstance( ws, conf );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );

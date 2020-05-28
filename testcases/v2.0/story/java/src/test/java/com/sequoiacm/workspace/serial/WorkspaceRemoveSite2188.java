@@ -38,10 +38,10 @@ public class WorkspaceRemoveSite2188 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws ScmException, InterruptedException {
         int siteNum = ScmInfo.getSiteNum();
-        ScmWorkspace wsA = ScmWorkspaceUtil
-                .createWS( session, wsNameA, siteNum );
-        ScmWorkspace wsB = ScmWorkspaceUtil
-                .createWS( session, wsNameB, siteNum );
+        ScmWorkspace wsA = ScmWorkspaceUtil.createWS( session, wsNameA,
+                siteNum );
+        ScmWorkspace wsB = ScmWorkspaceUtil.createWS( session, wsNameB,
+                siteNum );
 
         ScmWorkspaceUtil.wsRemoveSite( wsA, branchSite.getSiteName() );
         ScmWorkspaceUtil.wsRemoveSite( wsB, branchSite.getSiteName() );
@@ -60,4 +60,3 @@ public class WorkspaceRemoveSite2188 extends TestScmBase {
     }
 
 }
-

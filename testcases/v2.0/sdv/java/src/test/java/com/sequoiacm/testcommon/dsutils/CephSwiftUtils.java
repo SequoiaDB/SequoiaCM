@@ -40,8 +40,8 @@ public class CephSwiftUtils extends TestScmBase {
             AccountFactory service = new AccountFactory( config );
             account = service.createAccount();
         } catch ( Exception e ) {
-            logger.error( "failed to connect ceph-swift, siteId = " +
-                    site.getSiteId() );
+            logger.error( "failed to connect ceph-swift, siteId = "
+                    + site.getSiteId() );
             throw e;
         }
         return account;
@@ -62,15 +62,14 @@ public class CephSwiftUtils extends TestScmBase {
             byte[] data = TestTools.getBuffer( filePath );
             storeObject.uploadObject( data );
         } catch ( Exception e ) {
-            logger.error( "failed to write file in ceph-swift, fileId = " +
-                    objectName );
+            logger.error( "failed to write file in ceph-swift, fileId = "
+                    + objectName );
             throw e;
         }
     }
 
     public static StoredObject getObjectSegment( SiteWrapper site, WsWrapper ws,
-            ScmId fileId, int part )
-            throws Exception {
+            ScmId fileId, int part ) throws Exception {
         Account account = null;
         StoredObject objSegment = null;
         String objectName = fileId.get();
@@ -82,16 +81,16 @@ public class CephSwiftUtils extends TestScmBase {
             objSegment = container.getObjectSegment( objectName, part );
         } catch ( Exception e ) {
             logger.error(
-                    "failed to get object segment in ceph-swift, fileId = " +
-                            objectName + ", part = " + part );
+                    "failed to get object segment in ceph-swift, fileId = "
+                            + objectName + ", part = " + part );
             throw e;
         }
         return objSegment;
     }
 
     public static Map< String, Object > getObjMetadata( SiteWrapper site,
-            WsWrapper ws, ScmId fileId, String filePath,
-            String downloadPath ) throws Exception {
+            WsWrapper ws, ScmId fileId, String filePath, String downloadPath )
+            throws Exception {
         Account account = null;
         String objectName = fileId.get();
         Map< String, Object > metadata = null;
@@ -107,10 +106,8 @@ public class CephSwiftUtils extends TestScmBase {
             // check object length
             Long objSize = ( Long ) metadata.get( "File-Size" );
             if ( fileSize != objSize ) {
-                throw new Exception(
-                        "objLength is error, objSize = " + objSize +
-                                "fileSize = " + fileSize + ", fileId = " +
-                                fileId );
+                throw new Exception( "objLength is error, objSize = " + objSize
+                        + "fileSize = " + fileSize + ", fileId = " + fileId );
             }
 
             // check object content
@@ -118,9 +115,8 @@ public class CephSwiftUtils extends TestScmBase {
             String expMd5 = TestTools.getMD5( filePath );
             String actMd5 = TestTools.getMD5( downloadPath );
             if ( expMd5.equals( actMd5 ) ) {
-                throw new Exception(
-                        "objContent is error, actMd5 = " + actMd5 +
-                                "expMd5 = " + expMd5 + ", fileId = " + fileId );
+                throw new Exception( "objContent is error, actMd5 = " + actMd5
+                        + "expMd5 = " + expMd5 + ", fileId = " + fileId );
             }
         } catch ( Exception e ) {
             logger.error(
@@ -153,8 +149,8 @@ public class CephSwiftUtils extends TestScmBase {
                 }
             }
         } catch ( Exception e ) {
-            logger.error( "failed to delete object in ceph-swift, fileId = " +
-                    fileId );
+            logger.error( "failed to delete object in ceph-swift, fileId = "
+                    + fileId );
             throw e;
         }
     }
@@ -179,9 +175,9 @@ public class CephSwiftUtils extends TestScmBase {
                 container.delete();
             }
         } catch ( Exception e ) {
-            logger.error( "failed to delete all containers, siteId = " +
-                    site.getSiteId() + ", containerName = "
-                    + containerName + ", objectName = " + objectName );
+            logger.error( "failed to delete all containers, siteId = "
+                    + site.getSiteId() + ", containerName = " + containerName
+                    + ", objectName = " + objectName );
             throw e;
         }
     }
@@ -197,9 +193,8 @@ public class CephSwiftUtils extends TestScmBase {
         }
 
         // get bucketName postFix
-        String dstType = TestSdbTools
-                .getDataShardingTypeForOtherDs( site.getSiteId(),
-                        ws.getName() );
+        String dstType = TestSdbTools.getDataShardingTypeForOtherDs(
+                site.getSiteId(), ws.getName() );
         if ( null == dstType ) {
             dstType = "month";
         }

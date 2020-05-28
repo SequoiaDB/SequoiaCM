@@ -61,10 +61,10 @@ public class AsyncCacheAndDelete515 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -103,8 +103,8 @@ public class AsyncCacheAndDelete515 extends TestScmBase {
             for ( int i = 0; i < fileNum; ++i ) {
                 ScmFactory.File.asyncCache( wsA, fileIdList.get( i ) );
                 Thread.sleep( 200 );
-                ScmFactory.File
-                        .deleteInstance( wsA, fileIdList.get( i ), true );
+                ScmFactory.File.deleteInstance( wsA, fileIdList.get( i ),
+                        true );
             }
 
             checkResult();
@@ -147,8 +147,8 @@ public class AsyncCacheAndDelete515 extends TestScmBase {
         try {
             for ( ScmId fileId : fileIdList ) {
                 BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-                long cnt = ScmFactory.File
-                        .countInstance( wsM, ScopeType.SCOPE_CURRENT, cond );
+                long cnt = ScmFactory.File.countInstance( wsM,
+                        ScopeType.SCOPE_CURRENT, cond );
                 Assert.assertEquals( cnt, 0 );
             }
         } catch ( ScmException e ) {

@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1134 :: 创建文件夹，父文件夹不存在 
+ * @Description: SCM-1134 :: 创建文件夹，父文件夹不存在
  * @author fanyu
  * @Date:2018年4月20日
  * @version:1.0
@@ -49,8 +49,8 @@ public class CreateDirOnParentNoExist1134 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            ScmFactory.Directory
-                    .createInstance( ws, "/" + dirName + "/" + subDirName );
+            ScmFactory.Directory.createInstance( ws,
+                    "/" + dirName + "/" + subDirName );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
                 e.printStackTrace();

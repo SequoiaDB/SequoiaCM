@@ -27,7 +27,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1150 :: 文件夹移动到新父文件夹下存在同名文件夹或文件 
+ * @Description: SCM-1150 :: 文件夹移动到新父文件夹下存在同名文件夹或文件
  * @author fanyu
  * @Date:2018年4月25日
  * @version:1.0
@@ -67,8 +67,8 @@ public class MoveDirToNewPaHasSame1150 extends TestScmBase {
         try {
             dir3 = ScmFactory.Directory.getInstance( ws, dirBasePath + "/a/b" );
             // eg:dirBasePath + "/a/b/c" mv b to dirBasePath + "/e/ dir
-            dir3.move( ScmFactory.Directory
-                    .getInstance( ws, dirBasePath + "/e/" ) );
+            dir3.move( ScmFactory.Directory.getInstance( ws,
+                    dirBasePath + "/e/" ) );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_EXIST ) {
                 e.printStackTrace();
@@ -139,8 +139,8 @@ public class MoveDirToNewPaHasSame1150 extends TestScmBase {
                 }
             }
         }
-        return ScmFactory.Directory
-                .getInstance( ws, pathList.get( pathList.size() - 1 ) );
+        return ScmFactory.Directory.getInstance( ws,
+                pathList.get( pathList.size() - 1 ) );
     }
 
     private void deleteDir( ScmWorkspace ws, String dirPath ) {
@@ -170,4 +170,3 @@ public class MoveDirToNewPaHasSame1150 extends TestScmBase {
         return pathList;
     }
 }
-

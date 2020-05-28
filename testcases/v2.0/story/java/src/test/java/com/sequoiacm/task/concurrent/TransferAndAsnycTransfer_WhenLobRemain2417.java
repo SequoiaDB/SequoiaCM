@@ -58,16 +58,15 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
         // ready file
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
-        remainFilePath =
-                localPath + File.separator + "localFile_" + fileSize / 2 +
-                        ".2txt";
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        remainFilePath = localPath + File.separator + "localFile_"
+                + fileSize / 2 + ".2txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( remainFilePath, fileSize / 2 );
 
@@ -81,7 +80,7 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
         session = TestScmTools.createSession( branchSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         writeFileFromSubCenterA();
-        //make remain in rootsite and branchSite
+        // make remain in rootsite and branchSite
         randomId = fileIdList.get( new Random().nextInt( fileIdList.size() ) );
         TestSdbTools.Lob.putLob( rootSite, wsp, randomId, remainFilePath );
     }
@@ -90,19 +89,18 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
     private void test() throws Exception {
         StartTaskFromSubCenterA startTask = new StartTaskFromSubCenterA();
         startTask.start();
-        AsnycTransferFileFromSubCenterB asnycTransferFile = new
-                AsnycTransferFileFromSubCenterB();
+        AsnycTransferFileFromSubCenterB asnycTransferFile = new AsnycTransferFileFromSubCenterB();
         asnycTransferFile.start( 5 );
         Assert.assertEquals( startTask.isSuccess(), true,
                 startTask.getErrorMsg() );
         Assert.assertEquals( asnycTransferFile.isSuccess(), true,
                 asnycTransferFile.getErrorMsg() );
-        //check result
+        // check result
         SiteWrapper[] expSiteList = { rootSite, branchSite };
         ScmTaskUtils.waitTaskFinish( session, taskId );
         for ( ScmId fileId : fileIdList ) {
-            ScmTaskUtils
-                    .waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                    expSiteList.length );
         }
         ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSiteList, localPath,
                 filePath );

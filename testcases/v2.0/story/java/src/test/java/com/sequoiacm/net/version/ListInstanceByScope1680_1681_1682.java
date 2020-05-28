@@ -60,10 +60,10 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-        fileId1 = VersionUtils
-                .createFileByStream( ws, fileName1, writedata, authorName );
-        fileId2 = VersionUtils
-                .createFileByStream( ws, fileName2, writedata, authorName );
+        fileId1 = VersionUtils.createFileByStream( ws, fileName1, writedata,
+                authorName );
+        fileId2 = VersionUtils.createFileByStream( ws, fileName2, writedata,
+                authorName );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -71,10 +71,10 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
         VersionUtils.updateContentByStream( ws, fileId2, writedata );
         VersionUtils.updateContentByStream( ws, fileId2, updatedata );
 
-        //testcase-1681b: no exist historyVersion file
+        // testcase-1681b: no exist historyVersion file
         listInstanceByNoHistoryVersion( fileId1 );
 
-        //testcase-1680:list current version file
+        // testcase-1680:list current version file
         List< String > expectFileNames = new LinkedList< String >();
         expectFileNames.add( fileName1 );
         expectFileNames.add( fileName2 );
@@ -105,27 +105,27 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
     private void listInstanceByNoHistoryVersion( ScmId fileId )
             throws ScmException {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID )
-                .is( fileId.get() ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_HISTORY, condition );
+                .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
+                .get();
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_HISTORY, condition );
         int size = 0;
         while ( cursor.hasNext() ) {
             cursor.getNext();
             size++;
         }
         cursor.close();
-        //no history version file
+        // no history version file
         Assert.assertEquals( size, 0 );
     }
 
     private void listInstanceByHistoryVersion( ScmId fileId, String fileName )
             throws ScmException {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID )
-                .is( fileId.get() ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_HISTORY, condition );
+                .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
+                .get();
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_HISTORY, condition );
         int size = 0;
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
@@ -133,17 +133,16 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
             size++;
         }
         cursor.close();
-        //exist 2 history version file
+        // exist 2 history version file
         Assert.assertEquals( size, 2 );
     }
 
     private void listInstanceByCurrentVersion( List< String > expectFileNames )
             throws ScmException {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.AUTHOR )
-                .is( authorName ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition );
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_CURRENT, condition );
         List< String > actFileNames = new LinkedList< String >();
         int size = 0;
         while ( cursor.hasNext() ) {
@@ -152,7 +151,7 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
             size++;
         }
         cursor.close();
-        //exist 2 current version file
+        // exist 2 current version file
         int expFileNum = 2;
         Assert.assertEquals( size, expFileNum );
         Collections.sort( expectFileNames );
@@ -166,17 +165,16 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
         fileIdList.add( fileId1.get() );
         fileIdList.add( fileId2.get() );
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID )
-                .in( fileIdList ).get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_ALL, condition );
+                .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
+        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
+                ScopeType.SCOPE_ALL, condition );
         int size = 0;
         while ( cursor.hasNext() ) {
             cursor.getNext();
             size++;
         }
         cursor.close();
-        //exist 2 current version file and 2 history version file
+        // exist 2 current version file and 2 history version file
         int expFileNum = 4;
         Assert.assertEquals( size, expFileNum );
     }

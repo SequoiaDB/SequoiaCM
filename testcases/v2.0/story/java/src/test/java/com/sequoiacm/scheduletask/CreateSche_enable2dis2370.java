@@ -67,10 +67,10 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException, ParseException {
         // ready local file
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -90,19 +90,19 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        //enable
+        // enable
         SiteWrapper[] expSites = { rootSite, branSite };
         ScmSchedule schedule = this.createScheduleTask();
         this.checkScheduleTaskInfo( true );
         ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
         this.readyScmFile( wsA, fileNum, fileNum + 10 );
         ScmScheduleUtils.checkScmFile( wsA, fileIds, expSites );
-        //checkTask info
+        // checkTask info
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Schedule.ID )
                 .is( scheduleId.get() ).get();
         checkTaskInfo( cond );
 
-        //disable
+        // disable
         schedule.disable();
         waitSchedueDisable( cond );
         SiteWrapper[] expSites1 = { branSite };
@@ -111,7 +111,7 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
         ScmScheduleUtils.checkScmFile( wsA,
                 fileIds.subList( fileNum + 10, fileNum + 20 ), expSites1 );
 
-        //enable
+        // enable
         schedule.enable();
         SiteWrapper[] expSites2 = { rootSite, branSite };
         this.checkScheduleTaskInfo( true );
@@ -154,9 +154,8 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
     private ScmSchedule createScheduleTask() throws ScmException {
         String maxStayTime = "0d";
         // create schedule task
-        content = new ScmScheduleCopyFileContent(
-                branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                queryCond );
+        content = new ScmScheduleCopyFileContent( branSite.getSiteName(),
+                rootSite.getSiteName(), maxStayTime, queryCond );
         cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsp.getName(),
                 ScheduleType.COPY_FILE, name, "", content, cron );
@@ -177,8 +176,8 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
     }
 
     private void checkTaskInfo( BSONObject cond ) throws ScmException {
-        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                .listTask( ssA, cond );
+        ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                cond );
         try {
             while ( cursor.hasNext() ) {
                 ScmTaskBasicInfo info = cursor.getNext();
@@ -206,8 +205,8 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
         for ( int i = 0; i < 60; i++ ) {
             Thread.sleep( interval );
             int j = 0;
-            ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task
-                    .listTask( ssA, cond );
+            ScmCursor< ScmTaskBasicInfo > cursor = ScmSystem.Task.listTask( ssA,
+                    cond );
             while ( cursor.hasNext() ) {
                 cursor.getNext();
                 j++;
@@ -217,8 +216,8 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
             } else {
                 if ( i == 59 ) {
                     throw new Exception(
-                            "wait time out,disabled schedule is still runing!!!" +
-                                    " scheduleId = " + scheduleId.get() );
+                            "wait time out,disabled schedule is still runing!!!"
+                                    + " scheduleId = " + scheduleId.get() );
                 }
             }
             count = j;

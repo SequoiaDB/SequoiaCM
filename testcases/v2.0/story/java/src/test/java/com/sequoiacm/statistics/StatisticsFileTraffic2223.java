@@ -31,9 +31,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
- * test content: statistics download file traffic,only test the traffic of
- * the day
- * testlink-case:SCM-2223
+ * test content: statistics download file traffic,only test the traffic of the
+ * day testlink-case:SCM-2223
  *
  * @author wuyan
  * @Date 2018.09.12
@@ -68,20 +67,20 @@ public class StatisticsFileTraffic2223 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        //get statisticDownload before create file
-        HashMap< String, Long > firstmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        // get statisticDownload before create file
+        HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticDownload1 = firstmap.get( "file_download" );
 
         createFiles( ws, fileNums );
         downloadFile( ws );
 
-        //get statisticUpload after download
-        HashMap< String, Long > secondmap = StatisticsUtils
-                .statisticsFile( ws, session );
+        // get statisticUpload after download
+        HashMap< String, Long > secondmap = StatisticsUtils.statisticsFile( ws,
+                session );
         long statisticDownload2 = secondmap.get( "file_download" );
 
-        //check statisticDownload result
+        // check statisticDownload result
         long downloadFiles = statisticDownload2 - statisticDownload1;
         Assert.assertEquals( downloadFiles, fileNums );
         runSuccess = true;
@@ -112,25 +111,22 @@ public class StatisticsFileTraffic2223 extends TestScmBase {
             String subfileName = fileName + "_" + i;
             ScmId fileId = null;
             if ( i < 10 ) {
-                //test a: the setCreateTime interval within one day
+                // test a: the setCreateTime interval within one day
                 long timestamp = currentTimestamp;
-                fileId = StatisticsUtils
-                        .createFileByStream( ws, subfileName, fileData,
-                                authorName, timestamp );
+                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                        fileData, authorName, timestamp );
             }
             if ( i >= 10 && i < 15 ) {
-                //test b: the setCreateTime interval within 5 days
+                // test b: the setCreateTime interval within 5 days
                 long timestamp = currentTimestamp - 432000000;
-                fileId = StatisticsUtils
-                        .createFileByStream( ws, subfileName, fileData,
-                                authorName, timestamp );
+                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                        fileData, authorName, timestamp );
             }
             if ( i >= 15 && i < fileNums ) {
-                //test c: the setCreateTime interval within
+                // test c: the setCreateTime interval within
                 long timestamp = currentTimestamp - 2678400000L;
-                fileId = StatisticsUtils
-                        .createFileByStream( ws, subfileName, fileData,
-                                authorName, timestamp );
+                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                        fileData, authorName, timestamp );
             }
             fileIds.add( fileId );
         }

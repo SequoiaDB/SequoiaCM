@@ -38,11 +38,10 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 /*
  * 1、调用session接口，指定sessionType为鉴权，并设置主机名、端口号、用户、密码登入，
- * 覆盖：ScmConfigOption类下面的所有set、get接口； 2、登入成功后做业务操作，检查登入以及业务操作结果正确性；
- * 
- * 注： ScmConfigOption接口覆盖，并覆盖所有set、get方法： ScmConfigOption();
- * ScmConfigOption(String host, int port); ScmConfigOption(String host, int
- * port, String user, String passwd);
+ * 覆盖：ScmConfigOption类下面的所有set、get接口； 2、登入成功后做业务操作，检查登入以及业务操作结果正确性； 注：
+ * ScmConfigOption接口覆盖，并覆盖所有set、get方法： ScmConfigOption(); ScmConfigOption(String
+ * host, int port); ScmConfigOption(String host, int port, String user, String
+ * passwd);
  */
 
 public class AuthLogin315 extends TestScmBase {
@@ -57,10 +56,10 @@ public class AuthLogin315 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
@@ -82,22 +81,22 @@ public class AuthLogin315 extends TestScmBase {
 
             // ScmConfigOption()
             ScmConfigOption scOpt = new ScmConfigOption();
-            //scOpt.getUrls();  //BUG 355
+            // scOpt.getUrls(); //BUG 355
             // not set before get
-            //Assert.assertEquals(scOpt.getUrls().toString(), "[]");
-            //Assert.assertNull(scOpt.getUrls());
+            // Assert.assertEquals(scOpt.getUrls().toString(), "[]");
+            // Assert.assertNull(scOpt.getUrls());
             scOpt.getUser();
             Assert.assertEquals( scOpt.getUser(), null );
             Assert.assertEquals( scOpt.getPasswd(), null );
             // set
-            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/" +
-                    site.getSiteServiceName() );
+            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site.getSiteServiceName() );
             scOpt.setUser( user );
             scOpt.setPasswd( passwd );
             // get
             Assert.assertEquals( scOpt.getUrls().toString(),
-                    "[" + TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() + "]" );
+                    "[" + TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() + "]" );
             Assert.assertEquals( scOpt.getUser(), TestScmBase.scmUserName );
             Assert.assertEquals( scOpt.getPasswd(), TestScmBase.scmPassword );
             // bizOper
@@ -105,16 +104,17 @@ public class AuthLogin315 extends TestScmBase {
 
             // ScmConfigOption(String host, int port)
             ScmConfigOption scOpt2 = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName() );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName() );
             scOpt2.setUser( user );
             scOpt2.setPasswd( passwd );
             loginAndOperate( scOpt2 );
 
             // ScmConfigOption(String host, int port)
             ScmConfigOption scOpt3 = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/" +
-                            site.getSiteServiceName(), user, passwd );
+                    TestScmBase.gateWayList.get( 0 ) + "/"
+                            + site.getSiteServiceName(),
+                    user, passwd );
             loginAndOperate( scOpt3 );
 
             runSuccess = true;
@@ -129,8 +129,8 @@ public class AuthLogin315 extends TestScmBase {
         ScmSession session = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace ws = ScmFactory.Workspace
-                    .getWorkspace( wsp.getName(), session );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -150,8 +150,8 @@ public class AuthLogin315 extends TestScmBase {
     private void loginAndOperate( ScmConfigOption scOpt ) throws ScmException {
         ScmSession session = ScmFactory.Session
                 .createSession( SessionType.AUTH_SESSION, scOpt );
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( wsp.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
         doBusinessOperate( ws );
         session.close();
     }

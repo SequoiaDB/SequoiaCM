@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description WorkspaceRemoveSite2186.java 网状ws删除中间站点 
+ * @Description WorkspaceRemoveSite2186.java 网状ws删除中间站点
  * @author luweikang
  * @date 2018年8月28日
  */
@@ -83,4 +83,3 @@ public class WorkspaceRemoveSite2186 extends TestScmBase {
         Assert.assertEquals( actList, dataList );
     }
 }
-

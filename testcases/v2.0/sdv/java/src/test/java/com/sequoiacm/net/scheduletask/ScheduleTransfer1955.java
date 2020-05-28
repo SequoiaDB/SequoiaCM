@@ -43,7 +43,7 @@ import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签 
+ * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签
  * @author fanyu
  * @Date:2018年7月11日
  * @version:1.0
@@ -72,10 +72,10 @@ public class ScheduleTransfer1955 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException, ParseException {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
@@ -96,17 +96,15 @@ public class ScheduleTransfer1955 extends TestScmBase {
     private void test() throws Exception {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
-                .lessThan( fileNum / 2 )
-                .and( "tags" )
+                .lessThan( fileNum / 2 ).and( "tags" )
                 .in( tagList.subList( 0, fileNum / 2 ) ).get();
         createScheduleTask( queryCond );
         SiteWrapper[] expSites = { rootSite, site };
         ScmScheduleUtils.checkScmFile( ws, fileIdList.subList( 0, fileNum / 2 ),
                 expSites );
         SiteWrapper[] expSites1 = { site };
-        ScmScheduleUtils
-                .checkScmFile( ws, fileIdList.subList( fileNum / 2, fileNum ),
-                        expSites1 );
+        ScmScheduleUtils.checkScmFile( ws,
+                fileIdList.subList( fileNum / 2, fileNum ), expSites1 );
         runSuccess = true;
     }
 
@@ -142,9 +140,8 @@ public class ScheduleTransfer1955 extends TestScmBase {
     private void createScheduleTask( BSONObject queryCond )
             throws ScmException {
         String maxStayTime = "0d";
-        content = new ScmScheduleCopyFileContent(
-                site.getSiteName(), rootSite.getSiteName(), maxStayTime,
-                queryCond );
+        content = new ScmScheduleCopyFileContent( site.getSiteName(),
+                rootSite.getSiteName(), maxStayTime, queryCond );
         cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( session, wsp.getName(),
                 ScheduleType.COPY_FILE, name, "ScheduleTransfer1955", content,

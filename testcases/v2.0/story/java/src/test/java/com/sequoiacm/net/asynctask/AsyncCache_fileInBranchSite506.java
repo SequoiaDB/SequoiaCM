@@ -53,10 +53,10 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        localPath = new File( TestScmBase.dataDirectory + File.separator +
-                TestTools.getClassName() );
-        filePath =
-                localPath + File.separator + "localFile_" + fileSize + ".txt";
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
         try {
             // ready file
             TestTools.LocalFile.removeFile( localPath );
@@ -85,8 +85,8 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), sessionB );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionB );
         ScmFactory.File.asyncCache( ws, fileId );
         ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, 2 );
         checkAsync();
@@ -112,8 +112,8 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
     }
 
     private void prepareFiles( ScmSession session ) throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), session );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
         ScmFile scmfile = ScmFactory.File.createInstance( ws );
         scmfile.setContent( filePath );
         scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
@@ -121,8 +121,8 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
     }
 
     private void checkAsync() throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace
-                .getWorkspace( ws_T.getName(), sessionB );
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionB );
         SiteWrapper[] expSiteList = { sourceSite, targetSite };
         ScmFileUtils.checkMeta( ws, fileId, expSiteList );
     }
