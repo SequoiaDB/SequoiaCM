@@ -57,7 +57,7 @@ def convert_localhost(url):
         else:
             if hostUrl != '':
                 hostUrl = hostUrl + ","
-            hostUrl = splitUrl
+            hostUrl = hostUrl + splitUrl
     return hostUrl
 
 def hostAdaptor(url):
