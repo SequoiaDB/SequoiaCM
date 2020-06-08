@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
-import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,7 @@ public class WorkspaceOperater {
 
     public void grantAllPriv(boolean dryrun) throws Exception {
         logger.info("Granting user with privileges{}...", dryrun ? "(Dry Run Mode)" : "");
-        String jsonStr = CommonUtils
-                .readContentFromLocalFile(commonConfig.getWorkspaceConfigFilePath());
-        BSONObject bson = (BSONObject) JSON.parse(jsonStr);
+        BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
         BasicBSONList wsBsons = BsonUtils.getArrayChecked(bson, "workspaces");
 
         String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
@@ -79,9 +76,7 @@ public class WorkspaceOperater {
 
     public void createWorkspace(boolean dryrun) throws Exception {
         logger.info("Creating workspace{}...", dryrun ? "(Dry Run Mode)" : "");
-        String jsonStr = CommonUtils
-                .readContentFromLocalFile(commonConfig.getWorkspaceConfigFilePath());
-        BSONObject bson = (BSONObject) JSON.parse(jsonStr);
+        BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
         BasicBSONList wsBsons = BsonUtils.getArrayChecked(bson, "workspaces");
         if (dryrun) {
             for (Object wsBSON : wsBsons) {
@@ -221,10 +216,7 @@ public class WorkspaceOperater {
         logger.info("Cleaning workspace{}...", dryrun ? "(Dry Run Mode)" : "");
         ScmSession ss = null;
         try {
-            String jsonStr = CommonUtils
-                    .readContentFromLocalFile(commonConfig.getWorkspaceConfigFilePath());
-            BSONObject bson = (BSONObject) JSON.parse(jsonStr);
-
+            BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
             String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
             String user = BsonUtils.getStringChecked(bson, "userName");
             String password = BsonUtils.getStringChecked(bson, "password");
@@ -251,13 +243,16 @@ public class WorkspaceOperater {
                 }
             }
         }
+        catch (IllegalArgumentException e) {
+            throw e;
+        }
         catch (Exception e) {
-            logger.warn("Failed to clean workspace:{}", e.getMessage(), e);
+            throw new Exception("Failed to clean workspace:" + e.getMessage(), e);
         }
         finally {
             CommonUtils.closeResource(ss);
         }
-        logger.info("Clean workspace Success");
+        logger.info("Clean workspace finish");
     }
 
 }
