@@ -3,6 +3,8 @@ package com.sequoiacm.infrastructure.lock.curator;
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.KeeperException.NoNodeException;
+import org.apache.zookeeper.KeeperException.NotEmptyException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,12 @@ public class CuratorZKBase {
     public static void deleteNode(CuratorFramework client, String path) throws Exception {
         try {
             client.delete().forPath(path);
+        }
+        catch (NoNodeException e) {
+            throw e;
+        }
+        catch (NotEmptyException e) {
+            throw e;
         }
         catch (Exception e) {
             logger.error("Fail to deleteNode:path={}", path);
@@ -33,6 +41,9 @@ public class CuratorZKBase {
     public static List<String> getChildren(CuratorFramework client, String path) throws Exception {
         try {
             return client.getChildren().forPath(path);
+        }
+        catch (NoNodeException e) {
+            throw e;
         }
         catch (Exception e) {
             logger.error("Fail to getChildren:path={}", path);

@@ -106,7 +106,7 @@ public class CuratorLockFactory implements LockFactory {
             t.schedule(task, 0, period);
             logger.info(
                     "start clean job cleanJobResidualTime={}, maxChildNum={},cleanJobPeriod={}, cleanAllCountPeriod={}",
-                    period, maxResidualTime, maxChildNum, cleanCount);
+                    maxResidualTime, maxChildNum, period, cleanCount);
 
         }
         else {

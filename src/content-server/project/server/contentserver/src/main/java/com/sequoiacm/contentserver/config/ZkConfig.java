@@ -101,7 +101,7 @@ public class ZkConfig {
     }
 
     public void setClenaJobChildThreshold(int clenaJobChildThreshold) {
-        if (clenaJobChildThreshold < 10 && clenaJobChildThreshold > 10000) {
+        if (clenaJobChildThreshold < 10 || clenaJobChildThreshold > 10000) {
             logger.warn("Invalid clenaJobChildThreshold value: " + clenaJobChildThreshold
                     + ", set to default value: " + this.clenaJobChildThreshold);
             return;

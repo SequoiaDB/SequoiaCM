@@ -70,7 +70,7 @@ public class LockConfig {
     }
 
     public void setClenaJobChildThreshold(int clenaJobChildThreshold) {
-        if (clenaJobChildThreshold < 10 && clenaJobChildThreshold > 10000) {
+        if (clenaJobChildThreshold < 10 || clenaJobChildThreshold > 10000) {
             logger.warn("Invalid clenaJobChildThreshold value: " + clenaJobChildThreshold
                     + ", set to default value: " + this.clenaJobChildThreshold);
             return;
@@ -83,7 +83,7 @@ public class LockConfig {
     }
 
     public void setClenaJobCountThreshold(int clenaJobCountThreshold) {
-        if (clenaJobCountThreshold <=  0) {
+        if (clenaJobCountThreshold <= 0) {
             logger.warn("Invalid clenaJobCountThreshold value: " + clenaJobCountThreshold
                     + ", set to default value: " + this.clenaJobCountThreshold);
             return;
