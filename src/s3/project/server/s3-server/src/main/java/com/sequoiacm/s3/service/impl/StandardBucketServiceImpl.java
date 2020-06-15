@@ -1,9 +1,9 @@
 package com.sequoiacm.s3.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.s3.authoriztion.ScmSession;
+import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.config.BucketConfig;
 import com.sequoiacm.s3.config.RegionConfig;
 import com.sequoiacm.s3.core.Bucket;
@@ -29,6 +30,11 @@ import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.CommonUtil;
 import com.sequoiacm.s3.utils.DataFormatUtils;
+import com.sequoiadb.infrastructure.map.ScmMapError;
+import com.sequoiadb.infrastructure.map.ScmMapServerException;
+import com.sequoiadb.infrastructure.map.client.core.ScmMapFactory;
+import com.sequoiadb.infrastructure.map.client.service.MapFeignClient;
+import com.sequoiadb.infrastructure.map.client.service.MapFeignClientFactory;
 
 @Component
 @ConditionalOnProperty(prefix = "scm.s3", name = "mode", havingValue = "standard", matchIfMissing = true)
@@ -37,6 +43,16 @@ public class StandardBucketServiceImpl implements BucketService {
     private String defaultRegion;
     private String bucketsDir;
     private boolean allowReput;
+    private Map<String, Bucket> bucketMap;
+
+    @Autowired
+    private ScmClientFactory clientFactory;
+
+    @Autowired
+    private ObjectService objService;
+
+    @Autowired
+    private MapFeignClientFactory mapClientFactory;
 
     @Autowired
     public StandardBucketServiceImpl(BucketConfig bucketConfig, RegionConfig regionConfig) {
@@ -45,13 +61,36 @@ public class StandardBucketServiceImpl implements BucketService {
         allowReput = bucketConfig.getAllowreput();
     }
 
-    // TODO: map要有隔离的能力，类似CS隔离CL
-    private Map<String, Bucket> bucketMap = new HashMap<>();
-
-    @Autowired
-    private ScmClientFactory clientFactory;
-    @Autowired
-    private ObjectService objService;
+    private Map<String, Bucket> getBucketMap() throws S3ServerException {
+        initMap();
+        return bucketMap;
+    }
+    
+    private void initMap() throws S3ServerException {
+        MapFeignClient client = mapClientFactory
+                .getFeignClientByServiceName(clientFactory.getRootSite());
+        try {
+            bucketMap = ScmMapFactory.getGroupMap(client, S3CommonDefine.S3_MAP_GROUP_NAME)
+                    .createMap(S3CommonDefine.S3_MAP_BURKET_NAME, String.class, Bucket.class);
+        }
+        catch (ScmMapServerException e) {
+            if (e.getError().equals(ScmMapError.MAP_TABLE_ALREADY_EXIST)) {
+                try {
+                    bucketMap = ScmMapFactory.getGroupMap(client, S3CommonDefine.S3_MAP_GROUP_NAME)
+                            .getMap(S3CommonDefine.S3_MAP_BURKET_NAME);
+                    return;
+                }
+                catch (Exception e1) {
+                    throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map",
+                            e1);
+                }
+            }
+            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map", e);
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map", e);
+        }
+    }
 
     @Override
     public void createBucket(ScmSession session, String bucketName, String region)
@@ -93,7 +132,7 @@ public class StandardBucketServiceImpl implements BucketService {
         bucket.setWorkspace(region);
         bucket.setCreateDate(DataFormatUtils.formatDate(System.currentTimeMillis()));
         bucket.setUserId(session.getUser().getUserId());
-        Bucket previous = bucketMap.putIfAbsent(bucketName, bucket);
+        Bucket previous = getBucketMap().putIfAbsent(bucketName, bucket);
         if (previous == null) {
             return;
         }
@@ -133,8 +172,8 @@ public class StandardBucketServiceImpl implements BucketService {
             throw new S3ServerException(S3Error.BUCKET_NOT_EMPTY,
                     "The bucket you tried to delete is not empty. bucket name = " + bucketName);
         }
-        //TODO:putObject和删除桶存在并发问题
-        bucketMap.remove(bucketName);
+        // TODO:putObject和删除桶存在并发问题
+        getBucketMap().remove(bucketName);
         ScmContentServerClient client = clientFactory.getContentServerClient(session,
                 bucket.getWorkspace());
         try {
@@ -149,7 +188,9 @@ public class StandardBucketServiceImpl implements BucketService {
     public GetServiceResult getService(ScmSession session) throws S3ServerException {
         GetServiceResult ret = new GetServiceResult();
         List<Bucket> buckets = new ArrayList<>();
-        for (Bucket bucket : bucketMap.values()) {
+        Set<String> keySet = getBucketMap().keySet();
+        for (String bucketName : keySet) {
+            Bucket bucket = getBucketMap().get(bucketName);
             if (bucket.getUserId().equals(session.getUser().getUserId())) {
                 buckets.add(bucket);
             }
@@ -165,12 +206,12 @@ public class StandardBucketServiceImpl implements BucketService {
     @Override
     public Bucket getBucket(ScmSession session, String bucketName) throws S3ServerException {
         bucketName = bucketName.toLowerCase();
-        Bucket bucket = bucketMap.get(bucketName);
+        Bucket bucket = getBucketMap().get(bucketName);
         if (bucket == null) {
             throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
                     "The specified bucket does not exist. bucket name = " + bucketName);
         }
-        if (bucket.getUserId() != session.getUser().getUserId()) {
+        if (!bucket.getUserId().equals(session.getUser().getUserId())) {
             throw new S3ServerException(S3Error.ACCESS_DENIED,
                     "You can not access the specified bucket. bucket name = " + bucketName
                             + ", ownerID = " + bucket.getUserId());

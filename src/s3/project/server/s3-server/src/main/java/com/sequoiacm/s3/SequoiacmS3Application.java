@@ -7,7 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+import com.sequoiadb.infrastructure.map.client.EnableMapClient;
+
 @EnableDiscoveryClient
+@EnableMapClient
 @SpringBootApplication
 public class SequoiacmS3Application implements ApplicationRunner {
 

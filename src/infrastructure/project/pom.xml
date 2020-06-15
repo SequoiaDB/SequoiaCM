@@ -28,9 +28,9 @@
         <zookeeper.version>3.5.5</zookeeper.version>
         <junit.version>4.12</junit.version>
         <testng.version>6.13.1</testng.version>
-
         <feign.jackson.version>9.5.1</feign.jackson.version>
         <feign-form-spring.version>2.2.1</feign-form-spring.version>
+        <fastjson.version>1.2.47</fastjson.version>
     </properties>
 
     <modules>
@@ -47,6 +47,7 @@
         <module>./config-client</module>
         <module>./audit</module>
         <module>./server-common</module>
+        <module>./map</module>
     </modules>
 
     <dependencyManagement>
@@ -146,6 +147,17 @@
                 <artifactId>sequoiacm-infrastructure-security-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            
+             <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-server-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -164,6 +176,11 @@
                 <groupId>io.github.openfeign.form</groupId>
                 <artifactId>feign-form-spring</artifactId>
                 <version>${feign-form-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

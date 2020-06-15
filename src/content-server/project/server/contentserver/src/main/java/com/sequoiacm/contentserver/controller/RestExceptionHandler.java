@@ -6,16 +6,25 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.infrastructure.exception_handler.ExceptionBody;
 import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
+import com.sequoiadb.infrastructure.map.ScmMapServerException;
+import com.sequoiadb.infrastructure.map.server.controller.RestMapExceptionHandler;
 
 @ControllerAdvice
 public class RestExceptionHandler extends RestExceptionHandlerBase {
 
     @Override
     protected ExceptionBody convertToExceptionBody(Exception srcException) {
+        ScmServerException e;
         if (!(srcException instanceof ScmServerException)) {
-            return null;
+            if (!(srcException instanceof ScmMapServerException)) {
+                return null;
+            }
+            ScmMapServerException mapException = (ScmMapServerException) srcException;
+            return RestMapExceptionHandler.convertToExceptionBody(mapException);
         }
-        ScmServerException e = (ScmServerException) srcException;
+        else {
+            e = (ScmServerException) srcException;
+        }
         HttpStatus status;
         switch (e.getError()) {
             case MISSING_ARGUMENT:

@@ -14,7 +14,7 @@ public class Bucket {
     @JsonIgnore
     private String workspace;
     @JsonIgnore
-    private String bucketDir; 
+    private String bucketDir;
 
     @JsonIgnore
     private String userId;

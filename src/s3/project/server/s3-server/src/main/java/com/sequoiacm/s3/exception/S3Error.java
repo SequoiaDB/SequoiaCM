@@ -3,6 +3,7 @@ package com.sequoiacm.s3.exception;
 public enum S3Error {
     INTERNAL_ERROR(-1, "InternalError", "We encountered an internal error. Please try again."),
     OPERATION_NOT_SUPPORTED(-2, "OperationNotSupport.", "Operation not supported."),
+    SYSTEM_ERROR(-3, "SystemError.", "System error."),
 
     // Acl error
     ACL_CONFLICT(-101, "InvalidRequest", "The x-amz-acl header and x-amz-grant-* and the request body in request body are conflict."),

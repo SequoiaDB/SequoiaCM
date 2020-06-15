@@ -40,6 +40,12 @@ public class ScmIdGenerator {
         }
     }
 
+    public static class MapId {
+        public static String get() {
+            return FileId.get(new Date());
+        }
+    }
+
     public static class TaskId {
         public static String get() {
             return FileId.get(new Date());

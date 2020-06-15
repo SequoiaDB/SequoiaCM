@@ -14,13 +14,22 @@ import com.sequoiadb.net.ConfigOptions;
 
 public class SdbDataSourceWrapper {
     private static final Logger logger = LoggerFactory.getLogger(SdbDataSourceWrapper.class);
+    private static IDataSourceHandler dataSourceHandler;
 
     SequoiadbDatasource dataSource = null;
 
+    public static void setDataSourceHandler(IDataSourceHandler dataSourceHandler) {
+        SdbDataSourceWrapper.dataSourceHandler = dataSourceHandler;
+    }
+
     public SdbDataSourceWrapper(List<String> urlList, String user, String passwd,
-            ConfigOptions connConf, DatasourceOptions datasourceConf) throws SdbMetasourceException {
+            ConfigOptions connConf, DatasourceOptions datasourceConf)
+            throws SdbMetasourceException {
         try {
             dataSource = new SequoiadbDatasource(urlList, user, passwd, connConf, datasourceConf);
+            if (dataSourceHandler != null) {
+                dataSourceHandler.refresh(dataSource);
+            }
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(), "failed to init datasource", e);
@@ -58,7 +67,8 @@ public class SdbDataSourceWrapper {
                 releaseConnection(sdb);
                 sdb = null;
             }
-            throw new SdbMetasourceException(SDBError.SDB_INTERRUPT.getErrorCode(), "interrupted", e);
+            throw new SdbMetasourceException(SDBError.SDB_INTERRUPT.getErrorCode(), "interrupted",
+                    e);
         }
     }
 
@@ -85,6 +95,9 @@ public class SdbDataSourceWrapper {
             if (null != dataSource) {
                 dataSource.close();
                 dataSource = null;
+                if (dataSourceHandler != null) {
+                    dataSourceHandler.clear();
+                }
             }
         }
         catch (Exception e) {

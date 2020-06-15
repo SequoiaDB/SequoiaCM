@@ -87,7 +87,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-content-common</artifactId>
         </dependency>
-
+        
+         <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-map</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

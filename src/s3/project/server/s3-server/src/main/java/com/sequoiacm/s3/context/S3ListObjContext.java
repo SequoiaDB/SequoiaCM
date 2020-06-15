@@ -30,12 +30,12 @@ public class S3ListObjContext {
         this.meta = meta;
         this.contextMgr = contextMgr;
         if (meta.getDelimiter() == null) {
-            this.objCursor = new S3ObjectCursor(client, meta.getPrefix(), meta.getLastMarker(),
+            this.objCursor = new S3ObjectCursor(client, meta.getFormatedPrefix(), meta.getLastMarker(),
                     meta.getBucketDir(), false);
             return;
         }
         if (meta.getDelimiter().equals(S3CommonDefine.SCM_DIR_SEP)) {
-            this.objCursor = new S3ObjectCursor(client, meta.getPrefix(), meta.getLastMarker(),
+            this.objCursor = new S3ObjectCursor(client, meta.getFormatedPrefix(), meta.getLastMarker(),
                     meta.getBucketDir(), true);
             return;
         }
@@ -86,7 +86,11 @@ public class S3ListObjContext {
     }
 
     public String getLastMarker() {
-        return meta.getLastMarker();
+        String m = meta.getLastMarker();
+        if(m != null && m.startsWith(S3CommonDefine.SCM_DIR_SEP )) {
+            return m.substring(1);
+        }
+        return m;
     }
 
     private void updateLastMarker(ListObjRecord r) {
@@ -101,7 +105,7 @@ public class S3ListObjContext {
 
     }
 
-    public void release() {
+    public void release() throws S3ServerException {
         contextMgr.remove(meta.getId());
     }
 

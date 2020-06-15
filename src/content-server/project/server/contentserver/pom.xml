@@ -130,6 +130,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-monitor-collector</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-map</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>

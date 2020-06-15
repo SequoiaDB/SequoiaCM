@@ -64,6 +64,7 @@ public class RefreshAccesskeyToolImpl implements ScmTool {
         hp.printHelp(isHelpFull);
     }
 
+
     @Override
     public void process(String[] args) throws ScmToolsException {
         S3Admin.checkHelpArgs(args);
@@ -107,8 +108,8 @@ public class RefreshAccesskeyToolImpl implements ScmTool {
             ListTable t = new ListTable();
             ListLine l = new ListLine();
             l.addItem((String) ret.get("username"));
-            l.addItem((String) ret.get("secretkey"));
             l.addItem((String) ret.get("accesskey"));
+            l.addItem((String) ret.get("secretkey"));
             t.addLine(l);
             List<String> headerList = new ArrayList<String>();
             headerList.add("username");

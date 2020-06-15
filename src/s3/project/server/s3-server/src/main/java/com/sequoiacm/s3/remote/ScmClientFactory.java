@@ -248,7 +248,7 @@ public class ScmClientFactory {
         siteInfos = newSiteInfos;
     }
 
-    private String getRootSite() throws S3ServerException {
+    public String getRootSite() throws S3ServerException {
         if (rootSite == null) {
             refreshSiteCache();
             if (rootSite == null) {

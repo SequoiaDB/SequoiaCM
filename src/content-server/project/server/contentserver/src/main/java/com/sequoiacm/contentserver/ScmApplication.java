@@ -26,6 +26,7 @@ import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
+import com.sequoiacm.contentserver.metasourcemgr.ScmDataSourceHandler;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
@@ -35,6 +36,8 @@ import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationV
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
+import com.sequoiacm.metasource.sequoiadb.SdbDataSourceWrapper;
+import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 
 @EnableScmMonitorServer
 @EnableScmPrivClient
@@ -42,6 +45,7 @@ import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 @EnableFeignClients("com.sequoiacm.cloud.security.privilege.impl")
 @EnableDiscoveryClient
 @EnableConfClient
+@EnableMapServerWithoutDataSource
 @EnableAudit
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.contentserver" })
@@ -113,6 +117,7 @@ public class ScmApplication implements ApplicationRunner {
             // subscribe node config
             contentserverConfClient.subscribeWithAsyncRetry(new NodeConfSubscriber(localInstance.getServiceId(), PropertiesUtils.getNodeVersionHeartbeat()));
 
+            SdbDataSourceWrapper.setDataSourceHandler(new ScmDataSourceHandler());
             ScmServer ss = new ScmServer();
             ss.start();
 

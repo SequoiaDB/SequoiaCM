@@ -13,4 +13,8 @@ public class S3CommonDefine {
     public static final String S3_CUSTOM_META_CONTENT_LANGUAGE = "ContentLanguage";
     public static final String S3_CUSTOM_META_CONTENT_DISPOSITION = "ContentDisposition";
 
+    public static final String S3_MAP_GROUP_NAME = "S3";
+    public static final String S3_MAP_BURKET_NAME = "bucket";
+    public static final String S3_MAP_LIST_CONTEXT_META_NAME = "list_conetext_meta";
+
 }

@@ -12,6 +12,8 @@ public class S3ListObjContextMeta {
     private String ws;
     private String bucketDir;
     private String id;
+    private String formatedPrefix;
+    private String formatedstartAfter;
 
     public S3ListObjContextMeta() {
     }
@@ -22,22 +24,24 @@ public class S3ListObjContextMeta {
         this.ws = ws;
         this.bucketName = bucketName;
         this.bucketDir = bucketDir;
-        if (prefix != null && !prefix.startsWith(S3CommonDefine.SCM_DIR_SEP)) {
-            prefix = S3CommonDefine.SCM_DIR_SEP + prefix;
-        }
         this.prefix = prefix;
-        if (startAfter != null && !startAfter.startsWith(S3CommonDefine.SCM_DIR_SEP)) {
-            startAfter = S3CommonDefine.SCM_DIR_SEP + startAfter;
-        }
+        this.formatedPrefix = formatPath(prefix);
+
         this.startAfter = startAfter;
+        this.formatedstartAfter = formatPath(startAfter);
         this.delimiter = delimiter;
-        if (lastMarker != null && !lastMarker.startsWith(S3CommonDefine.SCM_DIR_SEP)) {
-            lastMarker = S3CommonDefine.SCM_DIR_SEP + lastMarker;
-        }
-        this.lastMarker = lastMarker;
+       
+        this.lastMarker = formatPath(lastMarker);
         this.updateTime = System.currentTimeMillis();
     }
 
+    private String formatPath(String p) {
+        if (p != null && !p.startsWith(S3CommonDefine.SCM_DIR_SEP)) {
+            p = S3CommonDefine.SCM_DIR_SEP + p;
+        }
+        return p;
+    }
+    
     public String getId() {
         return id;
     }
@@ -66,6 +70,22 @@ public class S3ListObjContextMeta {
         return prefix;
     }
 
+    public String getFormatedPrefix() {
+        return formatedPrefix;
+    }
+
+    public void setFormatedPrefix(String formatedPrefix) {
+        this.formatedPrefix = formatedPrefix;
+    }
+
+    public void setFormatedstartAfter(String formatedstartAfter) {
+        this.formatedstartAfter = formatedstartAfter;
+    }
+
+    public String getFormatedstartAfter() {
+        return formatedstartAfter;
+    }
+
     public String getStartAfter() {
         return startAfter;
     }
@@ -75,11 +95,43 @@ public class S3ListObjContextMeta {
     }
 
     public void updateLastMarker(String lastMaker) {
-        this.lastMarker = lastMaker;
+        this.lastMarker = formatPath(lastMaker);
     }
 
     public void setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setStartAfter(String startAfter) {
+        this.startAfter = startAfter;
+    }
+
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
+
+    public void setLastMarker(String lastMarker) {
+        this.lastMarker = lastMarker;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public void setWs(String ws) {
+        this.ws = ws;
+    }
+
+    public void setBucketDir(String bucketDir) {
+        this.bucketDir = bucketDir;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }
