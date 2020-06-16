@@ -32,6 +32,10 @@
 		{
 			"name": "deploy",
 			"modulePomPath": "../../tools/scm-deploy/pom.xml"
+		},
+        {
+			"name": "mq",
+			"modulePomPath": "../../src/mq/project/pom.xml"
 		}]
 	},
 	"releasePackage": [{
@@ -63,6 +67,10 @@
 			{
 				"type": "copy",
 				"src": "../../thirdparty/zookeeper/zookeeper-*.tar.gz"
+			},
+            {
+				"type": "copy",
+				"src": "../../src/mq/project/assembly/target/*-release.tar.gz"
 			}]
 		},
 		{

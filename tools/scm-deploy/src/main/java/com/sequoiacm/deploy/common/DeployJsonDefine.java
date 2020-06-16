@@ -11,6 +11,7 @@ public class DeployJsonDefine {
     public static final String VIRTUAL_CLOUD_DISK = "virtual-cloud-disk-server";
     public static final String OM_SERVER = "om-server";
     public static final String ZK_SERVER = "zookeeper-server";
+    public static final String MQ_SERVER = "mq-server";
 
     public static final String AUDIT = "audit";
     public static final String AUDIT_URL = "auditurl";

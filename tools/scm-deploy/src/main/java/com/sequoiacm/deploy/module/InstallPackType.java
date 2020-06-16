@@ -8,6 +8,7 @@ public enum InstallPackType {
     OM_SERVER("^sequoiacm-om-(.*)-release\\.tar\\.gz$", "sequoiacm-om"),
     CLOUD_DISK("^sequoiacm-cloud-disk-(.*)-release\\.tar\\.gz$", "sequoiacm-cloud-disk"),
     VIRTUAL_CLOUD_DISK("^cloud-disk-(.*)-release\\.tar\\.gz$", "cloud-disk"),
+    MQ_SERVER("^sequoiacm-mq-(.*)-release\\.tar\\.gz$", "sequoiacm-mq"),
 
     ZOOKEEPER("^zookeeper-(.*)\\.tar\\.gz$") {
         @Override

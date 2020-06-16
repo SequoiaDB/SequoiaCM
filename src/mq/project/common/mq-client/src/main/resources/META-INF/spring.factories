@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sequoiacm.mq.client.config.AdminBeanAutoConfig,\
+com.sequoiacm.mq.client.config.ConsumerBeanAutoConfig,\
+com.sequoiacm.mq.client.config.ProducerBeanAutoConfig

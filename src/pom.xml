@@ -35,6 +35,7 @@
 
     <modules>
         <module>./infrastructure/project</module>
+        <module>./mq/project</module>
         <module>./cloud/project</module>
         <module>./config-server/project</module>
         <module>./schedule-server/project</module>

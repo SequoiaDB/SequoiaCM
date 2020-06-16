@@ -50,6 +50,10 @@ public class ScmFeignClient {
         return context.getBean(ScmFeignClient.Builder.class);
     }
 
+    public static Builder builderForNotSpring() {
+        return new Builder();
+    }
+
     @Component
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public static class Builder {

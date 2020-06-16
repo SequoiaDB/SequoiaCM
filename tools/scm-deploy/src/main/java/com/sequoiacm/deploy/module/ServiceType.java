@@ -10,12 +10,14 @@ public enum ServiceType {
     ZOOKEEPER("zookeeper", true, InstallPackType.ZOOKEEPER, -1),
     SERVICE_CENTER("service-center", true, InstallPackType.CLOUD, 0),
     AUTH_SERVER("auth-server", true, InstallPackType.CLOUD, 1),
+    MQ_SERVER("mq-server", false, InstallPackType.MQ_SERVER, 1),
     CONFIG_SERVER("config-server", true, InstallPackType.CONFIG_SERVER, 2),
     SCHEDULE_SERVER("schedule-server", false, InstallPackType.SCHEDULE_SERVER, 3),
     GATEWAY("gateway", true, InstallPackType.CLOUD, 4),
     CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, 5),
     ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, 10),
     OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10);
+
 
     private static List<ServiceType> typeSortByPriority;
     private static List<ServiceType> requiredServiceType;
@@ -34,6 +36,7 @@ public enum ServiceType {
             if (type.isRequire) {
                 requiredServiceType.add(type);
             }
+           
         }
     }
 

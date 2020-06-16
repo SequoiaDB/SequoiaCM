@@ -140,6 +140,38 @@
         {
             "csName": "SCMSYSTEM",
             "clName": "DATA_TABLE_NAME_HISTORY"
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "MQ_TOPIC",
+            "indexes": [
+                {
+                    "name": "idx_name",
+                    "indexDef": {
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "MQ_CONSUMER_GROUP",
+            "indexes": [
+                {
+                    "name": "idx_name",
+                    "indexDef": {
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "MQ_CONSUMER_PARTITION_INFO"
         }
     ]
 }
