@@ -43,6 +43,11 @@ public class CircularIterator<E> implements Iterator<E> {
         return it.next();
     }
 
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("remove");
+    }
+
     public static void main(String[] args) {
         List<Integer> l = Arrays.asList(1, 2, 3, 4, 5);
         CircularIterator<Integer> itt = new CircularIterator<>(l, 0);

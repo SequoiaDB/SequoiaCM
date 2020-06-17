@@ -114,13 +114,6 @@
                 <version>${commons-cli.version}</version>
             </dependency>
 
-
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-infrastructure-feign</artifactId>
-                <version>${sequoiacm-infrastructure.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-server-common</artifactId>
