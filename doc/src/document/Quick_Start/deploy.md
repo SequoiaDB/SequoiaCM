@@ -25,23 +25,25 @@
 
 ###安装包###
 
-产品包名字以 sequoiacm-3.0-release.tar.gz 为例，压缩包内包含:
+产品包名字以 sequoiacm-3.1.0-release.tar.gz 为例，压缩包内包含:
 
 | 安装包         | 说明                                        |
 |----------------|---------------------------------------------|
-| contentserver-3.0.0-release.tar.gz      | 内容管理服务       |
-| sequoiacm-config-1.0.0-release.tar.gz   | 配置服务         |
-| sequoiacm-cloud-1.0.0-release.tar.gz    | Cloud 服务集合包，包含网关服务、注册中心、监控服务、认证服务、跟踪服务|
-| sequoiacm-schedule-1.0.0-release.tar.gz | 调度服务       |
+| driver      | 驱动包       |
+| package   | 微服务集合包         |
+| sequoiacm-deploy    | 部署工具|
+| deploy.log | 部署日志       |
+| README.md | 说明       |
+| scm.py | 部署脚本       |
 
 ###安装步骤###
 
-1. 将 sequoiacm-3.0-release.tar.gz 压缩包上传至 scmServer
+1. 将 sequoiacm-3.1.0-release.tar.gz 压缩包上传至 scmServer
 
 2. 解压缩
 
 	```
-	$ tar -zxvf contentserver-3.0.0-release.tar.gz -C /opt/data/
+	$ tar -zxvf sequoiacm-3.1.0-release.tar.gz -C /opt/data/
 	```
 
 3. 编辑集群部署规划文件
@@ -194,8 +196,8 @@
     $ vi /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
     {
         "url":"scmServer:8080/rootsite",
-        "username":"admin",
-        "password":"admin",
+        "userName": "admin",
+        "password": "admin",   
         "workspaces":[
             {
                 "name":"test_ws",
@@ -222,17 +224,22 @@
     >
     > * username 和 password 分别为系统默认的管理员用户密码
 
-4. 创建工作区
+3. 创建工作区
 
 	```
 	$ /opt/data/sequoiacm/scm.py workspace --create --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
 	```
 
+4. 远程登陆到部署服务器上
+
+    ```
+    $ ssh sequoiadb@scmServer
+    ```
 
 5. 测试环境，将工作区权限赋给管理员用户，编辑权限配置，
 
     ```
-    $ vi /opt/sequoiacm/contentserver/users.json
+    $ vi /opt/sequoiacm/sequoiacm-content/users.json
     {
         "url":"server1:8080/rootsite",
         "adminUser":"admin",
@@ -255,14 +262,15 @@
                 "password": "admin",
                 "roles": ["test_role"]
             }
-        ]
+        ],
+        "newUsers": []
     }
     ```
 
-5. 执行权限配置操作
+6. 执行权限配置操作
 
     ```
-    $ python /opt/sequoiacm/contentserver/createusers.py
+    $ python /opt/sequoiacm/sequoiacm-content/createusers.py
     ```
 
 ###安装部署完毕###
