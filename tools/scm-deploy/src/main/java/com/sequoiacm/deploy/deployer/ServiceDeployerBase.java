@@ -100,7 +100,8 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
                 remoteJsonFilePath = remoteJsonFilePath + "/" + toRemoteDeployJsonFileName;
             }
             ssh.scp(deployJsonFile.getAbsolutePath(), remoteJsonFilePath);
-            ssh.sudoExec("chown " + installUser + " " + remoteJsonFilePath);
+            ssh.changeOwner(remoteJsonFilePath, installUser,
+                    confMgr.getInstallConfig().getInstallUserGroup());
 
             try {
                 createNodeByRemoteJsonFile(ssh, serviceInstallPath, remoteJsonFilePath);

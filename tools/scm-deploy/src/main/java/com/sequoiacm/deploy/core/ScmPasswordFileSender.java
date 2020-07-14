@@ -116,8 +116,9 @@ public class ScmPasswordFileSender {
 
             if (localPasswordFile != null) {
                 ssh.scp(localPasswordFile, remoteDirPath + fileName);
-                ssh.sudoExec("chown " + deployInfoMgr.getInstallConfig().getInstallUser() + " "
-                        + remoteDirPath + fileName);
+                ssh.changeOwner(remoteDirPath + fileName,
+                        deployInfoMgr.getInstallConfig().getInstallUser(),
+                        deployInfoMgr.getInstallConfig().getInstallUserGroup());
                 return;
             }
             throw new IllegalArgumentException("password did not define");

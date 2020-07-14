@@ -88,7 +88,6 @@ public class ScmDeployer {
     private void createInstallUserAndPath(HostInfo host) throws IOException {
         Ssh ssh = sshFactory.getSsh(host);
         try {
-
             String installUser = deployConfMgr.getInstallConfig().getInstallUser();
             int isUserExist = ssh.exec("id -u " + installUser, 0, 1).getExitCode();
             if (isUserExist == 1) {
@@ -97,15 +96,25 @@ public class ScmDeployer {
                     throw new IllegalArgumentException("user not exist in " + host.getHostName()
                             + ", please specify password to create install user:" + installUser);
                 }
-                ssh.sudoExec("useradd " + installUser);
+                String userGroup = deployConfMgr.getInstallConfig().getInstallUserGroup();
+                int isUserGroupExist = ssh.sudoExec("grep \"^" + userGroup + ":\" /etc/group", 0,
+                        1);
+                if (isUserGroupExist == 1) {
+                    ssh.sudoExec("groupadd " + userGroup);
+                }
+                ssh.sudoExec("useradd " + installUser + " -m -g " + userGroup);
                 ssh.sudoExec("echo " + deployConfMgr.getInstallConfig().getInstallUser() + ":"
                         + installPasswd + " | sudo chpasswd");
+            }
+            else {
+                String group = ssh.getUserEffectiveGroup(installUser);
+                deployConfMgr.getInstallConfig().resetInstallUserGroup(group);
             }
 
             ssh.sudoExec("mkdir -p " + deployConfMgr.getInstallConfig().getInstallPath());
 
-            ssh.sudoExec("chown " + installUser + " "
-                    + deployConfMgr.getInstallConfig().getInstallPath() + " -R");
+            ssh.changeOwner(deployConfMgr.getInstallConfig().getInstallPath(), installUser,
+                    deployConfMgr.getInstallConfig().getInstallUserGroup());
 
             int hasJavaHome = ssh.sudoSuExec(installUser, "grep JAVA_HOME ~/.bashrc", null, 0, 1);
             if (hasJavaHome == 1) {

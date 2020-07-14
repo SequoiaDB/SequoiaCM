@@ -97,10 +97,20 @@ public class Ssh implements Closeable {
         return envValue.trim();
     }
 
+    public String getUserEffectiveGroup(String user) throws IOException {
+        String cmd = "id -ng " + user;
+        SshExecRes res = internalSudoExec(cmd);
+        String envValue = res.getStdOut();
+        if (envValue == null || envValue.trim().length() == 0) {
+            throw new IllegalArgumentException("failed to get effective group, user:" + user);
+        }
+        return envValue.trim();
+    }
+
     public void scp(String localPath, String remotePath) throws IOException {
         if (isNeedMakeScpTmpDir) {
             sudoExec("mkdir -p " + scpTmpPath);
-            sudoExec("chown " + username + " " + scpTmpPath + " -R");
+            changeOwner(scpTmpPath, username, null);
             isNeedMakeScpTmpDir = false;
         }
         if (remotePath.trim().startsWith(scpTmpPath)) {
@@ -201,6 +211,18 @@ public class Ssh implements Closeable {
 
     public SshExecRes exec(String command, Integer... expectExitCode) throws IOException {
         return internalExec(command, false, expectExitCode);
+    }
+
+    public void changeOwner(String path, String changeToUser, String changeToGroup)
+            throws IOException {
+        String command;
+        if (changeToGroup == null) {
+            command = "chown -R " + changeToUser + " " + path;
+        }
+        else {
+            command = "chown -R " + changeToUser + ":" + changeToGroup + " " + path;
+        }
+        sudoExec(command);
     }
 
     private SshExecRes runCommand(Channel channel, String command, boolean isNeedSendPasswd,

@@ -45,10 +45,10 @@ public class ServiceInstallerBase implements ServiceInstaller {
             }
 
             ssh.scp(installPack.getAbsolutePath(), ssh.getScpTmpPath());
-            ssh.sudoExec(
-                    "tar -xf '" + ssh.getScpTmpPath() + installPack.getName() + "' -C " + installPath,
-                    0);
-            ssh.sudoExec("chown " + installConfig.getInstallUser() + " " + untarPath + " -R");
+            ssh.sudoExec("tar -xf '" + ssh.getScpTmpPath() + installPack.getName() + "' -C "
+                    + installPath, 0);
+            ssh.changeOwner(untarPath, installConfig.getInstallUser(),
+                    installConfig.getInstallUserGroup());
 
             ssh.sudoSuExec(installConfig.getInstallUser(), "chmod +x " + untarPath + "/bin/*.sh",
                     null);

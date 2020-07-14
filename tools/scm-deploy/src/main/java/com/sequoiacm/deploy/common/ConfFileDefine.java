@@ -37,6 +37,7 @@ public class ConfFileDefine {
     public static final String INSTALLCONFIG_PATH = "InstallPath";
     public static final String INSTALLCONFIG_USER = "InstallUser";
     public static final String INSTALLCONFIG_PASSWORD = "InstallUserPassword";
+    public static final String INSTALLCONFIG_USER_GROUP = "InstallUserGroup";
 
     public static final String SEACTION_SERVICE_NODE = "servicenode";
     public static final String SEACTION_SITE_NODE = "sitenode";

@@ -59,10 +59,12 @@
 	1). 安装配置段:
 
     ```
-    # InstallUser 表示 sequoiacm 的安装用户，若 InstallUser 已存在，不需要填写 InstallUserPassword
+    # InstallUser 表示 sequoiacm 的安装用户，
+    # 若 InstallUser 已存在，不需要填写 InstallUserPassword、InstallUserGroup
+    # 若 InstallUser 不存在，必须填写 InstallUserPassword 用于建立 InstallUser，同时可以通过 InstallUserGroup 指定用户组
     [installconfig]
-    InstallPath,          	InstallUser,  InstallUserPassword
-    /opt/,                  scmadmin,     admin
+    InstallPath,          	InstallUser,  InstallUserPassword, InstallUserGroup
+    /opt/,                  scmadmin,     admin,               scmadmin_group
     ```
 
     >  **Note：**
