@@ -32,7 +32,6 @@
 | driver      | 驱动包       |
 | package   | 微服务集合包         |
 | sequoiacm-deploy    | 部署工具|
-| deploy.log | 部署日志       |
 | README.md | 说明       |
 | scm.py | 部署脚本       |
 
@@ -224,21 +223,15 @@
     >
     > * url 填写网关的地址，其中 rootsite 为主站点的服务名，在 url 中为全小写
     >
-    > * username 和 password 分别为系统默认的管理员用户密码
+    > * userName 和 password 分别为系统默认的管理员用户密码
 
 3. 创建工作区
 
 	```
 	$ /opt/data/sequoiacm/scm.py workspace --create --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
 	```
-
-4. 远程登陆到部署服务器上
-
-    ```
-    $ ssh sequoiadb@scmServer
-    ```
-
-5. 测试环境，将工作区权限赋给管理员用户，编辑权限配置，
+    
+4. 测试环境，将工作区权限赋给管理员用户，编辑权限配置，
 
     ```
     $ vi /opt/sequoiacm/sequoiacm-content/users.json
@@ -269,7 +262,7 @@
     }
     ```
 
-6. 执行权限配置操作
+5. 执行权限配置操作
 
     ```
     $ python /opt/sequoiacm/sequoiacm-content/createusers.py
