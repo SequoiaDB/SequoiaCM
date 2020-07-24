@@ -6,10 +6,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmFiledDefine;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
@@ -10,17 +12,17 @@ import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.printor.ScmWorkspaceInfoPrinter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-public class ScmListWorkspaceToolImpl implements ScmTool {
+public class ScmListWorkspaceToolImpl extends ScmTool {
     private Options ops;
     private ScmHelpGenerator hp;
 
     public ScmListWorkspaceToolImpl() throws ScmToolsException {
+        super("listws");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt("n", "name", "workspace name, default:list all workspaces.",
@@ -35,7 +37,6 @@ public class ScmListWorkspaceToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String name = null;
         if (cl.hasOption("n")) {

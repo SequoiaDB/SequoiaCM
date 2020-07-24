@@ -1,5 +1,8 @@
 package com.sequoiacm.mq.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -7,16 +10,15 @@ import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 import com.sequoiacm.mq.client.config.AdminClient;
 import com.sequoiacm.mq.client.remote.AdminFeignClient;
 import com.sequoiacm.mq.core.exception.FeignExceptionConverter;
-import com.sequoiacm.mq.tools.common.ScmHelpGenerator;
-import com.sequoiacm.mq.tools.exception.ScmToolsException;
 
-public abstract class MqToolBase implements ScmTool {
+public abstract class MqToolBase extends ScmTool {
     protected String OPT_LONG_URL = "url";
     protected String OPT_SHORT_URL = "u";
     protected Options ops;
     protected ScmHelpGenerator hp;
 
-    public MqToolBase() throws ScmToolsException {
+    public MqToolBase(String toolName) throws ScmToolsException {
+        super(toolName);
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(OPT_SHORT_URL, OPT_LONG_URL,

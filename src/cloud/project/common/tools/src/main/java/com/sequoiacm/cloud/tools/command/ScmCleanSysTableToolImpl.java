@@ -1,28 +1,35 @@
 package com.sequoiacm.cloud.tools.command;
 
+import com.sequoiacm.cloud.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.sequoiacm.cloud.tools.ScmAdmin;
-import com.sequoiacm.cloud.tools.common.ScmCommandUtil;
-import com.sequoiacm.cloud.tools.common.ScmHelpGenerator;
 import com.sequoiacm.cloud.tools.common.ScmSysTableCleaner;
 import com.sequoiacm.cloud.tools.common.ScmSysTableProcessorFactory;
-import com.sequoiacm.cloud.tools.element.ScmNodeType;
-import com.sequoiacm.cloud.tools.exception.ScmExitCode;
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 
-public class ScmCleanSysTableToolImpl implements ScmTool {
+import java.util.List;
+
+public class ScmCleanSysTableToolImpl extends ScmTool {
     private final String OPT_LONG_SDB_URL = "url";
     private final String OPT_LONG_SDB_USER = "user";
     private final String OPT_LONG_SDB_PWD_FILE = "password-file";
     private Options ops;
     private ScmHelpGenerator hp;
+    private ScmNodeTypeList nodeTypes;
 
-    public ScmCleanSysTableToolImpl() throws ScmToolsException {
+
+    public ScmCleanSysTableToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
+        super("cleansystable");
         ops = new Options();
         hp = new ScmHelpGenerator();
+        this.nodeTypes = nodeTypes;
 
         StringBuilder typeOptDesc = new StringBuilder();
         typeOptDesc.append("specify node type, arg:[ 3 | 21 ], 3:auth-server,\r\n");
@@ -41,7 +48,6 @@ public class ScmCleanSysTableToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String nodeTypeStr = cl.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE);
 
@@ -53,7 +59,7 @@ public class ScmCleanSysTableToolImpl implements ScmTool {
                 ? cl.getOptionValue(OPT_LONG_SDB_PWD_FILE)
                 : "";
 
-        ScmNodeType nodeType = ScmNodeType.getNodeTypeByStr(nodeTypeStr);
+        ScmNodeType nodeType = this.nodeTypes.getNodeTypeByStr(nodeTypeStr);
         ScmSysTableCleaner sysTableCleaner = ScmSysTableProcessorFactory
                 .getSysTableCleaner(nodeType, sdbUrl, sdbUser, sdbPwdFile);
         if (sysTableCleaner == null) {

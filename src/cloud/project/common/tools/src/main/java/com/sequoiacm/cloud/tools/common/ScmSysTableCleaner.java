@@ -1,6 +1,6 @@
 package com.sequoiacm.cloud.tools.common;
 
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public interface ScmSysTableCleaner {
     void clean() throws ScmToolsException;

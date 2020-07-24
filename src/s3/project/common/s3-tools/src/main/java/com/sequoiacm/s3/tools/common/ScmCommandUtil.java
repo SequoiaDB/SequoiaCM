@@ -1,5 +1,8 @@
 package com.sequoiacm.s3.tools.common;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -8,9 +11,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.s3.tools.exception.ScmExitCode;
-import com.sequoiacm.s3.tools.exception.ScmToolsException;
 
 public class ScmCommandUtil {
     private static final Logger logger = LoggerFactory.getLogger(ScmCommandUtil.class);

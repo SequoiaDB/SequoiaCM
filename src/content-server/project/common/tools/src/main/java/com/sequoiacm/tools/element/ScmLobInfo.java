@@ -1,12 +1,12 @@
 package com.sequoiacm.tools.element;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.ObjectId;
 
 import com.sequoiacm.tools.common.ScmFiledDefine;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 import java.util.Date;
 

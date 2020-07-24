@@ -2,14 +2,18 @@ package com.sequoiacm.tools.command;
 
 import java.util.Arrays;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmAlterWorkspaceToolImpl implements ScmTool {
+public class ScmAlterWorkspaceToolImpl extends ScmTool {
+
+    public ScmAlterWorkspaceToolImpl() {
+        super("alterws");
+    }
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         if (args.length > 0) {
             ScmTool tool = getInstanceByToolName(args[0]);
             if (tool != null) {

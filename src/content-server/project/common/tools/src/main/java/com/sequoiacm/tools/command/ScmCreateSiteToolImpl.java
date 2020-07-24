@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -26,9 +28,8 @@ import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteConfig;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmCreateSiteToolImpl implements ScmTool {
+public class ScmCreateSiteToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory
             .getLogger(ScmCreateSiteToolImpl.class.getName());
     private final String OPT_LONG_NAME = "name";
@@ -54,6 +55,7 @@ public class ScmCreateSiteToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmCreateSiteToolImpl() throws ScmToolsException {
+        super("createsite");
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(
@@ -91,8 +93,6 @@ public class ScmCreateSiteToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
-
         CommandLine cl = ScmCommandUtil.parseArgs(args, options);
         boolean isRootSite;
         ScmSdbInfo metaDsInfo = null;

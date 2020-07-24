@@ -1,5 +1,12 @@
 package com.sequoiacm.config.tools.command;
 
+import com.sequoiacm.config.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.RestErrorHandler;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.config.tools.common.SubscribersPrinter;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.types.BasicBSONList;
@@ -12,15 +19,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.sequoiacm.config.tools.ConfAdmin;
-import com.sequoiacm.config.tools.common.RestErrorHandler;
-import com.sequoiacm.config.tools.common.ScmCommandUtil;
-import com.sequoiacm.config.tools.common.ScmHelpGenerator;
-import com.sequoiacm.config.tools.common.SubscribersPrinter;
-import com.sequoiacm.config.tools.exception.ScmExitCode;
-import com.sequoiacm.config.tools.exception.ScmToolsException;
-
-public class ScmListSubscribersImpl implements ScmTool {
+public class ScmListSubscribersImpl extends ScmTool {
     private String OPT_LONG_URL = "url";
     private String OPT_SHORT_URL = "u";
 
@@ -29,6 +28,7 @@ public class ScmListSubscribersImpl implements ScmTool {
     private final Logger logger = LoggerFactory.getLogger(ScmSubscribeImpl.class.getName());
 
     public ScmListSubscribersImpl() throws ScmToolsException {
+        super("listsubscribers");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -37,7 +37,6 @@ public class ScmListSubscribersImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ConfAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String configUrl = cl.getOptionValue(OPT_LONG_URL);
 

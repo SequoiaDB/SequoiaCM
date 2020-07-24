@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -10,9 +12,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmPasswordEncryptor implements ScmTool {
+public class ScmPasswordEncryptor extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmPasswordEncryptor.class);
     private final String LONG_PASSWD = "password";
     private final String SHORT_PASSWD = "p";
@@ -23,6 +24,7 @@ public class ScmPasswordEncryptor implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmPasswordEncryptor() throws ScmToolsException {
+        super("encrypt");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(SHORT_PASSWD, LONG_PASSWD, "password to be encrypted.", true,
@@ -33,7 +35,6 @@ public class ScmPasswordEncryptor implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String user = cl.getOptionValue(LONG_USER);
         String passwd = cl.getOptionValue(LONG_PASSWD);

@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -23,9 +25,8 @@ import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ReloadResInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmReloadBizConfToolImpl implements ScmTool {
+public class ScmReloadBizConfToolImpl extends ScmTool {
     private final String OPT_LONG_RUNNING_NODE = "running-node";
     private final String OPT_SHORT_RUNNING_NODE = "r";
 
@@ -49,6 +50,7 @@ public class ScmReloadBizConfToolImpl implements ScmTool {
     private ScmSession ss;
 
     public ScmReloadBizConfToolImpl() throws ScmToolsException {
+        super("reloadbizconf");
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(hp.createOpt(OPT_SHORT_RUNNING_NODE, OPT_LONG_RUNNING_NODE,
@@ -65,7 +67,6 @@ public class ScmReloadBizConfToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmCtl.checkHelpArgs(args);
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_ALL) && (commandLine.hasOption(OPT_SHORT_SITE)
                 || commandLine.hasOption(OPT_SHORT_NODE))) {

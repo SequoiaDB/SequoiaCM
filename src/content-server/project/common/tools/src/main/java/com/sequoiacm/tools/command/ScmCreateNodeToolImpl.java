@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -41,11 +43,10 @@ import com.sequoiacm.tools.common.SdbHelper;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 import com.sequoiadb.base.Sequoiadb;
 
-public class ScmCreateNodeToolImpl implements ScmTool {
+public class ScmCreateNodeToolImpl extends ScmTool {
     private final String OPT_LONG_NAME = "name";
     private final String OPT_SHORT_NAME = "n";
     private final String OPT_LONG_SERVERURL = "serverurl";
@@ -77,6 +78,7 @@ public class ScmCreateNodeToolImpl implements ScmTool {
     private String auditPassword = "sdbadmin";
 
     public ScmCreateNodeToolImpl() throws ScmToolsException {
+        super("createnode");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -112,7 +114,6 @@ public class ScmCreateNodeToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         ScmSdbInfo mainSdb = ScmCommandUtil.parseDsOption(cl);
         String serverName = cl.getOptionValue(OPT_LONG_NAME);

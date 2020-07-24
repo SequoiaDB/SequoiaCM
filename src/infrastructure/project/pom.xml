@@ -48,6 +48,7 @@
         <module>./audit</module>
         <module>./server-common</module>
         <module>./map</module>
+        <module>./tool</module>
     </modules>
 
     <dependencyManagement>

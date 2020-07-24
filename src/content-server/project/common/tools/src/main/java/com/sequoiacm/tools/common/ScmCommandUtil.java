@@ -3,6 +3,7 @@ package com.sequoiacm.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -20,7 +21,6 @@ import com.sequoiacm.tools.element.LocationMsg;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
 public class ScmCommandUtil {

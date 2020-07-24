@@ -3,9 +3,9 @@ package com.sequoiacm.tools.printor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmWorkspaceInfoPrinter {
     private List<String> nameList = new ArrayList<>();

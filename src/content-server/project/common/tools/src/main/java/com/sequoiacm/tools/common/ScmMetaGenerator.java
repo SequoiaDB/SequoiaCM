@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BSONTimestamp;
@@ -21,7 +22,6 @@ import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 import com.sequoiacm.tools.element.TimeArgWrapper;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;

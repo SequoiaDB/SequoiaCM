@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import com.sequoiacm.common.mapping.ScmSiteObj;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.tools.common.SdbHelper;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmSiteInfo {
     private int id;

@@ -1,5 +1,11 @@
 package com.sequoiacm.config.tools.command;
 
+import com.sequoiacm.config.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.RestErrorHandler;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -14,15 +20,9 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.sequoiacm.config.tools.ConfAdmin;
-import com.sequoiacm.config.tools.common.RestErrorHandler;
-import com.sequoiacm.config.tools.common.ScmCommandUtil;
-import com.sequoiacm.config.tools.common.ScmHelpGenerator;
-import com.sequoiacm.config.tools.exception.ScmExitCode;
-import com.sequoiacm.config.tools.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
-public class ScmSubscribeImpl implements ScmTool {
+public class ScmSubscribeImpl extends ScmTool {
     private final String OPT_SHORT_CONFIG = "c";
     private final String OPT_LONG_CONFIG = "config";
     private final String OPT_SHORT_SERVICE = "s";
@@ -35,6 +35,7 @@ public class ScmSubscribeImpl implements ScmTool {
     private final Logger logger = LoggerFactory.getLogger(ScmSubscribeImpl.class.getName());
 
     public ScmSubscribeImpl() throws ScmToolsException {
+        super("subscribe");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -47,7 +48,6 @@ public class ScmSubscribeImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ConfAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
 
         String configName = cl.getOptionValue(OPT_LONG_CONFIG);

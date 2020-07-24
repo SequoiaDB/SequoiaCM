@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -13,9 +15,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmDeleteRoleToolImpl implements ScmTool {
+public class ScmDeleteRoleToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmDeleteRoleToolImpl.class);
 
     private final String SHORT_OP_ROLE = "r";
@@ -31,6 +32,7 @@ public class ScmDeleteRoleToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmDeleteRoleToolImpl() throws ScmToolsException {
+        super("deleterole");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(SHORT_OP_ROLE, LONG_OP_ROLE, "the name of role to be deleted.",
@@ -44,7 +46,6 @@ public class ScmDeleteRoleToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String roleName = cl.getOptionValue(SHORT_OP_ROLE);
 

@@ -6,23 +6,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-public class ScmListToolImpl implements ScmTool {
+public class ScmListToolImpl extends ScmTool {
     private Options options;
     private ScmHelpGenerator hp;
     private ScmExecutorWrapper executor;
 
     public ScmListToolImpl() throws ScmToolsException {
+        super("list");
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(hp.createOpt("p", "port", "node port", false, true, false));
@@ -33,8 +35,6 @@ public class ScmListToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmCtl.checkHelpArgs(args);
-
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
         Map<Integer, String> node2Conf = executor.getAllNode();
         Map<String, Integer> runningNode = executor.getNodeStatus();

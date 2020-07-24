@@ -1,20 +1,20 @@
 package com.sequoiacm.tools;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.tools.command.ScmTool;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.common.ScmMetaGenerator;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmGenerateMetaToolImpl implements ScmTool {
+public class ScmGenerateMetaToolImpl extends ScmTool {
     private final String OPT_SHORT_WS = "w";
     private final String OPT_LONG_WS = "workspace";
     private final String OPT_SHORT_CL = "c";
@@ -22,7 +22,6 @@ public class ScmGenerateMetaToolImpl implements ScmTool {
     private final String OPT_SHORT_HELP = "h";
     private final String OPT_LONG_HELP = "help";
     private static Logger logger = LoggerFactory.getLogger(ScmGenerateMetaToolImpl.class);
-
     private Options ops = new Options();
     private ScmHelpGenerator hp = new ScmHelpGenerator();
 
@@ -51,6 +50,7 @@ public class ScmGenerateMetaToolImpl implements ScmTool {
     }
 
     public ScmGenerateMetaToolImpl() throws ScmToolsException {
+        super("generatemeta");
         ops.addOption(hp.createOpt(OPT_SHORT_WS, OPT_LONG_WS, "workspace name", true, true, false));
         ops.addOption(hp.createOpt(OPT_SHORT_CL, OPT_LONG_CL,
                 "lob collection full name, eg:'cs.cl'", true, true, false));

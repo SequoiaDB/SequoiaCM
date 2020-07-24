@@ -1,5 +1,7 @@
 package com.sequoiacm.mq.tools.common;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+
 import java.util.ArrayList;
 import java.util.List;
 

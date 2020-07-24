@@ -1,8 +1,8 @@
 package com.sequoiacm.tools.exec;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmWindowsExecutorImpl implements ScmExecutor {
 

@@ -2,10 +2,10 @@ package com.sequoiacm.cloud.tools.common;
 
 import java.util.Properties;
 
+import com.sequoiacm.cloud.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.springframework.util.StringUtils;
 
-import com.sequoiacm.cloud.tools.exception.ScmExitCode;
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiadb.base.CollectionSpace;

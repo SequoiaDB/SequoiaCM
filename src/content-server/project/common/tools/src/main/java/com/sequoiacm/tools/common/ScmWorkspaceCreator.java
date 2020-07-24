@@ -2,6 +2,7 @@ package com.sequoiacm.tools.common;
 
 import java.util.Date;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -14,7 +15,6 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;

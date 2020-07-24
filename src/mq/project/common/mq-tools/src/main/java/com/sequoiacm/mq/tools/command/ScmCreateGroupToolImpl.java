@@ -1,5 +1,7 @@
 package com.sequoiacm.mq.tools.command;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 
 import com.sequoiacm.mq.client.config.AdminClient;
@@ -7,9 +9,7 @@ import com.sequoiacm.mq.core.exception.MqError;
 import com.sequoiacm.mq.core.exception.MqException;
 import com.sequoiacm.mq.core.module.ConsumerGroupOffsetEnum;
 import com.sequoiacm.mq.tools.MqAdmin;
-import com.sequoiacm.mq.tools.common.ScmCommandUtil;
 import com.sequoiacm.mq.tools.exception.ScmExitCode;
-import com.sequoiacm.mq.tools.exception.ScmToolsException;
 
 public class ScmCreateGroupToolImpl extends MqToolBase {
     private final String OPT_SHORT_NAME = "n";
@@ -20,7 +20,7 @@ public class ScmCreateGroupToolImpl extends MqToolBase {
     private final String OPT_SHORT_OFFSET = "o";
 
     public ScmCreateGroupToolImpl() throws ScmToolsException {
-        super();
+        super("creategroup");
         ops.addOption(
                 hp.createOpt(OPT_SHORT_NAME, OPT_LONG_NAME, "group name.", true, true, false));
         ops.addOption(
@@ -31,7 +31,6 @@ public class ScmCreateGroupToolImpl extends MqToolBase {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        MqAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
 
         String name = cl.getOptionValue(OPT_LONG_NAME);

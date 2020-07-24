@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NoHttpResponseException;
@@ -30,7 +31,6 @@ import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.tools.element.ScmSiteConfig;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class RestDispatcher {
     private static RestDispatcher dispatcher = new RestDispatcher();

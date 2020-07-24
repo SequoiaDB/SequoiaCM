@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -12,9 +14,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmDeleteWorkspaceToolImpl implements ScmTool {
+public class ScmDeleteWorkspaceToolImpl extends ScmTool {
     private final String OPT_SHORT_NAME = "n";
     private final String OPT_LONG_NAME = "name";
     private final String OPT_SHORT_FORCE = "f";
@@ -30,6 +31,7 @@ public class ScmDeleteWorkspaceToolImpl implements ScmTool {
     private Logger logger = LoggerFactory.getLogger(ScmCreateWsToolImpl.class);
 
     public ScmDeleteWorkspaceToolImpl() throws ScmToolsException {
+        super("deletews");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -45,7 +47,6 @@ public class ScmDeleteWorkspaceToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String urls = cl.getOptionValue(LONG_OP_URL);
         String user = cl.getOptionValue(LONG_OP_ADMIN_USER);

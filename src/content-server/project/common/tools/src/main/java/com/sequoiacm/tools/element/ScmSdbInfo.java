@@ -3,10 +3,9 @@ package com.sequoiacm.tools.element;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmSdbInfo {
     private final Logger logger = LoggerFactory.getLogger(ScmSdbInfo.class);

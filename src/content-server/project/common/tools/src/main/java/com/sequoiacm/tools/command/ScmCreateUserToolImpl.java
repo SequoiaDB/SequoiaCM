@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -14,9 +16,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmCreateUserToolImpl implements ScmTool {
+public class ScmCreateUserToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmCreateUserToolImpl.class);
 
     private final String LONG_OP_USER = "new-user";
@@ -34,6 +35,7 @@ public class ScmCreateUserToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmCreateUserToolImpl() throws ScmToolsException {
+        super("createuser");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, LONG_OP_USER, "the name of new user.", true, true, false));
@@ -50,7 +52,6 @@ public class ScmCreateUserToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String user = cl.getOptionValue(LONG_OP_USER);
         String passwd = cl.getOptionValue(LONG_OP_PASSWD);

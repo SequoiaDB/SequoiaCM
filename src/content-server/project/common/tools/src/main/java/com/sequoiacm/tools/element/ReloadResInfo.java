@@ -3,12 +3,12 @@ package com.sequoiacm.tools.element;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ReloadResInfo {
     private List<String> nodeList = new ArrayList<>();

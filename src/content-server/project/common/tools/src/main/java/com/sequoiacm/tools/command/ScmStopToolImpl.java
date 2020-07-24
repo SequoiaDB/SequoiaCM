@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -16,10 +20,9 @@ import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
-public class ScmStopToolImpl implements ScmTool {
+public class ScmStopToolImpl extends ScmTool {
     private final String OPT_SHORT_PORT = "p";
     private final String OPT_LONG_PORT = "port";
     private final String OPT_SHORT_ALL = "a";
@@ -34,6 +37,7 @@ public class ScmStopToolImpl implements ScmTool {
     private static Logger logger = LoggerFactory.getLogger(ScmStopToolImpl.class);
 
     public ScmStopToolImpl() throws ScmToolsException {
+        super("stop");
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(
@@ -46,7 +50,8 @@ public class ScmStopToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmCtl.checkHelpArgs(args);
+        ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.STOP_LOG_CONF);
+
         executor = new ScmExecutorWrapper();
 
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);

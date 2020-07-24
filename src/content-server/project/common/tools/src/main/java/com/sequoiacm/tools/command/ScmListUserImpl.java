@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -21,10 +23,9 @@ import com.sequoiacm.tools.common.ListTable;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.printor.ScmCommonPrintor;
 
-public class ScmListUserImpl implements ScmTool {
+public class ScmListUserImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmListUserImpl.class);
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -37,6 +38,7 @@ public class ScmListUserImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmListUserImpl() throws ScmToolsException {
+        super("listuser");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, LONG_OP_URL, "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true,
@@ -48,7 +50,6 @@ public class ScmListUserImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String gatewayUrl = cl.getOptionValue(LONG_OP_URL);
         adminUser = cl.getOptionValue(LONG_OP_ADMIN_USER);

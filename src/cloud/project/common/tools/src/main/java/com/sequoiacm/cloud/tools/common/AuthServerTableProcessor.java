@@ -2,7 +2,7 @@ package com.sequoiacm.cloud.tools.common;
 
 import java.util.Properties;
 
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 abstract class AuthServerTableProcessor extends ScmSysTableProcessor {
 

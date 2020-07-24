@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -15,7 +16,6 @@ import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 import com.sequoiacm.tools.element.TimeArgWrapper;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.printor.ScmLobInfoPrinter;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;

@@ -2,11 +2,11 @@ package com.sequoiacm.cloud.tools.common;
 
 import java.util.Properties;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;

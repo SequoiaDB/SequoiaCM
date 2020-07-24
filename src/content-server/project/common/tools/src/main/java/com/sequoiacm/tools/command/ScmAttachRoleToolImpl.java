@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -15,9 +17,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmAttachRoleToolImpl implements ScmTool {
+public class ScmAttachRoleToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmAttachRoleToolImpl.class);
 
     private final String LONG_OP_USER = "attached-user";
@@ -34,6 +35,7 @@ public class ScmAttachRoleToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmAttachRoleToolImpl() throws ScmToolsException {
+        super("attachrole");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, LONG_OP_USER, "the name of user.", true, true, false));
@@ -48,7 +50,6 @@ public class ScmAttachRoleToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String roleName = cl.getOptionValue(SHORT_OP_ROLE);
         String userName = cl.getOptionValue(LONG_OP_USER);

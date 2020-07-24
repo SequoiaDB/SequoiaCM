@@ -7,7 +7,7 @@ public class ScmExitCode {
     public static int EMPTY_OUT = 1;
 
     // common sys error >=3
-    public static int COMMON_UNKNOW_ERROR = 3;
+    public static int COMMON_UNKNOWN_ERROR = 3;
     public static int INVALID_ARG = 4;
     public static int FILE_NOT_FIND = 5;
     public static int IO_ERROR = 6;
@@ -57,6 +57,7 @@ public class ScmExitCode {
     public static int SDB_ATTACH_ERROR = 80;
     public static int SDB_LIST_CS_ERROR = 81;
     public static int SDB_GET_LIST = 82;
+    public static int SDB_DROP_CL_ERROR = 83;
 
     // max 255
     public static int MAX_VALUE = 255;

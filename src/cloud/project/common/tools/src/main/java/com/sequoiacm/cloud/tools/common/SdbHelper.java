@@ -3,13 +3,13 @@ package com.sequoiacm.cloud.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.cloud.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.cloud.tools.exception.ScmExitCode;
-import com.sequoiacm.cloud.tools.exception.ScmToolsException;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;

@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 
 import com.sequoiacm.mq.client.config.AdminClient;
@@ -15,25 +18,21 @@ import com.sequoiacm.mq.core.module.ConsumerPartitionInfo;
 import com.sequoiacm.mq.tools.MqAdmin;
 import com.sequoiacm.mq.tools.common.ListLine;
 import com.sequoiacm.mq.tools.common.ListTable;
-import com.sequoiacm.mq.tools.common.ScmCommandUtil;
-import com.sequoiacm.mq.tools.common.ScmCommon;
 import com.sequoiacm.mq.tools.common.ScmCommonPrintor;
 import com.sequoiacm.mq.tools.exception.ScmExitCode;
-import com.sequoiacm.mq.tools.exception.ScmToolsException;
 
 public class ScmListGroupToolImpl extends MqToolBase {
     private final String OPT_SHORT_NAME = "n";
     private final String OPT_LONG_NAME = "name";
 
     public ScmListGroupToolImpl() throws ScmToolsException {
-        super();
+        super("listgroup");
         ops.addOption(hp.createOpt(OPT_SHORT_NAME, OPT_LONG_NAME,
                 "specified group name to get the group detail.", false, true, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        MqAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
 
         if (!cl.hasOption(OPT_SHORT_NAME)) {

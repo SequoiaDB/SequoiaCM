@@ -3,6 +3,10 @@ package com.sequoiacm.s3.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.RestErrorHandler;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -21,17 +25,13 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import com.sequoiacm.s3.tools.S3Admin;
 import com.sequoiacm.s3.tools.common.ListLine;
 import com.sequoiacm.s3.tools.common.ListTable;
-import com.sequoiacm.s3.tools.common.RestErrorHandler;
 import com.sequoiacm.s3.tools.common.ScmCommandUtil;
 import com.sequoiacm.s3.tools.common.ScmCommonPrintor;
 import com.sequoiacm.s3.tools.common.ScmHelpGenerator;
-import com.sequoiacm.s3.tools.exception.ScmExitCode;
-import com.sequoiacm.s3.tools.exception.ScmToolsException;
 
-public class RefreshAccesskeyToolImpl implements ScmTool {
+public class RefreshAccesskeyToolImpl extends ScmTool {
     private final String OPT_SHORT_TARGETUSER = "t";
     private final String OPT_LONG_TARGETUSER = "target-user";
     private final String OPT_LONG_USER = "user";
@@ -46,6 +46,7 @@ public class RefreshAccesskeyToolImpl implements ScmTool {
     private final Logger logger = LoggerFactory.getLogger(RefreshAccesskeyToolImpl.class.getName());
 
     public RefreshAccesskeyToolImpl() throws ScmToolsException {
+        super("refresh-accesskey");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(OPT_SHORT_TARGETUSER, OPT_LONG_TARGETUSER,
@@ -67,7 +68,6 @@ public class RefreshAccesskeyToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        S3Admin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String user = cl.getOptionValue(OPT_SHORT_USER);
         String passwd = cl.getOptionValue(OPT_SHORT_PWD);

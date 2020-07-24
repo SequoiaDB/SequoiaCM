@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -13,9 +15,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmDeleteUserToolImpl implements ScmTool {
+public class ScmDeleteUserToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmDeleteUserToolImpl.class);
 
     private final String LONG_OP_USER = "delete-user";
@@ -30,6 +31,7 @@ public class ScmDeleteUserToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmDeleteUserToolImpl() throws ScmToolsException {
+        super("deleteuser");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, LONG_OP_USER, "the name of user to be deleted.", true,
@@ -43,7 +45,6 @@ public class ScmDeleteUserToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String user = cl.getOptionValue(LONG_OP_USER);
 

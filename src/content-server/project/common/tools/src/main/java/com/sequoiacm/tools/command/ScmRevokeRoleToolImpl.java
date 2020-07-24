@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -16,9 +18,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmRevokeRoleToolImpl implements ScmTool {
+public class ScmRevokeRoleToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmRevokeRoleToolImpl.class);
 
     private final String SHORT_OP_ROLE = "r";
@@ -38,6 +39,7 @@ public class ScmRevokeRoleToolImpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmRevokeRoleToolImpl() throws ScmToolsException {
+        super("revokerole");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(SHORT_OP_ROLE, LONG_OP_ROLE, "the name of new role.", true,
@@ -68,7 +70,6 @@ public class ScmRevokeRoleToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String roleName = cl.getOptionValue(SHORT_OP_ROLE);
         String gatewayUrl = cl.getOptionValue(LONG_OP_URL);

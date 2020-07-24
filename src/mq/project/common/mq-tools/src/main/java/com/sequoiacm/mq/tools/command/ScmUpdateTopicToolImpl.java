@@ -1,14 +1,14 @@
 package com.sequoiacm.mq.tools.command;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 
 import com.sequoiacm.mq.client.config.AdminClient;
 import com.sequoiacm.mq.core.exception.MqException;
 import com.sequoiacm.mq.tools.MqAdmin;
-import com.sequoiacm.mq.tools.common.ScmCommandUtil;
-import com.sequoiacm.mq.tools.common.ScmCommon;
 import com.sequoiacm.mq.tools.exception.ScmExitCode;
-import com.sequoiacm.mq.tools.exception.ScmToolsException;
 
 public class ScmUpdateTopicToolImpl extends MqToolBase {
     private final String OPT_SHORT_NAME = "n";
@@ -19,7 +19,7 @@ public class ScmUpdateTopicToolImpl extends MqToolBase {
     private final String OPT_LONG_TIMEOUT = "timeout";
 
     public ScmUpdateTopicToolImpl() throws ScmToolsException {
-        super();
+        super("updatetopic");
         ops.addOption(
                 hp.createOpt(OPT_SHORT_NAME, OPT_LONG_NAME, "topic name.", true, true, false));
         ops.addOption(hp.createOpt(OPT_SHORT_NEW_PARTITION, OPT_LONG_NEW_PARTITION,
@@ -30,7 +30,6 @@ public class ScmUpdateTopicToolImpl extends MqToolBase {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        MqAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String name = cl.getOptionValue(OPT_LONG_NAME);
         String newPartitionCountStr = cl.getOptionValue(OPT_LONG_NEW_PARTITION);

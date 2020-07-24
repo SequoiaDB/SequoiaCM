@@ -2,6 +2,8 @@ package com.sequoiacm.tools.command;
 
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -25,9 +27,8 @@ import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmCreateWsToolImpl implements ScmTool {
+public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_SHORT_NAME = "n";
     private final String OPT_LONG_NAME = "name";
     private final String OPT_SHORT_META = "m";
@@ -46,6 +47,7 @@ public class ScmCreateWsToolImpl implements ScmTool {
     private Logger logger = LoggerFactory.getLogger(ScmCreateWsToolImpl.class);
 
     public ScmCreateWsToolImpl() throws ScmToolsException {
+        super("createws");
         ops = new Options();
         hp = new ScmHelpGenerator();
         // name
@@ -72,7 +74,6 @@ public class ScmCreateWsToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String urls = cl.getOptionValue(LONG_OP_URL);
         String user = cl.getOptionValue(LONG_OP_ADMIN_USER);

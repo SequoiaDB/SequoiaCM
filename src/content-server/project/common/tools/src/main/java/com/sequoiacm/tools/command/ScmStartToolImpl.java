@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -26,10 +30,9 @@ import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
-public class ScmStartToolImpl implements ScmTool {
+public class ScmStartToolImpl extends ScmTool {
     public final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
 
     public int TIME_WAIT_PROCESS_STATUS_NORMAL = 50000; // 50s
@@ -48,6 +51,7 @@ public class ScmStartToolImpl implements ScmTool {
     private Options options;
 
     public ScmStartToolImpl() throws ScmToolsException {
+        super("start");
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true,
@@ -66,12 +70,12 @@ public class ScmStartToolImpl implements ScmTool {
         options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
 
         executor = new ScmExecutorWrapper();
-
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmCtl.checkHelpArgs(args);
+        ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.START_LOG_CONF);
+
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_PORT) && commandLine.hasOption(OPT_SHORT_ALL)
                 || !commandLine.hasOption(OPT_SHORT_PORT) && !commandLine.hasOption(OPT_SHORT_ALL)) {

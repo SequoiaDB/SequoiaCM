@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,6 @@ import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmDatasourceUtil {
     private static Logger logger = LoggerFactory.getLogger(ScmDatasourceUtil.class);

@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -22,10 +24,9 @@ import com.sequoiacm.tools.common.ListTable;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.printor.ScmCommonPrintor;
 
-public class ScmListPrivilege implements ScmTool {
+public class ScmListPrivilege extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmListPrivilege.class);
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ROLE = "role";
@@ -40,6 +41,7 @@ public class ScmListPrivilege implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmListPrivilege() throws ScmToolsException {
+        super("listprivilege");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(SHORT_OP_ROLE, LONG_OP_ROLE, "role name.", true, true, false));
@@ -53,7 +55,6 @@ public class ScmListPrivilege implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String gatewayUrl = cl.getOptionValue(LONG_OP_URL);
         String roleName = cl.getOptionValue(LONG_OP_ROLE);

@@ -303,6 +303,12 @@
                 <artifactId>sequoiacm-infrastructure-map</artifactId>
                 <version>${scm-infrastructure.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-tool</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

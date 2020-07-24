@@ -1,5 +1,11 @@
 package com.sequoiacm.s3.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.RestErrorHandler;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.s3.tools.common.ScmCommandUtil;
+import com.sequoiacm.s3.tools.common.ScmHelpGenerator;
+import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -15,14 +21,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import com.sequoiacm.s3.tools.S3Admin;
-import com.sequoiacm.s3.tools.common.RestErrorHandler;
-import com.sequoiacm.s3.tools.common.ScmCommandUtil;
-import com.sequoiacm.s3.tools.common.ScmHelpGenerator;
-import com.sequoiacm.s3.tools.exception.ScmExitCode;
-import com.sequoiacm.s3.tools.exception.ScmToolsException;
 
-public class InitRegionToolImpl implements ScmTool {
+
+public class InitRegionToolImpl extends ScmTool {
     private final String OPT_SHORT_REGION = "r";
     private final String OPT_LONG_REGION = "region";
     private final String OPT_LONG_USER = "user";
@@ -37,6 +38,7 @@ public class InitRegionToolImpl implements ScmTool {
     private final Logger logger = LoggerFactory.getLogger(InitRegionToolImpl.class.getName());
 
     public InitRegionToolImpl() throws ScmToolsException {
+        super("init-region");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(OPT_SHORT_REGION, OPT_LONG_REGION,
@@ -57,7 +59,6 @@ public class InitRegionToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        S3Admin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String user = cl.getOptionValue(OPT_SHORT_USER);
         String passwd = cl.getOptionValue(OPT_SHORT_PWD);

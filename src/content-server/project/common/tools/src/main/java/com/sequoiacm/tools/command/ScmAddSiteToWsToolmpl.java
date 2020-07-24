@@ -2,6 +2,8 @@ package com.sequoiacm.tools.command;
 
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -19,9 +21,8 @@ import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmAddSiteToWsToolmpl implements ScmTool {
+public class ScmAddSiteToWsToolmpl extends ScmTool {
     private final String OPT_LONG_NAME = "name";
     private final String OPT_SHORT_NAME = "n";
     private final String OPT_LONG_DATA = "data";
@@ -37,6 +38,7 @@ public class ScmAddSiteToWsToolmpl implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmAddSiteToWsToolmpl() throws ScmToolsException {
+        super("addsitetows");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(

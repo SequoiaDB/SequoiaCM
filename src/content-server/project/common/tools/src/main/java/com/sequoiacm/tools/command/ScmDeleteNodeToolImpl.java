@@ -3,6 +3,8 @@ package com.sequoiacm.tools.command;
 import java.io.File;
 import java.net.InetAddress;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -20,10 +22,9 @@ import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
-public class ScmDeleteNodeToolImpl implements ScmTool {
+public class ScmDeleteNodeToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmDeleteSiteToolImpl.class);
     private final String OPT_LONG_PORT = "port";
     private final String OPT_LONG_URL = "url";
@@ -36,6 +37,7 @@ public class ScmDeleteNodeToolImpl implements ScmTool {
     private Options ops;
 
     public ScmDeleteNodeToolImpl() throws ScmToolsException {
+        super("deletenode");
         hp = new ScmHelpGenerator();
         ops = new Options();
         ops.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "content node port.", true, true,
@@ -50,7 +52,6 @@ public class ScmDeleteNodeToolImpl implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String portStr = cl.getOptionValue(OPT_LONG_PORT);
         int port = ScmCommon.convertStrToInt(portStr);

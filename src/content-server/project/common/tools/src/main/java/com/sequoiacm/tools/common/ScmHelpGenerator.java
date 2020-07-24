@@ -3,11 +3,11 @@ package com.sequoiacm.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Option.Builder;
 
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
 public class ScmHelpGenerator {
     List<String> optionList = new ArrayList<>();

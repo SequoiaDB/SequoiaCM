@@ -54,6 +54,10 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-content-datasource-sdb</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-tool</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

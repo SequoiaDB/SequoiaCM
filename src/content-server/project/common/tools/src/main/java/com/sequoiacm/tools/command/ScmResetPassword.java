@@ -1,5 +1,7 @@
 package com.sequoiacm.tools.command;
 
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -15,9 +17,8 @@ import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exception.ScmToolsException;
 
-public class ScmResetPassword implements ScmTool {
+public class ScmResetPassword extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmResetPassword.class);
 
     private final String LONG_OP_OLD_PASSWORD = "old-password";
@@ -34,6 +35,7 @@ public class ScmResetPassword implements ScmTool {
     private ScmHelpGenerator hp;
 
     public ScmResetPassword() throws ScmToolsException {
+        super("resetpassword");
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -51,7 +53,6 @@ public class ScmResetPassword implements ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        ScmAdmin.checkHelpArgs(args);
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String oldPwd = cl.getOptionValue(LONG_OP_OLD_PASSWORD);
         String newPwd = cl.getOptionValue(LONG_OP_NEW_PASSWORD);
