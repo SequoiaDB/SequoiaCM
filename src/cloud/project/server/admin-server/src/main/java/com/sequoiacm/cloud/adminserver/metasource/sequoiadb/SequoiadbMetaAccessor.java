@@ -73,7 +73,7 @@ public class SequoiadbMetaAccessor implements MetaAccessor {
             releaseConnection(db);
         }
     }
-    
+
     @Override
     public void upsert(BSONObject record, BSONObject matcher) throws ScmMetasourceException {
         Sequoiadb db = getConnection();
@@ -105,6 +105,44 @@ public class SequoiadbMetaAccessor implements MetaAccessor {
             throw new ScmMetasourceException(
                     "query failed:csName=" + csName + ",clName=" + clName + ",matcher=" + matcher,
                     e);
+        }
+    }
+
+    @Override
+    public void ensureIndex(String indexName, BSONObject indexDefinition, boolean isUnique)
+            throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBCollection cl = SequoiadbHelper.getCL(db, csName, clName);
+            try {
+                cl.getIndexInfo(indexName);
+                return;
+            }
+            catch (BaseException e) {
+                if (e.getErrorCode() != SDBError.SDB_IXM_NOTEXIST.getErrorCode()) {
+                    throw e;
+                }
+            }
+            try {
+                cl.createIndex(indexName, indexDefinition, isUnique, false);
+            }
+            catch (Exception e) {
+                throw new ScmMetasourceException(
+                        "create index failed:csName=" + csName + ",clName=" + clName + ",indexName="
+                                + indexName + ",indexDefinition=" + indexDefinition,
+                        e);
+            }
+        }
+        catch (ScmMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException("ensure index failed:csName=" + csName + ",clName="
+                    + clName + ",indexName=" + indexName + ",indexDefinition=" + indexDefinition,
+                    e);
+        }
+        finally {
+            releaseConnection(db);
         }
     }
 }

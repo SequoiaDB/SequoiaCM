@@ -40,9 +40,11 @@ public class FieldName {
 
     // CL_CLASS
     public static final String FIELD_CLCLASS_NAME = "name";
+    public static final String FIELD_CLCLASS_ID = "id";
 
     // CL_ATTR
     public static final String FIELD_CLATTR_NAME = "name";
+    public static final String FIELD_CLATTR_ID = "id";
 
     // CL_CLASS_ATTR_REL
     public static final String FIELD_CL_CLASS_ATTR_REL_CLASS_ID = "class_id";

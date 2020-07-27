@@ -79,7 +79,17 @@
         },
         {
             "csName": "SCMSYSTEM",
-            "clName": "SCHEDULE"                    
+            "clName": "SCHEDULE",
+            "indexes": [
+                {
+                    "name": "idx_schedule_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]                   
         },
         {
             "csName": "SCMSYSTEM",

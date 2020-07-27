@@ -25,6 +25,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
     private static final String FIELD_RESOURCE_ID = "resource_id";
     private static final String FIELD_PRIVILEGE = "privilege";
 
+    private static final String PRIV_RESOURCE_ID_INDEX = "id_index";
+
     private final SequoiadbDatasource datasource;
     private final SequoiadbTemplate template;
 
@@ -32,6 +34,17 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
     public SequoiadbResourcePrivRelDao(SequoiadbDatasource datasource) {
         this.datasource = datasource;
         this.template = new SequoiadbTemplate(datasource);
+        ensureIndexes();
+    }
+
+    private void ensureIndexes() {
+        ensureIdIndex();
+    }
+
+    private void ensureIdIndex() {
+        BSONObject def = new BasicBSONObject(FIELD_ID, 1);
+        template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .ensureIndex(PRIV_RESOURCE_ID_INDEX, def, true);
     }
 
     @Override
@@ -79,8 +92,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
         BSONObject matcher = new BasicBSONObject();
         matcher.put(ScmPrivilege.JSON_FIELD_ROLE_ID, roleId);
 
-        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL).find(
-                matcher);
+        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .find(matcher);
         for (BSONObject obj : objs) {
             ScmPrivilege privilege = bsonToResource(obj);
             privileges.add(privilege);
@@ -95,8 +108,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
         BSONObject matcher = new BasicBSONObject();
         matcher.put(ScmPrivilege.JSON_FIELD_RESOURCE_ID, resourceId);
 
-        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL).find(
-                matcher);
+        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .find(matcher);
         for (BSONObject obj : objs) {
             ScmPrivilege privilege = bsonToResource(obj);
             privileges.add(privilege);
@@ -110,8 +123,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
         List<ScmPrivilege> privileges = new ArrayList<>();
         BSONObject matcher = new BasicBSONObject();
 
-        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL).find(
-                matcher);
+        List<BSONObject> objs = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .find(matcher);
         for (BSONObject obj : objs) {
             ScmPrivilege privilege = bsonToResource(obj);
             privileges.add(privilege);
@@ -161,8 +174,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
         matcher.put(ScmPrivilege.JSON_FIELD_ROLE_ID, roleId);
         matcher.put(ScmPrivilege.JSON_FIELD_RESOURCE_ID, resourceId);
 
-        BSONObject obj = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL).findOne(
-                matcher);
+        BSONObject obj = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .findOne(matcher);
         if (null != obj) {
             return bsonToResource(obj);
         }
@@ -174,8 +187,8 @@ public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {
     public ScmPrivilege getPrivilegeById(String privilegeId) {
         BSONObject matcher = new BasicBSONObject();
         matcher.put(ScmPrivilege.JSON_FIELD_ID, privilegeId);
-        BSONObject obj = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL).findOne(
-                matcher);
+        BSONObject obj = template.collection(CS_SCMSYSTEM, CL_PRIV_ROLE_RESOURCE_REL)
+                .findOne(matcher);
         if (null != obj) {
             return bsonToResource(obj);
         }

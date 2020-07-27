@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.sequoiacm.cloud.adminserver.common.FieldName;
 import com.sequoiacm.cloud.adminserver.common.SequoiadbHelper;
 import com.sequoiacm.cloud.adminserver.dao.StatisticsDao;
+import com.sequoiacm.cloud.adminserver.exception.ScmMetasourceException;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
 import com.sequoiacm.cloud.adminserver.metasource.MetaAccessor;
 import com.sequoiacm.cloud.adminserver.metasource.MetaCursor;
@@ -18,9 +19,30 @@ import com.sequoiacm.cloud.adminserver.model.TrafficInfo;
 
 @Repository
 public class SdbStatisticsDao implements StatisticsDao {
+    private SequoiadbMetaSource metasource;
 
     @Autowired
-    private SequoiadbMetaSource metasource;
+    public SdbStatisticsDao(SequoiadbMetaSource metasource) throws ScmMetasourceException {
+        this.metasource = metasource;
+        ensureIndexes();
+    }
+
+    private void ensureIndexes() throws ScmMetasourceException {
+        ensureTrafficIdIndex();
+        ensureFileDeltaIdIndex();
+    }
+
+    private void ensureTrafficIdIndex() throws ScmMetasourceException {
+        MetaAccessor trafficAccessor = metasource.getTrafficAccessor();
+        BSONObject def = new BasicBSONObject(FieldName.Traffic.FIELD_RECORD_TIME, 1);
+        trafficAccessor.ensureIndex("record_time_index", def, false);
+    }
+
+    private void ensureFileDeltaIdIndex() throws ScmMetasourceException {
+        MetaAccessor fileDeltaAccessor = metasource.getFileDeltaAccessor();
+        BSONObject def = new BasicBSONObject(FieldName.FileDelta.FIELD_RECORD_TIME, 1);
+        fileDeltaAccessor.ensureIndex("record_time_index", def, false);
+    }
 
     @Override
     public TrafficInfo queryLastTrafficRecord(String type, String workspace)
@@ -39,10 +61,9 @@ public class SdbStatisticsDao implements StatisticsDao {
             return null;
         }
     }
-    
+
     @Override
-    public FileDeltaInfo queryLastFileDeltaRecord(String workspace)
-            throws StatisticsException {
+    public FileDeltaInfo queryLastFileDeltaRecord(String workspace) throws StatisticsException {
         MetaAccessor fileDeltaAccessor = metasource.getFileDeltaAccessor();
         BasicBSONObject matcher = new BasicBSONObject();
         matcher.put(FieldName.FileDelta.FIELD_WORKSPACE_NAME, workspace);
@@ -83,14 +104,14 @@ public class SdbStatisticsDao implements StatisticsDao {
         matcher.put(FieldName.FileDelta.FIELD_RECORD_TIME, recordTime);
         fileDeltaAccessor.upsert(upsertor, matcher);
     }
-    
+
     @Override
     public MetaCursor getTrafficList(BSONObject filter) throws StatisticsException {
         MetaAccessor trafficAccessor = metasource.getTrafficAccessor();
         BasicBSONObject order = new BasicBSONObject(FieldName.Traffic.FIELD_RECORD_TIME, 1);
         return trafficAccessor.query(filter, null, order);
     }
-    
+
     @Override
     public MetaCursor getFileDeltaList(BSONObject filter) throws StatisticsException {
         MetaAccessor fileDeltaAccessor = metasource.getFileDeltaAccessor();

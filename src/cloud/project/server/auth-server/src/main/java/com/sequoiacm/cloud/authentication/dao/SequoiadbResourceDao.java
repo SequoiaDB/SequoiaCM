@@ -22,6 +22,8 @@ public class SequoiadbResourceDao implements IResourceDao {
     private static final String FIELD_TYPE = "type";
     private static final String FIELD_RESOURCE = "resource";
 
+    private static final String RESOURCE_ID_INDEX = "id_index";
+
     private final SequoiadbDatasource datasource;
     private final SequoiadbTemplate template;
 
@@ -29,6 +31,17 @@ public class SequoiadbResourceDao implements IResourceDao {
     public SequoiadbResourceDao(SequoiadbDatasource datasource) {
         this.datasource = datasource;
         this.template = new SequoiadbTemplate(datasource);
+        ensureIndexes();
+    }
+
+    private void ensureIndexes() {
+        ensureIdIndex();
+    }
+
+    private void ensureIdIndex() {
+        BSONObject def = new BasicBSONObject(FIELD_ID, 1);
+        template.collection(CS_SCMSYSTEM, CL_PRIV_RESOURCE).ensureIndex(RESOURCE_ID_INDEX, def,
+                true);
     }
 
     @Override

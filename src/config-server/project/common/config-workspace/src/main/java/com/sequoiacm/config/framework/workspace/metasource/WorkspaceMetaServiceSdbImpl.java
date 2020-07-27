@@ -68,7 +68,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             dirPidNameIdx.put(FieldName.FIELD_CLDIR_NAME, 1);
             dirCl.createIndex("idx_name_pid", dirPidNameIdx, true, true);
             BasicBSONObject dirIdIdx = new BasicBSONObject(FieldName.FIELD_CLDIR_ID, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     dirCl.getFullName(), dirIdIdx.toString(), true, true);
             dirCl.createIndex("idx_id", dirIdIdx, true, true);
 
@@ -87,7 +87,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             BSONObject relIdx = new BasicBSONObject();
             relIdx.put(FieldName.FIELD_CLREL_DIRECTORY_ID, 1);
             relIdx.put(FieldName.FIELD_CLREL_FILENAME, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     relCl.getFullName(), relIdx.toString(), true, true);
             relCl.createIndex("idx_name_pid", relIdx, true, true);
 
@@ -97,11 +97,16 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                     MetaSourceDefine.SequoiadbTableName.CL_CLASS);
             DBCollection classCl = wsCs
                     .createCollection(MetaSourceDefine.SequoiadbTableName.CL_CLASS, null);
-            BSONObject classIdx = new BasicBSONObject();
-            classIdx.put(FieldName.FIELD_CLCLASS_NAME, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
-                    classCl.getFullName(), classIdx.toString(), true, true);
-            classCl.createIndex("idx_class_name", classIdx, true, true);
+            BSONObject classNameIdx = new BasicBSONObject();
+            classNameIdx.put(FieldName.FIELD_CLCLASS_NAME, 1);
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                    classCl.getFullName(), classNameIdx.toString(), true, true);
+            classCl.createIndex("idx_class_name", classNameIdx, true, true);
+            BSONObject classIdIdx = new BasicBSONObject();
+            classIdIdx.put(FieldName.FIELD_CLCLASS_ID, 1);
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                    classCl.getFullName(), classIdIdx.toString(), true, true);
+            classCl.createIndex("idx_class_id", classIdIdx, true, true);
 
             // ATTRIBUTE
             logger.info("creating cl:clName={}.{},options=null",
@@ -109,11 +114,16 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                     MetaSourceDefine.SequoiadbTableName.CL_ATTRIBUTE);
             DBCollection attrCl = wsCs
                     .createCollection(MetaSourceDefine.SequoiadbTableName.CL_ATTRIBUTE, null);
-            BSONObject attrIdx = new BasicBSONObject();
-            attrIdx.put(FieldName.FIELD_CLATTR_NAME, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
-                    attrCl.getFullName(), attrIdx.toString(), true, true);
-            attrCl.createIndex("idx_attr_name", attrIdx, true, true);
+            BSONObject attrNameIdx = new BasicBSONObject();
+            attrNameIdx.put(FieldName.FIELD_CLATTR_NAME, 1);
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                    attrCl.getFullName(), attrNameIdx.toString(), true, true);
+            attrCl.createIndex("idx_attr_name", attrNameIdx, true, true);
+            BSONObject attrIdIdx = new BasicBSONObject();
+            attrIdIdx.put(FieldName.FIELD_CLATTR_ID, 1);
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                    attrCl.getFullName(), attrIdIdx.toString(), true, true);
+            attrCl.createIndex("idx_attr_id", attrIdIdx, true, true);
 
             // CLASS_ATTR_REL
             logger.info("creating cl:clName={}.{},options=null",
@@ -124,7 +134,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             BSONObject classAttrRelIdx = new BasicBSONObject();
             classAttrRelIdx.put(FieldName.FIELD_CL_CLASS_ATTR_REL_CLASS_ID, 1);
             classAttrRelIdx.put(FieldName.FIELD_CL_CLASS_ATTR_REL_ATTR_ID, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     attrAttrRelCl.getFullName(), classAttrRelIdx.toString(), true, true);
             attrAttrRelCl.createIndex("idx_rel_id", classAttrRelIdx, true, true);
 
@@ -150,7 +160,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             fileHistorIdx.put(FieldName.FIELD_CLFILE_ID, 1);
             fileHistorIdx.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, 1);
             fileHistorIdx.put(FieldName.FIELD_CLFILE_MINOR_VERSION, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     fileHistoryCl.getFullName(), fileHistorIdx.toString(), false, false);
             fileHistoryCl.createIndex("idx_file_history", fileHistorIdx, false, false);
 
@@ -169,7 +179,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                     MetaSourceDefine.SequoiadbTableName.CL_BREAKPOINT_FILE, breakpointFileOption);
             BasicBSONObject breakpointFileIdx = new BasicBSONObject(
                     FieldName.FIELD_CLBREAKPOINTFILE_FILE_NAME, 1);
-            logger.info("creating index:cslName={}.{},key={},isUnique={},enforced={}",
+            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     breakpointFileCl.getFullName(), breakpointFileIdx.toString(), true, false);
             breakpointFileCl.createIndex("file_name_index", breakpointFileIdx, true, false);
 
