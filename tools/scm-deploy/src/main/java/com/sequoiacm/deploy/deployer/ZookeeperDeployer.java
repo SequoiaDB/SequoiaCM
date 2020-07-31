@@ -66,6 +66,9 @@ public class ZookeeperDeployer extends ServiceDeployerBase {
         ssh.scp(zkDeployScriptPath, serviceRemoteInstallPath);
         String remoteZkDeployScriptPath = serviceRemoteInstallPath + "/"
                 + new File(zkDeployScriptPath).getName();
+        ssh.changeOwner(remoteZkDeployScriptPath,
+                super.getDeployInfoMgr().getInstallConfig().getInstallUser(),
+                super.getDeployInfoMgr().getInstallConfig().getInstallUserGroup());
         LinkedHashMap<String, String> env = new LinkedHashMap<>();
         env.put("JAVA_HOME", hostInfo.getJavaHome());
         env.put("PATH", "$JAVA_HOME/bin:$PATH");
