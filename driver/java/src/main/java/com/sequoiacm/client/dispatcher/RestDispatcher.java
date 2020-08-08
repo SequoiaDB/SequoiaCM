@@ -307,7 +307,7 @@ public class RestDispatcher implements MessageDispatcher {
                 PRIV_RELATIONS);
         String params = "";
         params = appendParam(params, FIELD_RESOURCE_TYPE, type);
-        params = appendParam(params, FIELD_RESOURCE, resource);
+        params = appendParam(params, FIELD_RESOURCE, encode(resource));
 
         uri += "?" + params;
         HttpGet request = new HttpGet(uri);
@@ -459,7 +459,7 @@ public class RestDispatcher implements MessageDispatcher {
 
             String roleName = BsonUtils.getString(filter, FIELD_HAS_ROLE);
             if (roleName != null && !roleName.isEmpty()) {
-                params = appendParam(params, FIELD_HAS_ROLE, roleName);
+                params = appendParam(params, FIELD_HAS_ROLE, encode(roleName));
             }
 
             Boolean enabled = BsonUtils.getBoolean(filter, FIELD_ENABLED);
@@ -824,7 +824,7 @@ public class RestDispatcher implements MessageDispatcher {
             sb.append(key).append(",");
         }
         String uri = URL_PREFIX + url + API_VERSION + "conf-properties?keys="
-                + sb.toString().substring(0, sb.length() - 1);
+                + encode(sb.toString().substring(0, sb.length() - 1));
         HttpGet request = new HttpGet(uri);
         BSONObject conf = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request);
@@ -1365,19 +1365,16 @@ public class RestDispatcher implements MessageDispatcher {
         return encode(condition.toString());
     }
 
-    private static String processPath(String path) {
-        if (path.equals("/")) {
-            return "";
+    private static String processPath(String path) throws ScmException {
+        StringBuilder newPath = new StringBuilder("");
+        String[] names = path.split("/+");
+        for (int i = 0; i < names.length; i++) {
+            if (!names[i].isEmpty()) {
+                newPath.append(encode(names[i]));
+                newPath.append("/");
+            }
         }
-
-        path += "/";
-        path = path.replaceAll("//", "/");
-
-        if (path.startsWith("/")) {
-            path = path.substring(1, path.length());
-        }
-
-        return path;
+        return newPath.toString();
     }
 
     private static String appendParam(String originParams, String key, String value) {
@@ -1403,7 +1400,7 @@ public class RestDispatcher implements MessageDispatcher {
                 encode(roleName));
         String params = "";
         params = appendParam(params, FIELD_RESOURCE_TYPE, resourceType);
-        params = appendParam(params, FIELD_RESOURCE, resource);
+        params = appendParam(params, FIELD_RESOURCE, encode(resource));
         params = appendParam(params, FIELD_PRIVILEGE, encode(privilege));
 
         uri += "?" + params;
@@ -1424,7 +1421,7 @@ public class RestDispatcher implements MessageDispatcher {
                 encode(roleName));
         String params = "";
         params = appendParam(params, FIELD_RESOURCE_TYPE, resourceType);
-        params = appendParam(params, FIELD_RESOURCE, resource);
+        params = appendParam(params, FIELD_RESOURCE, encode(resource));
         params = appendParam(params, FIELD_PRIVILEGE, encode(privilege));
 
         uri += "?" + params;
@@ -1439,7 +1436,7 @@ public class RestDispatcher implements MessageDispatcher {
         }
 
         try {
-            return URLEncoder.encode(url, CHARSET_UTF8);
+            return URLEncoder.encode(url, CHARSET_UTF8).replaceAll("[+]", "%20");
         }
         catch (UnsupportedEncodingException e) {
             throw new ScmSystemException(CHARSET_UTF8, e);
@@ -1480,7 +1477,7 @@ public class RestDispatcher implements MessageDispatcher {
         String arg = String.format("?%s=%s&%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
                 encode(workspaceName), CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
                 CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion,
-                CommonDefine.RestArg.FILE_BREAKPOINT_FILE, breakFileName);
+                CommonDefine.RestArg.FILE_BREAKPOINT_FILE, encode(breakFileName));
         HttpPut request = new HttpPut(uri + arg);
         String fileInfoResp = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
                 request, CommonDefine.RestArg.FILE_INFO);
@@ -1521,7 +1518,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject createWorkspace(String wsName, BSONObject conf) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + wsName;
+        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + encode(wsName);
         HttpPost request = new HttpPost(uri);
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(CommonDefine.RestArg.WORKSPACE_CONF, conf.toString()));
@@ -1532,7 +1529,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public void deleteWorkspace(String wsName, boolean isEnforced) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + wsName + "?"
+        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + encode(wsName) + "?"
                 + CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE + "=" + isEnforced;
         HttpDelete req = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, req);
@@ -1650,7 +1647,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject listServerInstance(String serviceName) throws ScmException {
-        String uri = URL_PREFIX + pureUrl + SERVICE_CENTER + "/eureka/apps/" + serviceName;
+        String uri = URL_PREFIX + pureUrl + SERVICE_CENTER + "/eureka/apps/" + encode(serviceName);
         HttpGet request = new HttpGet(uri);
         request.setHeader(HttpHeaders.ACCEPT, "application/json");
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
