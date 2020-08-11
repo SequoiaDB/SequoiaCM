@@ -30,7 +30,7 @@
         <testng.version>6.13.1</testng.version>
         <feign.jackson.version>9.5.1</feign.jackson.version>
         <feign-form-spring.version>2.2.1</feign-form-spring.version>
-        <fastjson.version>1.2.47</fastjson.version>
+        <fastjson.version>1.2.73</fastjson.version>
     </properties>
 
     <modules>

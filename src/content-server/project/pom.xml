@@ -65,7 +65,7 @@
         <commons-cli.version>1.4</commons-cli.version>
         <spring-boot.version>1.5.14.RELEASE</spring-boot.version>
         <logback.version>1.2.3</logback.version>
-        <fastjson.version>1.2.47</fastjson.version>
+        <fastjson.version>1.2.73</fastjson.version>
         <httpclient.version>4.5.5</httpclient.version>
         <httpmime.version>4.5.5</httpmime.version>
         <hadoop-hdfs.version>2.5.2</hadoop-hdfs.version>
