@@ -21,22 +21,22 @@ ssh-copy-id $ips  # $ips为所有机器的地址，包括主控机本身
 > 
 >  * 执行 ssh-copy-id 时，请根据提示输入对应主机的用户名密码。
 
-3.解压 kubease-master.zip 
+3.解压 kubeasz-master.zip 
 
 ```
-unzip kubease-master.zip
+unzip kubeasz-master.zip
 ```
 
 4.下载安装文件，安装 Docker
 
 ```
-kubease-master/tools/easzup -D
+cd kubeasz-master && ./tools/easzup -D
 ```
 
 5.配置集群部署规划文件
 
 ```
-cp kubease-master/example/hosts.multi-node /etc/ansible/hosts  # 拷贝模板文件
+cp kubeasz-master/example/hosts.multi-node /etc/ansible/hosts  # 拷贝模板文件
 vi /etc/ansible/hosts  # 编辑规划文件，内容如下
 # 'etcd' cluster should have odd member(s) (1,3,5,...)
 # variable 'NODE_NAME' is the distinct name of a member in 'etcd' cluster
@@ -75,6 +75,9 @@ ansible-playbook 90.setup.yml
 8.查看部署结果
 
 ```
+# 刷新环境变量
+su -
+
 # 可以看到所有节点为 Ready 状态
 kubectl get node 
 
@@ -94,8 +97,9 @@ ansible-playbook /etc/ansible/roles/helm/helm.yml
 2.验证结果
 
 ```
-#重新 SSH 至本机
-ssh localhost
+# 刷新环境变量
+su -
+
 #查看 helm 版本，正常显示 helm 服务端、客户端的版本
 helm version
 ```

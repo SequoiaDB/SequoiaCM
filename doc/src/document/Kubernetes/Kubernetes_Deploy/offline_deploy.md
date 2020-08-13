@@ -9,7 +9,7 @@
 
 
 ###部署 Kubernetes###
-1.主控机上传相关部署包：kubeasz-master.zip、kubeasz-offline.tar.gz
+1.主控机上传相关部署包：kubeasz-offline.tar.gz
 >  **Note：**
 > 
 >  * 离线包版本：Kubernetes v1.15.0，Helm v2.14.1，Docker CE 18.09.6。
@@ -33,16 +33,10 @@ ssh-copy-id $ips
 tar -xvf kubeasz_offline.tar.gz -C /etc/
 ```
 
-4.解压 kubease-master.zip 
-
-```
-unzip kubease-master.zip
-```
-
 5.配置集群部署规划文件
 
 ```
-cp kubease-master/example/hosts.multi-node /etc/ansible/hosts  # 拷贝模板文件
+cp /etc/ansible/example/hosts.multi-node /etc/ansible/hosts  # 拷贝模板文件
 vi /etc/ansible/hosts  # 编辑规划文件，内容如下
 # 'etcd' cluster should have odd member(s) (1,3,5,...)
 # variable 'NODE_NAME' is the distinct name of a member in 'etcd' cluster
@@ -78,6 +72,10 @@ ansible all -m ping  # 正常能看到节点返回 Success
 ```
 vi /etc/ansible/roles/docker/defaults/main.yml
 
+ # 按需修改 docker 容器存储目录，确保有 10g 以上的磁盘空间
+ STORAGE_DIR: "/var/lib/docker"
+
+
  # 信任的 HTTP 仓库,填写本机 IP:5000,后续将在本机创建私人 Docker 仓库
  INSECURE_REG: '["本机IP:5000"]'
  
@@ -88,7 +86,7 @@ vi /etc/ansible/roles/docker/defaults/main.yml
 6.检查离线文件，安装 Docker
 
 ```
-kubease-master/tools/easzup -D
+cd /etc/ansible && ./tools/easzup -D
 ```
 7.安装 Docker 私人仓库
 
@@ -99,13 +97,13 @@ docker load -i /etc/ansible/down/registry
 docker run -d -v /opt/docker_registry:/var/lib/registry -p 5000:5000 --restart=always registry 
 ```
 
-8.启动 kubease 容器
+8.启动 kubeasz 容器
 
 ```
-kubease-master/tools/easzup -S
+cd /etc/ansible && ./tools/easzup -S
 ```
 
-9.通过 kubease 容器进行 Kubernetes 部署
+9.通过 kubeasz 容器进行 Kubernetes 部署
 
 ```
 #进入容器
@@ -129,6 +127,9 @@ exit
 10.查看部署结果
 
 ```
+# 刷新环境变量
+su -
+
 # 可以看到所有节点为 Ready 状态
 kubectl get node 
 
@@ -174,7 +175,7 @@ vi /etc/ansible/roles/helm/defaults/main.yml
  repo_url: http://127.0.0.1:8879
 ```
 
-4.通过 kubease 容器部署 Helm
+4.通过 kubeasz 容器部署 Helm
 
 ```
 #进入容器
@@ -188,12 +189,11 @@ exit
 5.验证结果
 
 ```
-#重新 SSH 至本机
-ssh localhost
+# 刷新环境变量
+su -
+
 #查看 helm 版本，正常显示 helm 服务端、客户端的版本
 helm version
 ```
-
-
 
 [Require]:Kubernetes/Kubernetes_Deploy/require.md
