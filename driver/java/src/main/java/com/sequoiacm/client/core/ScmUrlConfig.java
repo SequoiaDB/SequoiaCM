@@ -28,15 +28,18 @@ public class ScmUrlConfig {
     }
 
     // ensure all url point to the same site
-    private void checkUrl(List<String> urls) throws ScmInvalidArgumentException {
+    private List<String> checkAndFormatUrl(List<String> urls) throws ScmInvalidArgumentException {
+        List<String> newUrls = new ArrayList<String>();
         for (String url : urls) {
+            String tmpUrl = url;
             String urlTargetSite = null;
             int i = url.lastIndexOf("/");
             if (i <= -1) {
                 urlTargetSite = "";
             }
             else {
-                urlTargetSite = url.substring(i + 1);
+                urlTargetSite = url.substring(i + 1).toLowerCase();
+                tmpUrl = url.substring(0, i) + "/" + urlTargetSite;
             }
 
             if (targetSite == null) {
@@ -47,7 +50,9 @@ public class ScmUrlConfig {
                         "all url should point to the same site:invalidUrl=" + url + ",exepectSite="
                                 + targetSite);
             }
+            newUrls.add(tmpUrl);
         }
+        return newUrls;
     }
 
     /**
@@ -64,7 +69,7 @@ public class ScmUrlConfig {
      */
     public void addUrl(String region, String zone, List<String> urlList)
             throws ScmInvalidArgumentException {
-        checkUrl(urlList);
+        urlList = checkAndFormatUrl(urlList);
         RegionUrl regionUrl = regions.get(region);
         if (null == regionUrl) {
             regions.put(region, new RegionUrl(region, zone, urlList));
