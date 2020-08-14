@@ -54,6 +54,8 @@
 		   <package name="com.sequoiacm.net.auth.serial"/>
 		   <!--statistics-->
 		   <package name="com.sequoiacm.statistics"/>
+		   <!--directory -->
+		   <package name="com.sequoiacm.directory.serial"/>
       </packages>
    </test>
 

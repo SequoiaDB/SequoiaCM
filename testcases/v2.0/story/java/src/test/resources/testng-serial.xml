@@ -72,6 +72,8 @@
 			<package name="com.sequoiacm.audit"/>
 			 <!--big file-->
             <package name="com.sequoiacm.bigfile"/>
+            <!--directory -->
+            <package name="com.sequoiacm.directory.serial"/>
       </packages>
    </test>
 
