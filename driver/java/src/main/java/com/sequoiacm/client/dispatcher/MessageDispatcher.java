@@ -258,9 +258,4 @@ public interface MessageDispatcher extends Closeable {
     long countDir(String workspaceName, BSONObject condition) throws ScmException;
 
     long countBatch(String workspaceName, BSONObject condition) throws ScmException;
-
-    BSONObject startImport(String batchNo, boolean allowAddRandomTime) throws ScmException;
-
-    BSONObject stopImport(String batchNO) throws ScmException;
-
 }
