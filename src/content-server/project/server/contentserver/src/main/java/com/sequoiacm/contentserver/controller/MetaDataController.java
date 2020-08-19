@@ -109,9 +109,22 @@ public class MetaDataController {
         return this.metadataService.getClassInfoWithAttr(workspaceName, classId);
     }
 
-    @PutMapping({ "/metadatas/classes/{class_id}" })
-    public void updateClass(
+    @RequestMapping(value = { "/metadatas/classes/{class_name}" }, params = "type=name", method = {
+            RequestMethod.GET })
+    public MetadataClass getClassInfoByName(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @PathVariable("class_name") String className, HttpServletRequest request,
+            Authentication auth) throws ScmServerException {
+        RestUtils.checkWorkspaceName(workspaceName);
+        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
+                ScmPrivilegeDefine.READ, "get class info with attr");
+        audit.info(ScmAuditType.META_CLASS_DQL, auth, workspaceName, 0,
+                "get class info with attr by className=" + className);
+        return this.metadataService.getClassInfoWithAttrByName(workspaceName, className);
+    }
+
+    @PutMapping({ "/metadatas/classes/{class_id}" })
+    public void updateClass(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("class_id") String classId,
             @RequestParam(CommonDefine.RestArg.METADATA_DESCRIPTION) BSONObject desc,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
@@ -135,8 +148,7 @@ public class MetaDataController {
     }
 
     @DeleteMapping({ "/metadatas/classes/{class_id}" })
-    public void deleteClass(
-            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+    public void deleteClass(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("class_id") String classId, Authentication auth)
                     throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
@@ -147,6 +159,20 @@ public class MetaDataController {
         this.metadataService.deleteClass(workspaceName, classId);
         audit.info(ScmAuditType.DELETE_META_CLASS, auth, workspaceName, 0,
                 "delete class by classid=" + classId);
+    }
+
+    @DeleteMapping(value = { "/metadatas/classes/{class_name}" }, params = "type=name")
+    public void deleteClassByName(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @PathVariable("class_name") String className, Authentication auth)
+            throws ScmServerException {
+        RestUtils.checkWorkspaceName(workspaceName);
+        String user = auth.getName();
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "delete class");
+        this.metadataService.deleteClassByName(workspaceName, className);
+        audit.info(ScmAuditType.DELETE_META_CLASS, auth, workspaceName, 0,
+                "delete class by className=" + className);
     }
 
     @PutMapping({ "/metadatas/classes/{class_id}/attachattr/{attr_id}" })
@@ -209,8 +235,7 @@ public class MetaDataController {
         if (filter != null) {
             message += " by filter=" + filter.toString();
         }
-        audit.info(ScmAuditType.META_ATTR_DQL, auth, workspaceName, 0,
-                message);
+        audit.info(ScmAuditType.META_ATTR_DQL, auth, workspaceName, 0, message);
         return this.metadataService.listAttr(workspaceName, filter);
     }
 
@@ -267,8 +292,8 @@ public class MetaDataController {
 
         String fieldName = FieldName.Class.FIELD_NAME;
         if (!classObj.containsField(fieldName)) {
-            throw new ScmInvalidArgumentException("'" + fieldName
-                    + "' is not specified in the argument:"
+            throw new ScmInvalidArgumentException(
+                    "'" + fieldName + "' is not specified in the argument:"
                     + CommonDefine.RestArg.METADATA_DESCRIPTION);
         }
         result.put(fieldName, ScmMetaSourceHelper.checkExistString(classObj, fieldName));
@@ -284,8 +309,8 @@ public class MetaDataController {
 
         String fieldName = FieldName.Attribute.FIELD_NAME;
         if (!attrObj.containsField(fieldName)) {
-            throw new ScmInvalidArgumentException("'" + fieldName
-                    + "' is not specified in the argument "
+            throw new ScmInvalidArgumentException(
+                    "'" + fieldName + "' is not specified in the argument "
                     + CommonDefine.RestArg.METADATA_DESCRIPTION);
         }
         String attrName = (String) checkExistString(attrObj, fieldName);
@@ -300,8 +325,8 @@ public class MetaDataController {
 
         fieldName = FieldName.Attribute.FIELD_TYPE;
         if (!attrObj.containsField(fieldName)) {
-            throw new ScmInvalidArgumentException("'" + fieldName
-                    + "' is not specified in the argument " + "description");
+            throw new ScmInvalidArgumentException(
+                    "'" + fieldName + "' is not specified in the argument " + "description");
         }
         String type = (String) getAndCheckStringArg(attrObj, fieldName);
         AttrManager.getInstance().validType(type);
@@ -316,8 +341,8 @@ public class MetaDataController {
             Object obj = attrObj.get(fieldName);
             String str = String.valueOf(obj);
             if (!"true".equalsIgnoreCase(str) && !"false".equalsIgnoreCase(str)) {
-                throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                        + "] is not boolean format: " + str);
+                throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                        "field[" + fieldName + "] is not boolean format: " + str);
             }
             result.put(fieldName, Boolean.valueOf(Boolean.parseBoolean(str)));
         }
@@ -338,8 +363,8 @@ public class MetaDataController {
         availableFields.add(FieldName.Class.FIELD_DESCRIPTION);
         for (String field : objFields) {
             if (!availableFields.contains(field)) {
-                throw new ScmOperationUnsupportedException("field can't be modified:fieldName="
-                        + field);
+                throw new ScmOperationUnsupportedException(
+                        "field can't be modified:fieldName=" + field);
             }
         }
         if (updateInfoObj.containsField(FieldName.Class.FIELD_NAME)) {
@@ -371,8 +396,8 @@ public class MetaDataController {
         availableFields.add(FieldName.Attribute.FIELD_REQUIRED);
         for (String field : objFields) {
             if (!availableFields.contains(field)) {
-                throw new ScmOperationUnsupportedException("field can't be modified:fieldName="
-                        + field);
+                throw new ScmOperationUnsupportedException(
+                        "field can't be modified:fieldName=" + field);
             }
         }
         if (updateInfoObj.containsField(FieldName.Attribute.FIELD_DISPLAY_NAME)) {
@@ -412,12 +437,12 @@ public class MetaDataController {
             throws ScmServerException {
         Object value = obj.get(fieldName);
         if (value == null) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                    + "] is null!");
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + fieldName + "] is null!");
         }
         if (!(value instanceof String)) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                    + "] is not String format!");
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + fieldName + "] is not String format!");
         }
         return value;
     }
@@ -427,8 +452,8 @@ public class MetaDataController {
         if (obj.containsField(fieldName)) {
             Object value = obj.get(fieldName);
             if (!(value instanceof String)) {
-                throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                        + "] is not String format!");
+                throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                        "field[" + fieldName + "] is not String format!");
             }
             return value;
         }

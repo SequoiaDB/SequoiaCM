@@ -102,6 +102,50 @@ public class RestDispatcher implements MessageDispatcher {
     private boolean closed;
     private ScmRequestConfig requestConfig = ScmRequestConfig.custom().build();
 
+    private class URIBuilder {
+
+        private StringBuilder uri;
+
+        private boolean hasFirstParam = false;
+
+        public URIBuilder() {
+            uri = new StringBuilder();
+        }
+
+        public URIBuilder appendURL(String... partUrls) {
+            for (int i = 0; i < partUrls.length; i++) {
+                uri.append(partUrls[i]);
+            }
+            return this;
+        }
+
+        public URIBuilder appendAndEncodeURL(String... partUrls) throws ScmException {
+            for (int i = 0; i < partUrls.length; i++) {
+                uri.append(encode(partUrls[i]));
+            }
+            return this;
+        }
+
+        public URIBuilder appendParam(String key, String value) throws ScmException {
+            if (hasFirstParam) {
+                uri.append("&");
+            }
+            else {
+                uri.append("?");
+                hasFirstParam = true;
+            }
+            uri.append(key);
+            uri.append("=");
+            uri.append(encode(value));
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return uri.toString();
+        }
+    }
+
     public RestDispatcher(String url, ScmRequestConfig requestConfig) {
         if (null != requestConfig) {
             this.requestConfig = requestConfig;
@@ -958,10 +1002,24 @@ public class RestDispatcher implements MessageDispatcher {
      */
     @Override
     public BSONObject getClassInfo(String workspaceName, ScmId classId) throws ScmException {
-        String uri = String.format("%s%s%s%s%s?%s=%s", URL_PREFIX, url, API_VERSION,
-                METADATA_CLASSES, classId.get(), CommonDefine.RestArg.WORKSPACE_NAME,
-                encode(workspaceName));
-        HttpGet request = new HttpGet(uri);
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES, classId.get())
+                .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName);
+        HttpGet request = new HttpGet(uriBuilder.toString());
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    /**
+     * Get class list
+     */
+    @Override
+    public BSONObject getClassInfo(String workspaceName, String className) throws ScmException {
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES)
+                .appendAndEncodeURL(className)
+                .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName)
+                .appendParam("type", "name");
+        HttpGet request = new HttpGet(uriBuilder.toString());
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }
 
@@ -980,9 +1038,21 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public void deleteClass(String workspaceName, ScmId classId) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + METADATA_CLASSES + classId.get() + "?"
-                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(workspaceName);
-        HttpDelete request = new HttpDelete(uri);
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES, classId.get())
+                .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName);
+        HttpDelete request = new HttpDelete(uriBuilder.toString());
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void deleteClass(String workspaceName, String className) throws ScmException {
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES)
+                .appendAndEncodeURL(className)
+                .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName)
+                .appendParam("type", "name");
+        HttpDelete request = new HttpDelete(uriBuilder.toString());
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }
 

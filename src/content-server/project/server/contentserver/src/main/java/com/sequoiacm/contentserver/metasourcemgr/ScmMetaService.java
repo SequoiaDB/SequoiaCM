@@ -1706,20 +1706,18 @@ public class ScmMetaService {
         }
     }
 
-    public MetadataClass getClassInfo(String wsName, String classId) throws ScmServerException {
+    public MetadataClass getClassInfo(String wsName, BSONObject matcher) throws ScmServerException {
         try {
             MetaClassAccessor classAccessor = metasource.getClassAccessor(wsName, null);
-            BSONObject matcher = new BasicBSONObject(FieldName.Class.FIELD_ID, classId);
             BSONObject classObj = ScmMetaSourceHelper.queryOne(classAccessor, matcher);
             if (classObj == null) {
                 return null;
             }
-
             return metadataClassBsonConverter.convert(classObj);
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
-                    "getClassInfo failed:workspace=" + wsName + ",classId=" + classId, e);
+                    "getClassInfo failed:workspace=" + wsName + ",matcher=" + matcher, e);
         }
     }
 

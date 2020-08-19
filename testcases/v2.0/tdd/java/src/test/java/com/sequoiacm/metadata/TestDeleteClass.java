@@ -147,6 +147,57 @@ public class TestDeleteClass extends ScmTestMultiCenterBase {
         attrIds.clear();
     }
 
+    @Test(dependsOnMethods = { "testDeleteInstance2" })
+    public void testDeleteInstance3() throws ScmException {
+        String className = ScmTestTools.getClassName();
+        ScmClass scmClass = ScmFactory.Class.createInstance(ws, className, "delete class");
+        classIds.add(scmClass.getId());
+
+        ScmAttributeConf conf = new ScmAttributeConf().setName(attrName1)
+                .setType(AttributeType.STRING).setCheckRule(new ScmStringRule(10));
+        ScmAttribute attr = ScmFactory.Attribute.createInstance(ws, conf);
+        ScmId attrId1 = attr.getId();
+        attrIds.add(attrId1);
+        scmClass.attachAttr(attrId1);
+
+        conf.setName(attrName2).setType(AttributeType.INTEGER).setCheckRule(null)
+                .setDisplayName("属性字段2").setDescription("属性字段2").setRequired(true);
+        attr = ScmFactory.Attribute.createInstance(ws, conf);
+        ScmId attrId2 = attr.getId();
+        attrIds.add(attrId2);
+        scmClass.attachAttr(attrId2);
+
+        logger.info("create class:" + scmClass.toString());
+
+        ScmFactory.Class.deleteInstanceByName(ws, className);
+
+        Assert.assertEquals(scmClass.isExist(), true);
+
+        // delete unexist class, do nothing
+        try {
+            ScmFactory.Class.deleteInstanceByName(ws, className);
+        }
+        catch (ScmException e) {
+            if (e.getError() != ScmError.METADATA_CLASS_NOT_EXIST) {
+                throw e;
+            }
+        }
+
+        // get unexist class
+        try {
+            ScmFactory.Class.getInstanceByName(ws, className);
+            Assert.fail("get not exist class should not be successful");
+        }
+        catch (ScmException e) {
+            Assert.assertEquals(e.getError(), ScmError.METADATA_CLASS_NOT_EXIST, e.getMessage());
+        }
+
+        // no class attached attr1 and attr2, can be delete.
+        ScmFactory.Attribute.deleteInstance(ws, attrId1);
+        ScmFactory.Attribute.deleteInstance(ws, attrId2);
+        attrIds.clear();
+    }
+
     @AfterClass
     public void tearDown() throws ScmException {
         try {

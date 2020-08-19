@@ -49,17 +49,24 @@ public class MetaDataConfDeletorDao {
             TableDao classTable = metaDataService.getClassTableDao(classFilter.getWsName(), t);
             TableDao relTable = metaDataService
                     .getAttributeClassRelTableDao(classFilter.getWsName(), t);
-
-            BasicBSONObject classMatcher = new BasicBSONObject(FieldName.ClassTable.FIELD_ID,
-                    classFilter.getId());
+            BasicBSONObject classMatcher = new BasicBSONObject();
+            if (classFilter.getId() != null) {
+                classMatcher.put(FieldName.ClassTable.FIELD_ID, classFilter.getId());
+            }
+            else {
+                if (classFilter.getName() != null) {
+                    classMatcher.put(FieldName.ClassTable.FIELD_NAME, classFilter.getName());
+                }
+            }
             BSONObject oldRecord = classTable.deleteAndCheck(classMatcher);
             if (oldRecord == null) {
                 throw new ScmConfigException(ScmConfError.CLASS_NOT_EXIST,
                         "class not exist:classId=" + classFilter.getId());
             }
 
+            String classId = (String) oldRecord.get(FieldName.ClassTable.FIELD_ID);
             BasicBSONObject relMatcher = new BasicBSONObject(FieldName.ClassAttrRel.FIELD_CLASS_ID,
-                    classFilter.getId());
+                    classId);
             relTable.delete(relMatcher);
 
             Integer version = versionDao.increaseVersion(ScmConfigNameDefine.META_DATA,

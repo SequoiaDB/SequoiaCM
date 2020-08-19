@@ -14,12 +14,18 @@ public interface IMetaDataService {
 
     MetadataClass getClassInfoWithAttr(String wsName, String classId) throws ScmServerException;
 
-    MetadataClass createClass(String user, String wsName, BSONObject classInfo) throws ScmServerException;
+    MetadataClass getClassInfoWithAttrByName(String wsName, String className)
+            throws ScmServerException;
+
+    MetadataClass createClass(String user, String wsName, BSONObject classInfo)
+            throws ScmServerException;
 
     MetadataClass updateClass(String user, String wsName, String classId, BSONObject updator)
             throws ScmServerException;
 
     void deleteClass(String wsName, String classId) throws ScmServerException;
+
+    void deleteClassByName(String workspaceName, String className) throws ScmServerException;
 
     void attachAttr(String user, String wsName, String classId, String attrId)
             throws ScmServerException;
@@ -27,7 +33,8 @@ public interface IMetaDataService {
     void detachAttr(String user, String wsName, String classId, String attrId)
             throws ScmServerException;
 
-    MetadataAttr createAttr(String user, String wsName, BSONObject attrInfo) throws ScmServerException;
+    MetadataAttr createAttr(String user, String wsName, BSONObject attrInfo)
+            throws ScmServerException;
     
     List<MetadataAttr> listAttr(String wsName, BSONObject filter) throws ScmServerException;
     

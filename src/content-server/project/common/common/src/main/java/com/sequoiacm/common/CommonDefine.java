@@ -348,6 +348,7 @@ public class CommonDefine {
         public static final String METADATA_DESCRIPTION = "description";
         public static final String METADATA_FILTER = "filter";
         public static final String METADATA_CLASSINFO_RESP = "class";
+        public static final String METADATA_CLASS_NAME = "class_name";
         public static final String METADATA_ATTRINFO_RESP = "attr";
 
         public static final String AUDIT_WS_NAME = "workspace_name";

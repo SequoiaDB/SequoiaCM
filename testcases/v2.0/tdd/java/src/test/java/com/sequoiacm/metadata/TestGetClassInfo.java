@@ -32,6 +32,7 @@ import com.sequoiacm.testcommon.ScmTestTools;
  * @author yanglei
  *
  **/
+ **/
 public class TestGetClassInfo extends ScmTestMultiCenterBase {
     
     private final static Logger logger = LoggerFactory.getLogger(TestGetClassInfo.class);
@@ -45,8 +46,8 @@ public class TestGetClassInfo extends ScmTestMultiCenterBase {
     
     @BeforeClass
     public void setUp() throws ScmException {
-        ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
-                getServer1().getUrl(), getScmUser(), getScmPasswd()));
+        ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                new ScmConfigOption(getServer1().getUrl(), getScmUser(), getScmPasswd()));
         ws = ScmFactory.Workspace.getWorkspace(getWorkspaceName(), ss);
         
         scmClass = ScmFactory.Class.createInstance(ws, ScmTestTools.getClassName(), "查询模型详细信息");
@@ -110,12 +111,56 @@ public class TestGetClassInfo extends ScmTestMultiCenterBase {
     }
     
     @Test
+    public void testGetClass1() throws ScmException, IOException {
+        ScmClass savedClass = ScmFactory.Class.getInstanceByName(ws, scmClass.getName());
+
+        // Assert.assertEquals(savedClass.toString(), scmClass.toString());
+        Assert.assertEquals(savedClass.getId(), scmClass.getId());
+        Assert.assertEquals(savedClass.getName(), ScmTestTools.getClassName());
+        Assert.assertEquals(savedClass.getDescription(), "查询模型详细信息");
+        Assert.assertEquals(savedClass.getCreateUser(), getScmUser());
+        Assert.assertEquals(savedClass.getUpdateUser(), getScmUser());
+        Assert.assertEquals(savedClass.getWorkspace().getName(), getWorkspaceName());
+        Assert.assertEquals(savedClass.isExist(), true);
+        List<ScmAttribute> attrs = savedClass.listAttrs();
+        Assert.assertEquals(attrs.size(), 2);
+
+        for (ScmAttribute scmAttribute : attrs) {
+            if (attrName1.equals(scmAttribute.getName())) {
+                Assert.assertEquals(scmAttribute.getId(), attrId1);
+                Assert.assertEquals(scmAttribute.getDisplayName(), "");
+                Assert.assertEquals(scmAttribute.getDescription(), "");
+                Assert.assertEquals(scmAttribute.getType(), AttributeType.STRING);
+                ScmStringRule rule = (ScmStringRule) scmAttribute.getCheckRule();
+                Assert.assertEquals(rule.getMaxLength(), 10);
+                Assert.assertEquals(scmAttribute.isRequired(), false);
+                Assert.assertEquals(savedClass.isExist(), true);
+            }
+            else if (attrName2.equals(scmAttribute.getName())) {
+                Assert.assertEquals(scmAttribute.getId(), attrId2);
+                Assert.assertEquals(scmAttribute.getDisplayName(), "属性字段2");
+                Assert.assertEquals(scmAttribute.getDescription(), "属性字段2");
+                Assert.assertEquals(scmAttribute.getType(), AttributeType.INTEGER);
+                ScmIntegerRule checkRule = (ScmIntegerRule) scmAttribute.getCheckRule();
+                Assert.assertEquals(checkRule.getMinimum(), Integer.MIN_VALUE);
+                Assert.assertEquals(checkRule.getMaximum(), Integer.MAX_VALUE);
+                Assert.assertEquals(scmAttribute.isRequired(), true);
+                Assert.assertEquals(savedClass.isExist(), true);
+            }
+            else {
+                Assert.fail("found unknown attribute");
+            }
+        }
+    }
+
+    @Test
     public void testGetUnexistClass() throws ScmException, IOException {
         ScmId unexistId = new ScmId("ffffffffffffffffffffffff");
         try {
             ScmFactory.Class.getInstance(ws, unexistId);
             Assert.fail("get not exist class should not be successful");
-        } catch (ScmException e) {
+        }
+        catch (ScmException e) {
             Assert.assertEquals(e.getError(), ScmError.METADATA_CLASS_NOT_EXIST, e.getMessage());
         }
     }

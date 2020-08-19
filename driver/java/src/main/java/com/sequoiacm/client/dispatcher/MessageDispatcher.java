@@ -137,9 +137,13 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getClassInfo(String workspaceName, ScmId classId) throws ScmException;
 
+    BSONObject getClassInfo(String name, String className) throws ScmException;
+
     BsonReader getClassList(String workspaceName, BSONObject filter) throws ScmException;
 
     void deleteClass(String workspaceName, ScmId classId) throws ScmException;
+
+    void deleteClass(String workspaceName, String className) throws ScmException;
 
     BSONObject updateClassInfo(String workspaceName, ScmId classId, BSONObject classInfo)
             throws ScmException;
@@ -254,5 +258,9 @@ public interface MessageDispatcher extends Closeable {
     long countDir(String workspaceName, BSONObject condition) throws ScmException;
 
     long countBatch(String workspaceName, BSONObject condition) throws ScmException;
+
+    BSONObject startImport(String batchNo, boolean allowAddRandomTime) throws ScmException;
+
+    BSONObject stopImport(String batchNO) throws ScmException;
 
 }

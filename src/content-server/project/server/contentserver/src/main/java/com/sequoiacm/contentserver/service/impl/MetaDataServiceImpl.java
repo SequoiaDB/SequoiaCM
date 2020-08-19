@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.service.impl;
 import java.util.List;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -59,12 +60,24 @@ public class MetaDataServiceImpl implements IMetaDataService {
     @Override
     public MetadataClass getClassInfoWithAttr(String wsName, String classId)
             throws ScmServerException {
+        BSONObject idMatcher = new BasicBSONObject(FieldName.Class.FIELD_ID, classId);
+        return getClassInfoWithAttr(wsName, idMatcher);
+    }
+
+    @Override
+    public MetadataClass getClassInfoWithAttrByName(String wsName, String className)
+            throws ScmServerException {
+        BSONObject nameMatcher = new BasicBSONObject(FieldName.Class.FIELD_NAME, className);
+        return getClassInfoWithAttr(wsName, nameMatcher);
+    }
+
+    private MetadataClass getClassInfoWithAttr(String wsName, BSONObject matcher)
+            throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(wsName);
-
-        MetadataClass classObj = getAndCheckClass(wsName, classId);
+        MetadataClass classObj = getAndCheckClass(wsName, matcher);
         List<MetadataAttr> attrList = contentServer.getMetaService().getAttrListForClass(wsName,
-                classId);
+                classObj.getId());
         classObj.setAttrList(attrList);
         return classObj;
     }
@@ -109,9 +122,23 @@ public class MetaDataServiceImpl implements IMetaDataService {
 
     @Override
     public void deleteClass(String workspaceName, String classId) throws ScmServerException {
+        MetaDataClassConfigFilter filter = new MetaDataClassConfigFilter(workspaceName)
+                .appendId(classId);
+        deleteClass(workspaceName, filter);
+    }
+
+    @Override
+    public void deleteClassByName(String workspaceName, String className)
+            throws ScmServerException {
+        MetaDataClassConfigFilter filter = new MetaDataClassConfigFilter(workspaceName)
+                .appendName(className);
+        deleteClass(workspaceName, filter);
+    }
+
+    private void deleteClass(String workspaceName, MetaDataClassConfigFilter filter)
+            throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
-        MetaDataClassConfigFilter filter = new MetaDataClassConfigFilter(workspaceName, classId);
         ContenserverConfClient.getInstance().deleteClass(filter);
     }
 
@@ -205,20 +232,20 @@ public class MetaDataServiceImpl implements IMetaDataService {
         ContenserverConfClient.getInstance().deleteAttribute(filter);
     }
 
-
-    private MetadataClass getAndCheckClass(String wsName, String classId) throws ScmServerException {
+    private MetadataClass getAndCheckClass(String wsName, BSONObject matcher)
+            throws ScmServerException {
         MetadataClass classObj = ScmContentServer.getInstance().getMetaService()
-                .getClassInfo(wsName, classId);
+                .getClassInfo(wsName, matcher);
         if (null == classObj) {
             throw new ScmServerException(ScmError.METADATA_CLASS_NOT_EXIST,
-                    "class is unexist: workspace=" + wsName + ", classId=" + classId);
+                    "class is unexist: workspace=" + wsName + ", matcher=" + matcher);
         }
         return classObj;
     }
 
     private MetadataAttr getAndCheckAttr(String wsName, String attrId) throws ScmServerException {
-        MetadataAttr attrInfo = ScmContentServer.getInstance().getMetaService()
-                .getAttrInfo(wsName, attrId);
+        MetadataAttr attrInfo = ScmContentServer.getInstance().getMetaService().getAttrInfo(wsName,
+                attrId);
         if (null == attrInfo) {
             throw new ScmServerException(ScmError.METADATA_ATTR_NOT_EXIST,
                     "attribute is unexist: workspace=" + wsName + ", attrId=" + attrId);

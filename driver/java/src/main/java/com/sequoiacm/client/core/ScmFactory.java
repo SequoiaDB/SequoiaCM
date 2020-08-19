@@ -2228,8 +2228,8 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmClass by between the specified classId
-         * from the specified workspace.
+         * Acquires an object of the ScmClass by the specified classId from the
+         * specified workspace.
          *
          * @param ws
          *            The ScmWorkspace object for the workspace in which this
@@ -2246,11 +2246,30 @@ public class ScmFactory {
 
             BSONObject classInfo = ws.getSession().getDispatcher().getClassInfo(ws.getName(),
                     classId);
-            if (null == classInfo) {
-                throw new ScmException(ScmError.METADATA_CLASS_NOT_EXIST,
-                        "Class is unexist:workspace=" + ws.getName() + ",classId=" + classId.get());
-            }
+            return new ScmClassImpl(ws, classInfo);
+        }
 
+        /**
+         * Acquires an object of the ScmClass by the specified className from
+         * the specified workspace.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param className
+         *            The name of the Class instance.
+         * @return An object of the ScmClass type.
+         * @throws ScmException
+         *             if error happens
+         * @since 3.1
+         */
+        public static ScmClass getInstanceByName(ScmWorkspace ws, String className)
+                throws ScmException {
+            checkArgNotNull("workspace", ws);
+            checkArgNotNull("className", className);
+
+            BSONObject classInfo = ws.getSession().getDispatcher().getClassInfo(ws.getName(),
+                    className);
             return new ScmClassImpl(ws, classInfo);
         }
 
@@ -2297,6 +2316,24 @@ public class ScmFactory {
             checkArgNotNull("workspace", ws);
             checkArgNotNull("classId", classId);
             ws.getSession().getDispatcher().deleteClass(ws.getName(), classId);
+        }
+
+        /**
+         * Delete specified scm class.
+         *
+         * @param ws
+         *            workspace.
+         * @param className
+         *            class name.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.1
+         */
+        public static void deleteInstanceByName(ScmWorkspace ws, String className)
+                throws ScmException {
+            checkArgNotNull("workspace", ws);
+            checkArgNotNull("className", className);
+            ws.getSession().getDispatcher().deleteClass(ws.getName(), className);
         }
     }
 

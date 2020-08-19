@@ -52,6 +52,8 @@ ScmAttribute stringAttr = ScmFactory.Attribute.createInstance(workspace, attrCon
 ```lang-javascript
 // 根据classID获取模型
 ScmClass scmClass = ScmFactory.Class.getInstance(workspace, classID);
+// 根据className获取模型
+// scmClass = ScmFactory.Class.getInstanceByName(workspace, className);
 // 根据attrID获取属性
 ScmAttribute scmAttr = ScmFactory.Attribute.getInstance(workspace, attrID);
 // 模型关联属性
@@ -61,6 +63,8 @@ List<ScmAttribute> attrs = scmClass.listAttrs();
 System.out.println(attrs);
 // 模型解除属性
 scmClass.detachAttr(scmAttr.getId());
+// 根据className删除模型
+ScmFactory.Class.deleteInstanceByName(workspace, className);
 ```
 >  **Note:**
 >
@@ -78,5 +82,7 @@ properties.addProperty("ID_NUM", "613435199105687894");
 file.setClassProperties(properties);
 file.save();
 ```
+
+
 
 [java_api]:api/java/html/index.html
