@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.bson.BSONObject;
@@ -48,7 +47,7 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private boolean runSuccess = false;
     private File localPath = null;
     private String filePath = null;
-    private int FILE_SIZE = new Random().nextInt( 1024 ) + 1;
+    private int fileSize = 1024*200;
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
     private ScmId taskId = null;
@@ -59,28 +58,28 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private BSONObject cond = null;
 
     private SiteWrapper branceSite = null;
-    private WsWrapper ws_T = null;
+    private WsWrapper wsp = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
-        filePath = localPath + File.separator + "localFile_" + FILE_SIZE
+        filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         try {
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, FILE_SIZE );
+            TestTools.LocalFile.createFile( filePath, fileSize );
 
             branceSite = ScmInfo.getBranchSite();
-            ws_T = ScmInfo.getWs();
+            wsp = ScmInfo.getWs();
 
             sessionA = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
             cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( authorName ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+            ScmFileUtils.cleanFile( wsp, cond );
 
             createFile( ws, filePath );
         } catch ( Exception e ) {
@@ -141,8 +140,8 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private void stopTaskAgain() {
         ScmTask scmTask = null;
         try {
-            scmTask = ScmSystem.Task.getTask( sessionA, taskId );
             while ( true ) {
+                scmTask = ScmSystem.Task.getTask( sessionA, taskId );
                 int flag = scmTask.getRunningFlag();
                 if ( flag == 2 ) {
                     ScmSystem.Task.stopTask( sessionA, taskId );

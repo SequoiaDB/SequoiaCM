@@ -37,11 +37,14 @@ public class AddUrlRepeatedly403 extends TestScmBase {
     private void testAddSameUrl() {
         try {
             ScmConfigOption scOpt = new ScmConfigOption();
-            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/" + site );
-            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/" + site );
+            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site.getSiteServiceName() );
+            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site.getSiteServiceName() );
             String expectRes = "[" + TestScmBase.gateWayList.get( 0 ) + "/"
-                    + site + ", " + TestScmBase.gateWayList.get( 0 ) + "/"
-                    + site + "]";
+                    + site.getSiteServiceName() + ", "
+                    + TestScmBase.gateWayList.get( 0 ) + "/"
+                    + site.getSiteServiceName() + "]";
             Assert.assertEquals( scOpt.getUrls().toString(), expectRes );
             ScmSession session = ScmFactory.Session
                     .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
