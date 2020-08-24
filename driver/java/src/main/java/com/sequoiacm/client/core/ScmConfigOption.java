@@ -1,6 +1,7 @@
 package com.sequoiacm.client.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sequoiacm.client.exception.ScmException;
@@ -315,6 +316,9 @@ public class ScmConfigOption {
      * @since 2.1
      */
     public List<String> getUrls() {
+        if(urlConfig == null) {
+            return Collections.emptyList();
+        }
         return urlConfig.getUrl();
     }
 
@@ -329,6 +333,9 @@ public class ScmConfigOption {
      * @since 3.0
      */
     public List<String> getUrls(String region, String zone) {
+        if(urlConfig == null) {
+            return Collections.emptyList();
+        }
         return urlConfig.getUrl(region, zone);
     }
 
@@ -341,11 +348,17 @@ public class ScmConfigOption {
      * @since 3.0
      */
     public List<String> getUrlsExclude(String region) {
+        if(urlConfig == null) {
+            return Collections.emptyList();
+        }
         return urlConfig.getUrlExclude(region);
     }
 
     public List<String> getUrlsIncludeRegionExcludeZone(String includedRegion,
             String excludedZone) {
+        if(urlConfig == null) {
+            return Collections.emptyList();
+        }
         return urlConfig.getUrlsIncludeRegionExcludeZone(includedRegion, excludedZone);
     }
 
