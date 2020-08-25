@@ -18,14 +18,14 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-1900 :: ScmFactory. Class.deleteInstance()参数校验
+ * @Description: SCM-1900:ScmFactory.Class.deleteInstance()/deleteInstanceByName()参数校验
  * @author fanyu
  * @Date:2018年7月7日
  * @version:1.0
  */
 public class DefineAttr_Param_Class_DeleteInstance1900 extends TestScmBase {
-    private String classname = "Param1897";
-    private String desc = "Param1897 It is a test";
+    private String classname = "Param1900";
+    private String desc = "Param1900 It is a test";
     private ScmClass expClass = null;
     private SiteWrapper site = null;
     private WsWrapper wsp = null;
@@ -33,42 +33,69 @@ public class DefineAttr_Param_Class_DeleteInstance1900 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        expClass = ScmFactory.Class.createInstance( ws, classname, desc );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testWsIsNull() {
-        // get
+    @Test(enabled = false) // TODO: SEQUOIACM-548
+    private void test() throws ScmException {
+        String classname = "Param1900 中文.!@#$*()_+::<>\"test";
+        ScmClass scmClass = ScmFactory.Class.createInstance( ws,classname, desc);
+        ScmFactory.Class.deleteInstanceByName( ws, classname );
         try {
-            ScmFactory.Class.deleteInstance( null, expClass.getId() );
-            Assert.fail( "exp fail but act success" );
+            ScmFactory.Class.getInstance( ws,scmClass.getId() );
+            Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+            if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
+                throw e;
             }
         }
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testIdIsNull() {
-        // get
+    private void testWsIsNull() throws ScmException {
+        // delete
+        try {
+            ScmFactory.Class.deleteInstance( null, expClass.getId() );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                throw e;
+            }
+        }
+
+        try {
+            ScmFactory.Class.deleteInstanceByName( null, expClass.getName() );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                throw e;
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testIdOrNameIsNull() throws ScmException {
+        // delete
         try {
             ScmFactory.Class.deleteInstance( ws, null );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
+            }
+        }
+
+        try {
+            ScmFactory.Class.deleteInstanceByName( ws, null );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                throw e;
             }
         }
     }

@@ -15,10 +15,9 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description: SCM-1842 :: 创建模型
+ * @Description: SCM-1842:创建/获取模型
  * @author fanyu
  * @Date:2018年7月4日
  * @version:1.0
@@ -34,15 +33,11 @@ public class DefineAttr_Class_Create1842 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -52,7 +47,27 @@ public class DefineAttr_Class_Create1842 extends TestScmBase {
         // get
         ScmClass actClass = ScmFactory.Class.getInstance( ws,
                 expClass.getId() );
+        checkClass( actClass, expClass );
 
+        actClass = ScmFactory.Class.getInstanceByName( ws, classname );
+        checkClass( actClass, expClass );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void checkClass( ScmClass actClass, ScmClass expClass ) {
         Assert.assertEquals( actClass.getId(), expClass.getId() );
         Assert.assertEquals( actClass.getName(), classname );
         Assert.assertEquals( actClass.getDescription(), desc );
@@ -64,25 +79,5 @@ public class DefineAttr_Class_Create1842 extends TestScmBase {
         Assert.assertEquals( actClass.listAttrs().size(), 0 );
         Assert.assertNotNull( actClass.getCreateTime() );
         Assert.assertNotNull( actClass.getUpdateTime() );
-        runSuccess = true;
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
-        try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            }
-            if ( !runSuccess && expClass != null ) {
-                System.out.println( "class = " + expClass.toString() );
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
-        } finally {
-            if ( session != null ) {
-                session.close();
-            }
-        }
     }
 }

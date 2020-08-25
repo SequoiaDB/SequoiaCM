@@ -19,7 +19,6 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiadb.exception.BaseException;
 
 /**
  * @Description: SCM-1845 :: 删除模型 SCM-1853 :: 获取不存在的模型
@@ -39,107 +38,95 @@ public class DefineAttr_Class_Delete1845_1853 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
-            // create Class
-            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        // create Class
+        expClass = ScmFactory.Class.createInstance( ws, classname, desc );
 
-            // create Attr
-            ScmAttributeConf conf = new ScmAttributeConf();
-            conf.setName( classname );
-            conf.setDisplayName( classname );
-            conf.setDescription( desc );
-            conf.setRequired( false );
-            conf.setType( AttributeType.BOOLEAN );
-            conf.setCheckRule( null );
-            expAttr = ScmFactory.Attribute.createInstance( ws, conf );
+        // create Attr
+        ScmAttributeConf conf = new ScmAttributeConf();
+        conf.setName( classname );
+        conf.setDisplayName( classname );
+        conf.setDescription( desc );
+        conf.setRequired( false );
+        conf.setType( AttributeType.BOOLEAN );
+        conf.setCheckRule( null );
+        expAttr = ScmFactory.Attribute.createInstance( ws, conf );
 
-            // Attach
-            expClass.attachAttr( expAttr.getId() );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        // Attach
+        expClass.attachAttr( expAttr.getId() );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test() {
+    private void test() throws ScmException {
+        // delete class that has attached attr
+        ScmFactory.Class.deleteInstance( ws, expClass.getId() );
+        // delete again
         try {
-            // delete class that has attached attr
             ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            // delete again
-            try {
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
-                    e.printStackTrace();
-                    Assert.fail( e.getMessage() );
-                }
-            }
+            Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+            if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
+                throw e;
+            }
         }
-
         // check delete
         checkDel( expClass );
 
+        // create again
+        expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        // delete
+        ScmFactory.Class.deleteInstance( ws, expClass.getId() );
+        // delete again
         try {
-            // create again
-            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
-
-            // delete
             ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            // delete again
-            try {
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
-                    e.printStackTrace();
-                    Assert.fail( e.getMessage() );
-                }
-            }
+            Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+            if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
+                throw e;
+            }
         }
-
         // check delete
         checkDel( expClass );
 
-        try {
-            // create again
-            expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        // create again
+        expClass = ScmFactory.Class.createInstance( ws, classname, desc );
+        ScmClass actClass = ScmFactory.Class.getInstance( ws,
+                expClass.getId() );
+        check( actClass, expClass );
 
-            ScmClass actClass = ScmFactory.Class.getInstance( ws,
-                    expClass.getId() );
-            check( actClass, expClass );
+        // delete by name
+        ScmFactory.Class.deleteInstanceByName( ws, expClass.getName() );
+        try {
+            ScmFactory.Class.getInstanceByName( ws, expClass.getName() );
+            Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+            Assert.assertEquals( e.getError(),
+                    ScmError.METADATA_CLASS_NOT_EXIST, e.getMessage() );
+        }
+
+        // delete by name again
+        try {
+            ScmFactory.Class.deleteInstanceByName( ws, expClass.getName() );
+            Assert.fail( "exp fail but act success!!!" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.METADATA_CLASS_NOT_EXIST ) {
+                throw e;
+            }
         }
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
                 ScmFactory.Attribute.deleteInstance( ws, expAttr.getId() );
             }
-            if ( !runSuccess && expClass != null ) {
-                System.out.println( "class = " + expClass.toString() );
-                System.out.println( "expAttr = " + expAttr.toString() );
-                ScmFactory.Class.deleteInstance( ws, expClass.getId() );
-                ScmFactory.Class.deleteInstance( ws, expAttr.getId() );
-            }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
@@ -150,6 +137,7 @@ public class DefineAttr_Class_Delete1845_1853 extends TestScmBase {
     private void checkDel( ScmClass expClass ) {
         try {
             ScmFactory.Class.getInstance( ws, expClass.getId() );
+            Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getError(),
                     ScmError.METADATA_CLASS_NOT_EXIST, e.getMessage() );
