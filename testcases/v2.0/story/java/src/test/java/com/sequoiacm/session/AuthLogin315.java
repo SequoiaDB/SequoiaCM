@@ -55,73 +55,60 @@ public class AuthLogin315 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test() {
-        try {
-            String user = TestScmBase.scmUserName;
-            String passwd = TestScmBase.scmPassword;
+    private void test() throws ScmException, IOException {
+        String user = TestScmBase.scmUserName;
+        String passwd = TestScmBase.scmPassword;
 
-            // ScmConfigOption()
-            ScmConfigOption scOpt = new ScmConfigOption();
-            // scOpt.getUrls(); //BUG 355
-            // not set before get
-            // Assert.assertEquals(scOpt.getUrls().toString(), "[]");
-            // Assert.assertNull(scOpt.getUrls());
-            scOpt.getUser();
-            Assert.assertEquals( scOpt.getUser(), null );
-            Assert.assertEquals( scOpt.getPasswd(), null );
-            // set
-            scOpt.addUrl( TestScmBase.gateWayList.get( 0 ) + "/"
-                    + site.getSiteServiceName() );
-            scOpt.setUser( user );
-            scOpt.setPasswd( passwd );
-            // get
-            Assert.assertEquals( scOpt.getUrls().toString(),
-                    "[" + TestScmBase.gateWayList.get( 0 ) + "/"
-                            + site.getSiteServiceName() + "]" );
-            Assert.assertEquals( scOpt.getUser(), TestScmBase.scmUserName );
-            Assert.assertEquals( scOpt.getPasswd(), TestScmBase.scmPassword );
-            // bizOper
-            loginAndOperate( scOpt );
+        // ScmConfigOption()
+        ScmConfigOption scOpt = new ScmConfigOption();
+        // not set before get
+        // TODO: SEQUOIACM-545
+        // Assert.assertEquals( scOpt.getUrls().toString(), "[]" );
+        // Assert.assertNull( scOpt.getUrls() );
+        scOpt.getUser();
+        Assert.assertEquals( scOpt.getUser(), null );
+        Assert.assertEquals( scOpt.getPasswd(), null );
+        // set
+        scOpt.addUrl(
+                TestScmBase.gateWayList.get( 0 ) + "/" + site.getSiteName() );
+        scOpt.setUser( user );
+        scOpt.setPasswd( passwd );
+        // get
+        Assert.assertEquals( scOpt.getUrls().toString(),
+                "[" + TestScmBase.gateWayList.get( 0 ) + "/"
+                        + site.getSiteServiceName() + "]" );
+        Assert.assertEquals( scOpt.getUser(), TestScmBase.scmUserName );
+        Assert.assertEquals( scOpt.getPasswd(), TestScmBase.scmPassword );
+        // bizOper
+        loginAndOperate( scOpt );
 
-            // ScmConfigOption(String host, int port)
-            ScmConfigOption scOpt2 = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/"
-                            + site.getSiteServiceName() );
-            scOpt2.setUser( user );
-            scOpt2.setPasswd( passwd );
-            loginAndOperate( scOpt2 );
+        // ScmConfigOption(String host, int port)
+        ScmConfigOption scOpt2 = new ScmConfigOption(
+                TestScmBase.gateWayList.get( 0 ) + "/" + site.getSiteName() );
+        scOpt2.setUser( user );
+        scOpt2.setPasswd( passwd );
+        loginAndOperate( scOpt2 );
 
-            // ScmConfigOption(String host, int port)
-            ScmConfigOption scOpt3 = new ScmConfigOption(
-                    TestScmBase.gateWayList.get( 0 ) + "/"
-                            + site.getSiteServiceName(),
-                    user, passwd );
-            loginAndOperate( scOpt3 );
-
-            runSuccess = true;
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // ScmConfigOption(String host, int port)
+        ScmConfigOption scOpt3 = new ScmConfigOption(
+                TestScmBase.gateWayList.get( 0 ) + "/" + site.getSiteName(),
+                user, passwd );
+        loginAndOperate( scOpt3 );
+        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
@@ -147,7 +134,8 @@ public class AuthLogin315 extends TestScmBase {
         }
     }
 
-    private void loginAndOperate( ScmConfigOption scOpt ) throws ScmException {
+    private void loginAndOperate( ScmConfigOption scOpt )
+            throws ScmException, IOException {
         ScmSession session = ScmFactory.Session
                 .createSession( SessionType.AUTH_SESSION, scOpt );
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -156,23 +144,19 @@ public class AuthLogin315 extends TestScmBase {
         session.close();
     }
 
-    private void doBusinessOperate( ScmWorkspace ws ) {
-        try {
-            ScmFile writefile = ScmFactory.File.createInstance( ws );
-            writefile.setContent( filePath );
-            writefile.setFileName( fileName + "_" + UUID.randomUUID() );
-            ScmId fileId = writefile.save();
-            fileIdList.add( fileId );
-            ScmFile readfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = localPath + File.separator + "download.txt";
-            this.read( readfile, downloadPath );
+    private void doBusinessOperate( ScmWorkspace ws )
+            throws ScmException, IOException {
+        ScmFile writefile = ScmFactory.File.createInstance( ws );
+        writefile.setContent( filePath );
+        writefile.setFileName( fileName + "_" + UUID.randomUUID() );
+        ScmId fileId = writefile.save();
+        fileIdList.add( fileId );
+        ScmFile readfile = ScmFactory.File.getInstance( ws, fileId );
+        String downloadPath = localPath + File.separator + "download.txt";
+        this.read( readfile, downloadPath );
 
-            Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ) );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        Assert.assertEquals( TestTools.getMD5( filePath ),
+                TestTools.getMD5( downloadPath ) );
     }
 
     private void read( ScmFile file, String downloadPath )
