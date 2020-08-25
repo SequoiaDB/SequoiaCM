@@ -1,11 +1,11 @@
 package com.sequoiacm.contentserver.model;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.sequoiacm.common.FieldName;
-
-import java.io.IOException;
 
 public class BreakpointFileJsonSerializer extends StdSerializer<BreakpointFile> {
 
@@ -27,6 +27,8 @@ public class BreakpointFileJsonSerializer extends StdSerializer<BreakpointFile> 
         gen.writeNumberField(FieldName.BreakpointFile.FIELD_CREATE_TIME, value.getCreateTime());
         gen.writeStringField(FieldName.BreakpointFile.FIELD_UPLOAD_USER, value.getUploadUser());
         gen.writeNumberField(FieldName.BreakpointFile.FIELD_UPLOAD_TIME, value.getUploadTime());
+        gen.writeBooleanField(FieldName.BreakpointFile.FIELD_IS_NEED_MD5, value.isNeedMd5());
+        gen.writeStringField(FieldName.BreakpointFile.FIELD_MD5, value.getMd5());
         gen.writeEndObject();
     }
 }

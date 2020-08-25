@@ -85,8 +85,10 @@ public interface ScmBreakpointFile {
     /**
      * Set create time of the breakpoint file.
      *
-     * @param createTime the create time
-     * @throws ScmException if exception happens
+     * @param createTime
+     *            the create time
+     * @throws ScmException
+     *             if exception happens
      */
     void setCreateTime(Date createTime) throws ScmException;
 
@@ -139,4 +141,24 @@ public interface ScmBreakpointFile {
      *             if exception happens
      */
     void incrementalUpload(InputStream dataStream, boolean isLastContent) throws ScmException;
+
+    /**
+     * Returns true if the breakpoint file will calc md5 when it completed.
+     *
+     * @return true if the breakpoint file will calc md5 when it completed
+     */
+    boolean isNeedMd5();
+
+    /**
+     * Get the md5 of the breakpoint file.
+     * 
+     * @return return null if the breakpoint file is not completed or the
+     *         breakpoint file don't need to calc md5.
+     */
+    String getMd5();
+
+    /**
+     * Calculate the md5 of the breakpoint file.
+     */
+    void calcMd5() throws ScmException;
 }

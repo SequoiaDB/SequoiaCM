@@ -13,6 +13,8 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
@@ -30,7 +32,7 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class FileCreatorDao implements IFileCreatorDao {
     private static final Logger logger = LoggerFactory.getLogger(FileCreatorDao.class);
-
+    private final boolean isNeedMd5;
     private int siteId;
     private String fileId;
     private int majorVersion;
@@ -42,7 +44,7 @@ public class FileCreatorDao implements IFileCreatorDao {
     private ScmDataInfo dataInfo;
 
     public FileCreatorDao(int siteId, ScmWorkspaceInfo wsInfo, BSONObject fileInfo,
-            ScmDataInfo dataInfo) throws ScmServerException {
+            ScmDataInfo dataInfo, boolean isNeedMd5) throws ScmServerException {
         this.siteId = siteId;
         this.wsInfo = wsInfo;
         this.fileInfo = fileInfo;
@@ -51,6 +53,7 @@ public class FileCreatorDao implements IFileCreatorDao {
         this.minorVersion = (Integer) fileInfo.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
         this.createDate = dataInfo.getCreateTime();
         this.dataInfo = dataInfo;
+        this.isNeedMd5 = isNeedMd5;
 
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
@@ -75,7 +78,7 @@ public class FileCreatorDao implements IFileCreatorDao {
         }
     }
 
-    public void write(InputStream is) throws ScmServerException {
+    public void writeData(InputStream is) throws ScmServerException {
         byte[] buf = new byte[Const.TRANSMISSION_LEN];
         try {
             while (true) {
@@ -102,6 +105,17 @@ public class FileCreatorDao implements IFileCreatorDao {
             // GC may be more efficiently
             buf = null;
         }
+    }
+
+    public void write(InputStream is) throws ScmServerException {
+        if (!isNeedMd5) {
+            writeData(is);
+            return;
+        }
+        InputStreamWithCalcMd5 md5Is = new InputStreamWithCalcMd5(is);
+        writeData(md5Is);
+        String md5 = md5Is.calcMd5();
+        fileInfo.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
     }
 
     private void writeFinish() throws ScmServerException {

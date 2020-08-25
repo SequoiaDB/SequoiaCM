@@ -160,6 +160,7 @@ public class FieldName {
                                                                     // author1
     public static final String FIELD_CLFILE_FILE_MIME_TYPE = "mime_type"; // string,
                                                                           // application/msword
+    public static final String FIELD_CLFILE_FILE_MD5 = "md5";
     // CL_FILE only(file & document)
     public static final String FIELD_CLFILE_EXTRA_STATUS = "status"; // int, 0
                                                                      // normal;
@@ -276,6 +277,8 @@ public class FieldName {
         public static final String FIELD_CREATE_TIME = "create_time";
         public static final String FIELD_UPLOAD_USER = "upload_user";
         public static final String FIELD_UPLOAD_TIME = "upload_time";
+        public static final String FIELD_IS_NEED_MD5 = "is_need_md5";
+        public static final String FIELD_MD5 = "md5";
     }
 
     public static class Role {

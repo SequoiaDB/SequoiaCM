@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -1347,12 +1348,12 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject createBreakpointFile(String workspaceName, String fileName, long createTime,
-            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent)
-            throws ScmException {
+            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
+            boolean isNeedMd5) throws ScmException {
         String uri = String.format(
-                "%s%s%s%s%s?workspace_name=%s&create_time=%d&checksum_type=%s&is_last_content=%b",
+                "%s%s%s%s%s?workspace_name=%s&create_time=%d&checksum_type=%s&is_last_content=%b&is_need_md5=%b",
                 URL_PREFIX, url, API_VERSION, BREAKPOINT_FILES, encode(fileName),
-                encode(workspaceName), createTime, checksumType.name(), isLastContent);
+                encode(workspaceName), createTime, checksumType.name(), isLastContent, isNeedMd5);
         HttpPost request = new HttpPost(uri);
 
         if (fileStream != null) {
@@ -1524,12 +1525,13 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject updateFileContent(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, InputStream is) throws ScmException {
+            int minorVersion, InputStream is, BSONObject option) throws ScmException {
         String uri = URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl + API_VERSION + FILE
                 + fileId;
-        String arg = String.format("?%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
+        String arg = String.format("?%s=%s&%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
                 encode(workspaceName), CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
-                CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion);
+                CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion,
+                CommonDefine.RestArg.FILE_UPDATE_CONTENT_OPTION, encodeCondition(option));
         HttpPut request = new HttpPut(uri + arg);
         InputStreamEntity isEntity = new InputStreamEntity(is);
         isEntity.setContentType(CONTENT_TYPE_BINARY);
@@ -1542,12 +1544,14 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject updateFileContent(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, String breakFileName) throws ScmException {
+            int minorVersion, String breakFileName, BSONObject option) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + fileId;
-        String arg = String.format("?%s=%s&%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
-                encode(workspaceName), CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
+        String arg = String.format("?%s=%s&%s=%s&%s=%s&%s=%s&%s=%s",
+                CommonDefine.RestArg.WORKSPACE_NAME, encode(workspaceName),
+                CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
                 CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion,
-                CommonDefine.RestArg.FILE_BREAKPOINT_FILE, encode(breakFileName));
+                CommonDefine.RestArg.FILE_BREAKPOINT_FILE, encode(breakFileName),
+                CommonDefine.RestArg.FILE_UPDATE_CONTENT_OPTION, encodeCondition(option));
         HttpPut request = new HttpPut(uri + arg);
         String fileInfoResp = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
                 request, CommonDefine.RestArg.FILE_INFO);
@@ -1740,9 +1744,6 @@ public class RestDispatcher implements MessageDispatcher {
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, req);
     }
 
-
-
-
     @Override
     public void resetRemainUrl(String remainUrl) {
         this.remainUrl = remainUrl;
@@ -1776,5 +1777,34 @@ public class RestDispatcher implements MessageDispatcher {
         String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
                 X_SCM_COUNT);
         return Long.valueOf(count);
+    }
+
+    @Override
+    public String calcBreakpointFileMd5(String wsName, String breakpointFile) throws ScmException {
+        String uri = String.format("%s%s%s%s%s?action=%s", URL_PREFIX, url, API_VERSION,
+                BREAKPOINT_FILES, encode(breakpointFile), CommonDefine.RestArg.ACTION_CALC_MD5);
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.WORKSPACE_NAME, wsName));
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request, params);
+        return BsonUtils.getStringChecked(resp, FieldName.BreakpointFile.FIELD_MD5);
+    }
+
+    @Override
+    public String calcScmFileMd5(String wsName, String fileId, int majorVersion, int minorVersion)
+            throws ScmException {
+        String uri = String.format("%s%s%s%s%s?action=%s", URL_PREFIX, url, API_VERSION, FILE,
+                fileId, CommonDefine.RestArg.ACTION_CALC_MD5);
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.WORKSPACE_NAME, wsName));
+        params.add(
+                new BasicNameValuePair(CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion + ""));
+        params.add(
+                new BasicNameValuePair(CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion + ""));
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request, params);
+        return BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
     }
 }

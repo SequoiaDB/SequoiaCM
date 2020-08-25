@@ -1,5 +1,10 @@
 package com.sequoiacm.infrastructure.feign;
 
+import java.io.IOException;
+
+import org.bson.BSONObject;
+import org.bson.util.JSON;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -7,11 +12,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.bson.BSONObject;
-import org.bson.util.JSON;
-
-import java.io.IOException;
-import java.net.URLDecoder;
 
 public class BSONObjectJsonDeserializer<T extends BSONObject> extends StdDeserializer<T> {
 
@@ -24,8 +24,7 @@ public class BSONObjectJsonDeserializer<T extends BSONObject> extends StdDeseria
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         JsonNode node = p.getCodec().readTree(p);
         String value = node.toString();
-        String decodedValue = URLDecoder.decode(value, "UTF-8");
-        T obj = (T) JSON.parse(decodedValue);
+        T obj = (T) JSON.parse(value);
         return obj;
     }
 

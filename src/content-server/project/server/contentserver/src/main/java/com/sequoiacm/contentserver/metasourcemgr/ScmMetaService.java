@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.cache.ScmDirPath;
@@ -439,8 +440,8 @@ public class ScmMetaService {
                         wsName, fileID, majorVersion, minorVersion);
                 return null;
             }
-            currentFile.putAll(historyFile);
-            return currentFile;
+           
+            return CommonHelper.completeHisotryFileRec(historyFile, currentFile);
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
@@ -1248,7 +1249,8 @@ public class ScmMetaService {
     }
 
     public BreakpointFile createBreakpointFile(String createUser, String workspaceName,
-            String fileName, ChecksumType checksumType, long createTime) throws ScmServerException {
+            String fileName, ChecksumType checksumType, long createTime, boolean isNeedMd5)
+            throws ScmServerException {
         MetaBreakpointFileAccessor accessor = metasource.getBreakpointFileAccessor(workspaceName,
                 null);
 
@@ -1257,7 +1259,7 @@ public class ScmMetaService {
         BreakpointFile file = new BreakpointFile();
         file.setWorkspaceName(workspaceName).setFileName(fileName).setChecksumType(checksumType)
                 .setSiteId(site.getId()).setSiteName(site.getName()).setCreateUser(createUser)
-                .setCreateTime(createTime);
+                .setCreateTime(createTime).setNeedMd5(isNeedMd5);
 
         try {
             accessor.insert(breakpointFileBsonConverter.convert(file));
@@ -1284,6 +1286,9 @@ public class ScmMetaService {
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_UPLOAD_SIZE, file.getUploadSize());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_UPLOAD_USER, file.getUploadUser());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_UPLOAD_TIME, file.getUploadTime());
+        updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_IS_NEED_MD5, file.isNeedMd5());
+        updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_MD5, file.getMd5());
+
         BSONObject updater = new BasicBSONObject("$set", updateObj);
         try {
             accessor.update(matcher, updater);
@@ -2040,6 +2045,33 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException(
                     "count batch failed:siteId=" + siteId + ",matcher=" + matcher, e);
+        }
+    }
+
+    public void updateFileMd5(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
+            int minorVersion, String md5) throws ScmServerException {
+        try {
+            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
+                    wsInfo.getName(), null);
+            BSONObject ret = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
+                    new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5));
+            if (ret != null) {
+                return;
+            }
+
+            MetaFileHistoryAccessor historyAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
+            historyAccessor.updateMd5(fileId, majorVersion, minorVersion, md5);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update md5 failed:fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion + ", md5=" + md5,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("update md5 failed:fileId=" + fileId + ",majorVersion="
+                    + majorVersion + ",minorVersion=" + minorVersion + ",md5=" + md5, e);
         }
     }
 }

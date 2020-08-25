@@ -15,6 +15,7 @@ import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.ScmUpdateContentOption;
 
 /**
  * The interface of ScmFile.
@@ -526,6 +527,18 @@ public abstract class ScmFile {
     public abstract void updateContent(InputStream is) throws ScmException;
 
     /**
+     * Create a new version scm file content from input stream.
+     * @param is
+     *              an input stream to read file content. It should be valid.
+     * @param option
+     *              option for update content.
+     * @throws ScmException
+     *            if error happens.
+     */
+    public abstract void updateContent(InputStream is, ScmUpdateContentOption option)
+            throws ScmException;
+
+    /**
      * Create a new version scm file content from local file path.
      *
      * @param path
@@ -545,6 +558,18 @@ public abstract class ScmFile {
      *             if error happens.
      */
     public abstract void updateContent(ScmBreakpointFile breakpointFile) throws ScmException;
+
+    /**
+     * Creates a new version scm file content from breakpoint file.
+     * @param breakpointFile
+     *          breakpoint file to transfer to file.
+     * @param option
+     *          option for update content.
+     * @throws ScmException
+     *          if error happens.
+     */
+    public abstract void updateContent(ScmBreakpointFile breakpointFile,
+            ScmUpdateContentOption option) throws ScmException;
 
     /**
      * Sets file created time.
@@ -573,6 +598,17 @@ public abstract class ScmFile {
      *             If error happens
      */
     public abstract void setDirectory(String directoryId) throws ScmException;
+
+    /**
+     * Get the md5 of the file.
+     * @return return null if the file has no md5.
+     */
+    public abstract String getMd5();
+
+    /**
+     * Calculate the md5 of the file. 
+     */
+    public abstract void calcMd5() throws ScmException;
 
     abstract void setSize(long size);
 

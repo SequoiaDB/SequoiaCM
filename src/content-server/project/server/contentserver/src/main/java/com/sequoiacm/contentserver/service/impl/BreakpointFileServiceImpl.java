@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.service.impl;
 
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.BSONObject;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.common.checksum.ChecksumType;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.BreakpointFileDeleter;
 import com.sequoiacm.contentserver.dao.BreakpointFileUploader;
 import com.sequoiacm.contentserver.exception.ScmFileExistException;
@@ -23,6 +25,8 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IBreakpointFileService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.datasource.dataoperation.ENDataType;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 
@@ -51,7 +55,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
     @Override
     public BreakpointFile createBreakpointFile(String createUser, String workspaceName,
             String fileName, long createTime, ChecksumType checksumType, InputStream fileStream,
-            boolean isLastContent) throws ScmServerException {
+            boolean isLastContent, boolean isNeedMd5) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         if (!contentServer.getDataService().supportsBreakpointUpload()) {
             throw new ScmOperationUnsupportedException(String.format(
@@ -70,7 +74,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             }
 
             file = contentServer.getMetaService().createBreakpointFile(createUser, workspaceName,
-                    fileName, checksumType, createTime);
+                    fileName, checksumType, createTime, isNeedMd5);
 
             if (fileStream != null) {
                 BreakpointFileUploader uploader = new BreakpointFileUploader(createUser,
@@ -179,5 +183,47 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
     private static ScmLock xlock(String workspaceName, String fileName) throws ScmServerException {
         ScmLockPath lockPath = ScmLockPathFactory.createBPLockPath(workspaceName, fileName);
         return ScmLockManager.getInstance().acquiresLock(lockPath);
+    }
+
+    @Override
+    public String calcBreakpointFileMd5(String workspaceName, String fileName) throws ScmServerException {
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
+
+        ScmLock lock = xlock(workspaceName, fileName);
+        try {
+            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+                    fileName);
+            if (file == null) {
+                throw new ScmFileNotFoundException(String
+                        .format("BreakpointFile is not found: /%s/%s", workspaceName, fileName));
+            }
+
+            if (file.getSiteId() != contentServer.getLocalSite()) {
+                throw new ScmInvalidArgumentException(
+                        String.format("BreakpointFile[/%s/%s] should be uploaded in site[%s]",
+                                workspaceName, fileName, file.getSiteName()));
+            }
+
+            if (!file.isCompleted()) {
+                throw new ScmInvalidArgumentException(String
+                        .format("BreakpointFile is not complete: /%s/%s", workspaceName, fileName));
+            }
+
+            if (file.getMd5() != null) {
+                return file.getMd5();
+            }
+
+            ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
+                    new Date(file.getCreateTime()));
+            String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
+            file.setMd5(md5);
+            file.setNeedMd5(true);
+            ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+            return md5;
+        }
+        finally {
+            lock.unlock();
+        }
     }
 }

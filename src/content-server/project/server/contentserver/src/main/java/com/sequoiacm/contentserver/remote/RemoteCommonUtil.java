@@ -9,7 +9,7 @@ import com.sequoiacm.infrastructure.feign.ScmFeignErrorDecoder;
 
 import feign.Response;
 
-class RemoteCommonUtil {
+public class RemoteCommonUtil {
     private final static ScmFeignErrorDecoder errDecoder = new ScmFeignErrorDecoder(
             new ContentServerFeignExceptionConverter());
 

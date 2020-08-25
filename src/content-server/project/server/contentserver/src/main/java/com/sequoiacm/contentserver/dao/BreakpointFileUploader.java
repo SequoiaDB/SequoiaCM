@@ -2,8 +2,13 @@ package com.sequoiacm.contentserver.dao;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.zip.Checksum;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import com.sequoiacm.common.checksum.ChecksumException;
 import com.sequoiacm.common.checksum.ChecksumFactory;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -18,7 +24,10 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 
@@ -93,9 +102,9 @@ public class BreakpointFileUploader {
 
     public void write(InputStream stream, boolean isLastContent) throws ScmServerException {
         if (file.isCompleted()) {
-            throw new ScmServerException(ScmError.FILE_IO, String.format(
-                    "BreakpointFile is completed: /%s/%s", file.getWorkspaceName(),
-                    file.getFileName()));
+            throw new ScmServerException(ScmError.FILE_IO,
+                    String.format("BreakpointFile is completed: /%s/%s", file.getWorkspaceName(),
+                            file.getFileName()));
         }
 
         try {
@@ -114,8 +123,8 @@ public class BreakpointFileUploader {
         }
     }
 
-    private void innerWrite(InputStream stream, boolean isLastContent) throws ScmServerException,
-    ScmDatasourceException {
+    private void innerWrite(InputStream stream, boolean isLastContent)
+            throws ScmServerException, ScmDatasourceException {
         long dataOffset = file.getUploadSize();
         long writeSize = 0;
         long flushSize = 0;
@@ -125,6 +134,7 @@ public class BreakpointFileUploader {
 
         while (size > 0) {
             dataWriter.write(dataOffset, buffer, 0, size);
+
             dataOffset += size;
             writeSize += size;
             flushSize += size;
@@ -135,11 +145,17 @@ public class BreakpointFileUploader {
 
             // write meta data if write enough bytes,
             // or no data remain
-            if (flushSize >= FLUSH_WRITE_BYTES || size <= 0) {
-                if (size <= 0 && isLastContent) {
+            if (flushSize >= FLUSH_WRITE_BYTES || size <= -1) {
+                if (size <= -1 && isLastContent) {
                     dataWriter.close();
                     dataWriter = null;
                     file.setCompleted(true);
+                    if (file.isNeedMd5()) {
+                        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
+                                file.getDataId(), new Date(file.getCreateTime()));
+                        String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
+                        file.setMd5(md5);
+                    }
                 }
                 else {
                     dataWriter.flush();
@@ -156,8 +172,15 @@ public class BreakpointFileUploader {
 
         // no data write, only update file.completed
         if (writeSize == 0 && isLastContent) {
+            dataWriter.close();
             file.setCompleted(true);
             file.setUploadTime(System.currentTimeMillis());
+            if (file.isNeedMd5()) {
+                ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
+                        file.getDataId(), new Date(file.getCreateTime()));
+                String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
+                file.setMd5(md5);
+            }
             dirty = true;
             ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
             dirty = false;
@@ -169,9 +192,10 @@ public class BreakpointFileUploader {
             return stream.read(buffer);
         }
         catch (IOException e) {
-            throw new ScmServerException(ScmError.FILE_IO, String.format(
-                    "Failed to read breakpoint data: /%s/%s", file.getWorkspaceName(),
-                    file.getFileName()), e);
+            throw new ScmServerException(ScmError.FILE_IO,
+                    String.format("Failed to read breakpoint data: /%s/%s", file.getWorkspaceName(),
+                            file.getFileName()),
+                    e);
         }
     }
 
@@ -199,5 +223,13 @@ public class BreakpointFileUploader {
 
             dataWriter = null;
         }
+    }
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        md5.update("a".getBytes());
+        byte[] b = md5.digest();
+        System.out.println(Arrays.toString(b));
+
     }
 }

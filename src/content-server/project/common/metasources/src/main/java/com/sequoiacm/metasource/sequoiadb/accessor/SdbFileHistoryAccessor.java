@@ -5,6 +5,7 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.metasource.MetaFileHistoryAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
@@ -37,6 +38,34 @@ public class SdbFileHistoryAccessor extends SdbFileBaseAccessor implements MetaF
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "delete failed:table=" + getCsName() + "." + getClName() + ",fileId=" + fileId,
+                    e);
+        }
+    }
+
+    @Override
+    public boolean updateMd5(String fileId, int majorVersion, int minorVersion, String md5)
+            throws ScmMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject();
+            // matcher.put(FieldName.FIELD_CLFILE_ID, fileId);
+            SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
+            matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
+            matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
+            BasicBSONObject updator = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+            updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET, updator);
+            return updateAndCheck(matcher, updator);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("update md5 failed:table=" + getCsName() + "." + getClName() + ",fileId="
+                    + fileId + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion
+                    + ",md5=" + md5);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update md5 failed:table=" + getCsName() + "." + getClName() + ",fileId="
+                            + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                            + minorVersion + ",md5=" + md5,
                     e);
         }
     }

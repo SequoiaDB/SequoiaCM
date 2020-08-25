@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
@@ -42,12 +44,15 @@ public class FileContentUpdateDao {
     private ScmWorkspaceInfo ws;
     private ScmContentServer contentserver = ScmContentServer.getInstance();
 
+    private ScmUpdateContentOption option;
+
     public FileContentUpdateDao(String user, String wsName, String fileId, int majorVersion,
-            int minorVersion) throws ScmServerException {
+            int minorVersion, ScmUpdateContentOption option) throws ScmServerException {
         this.user = user;
         this.fileId = fileId;
         this.clientMajorVersion = majorVersion;
         this.clientMinorVersion = minorVersion;
+        this.option = option;
         this.ws = contentserver.getWorkspaceInfoChecked(wsName);
     }
 
@@ -69,8 +74,14 @@ public class FileContentUpdateDao {
                         "Uncompleted BreakpointFile: /%s/%s", ws.getName(), breakpointFileName));
             }
 
+            if (option.isNeedMd5() && !breakpointFile.isNeedMd5()) {
+                throw new ScmInvalidArgumentException(String.format(
+                        "BreakpointFile has no md5: /%s/%s", ws.getName(), breakpointFileName));
+            }
+
             return updateMeta(breakpointFile.getCreateTime(), breakpointFile.getDataId(),
-                    breakpointFile.getUploadSize(), breakpointFile.getSiteId(), breakpointFileName);
+                    breakpointFile.getUploadSize(), breakpointFile.getSiteId(), breakpointFileName,
+                    breakpointFile.getMd5());
         }
         finally {
             unlock(breakpointFileXLock);
@@ -96,6 +107,35 @@ public class FileContentUpdateDao {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "Failed to create data writer", e);
         }
+
+        String md5 = null;
+        if (!option.isNeedMd5()) {
+            writeData(is, dataWriter);
+        }
+        else {
+            InputStreamWithCalcMd5 md5Is = new InputStreamWithCalcMd5(is);
+            writeData(md5Is, dataWriter);
+            md5 = md5Is.calcMd5();
+        }
+
+        // write meta
+        try {
+            return updateMeta(createDate.getTime(), dataId, dataWriter.getSize(),
+                    contentserver.getLocalSite(), null, md5);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
+                rollbackData(dataInfo);
+            }
+            throw e;
+        }
+        catch (Exception e) {
+            rollbackData(dataInfo);
+            throw e;
+        }
+    }
+
+    private void writeData(InputStream is, ScmDataWriter dataWriter) throws ScmServerException {
         try {
             write(is, dataWriter);
             dataWriter.close();
@@ -111,22 +151,6 @@ public class FileContentUpdateDao {
         }
         finally {
             FileCommonOperator.recordDataTableName(ws.getName(), dataWriter);
-        }
-
-        // write meta
-        try {
-            return updateMeta(createDate.getTime(), dataId, dataWriter.getSize(),
-                    contentserver.getLocalSite(), null);
-        }
-        catch (ScmServerException e) {
-            if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
-                rollbackData(dataInfo);
-            }
-            throw e;
-        }
-        catch (Exception e) {
-            rollbackData(dataInfo);
-            throw e;
         }
     }
 
@@ -169,14 +193,14 @@ public class FileContentUpdateDao {
     // insert historyRec, update currentFileRec, delete breakFileRec, return
     // updated info
     private BSONObject updateMeta(long createTime, String dataId, long dataSize, int siteId,
-            String breakFileName) throws ScmServerException {
+            String breakFileName, String md5) throws ScmServerException {
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
             BSONObject currentFile = getCurrentFileAndCheckVersion();
             BSONObject historyRec = createHistoryRecord(currentFile);
             BSONObject newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId,
-                    dataSize, createTime);
+                    dataSize, createTime, md5);
             if (breakFileName == null) {
                 contentserver.getMetaService().addNewFileVersion(ws.getName(), ws.getMetaLocation(),
                         fileId, historyRec, newVersionUpdator);
@@ -193,7 +217,7 @@ public class FileContentUpdateDao {
     }
 
     private BSONObject createNewVersionUpdator(BSONObject currentFile, String dataId, int siteId,
-            long size, long createTime) {
+            long size, long createTime, String md5) {
         BSONObject newVersionUpdator = new BasicBSONObject();
         // id
         newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
@@ -223,6 +247,9 @@ public class FileContentUpdateDao {
         // update time
         newVersionUpdator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, createTime);
 
+        if (md5 != null) {
+            newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+        }
         return newVersionUpdator;
 
     }
@@ -246,6 +273,10 @@ public class FileContentUpdateDao {
                 currentFile.get(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME));
         historyRec.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE,
                 currentFile.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE));
+        Object md5 = currentFile.get(FieldName.FIELD_CLFILE_FILE_MD5);
+        if (md5 != null) {
+            historyRec.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+        }
         return historyRec;
     }
 

@@ -19,6 +19,9 @@ public interface MetaFileHistoryAccessor extends MetaAccessor {
     public boolean updateAccessTime(String fileId, int majorVersion, int minorVersion, int siteId,
             Date date) throws ScmMetasourceException;
 
+    public boolean updateMd5(String fileId, int majorVersion, int minorVersion, String md5)
+            throws ScmMetasourceException;
+
     public boolean deleteFromSiteList(String fileId, int majorVersion, int minorVersion, int siteId)
             throws ScmMetasourceException;
 

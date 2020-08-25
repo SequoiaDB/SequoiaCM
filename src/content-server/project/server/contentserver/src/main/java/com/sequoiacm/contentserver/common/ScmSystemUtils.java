@@ -8,9 +8,13 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
@@ -18,9 +22,16 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
+import com.sequoiacm.exception.ScmError;
 
 public class ScmSystemUtils {
     private static final Logger logger = LoggerFactory.getLogger(ScmSystemUtils.class);
@@ -427,5 +438,47 @@ public class ScmSystemUtils {
             System.out.println("long");
         }
 
+    }
+
+    public static MessageDigest createMd5Calc() throws ScmSystemException {
+        try {
+            return MessageDigest.getInstance("MD5");
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new ScmSystemException("failed to get md5 message digest instance", e);
+        }
+    }
+
+    public static String calcMd5(ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo)
+            throws ScmServerException {
+        byte[] buf = new byte[1024 * 4];
+        MessageDigest md5Calc = createMd5Calc();
+        ScmDataReader reader = null;
+        try {
+            reader = ScmDataOpFactoryAssit.getFactory().createReader(
+                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    dataInfo);
+            while (true) {
+                int readLen = reader.read(buf, 0, buf.length);
+                if (readLen <= -1) {
+                    break;
+                }
+                md5Calc.update(buf, 0, readLen);
+            }
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),
+                    "failed to read data for calc md5:ws=" + wsInfo.getName() + ", dataInfo="
+                            + dataInfo,
+                    e);
+        }
+        finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        byte[] md5Bytes = md5Calc.digest();
+        return DatatypeConverter.printBase64Binary(md5Bytes);
     }
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import javax.servlet.ServletOutputStream;
@@ -32,6 +33,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.MimeType;
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
@@ -126,6 +128,7 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_BREAKPOINT_FILE, required = false) String newBreakPointFileContent,
             @RequestParam(value = CommonDefine.RestArg.FILE_INFO, required = false) BSONObject newFileProperties,
+            @RequestParam(value = CommonDefine.RestArg.FILE_UPDATE_CONTENT_OPTION, required = false) BSONObject updateContentOption,
             Authentication auth, HttpServletRequest request, HttpServletResponse response)
             throws ScmServerException, IOException {
         InputStream inputStreamEntity = null;
@@ -145,13 +148,14 @@ public class FileController {
                 // update content by breakPoint
                 updatedFileInfo = fileService.updateFileContent(workspaceName, user, fileId,
                         newBreakPointFileContent, version.getMajorVersion(),
-                        version.getMinorVersion());
+                        version.getMinorVersion(), new ScmUpdateContentOption(updateContentOption));
             }
             else {
                 // update content by InputStreamEntity file
                 inputStreamEntity = request.getInputStream();
                 updatedFileInfo = fileService.updateFileContent(workspaceName, user, fileId,
-                        inputStreamEntity, version.getMajorVersion(), version.getMinorVersion());
+                        inputStreamEntity, version.getMajorVersion(), version.getMinorVersion(),
+                        new ScmUpdateContentOption(updateContentOption));
             }
         }
         finally {
@@ -510,5 +514,25 @@ public class FileController {
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
                 "async cache file by file id=" + fileId);
         return ResponseEntity.ok("");
+    }
+
+    @PostMapping(value = "/files/{file_id}", params = "action="
+            + CommonDefine.RestArg.ACTION_CALC_MD5)
+    public BSONObject calcMd5(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @PathVariable("file_id") String fileId,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") int majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") int minorVersion,
+            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
+            throws ScmServerException, UnsupportedEncodingException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
+                fileService, fileId, majorVersion, minorVersion, dirService,
+                ScmPrivilegeDefine.UPDATE, "calculate file md5");
+        String md5 = fileService.calcFileMd5(sessionId, userDetail, workspaceName, fileId,
+                majorVersion, minorVersion);
+        audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
+                "calculate file md5, id=" + fileId);
+        return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
     }
 }

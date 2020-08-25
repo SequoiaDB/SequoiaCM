@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.client.common.ScmChecksumFactory;
 import com.sequoiacm.client.common.ScmChecksumType;
+import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
@@ -42,6 +43,8 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
     private long uploadTime;
     private boolean isNew;
     private int breakpointSize;
+    private String md5;
+    private Boolean isNeedMd5;
 
     ScmBreakpointFileImpl(ScmWorkspace workspace, BSONObject obj, int breakpointSize)
             throws ScmException {
@@ -63,7 +66,7 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
     }
 
     ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmChecksumType checksumType,
-            int breakpointSize) throws ScmException {
+            int breakpointSize, boolean isNeedMd5) throws ScmException {
         if (workspace == null) {
             throw new ScmInvalidArgumentException("workspace is null");
         }
@@ -80,19 +83,26 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         this.fileName = fileName;
         this.checksumType = checksumType;
         this.isNew = true;
+        this.isNeedMd5 = isNeedMd5;
         this.breakpointSize = Math.max(breakpointSize, MIN_BREAKPOINT_SIZE);
     }
 
     ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmChecksumType checksumType)
             throws ScmException {
-        this(workspace, fileName, checksumType, DEFAULT_BREAKPOINT_SIZE);
+        this(workspace, fileName, checksumType, DEFAULT_BREAKPOINT_SIZE, false);
+    }
+
+    ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmBreakpointFileOption option)
+            throws ScmException {
+        this(workspace, fileName, option.getChecksumType(), option.getBreakpointSize(),
+                option.isNeedMd5());
     }
 
     private void fromBSONObj(BSONObject obj) throws ScmException {
         fileName = BsonUtils.getStringChecked(obj, FieldName.BreakpointFile.FIELD_FILE_NAME);
         siteName = BsonUtils.getStringChecked(obj, FieldName.BreakpointFile.FIELD_SITE_NAME);
-        checksumType = ScmChecksumType.valueOf(BsonUtils.getStringChecked(obj,
-                FieldName.BreakpointFile.FIELD_CHECKSUM_TYPE));
+        checksumType = ScmChecksumType.valueOf(
+                BsonUtils.getStringChecked(obj, FieldName.BreakpointFile.FIELD_CHECKSUM_TYPE));
         checksum = BsonUtils.getNumberChecked(obj, FieldName.BreakpointFile.FIELD_CHECKSUM)
                 .longValue();
         dataId = BsonUtils.getString(obj, FieldName.BreakpointFile.FIELD_DATA_ID);
@@ -105,6 +115,9 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         uploadUser = BsonUtils.getString(obj, FieldName.BreakpointFile.FIELD_UPLOAD_USER);
         uploadTime = BsonUtils.getNumberOrElse(obj, FieldName.BreakpointFile.FIELD_UPLOAD_TIME, 0L)
                 .longValue();
+        md5 = BsonUtils.getStringOrElse(obj, FieldName.BreakpointFile.FIELD_MD5, null);
+        isNeedMd5 = BsonUtils.getBooleanOrElse(obj, FieldName.BreakpointFile.FIELD_IS_NEED_MD5,
+                false);
     }
 
     @Override
@@ -254,11 +267,9 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         }
 
         if (isNew) {
-            BSONObject obj = workspace
-                    .getSession()
-                    .getDispatcher()
-                    .createBreakpointFile(workspace.getName(), fileName, createTime, checksumType,
-                            null, false);
+            BSONObject obj = workspace.getSession().getDispatcher().createBreakpointFile(
+                    workspace.getName(), fileName, createTime, checksumType, null, false,
+                    isNeedMd5);
             fromBSONObj(obj);
             isNew = false;
         }
@@ -308,4 +319,31 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
 
         return cs.getValue();
     }
+
+    @Override
+    public boolean isNeedMd5() {
+        return isNeedMd5;
+    }
+
+    @Override
+    public String getMd5() {
+        return md5;
+    }
+
+    @Override
+    public void calcMd5() throws ScmException {
+        if (!isCompleted()) {
+            throw new ScmInvalidArgumentException(
+                    "Breakpoing file is not complete:fileName=" + fileName);
+        }
+
+        if (md5 != null) {
+            return;
+        }
+
+        md5 = workspace.getSession().getDispatcher().calcBreakpointFileMd5(workspace.getName(),
+                fileName);
+        isNeedMd5 = true;
+    }
+
 }

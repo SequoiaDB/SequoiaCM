@@ -3,6 +3,7 @@ package com.sequoiacm.metasource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 
@@ -68,12 +69,9 @@ public class HistoryFileMetaCursor implements MetaCursor {
     @Override
     public BSONObject getNext() throws ScmMetasourceException {
         if (hasNext()) {
-            BSONObject completeHistoryRec = new BasicBSONObject();
-            completeHistoryRec.putAll(currentFileRec);
             BSONObject selectedHistoryRec = filterHistoryRecBySeletor(historyFileRec);
-            completeHistoryRec.putAll(selectedHistoryRec);
             historyFileRec = null;
-            return completeHistoryRec;
+            return CommonHelper.completeHisotryFileRec(selectedHistoryRec, currentFileRec);
         }
         else {
             return null;

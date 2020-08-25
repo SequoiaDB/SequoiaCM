@@ -16,6 +16,26 @@ public class BreakpointFile {
     private long createTime;
     private String uploadUser;
     private long uploadTime;
+    private boolean isNeedMd5;
+    private String md5;
+
+    public BreakpointFile setMd5(String md5) {
+        this.md5 = md5;
+        return this;
+    }
+
+    public BreakpointFile setNeedMd5(boolean isNeedMd5) {
+        this.isNeedMd5 = isNeedMd5;
+        return this;
+    }
+
+    public boolean isNeedMd5() {
+        return isNeedMd5;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
 
     public String getWorkspaceName() {
         return workspaceName;

@@ -14,6 +14,7 @@ import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.dispatcher.BsonReader;
+import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.client.element.ScmClassBasicInfo;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
@@ -971,7 +972,8 @@ public class ScmFactory {
             checkArgNotNull("workspace", workspace);
             checkStringArgNotEmpty("fileName", fileName);
             checkArgNotNull("checksumType", checksumType);
-            return new ScmBreakpointFileImpl(workspace, fileName, checksumType, breakpointSize);
+            return new ScmBreakpointFileImpl(workspace, fileName, checksumType, breakpointSize,
+                    false);
         }
 
         /**
@@ -988,6 +990,14 @@ public class ScmFactory {
         public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName)
                 throws ScmException {
             return createInstance(workspace, fileName, ScmChecksumType.NONE);
+        }
+
+        public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
+                ScmBreakpointFileOption option) throws ScmException {
+            checkArgNotNull("workspace", workspace);
+            checkStringArgNotEmpty("fileName", fileName);
+            checkArgNotNull("option", option);
+            return new ScmBreakpointFileImpl(workspace, fileName, option);
         }
 
         /**

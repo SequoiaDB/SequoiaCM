@@ -104,4 +104,13 @@ public interface ContentServerClient {
             @PathVariable("workspace_name") String wsName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE) boolean isEnforced)
             throws ScmServerException;
+
+    @PostMapping(value = "/api/v1/files/{file_id}?action=" + CommonDefine.RestArg.ACTION_CALC_MD5)
+    public BSONObject calcMd5(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @PathVariable("file_id") String fileId,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION) int majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION) int minorVersion)
+            throws ScmServerException;
 }

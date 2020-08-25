@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -37,6 +38,11 @@ public class CommonHelper {
     public static final String QUARTER2 = "Q2";
     public static final String QUARTER3 = "Q3";
     public static final String QUARTER4 = "Q4";
+
+    private static final List<String> FILE_FIELDS_NEED_CHECK_WHEN_MERGE = new ArrayList<String>();
+    static {
+        FILE_FIELDS_NEED_CHECK_WHEN_MERGE.add(FieldName.FIELD_CLFILE_FILE_MD5);
+    }
 
     public static boolean getFileLocationList(BasicBSONList siteList,
             List<ScmFileLocation> locationList) {
@@ -313,6 +319,23 @@ public class CommonHelper {
 
     public static int readAsMuchAsPossible(InputStream is, byte[] buf) throws IOException {
         return readAsMuchAsPossible(is, buf, 0, buf.length);
+    }
+
+    // 通过当前表的记录currentFileRec， 补全历史表中的记录 historyFileRec，返回一个完整的历史文件记录
+    public static BSONObject completeHisotryFileRec(BSONObject historyFileRec,
+            BSONObject currentFileRec) {
+        BasicBSONObject ret = new BasicBSONObject();
+        ret.putAll(currentFileRec);
+        ret.putAll(historyFileRec);
+        for (String key : FILE_FIELDS_NEED_CHECK_WHEN_MERGE) {
+            // key是一个SCM系统迭代后新引入的文件字段，key 被设计为同时记录在历史表和当前表
+            // 那么可能会存在这种兼容性场景：currentFileRec 包含 key 字段，historyFileRec 不含 key 字段
+            // 以下处理将这种场景识别出来，并将合并后的记录中的 key 字段置 null
+            if (!historyFileRec.containsField(key) && currentFileRec.containsField(key)) {
+                ret.put(key, null);
+            }
+        }
+        return ret;
     }
 
     public static void main(String[] args) throws ParseException {

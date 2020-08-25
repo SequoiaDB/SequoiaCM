@@ -315,6 +315,9 @@ public class CommonDefine {
 
         public static final String FILE_UPLOAD_CONFIG = "upload_config";
         public static final String FILE_IS_OVERWRITE = "is_overwrite";
+        public static final String FILE_IS_NEED_MD5 = "is_need_md5";
+
+        public static final String FILE_UPDATE_CONTENT_OPTION = "update_content_option";
 
         public static final String BIZ_RELOAD_SCOPE = "scope";
         public static final String BIZ_RELOAD_ID = "id";
@@ -359,6 +362,8 @@ public class CommonDefine {
 
         public static final String CONFIG = "config";
         public static final String IS_ASYNC_NOTIFY = "is_async_notify";
+
+        public static final String ACTION_CALC_MD5 = "calc_md5";
     }
 
     public static class Directory {

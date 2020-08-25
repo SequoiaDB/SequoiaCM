@@ -1,10 +1,11 @@
 package com.sequoiacm.contentserver.model;
 
-import com.sequoiacm.common.checksum.ChecksumType;
-import com.sequoiacm.contentserver.common.AbstractBsonConverter;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.springframework.util.Assert;
+
+import com.sequoiacm.common.checksum.ChecksumType;
+import com.sequoiacm.contentserver.common.AbstractBsonConverter;
 
 public class BreakpointFileBsonConverter extends AbstractBsonConverter<BreakpointFile> {
 
@@ -19,6 +20,8 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
     public static final String BSON_FIELD_CREATE_TIME = "create_time";
     public static final String BSON_FIELD_UPLOAD_USER = "upload_user";
     public static final String BSON_FIELD_UPLOAD_TIME = "upload_time";
+    public static final String BSON_FIELD_IS_NEED_MD5 = "is_need_md5";
+    public static final String BSON_FIELD_MD5 = "md5";
 
     @Override
     public BreakpointFile convert(BSONObject obj) {
@@ -35,7 +38,9 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
                 .setCreateUser(getString(obj, BSON_FIELD_CREATE_USER))
                 .setCreateTime(getLongOrElse(obj, BSON_FIELD_CREATE_TIME, 0L))
                 .setUploadUser(getString(obj, BSON_FIELD_UPLOAD_USER))
-                .setUploadTime(getLongOrElse(obj, BSON_FIELD_UPLOAD_TIME, 0L));
+                .setUploadTime(getLongOrElse(obj, BSON_FIELD_UPLOAD_TIME, 0L))
+                .setNeedMd5(getBooleanOrElse(obj, BSON_FIELD_IS_NEED_MD5, false))
+                .setMd5(getString(obj, BSON_FIELD_MD5));
         return file;
     }
 
@@ -54,6 +59,8 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
         obj.put(BSON_FIELD_CREATE_TIME, value.getCreateTime());
         obj.put(BSON_FIELD_UPLOAD_USER, value.getUploadUser());
         obj.put(BSON_FIELD_UPLOAD_TIME, value.getUploadTime());
+        obj.put(BSON_FIELD_IS_NEED_MD5, value.isNeedMd5());
+        obj.put(BSON_FIELD_MD5, value.getMd5());
         return obj;
     }
 }

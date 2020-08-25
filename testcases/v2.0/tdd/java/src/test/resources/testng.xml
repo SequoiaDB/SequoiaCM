@@ -51,6 +51,7 @@
          <package name="com.sequoiacm.workspace" />
          <package name="com.sequoiacm.privilege" />
          <package name="com.sequoiacm.config"/>
+         <package name="com.sequoiacm.md5" />
       </packages>
       <classes>
          <class name="com.sequoiadb.cachefile.CacheFile" />

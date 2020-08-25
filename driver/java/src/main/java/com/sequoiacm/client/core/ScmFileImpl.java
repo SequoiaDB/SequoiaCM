@@ -29,6 +29,7 @@ import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
+import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.client.util.ScmHelper;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
@@ -36,6 +37,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.exception.ScmError;
 
 /**
@@ -75,6 +77,7 @@ class ScmFileImpl extends ScmFile {
     private String inputPath = null;
     private InputStream inputStream = null;
     private ScmBreakpointFile breakpointFile;
+    private String md5;
 
     private static final Logger logger = LoggerFactory.getLogger(ScmFileImpl.class);
 
@@ -811,6 +814,7 @@ class ScmFileImpl extends ScmFile {
         buf.append("updateUser : \"").append(updateUser).append("\" , ");
         buf.append("updateTime : \"").append(updateTime).append("\" , ");
         buf.append("size : ").append(size);
+        buf.append("md5: ").append(md5);
         buf.append("}");
         return buf.toString();
     }
@@ -862,13 +866,7 @@ class ScmFileImpl extends ScmFile {
 
     @Override
     public void updateContent(InputStream is) throws ScmException {
-        if (is == null) {
-            throw new ScmInvalidArgumentException("inputstream is null");
-        }
-        BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
-                getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(), is);
-        refresh(newFileInfo);
-
+        updateContent(is, new ScmUpdateContentOption());
     }
 
     @Override
@@ -887,13 +885,7 @@ class ScmFileImpl extends ScmFile {
 
     @Override
     public void updateContent(ScmBreakpointFile breakpointFile) throws ScmException {
-        if (breakpointFile == null) {
-            throw new ScmInvalidArgumentException("breakpointFile is null");
-        }
-        BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
-                getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(),
-                breakpointFile.getFileName());
-        refresh(newFileInfo);
+        updateContent(breakpointFile, new ScmUpdateContentOption());
     }
 
     @Override
@@ -1044,6 +1036,8 @@ class ScmFileImpl extends ScmFile {
         if (null != obj) {
             this.dataCreateTime = new Date(CommonHelper.toLongValue(obj));
         }
+
+        md5 = BsonUtils.getString(fileBSON, FieldName.FIELD_CLFILE_FILE_MD5);
     }
 
     @Override
@@ -1059,6 +1053,42 @@ class ScmFileImpl extends ScmFile {
             updateFileInfo(fileInfo);
         }
         this.directoryId = directoryId;
+    }
+
+    @Override
+    public void updateContent(InputStream is, ScmUpdateContentOption option) throws ScmException {
+        checkArgNotNull("is", is);
+        checkArgNotNull("option", option);
+        BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
+                getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(), is,
+                option.toBson());
+        refresh(newFileInfo);
+    }
+
+    @Override
+    public void updateContent(ScmBreakpointFile breakpointFile, ScmUpdateContentOption option)
+            throws ScmException {
+        checkArgNotNull("breakpointFile", breakpointFile);
+        checkArgNotNull("option", option);
+        BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
+                getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(),
+                breakpointFile.getFileName(), option.toBson());
+        refresh(newFileInfo);
+    }
+
+    @Override
+    public String getMd5() {
+        return md5;
+    }
+
+    @Override
+    public void calcMd5() throws ScmException {
+        if (md5 != null) {
+            return;
+        }
+
+        md5 = ws.getSession().getDispatcher().calcScmFileMd5(ws.getName(), getFileId().get(),
+                getMajorVersion(), getMinorVersion());
     }
 
 }

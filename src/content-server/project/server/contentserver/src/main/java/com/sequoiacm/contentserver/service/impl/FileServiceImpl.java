@@ -19,6 +19,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
@@ -43,6 +44,8 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
+import com.sequoiacm.contentserver.remote.ContentServerClient;
+import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.service.IBatchService;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
@@ -56,9 +59,11 @@ import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.audit.ScmUserAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
+import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
 import com.sequoiacm.metasource.MetaCursor;
 
 @Service
@@ -203,7 +208,7 @@ public class FileServiceImpl implements IFileService {
         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId,
                 dataCreateDate);
         FileCreatorDao dao = new FileCreatorDao(contentServer.getLocalSite(), wsInfo,
-                checkedFileObj, dataInfo);
+                checkedFileObj, dataInfo, uploadConf.isNeedMd5());
         try {
             dao.write(is);
             BSONObject finfo = insertFileInfo(dao, checkedFileObj, uploadConf, sessionId, username,
@@ -265,6 +270,11 @@ public class FileServiceImpl implements IFileService {
                         "Uncompleted BreakpointFile: /%s/%s", workspaceName, breakpointFileName));
             }
 
+            if (uploadConf.isNeedMd5() && !breakpointFile.isNeedMd5()) {
+                throw new ScmInvalidArgumentException(String.format(
+                        "BreakpointFile has no md5: /%s/%s", workspaceName, breakpointFileName));
+            }
+
             if (!fileInfo.containsField(FieldName.FIELD_CLFILE_NAME)) {
                 fileInfo.put(FieldName.FIELD_CLFILE_NAME, breakpointFileName);
             }
@@ -288,6 +298,10 @@ public class FileServiceImpl implements IFileService {
 
             checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_SIZE, breakpointFile.getUploadSize());
             checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, ENDataType.Normal.getValue());
+
+            if (breakpointFile.getMd5() != null) {
+                checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_MD5, breakpointFile.getMd5());
+            }
             IFileCreatorDao fileDao = new BreakpointFileConvertor(wsInfo, breakpointFile,
                     checkedFileObj);
             return insertFileInfo(fileDao, checkedFileObj, uploadConf, sessionId, username,
@@ -688,19 +702,54 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public BSONObject updateFileContent(String workspaceName, String user, String fileId,
-            InputStream newFileContent, int majorVersion, int minorVersion)
-            throws ScmServerException {
+            InputStream newFileContent, int majorVersion, int minorVersion,
+            ScmUpdateContentOption option) throws ScmServerException {
         FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion);
+                majorVersion, minorVersion, option);
         return dao.updateContent(newFileContent);
     }
 
     @Override
     public BSONObject updateFileContent(String workspaceName, String user, String fileId,
-            String newBreakpointFileContent, int majorVersion, int minorVersion)
-            throws ScmServerException {
+            String newBreakpointFileContent, int majorVersion, int minorVersion,
+            ScmUpdateContentOption option) throws ScmServerException {
         FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion);
+                majorVersion, minorVersion, option);
         return dao.updateContent(newBreakpointFileContent);
+    }
+
+    @Override
+    public String calcFileMd5(String sessionid, String userDetail, String workspaceName,
+            String fileId, int majorVersion, int minorVersion) throws ScmServerException {
+        BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion);
+        BasicBSONList siteBson = BsonUtils.getArray(fileInfo,
+                FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        List<ScmFileLocation> siteList = new ArrayList<>();
+        CommonHelper.getFileLocationList(siteBson, siteList);
+
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
+
+        String md5 = null;
+        if (CommonHelper.isSiteExist(contentServer.getLocalSite(), siteList)) {
+            // 在本地读取数据计算MD5
+            ScmDataInfo dataInfo = new ScmDataInfo(fileInfo);
+            md5 = ScmSystemUtils.calcMd5(ws, dataInfo);
+            contentServer.getMetaService().updateFileMd5(ws, fileId, majorVersion, minorVersion,
+                    md5);
+        }
+        else {
+            // 发给远程站点，让远程站点执行计算或再转发
+            List<Integer> siteIdList = CommonHelper.getFileLocationIdList(siteList);
+            SiteInfo siteInfo = ScmStrategyMgr.getInstance().getNearestSite(ws, siteIdList,
+                    contentServer.getLocalSite(), fileId);
+            String remoteSite = contentServer.getSiteInfo(siteInfo.getId()).getName();
+            ContentServerClient client = ContentServerClientFactory
+                    .getFeignClientByServiceName(remoteSite);
+            BSONObject resp = client.calcMd5(sessionid, userDetail, ws.getName(), fileId,
+                    majorVersion, minorVersion);
+            md5 = BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
+        }
+        return md5;
     }
 }

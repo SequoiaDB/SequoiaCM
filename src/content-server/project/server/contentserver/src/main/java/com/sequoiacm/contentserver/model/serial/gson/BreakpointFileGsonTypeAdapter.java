@@ -39,6 +39,8 @@ public class BreakpointFileGsonTypeAdapter extends ScmGsonTypeAdapter<String, Br
         out.name(FieldName.BreakpointFile.FIELD_CREATE_TIME).value(value.getCreateTime());
         out.name(FieldName.BreakpointFile.FIELD_UPLOAD_USER).value(value.getUploadUser());
         out.name(FieldName.BreakpointFile.FIELD_UPLOAD_TIME).value(value.getUploadTime());
+        out.name(FieldName.BreakpointFile.FIELD_IS_NEED_MD5).value(value.isNeedMd5());
+        out.name(FieldName.BreakpointFile.FIELD_MD5).value(value.getMd5());
         out.endObject();
     }
 

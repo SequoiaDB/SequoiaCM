@@ -190,8 +190,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject updateSchedule(String scheduleId, BSONObject newValue) throws ScmException;
 
     BSONObject createBreakpointFile(String workspaceName, String fileName, long createTime,
-            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent)
-            throws ScmException;
+            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
+            boolean isNeedMd5) throws ScmException;
 
     BSONObject uploadBreakpointFile(String workspaceName, String fileName, InputStream fileStream,
             long offset, boolean isLastContent) throws ScmException;
@@ -213,10 +213,10 @@ public interface MessageDispatcher extends Closeable {
     BSONObject getPrivilegeMeta() throws ScmException;
 
     BSONObject updateFileContent(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, InputStream is) throws ScmException;
+            int minorVersion, InputStream is, BSONObject option) throws ScmException;
 
     BSONObject updateFileContent(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, String breakFileName) throws ScmException;
+            int minorVersion, String breakFileName, BSONObject option) throws ScmException;
 
     HttpURLConnection getUpdateFileContentConn(String workspaceName, String fileId,
             int majorVersion, int minorVersion) throws ScmException;
@@ -258,4 +258,9 @@ public interface MessageDispatcher extends Closeable {
     long countDir(String workspaceName, BSONObject condition) throws ScmException;
 
     long countBatch(String workspaceName, BSONObject condition) throws ScmException;
+
+    String calcBreakpointFileMd5(String wsName, String breakpointFile) throws ScmException;
+
+    String calcScmFileMd5(String wsName, String fileId, int majorVersion, int minorVersion)
+            throws ScmException;
 }

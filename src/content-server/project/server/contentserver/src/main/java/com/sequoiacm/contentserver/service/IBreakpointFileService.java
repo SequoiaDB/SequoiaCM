@@ -19,10 +19,12 @@ public interface IBreakpointFileService {
 
     BreakpointFile createBreakpointFile(String createUser, String workspaceName, String fileName,
             long createTime, ChecksumType checksumType, InputStream fileStream,
-            boolean isLastContent) throws ScmServerException;
+            boolean isLastContent, boolean isNeedMd5) throws ScmServerException;
 
     BreakpointFile uploadBreakpointFile(String uploadUser, String workspaceName, String file,
             InputStream fileStream, long offset, boolean isLastContent) throws ScmServerException;
 
     void deleteBreakpointFile(String workspaceName, String fileName) throws ScmServerException;
+
+    String calcBreakpointFileMd5(String workspaceName, String fileName) throws ScmServerException;
 }

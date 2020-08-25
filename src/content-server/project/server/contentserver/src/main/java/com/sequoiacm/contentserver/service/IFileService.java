@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import org.bson.BSONObject;
 
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
@@ -42,12 +43,12 @@ public interface IFileService {
             int majorVersion, int minorVersion) throws ScmServerException;
 
     BSONObject updateFileContent(String workspaceName, String user, String fileId,
-            InputStream newFileContent, int majorVersion, int minorVersion)
-            throws ScmServerException;
+            InputStream newFileContent, int majorVersion, int minorVersion,
+            ScmUpdateContentOption option) throws ScmServerException;
 
     BSONObject updateFileContent(String workspaceName, String user, String fileId,
-            String newBreakpointFileContent, int majorVersion, int minorVersion)
-            throws ScmServerException;
+            String newBreakpointFileContent, int majorVersion, int minorVersion,
+            ScmUpdateContentOption option) throws ScmServerException;
 
     void asyncTransferFile(String workspaceName, String fileId, int majorVersion, int minorVersion)
             throws ScmServerException;
@@ -70,4 +71,7 @@ public interface IFileService {
             BSONObject fileInfo, String sessionId, String userDetail,
             ScmUserPasswordType passwordType, ClientUploadConf uploadConfig)
             throws ScmServerException;
+
+    String calcFileMd5(String sessionid, String userDetail, String workspaceName, String fileId,
+            int majorVersion, int minorVersion) throws ScmServerException;
 }
