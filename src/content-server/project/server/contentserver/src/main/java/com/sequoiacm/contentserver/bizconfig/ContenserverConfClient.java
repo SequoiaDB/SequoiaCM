@@ -2,7 +2,7 @@ package com.sequoiacm.contentserver.bizconfig;
 
 import java.util.List;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;

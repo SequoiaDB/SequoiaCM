@@ -6,10 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 
 public class FileDeletorDao {
     private static final Logger logger = LoggerFactory.getLogger(FileDeletorDao.class);
@@ -18,18 +19,20 @@ public class FileDeletorDao {
     private String fileName = null;
 
     private ScmFileDeletor fileDelete = null;
+
     public FileDeletorDao() throws ScmServerException {
 
     }
 
-    public void init(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, boolean isPhysical) throws ScmServerException {
+    public void init(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo, String fileId,
+            int majorVersion, int minorVersion, boolean isPhysical,
+            FileOperationListenerMgr listenerMgr) throws ScmServerException {
         if (!isPhysical) {
-            throw new ScmOperationUnsupportedException(
-                    "support physical delete only!");
+            throw new ScmOperationUnsupportedException("support physical delete only!");
         }
 
-        fileDelete = new ScmFileDeletorPysical(sessionId, userDetail, wsInfo, fileId, majorVersion, minorVersion);
+        fileDelete = new ScmFileDeletorPysical(sessionId, userDetail, wsInfo, fileId, majorVersion,
+                minorVersion, listenerMgr);
         this.fileId = fileId;
         getFileName(wsInfo, fileId, majorVersion, minorVersion);
     }
@@ -38,11 +41,12 @@ public class FileDeletorDao {
             int minorVersion) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         BSONObject file = contentServer.getCurrentFileInfo(wsInfo, fileId);
-        if(file == null) {
+        if (file == null) {
             throw new ScmServerException(ScmError.FILE_NOT_FOUND,
-                    "file not found:ws=" + wsInfo.getName() + ",fileId=" + fileId + ",version=" + majorVersion + "." + minorVersion);
+                    "file not found:ws=" + wsInfo.getName() + ",fileId=" + fileId + ",version="
+                            + majorVersion + "." + minorVersion);
         }
-        this.fileName = (String)file.get(FieldName.FIELD_CLFILE_NAME);
+        this.fileName = (String) file.get(FieldName.FIELD_CLFILE_NAME);
     }
 
     public String getFileName() {

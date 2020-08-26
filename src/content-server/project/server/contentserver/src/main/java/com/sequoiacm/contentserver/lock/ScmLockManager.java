@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmLockException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.lock.LockFactory;
 import com.sequoiacm.infrastructure.lock.ScmLock;

@@ -15,7 +15,7 @@ import com.sequoiacm.common.mapping.ScmSiteObj;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.HadoopSiteUrl;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;

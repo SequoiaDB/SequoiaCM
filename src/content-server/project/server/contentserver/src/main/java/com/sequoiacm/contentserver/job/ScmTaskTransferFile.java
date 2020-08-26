@@ -8,7 +8,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.dao.FileTransferDao;
 import com.sequoiacm.contentserver.dao.FileTransferInterrupter;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;

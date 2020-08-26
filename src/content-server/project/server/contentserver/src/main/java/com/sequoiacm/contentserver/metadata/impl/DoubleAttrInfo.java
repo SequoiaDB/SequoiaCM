@@ -1,7 +1,7 @@
 package com.sequoiacm.contentserver.metadata.impl;
 
 import com.sequoiacm.common.AttributeType;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.AttrRule;
 import com.sequoiacm.contentserver.metadata.DoubleRule;
 

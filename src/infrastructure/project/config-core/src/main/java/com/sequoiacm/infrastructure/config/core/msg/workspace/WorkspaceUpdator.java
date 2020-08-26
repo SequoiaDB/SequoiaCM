@@ -11,11 +11,24 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private Integer removeDataLocationId;
     private BSONObject addDataLocation;
     private String newDesc;
+    private BSONObject externalData;
     private BSONObject oldWsRecord;
+
+    public WorkspaceUpdator(String wsName) {
+        this.wsName = wsName;
+    }
 
     public WorkspaceUpdator(String wsName, BSONObject oldWsRecord) {
         this.wsName = wsName;
         this.oldWsRecord = oldWsRecord;
+    }
+
+    public void setExternalData(BSONObject externalData) {
+        this.externalData = externalData;
+    }
+
+    public BSONObject getExternalData() {
+        return externalData;
     }
 
     @Override
@@ -32,6 +45,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
         if (removeDataLocationId != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_REMOVE_DATALOCATION, removeDataLocationId);
+        }
+        if (externalData != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA, externalData);
         }
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, oldWsRecord);
@@ -77,7 +93,5 @@ public class WorkspaceUpdator implements ConfigUpdator {
     public void setOldWsRecord(BSONObject oldWsRecord) {
         this.oldWsRecord = oldWsRecord;
     }
-
-
 
 }

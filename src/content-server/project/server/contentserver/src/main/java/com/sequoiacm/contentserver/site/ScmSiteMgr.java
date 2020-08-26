@@ -9,7 +9,7 @@ import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.datasourcemgr.DataSourcePluginMgr;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.datasource.DatasourcePlugin;
@@ -158,3 +158,4 @@ public class ScmSiteMgr {
         }
     }
 }
+

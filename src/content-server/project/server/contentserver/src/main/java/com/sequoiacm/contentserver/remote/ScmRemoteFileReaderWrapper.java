@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;

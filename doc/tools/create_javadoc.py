@@ -34,9 +34,7 @@ execCMD('mvn clean -f ' + superParentPom)
 execCMD('python ' + genVerScriptPath)
 
 #install project before javadoc
-execCMD("mvn install -pl com.sequoiadb:sequoiacm-parent -f " + superParentPom)
-execCMD("mvn install -f " + infrastructureParentPom)
-execCMD("mvn install -pl  com.sequoiadb:sequoiacm-content,com.sequoiadb:sequoiacm-content-common,com.sequoiadb:sequoiacm-driver -Dmaven.test.skip=true -f " + superParentPom)
+execCMD("mvn install -Dmaven.test.skip=true -f " + superParentPom)
 
 os.chdir(TOOLS_PATH)
 

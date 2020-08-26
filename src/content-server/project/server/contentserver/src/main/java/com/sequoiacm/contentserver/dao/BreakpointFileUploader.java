@@ -18,7 +18,7 @@ import com.sequoiacm.common.checksum.ChecksumException;
 import com.sequoiacm.common.checksum.ChecksumFactory;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;

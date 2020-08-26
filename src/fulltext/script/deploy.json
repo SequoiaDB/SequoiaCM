@@ -1,0 +1,15 @@
+{
+    "fulltext-server": [
+        {
+            "hostname": "localhost",
+            "server.port": "8310",
+            "eureka.instance.metadata-map.zone": "zone1",
+            "eureka.client.region": "beijing",
+            "eureka.client.availability-zones.beijing": "zone1",
+            "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
+            "scm.zookeeper.urls": "localhost:2181",
+            "scm.fulltext.es.urls": "http://192.168.20.46:9200",
+            "scm.textaulParser.pic.tessdataDir": "C:\\Program Files\\Tesseract-OCR\\tessdata"
+        }
+    ]
+}

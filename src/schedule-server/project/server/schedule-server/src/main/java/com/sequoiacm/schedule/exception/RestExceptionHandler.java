@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import com.sequoiacm.infrastructure.exception_handler.ExceptionBody;
 import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
 import com.sequoiacm.schedule.common.RestCommonDefine;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 
 @ControllerAdvice
 public class RestExceptionHandler extends RestExceptionHandlerBase {

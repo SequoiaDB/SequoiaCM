@@ -24,7 +24,7 @@ public interface MetaFileAccessor extends MetaAccessor {
     // update and return old
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo) throws ScmMetasourceException;
-    
+
     // update and return old
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo, BSONObject matcher) throws ScmMetasourceException;
@@ -37,4 +37,7 @@ public interface MetaFileAccessor extends MetaAccessor {
 
     public void createFileTable(BSONObject file) throws ScmMetasourceException;
 
+    // return new
+    public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
+            throws ScmMetasourceException;
 }

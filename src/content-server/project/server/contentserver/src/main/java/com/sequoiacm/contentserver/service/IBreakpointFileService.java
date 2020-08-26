@@ -6,7 +6,7 @@ import java.util.List;
 import org.bson.BSONObject;
 
 import com.sequoiacm.common.checksum.ChecksumType;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 
 public interface IBreakpointFileService {

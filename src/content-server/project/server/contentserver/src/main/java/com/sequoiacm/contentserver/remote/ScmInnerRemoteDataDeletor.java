@@ -7,7 +7,7 @@ import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public class ScmInnerRemoteDataDeletor {
     private static final Logger logger = LoggerFactory.getLogger(ScmInnerRemoteDataDeletor.class);

@@ -7,15 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
+import com.sequoiacm.schedule.common.ScheduleExceptionConverter;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
 
 import feign.Request.Options;
 
 @Component
 public class ScheduleClientFactory {
     private Map<String, ScheduleClient> nodeMapFeignClient = new ConcurrentHashMap<String, ScheduleClient>();
+    private Map<String, WorkerClient> nodeMapWorkerClient = new ConcurrentHashMap<String, WorkerClient>();
     private ScheduleFullEntityDecoder decoder = new ScheduleFullEntityDecoder();
-    private ScheduleFeignExceptionConverter exceptionConverter = new ScheduleFeignExceptionConverter();
+    private ScheduleExceptionConverter exceptionConverter = new ScheduleExceptionConverter();
 
     @Autowired
     private ScmFeignClient scmFeignClient;
@@ -23,7 +25,8 @@ public class ScheduleClientFactory {
     public ScheduleClient getFeignClientByNodeUrl(String targetUrl) {
         if (nodeMapFeignClient.containsKey(targetUrl)) {
             return nodeMapFeignClient.get(targetUrl);
-        } else {
+        }
+        else {
             ScheduleClient client = scmFeignClient.builder()
                     .options(new Options(10 * 1000, 600 * 1000))
                     .exceptionConverter(exceptionConverter)
@@ -32,5 +35,17 @@ public class ScheduleClientFactory {
             nodeMapFeignClient.put(targetUrl, client);
             return client;
         }
+    }
+
+    public WorkerClient getWorkerClientByNodeUrl(String targetUrl) {
+        WorkerClient workerClient = nodeMapWorkerClient.get(targetUrl);
+        if (workerClient != null) {
+            return workerClient;
+        }
+        workerClient = scmFeignClient.builder().options(new Options(10 * 1000, 600 * 1000))
+                .exceptionConverter(exceptionConverter)
+                .instanceTarget(WorkerClient.class, targetUrl);
+        nodeMapWorkerClient.put(targetUrl, workerClient);
+        return workerClient;
     }
 }

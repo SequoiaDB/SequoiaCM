@@ -14,7 +14,7 @@ import com.sequoiacm.contentserver.dao.DirOperator;
 import com.sequoiacm.contentserver.dao.DirUpdatorDao;
 import com.sequoiacm.contentserver.dao.DireDeletorDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IDirService;

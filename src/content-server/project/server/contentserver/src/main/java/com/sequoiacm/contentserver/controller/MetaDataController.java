@@ -28,7 +28,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.AttrManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
@@ -150,7 +150,7 @@ public class MetaDataController {
     @DeleteMapping({ "/metadatas/classes/{class_id}" })
     public void deleteClass(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("class_id") String classId, Authentication auth)
-                    throws ScmServerException {
+            throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
         String user = auth.getName();
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
@@ -243,7 +243,7 @@ public class MetaDataController {
     public MetadataAttr getAttrInfo(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("attr_id") String attrId, HttpServletRequest request, Authentication auth)
-                    throws ScmServerException {
+            throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
         ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
                 ScmPrivilegeDefine.READ, "get attr info");
@@ -294,7 +294,7 @@ public class MetaDataController {
         if (!classObj.containsField(fieldName)) {
             throw new ScmInvalidArgumentException(
                     "'" + fieldName + "' is not specified in the argument:"
-                    + CommonDefine.RestArg.METADATA_DESCRIPTION);
+                            + CommonDefine.RestArg.METADATA_DESCRIPTION);
         }
         result.put(fieldName, ScmMetaSourceHelper.checkExistString(classObj, fieldName));
 
@@ -311,7 +311,7 @@ public class MetaDataController {
         if (!attrObj.containsField(fieldName)) {
             throw new ScmInvalidArgumentException(
                     "'" + fieldName + "' is not specified in the argument "
-                    + CommonDefine.RestArg.METADATA_DESCRIPTION);
+                            + CommonDefine.RestArg.METADATA_DESCRIPTION);
         }
         String attrName = (String) checkExistString(attrObj, fieldName);
         MetaDataManager.getInstence().validateKeyFormat(attrName, "attr");

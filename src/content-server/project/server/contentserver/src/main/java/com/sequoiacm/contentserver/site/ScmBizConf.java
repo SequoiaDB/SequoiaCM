@@ -23,7 +23,7 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceMgr;

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.contentserver.dao.IAuditDao;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.metasource.MetaCursor;
 

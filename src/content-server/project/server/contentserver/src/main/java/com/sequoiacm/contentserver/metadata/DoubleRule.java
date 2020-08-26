@@ -5,7 +5,7 @@ import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.MetaDataDefine;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public class DoubleRule implements AttrRule {
     

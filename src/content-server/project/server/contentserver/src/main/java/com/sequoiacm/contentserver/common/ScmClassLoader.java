@@ -8,7 +8,7 @@ import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.exception.ScmError;
 import org.slf4j.Logger;

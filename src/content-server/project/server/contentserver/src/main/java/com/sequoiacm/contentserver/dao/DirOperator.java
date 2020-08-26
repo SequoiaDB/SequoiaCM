@@ -16,7 +16,7 @@ import com.sequoiacm.contentserver.cache.ScmDirCacheInfo;
 import com.sequoiacm.contentserver.cache.ScmDirPath;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmLockException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;

@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.exception.ScmFileExistException;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;

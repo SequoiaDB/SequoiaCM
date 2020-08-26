@@ -11,9 +11,9 @@ import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.schedule.common.ScheduleStrategyMgr;
+import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.ScheduleServer;
-import com.sequoiacm.schedule.exception.ScheduleException;
 
 public class SiteMgr {
     private static final Logger logger = LoggerFactory.getLogger(SiteMgr.class);

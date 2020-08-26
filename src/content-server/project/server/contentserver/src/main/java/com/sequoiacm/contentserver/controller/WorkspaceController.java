@@ -29,7 +29,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
 import com.sequoiacm.contentserver.service.IWorkspaceService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;

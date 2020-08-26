@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.contentserver.job.ScmJobManager;
 

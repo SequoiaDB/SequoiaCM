@@ -9,7 +9,7 @@ import org.bson.BSONObject;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.exception.ScmError;

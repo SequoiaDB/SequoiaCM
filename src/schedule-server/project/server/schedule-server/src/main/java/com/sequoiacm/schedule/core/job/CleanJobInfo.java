@@ -3,15 +3,15 @@ package com.sequoiacm.schedule.core.job;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.ScheduleStrategyMgr;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.meta.WorkspaceInfo;
 import com.sequoiacm.schedule.entity.SiteEntity;
-import com.sequoiacm.schedule.exception.ScheduleException;
 
 public class CleanJobInfo extends ScheduleJobInfo {
     private int days;

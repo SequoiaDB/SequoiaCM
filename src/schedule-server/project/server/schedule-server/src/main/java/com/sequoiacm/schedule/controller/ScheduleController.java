@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +30,18 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmWorkspaceResource;
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
+import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
+import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.ScheduleEntityTranslator;
+import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
+import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
+import com.sequoiacm.schedule.common.model.ScheduleUserEntity;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
-import com.sequoiacm.schedule.entity.ScheduleEntityTranslator;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
-import com.sequoiacm.schedule.entity.ScheduleNewUserInfo;
-import com.sequoiacm.schedule.entity.ScheduleUserEntity;
 import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
-import com.sequoiacm.schedule.exception.ScheduleException;
 import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
 import com.sequoiacm.schedule.remote.ScheduleClient;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
@@ -63,8 +66,7 @@ public class ScheduleController {
     public ResponseEntity<String> getName(HttpServletRequest request, HttpServletResponse response,
             Authentication auth) {
         String name = request.getHeader("name");
-        audit.info(ScmAuditType.SCHEDULE_DQL, auth,
-                null, 0, "get schedule name, name=" + name);
+        audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0, "get schedule name, name=" + name);
         logger.info("name=" + name);
         response.setHeader("name", name);
         return ResponseEntity.ok("");
@@ -82,14 +84,14 @@ public class ScheduleController {
             throws ScheduleException {
         if (ScheduleServer.getInstance().getWorkspace(wsName) == null) {
             logger.error("workspace is not exist:ws={}", wsName);
-            throw new ScheduleException(RestCommonDefine.ErrorCode.WORKSPACE_NOT_EXISTS, opDesc
-                    + " failed, workspace is not exist:ws=" + wsName);
+            throw new ScheduleException(RestCommonDefine.ErrorCode.WORKSPACE_NOT_EXISTS,
+                    opDesc + " failed, workspace is not exist:ws=" + wsName);
         }
-        if (!ScmSchedulePriv.getInstance().hasPriority(userName,
-                ScmWorkspaceResource.RESOURCE_TYPE, wsName, op)) {
+        if (!ScmSchedulePriv.getInstance().hasPriority(userName, ScmWorkspaceResource.RESOURCE_TYPE,
+                wsName, op)) {
             logger.error("do not have priority to {}:user={},ws={}", opDesc, userName, wsName);
-            throw new ScheduleException(RestCommonDefine.ErrorCode.PERMISSION_DENIED, opDesc
-                    + " failed, do not have priority:user=" + userName + ",ws=" + wsName);
+            throw new ScheduleException(RestCommonDefine.ErrorCode.PERMISSION_DENIED,
+                    opDesc + " failed, do not have priority:user=" + userName + ",ws=" + wsName);
         }
     }
 
@@ -113,20 +115,21 @@ public class ScheduleController {
                 throw new ScheduleException(RestCommonDefine.ErrorCode.PERMISSION_DENIED,
                         "there is not leader!:id=" + leaderId);
             }
-            ScheduleFullEntity createSchedule2Leader = createSchedule2Leader(leaderId, info, sessionId, userDetail);
+            ScheduleFullEntity createSchedule2Leader = createSchedule2Leader(leaderId, info,
+                    sessionId, userDetail);
 
-            audit.info(ScmAuditType.CREATE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "create schedule to leader, leaderId="
-                            + leaderId + ", Schedule info:name=" + info.getName() + ", type="
-                            + info.getType() + ", desc=" + info.getDesc());
+            audit.info(ScmAuditType.CREATE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "create schedule to leader, leaderId=" + leaderId + ", Schedule info:name="
+                            + info.getName() + ", type=" + info.getType() + ", desc="
+                            + info.getDesc());
             return createSchedule2Leader;
         }
         else {
             ScheduleFullEntity createSchedule = service.createSchedule(userName, info);
 
-            audit.info(ScmAuditType.CREATE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "create schedule, Schedule info:name="
-                            + info.getName() + ", type=" + info.getType() + ", desc=" + info.getDesc());
+            audit.info(ScmAuditType.CREATE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "create schedule, Schedule info:name=" + info.getName() + ", type="
+                            + info.getType() + ", desc=" + info.getDesc());
             return createSchedule;
         }
     }
@@ -142,9 +145,12 @@ public class ScheduleController {
     public void deleteSchedule(@PathVariable("schedule_id") String scheduleId,
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-                    throws Exception {
-
+            throws Exception {
         ScheduleFullEntity info = service.getSchedule(scheduleId);
+        if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
+                    "schedule is not exist:schedule_id=" + scheduleId);
+        }
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.DELETE,
                 "delete schedule");
 
@@ -155,49 +161,58 @@ public class ScheduleController {
                         "I'm not leader yet!:id=" + leaderId);
             }
             deleteSchedule2Leader(leaderId, scheduleId, sessionId, userDetail);
-            audit.info(ScmAuditType.DELETE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "delete schedule to leader, scheduleId=" + scheduleId
-                    + ", leaderId=" + leaderId);
+            audit.info(ScmAuditType.DELETE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "delete schedule to leader, scheduleId=" + scheduleId + ", leaderId="
+                            + leaderId);
         }
         else {
-            service.deleteSchedule(scheduleId);
-            audit.info(ScmAuditType.DELETE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "delete schedule, scheduleId=" + scheduleId);
+            service.deleteSchedule(scheduleId, false);
+            audit.info(ScmAuditType.DELETE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "delete schedule, scheduleId=" + scheduleId);
         }
     }
 
     @GetMapping("/schedules/{schedule_id}")
     public ScheduleFullEntity getSchedule(@PathVariable("schedule_id") String scheduleId,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
-                    throws Exception {
+            throws Exception {
         ScheduleFullEntity info = service.getSchedule(scheduleId);
+        if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
+                    "schedule is not exist:schedule_id=" + scheduleId);
+        }
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.READ,
                 "get schedule");
-        audit.info(ScmAuditType.SCHEDULE_DQL, auth,
-                info.getWorkspace(), 0, "get schedule by scheduleId=" + scheduleId);
+        audit.info(ScmAuditType.SCHEDULE_DQL, auth, info.getWorkspace(), 0,
+                "get schedule by scheduleId=" + scheduleId);
 
         return info;
     }
 
     @GetMapping("/schedules")
     public void listSchedules(HttpServletRequest request, HttpServletResponse response,
-            Authentication auth)
-                    throws Exception {
+            Authentication auth) throws Exception {
         String filter = request.getParameter(RestCommonDefine.RestParam.KEY_QUERY_FILTER);
-        BSONObject condition = null;
+        BSONObject userCondition = null;
         if (null != filter) {
-            condition = (BSONObject) JSON.parse(filter);
+            userCondition = (BSONObject) JSON.parse(filter);
         }
         else {
-            condition = new BasicBSONObject();
+            userCondition = new BasicBSONObject();
         }
+
+        BasicBSONList andArr = new BasicBSONList();
+        andArr.add(userCondition);
+        andArr.add(new BasicBSONObject(FieldName.Schedule.FIELD_TYPE,
+                new BasicBSONObject("$ne", ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)));
+        BSONObject condition = new BasicBSONObject("$and", andArr);
 
         ScmBSONObjectCursor cursor = null;
         try {
             cursor = service.listSchedule(condition);
 
-            audit.info(ScmAuditType.SCHEDULE_DQL, auth,
-                    null, 0, "get schedule list,condition=" + condition.toString());
+            audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0,
+                    "get schedule list,userCondition=" + userCondition.toString());
 
             response.setHeader(RestCommonDefine.CONTENT_TYPE,
                     RestCommonDefine.APPLICATION_JSON_UTF8);
@@ -236,6 +251,11 @@ public class ScheduleController {
             Authentication auth) throws Exception {
 
         ScheduleFullEntity info = service.getSchedule(scheduleId);
+
+        if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
+                    "schedule is not exist:schedule_id=" + scheduleId);
+        }
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.UPDATE,
                 "update schedule");
 
@@ -250,11 +270,12 @@ public class ScheduleController {
                 throw new ScheduleException(RestCommonDefine.ErrorCode.PERMISSION_DENIED,
                         "there is not leader!:id=" + leaderId);
             }
-            ScheduleFullEntity updateSchedule2Leader = updateSchedule2Leader(leaderId, scheduleId, newInfoDesc, sessionId, userDetail);
+            ScheduleFullEntity updateSchedule2Leader = updateSchedule2Leader(leaderId, scheduleId,
+                    newInfoDesc, sessionId, userDetail);
 
-            audit.info(ScmAuditType.UPDATE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "update schedule to leader, scheduleId=" + scheduleId
-                    + ", leaderId=" + leaderId);
+            audit.info(ScmAuditType.UPDATE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "update schedule to leader, scheduleId=" + scheduleId + ", leaderId="
+                            + leaderId);
 
             return updateSchedule2Leader;
         }
@@ -263,8 +284,8 @@ public class ScheduleController {
                     .fromJSON(newInfoDesc);
             ScheduleFullEntity updateSchedule = service.updateSchedule(scheduleId, newInfo);
 
-            audit.info(ScmAuditType.UPDATE_SCHEDULE, auth,
-                    info.getWorkspace(), 0, "update schedule, scheduleId=" + scheduleId);
+            audit.info(ScmAuditType.UPDATE_SCHEDULE, auth, info.getWorkspace(), 0,
+                    "update schedule, scheduleId=" + scheduleId);
             return updateSchedule;
         }
     }

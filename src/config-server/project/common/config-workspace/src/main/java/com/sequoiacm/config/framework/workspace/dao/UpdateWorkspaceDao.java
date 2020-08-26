@@ -41,43 +41,71 @@ public class UpdateWorkspaceDao {
 
     public ScmConfOperateResult update(WorkspaceUpdator updator) throws ScmConfigException {
         ScmConfOperateResult opRes = new ScmConfOperateResult();
-        BSONObject oldWsRecord = updator.getOldWsRecord();
         Transaction transaction = metasource.createTransaction();
         try {
             transaction.begin();
             SysWorkspaceTableDao table = workspaceMetaservice.getSysWorkspaceTable(transaction);
 
+            BSONObject matcher = null;
+            if (updator.getOldWsRecord() != null) {
+                matcher = updator.getOldWsRecord();
+            }
+            else {
+                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                        updator.getWsName());
+            }
+
             String newDesc = updator.getNewDesc();
+            BSONObject newWsRecord = null;
             if (newDesc != null) {
                 BasicBSONObject descUpdator = new BasicBSONObject(
                         FieldName.FIELD_CLWORKSPACE_DESCRIPTION, newDesc);
-                oldWsRecord = table.updateAndCheck(oldWsRecord, descUpdator);
-                if (oldWsRecord == null) {
+                newWsRecord = table.updateAndCheck(matcher, descUpdator);
+                if (newWsRecord == null) {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
+                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                        updator.getWsName());
             }
 
             Integer removeLocationId = updator.getRemoveDataLocationId();
             if (removeLocationId != null) {
-                oldWsRecord = table.removeDataLocation(oldWsRecord, removeLocationId);
-                if (oldWsRecord == null) {
+                newWsRecord = table.removeDataLocation(matcher, removeLocationId);
+                if (newWsRecord == null) {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
+                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                        updator.getWsName());
             }
 
             BSONObject addDataLocation = updator.getAddDataLocation();
             if (addDataLocation != null) {
-                oldWsRecord = table.addDataLocation(oldWsRecord, addDataLocation);
-                if (oldWsRecord == null) {
+                newWsRecord = table.addDataLocation(matcher, addDataLocation);
+                if (newWsRecord == null) {
+                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
+                            "client workspace cache is not latest");
+                }
+                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                        updator.getWsName());
+            }
+
+            BSONObject externalData = updator.getExternalData();
+            if (externalData != null) {
+                newWsRecord = table.updateExternalData(matcher, externalData);
+                if (newWsRecord == null) {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
             }
 
+            if (newWsRecord == null) {
+                throw new ScmConfigException(ScmConfError.INVALID_ARG, "update nothing:" + updator);
+            }
+
             WorkspaceConfig wsConfig = (WorkspaceConfig) bsonConverterMgr
-                    .getMsgConverter(ScmConfigNameDefine.WORKSPACE).convertToConfig(oldWsRecord);
+                    .getMsgConverter(ScmConfigNameDefine.WORKSPACE).convertToConfig(newWsRecord);
 
             Integer oldVersion = versionDao.getVersion(ScmConfigNameDefine.WORKSPACE,
                     wsConfig.getWsName());

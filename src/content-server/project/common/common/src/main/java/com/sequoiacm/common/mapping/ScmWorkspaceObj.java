@@ -21,6 +21,7 @@ public class ScmWorkspaceObj {
     private long updateTime;
     private String createUser;
     private String updateUser;
+    private BSONObject externalData;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -54,6 +55,8 @@ public class ScmWorkspaceObj {
 
             dataOption = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS);
             dataShardingType = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+
+            externalData = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_EXT_DATA);
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -128,6 +131,10 @@ public class ScmWorkspaceObj {
 
     public String getUpdateUser() {
         return updateUser;
+    }
+
+    public BSONObject getExternalData() {
+        return externalData;
     }
 
 }

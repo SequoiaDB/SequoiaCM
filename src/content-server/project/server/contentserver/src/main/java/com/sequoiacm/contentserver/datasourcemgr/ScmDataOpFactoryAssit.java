@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.datasourcemgr;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 

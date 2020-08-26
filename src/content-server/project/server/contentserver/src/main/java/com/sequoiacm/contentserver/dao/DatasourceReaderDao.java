@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.dao;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.datasource.ScmDatasourceException;

@@ -9,6 +9,7 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.common.FieldName;
@@ -16,20 +17,22 @@ import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.metasource.BatchMetaCursorFillInFileCount;
 import com.sequoiacm.metasource.MetaCursor;
 
 @Repository
 public class BatchDaoImpl implements IBatchDao {
-
+    @Autowired
+    private FileOperationListenerMgr listenerMgr;
     private static final Logger logger = LoggerFactory.getLogger(BatchDaoImpl.class);
 
     @Override
@@ -55,7 +58,7 @@ public class BatchDaoImpl implements IBatchDao {
             String user) throws ScmServerException {
         try {
             ScmContentServer.getInstance().getMetaService().deleteBatch(wsInfo.getName(), batchId,
-                    sessionId, userDetail, user);
+                    sessionId, userDetail, user, listenerMgr);
         }
         catch (ScmServerException e) {
             logger.error("delete batch failed: workspace={}, batchId={}", wsInfo.getName(),

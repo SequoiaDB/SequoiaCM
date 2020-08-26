@@ -2,12 +2,12 @@ package com.sequoiacm.schedule.core.job;
 
 import org.bson.BSONObject;
 
+import com.sequoiacm.schedule.bizconf.ScmArgChecker;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.ScmArgChecker;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.meta.WorkspaceInfo;
-import com.sequoiacm.schedule.exception.ScheduleException;
 
 public class ScheduleJobInfo {
     private String id;

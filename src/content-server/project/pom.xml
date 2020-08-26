@@ -88,7 +88,11 @@
                 <artifactId>sequoiadb-driver</artifactId>
                 <version>${sdbdriver.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-content-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiadb-driver-jdk6</artifactId>
@@ -137,6 +141,11 @@
                 <version>${sequoiacm-content-datasource-ceph-s3.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-content-datasource-ceph-swift</artifactId>
@@ -308,6 +317,18 @@
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-tool</artifactId>
                 <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-fulltext-core</artifactId>
+                <version>${scm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-mq-client</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

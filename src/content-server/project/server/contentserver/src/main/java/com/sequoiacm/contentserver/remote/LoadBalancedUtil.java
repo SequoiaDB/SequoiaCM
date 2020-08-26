@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.remote;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.exception.ScmError;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,7 +7,7 @@ import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import org.springframework.util.StringUtils;

@@ -18,6 +18,7 @@ import com.sequoiacm.infrastructure.config.client.core.ScmConfSubscriberMgr;
 import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDaoFactory;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClient;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClientFactory;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
@@ -127,6 +128,19 @@ public class ScmConfClient {
             return null;
         }
         return converterMgr.getMsgConverter(configName).convertToConfig(resp);
+    }
+
+    public Config getOneConf(String configName, ConfigFilter filter) throws ScmConfigException {
+        List<Config> ret = getConf(configName, filter);
+        if (ret == null || ret.size() <= 0) {
+            return null;
+        }
+        if (ret.size() != 1) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "try to get one conf, but return more than one:configName=" + configName
+                            + ", filter=" + filter + ", ret=" + ret);
+        }
+        return ret.get(0);
     }
 
     public List<Config> getConf(String configName, ConfigFilter filter) throws ScmConfigException {

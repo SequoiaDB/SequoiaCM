@@ -1,5 +1,7 @@
 package com.sequoiacm.schedule.dao.sequoiadb;
 
+import java.util.List;
+
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -8,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.common.model.ScheduleEntityTranslator;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
 import com.sequoiacm.schedule.dao.ScheduleDao;
-import com.sequoiacm.schedule.entity.ScheduleEntityTranslator;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
 import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
@@ -84,10 +86,7 @@ public class SdbScheduleDao implements ScheduleDao {
     }
 
     @Override
-    public void update(String scheduleId, BSONObject newValue) throws Exception {
-        BSONObject matcher = new BasicBSONObject(FieldName.Schedule.FIELD_ID, scheduleId);
-        BSONObject updator = new BasicBSONObject();
-        updator.put("$set", newValue);
+    public void update(BSONObject matcher, BSONObject updator) throws Exception {
         Sequoiadb sdb = null;
         try {
             sdb = datasource.getConnection();
@@ -103,6 +102,14 @@ public class SdbScheduleDao implements ScheduleDao {
         finally {
             datasource.releaseConnection(sdb);
         }
+    }
+
+    @Override
+    public void update(String scheduleId, BSONObject newValue) throws Exception {
+        BSONObject matcher = new BasicBSONObject(FieldName.Schedule.FIELD_ID, scheduleId);
+        BSONObject updator = new BasicBSONObject();
+        updator.put("$set", newValue);
+        update(matcher, updator);
     }
 
     @Override
@@ -123,4 +130,34 @@ public class SdbScheduleDao implements ScheduleDao {
         }
     }
 
+    @Override
+    public ScheduleFullEntity queryOneByName(String name) throws Exception {
+        BSONObject matcher = new BasicBSONObject(FieldName.Schedule.FIELD_NAME, name);
+        Sequoiadb sdb = null;
+        try {
+            sdb = datasource.getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            BSONObject result = cl.queryOne(matcher, null, null, null, 0);
+            if (null == result) {
+                return null;
+            }
+
+            List<String> l = exec(String.class);
+
+            return ScheduleEntityTranslator.FullInfo.fromBSONObject(result);
+        }
+        catch (Exception e) {
+            logger.error("query schedule failed[cs={},cl={}]:matcher={}", csName, clName, matcher);
+            throw e;
+        }
+        finally {
+            datasource.releaseConnection(sdb);
+        }
+
+    }
+
+    public <T> List<T> exec(Class<T> c) {
+        return null;
+    }
 }

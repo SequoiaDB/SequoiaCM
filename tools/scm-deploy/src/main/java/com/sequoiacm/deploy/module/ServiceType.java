@@ -18,8 +18,8 @@ public enum ServiceType {
     ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, 10),
     //  TRACE_SERVER("service-trace", false, InstallPackType.CLOUD, 10),
     OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10),
+    FULLTEXT_SERVER("fulltext-server", false, InstallPackType.FULLTEXT_SERVER, 10),
     S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, 10);
-
 
     private static List<ServiceType> typeSortByPriority;
     private static List<ServiceType> requiredServiceType;

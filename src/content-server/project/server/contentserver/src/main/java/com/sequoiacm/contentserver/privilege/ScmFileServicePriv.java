@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;

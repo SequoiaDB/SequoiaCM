@@ -14,7 +14,7 @@ import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.contentserver.common.ScmPasswordRewriter;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.job.ScmJobManager;
 import com.sequoiacm.contentserver.job.ScmTaskManager;

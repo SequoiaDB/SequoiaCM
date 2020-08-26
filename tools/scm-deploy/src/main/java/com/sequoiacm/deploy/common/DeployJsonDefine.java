@@ -12,8 +12,7 @@ public class DeployJsonDefine {
     public static final String OM_SERVER = "om-server";
     public static final String ZK_SERVER = "zookeeper-server";
     public static final String MQ_SERVER = "mq-server";
-    public static final String S3_SERVER = "s3-server";
-
+    public static final String FULLTEXT_SERVER = "fulltext-server";    public static final String S3_SERVER = "s3-server";
     public static final String AUDIT = "audit";
     public static final String AUDIT_URL = "auditurl";
     public static final String AUDIT_USER = "audituser";

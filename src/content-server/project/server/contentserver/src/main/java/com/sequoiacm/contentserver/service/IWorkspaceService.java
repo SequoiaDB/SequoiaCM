@@ -2,7 +2,7 @@ package com.sequoiacm.contentserver.service;
 
 import org.bson.BSONObject;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.metasource.MetaCursor;

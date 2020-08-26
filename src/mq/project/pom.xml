@@ -20,8 +20,6 @@
     </parent>
 
     <modules>
-        <module>./common/mq-core</module>
-        <module>./common/mq-client</module>
         <module>./common/mq-tools</module>
         <module>./server/mq-server</module>
         <module>./assembly</module>
@@ -45,7 +43,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
+                <version>${sequoiacm-infrastructure.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-mq-core</artifactId>
+                <version>${sequoiacm-infrastructure.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-feign</artifactId>
@@ -62,16 +69,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-mq-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-mq-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-mq-tools</artifactId>

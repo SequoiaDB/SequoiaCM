@@ -15,6 +15,10 @@ public class SiteMetaServiceSdbImpl implements SiteMetaService {
 
     @Override
     public TableDao getSysSiteTable(Transaction transaction) {
+        if (transaction == null) {
+            return sdbMetasource.getCollection(MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,
+                    MetaSourceDefine.SequoiadbTableName.CL_SITE);
+        }
         return sdbMetasource.getCollection(transaction,
                 MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,
                 MetaSourceDefine.SequoiadbTableName.CL_SITE);

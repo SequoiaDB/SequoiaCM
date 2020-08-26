@@ -20,9 +20,9 @@ import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
-import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 
 /**
  * The implement of ScmWorkspace.
@@ -39,6 +39,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private String updateUser;
     private Date createTime;
     private Date updateTime;
+    private BSONObject extData;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -69,6 +70,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         for (Object dataBSON : dataBsonlocatios) {
             dataLocations.add(createDataLocation((BSONObject) dataBSON));
         }
+        extData = BsonUtils.getBSON(newWsInfo, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -96,6 +98,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                 return new ScmCephS3DataLocation(dataBSON);
             case CEPH_SWIFT:
                 return new ScmCephSwiftDataLocation(dataBSON);
+
             default:
                 throw new ScmSystemException("unknown location type:" + dataBSON);
         }
@@ -199,6 +202,11 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private void _update(BSONObject updator) throws ScmException {
         BSONObject newWsObj = session.getDispatcher().updateWorkspace(name, updator);
         refresh(newWsObj);
+    }
+
+    @Override
+    BSONObject getExtData() {
+        return extData;
     }
 
 }

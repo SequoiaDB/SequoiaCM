@@ -32,10 +32,11 @@ import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.dao.IFileCreatorDao;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.job.ScmJobCacheFile;
 import com.sequoiacm.contentserver.job.ScmJobManager;
 import com.sequoiacm.contentserver.job.ScmJobTransferFile;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
+import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -54,6 +55,7 @@ import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
@@ -70,6 +72,9 @@ import com.sequoiacm.metasource.MetaCursor;
 public class FileServiceImpl implements IFileService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
+
+    @Autowired
+    private FileOperationListenerMgr listenerMgr;
 
     @Autowired
     private IDirService dirService;
@@ -126,8 +131,7 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject selector)
-            throws ScmServerException {
+            BSONObject orderby, long skip, long limit, BSONObject selector) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
 
@@ -142,6 +146,7 @@ public class FileServiceImpl implements IFileService {
                 selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
                 selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
             }
+
             if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
                 return contentServer.getMetaService().queryCurrentFile(ws.getMetaLocation(),
                         workspaceName, condition, selector, orderby, skip, limit);
@@ -207,22 +212,14 @@ public class FileServiceImpl implements IFileService {
 
         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId,
                 dataCreateDate);
+        listenerMgr.preCreate(wsInfo, checkedFileObj);
         FileCreatorDao dao = new FileCreatorDao(contentServer.getLocalSite(), wsInfo,
                 checkedFileObj, dataInfo, uploadConf.isNeedMd5());
+        BSONObject finfo = null;
         try {
             dao.write(is);
-            BSONObject finfo = insertFileInfo(dao, checkedFileObj, uploadConf, sessionId, username,
+            finfo = insertFileInfo(dao, checkedFileObj, uploadConf, sessionId, username,
                     passwordType, userDetail);
-
-            long uploadSize = CommonHelper.toLongValue(finfo.get(FieldName.FIELD_CLFILE_FILE_SIZE));
-            try {
-                FlowRecorder.getInstance().addUploadSize(workspaceName, uploadSize);
-            }
-            catch (Exception e) {
-                logger.error("add flow record failed", e);
-            }
-            // return file info
-            return finfo;
         }
         catch (ScmServerException e) {
             dao.rollback();
@@ -232,6 +229,16 @@ public class FileServiceImpl implements IFileService {
             dao.rollback();
             throw e;
         }
+        long uploadSize = CommonHelper.toLongValue(finfo.get(FieldName.FIELD_CLFILE_FILE_SIZE));
+        try {
+            FlowRecorder.getInstance().addUploadSize(workspaceName, uploadSize);
+        }
+        catch (Exception e) {
+            logger.error("add flow record failed", e);
+        }
+
+        listenerMgr.postCreate(wsInfo, fileId).onComplete();
+        return finfo;
     }
 
     @Override
@@ -248,7 +255,8 @@ public class FileServiceImpl implements IFileService {
             throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
-
+        BSONObject ret;
+        OperationCompleteCallback callback;
         String fileId;
         ScmLock lock = lockBreakpointFile(workspaceName, breakpointFileName);
         try {
@@ -302,10 +310,13 @@ public class FileServiceImpl implements IFileService {
             if (breakpointFile.getMd5() != null) {
                 checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_MD5, breakpointFile.getMd5());
             }
+
+            listenerMgr.preCreate(wsInfo, checkedFileObj);
             IFileCreatorDao fileDao = new BreakpointFileConvertor(wsInfo, breakpointFile,
                     checkedFileObj);
-            return insertFileInfo(fileDao, checkedFileObj, uploadConf, sessionId, username,
+            ret = insertFileInfo(fileDao, checkedFileObj, uploadConf, sessionId, username,
                     passwordType, userDetail);
+            callback = listenerMgr.postCreate(wsInfo, fileId);
         }
         catch (ScmServerException e) {
             throw e;
@@ -316,6 +327,8 @@ public class FileServiceImpl implements IFileService {
         finally {
             lock.unlock();
         }
+        callback.onComplete();
+        return ret;
     }
 
     private BSONObject insertFileInfo(IFileCreatorDao fileDao, BSONObject fileInfo,
@@ -411,7 +424,8 @@ public class FileServiceImpl implements IFileService {
             FileDeletorDao dao = new FileDeletorDao();
             ScmWorkspaceInfo wsInfo = ScmContentServer.getInstance()
                     .getWorkspaceInfoChecked(workspaceName);
-            dao.init(sessionid, userDetail, wsInfo, fileId, majorVersion, minorVersion, isPhysical);
+            dao.init(sessionid, userDetail, wsInfo, fileId, majorVersion, minorVersion, isPhysical,
+                    listenerMgr);
             dao.delete();
         }
         catch (ScmServerException e) {
@@ -481,10 +495,22 @@ public class FileServiceImpl implements IFileService {
     @Override
     public BSONObject updateFileInfo(String workspaceName, String user, String fileId,
             BSONObject fileInfo, int majorVersion, int minorVersion) throws ScmServerException {
+        BSONObject ret;
+        OperationCompleteCallback callback = null;
         ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName);
-        FileInfoUpdatorDao dao = new FileInfoUpdatorDao(user, ws, fileId, majorVersion,
-                minorVersion, fileInfo);
-        return dao.updateInfo();
+        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
+        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
+        try {
+            FileInfoUpdatorDao dao = new FileInfoUpdatorDao(user, ws, fileId, majorVersion,
+                    minorVersion, fileInfo);
+            ret = dao.updateInfo();
+            callback = listenerMgr.postUpdate(ws, dao.getFileInfoBeforeUpdate());
+        }
+        finally {
+            writeLock.unlock();
+        }
+        callback.onComplete();
+        return ret;
     }
 
     @Override
@@ -705,7 +731,7 @@ public class FileServiceImpl implements IFileService {
             InputStream newFileContent, int majorVersion, int minorVersion,
             ScmUpdateContentOption option) throws ScmServerException {
         FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion, option);
+                majorVersion, minorVersion, option, listenerMgr);
         return dao.updateContent(newFileContent);
     }
 
@@ -714,9 +740,10 @@ public class FileServiceImpl implements IFileService {
             String newBreakpointFileContent, int majorVersion, int minorVersion,
             ScmUpdateContentOption option) throws ScmServerException {
         FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion, option);
+                majorVersion, minorVersion, option, listenerMgr);
         return dao.updateContent(newBreakpointFileContent);
     }
+
 
     @Override
     public String calcFileMd5(String sessionid, String userDetail, String workspaceName,
@@ -751,5 +778,32 @@ public class FileServiceImpl implements IFileService {
             md5 = BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
         }
         return md5;
+    }
+
+    @Override
+    public boolean updateFileExternalData(String workspaceName, String fileId, int majorVersion,
+            int minorVersion, BSONObject externalData) throws ScmServerException {
+        logger.debug("update file ext data:ws={}, fileId={}, version={}.{}, ext={}", workspaceName,
+                fileId, majorVersion, minorVersion, externalData);
+        ScmWorkspaceInfo wsInfo = ScmContentServer.getInstance()
+                .getWorkspaceInfoChecked(workspaceName);
+        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(workspaceName, fileId);
+        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
+        try {
+            return ScmContentServer.getInstance().getMetaService().updateFileExternalData(wsInfo,
+                    fileId, majorVersion, minorVersion, externalData);
+        }
+        finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    public void updateFileExternalData(String workspaceName, BSONObject matcher,
+            BSONObject externalData) throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = ScmContentServer.getInstance()
+                .getWorkspaceInfoChecked(workspaceName);
+        ScmContentServer.getInstance().getMetaService().updateFileExternalData(wsInfo, matcher,
+                externalData);
     }
 }

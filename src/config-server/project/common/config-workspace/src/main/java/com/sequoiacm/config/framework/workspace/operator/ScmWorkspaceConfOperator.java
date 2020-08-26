@@ -10,8 +10,8 @@ import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
 import com.sequoiacm.config.framework.operator.ScmConfOperator;
 import com.sequoiacm.config.framework.workspace.dao.CreateWorkspaceDao;
 import com.sequoiacm.config.framework.workspace.dao.DeleteWorkspaceDao;
+import com.sequoiacm.config.framework.workspace.dao.GetWorkspaceDao;
 import com.sequoiacm.config.framework.workspace.dao.UpdateWorkspaceDao;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
@@ -36,12 +36,14 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
     private UpdateWorkspaceDao wsUpdator;
 
     @Autowired
+    private GetWorkspaceDao wsFinder;
+
+    @Autowired
     private DefaultVersionDao versionDao;
 
     @Override
     public List<Config> getConf(ConfigFilter filter) throws ScmConfigException {
-        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
-                "unsupport to query workspace info");
+        return wsFinder.getWorkspace((WorkspaceFilter) filter);
     }
 
     @Override

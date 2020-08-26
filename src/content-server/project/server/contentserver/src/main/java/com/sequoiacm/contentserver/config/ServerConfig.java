@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.infrastructure.audit.EnableAudit;
-
 
 @Component
 @ConfigurationProperties(prefix = "scm.server")
@@ -15,12 +13,21 @@ public class ServerConfig {
     private int transferConnectTimeout = 30000;
     private int transferReadTimeout = 120000;
     private int listInstanceCheckInterval = 2000;
+    private int fulltextCreateTimeout = 10000;
 
     @Value("${server.port}")
     private int serverPort;
 
     public int getListInstanceCheckInterval() {
         return listInstanceCheckInterval;
+    }
+
+    public int getFulltextCreateTimeout() {
+        return fulltextCreateTimeout;
+    }
+
+    public void setFulltextCreateTimeout(int fulltextCreateTimeout) {
+        this.fulltextCreateTimeout = fulltextCreateTimeout;
     }
 
     public void setListInstanceCheckInterval(int listInstanceCheckInterval) {

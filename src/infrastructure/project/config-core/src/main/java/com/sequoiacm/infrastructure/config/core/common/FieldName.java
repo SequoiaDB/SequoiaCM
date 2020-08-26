@@ -15,6 +15,8 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_DESCRIPTION = "description";
     public static final String FIELD_CLWORKSPACE_META_OPTIONS = "meta_options";
     public static final String FIELD_CLWORKSPACE_META_CS_OPTIONS = "collection_space";
+    public static final String FIELD_CLWORKSPACE_EXTERNAL_DATA = "external_data";
+    
 
     // CL_FILE & CL_FILE_HISTORY (file & document)
     public static final String FIELD_CLFILE_ID = "id"; // string, fileid

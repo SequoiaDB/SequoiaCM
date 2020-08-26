@@ -7,7 +7,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;

@@ -11,7 +11,6 @@ public class ScmConfOperateResult {
     private List<ScmConfEvent> events = new ArrayList<>();
 
     public ScmConfOperateResult() {
-
     }
 
     public ScmConfOperateResult(Config config, ScmConfEvent e) {

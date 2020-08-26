@@ -13,7 +13,7 @@ public interface MsgRepository {
     public List<MessageInternal> getMsg(String msgTable, int partitionNum, long gtMsgId,
             int maxReturnCount) throws MqException;
 
-    public void putMsg(String msgTableName, MessageInternal msg) throws MqException;
+    public long putMsg(String msgTableName, MessageInternal msg) throws MqException;
 
     public MessageInternal getMaxIdMsg(String msgTable, int partitionNum) throws MqException;
 

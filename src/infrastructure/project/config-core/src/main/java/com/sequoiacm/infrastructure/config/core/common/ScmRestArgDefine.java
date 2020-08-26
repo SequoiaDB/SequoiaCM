@@ -25,6 +25,7 @@ public class ScmRestArgDefine {
     public static final String WORKSPACE_CONF_ADD_DATALOCATION = "add_datalocation";
     public static final String WORKSPACE_CONF_REMOVE_DATALOCATION = "remove_site";
     public static final String WORKSPACE_CONF_OLD_WS = "old_workspace";
+    public static final String WORKSPACE_CONF_EXTERNAL_DATA = "external_data";
     
     public static final String SITE_CONF_SITENAME = "name";
     public static final String SITE_CONF_SITEVERSION = "site_version";

@@ -32,7 +32,6 @@ import com.sequoiacm.testcommon.ScmTestTools;
  * @author yanglei
  *
  **/
- **/
 public class TestGetClassInfo extends ScmTestMultiCenterBase {
     
     private final static Logger logger = LoggerFactory.getLogger(TestGetClassInfo.class);

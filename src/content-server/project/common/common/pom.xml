@@ -27,6 +27,10 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-content-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

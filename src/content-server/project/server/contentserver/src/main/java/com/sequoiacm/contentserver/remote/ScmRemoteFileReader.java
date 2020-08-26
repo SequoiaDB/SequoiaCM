@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
@@ -33,8 +33,9 @@ public class ScmRemoteFileReader extends ScmFileReader {
     private long expectDataLen;
     private long actReadLen;
 
-    public ScmRemoteFileReader(String sessionId, String userDetail, int remoteSiteId, ScmWorkspaceInfo wsInfo,
-            String fileId, int majorVersion, int minorVersion, int flag) throws ScmServerException {
+    public ScmRemoteFileReader(String sessionId, String userDetail, int remoteSiteId,
+            ScmWorkspaceInfo wsInfo, String fileId, int majorVersion, int minorVersion, int flag)
+            throws ScmServerException {
         this.fileId = fileId;
         this.workspaceName = wsInfo.getName();
         this.flag = flag & ~CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA;
@@ -44,10 +45,17 @@ public class ScmRemoteFileReader extends ScmFileReader {
         try {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(remoteSite.getName());
-            resp = client.downloadFile(sessionId, userDetail, wsInfo.getName(), fileId, majorVersion,
-                    minorVersion, flag);
+            if (sessionId == null && userDetail == null) {
+                resp = client.downloadFileInternal(wsInfo.getName(), fileId, majorVersion,
+                        minorVersion, flag);
+            }
+            else {
+                resp = client.downloadFile(sessionId, userDetail, wsInfo.getName(), fileId,
+                        majorVersion, minorVersion, flag);
+            }
             RemoteCommonUtil.checkResponse("downLoadFile", resp);
-            expectDataLen = Long.valueOf(RemoteCommonUtil.firstOrNull(resp.headers(), CommonDefine.RestArg.DATA_LENGTH));
+            expectDataLen = Long.valueOf(
+                    RemoteCommonUtil.firstOrNull(resp.headers(), CommonDefine.RestArg.DATA_LENGTH));
             is = resp.body().asInputStream();
         }
         catch (ScmServerException e) {
@@ -56,10 +64,9 @@ public class ScmRemoteFileReader extends ScmFileReader {
             throw e;
         }
         catch (Exception e) {
-            throw new ScmSystemException(
-                    "read file from remote failed:remote=" + remoteSite.getName() + ",workspace="
-                            + workspaceName + ",fileId=" + fileId,
-                            e);
+            throw new ScmSystemException("read file from remote failed:remote="
+                    + remoteSite.getName() + ",workspace=" + workspaceName + ",fileId=" + fileId,
+                    e);
         }
     }
 
@@ -71,8 +78,7 @@ public class ScmRemoteFileReader extends ScmFileReader {
             }
         }
         catch (Exception e) {
-            logger.warn("close resource failed:wsName={},fileId={}", workspaceName, fileId,
-                    e);
+            logger.warn("close resource failed:wsName={},fileId={}", workspaceName, fileId, e);
         }
 
         try {
@@ -81,8 +87,7 @@ public class ScmRemoteFileReader extends ScmFileReader {
             }
         }
         catch (Exception e) {
-            logger.warn("close resource failed:wsName={},fileId={}", workspaceName, fileId,
-                    e);
+            logger.warn("close resource failed:wsName={},fileId={}", workspaceName, fileId, e);
         }
     }
 
@@ -95,9 +100,12 @@ public class ScmRemoteFileReader extends ScmFileReader {
             int actLen = is.read(buff, offset, len);
             if (actLen == -1) {
                 isEof = true;
-                if(actReadLen != expectDataLen) {
-                    throw new ScmServerException(ScmError.DATA_CORRUPTED, "read data from remote is corrupted:ws=" + workspaceName + ",remote=" + remoteSite.getName() + ",fileId=" + fileId
-                            +", expectDataLen=" + expectDataLen +", actDataLen=" + actReadLen);
+                if (actReadLen != expectDataLen) {
+                    throw new ScmServerException(ScmError.DATA_CORRUPTED,
+                            "read data from remote is corrupted:ws=" + workspaceName + ",remote="
+                                    + remoteSite.getName() + ",fileId=" + fileId
+                                    + ", expectDataLen=" + expectDataLen + ", actDataLen="
+                                    + actReadLen);
                 }
             }
             actReadLen += actLen;
@@ -105,17 +113,13 @@ public class ScmRemoteFileReader extends ScmFileReader {
         }
         catch (IOException e) {
             close();
-            throw new ScmServerException(ScmError.NETWORK_IO,
-                    "read file from remote failed:remote=" + remoteSite.getName() + ",fileId="
-                            + fileId,
-                            e);
+            throw new ScmServerException(ScmError.NETWORK_IO, "read file from remote failed:remote="
+                    + remoteSite.getName() + ",fileId=" + fileId, e);
         }
         catch (Exception e) {
             close();
-            throw new ScmSystemException(
-                    "read file from remote failed:remote=" + remoteSite.getName() + ",fileId="
-                            + fileId,
-                            e);
+            throw new ScmSystemException("read file from remote failed:remote="
+                    + remoteSite.getName() + ",fileId=" + fileId, e);
         }
     }
 
@@ -123,16 +127,14 @@ public class ScmRemoteFileReader extends ScmFileReader {
     public void seek(long size) throws ScmServerException {
         if ((flag & CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK) > 0) {
             // TODO:unsupported seek now!
-            throw new ScmOperationUnsupportedException(
-                    "this remote can't seek:remote=" + remoteSite.getName() + ",wsName="
-                            + workspaceName + ",fileId=" + fileId);
+            throw new ScmOperationUnsupportedException("this remote can't seek:remote="
+                    + remoteSite.getName() + ",wsName=" + workspaceName + ",fileId=" + fileId);
         }
         else {
             logger.error("this remote can't seek:remote=" + remoteSite.getName() + ",wsName="
                     + workspaceName + ",fileId=" + fileId);
-            throw new ScmOperationUnsupportedException(
-                    "this remote can't seek:remote=" + remoteSite.getName() + ",wsName="
-                            + workspaceName + ",fileId=" + fileId);
+            throw new ScmOperationUnsupportedException("this remote can't seek:remote="
+                    + remoteSite.getName() + ",wsName=" + workspaceName + ",fileId=" + fileId);
         }
     }
 

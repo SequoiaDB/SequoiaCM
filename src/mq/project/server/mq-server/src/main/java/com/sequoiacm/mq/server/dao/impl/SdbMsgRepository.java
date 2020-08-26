@@ -95,7 +95,7 @@ public class SdbMsgRepository implements MsgRepository {
     }
 
     @Override
-    public void putMsg(String msgTableName, MessageInternal msg) throws MqException {
+    public long putMsg(String msgTableName, MessageInternal msg) throws MqException {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTableName);
         BasicBSONObject msgBson = new BasicBSONObject();
         long msgId = sdbTopicRep.incAndGetLatestMsgId(msg.getTopic());
@@ -107,6 +107,7 @@ public class SdbMsgRepository implements MsgRepository {
         msgBson.put(MessageInternal.FIELD_TOPIC, msg.getTopic());
         try {
             cl.insert(msgBson);
+            return msgId;
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
@@ -117,7 +118,11 @@ public class SdbMsgRepository implements MsgRepository {
     @Override
     public MessageInternal getMaxIdMsg(String msgTable, int partitionNum) throws MqException {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
-        BSONObject matcher = new BasicBSONObject(MessageInternal.FIELD_PARTITION_NUM, partitionNum);
+
+        BSONObject matcher = new BasicBSONObject();
+        if (partitionNum != -1) {
+            matcher.put(MessageInternal.FIELD_PARTITION_NUM, partitionNum);
+        }
         BSONObject orderby = new BasicBSONObject(MessageInternal.FIELD_ID, -1);
         try {
             BSONObject record = cl.findOne(matcher, orderby);

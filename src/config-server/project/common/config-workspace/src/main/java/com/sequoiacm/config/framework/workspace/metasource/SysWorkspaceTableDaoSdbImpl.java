@@ -31,7 +31,7 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
         BasicBSONObject matcher = new BasicBSONObject(
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION + "." + SequoiadbHelper.DOLLAR0 + "."
                         + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID,
-                        siteId);
+                siteId);
         BasicBSONList matcherList = new BasicBSONList();
         matcherList.add(matcher);
         matcherList.add(oldWsRecord);
@@ -66,6 +66,17 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
                 null);
         BSONObject pull = new BasicBSONObject(SequoiadbHelper.DOLLAR_PULL, nullInList);
         return _updateAndCheck(matcher, pull);
+    }
+
+    @Override
+    public BSONObject updateExternalData(BSONObject matcher, BSONObject externalData)
+            throws MetasourceException {
+        BSONObject updator = new BasicBSONObject();
+        for (String key : externalData.keySet()) {
+            updator.put(FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA + "." + key,
+                    externalData.get(key));
+        }
+        return updateAndCheck(matcher, updator);
     }
 
 }

@@ -11,6 +11,7 @@ import com.sequoiacm.config.framework.operator.ScmConfOperator;
 import com.sequoiacm.config.framework.site.dao.AmendSiteVersionDao;
 import com.sequoiacm.config.framework.site.dao.CreateSiteDao;
 import com.sequoiacm.config.framework.site.dao.DeleteSiteDao;
+import com.sequoiacm.config.framework.site.dao.GetSiteDao;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
@@ -30,6 +31,8 @@ public class ScmSiteConfOperator implements ScmConfOperator {
     @Autowired
     private DeleteSiteDao siteDeleter;
 
+    @Autowired
+    private GetSiteDao siteFinder;
     @Autowired
     private DefaultVersionDao versionDao;
 
@@ -57,8 +60,7 @@ public class ScmSiteConfOperator implements ScmConfOperator {
 
     @Override
     public List<Config> getConf(ConfigFilter filter) throws ScmConfigException {
-        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
-                "unsupport to query site info");
+        return siteFinder.get(filter);
     }
 
     @Override

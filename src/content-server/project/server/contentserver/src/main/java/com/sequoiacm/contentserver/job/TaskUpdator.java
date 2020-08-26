@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.job;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public interface TaskUpdator {
     public String getTaskId();

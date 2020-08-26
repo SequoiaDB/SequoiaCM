@@ -6,8 +6,8 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.metasource.MetaCursor;
 
@@ -18,7 +18,8 @@ public interface IFileService {
      * condition, int scope) throws ScmServerException;
      */
     MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject select) throws ScmServerException;
+            BSONObject orderby, long skip, long limit, BSONObject selector)
+            throws ScmServerException;
 
     BSONObject uploadFile(String workspaceName, String username, InputStream is,
             BSONObject fileInfo) throws ScmServerException;
@@ -41,6 +42,12 @@ public interface IFileService {
 
     BSONObject updateFileInfo(String workspaceName, String user, String fileId, BSONObject fileInfo,
             int majorVersion, int minorVersion) throws ScmServerException;
+
+    void updateFileExternalData(String workspaceName, BSONObject matcher, BSONObject externalData)
+            throws ScmServerException;
+
+    boolean updateFileExternalData(String workspaceName, String fileId, int majorVersion,
+            int minorVersion, BSONObject externalData) throws ScmServerException;
 
     BSONObject updateFileContent(String workspaceName, String user, String fileId,
             InputStream newFileContent, int majorVersion, int minorVersion,

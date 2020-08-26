@@ -5,7 +5,7 @@ import java.util.List;
 public interface ScheduleMgr {
     public void createJob(ScheduleJobInfo info) throws Exception;
 
-    public void deleteJob(String id) throws Exception;
+    public void deleteJob(String id, boolean stopWorker) throws Exception;
 
     public void start() throws Exception;
 

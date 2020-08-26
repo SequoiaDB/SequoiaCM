@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.ITaskService;
 import com.sequoiacm.contentserver.service.IWorkspaceService;

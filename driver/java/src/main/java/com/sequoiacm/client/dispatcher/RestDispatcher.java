@@ -22,6 +22,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -39,6 +40,7 @@ import com.sequoiacm.client.common.RestDefine;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
+import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmRequestConfig;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
@@ -51,6 +53,9 @@ import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.fulltext.common.FultextRestCommonDefine;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 
 public class RestDispatcher implements MessageDispatcher {
 
@@ -91,7 +96,9 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String SERVICE_CENTER = "/service-center";
     private static final String CONFIG_SERVER = "/config-server";
     private static final String CLOUD_DISK_SERVER = "cloud-disk-server";
+    private static final String FULLTEXT_SERVER = "/fulltext-server";
     private static final String IMPORT = "import/";
+    private static final String FULLTEXT = "fulltext";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
 
@@ -570,15 +577,22 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
-            BSONObject orderby, long skip, long limit) throws ScmException {
+            BSONObject orderby, long skip, long limit, BSONObject selector) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + "?workspace_name="
                 + encode(workspaceName) + "&" + CommonDefine.RestArg.FILE_LIST_SCOPE + "=" + scope
                 + "&" + CommonDefine.RestArg.FILE_SKIP + "=" + skip + "&"
                 + CommonDefine.RestArg.FILE_LIMIT + "=" + limit + "&"
-                + CommonDefine.RestArg.FILE_ORDERBY + "=" + encodeCondition(orderby) + "&filter="
-                + encodeCondition(condition);
+                + CommonDefine.RestArg.FILE_ORDERBY + "=" + encodeCondition(orderby) + "&"
+                + CommonDefine.RestArg.FILE_FILTER + "=" + encodeCondition(condition) + "&"
+                + CommonDefine.RestArg.FILE_SELECTOR + "=" + encodeCondition(selector);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit) throws ScmException {
+        return getFileList(workspaceName, scope, condition, orderby, skip, limit, null);
     }
 
     @Override
@@ -1806,5 +1820,117 @@ public class RestDispatcher implements MessageDispatcher {
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request, params);
         return BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
+    }
+
+    @Override
+    public void createFulltextIndex(String wsName, BSONObject fileCondition, ScmFulltextMode mode)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=create";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_FILEMATCHER,
+                fileCondition.toString()));
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_INDEX_MONDE, mode.name()));
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, wsName));
+
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void dropFulltextIndex(String wsName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=drop";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, wsName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void updateFulltextIndex(String wsName, BSONObject newFileCondition,
+            ScmFulltextMode newMode) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=update";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        if (newFileCondition != null) {
+            params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_FILEMATCHER,
+                    newFileCondition.toString()));
+        }
+        if (newMode != null) {
+            params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_INDEX_MONDE,
+                    newMode.name()));
+        }
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, wsName));
+
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public ScmFulltexInfo getWsFulltextIdxInfo(String wsName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=get_idx_info&" + FultextRestCommonDefine.REST_WORKSPACE + "="
+                + encode(wsName);
+        HttpGet get = new HttpGet(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, wsName));
+        BSONObject bson = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, get);
+        return new ScmFulltexInfo(bson);
+    }
+
+    @Override
+    public BsonReader fulltextSearch(String ws, int scope, BSONObject fileCondition,
+            BSONObject contentCondition) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=search&" + FultextRestCommonDefine.REST_WORKSPACE + "=" + encode(ws)
+                + "&" + FultextRestCommonDefine.REST_SCOPE + "=" + scope + "&"
+                + FultextRestCommonDefine.REST_FILE_CONDITION + "="
+                + encodeCondition(fileCondition) + "&" + FultextRestCommonDefine.REST_CONTENT_CONDITION
+                + "=" + encodeCondition(contentCondition);
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void rebuildFulltextIdx(String ws, String fileId) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=rebuild";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, ws));
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_FILE_ID, fileId));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void inspectFulltextIndex(String wsName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=inspect";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FultextRestCommonDefine.REST_WORKSPACE, wsName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+
+    @Override
+    public BsonReader listFileWithFileIdxStatus(String ws, String status) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=get_file_idx_info&" + FultextRestCommonDefine.REST_WORKSPACE + "=" +  encode(ws)
+                + "&" + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long countFileWithFileIdxStatus(String ws, String status) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
+                + "?action=count_file&" + FultextRestCommonDefine.REST_WORKSPACE + "=" +  encode(ws) + "&"
+                + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
+        HttpGet request = new HttpGet(uri);
+        String countStr = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
+                request, X_SCM_COUNT);
+        return Long.valueOf(countStr);
     }
 }

@@ -14,7 +14,7 @@ import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.site.ScmContentServerMapping;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;

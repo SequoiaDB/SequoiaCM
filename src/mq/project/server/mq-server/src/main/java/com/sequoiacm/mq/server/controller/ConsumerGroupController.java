@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sequoiacm.mq.core.CommonDefine;
 import com.sequoiacm.mq.core.exception.MqError;
 import com.sequoiacm.mq.core.exception.MqException;
-import com.sequoiacm.mq.core.module.ConsumerGroupOffsetEnum;
 import com.sequoiacm.mq.core.module.ConsumerGroup;
 import com.sequoiacm.mq.core.module.ConsumerGroupDetail;
+import com.sequoiacm.mq.core.module.ConsumerGroupOffsetEnum;
 import com.sequoiacm.mq.core.module.ConsumerPartitionInfo;
 import com.sequoiacm.mq.server.service.ConsumerGroupService;
 import com.sequoiacm.mq.server.service.PartitionService;
@@ -60,8 +60,17 @@ public class ConsumerGroupController {
     }
 
     @GetMapping(value = "/msg_queue/consumer_groups")
-    public List<ConsumerGroupDetail> getGroups() throws MqException {
-        List<ConsumerGroup> groups = consumerGroupService.getAllGroup();
+    public List<ConsumerGroupDetail> getGroups(
+            @RequestParam(value = CommonDefine.REST_TOPIC, required = false) String topic)
+            throws MqException {
+        List<ConsumerGroup> groups;
+        if (topic == null) {
+            groups = consumerGroupService.getAllGroup();
+        }
+        else {
+            groups = consumerGroupService.getGroupsByTopic(topic);
+        }
+
         List<ConsumerGroupDetail> ret = new ArrayList<>(groups.size());
         for (ConsumerGroup group : groups) {
             List<ConsumerPartitionInfo> consumerPartitonInfos = partitionService

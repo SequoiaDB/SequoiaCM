@@ -6,7 +6,8 @@ import java.util.List;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
 
 public class ScmDirPath {
     public final static String PATH_SPILT = CommonDefine.Directory.SCM_DIR_SEP;
@@ -27,6 +28,9 @@ public class ScmDirPath {
         }
         else {
             String[] nameArray = path.split(PATH_SPILT);
+            if (nameArray.length < 1) {
+                throw new ScmSystemException("path unformatted, path=" + path);
+            }
             // when name array index=0, name is empty
             nameArray[0] = CommonDefine.Directory.SCM_ROOT_DIR_NAME;
             names = Arrays.asList(nameArray);

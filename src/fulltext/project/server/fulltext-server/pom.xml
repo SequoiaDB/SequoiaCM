@@ -1,0 +1,147 @@
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.sequoiadb</groupId>
+        <artifactId>sequoiacm-fulltext</artifactId>
+        <version>3.1.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>sequoiacm-fulltext-server</artifactId>
+    <name>SequoiaCM Full Text Server</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-fulltext-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-content-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiadb-driver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-schedule-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-server-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-lock</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-config-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>6.8.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>6.8.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.14.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>tesseract-platform</artifactId>
+            <version>4.0.0-1.4.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-security-auth</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

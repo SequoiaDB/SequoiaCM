@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 
 import feign.Response;
@@ -53,6 +53,16 @@ public interface ContentServerClient {
     @GetMapping(value = "/api/v1/files/{fileId}")
     public Response downloadFile(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @PathVariable("fileId") String fileId,
+            @RequestParam(CommonDefine.RestArg.FILE_MAJOR_VERSION) int mojorVersion,
+            @RequestParam(CommonDefine.RestArg.FILE_MINOR_VERSION) int minorVersion,
+            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
+            throws ScmServerException;
+    
+    // **************file******************//
+    @GetMapping(value = "/internal/v1/files/{fileId}")
+    public Response downloadFileInternal(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("fileId") String fileId,
             @RequestParam(CommonDefine.RestArg.FILE_MAJOR_VERSION) int mojorVersion,

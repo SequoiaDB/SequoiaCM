@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.remote;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionConverter;

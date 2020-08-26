@@ -27,6 +27,9 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
 
     @Override
     public SysWorkspaceTableDao getSysWorkspaceTable(Transaction transaction) {
+        if (transaction == null) {
+            return new SysWorkspaceTableDaoSdbImpl(sdbMetasource);
+        }
         return new SysWorkspaceTableDaoSdbImpl(transaction);
     }
 

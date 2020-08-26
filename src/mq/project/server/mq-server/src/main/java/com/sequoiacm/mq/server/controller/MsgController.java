@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,10 +23,10 @@ public class MsgController {
 
     @PostMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
             + CommonDefine.REST_ACTION_PUT)
-    public void putMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic,
+    public long putMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic,
             @RequestParam(CommonDefine.REST_KEY) String key,
             @RequestParam(CommonDefine.REST_MSG_CONTENT) BSONObject content) throws MqException {
-        service.putMsg(topic, key, content);
+        return service.putMsg(topic, key, content);
     }
 
     @PostMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
@@ -47,5 +48,11 @@ public class MsgController {
             @RequestParam(value = CommonDefine.REST_ACK_MSGS, required = false) List<Long> ackMsgs)
             throws MqException {
         return service.pullMsg(group, consumer, pullSize, ackPartition, ackMsgs);
+    }
+
+    @GetMapping(value = "/msg")
+    public MessageInternal peekMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic)
+            throws MqException {
+        return service.peekLatestMessage(topic);
     }
 }

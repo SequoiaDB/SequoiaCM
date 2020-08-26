@@ -12,9 +12,11 @@ public interface MsgService {
     public List<MessageInternal> pullMsg(String consumerGroup, String consumer, int pullMaxRetSize,
             int ackPartitionNum, List<Long> ackMsg) throws MqException;
 
-    public void putMsg(String topic, String key, BSONObject content) throws MqException;
+    public long putMsg(String topic, String key, BSONObject content) throws MqException;
 
     public void commitMsg(String consumerGroup, String consumer, int partitionNum,
             List<Long> commitMsg) throws MqException;
+
+    public MessageInternal peekLatestMessage(String topic) throws MqException;
 
 }

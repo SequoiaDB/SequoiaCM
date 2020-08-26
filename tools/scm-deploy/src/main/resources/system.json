@@ -182,6 +182,10 @@
         {
             "csName": "SCMSYSTEM",
             "clName": "MQ_CONSUMER_PARTITION_INFO"
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "SCHEDULE_STATUS"
         }
     ]
 }

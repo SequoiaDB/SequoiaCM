@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;

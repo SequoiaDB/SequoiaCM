@@ -18,7 +18,8 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
+import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -31,6 +32,7 @@ import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
@@ -43,17 +45,18 @@ public class FileContentUpdateDao {
     private int clientMinorVersion;
     private ScmWorkspaceInfo ws;
     private ScmContentServer contentserver = ScmContentServer.getInstance();
-
     private ScmUpdateContentOption option;
+    private FileOperationListenerMgr listenerMgr;
 
     public FileContentUpdateDao(String user, String wsName, String fileId, int majorVersion,
-            int minorVersion, ScmUpdateContentOption option) throws ScmServerException {
+            int minorVersion, ScmUpdateContentOption option, FileOperationListenerMgr listenerMgr) throws ScmServerException {
         this.user = user;
         this.fileId = fileId;
         this.clientMajorVersion = majorVersion;
         this.clientMinorVersion = minorVersion;
         this.option = option;
         this.ws = contentserver.getWorkspaceInfoChecked(wsName);
+        this.listenerMgr = listenerMgr;
     }
 
     public BSONObject updateContent(String breakpointFileName) throws ScmServerException {
@@ -194,13 +197,16 @@ public class FileContentUpdateDao {
     // updated info
     private BSONObject updateMeta(long createTime, String dataId, long dataSize, int siteId,
             String breakFileName, String md5) throws ScmServerException {
+        BSONObject newVersionUpdator;
+        OperationCompleteCallback onCompleteCallback;
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
             BSONObject currentFile = getCurrentFileAndCheckVersion();
             BSONObject historyRec = createHistoryRecord(currentFile);
-            BSONObject newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId,
+            newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId,
                     dataSize, createTime, md5);
+            listenerMgr.preUpdateContent(ws, newVersionUpdator);
             if (breakFileName == null) {
                 contentserver.getMetaService().addNewFileVersion(ws.getName(), ws.getMetaLocation(),
                         fileId, historyRec, newVersionUpdator);
@@ -209,11 +215,13 @@ public class FileContentUpdateDao {
                 contentserver.getMetaService().breakpointFileToNewVersionFile(ws.getName(),
                         ws.getMetaLocation(), breakFileName, fileId, historyRec, newVersionUpdator);
             }
-            return newVersionUpdator;
+            onCompleteCallback = listenerMgr.postUpdateContent(ws, fileId);
         }
         finally {
             writeLock.unlock();
         }
+        onCompleteCallback.onComplete();
+        return newVersionUpdator;
     }
 
     private BSONObject createNewVersionUpdator(BSONObject currentFile, String dataId, int siteId,
@@ -277,6 +285,8 @@ public class FileContentUpdateDao {
         if (md5 != null) {
             historyRec.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
         }
+        historyRec.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
+                currentFile.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
         return historyRec;
     }
 

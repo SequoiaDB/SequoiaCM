@@ -17,7 +17,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmFileReader;
 import com.sequoiacm.contentserver.remote.ScmLocalFileReader;

@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.transaction;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 
 import com.sequoiacm.common.FieldName;

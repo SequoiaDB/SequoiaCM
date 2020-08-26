@@ -17,8 +17,8 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -30,6 +30,7 @@ import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaFileHistoryAccessor;
@@ -45,15 +46,18 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
 
     private String sessionId;
     private String userDetail;
+    private FileOperationListenerMgr listenerMgr;
 
     public ScmFileDeletorPysical(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo,
-            String fileId, int majorVersion, int minorVersion) {
+            String fileId, int majorVersion, int minorVersion,
+            FileOperationListenerMgr listenerMgr) {
         this.wsInfo = wsInfo;
         this.fileId = fileId;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
         this.sessionId = sessionId;
         this.userDetail = userDetail;
+        this.listenerMgr = listenerMgr;
     }
 
     @Override
@@ -127,6 +131,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         for (BSONObject fileRecord : allVersionFile) {
             deleteData(fileRecord);
         }
+        listenerMgr.postDelete(wsInfo, allVersionFile);
     }
 
     private void deleteData(BSONObject file) {

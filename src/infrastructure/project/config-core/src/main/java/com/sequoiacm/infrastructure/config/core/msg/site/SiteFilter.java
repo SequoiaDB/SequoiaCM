@@ -10,6 +10,10 @@ public class SiteFilter implements ConfigFilter {
 
     private String siteName;
 
+    public SiteFilter() {
+
+    }
+
     public SiteFilter(String siteName) {
         this.siteName = siteName;
     }

@@ -15,7 +15,6 @@ import com.sequoiacm.contentserver.cache.ScmDirCache;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.site.ScmBizConf;
 import com.sequoiacm.contentserver.site.ScmSite;
@@ -25,6 +24,8 @@ import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 
@@ -43,6 +44,8 @@ public class ScmWorkspaceInfo {
     private Map<Integer, BSONObject> dataInfoMap = new LinkedHashMap<>();
     private BSONObject wsBson;
     private ScmDirCache dirCache;
+
+    private ScmWorkspaceFulltextExtData fulltextExtData;
 
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
         try {
@@ -76,6 +79,8 @@ public class ScmWorkspaceInfo {
             if (PropertiesUtils.enableDirCache()) {
                 dirCache = new ScmDirCache(name, PropertiesUtils.getDirCacheMaxSize());
             }
+
+            fulltextExtData = new ScmWorkspaceFulltextExtData(name, id, wsObj.getExternalData());
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -215,5 +220,9 @@ public class ScmWorkspaceInfo {
 
     public ScmDirCache getDirCache() {
         return dirCache;
+    }
+
+    public ScmWorkspaceFulltextExtData getFulltextExtData() {
+        return fulltextExtData;
     }
 }

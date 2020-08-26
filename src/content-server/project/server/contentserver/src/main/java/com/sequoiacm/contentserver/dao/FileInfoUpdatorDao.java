@@ -17,7 +17,6 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -27,6 +26,7 @@ import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class FileInfoUpdatorDao {
@@ -38,6 +38,7 @@ public class FileInfoUpdatorDao {
     private int majorVersion;
     private int minorVersion;
     private String user;
+    private BSONObject latestFileInfo;
 
     public FileInfoUpdatorDao(String user, ScmWorkspaceInfo ws, String fileId, int majorVersion,
             int minorVersion, BSONObject updator) throws ScmServerException {
@@ -48,6 +49,16 @@ public class FileInfoUpdatorDao {
         this.minorVersion = minorVersion;
         this.user = user;
         this.metaService = ScmContentServer.getInstance().getMetaService();
+        this.latestFileInfo = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
+                fileId);
+        if (latestFileInfo == null) {
+            throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
+                    + majorVersion + ",minorVersion=" + minorVersion);
+        }
+    }
+
+    public BSONObject getFileInfoBeforeUpdate() {
+        return latestFileInfo;
     }
 
     public BSONObject updateInfo() throws ScmServerException {
@@ -98,25 +109,10 @@ public class FileInfoUpdatorDao {
     private void updateClassProperties() throws ScmServerException, ScmInvalidArgumentException {
         String classIdKey = FieldName.FIELD_CLFILE_FILE_CLASS_ID;
         String propertiesKey = FieldName.FIELD_CLFILE_PROPERTIES;
-
-        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
-        ScmLock wLock = null;
-
-        try {
-            wLock = writeLock(lockPath);
-            BSONObject file = metaService.getFileInfo(ws.getMetaLocation(), ws.getName(), fileId,
-                    majorVersion, minorVersion);
-            if (file != null) {
-                String classId = (String) file.get(classIdKey);
-                MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updator,
-                        classIdKey, propertiesKey, classId);
-
-                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
-            }
-        }
-        finally {
-            unlock(wLock, lockPath);
-        }
+        String classId = (String) latestFileInfo.get(classIdKey);
+        MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updator, classIdKey,
+                propertiesKey, classId);
+        metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
     }
 
     private void rename() throws ScmServerException {
@@ -124,13 +120,9 @@ public class FileInfoUpdatorDao {
         if (!ScmArgChecker.File.checkFileName(fileName)) {
             throw new ScmInvalidArgumentException("invalid arg:newFileName=" + fileName);
         }
-        BSONObject file = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
-                fileId);
-        if (file == null) {
-            throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
-                    + majorVersion + ",minorVersion=" + minorVersion);
-        }
-        checkExistDir(fileName, (String) file.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID));
+
+        checkExistDir(fileName,
+                (String) latestFileInfo.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID));
         metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
     }
 
@@ -140,13 +132,7 @@ public class FileInfoUpdatorDao {
         // updator only have one properties now,
         String fileName = (String) updator.get(FieldName.FIELD_CLFILE_NAME);
         if (fileName == null) {
-            BSONObject file = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
-                    fileId);
-            if (file == null) {
-                throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
-                        + majorVersion + ",minorVersion=" + minorVersion);
-            }
-            fileName = (String) file.get(FieldName.FIELD_CLFILE_NAME);
+            fileName = (String) latestFileInfo.get(FieldName.FIELD_CLFILE_NAME);
         }
 
         checkExistDir(fileName, parentDirId);

@@ -10,6 +10,9 @@ public class WorkspaceFilter implements ConfigFilter {
 
     private String wsName;
 
+    public WorkspaceFilter() {
+    }
+
     public WorkspaceFilter(String wsName) {
         this.wsName = wsName;
     }

@@ -33,7 +33,7 @@ import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.BreakpointFileJsonSerializer;

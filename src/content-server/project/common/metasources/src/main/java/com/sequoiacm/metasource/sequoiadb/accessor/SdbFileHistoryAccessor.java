@@ -42,6 +42,7 @@ public class SdbFileHistoryAccessor extends SdbFileBaseAccessor implements MetaF
         }
     }
 
+
     @Override
     public boolean updateMd5(String fileId, int majorVersion, int minorVersion, String md5)
             throws ScmMetasourceException {
@@ -70,4 +71,27 @@ public class SdbFileHistoryAccessor extends SdbFileBaseAccessor implements MetaF
         }
     }
 
+    @Override
+    public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
+            BSONObject newFileInfo) throws ScmMetasourceException {
+        try {
+            BSONObject updator = new BasicBSONObject("$set", newFileInfo);
+            BSONObject matcher = new BasicBSONObject();
+            SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
+            return queryAndUpdate(matcher, updator, null);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("updateFileInfo failed:table=" + getCsName() + "." + getClName()
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "updateFileInfo failed:table=" + getCsName() + "." + getClName() + ",fileId="
+                            + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                            + minorVersion,
+                    e);
+        }
+    }
 }

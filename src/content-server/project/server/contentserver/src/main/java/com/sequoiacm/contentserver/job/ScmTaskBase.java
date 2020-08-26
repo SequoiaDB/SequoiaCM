@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.common.ServiceDefine;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 

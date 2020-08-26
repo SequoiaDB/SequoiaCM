@@ -40,6 +40,10 @@
         {
 			"name": "mq",
 			"modulePomPath": "../../src/mq/project/pom.xml"
+		},
+		{
+			"name": "fulltext",
+			"modulePomPath": "../../src/fulltext/project/pom.xml"
 		}]
 	},
 	"releasePackage": [{
@@ -76,9 +80,13 @@
 				"type": "copy",
 				"src": "../../src/mq/project/assembly/target/*-release.tar.gz"
 			},
-            {
+                        {
 				"type": "copy",
 				"src": "../../src/s3/project/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/fulltext/project/assembly/target/*-release.tar.gz"
 			}]
 		},
 		{

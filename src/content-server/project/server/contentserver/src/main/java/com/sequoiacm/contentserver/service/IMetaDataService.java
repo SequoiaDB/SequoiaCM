@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.bson.BSONObject;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
 

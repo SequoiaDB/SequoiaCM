@@ -12,7 +12,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.contentserver.site.ScmSite;

@@ -1,18 +1,20 @@
 package com.sequoiacm.schedule.remote;
 
-import com.sequoiacm.schedule.entity.ScheduleEntityTranslator;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
-import feign.Response;
-import feign.Util;
-import feign.codec.DecodeException;
-import feign.codec.Decoder;
-import org.bson.BSONObject;
-import org.bson.util.JSON;
+import static java.lang.String.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import static java.lang.String.format;
+import org.bson.BSONObject;
+import org.bson.util.JSON;
+
+import com.sequoiacm.schedule.common.model.ScheduleEntityTranslator;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
+
+import feign.Response;
+import feign.Util;
+import feign.codec.DecodeException;
+import feign.codec.Decoder;
 
 class ScheduleFullEntityDecoder implements Decoder {
 

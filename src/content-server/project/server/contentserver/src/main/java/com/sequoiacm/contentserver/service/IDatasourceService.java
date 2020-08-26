@@ -7,7 +7,7 @@ import java.util.List;
 import org.bson.BSONObject;
 
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public interface IDatasourceService {
 

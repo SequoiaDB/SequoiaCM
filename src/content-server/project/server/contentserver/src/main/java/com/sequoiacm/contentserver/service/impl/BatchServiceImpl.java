@@ -11,8 +11,9 @@ import org.springframework.util.StringUtils;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
+import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathDefine;
@@ -21,6 +22,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IBatchService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
 
@@ -31,6 +33,9 @@ public class BatchServiceImpl implements IBatchService {
 
     @Autowired
     private IBatchDao batchDao;
+
+    @Autowired
+    private FileOperationListenerMgr fileOpListenerMgr;
 
     @Override
     public BSONObject getBatchInfo(String workspaceName, String batchId, boolean isDetail)
@@ -179,7 +184,7 @@ public class BatchServiceImpl implements IBatchService {
         ScmLockPath batchLockPath = null;
         ScmLock fileLock = null;
         ScmLockPath fileLockPath = null;
-
+        OperationCompleteCallback callback = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
 
@@ -235,6 +240,7 @@ public class BatchServiceImpl implements IBatchService {
 
             // attach
             batchDao.attachFile(wsInfo, batchId, fileId, user);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
         }
         catch (ScmServerException e) {
             throw e;
@@ -248,6 +254,7 @@ public class BatchServiceImpl implements IBatchService {
             unlock(fileLock, fileLockPath);
             unlock(batchLock, batchLockPath);
         }
+        callback.onComplete();
     }
 
     @Override
@@ -257,16 +264,23 @@ public class BatchServiceImpl implements IBatchService {
         ScmLock batchLock = null;
         ScmLockPath batchLockPath = null;
 
+        ScmLock fileLock = null;
+        ScmLockPath fileLockPath = null;
+        OperationCompleteCallback callback = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
             // lock
             try {
                 batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
                 batchLock = lock(batchLockPath);
+
+                // file lock
+                fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
+                fileLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
             }
             catch (Exception e) {
                 throw new ScmSystemException(
-                        "detachFile failed, an error occurs during get batch lock: workspace="
+                        "detachFile failed, an error occurs during get lock: workspace="
                                 + workspaceName + ",batchId=" + batchId + ",fileId=" + fileId,
                         e);
             }
@@ -302,6 +316,7 @@ public class BatchServiceImpl implements IBatchService {
 
             // detach
             batchDao.detachFile(wsInfo, batchId, fileId, user);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
         }
         catch (ScmServerException e) {
             throw e;
@@ -312,8 +327,10 @@ public class BatchServiceImpl implements IBatchService {
             throw e;
         }
         finally {
+            unlock(fileLock, fileLockPath);
             unlock(batchLock, batchLockPath);
         }
+        callback.onComplete();
     }
 
     private ScmLock lock(ScmLockPath lockPath) throws Exception {

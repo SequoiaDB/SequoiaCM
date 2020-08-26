@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletResponse;
 
 import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaCursor;

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

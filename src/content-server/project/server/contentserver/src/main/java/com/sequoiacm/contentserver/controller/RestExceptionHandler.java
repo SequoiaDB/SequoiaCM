@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.exception_handler.ExceptionBody;
 import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
 import com.sequoiadb.infrastructure.map.ScmMapServerException;

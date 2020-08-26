@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.PreDestroy;
+
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,11 @@ public class ScmConfSubscriberMgr {
                 subscriber.subscribeConfigName(), subscriber.getVersionFilter(),
                 subscriber.getHeartbeatIterval());
         confVersionTasks.put(subscriber.subscribeConfigName(), checker);
+    }
+
+    @PreDestroy
+    public void destory() {
+        timer.cancel();
     }
 
     @Async
@@ -113,8 +120,8 @@ class ConfVersionChecker extends ScmTimerTask {
     @Override
     public void run() {
         try {
-            List<Version> latestVersions = client.getConfVersion(
-                    subscriber.subscribeConfigName(), subscriber.getVersionFilter());
+            List<Version> latestVersions = client.getConfVersion(subscriber.subscribeConfigName(),
+                    subscriber.getVersionFilter());
             List<String> latestVersionNames = new ArrayList<>();
             for (Version latestVersion : latestVersions) {
                 latestVersionNames.add(latestVersion.getBussinessName());

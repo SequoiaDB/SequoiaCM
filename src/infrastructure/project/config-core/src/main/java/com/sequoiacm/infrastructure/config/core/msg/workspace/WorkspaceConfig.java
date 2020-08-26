@@ -7,7 +7,6 @@ import org.bson.types.BasicBSONList;
 import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
-
 public class WorkspaceConfig implements Config {
     private String wsName;
     private int wsId;
@@ -18,8 +17,17 @@ public class WorkspaceConfig implements Config {
     private Long updateTime;
     private BSONObject metalocation;
     private BasicBSONList dataLocations;
+    private BSONObject externalData;
 
     public WorkspaceConfig() {
+    }
+
+    public BSONObject getExternalData() {
+        return externalData;
+    }
+
+    public void setExternalData(BSONObject externalData) {
+        this.externalData = externalData;
     }
 
     public String getWsName() {
@@ -106,7 +114,7 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_UPDATETIME, updateTime);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_META_LOCATION, metalocation);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION, dataLocations);
-
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA, externalData);
         return wsConfigObj;
     }
 }

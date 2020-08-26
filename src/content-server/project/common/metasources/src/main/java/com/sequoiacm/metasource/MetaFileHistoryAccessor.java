@@ -1,3 +1,4 @@
+
 package com.sequoiacm.metasource;
 
 import java.util.Date;
@@ -26,4 +27,12 @@ public interface MetaFileHistoryAccessor extends MetaAccessor {
             throws ScmMetasourceException;
 
     public void createFileTable(BSONObject file) throws ScmMetasourceException;
+    
+    // update and return old
+    public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
+            BSONObject newFileInfo) throws ScmMetasourceException;
+
+
+    public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
+            throws ScmMetasourceException;
 }

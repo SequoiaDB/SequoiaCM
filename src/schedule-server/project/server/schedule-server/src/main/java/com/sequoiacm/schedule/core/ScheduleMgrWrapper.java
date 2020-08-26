@@ -8,25 +8,28 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.ScheduleEntityTranslator;
+import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
+import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
+import com.sequoiacm.schedule.common.model.ScheduleUserEntity;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
 import com.sequoiacm.schedule.core.job.CleanJobInfo;
 import com.sequoiacm.schedule.core.job.CopyJobInfo;
+import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleMgr;
 import com.sequoiacm.schedule.core.job.quartz.QuartzScheduleMgr;
 import com.sequoiacm.schedule.dao.ScheduleDao;
-import com.sequoiacm.schedule.entity.ScheduleEntityTranslator;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
-import com.sequoiacm.schedule.entity.ScheduleNewUserInfo;
-import com.sequoiacm.schedule.entity.ScheduleUserEntity;
 import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
-import com.sequoiacm.schedule.exception.ScheduleException;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 
 public class ScheduleMgrWrapper {
@@ -42,6 +45,10 @@ public class ScheduleMgrWrapper {
 
     private ScheduleClientFactory clientFactory;
 
+    private ScheduleApplicationConfig config;
+
+    private DiscoveryClient discoveryClient;
+
     private ScheduleMgrWrapper() {
     }
 
@@ -49,9 +56,12 @@ public class ScheduleMgrWrapper {
         return instance;
     }
 
-    public void init(ScheduleDao scheduleDao, ScheduleClientFactory clientFactory) {
+    public void init(ScheduleDao scheduleDao, ScheduleClientFactory clientFactory,
+            ScheduleApplicationConfig config, DiscoveryClient discoveryClient) {
         this.scheduleDao = scheduleDao;
         this.clientFactory = clientFactory;
+        this.config = config;
+        this.discoveryClient = discoveryClient;
     }
 
     public void start() throws Exception {
@@ -61,7 +71,7 @@ public class ScheduleMgrWrapper {
                 return;
             }
 
-            mgr = new QuartzScheduleMgr();
+            mgr = new QuartzScheduleMgr(config, clientFactory, discoveryClient, scheduleDao);
             ScmBSONObjectCursor cursor = null;
             try {
                 cursor = scheduleDao.query(new BasicBSONObject());
@@ -97,6 +107,10 @@ public class ScheduleMgrWrapper {
             jobInfo = new CopyJobInfo(info.getId(), info.getType(), info.getWorkspace(),
                     info.getContent(), info.getCron());
         }
+        else if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
+            jobInfo = new InternalScheduleInfo(info.getId(), info.getName(), info.getType(),
+                    info.getWorkspace(), info.getContent(), info.getCron());
+        }
         else {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
                     "schedule type is valid:type=" + info.getType());
@@ -120,18 +134,22 @@ public class ScheduleMgrWrapper {
                 throw new Exception("mgr is null");
             }
 
-            if (info.isEnable()) {
-                mgr.createJob(jobInfo);
-            }
+            //先入库，防止任务跑起来找不到记录
             scheduleDao.insert(info);
+
+            if (info.isEnable()) {
+                try {
+                    mgr.createJob(jobInfo);
+                }
+                catch (Exception e) {
+                    logger.error("failed to create schedule job, revote now:{}", jobInfo, e);
+                    revote();
+                    return info;
+                }
+            }
             logger.info("create schedule job sucess:id={},enable={}", jobInfo.getId(),
                     info.isEnable());
             return info;
-        }
-        catch (Exception e) {
-            logger.info("deleting schedule job:id={},enable={}", info.getId(), info.isEnable());
-            deleteJobSilence(info.getId());
-            throw e;
         }
         finally {
             lock.unlock();
@@ -156,22 +174,20 @@ public class ScheduleMgrWrapper {
     }
 
     // must be in lock scope
-    private void deleteJobSilence(String jobId) {
+    private void deleteJobSilence(String jobId, boolean stopWorker) {
         try {
             if (null == mgr) {
                 return;
             }
 
-            if (mgr.getJobInfo(jobId) != null) {
-                mgr.deleteJob(jobId);
-            }
+            mgr.deleteJob(jobId, stopWorker);
         }
         catch (Exception e) {
             logger.warn("delete job failed:jobId={}", jobId, e);
         }
     }
 
-    public void deleteSchedule(String scheduleId) throws Exception {
+    public void deleteSchedule(String scheduleId, boolean stopWorker) throws Exception {
         lock.lock();
         try {
             if (null == mgr) {
@@ -179,7 +195,7 @@ public class ScheduleMgrWrapper {
             }
 
             scheduleDao.delete(scheduleId);
-            deleteJobSilence(scheduleId);
+            deleteJobSilence(scheduleId, stopWorker);
             logger.info("delete schedule job sucess:id={}", scheduleId);
         }
         catch (Exception e) {
@@ -202,7 +218,7 @@ public class ScheduleMgrWrapper {
             // remove schedule from ScheduleMgr
             for (ScheduleJobInfo createdJob : mgr.ListJob()) {
                 if (createdJob.getWorkspace().equals(wsName)) {
-                    deleteJobSilence(createdJob.getId());
+                    deleteJobSilence(createdJob.getId(), false);
                 }
             }
 
@@ -226,6 +242,11 @@ public class ScheduleMgrWrapper {
                     "schedule is not exist:schedule_id=" + scheduleId);
         }
 
+        return info;
+    }
+
+    public ScheduleFullEntity getScheduleByName(String name) throws Exception {
+        ScheduleFullEntity info = scheduleDao.queryOneByName(name);
         return info;
     }
 
@@ -256,7 +277,7 @@ public class ScheduleMgrWrapper {
             oldJobInfo = mgr.getJobInfo(scheduleId);
             if (oldJobInfo != null) {
                 // 1.delete old
-                mgr.deleteJob(scheduleId);
+                mgr.deleteJob(scheduleId, false);
                 isOldJobDeleted = true;
             }
 
@@ -280,7 +301,7 @@ public class ScheduleMgrWrapper {
             // restore the old job
             try {
                 if (isNewJobCreated) {
-                    mgr.deleteJob(scheduleId);
+                    mgr.deleteJob(scheduleId, false);
                 }
 
                 if (isOldJobDeleted) {

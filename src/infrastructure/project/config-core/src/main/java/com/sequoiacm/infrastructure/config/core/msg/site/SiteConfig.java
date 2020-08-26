@@ -65,4 +65,11 @@ public class SiteConfig implements Config {
         }
         return siteConfigObj;
     }
+
+    @Override
+    public String toString() {
+        return "SiteConfig [id=" + id + ", name=" + name + ", isRootSite=" + isRootSite
+                + ", dataSource=" + dataSource + ", metaSource=" + metaSource + "]";
+    }
+
 }

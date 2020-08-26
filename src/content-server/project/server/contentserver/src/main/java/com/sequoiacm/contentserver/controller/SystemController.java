@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.service.ISystemService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
 import com.sequoiacm.metasource.MetaCursor;

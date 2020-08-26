@@ -1,0 +1,49 @@
+package com.sequoiacm.fulltext.server.parser;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.springframework.stereotype.Component;
+
+import com.sequoiacm.common.MimeType;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
+import com.sequoiacm.infrastructure.common.IOUtils;
+
+@Component
+public class DocParser extends TextualParser {
+    
+    
+    public static void main(String[] args)
+            throws FileNotFoundException, IOException, FullTextException {
+        DocParser x = new DocParser();
+        String ext = x.parse(new FileInputStream("D:\\data\\text_test_data\\doc.doc"));
+        System.out.println(ext);
+    }
+
+    @Override
+    public String parse(InputStream src) throws FullTextException {
+        WordExtractor ext = null;
+        try {
+            ext = new WordExtractor(src);
+            return ext.getText();
+        }
+        catch (IOException e) {
+            throw new FullTextException(ScmError.SYSTEM_ERROR, "failed to parse file", e);
+        }
+        finally {
+            IOUtils.close(ext);
+        }
+    }
+
+    @Override
+    public List<MimeType> type() {
+        return Arrays.asList(MimeType.MSWORD);
+    }
+
+}

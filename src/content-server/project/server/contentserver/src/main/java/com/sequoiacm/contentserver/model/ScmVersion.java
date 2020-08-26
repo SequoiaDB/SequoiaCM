@@ -1,7 +1,7 @@
 package com.sequoiacm.contentserver.model;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 
 public class ScmVersion {

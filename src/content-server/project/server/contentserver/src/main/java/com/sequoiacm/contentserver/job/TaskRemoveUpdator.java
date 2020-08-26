@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.job;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 
 public class TaskRemoveUpdator implements TaskUpdator {

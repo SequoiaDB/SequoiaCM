@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.exception;
 
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 
 public class ScmFileExistException extends ScmServerException {
 

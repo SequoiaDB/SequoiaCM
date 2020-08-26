@@ -10,7 +10,7 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 
 public class ScmArgumentChecker {

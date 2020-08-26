@@ -15,7 +15,6 @@ import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.bizconfig.MetaDataConfSubscriber;
 import com.sequoiacm.contentserver.bizconfig.NodeConfSubscriber;
@@ -23,7 +22,6 @@ import com.sequoiacm.contentserver.bizconfig.SiteConfSubscriber;
 import com.sequoiacm.contentserver.bizconfig.WorkspaceConfSubscriber;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmDataSourceHandler;
@@ -74,14 +72,14 @@ public class ScmApplication implements ApplicationRunner {
                 logger.info("{}={}", o, args.getOptionValues(o));
             }
 
-            if (!args.containsOption(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION)
-                    || !args.containsOption(PropertiesDefine.LOGGING_CONFIG)) {
-                logger.error("{} or {} must be specified in command line",
-                        PropertiesDefine.APPLICATION_PROPERTIES_LOCATION,
-                        PropertiesDefine.LOGGING_CONFIG);
-                throw new ScmSystemException(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION
-                        + " or " + PropertiesDefine.LOGGING_CONFIG + " must be specified");
-            }
+//            if (!args.containsOption(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION)
+//                    || !args.containsOption(PropertiesDefine.LOGGING_CONFIG)) {
+//                logger.error("{} or {} must be specified in command line",
+//                        PropertiesDefine.APPLICATION_PROPERTIES_LOCATION,
+//                        PropertiesDefine.LOGGING_CONFIG);
+//                throw new ScmSystemException(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION
+//                        + " or " + PropertiesDefine.LOGGING_CONFIG + " must be specified");
+//            }
 
             String jarDir = ScmSystemUtils.getMyDir(ScmServer.class);
             logger.info("jarDir=" + jarDir);

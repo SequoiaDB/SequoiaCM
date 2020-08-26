@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.metadata;
 import org.bson.BSONObject;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public class BooleanRule implements AttrRule {
     

@@ -11,7 +11,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;

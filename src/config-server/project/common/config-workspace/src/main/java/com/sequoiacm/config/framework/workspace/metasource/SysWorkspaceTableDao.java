@@ -7,7 +7,12 @@ import com.sequoiacm.config.metasource.exception.MetasourceException;
 
 public interface SysWorkspaceTableDao extends TableDao {
     // update and return new
-    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId) throws MetasourceException;
+    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId)
+            throws MetasourceException;
 
-    public BSONObject addDataLocation(BSONObject oldWsRecord, BSONObject location) throws MetasourceException;
+    public BSONObject addDataLocation(BSONObject oldWsRecord, BSONObject location)
+            throws MetasourceException;
+
+    public BSONObject updateExternalData(BSONObject matcher, BSONObject externalData)
+            throws MetasourceException;
 }

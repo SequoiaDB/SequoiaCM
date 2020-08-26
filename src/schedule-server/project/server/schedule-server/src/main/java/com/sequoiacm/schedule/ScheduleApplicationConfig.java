@@ -1,5 +1,7 @@
 package com.sequoiacm.schedule;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -222,6 +224,30 @@ class ConfigRevoteInterval {
 }
 
 @Component
+@ConfigurationProperties(prefix = "scm.internalSchedule")
+class ConfigInternalSchedule {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigInternalSchedule.class);
+    //second
+    private int healthCheckInterval = 30;
+
+    public int getHealthCheckInterval() {
+        return healthCheckInterval;
+    }
+
+    public void setHealthCheckInterval(int healthCheckInterval) {
+        if (healthCheckInterval < 1) {
+            logger.warn(
+                    "invalid value for scm.internalSchedule.healthCheckInterval:{}, reset to 30s",
+                    healthCheckInterval);
+            this.healthCheckInterval = 30;
+            return;
+        }
+        this.healthCheckInterval = healthCheckInterval;
+    }
+
+}
+
+@Component
 @Configuration
 public class ScheduleApplicationConfig {
     @Autowired
@@ -229,7 +255,8 @@ public class ScheduleApplicationConfig {
 
     @Autowired
     private ConfigSdb configSdb;
-
+    @Autowired
+    private ConfigInternalSchedule configInternalSch;
     @Autowired
     private ConfigRevoteInterval configRevoteInterval;
 
@@ -241,10 +268,10 @@ public class ScheduleApplicationConfig {
 
     @Value("${scm.conf.version.workspaceHeartbeat:180000}")
     private long workspaceHeartbeat;
-    
+
     @Value("${scm.conf.version.siteHeartbeat:180000}")
     private long siteHeartbeat;
-    
+
     @Value("${scm.conf.version.nodeHeartbeat:180000}")
     private long nodeHeartbeat;
 
@@ -323,7 +350,7 @@ public class ScheduleApplicationConfig {
     public long getWorkspaceHeartbeat() {
         return workspaceHeartbeat;
     }
-    
+
     public long getSiteHeartbeat() {
         return siteHeartbeat;
     }
@@ -331,7 +358,7 @@ public class ScheduleApplicationConfig {
     public long getSreverNodeHeartbeat() {
         return nodeHeartbeat;
     }
-    
+
     public long getRevoteInitialInterval() {
         return configRevoteInterval.getInitialInterval();
     }
@@ -342,5 +369,9 @@ public class ScheduleApplicationConfig {
 
     public double getRevoteIntervalMultiplier() {
         return configRevoteInterval.getIntervalMultiplier();
+    }
+
+    public int getInternalSchHealthCheckInterval() {
+        return configInternalSch.getHealthCheckInterval();
     }
 }

@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.sequoiadb</groupId>
-            <artifactId>sequoiacm-mq-client</artifactId>
+            <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>

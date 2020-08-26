@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IDatasourceService;

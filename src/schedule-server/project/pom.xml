@@ -31,7 +31,9 @@
     </properties>
 
     <modules>
+        <module>./common/common</module>
         <module>./server/schedule-server</module>
+        <module>./common/client</module>
         <module>./common/tools</module>
         <module>./assembly</module>
     </modules>
@@ -109,6 +111,18 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-schedule-tools</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-schedule-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-schedule-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

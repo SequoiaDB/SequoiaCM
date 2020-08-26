@@ -35,14 +35,14 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy)
             throws SdbMetasourceException {
         MetaCursor cursor = super.query(matcher, selector, orderBy);
-        if(selector != null && !selector.containsField(FieldName.FIELD_CLFILE_FILE_SITE_LIST)) {
+        if (selector != null && !selector.containsField(FieldName.FIELD_CLFILE_FILE_SITE_LIST)) {
             return cursor;
         }
 
         try {
             return new FileCursorWithNullSiteFilter(cursor);
         }
-        catch(Exception e) {
+        catch (Exception e) {
             cursor.close();
             throw e;
         }
@@ -56,15 +56,16 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         return record;
     }
 
-    private void createSubHistoryFile(Sequoiadb sdb, Date createDate) throws SdbMetasourceException {
+    private void createSubHistoryFile(Sequoiadb sdb, Date createDate)
+            throws SdbMetasourceException {
         SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate);
         String subClName = metaCLInfo.getClHistoryName();
         String clFullName = getCsName() + "." + subClName;
         try {
             BSONObject options = generatorClFileOptions();
             options.putAll(metaCLInfo.getClOptions());
-            logger.info(
-                    "creating cl:cl=" + getCsName() + "." + subClName + ",options=" + options.toString());
+            logger.info("creating cl:cl=" + getCsName() + "." + subClName + ",options="
+                    + options.toString());
             SequoiadbHelper.createCL(sdb, getCsName(), subClName, options);
 
             BSONObject indexDef = new BasicBSONObject();
@@ -72,14 +73,14 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             indexDef.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, 1);
             indexDef.put(FieldName.FIELD_CLFILE_MINOR_VERSION, 1);
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_ID + "_version",
-                    indexDef, true, false);
+                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_ID + "_version", indexDef,
+                    true, false);
 
             indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, 1);
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_ID, indexDef,
-                    false, false);
+                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_ID, indexDef, false,
+                    false);
 
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaCLInfo.getLowMonth());
@@ -90,8 +91,8 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             options.put("LowBound", lowb);
             options.put("UpBound", upperb);
             logger.info("attaching cl:cl=" + clFullName + ",options=" + options.toString());
-            SequoiadbHelper.attachCL(sdb, getCsName(), getClName() + "_HISTORY",
-                    clFullName, options);
+            SequoiadbHelper.attachCL(sdb, getCsName(), getClName() + "_HISTORY", clFullName,
+                    options);
         }
         catch (SdbMetasourceException e) {
             throw e;
@@ -116,7 +117,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         return options;
     }
 
-    private void createSubCl(Sequoiadb sdb,Date createDate) throws SdbMetasourceException {
+    private void createSubCl(Sequoiadb sdb, Date createDate) throws SdbMetasourceException {
         SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate);
         String subClName = metaCLInfo.getClName();
         String clFullName = getCsName() + "." + subClName;
@@ -146,8 +147,9 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
 
             indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, 1);
-            SequoiadbHelper.createIndex(sdb, getCsName(), subClName, "idx_" + subClName + "_"
-                    + FieldName.FIELD_CLFILE_INNER_CREATE_TIME, indexDef, false, false);
+            SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
+                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_INNER_CREATE_TIME, indexDef,
+                    false, false);
 
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaCLInfo.getLowMonth());
@@ -158,8 +160,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             options.put("LowBound", lowb);
             options.put("UpBound", upperb);
             logger.info("attaching cl:cl=" + clFullName + ",options=" + options.toString());
-            SequoiadbHelper.attachCL(sdb, getCsName(), getClName(), clFullName,
-                    options);
+            SequoiadbHelper.attachCL(sdb, getCsName(), getClName(), clFullName, options);
         }
         catch (SdbMetasourceException e) {
             throw e;
@@ -190,7 +191,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "delete failed:table=" + getCsName() + "." + getClName() + ",fileId=" + fileId
-                    + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion,
+                            + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion,
                     e);
         }
     }
@@ -204,20 +205,21 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
 
-            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId,date.getTime());
+            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId, date.getTime());
             return updateAndCheck(matcher, updator);
         }
         catch (SdbMetasourceException e) {
             logger.error("addToSiteList failed:table=" + getCsName() + "." + getClName()
-            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-            + ",minorVersion=" + minorVersion + ",siteId=" + siteId);
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion + ",siteId=" + siteId);
             throw e;
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
-                    "addToSiteList failed:table=" + getCsName() + "." + getClName()
-                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-                    + ",minorVersion=" + minorVersion + ",siteId=" + siteId, e);
+                    "addToSiteList failed:table=" + getCsName() + "." + getClName() + ",fileId="
+                            + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                            + minorVersion + ",siteId=" + siteId,
+                    e);
         }
     }
 
@@ -231,15 +233,16 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         }
         catch (SdbMetasourceException e) {
             logger.error("deleteNullFromSiteList failed:table=" + getCsName() + "." + getClName()
-            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-            + ",minorVersion=" + minorVersion);
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
             throw e;
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "deleteNullFromSiteList failed:table=" + getCsName() + "." + getClName()
-                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-                    + ",minorVersion=" + minorVersion, e);
+                            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion,
+                    e);
         }
     }
 
@@ -278,15 +281,16 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         }
         catch (SdbMetasourceException e) {
             logger.error("updateAccessTime failed:table=" + getCsName() + "." + getClName()
-            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-            + ",minorVersion=" + minorVersion);
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
             throw e;
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
-                    "updateAccessTime failed:table=" + getCsName() + "." + getClName()
-                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-                    + ",minorVersion=" + minorVersion, e);
+                    "updateAccessTime failed:table=" + getCsName() + "." + getClName() + ",fileId="
+                            + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                            + minorVersion,
+                    e);
         }
     }
 
@@ -300,26 +304,27 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
 
             BSONObject updator = SequoiadbHelper.unsetDollar0FromList();
-            if(updateAndCheck(matcher, updator)) {
+            if (updateAndCheck(matcher, updator)) {
                 return deleteNullFromSiteList(fileId, majorVersion, minorVersion);
             }
             return false;
         }
         catch (SdbMetasourceException e) {
             logger.error("deleteFromSiteList failed:table=" + getCsName() + "." + getClName()
-            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-            + ",minorVersion=" + minorVersion);
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
             throw e;
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "deleteFromSiteList failed:table=" + getCsName() + "." + getClName()
-                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion
-                    + ",minorVersion=" + minorVersion, e);
+                            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion,
+                    e);
         }
     }
 
-    public void createFileTable(BSONObject file) throws SdbMetasourceException{
+    public void createFileTable(BSONObject file) throws SdbMetasourceException {
         long createTime = (long) file.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
         Date createDate = new Date(createTime);
 
@@ -332,5 +337,16 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         finally {
             releaseConnection(sdb);
         }
+    }
+
+    public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
+            throws ScmMetasourceException {
+        BSONObject updator = new BasicBSONObject();
+        for (String key : externalData.keySet()) {
+            updator.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "." + key,
+                    externalData.get(key));
+        }
+        updator = new BasicBSONObject("$set", updator);
+        return queryAndUpdate(matcher, updator, null, true);
     }
 }

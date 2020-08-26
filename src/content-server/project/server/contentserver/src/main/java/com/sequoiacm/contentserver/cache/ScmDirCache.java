@@ -5,7 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public class ScmDirCache {
     public final static long DEFAULT_VERSION = -1;

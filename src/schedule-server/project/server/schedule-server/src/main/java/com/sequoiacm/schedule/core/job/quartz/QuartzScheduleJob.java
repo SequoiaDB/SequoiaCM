@@ -8,8 +8,10 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.common.RestCommonDefine;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
-import com.sequoiacm.schedule.exception.ScheduleException;
 
 abstract class QuartzScheduleJob implements Job {
     private static final Logger logger = LoggerFactory.getLogger(QuartzScheduleJob.class);
@@ -24,8 +26,13 @@ abstract class QuartzScheduleJob implements Job {
 
         ScheduleJobInfo info = null;
         try {
-            info = QuartzScheduleTools.createJobInfo(dataMap);
-            execute(info);
+            info = (ScheduleJobInfo) dataMap.get(FieldName.Schedule.FIELD_SCH_INFO);
+            if (info == null) {
+                throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                        "schedule info not found in datamap:key="
+                                + FieldName.Schedule.FIELD_SCH_INFO + ", datamap=" + dataMap);
+            }
+            execute(info, context);
         }
         catch (Exception e) {
             logger.warn("execute job failed:info={}", info, e);
@@ -33,5 +40,6 @@ abstract class QuartzScheduleJob implements Job {
         }
     }
 
-    public abstract void execute(ScheduleJobInfo info) throws ScheduleException;
+    public abstract void execute(ScheduleJobInfo info, JobExecutionContext context)
+            throws ScheduleException, JobExecutionException;
 }

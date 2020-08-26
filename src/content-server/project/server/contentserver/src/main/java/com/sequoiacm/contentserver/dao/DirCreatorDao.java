@@ -9,7 +9,7 @@ import com.sequoiacm.contentserver.cache.ScmDirCache;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DirOperator.DirInfo;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;

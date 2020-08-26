@@ -3,6 +3,8 @@ package com.sequoiacm.client.core;
 import java.util.Date;
 import java.util.List;
 
+import org.bson.BSONObject;
+
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.exception.ScmException;
@@ -106,4 +108,6 @@ public abstract class ScmWorkspace {
     abstract int getId();
 
     abstract void setId(int id);
+    
+    abstract BSONObject getExtData();
 }

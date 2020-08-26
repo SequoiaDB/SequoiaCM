@@ -104,6 +104,10 @@
         </dependency>
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-fulltext-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-crypto</artifactId>
         </dependency>
         <dependency>
@@ -154,6 +158,11 @@
         <dependency>
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
         </dependency>
     </dependencies>
 

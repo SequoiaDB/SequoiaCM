@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.schedule.common.RestCommonDefine;
-import com.sequoiacm.schedule.entity.ScheduleFullEntity;
-import com.sequoiacm.schedule.exception.ScheduleException;
+import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
 
 public interface ScheduleClient {
 

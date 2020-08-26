@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.remote;
 import java.util.Collection;
 import java.util.Map;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.infrastructure.feign.ScmFeignErrorDecoder;
 

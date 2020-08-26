@@ -15,6 +15,8 @@ import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 
 public interface MessageDispatcher extends Closeable {
 
@@ -66,6 +68,9 @@ public interface MessageDispatcher extends Closeable {
 
     BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
             BSONObject orderby, long skip, long limit) throws ScmException;
+
+    BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit, BSONObject selector) throws ScmException;
 
     BsonReader getSiteList(BSONObject condition) throws ScmException;
 
@@ -263,4 +268,26 @@ public interface MessageDispatcher extends Closeable {
 
     String calcScmFileMd5(String wsName, String fileId, int majorVersion, int minorVersion)
             throws ScmException;
+
+
+    void createFulltextIndex(String wsName, BSONObject fileCondition, ScmFulltextMode mode)
+            throws ScmException;
+
+    void dropFulltextIndex(String wsName) throws ScmException;
+
+    void updateFulltextIndex(String wsName, BSONObject newFileCondition, ScmFulltextMode mode)
+            throws ScmException;
+
+    ScmFulltexInfo getWsFulltextIdxInfo(String wsName) throws ScmException;
+
+    BsonReader fulltextSearch(String ws, int scope, BSONObject fileCondition,
+            BSONObject contentCondition) throws ScmException;
+
+    void rebuildFulltextIdx(String ws, String fileId) throws ScmException;
+
+    void inspectFulltextIndex(String wsName) throws ScmException;
+
+    BsonReader listFileWithFileIdxStatus(String ws, String status) throws ScmException;
+
+    long countFileWithFileIdxStatus(String ws, String status) throws ScmException;
 }

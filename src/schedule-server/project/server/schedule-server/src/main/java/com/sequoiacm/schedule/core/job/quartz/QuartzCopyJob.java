@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
+import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +16,13 @@ import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.job.CopyJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.entity.FileServerEntity;
 import com.sequoiacm.schedule.entity.TaskEntity;
-import com.sequoiacm.schedule.exception.ScheduleException;
 import com.sequoiacm.schedule.remote.ScheduleClient;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 
@@ -29,7 +30,7 @@ public class QuartzCopyJob extends QuartzScheduleJob {
     private static final Logger logger = LoggerFactory.getLogger(QuartzCopyJob.class);
 
     @Override
-    public void execute(ScheduleJobInfo info) throws ScheduleException {
+    public void execute(ScheduleJobInfo info, JobExecutionContext context) throws ScheduleException {
         CopyJobInfo cInfo = (CopyJobInfo) info;
         logger.debug(
                 "id={},type={},workspace={},days={},sourceSite={},sourceSiteId={},targetSite={},targetSiteId={},extra={},cron={}",

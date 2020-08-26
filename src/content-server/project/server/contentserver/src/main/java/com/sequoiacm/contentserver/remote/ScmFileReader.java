@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.remote;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 
 public abstract class ScmFileReader {
     public abstract void close();

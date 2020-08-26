@@ -5,7 +5,7 @@ import org.bson.BasicBSONObject;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.service.ISiteService;
 import com.sequoiacm.contentserver.site.ScmContentServer;

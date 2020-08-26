@@ -26,6 +26,7 @@ public class ScmArgChecker {
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
+            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
         }
 
         public static boolean checkFileName(String name) {
@@ -65,6 +66,9 @@ public class ScmArgChecker {
             else {
                 for (String key : fileMatcher.keySet()) {
                     if (!HISTORY_MATCHER_VALID_KEY.contains(key) && !key.startsWith("$")) {
+                        if (isExternalData(key)) {
+                            continue;
+                        }
                         if (isSiteListDollerNum(key)) {
                             continue;
                         }
@@ -77,6 +81,13 @@ public class ScmArgChecker {
                     }
                 }
             }
+        }
+
+        private static boolean isExternalData(String key) {
+            if (key.startsWith(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + ".")) {
+                return true;
+            }
+            return false;
         }
 
         private static boolean isSiteListDollerNum(String key) {

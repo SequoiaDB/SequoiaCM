@@ -2,7 +2,7 @@ package com.sequoiacm.contentserver.metasourcemgr;
 
 import java.util.List;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaSource;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;

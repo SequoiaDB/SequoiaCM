@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import org.junit.Test;
 
 public class TestReload {

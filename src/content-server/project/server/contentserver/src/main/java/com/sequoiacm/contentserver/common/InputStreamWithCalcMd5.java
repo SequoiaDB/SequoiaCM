@@ -6,8 +6,8 @@ import java.security.MessageDigest;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.exception.ScmServerException;
 
 public class InputStreamWithCalcMd5 extends InputStream {
     private InputStream src;

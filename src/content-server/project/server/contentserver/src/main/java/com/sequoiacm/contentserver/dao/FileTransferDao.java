@@ -14,7 +14,7 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;

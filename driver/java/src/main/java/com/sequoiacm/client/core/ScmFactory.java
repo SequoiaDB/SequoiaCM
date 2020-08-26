@@ -22,6 +22,9 @@ import com.sequoiacm.client.element.ScmNodeInfo;
 import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
+import com.sequoiacm.client.element.fulltext.ScmFileFulltextInfo;
+import com.sequoiacm.client.element.fulltext.ScmFulltextModifiler;
+import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.client.element.metadata.ScmAttributeConf;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeMeta;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
@@ -35,6 +38,8 @@ import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 
 /**
  * The class of ScmFactory
@@ -2445,6 +2450,208 @@ public class ScmFactory {
             checkArgNotNull("workspace", ws);
             checkArgNotNull("attrId", attrId);
             ws.getSession().getDispatcher().deleteAttribute(ws.getName(), attrId);
+        }
+    }
+
+    /**
+     * Utility for operating attribute.
+     *
+     */
+    public static class Fulltext {
+
+        /**
+         * Create fulltext index in the specified workspace.
+         * @param ws 
+         *          workspace.
+         * @param option
+         *          fultext index option.
+         * @throws ScmException 
+         *          if error happens.
+         */
+        public static void createIndex(ScmWorkspace ws, ScmFulltextOption option)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("option", option);
+            ws.getSession().getDispatcher().createFulltextIndex(ws.getName(),
+                    option.getFileCondition(), option.getMode());
+        }
+
+        /**
+         * Drop fultext index in the specified workspace.
+         * @param ws 
+         *          workspace.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static void dropIndex(ScmWorkspace ws) throws ScmException {
+            checkArgNotNull("ws", ws);
+            ws.getSession().getDispatcher().dropFulltextIndex(ws.getName());
+        }
+
+        /**
+         * Inspect fultext index in the specified workspace.
+         * @param ws 
+         *          workspace
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static void inspectIndex(ScmWorkspace ws) throws ScmException {
+            checkArgNotNull("ws", ws);
+            ws.getSession().getDispatcher().inspectFulltextIndex(ws.getName());
+        }
+
+        /**
+         * Alter fulltext index option for the specified workspace.
+         * @param ws
+         *          workspace.
+         * @param modifiler
+         *          modifier for alter fulltext index option.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static void alterIndex(ScmWorkspace ws, ScmFulltextModifiler modifiler)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("modifiler", modifiler);
+            ws.getSession().getDispatcher().updateFulltextIndex(ws.getName(),
+                    modifiler.getNewFileCondition(), modifiler.getNewMode());
+        }
+
+        /**
+         * Get the specified workspace fulltext info.
+         * @param ws
+         *      workspace name
+         * @return fulltext info.
+         * @throws ScmException
+         *      if error happens.
+         */
+        public static ScmFulltexInfo getIndexInfo(ScmWorkspace ws) throws ScmException {
+            checkArgNotNull("ws", ws);
+            return ws.getSession().getDispatcher().getWsFulltextIdxInfo(ws.getName());
+        }
+
+        /**
+         * Create an instance of fulltext searcher.
+         * @param ws
+         *          workspace.
+         * @return simple searcher.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static ScmFulltextSimpleSearcher simpleSeracher(ScmWorkspace ws)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            return new ScmFulltextSimpleSearcher(ws);
+        }
+
+        /**
+         * Create an instance of fulltext searcher.
+         * @param ws 
+         *          workspace
+         * @return custom searcher.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static ScmFulltextCustomSearcher customSeracher(ScmWorkspace ws)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            return new ScmFulltextCustomSearcher(ws);
+        }
+
+        /**
+         * Rebuild the fulltext index in the specified file.
+         * @param ws
+         *          workspace.
+         * @param fileId
+         *          file id.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static void rebuildFileIndex(ScmWorkspace ws, ScmId fileId) throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("fileId", fileId);
+            ws.getSession().getDispatcher().rebuildFulltextIdx(ws.getName(), fileId.get());
+        }
+
+        /**
+         * Get the fulltext index info in the specified file. 
+         * @param ws 
+         *          workspace.
+         * @param fileId 
+         *          file id.
+         * @param majorVersion
+         *          file major version.
+         * @param minorVersion
+         *          file minor version.
+         * @return file fulltext index info.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static ScmFileFulltextInfo getFileIndexInfo(ScmWorkspace ws, ScmId fileId,
+                int majorVersion, int minorVersion) throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("fileId", fileId);
+            BSONObject fileInfo = ws.getSession().getDispatcher().getFileInfo(ws.getName(),
+                    fileId.get(), null, majorVersion, minorVersion);
+            return new ScmFileFulltextInfo(fileInfo);
+        }
+
+        /**
+         *  Get the fulltext index info in the specified file. 
+         * @param ws
+         *          workspace.
+         * @param fileId
+         *          file id.
+         * @return file fulltext index info.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static ScmFileFulltextInfo getFileIndexInfo(ScmWorkspace ws, ScmId fileId)
+                throws ScmException {
+            return getFileIndexInfo(ws, fileId, -1, -1);
+        }
+
+        /**
+         * Get the file fulltext index info with specified index status, only return the files that match workspace fulltext matcher. 
+         * @param ws 
+         *          workspace.
+         * @param status
+         *          file fulltext index status.
+         * @return A cursor to traverse
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static ScmCursor<ScmFileFulltextInfo> listWithFulltextMatcher(ScmWorkspace ws,
+                ScmFileFulltextStatus status) throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("status", status);
+            BsonReader reader = ws.getSession().getDispatcher()
+                    .listFileWithFileIdxStatus(ws.getName(), status.name());
+            return new ScmBsonCursor<ScmFileFulltextInfo>(reader,
+                    new BsonConverter<ScmFileFulltextInfo>() {
+                        @Override
+                        public ScmFileFulltextInfo convert(BSONObject obj) throws ScmException {
+                            return new ScmFileFulltextInfo(obj);
+                        }
+                    });
+        }
+
+        /**
+         * Get the file count with specified fulltext index status, only count the files that match workspace fulltext matcher. 
+         * @param ws 
+         *          workspace.
+         * @param status
+         *          file fulltext index status.
+         * @return file count.
+         * @throws ScmException
+         *          if error happens.
+         */
+        public static long countWithFulltextMatcher(ScmWorkspace ws, ScmFileFulltextStatus status)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("status", status);
+            return ws.getSession().getDispatcher().countFileWithFileIdxStatus(ws.getName(),
+                    status.name());
         }
     }
 

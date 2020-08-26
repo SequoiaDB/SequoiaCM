@@ -4,7 +4,7 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.impl.BooleanAttrInfo;
 import com.sequoiacm.contentserver.metadata.impl.DateAttrInfo;
 import com.sequoiacm.contentserver.metadata.impl.DoubleAttrInfo;

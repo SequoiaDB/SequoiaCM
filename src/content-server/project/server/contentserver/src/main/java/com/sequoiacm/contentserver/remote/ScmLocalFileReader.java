@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.remote;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;

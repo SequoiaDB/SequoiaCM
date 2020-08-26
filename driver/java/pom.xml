@@ -25,6 +25,10 @@
         </dependency>
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-fulltext-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiadb-driver-jdk6</artifactId>
         </dependency>
         <dependency>
@@ -44,6 +48,26 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>6.8.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>6.8.10</version>
+            <scope>test</scope>
+        </dependency>
+         
     </dependencies>
 
     <build>
@@ -71,6 +95,8 @@
                             <includes>
                                 <include>com.sequoiadb:sequoiacm-content-common</include>
                                 <include>com.sequoiadb:sequoiacm-infrastructure-common</include>
+                                <include>com.sequoiadb:sequoiacm-infrastructure-fulltext-core</include>
+                                <include>com.sequoiadb:sequoiacm-infrastructure-content-core</include>
                                 <include>org.apache.httpcomponents:httpmime</include>
                                 <include>org.apache.httpcomponents:httpclient</include>
                                 <include>org.apache.httpcomponents:httpcore</include>
@@ -84,8 +110,8 @@
                                     <result>com.sequoiacm.common.@1</result>
                                 </rule>
                                 <rule>
-                                    <pattern>com.sequoiacm.infrastructure.common.**</pattern>
-                                    <result>com.sequoiacm.infrastructure.common.@1</result>
+                                    <pattern>com.sequoiacm.infrastructure.**</pattern>
+                                    <result>com.sequoiacm.infrastructure.@1</result>
                                 </rule>
                                 <rule>
                                     <pattern>org.apache.http.**</pattern>

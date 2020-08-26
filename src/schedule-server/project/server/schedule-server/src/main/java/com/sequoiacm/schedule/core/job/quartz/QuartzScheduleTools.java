@@ -21,12 +21,13 @@ import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.job.CleanJobInfo;
 import com.sequoiacm.schedule.core.job.CopyJobInfo;
+import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.entity.TaskEntity;
-import com.sequoiacm.schedule.exception.ScheduleException;
 
 class QuartzScheduleTools {
     private static final Logger logger = LoggerFactory.getLogger(QuartzScheduleTools.class);
@@ -42,6 +43,9 @@ class QuartzScheduleTools {
         }
         else if (type.equals(ScheduleDefine.ScheduleType.COPY_FILE)) {
             jobInfo = createCopyJobInfo(dataMap);
+        }
+        else if (type.equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
+            jobInfo = createInternalJobInfo(dataMap);
         }
         else {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
@@ -84,6 +88,13 @@ class QuartzScheduleTools {
         return dataMap;
     }
 
+    public static JobDataMap createDataMap(InternalScheduleInfo info) {
+        JobDataMap dataMap = new JobDataMap();
+        dataMap.put(FieldName.Schedule.FIELD_TYPE, info);
+        dataMap.put(FieldName.Schedule.FIELD_INTERNAL_SCH_INFO, info);
+        return dataMap;
+    }
+
     private static ScheduleJobInfo createCopyJobInfo(JobDataMap dataMap) throws Exception {
         String id = dataMap.getString(FieldName.Schedule.FIELD_ID);
         String type = dataMap.getString(FieldName.Schedule.FIELD_TYPE);
@@ -102,6 +113,17 @@ class QuartzScheduleTools {
         long maxExecTime = dataMap.getLong(FieldName.Schedule.FIELD_MAX_EXEC_TIME);
         return new CopyJobInfo(id, type, workspace, sourceSiteId, sourceSiteName, targetSiteId,
                 targetSiteName, days, extraCondition, cron, scope, maxExecTime);
+    }
+
+    private static InternalScheduleInfo createInternalJobInfo(JobDataMap dataMap) throws Exception {
+        InternalScheduleInfo info = (InternalScheduleInfo) dataMap
+                .get(FieldName.Schedule.FIELD_INTERNAL_SCH_INFO);
+        if (info == null) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                    "job info not found in datamap:key="
+                            + FieldName.Schedule.FIELD_INTERNAL_SCH_INFO + ", datamap=" + dataMap);
+        }
+        return info;
     }
 
     public static JobDataMap createDataMap(CopyJobInfo info) {

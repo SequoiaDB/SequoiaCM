@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
-import com.sequoiacm.contentserver.exception.ScmServerException;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.model.MetadataAttr;

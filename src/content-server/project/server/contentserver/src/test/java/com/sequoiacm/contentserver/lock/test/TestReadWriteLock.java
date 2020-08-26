@@ -13,7 +13,7 @@
 //import org.junit.Before;
 //import org.junit.Test;
 //
-//import com.sequoiacm.contentserver.exception.ScmServerException;
+//import com.sequoiacm.exception.ScmServerException;
 //import com.sequoiacm.server.lock.ScmLock;
 //import com.sequoiacm.server.lock.ScmReadWriteLock;
 //import com.sequoiacm.server.lock.zookeeper.ScmZKReadWriteLock;

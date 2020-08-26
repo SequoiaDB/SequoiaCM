@@ -158,7 +158,7 @@ public class MsgServiceImpl implements MsgService {
     }
 
     @Override
-    public void putMsg(String topicName, String key, BSONObject content) throws MqException {
+    public long putMsg(String topicName, String key, BSONObject content) throws MqException {
         int keyHash = Math.abs(key.hashCode());
         MessageInternal msg = new MessageInternal();
         msg.setCreateTime(System.currentTimeMillis());
@@ -173,7 +173,7 @@ public class MsgServiceImpl implements MsgService {
                         "topic not exist:topic=" + topicName);
             }
             msg.setPartition(keyHash % topic.getPartitionCount());
-            msgRepository.putMsg(topic.getMessageTableName(), msg);
+            return msgRepository.putMsg(topic.getMessageTableName(), msg);
         }
         finally {
             readLock.unlock();
@@ -226,6 +226,19 @@ public class MsgServiceImpl implements MsgService {
         finally {
             readLock.unlock();
         }
+    }
+
+    @Override
+    public MessageInternal peekLatestMessage(String topicName) throws MqException {
+        Topic topic = topicRepository.getTopic(topicName);
+        if (topic == null) {
+            throw new MqException(MqError.TOPIC_NOT_EXIST, "topic not exist:topic=" + topicName);
+        }
+        MessageInternal msg = msgRepository.getMaxIdMsg(topic.getMessageTableName(), -1);
+        if (msg == null) {
+            throw new MqException(MqError.TOPIC_IS_EMPTY, "topic is empty:" + topicName);
+        }
+        return msg;
     }
 
 }

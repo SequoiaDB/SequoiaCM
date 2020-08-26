@@ -59,6 +59,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION);
         wsConfig.setDataLocations(dataLocations);
 
+        wsConfig.setExternalData(
+                BsonUtils.getBSON(config, FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA));
         return wsConfig;
     }
 
@@ -82,7 +84,7 @@ public class WorkspaceBsonConverter implements BsonConverter {
     public ConfigUpdator convertToConfigUpdator(BSONObject configUpdatorObj) {
         String wsName = BsonUtils.getStringChecked(configUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_CONF_WORKSPACENAME);
-        BSONObject oldWsRecord = BsonUtils.getBSONChecked(configUpdatorObj,
+        BSONObject oldWsRecord = BsonUtils.getBSON(configUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_CONF_OLD_WS);
 
         WorkspaceUpdator configUpdator = new WorkspaceUpdator(wsName, oldWsRecord);
@@ -95,6 +97,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 ScmRestArgDefine.WORKSPACE_CONF_REMOVE_DATALOCATION));
         configUpdator.setNewDesc(
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_DESCRIPTION));
+        configUpdator.setExternalData(
+                BsonUtils.getBSON(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA));
         return configUpdator;
     }
 
@@ -112,6 +116,5 @@ public class WorkspaceBsonConverter implements BsonConverter {
     public String getConfigName() {
         return ScmConfigNameDefine.WORKSPACE;
     }
-
 
 }

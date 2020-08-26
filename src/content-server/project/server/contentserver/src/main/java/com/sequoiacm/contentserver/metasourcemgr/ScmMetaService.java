@@ -18,8 +18,8 @@ import com.sequoiacm.contentserver.cache.ScmDirPath;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.BreakpointFileBsonConverter;
 import com.sequoiacm.contentserver.model.MetadataAttr;
@@ -32,6 +32,7 @@ import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
@@ -56,6 +57,7 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
+import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiadb.base.DBQuery;
 
 public class ScmMetaService {
@@ -253,6 +255,81 @@ public class ScmMetaService {
     public void updateFileInfo(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
             int minorVersion, BSONObject fileUpdator) throws ScmServerException {
         updateFileInfo(wsInfo, fileId, majorVersion, minorVersion, fileUpdator, null);
+    }
+
+    public boolean updateFileExternalData(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
+            int minorVersion, BSONObject externalData) throws ScmServerException {
+        try {
+            BasicBSONObject matcher = new BasicBSONObject();
+            SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
+            matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
+            matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
+
+            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
+                    wsInfo.getName(), null);
+            BSONObject newFileInfo = fileAccessor.updateFileExternalData(matcher, externalData);
+            if (newFileInfo != null) {
+                if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
+                    return true;
+                }
+                BSONObject oldRec = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
+                        new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
+                                externalData));
+                if (oldRec != null) {
+                    return true;
+                }
+            }
+            MetaFileHistoryAccessor historyFileAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
+            newFileInfo = historyFileAccessor.updateFileExternalData(matcher, externalData);
+            if (newFileInfo != null) {
+                if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
+                    return true;
+                }
+                BSONObject oldRec = historyFileAccessor.updateFileInfo(fileId, majorVersion,
+                        minorVersion, new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
+                                externalData));
+                if (oldRec != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update fileInfo failed:fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion + ", externalData=" + externalData,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException(
+                    "update fileInfo failed:fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion + ", externalData=" + externalData,
+                    e);
+        }
+    }
+
+    public void updateFileExternalData(ScmWorkspaceInfo wsInfo, BSONObject matcher,
+            BSONObject externalData) throws ScmServerException {
+        try {
+            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
+                    wsInfo.getName(), null);
+            fileAccessor.updateFileExternalData(matcher, externalData);
+
+            MetaFileHistoryAccessor historyFileAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
+            historyFileAccessor.updateFileExternalData(matcher, externalData);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update file external data failed:matcher=" + matcher + ", extrenalData="
+                            + externalData,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("update file external data failed:matcher=" + matcher
+                    + ", extrenalData=" + externalData, e);
+        }
     }
 
     public void updateFileInfo(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
@@ -1435,7 +1512,7 @@ public class ScmMetaService {
     }
 
     public void deleteBatch(String wsName, String batchId, String sessionId, String userDetail,
-            String user) throws ScmServerException {
+            String user, FileOperationListenerMgr listenerMgr) throws ScmServerException {
         try {
             // check whether the batch exists
             BSONObject batch = getBatchInfo(wsName, batchId);
@@ -1455,7 +1532,7 @@ public class ScmMetaService {
                 // delete file
                 fileDeletorDao.init(sessionId, userDetail,
                         ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName), fileId, -1,
-                        -1, true);
+                        -1, true, listenerMgr);
                 fileDeletorDao.delete();
             }
             batchAccessor.delete(batchId);

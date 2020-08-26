@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -26,12 +27,12 @@ import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationV
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
+import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.bizconf.ScmNodeConfSubscriber;
 import com.sequoiacm.schedule.bizconf.ScmSiteConfSubscriber;
 import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
@@ -89,6 +90,9 @@ public class ScheduleApplication implements ApplicationRunner {
     @Autowired
     private Registration localInstance;
 
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
     @Value("${server.port}")
     private int serverPort;
 
@@ -103,14 +107,14 @@ public class ScheduleApplication implements ApplicationRunner {
         for (String o : args.getOptionNames()) {
             logger.info("{}={}", o, args.getOptionValues(o));
         }
-
-        if (!args.containsOption(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION)
-                || !args.containsOption(ScheduleDefine.LOGGING_CONFIG)) {
-            logger.error("{} or {} must be specified in command line",
-                    ScheduleDefine.APPLICATION_PROPERTIES_LOCATION, ScheduleDefine.LOGGING_CONFIG);
-            throw new Exception(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION + " or "
-                    + ScheduleDefine.LOGGING_CONFIG + " must be specified");
-        }
+//
+//        if (!args.containsOption(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION)
+//                || !args.containsOption(ScheduleDefine.LOGGING_CONFIG)) {
+//            logger.error("{} or {} must be specified in command line",
+//                    ScheduleDefine.APPLICATION_PROPERTIES_LOCATION, ScheduleDefine.LOGGING_CONFIG);
+//            throw new Exception(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION + " or "
+//                    + ScheduleDefine.LOGGING_CONFIG + " must be specified");
+//        }
 
         initSystem(config);
         logger.info("zookeeper={},server.port:{}", config.getZookeeperUrl(),
@@ -131,7 +135,7 @@ public class ScheduleApplication implements ApplicationRunner {
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao);
-        ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory);
+        ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory, config, discoveryClient);
         ScheduleElector.getInstance().init(config.getZookeeperUrl(),
                 ScheduleDefine.SCHEDULE_ELETOR_PATH,
                 ScheduleCommonTools.getHostName() + ":" + config.getServerPort(),
