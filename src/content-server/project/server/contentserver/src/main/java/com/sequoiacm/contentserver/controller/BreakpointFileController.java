@@ -87,7 +87,7 @@ public class BreakpointFileController {
         }
         audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0,
                 "find breakpoint file by file name=" + fileName);
-        response.setHeader(BREAKPOINT_FILE_ATTRIBUTE, jsonFile);
+        response.setHeader(BREAKPOINT_FILE_ATTRIBUTE, RestUtils.urlEncode(jsonFile));
     }
 
     @GetMapping("/breakpointfiles")
