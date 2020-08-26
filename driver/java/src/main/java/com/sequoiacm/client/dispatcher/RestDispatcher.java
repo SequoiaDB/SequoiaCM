@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -40,7 +38,6 @@ import com.sequoiacm.client.common.RestDefine;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
-import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmRequestConfig;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
@@ -95,9 +92,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String MONITOR = "monitor/";
     private static final String SERVICE_CENTER = "/service-center";
     private static final String CONFIG_SERVER = "/config-server";
-    private static final String CLOUD_DISK_SERVER = "cloud-disk-server";
     private static final String FULLTEXT_SERVER = "/fulltext-server";
-    private static final String IMPORT = "import/";
     private static final String FULLTEXT = "fulltext";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
@@ -1885,9 +1880,9 @@ public class RestDispatcher implements MessageDispatcher {
         String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
                 + "?action=search&" + FultextRestCommonDefine.REST_WORKSPACE + "=" + encode(ws)
                 + "&" + FultextRestCommonDefine.REST_SCOPE + "=" + scope + "&"
-                + FultextRestCommonDefine.REST_FILE_CONDITION + "="
-                + encodeCondition(fileCondition) + "&" + FultextRestCommonDefine.REST_CONTENT_CONDITION
-                + "=" + encodeCondition(contentCondition);
+                + FultextRestCommonDefine.REST_FILE_CONDITION + "=" + encodeCondition(fileCondition)
+                + "&" + FultextRestCommonDefine.REST_CONTENT_CONDITION + "="
+                + encodeCondition(contentCondition);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1913,12 +1908,11 @@ public class RestDispatcher implements MessageDispatcher {
         RestClient.sendRequest(getHttpClient(), sessionId, request, params);
     }
 
-
     @Override
     public BsonReader listFileWithFileIdxStatus(String ws, String status) throws ScmException {
         String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
-                + "?action=get_file_idx_info&" + FultextRestCommonDefine.REST_WORKSPACE + "=" +  encode(ws)
-                + "&" + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
+                + "?action=get_file_idx_info&" + FultextRestCommonDefine.REST_WORKSPACE + "="
+                + encode(ws) + "&" + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1926,8 +1920,8 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public long countFileWithFileIdxStatus(String ws, String status) throws ScmException {
         String uri = URL_PREFIX + pureUrl + FULLTEXT_SERVER + API_VERSION + FULLTEXT
-                + "?action=count_file&" + FultextRestCommonDefine.REST_WORKSPACE + "=" +  encode(ws) + "&"
-                + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
+                + "?action=count_file&" + FultextRestCommonDefine.REST_WORKSPACE + "=" + encode(ws)
+                + "&" + FultextRestCommonDefine.REST_FILE_IDX_STATUS + "=" + status;
         HttpGet request = new HttpGet(uri);
         String countStr = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
                 request, X_SCM_COUNT);

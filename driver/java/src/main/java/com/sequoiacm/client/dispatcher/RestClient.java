@@ -57,7 +57,8 @@ final class RestClient {
         CloseableHttpResponseWrapper response = sendRequestWithHttpResponse(client, sessionId,
                 request);
         try {
-            String value = response.getFirstHeader(keyName).getValue();
+            Header header = checkAndGetHeader(response, keyName);
+            String value = header.getValue();
             return URLDecoder.decode(value, CHARSET_UTF8);
         }
         catch (UnsupportedEncodingException e) {
@@ -74,7 +75,8 @@ final class RestClient {
         CloseableHttpResponseWrapper response = sendRequestWithHttpResponse(client, sessionId,
                 request, params);
         try {
-            String value = response.getFirstHeader(keyName).getValue();
+            Header header = checkAndGetHeader(response, keyName);
+            String value = header.getValue();
             return URLDecoder.decode(value, CHARSET_UTF8);
         }
         catch (UnsupportedEncodingException e) {
@@ -85,17 +87,26 @@ final class RestClient {
         }
     }
 
+    private static Header checkAndGetHeader(CloseableHttpResponseWrapper response, String keyName)
+            throws ScmException {
+        Header header = response.getFirstHeader(keyName);
+        if (header == null) {
+            throw new ScmException(ScmError.NETWORK_IO,
+                    "failed to get the http header:keyName=" + keyName);
+        }
+        return header;
+    }
+
     public static BSONObject sendRequestWithJsonResponse(CloseableHttpClient client,
             String sessionId, HttpRequestBase request) throws ScmException {
         CloseableHttpResponseWrapper response = sendRequestWithHttpResponse(client, sessionId,
                 request);
         try {
             String resp = EntityUtils.toString(response.getEntity(), CHARSET_UTF8);
-            return (BSONObject) JSON.parse(resp);
+            return parseBson(resp, false);
         }
         catch (IOException e) {
-            throw new ScmException(ScmError.NETWORK_IO,
-                    "an error occurs during get the http entity", e);
+            throw new ScmException(ScmError.NETWORK_IO, "failed to get the http body", e);
         }
         finally {
             consumeResp(response);
@@ -105,19 +116,34 @@ final class RestClient {
     public static BSONObject sendRequestWithJsonResponse(CloseableHttpClient client,
             String sessionId, HttpEntityEnclosingRequestBase request, List<NameValuePair> params)
             throws ScmException {
+        return sendRequestWithJsonResponse(client, sessionId, request, params, false);
+    }
+
+    public static BSONObject sendRequestWithJsonResponse(CloseableHttpClient client,
+            String sessionId, HttpEntityEnclosingRequestBase request, List<NameValuePair> params,
+            boolean allowReturnNull) throws ScmException {
+
         CloseableHttpResponseWrapper response = sendRequestWithHttpResponse(client, sessionId,
                 request, params);
         try {
             String resp = EntityUtils.toString(response.getEntity(), CHARSET_UTF8);
-            return (BSONObject) JSON.parse(resp);
+            return parseBson(resp, allowReturnNull);
         }
         catch (IOException e) {
-            throw new ScmException(ScmError.NETWORK_IO,
-                    "an error occurs during get the http entity", e);
+            throw new ScmException(ScmError.NETWORK_IO, "failed to get the http body", e);
         }
         finally {
             consumeResp(response);
         }
+    }
+
+    private static BSONObject parseBson(String resp, boolean allowReturnNull) throws ScmException {
+        BSONObject bson = (BSONObject) JSON.parse(resp);
+        if (!allowReturnNull && bson == null) {
+            throw new ScmException(ScmError.NETWORK_IO, "failed to get the http body");
+        }
+        return bson;
+
     }
 
     public static BsonReader sendRequestWithBsonReaderResponse(CloseableHttpClient client,
@@ -253,7 +279,7 @@ final class RestClient {
                 error = EntityUtils.toString(entity);
             }
             catch (IOException e) {
-                throw new ScmException(ScmError.NETWORK_IO, "an error occurs when read http entity",
+                throw new ScmException(ScmError.NETWORK_IO, "an error occurs when read http body",
                         e);
             }
         }
