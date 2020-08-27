@@ -2,6 +2,7 @@ package com.sequoiacm.rest;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 import org.bson.BSONObject;
 import org.bson.util.JSON;
@@ -106,7 +107,8 @@ public class BreakpointFile1352 extends TestScmBase {
                         + wsName )
                 .setResponseType( String.class ).exec().getHeaders()
                 .getFirst( "X-SCM-BREAKPOINTFILE" ).toString();
-        BSONObject obj = ( BSONObject ) JSON.parse( response );
+        BSONObject obj = ( BSONObject ) JSON
+                .parse( URLDecoder.decode( response, "utf-8" ) );
         rest.disconnect();
         Assert.assertEquals( obj.get( "upload_size" ), 1352 * 512 );
         Assert.assertEquals( obj.get( "checksum_type" ),
