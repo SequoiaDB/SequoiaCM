@@ -23,6 +23,7 @@ import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
+import com.sequoiacm.schedule.core.job.SchJobCreateContext;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleMgr;
 import com.sequoiacm.schedule.dao.ScheduleDao;
@@ -31,6 +32,8 @@ import com.sequoiacm.schedule.remote.WorkerClient;
 
 public class QuartzScheduleMgr implements ScheduleMgr {
     private static final Logger logger = LoggerFactory.getLogger(QuartzScheduleMgr.class);
+    private static final String CONTEXT_KEY_TRIGGER = "QuartzSchTrigger";
+    private static final String CONTEXT_KEY_DETAIL = "QuartzSchDetail";
 
     Scheduler sch;
     private Map<String, ScheduleJobInfo> createdJobInfos = new HashMap<>();
@@ -53,7 +56,7 @@ public class QuartzScheduleMgr implements ScheduleMgr {
     }
 
     @Override
-    public void createJob(ScheduleJobInfo info) throws Exception {
+    public SchJobCreateContext prepareCreateJob(ScheduleJobInfo info) throws Exception {
         JobDetail detail = null;
         TriggerBuilder<Trigger> tgBuilder = TriggerBuilder.newTrigger();
         JobKey jobKey = QuartzScheduleTools.createJobKey(info.getId());
@@ -71,7 +74,7 @@ public class QuartzScheduleMgr implements ScheduleMgr {
             dataMap.put(FieldName.Schedule.FIELD_FEIGN_CLIENT_FACTORY, feignClientFactory);
             dataMap.put(FieldName.Schedule.FIELD_DISCOVER_CLIENT, discoveryClient);
             dataMap.put(FieldName.Schedule.FIELD_SCHEDULE_DAO, scheduleDao);
-            
+
             detail = QuartzScheduleTools.createJobDetail(QuartzInternalSchJob.class, dataMap,
                     jobKey);
             tgBuilder.forJob(detail).withSchedule(SimpleScheduleBuilder
@@ -79,9 +82,11 @@ public class QuartzScheduleMgr implements ScheduleMgr {
         }
 
         Trigger trigger = tgBuilder.build();
-        sch.scheduleJob(detail, trigger);
 
-        createdJobInfos.put(info.getId(), info);
+        SchJobCreateContext contex = new SchJobCreateContext(info);
+        contex.set(CONTEXT_KEY_TRIGGER, trigger);
+        contex.set(CONTEXT_KEY_DETAIL, detail);
+        return contex;
     }
 
     @Override
@@ -171,6 +176,14 @@ public class QuartzScheduleMgr implements ScheduleMgr {
             retryTimes--;
         }
         logger.warn("failed to stop jon in remote:job={}", internalSchInfo);
+    }
+
+    @Override
+    public void createJob(SchJobCreateContext contex) throws Exception {
+        Trigger trigger = contex.get(CONTEXT_KEY_TRIGGER, Trigger.class);
+        JobDetail detail = contex.get(CONTEXT_KEY_DETAIL, JobDetail.class);
+        sch.scheduleJob(detail, trigger);
+        createdJobInfos.put(contex.getJobInfo().getId(), contex.getJobInfo());
     }
 
 }

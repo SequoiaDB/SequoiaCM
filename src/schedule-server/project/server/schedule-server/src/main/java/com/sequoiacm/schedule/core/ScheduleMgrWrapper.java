@@ -25,6 +25,7 @@ import com.sequoiacm.schedule.core.elect.ScheduleElector;
 import com.sequoiacm.schedule.core.job.CleanJobInfo;
 import com.sequoiacm.schedule.core.job.CopyJobInfo;
 import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
+import com.sequoiacm.schedule.core.job.SchJobCreateContext;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleMgr;
 import com.sequoiacm.schedule.core.job.quartz.QuartzScheduleMgr;
@@ -134,12 +135,14 @@ public class ScheduleMgrWrapper {
                 throw new Exception("mgr is null");
             }
 
-            //先入库，防止任务跑起来找不到记录
+            SchJobCreateContext contex = mgr.prepareCreateJob(jobInfo);
+
+            // 先入库，防止任务跑起来找不到记录
             scheduleDao.insert(info);
 
             if (info.isEnable()) {
                 try {
-                    mgr.createJob(jobInfo);
+                    mgr.createJob(contex);
                 }
                 catch (Exception e) {
                     logger.error("failed to create schedule job, revote now:{}", jobInfo, e);
@@ -284,7 +287,7 @@ public class ScheduleMgrWrapper {
             if (newFullInfo.isEnable()) {
                 // 2.create new
                 ScheduleJobInfo newJobInfo = createJobInfo(newFullInfo);
-                mgr.createJob(newJobInfo);
+                mgr.createJob(mgr.prepareCreateJob(newJobInfo));
                 isNewJobCreated = true;
             }
 
@@ -305,7 +308,7 @@ public class ScheduleMgrWrapper {
                 }
 
                 if (isOldJobDeleted) {
-                    mgr.createJob(oldJobInfo);
+                    mgr.createJob(mgr.prepareCreateJob(oldJobInfo));
                 }
             }
             catch (Exception e2) {
@@ -389,9 +392,10 @@ public class ScheduleMgrWrapper {
             return;
         }
 
-        ScheduleJobInfo jobInfo;
+        SchJobCreateContext context = null;
         try {
-            jobInfo = createJobInfo(info);
+            ScheduleJobInfo jobInfo = createJobInfo(info);
+            context = mgr.prepareCreateJob(jobInfo);
         }
         catch (Exception e) {
             logger.warn("schedule info contain some invalid arguments, disable this schedule:{}",
@@ -399,9 +403,7 @@ public class ScheduleMgrWrapper {
             disableScheduleSilence(info);
             return;
         }
-
-        mgr.createJob(jobInfo);
-
+        mgr.createJob(context);
     }
 
     private void disableScheduleSilence(ScheduleFullEntity info) {
