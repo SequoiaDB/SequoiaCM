@@ -78,6 +78,8 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
         getTaskContext().waitAllTaskFinish();
 
+        esClient.refreshIndexSilence(data.getIndexDataLocation());
+
         WsFulltextExtDataModifier modifier = new WsFulltextExtDataModifier(data.getWs(), schName);
         modifier.setIndexStatus(ScmFulltextStatus.CREATED);
         ScmLock lock = lockMgr.acquiresLock(lockPathFactory.fulltextLockPath(data.getWs()));

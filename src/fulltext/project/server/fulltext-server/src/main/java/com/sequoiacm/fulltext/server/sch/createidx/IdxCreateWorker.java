@@ -76,7 +76,6 @@ public class IdxCreateWorker extends IdxWorkerBase {
                 getTaskContext().incTaskCount();
                 reportStatusSlience(false);
             }
-            esClient.refreshIndexSilence(data.getIndexDataLocation());
         }
         finally {
             cursor.close();
@@ -96,6 +95,8 @@ public class IdxCreateWorker extends IdxWorkerBase {
         createIndex(jobData, csClient, jobData.getFileMatcher());
 
         getTaskContext().waitAllTaskFinish();
+        
+        esClient.refreshIndexSilence(jobData.getIndexDataLocation());
 
         WsFulltextExtDataModifier modifier = new WsFulltextExtDataModifier(jobData.getWs(),
                 schName);
