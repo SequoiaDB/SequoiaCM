@@ -27,10 +27,11 @@ public class ScmMetaSourceMgr {
         datasourceConf.setMaxIdleCount(1);
         try {
             return new SdbMetaSource(urlList, user, passwd, connConf, datasourceConf);
-        } catch (ScmMetasourceException e) {
+        }
+        catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "Failed to create SdbMetaSource", e);
         }
 
-        //TODO: add other
+        // TODO: add other
     }
 }

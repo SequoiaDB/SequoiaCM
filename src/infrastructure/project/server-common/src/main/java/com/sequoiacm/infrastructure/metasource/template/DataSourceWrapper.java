@@ -20,6 +20,7 @@ public class DataSourceWrapper {
     }
 
     public void init(SequoiadbDatasource dataSource) {
+            clear();
         this.dataSource = dataSource;
     }
 

@@ -1,6 +1,7 @@
 package com.sequoiacm.metasource;
 
 import com.sequoiacm.metasource.config.MetaSourceLocation;
+import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
 
 public interface MetaSource {
     MetaAccessor getSiteAccessor();
@@ -53,4 +54,6 @@ public interface MetaSource {
             throws ScmMetasourceException;
 
     public void close();
+
+    public void activeHandler(IMetaSourceHandler handler);
 }

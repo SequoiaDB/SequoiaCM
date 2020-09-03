@@ -15,13 +15,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHandler;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 
@@ -34,6 +35,7 @@ public class ScmContentServer {
     private ReentrantReadWriteLock wsReadWriteLock = new ReentrantReadWriteLock();
     private Map<Integer, ScmWorkspaceInfo> workspaceMap = new HashMap<>();
     private Map<String, ScmWorkspaceInfo> workspaceMapByName = new HashMap<>();
+    private ScmMetaSourceHandler metaSourceHandler = new ScmMetaSourceHandler();
 
     private static ScmContentServer cs = null;
 
@@ -54,6 +56,7 @@ public class ScmContentServer {
                 else {
                     newcs.initSiteMgr();
                     newcs.initWorkspaceInfo();
+                    newcs.activeMetaSourceHandler();
                     ScmContentServer tmp = cs;
                     cs = newcs;
                     tmp.clear();
@@ -74,6 +77,10 @@ public class ScmContentServer {
                         "reload ScmContentServer failed", e);
             }
         }
+    }
+
+    private void activeMetaSourceHandler() throws ScmServerException {
+        getMetaService().getMetaSource().activeHandler(metaSourceHandler);
     }
 
     private static boolean isSiteEquals(ScmBizConf oldConf, ScmBizConf newConf) {
@@ -203,6 +210,7 @@ public class ScmContentServer {
             initSiteMgr();
             initWorkspaceInfo();
             checkAndAmendDirVersion();
+            activeMetaSourceHandler();
             logger.info(
                     "server init success:rootSiteId={},mySiteId={},myServerId={},myHostname={},myPort={}",
                     bizConf.getRootSiteId(), bizConf.getMyServer().getSite().getId(),
@@ -393,7 +401,6 @@ public class ScmContentServer {
         if (null == sms) {
             throw new ScmServerException(ScmError.SITE_NOT_EXIST, "meta site is not exist");
         }
-
         return sms;
     }
 

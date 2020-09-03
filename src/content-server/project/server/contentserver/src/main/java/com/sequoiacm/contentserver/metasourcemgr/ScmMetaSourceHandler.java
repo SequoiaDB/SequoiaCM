@@ -1,10 +1,10 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
-import com.sequoiacm.metasource.sequoiadb.IDataSourceHandler;
+import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
 import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.infrastructure.map.server.MapDataSourceHandler;
 
-public class ScmDataSourceHandler implements IDataSourceHandler {
+public class ScmMetaSourceHandler implements IMetaSourceHandler {
     private MapDataSourceHandler mapHandler = new MapDataSourceHandler();
 
     @Override

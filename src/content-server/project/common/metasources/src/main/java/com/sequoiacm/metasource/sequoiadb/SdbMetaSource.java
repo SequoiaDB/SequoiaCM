@@ -219,4 +219,9 @@ public class SdbMetaSource implements MetaSource {
             throws ScmMetasourceException {
         return new SdbDataTableNameHistoryAccessor(this);
     }
+
+    @Override
+    public void activeHandler(IMetaSourceHandler handler) {
+        handler.refresh(ms.getDataSource());
+    }
 }

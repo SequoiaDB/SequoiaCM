@@ -24,7 +24,6 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
-import com.sequoiacm.contentserver.metasourcemgr.ScmDataSourceHandler;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
@@ -34,7 +33,6 @@ import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationV
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
-import com.sequoiacm.metasource.sequoiadb.SdbDataSourceWrapper;
 import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 
 @EnableScmMonitorServer
@@ -72,14 +70,17 @@ public class ScmApplication implements ApplicationRunner {
                 logger.info("{}={}", o, args.getOptionValues(o));
             }
 
-//            if (!args.containsOption(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION)
-//                    || !args.containsOption(PropertiesDefine.LOGGING_CONFIG)) {
-//                logger.error("{} or {} must be specified in command line",
-//                        PropertiesDefine.APPLICATION_PROPERTIES_LOCATION,
-//                        PropertiesDefine.LOGGING_CONFIG);
-//                throw new ScmSystemException(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION
-//                        + " or " + PropertiesDefine.LOGGING_CONFIG + " must be specified");
-//            }
+            // if
+            // (!args.containsOption(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION)
+            // || !args.containsOption(PropertiesDefine.LOGGING_CONFIG)) {
+            // logger.error("{} or {} must be specified in command line",
+            // PropertiesDefine.APPLICATION_PROPERTIES_LOCATION,
+            // PropertiesDefine.LOGGING_CONFIG);
+            // throw new
+            // ScmSystemException(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION
+            // + " or " + PropertiesDefine.LOGGING_CONFIG + " must be
+            // specified");
+            // }
 
             String jarDir = ScmSystemUtils.getMyDir(ScmServer.class);
             logger.info("jarDir=" + jarDir);
@@ -113,9 +114,9 @@ public class ScmApplication implements ApplicationRunner {
             contentserverConfClient.subscribeWithAsyncRetry(new SiteConfSubscriber(
                     localInstance.getServiceId(), PropertiesUtils.getSiteVersionHeartbeat()));
             // subscribe node config
-            contentserverConfClient.subscribeWithAsyncRetry(new NodeConfSubscriber(localInstance.getServiceId(), PropertiesUtils.getNodeVersionHeartbeat()));
+            contentserverConfClient.subscribeWithAsyncRetry(new NodeConfSubscriber(
+                    localInstance.getServiceId(), PropertiesUtils.getNodeVersionHeartbeat()));
 
-            SdbDataSourceWrapper.setDataSourceHandler(new ScmDataSourceHandler());
             ScmServer ss = new ScmServer();
             ss.start();
 
