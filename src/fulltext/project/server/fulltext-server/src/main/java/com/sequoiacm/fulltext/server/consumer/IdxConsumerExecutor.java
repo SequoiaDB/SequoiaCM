@@ -91,17 +91,27 @@ public class IdxConsumerExecutor implements ScmWorkspaceEventListener {
     }
 
     @Override
-    public synchronized void onWorkspaceRemove(String ws) {
-        IdxConsumerMainTask task = ws2Consumer.remove(ws);
+    public synchronized void onWorkspaceRemove(ScmWorkspaceInfo ws) {
+        IdxConsumerMainTask task = ws2Consumer.remove(ws.getName());
         if (task != null) {
             task.stop();
         }
         try {
-            mqAdminClient.deleteTopic(ws + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
+            mqAdminClient.deleteTopic(ws.getName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
         }
         catch (Exception e) {
-            logger.warn("failed to remove topic:{}", ws + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL,
-                    e);
+            logger.warn("failed to remove topic:{}",
+                    ws.getName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL, e);
+        }
+
+        if (ws.getExternalData().getIndexDataLocation() != null) {
+            try {
+                esClient.dropIndexAsync(ws.getExternalData().getIndexDataLocation());
+            }
+            catch (Exception e) {
+                logger.warn("failed to remove index:ws={}, index={}", ws.getName(),
+                        ws.getExternalData().getIndexDataLocation(), e);
+            }
         }
     }
 
@@ -117,6 +127,10 @@ public class IdxConsumerExecutor implements ScmWorkspaceEventListener {
             return;
         }
 
-        onWorkspaceRemove(newWs.getName());
+        IdxConsumerMainTask task = ws2Consumer.remove(newWs.getName());
+        if (task == null) {
+            return;
+        }
+        task.stop();
     }
 }

@@ -84,10 +84,12 @@ public class ScmWorkspaceMgr {
     }
 
     void removeWs(String wsName) {
-        wsInfos.remove(wsName);
-
+        ScmWorkspaceInfo wsInfo = wsInfos.remove(wsName);
+        if (wsInfo == null) {
+            return;
+        }
         for (ScmWorkspaceEventListener l : wsEventListeners) {
-            l.onWorkspaceRemove(wsName);
+            l.onWorkspaceRemove(wsInfo);
         }
     }
 
