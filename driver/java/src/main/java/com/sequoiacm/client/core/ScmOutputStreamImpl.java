@@ -7,16 +7,19 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
 
+import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmSystemException;
 
 class ScmOutputStreamImpl extends ScmHttpOutputStreamBase {
     private ScmFile scmFile;
     private ScmSession session;
+    private ScmUploadConf conf;
 
-    public ScmOutputStreamImpl(ScmFile scmFile) throws ScmException {
+    public ScmOutputStreamImpl(ScmFile scmFile, ScmUploadConf conf) throws ScmException {
         this.scmFile = scmFile;
         this.session = scmFile.getSession();
+        this.conf = conf;
     }
 
     @Override
@@ -35,7 +38,7 @@ class ScmOutputStreamImpl extends ScmHttpOutputStreamBase {
     @Override
     protected HttpURLConnection createHttpUrlConnection() throws ScmException {
         return session.getDispatcher().getFileUploadConnection(scmFile.getWorkspaceName(),
-                scmFile.toBSONObject());
+                scmFile.toBSONObject(), conf.toBsonObject());
     }
 
     @Override

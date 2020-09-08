@@ -684,13 +684,14 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo)
-            throws ScmException {
+    public HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException {
         HttpURLConnection connection;
 
         try {
             URL url = new URL(URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl
-                    + API_VERSION + FILE + "?workspace_name=" + encode(workspaceName));
+                    + API_VERSION + FILE + "?workspace_name=" + encode(workspaceName)
+                    + "&upload_config=" + encode(uploadConf.toString()));
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);

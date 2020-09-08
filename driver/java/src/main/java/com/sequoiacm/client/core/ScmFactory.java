@@ -21,6 +21,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmNodeInfo;
 import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.fulltext.ScmFileFulltextInfo;
 import com.sequoiacm.client.element.fulltext.ScmFulltextModifiler;
@@ -549,15 +550,36 @@ public class ScmFactory {
          *             If error happens.
          */
         public static ScmOutputStream createOutputStream(ScmFile scmFile) throws ScmException {
+            return createOutputStream(scmFile, new ScmUploadConf(false, false));
+        }
+
+        /**
+         * Create a new instance of the subclassable ScmOutputStream class.
+         *
+         * @param scmFile
+         *            the file to be opened for writing
+         * @param conf
+         *            the config of upload file.
+         * @return ScmOutputStream
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmOutputStream createOutputStream(ScmFile scmFile, ScmUploadConf conf)
+                throws ScmException {
             if (scmFile == null) {
                 throw new ScmInvalidArgumentException("scmFile is null");
+            }
+
+            if (conf == null) {
+                throw new ScmInvalidArgumentException("conf is null");
             }
 
             if (scmFile.isExist()) {
                 throw new ScmException(ScmError.OPERATION_UNSUPPORTED,
                         "file already exists, can not write data to this file");
             }
-            return new ScmOutputStreamImpl(scmFile);
+
+            return new ScmOutputStreamImpl(scmFile, conf);
         }
 
         /**
@@ -2461,12 +2483,13 @@ public class ScmFactory {
 
         /**
          * Create fulltext index in the specified workspace.
-         * @param ws 
-         *          workspace.
+         * 
+         * @param ws
+         *            workspace.
          * @param option
-         *          fultext index option.
-         * @throws ScmException 
-         *          if error happens.
+         *            fultext index option.
+         * @throws ScmException
+         *             if error happens.
          */
         public static void createIndex(ScmWorkspace ws, ScmFulltextOption option)
                 throws ScmException {
@@ -2478,10 +2501,11 @@ public class ScmFactory {
 
         /**
          * Drop fultext index in the specified workspace.
-         * @param ws 
-         *          workspace.
+         * 
+         * @param ws
+         *            workspace.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static void dropIndex(ScmWorkspace ws) throws ScmException {
             checkArgNotNull("ws", ws);
@@ -2490,10 +2514,11 @@ public class ScmFactory {
 
         /**
          * Inspect fultext index in the specified workspace.
-         * @param ws 
-         *          workspace
+         * 
+         * @param ws
+         *            workspace
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static void inspectIndex(ScmWorkspace ws) throws ScmException {
             checkArgNotNull("ws", ws);
@@ -2502,12 +2527,13 @@ public class ScmFactory {
 
         /**
          * Alter fulltext index option for the specified workspace.
+         * 
          * @param ws
-         *          workspace.
+         *            workspace.
          * @param modifiler
-         *          modifier for alter fulltext index option.
+         *            modifier for alter fulltext index option.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static void alterIndex(ScmWorkspace ws, ScmFulltextModifiler modifiler)
                 throws ScmException {
@@ -2519,11 +2545,12 @@ public class ScmFactory {
 
         /**
          * Get the specified workspace fulltext info.
+         * 
          * @param ws
-         *      workspace name
+         *            workspace name
          * @return fulltext info.
          * @throws ScmException
-         *      if error happens.
+         *             if error happens.
          */
         public static ScmFulltexInfo getIndexInfo(ScmWorkspace ws) throws ScmException {
             checkArgNotNull("ws", ws);
@@ -2532,11 +2559,12 @@ public class ScmFactory {
 
         /**
          * Create an instance of fulltext searcher.
+         * 
          * @param ws
-         *          workspace.
+         *            workspace.
          * @return simple searcher.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static ScmFulltextSimpleSearcher simpleSeracher(ScmWorkspace ws)
                 throws ScmException {
@@ -2546,11 +2574,12 @@ public class ScmFactory {
 
         /**
          * Create an instance of fulltext searcher.
-         * @param ws 
-         *          workspace
+         * 
+         * @param ws
+         *            workspace
          * @return custom searcher.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static ScmFulltextCustomSearcher customSeracher(ScmWorkspace ws)
                 throws ScmException {
@@ -2560,12 +2589,13 @@ public class ScmFactory {
 
         /**
          * Rebuild the fulltext index in the specified file.
+         * 
          * @param ws
-         *          workspace.
+         *            workspace.
          * @param fileId
-         *          file id.
+         *            file id.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static void rebuildFileIndex(ScmWorkspace ws, ScmId fileId) throws ScmException {
             checkArgNotNull("ws", ws);
@@ -2574,18 +2604,19 @@ public class ScmFactory {
         }
 
         /**
-         * Get the fulltext index info in the specified file. 
-         * @param ws 
-         *          workspace.
-         * @param fileId 
-         *          file id.
+         * Get the fulltext index info in the specified file.
+         * 
+         * @param ws
+         *            workspace.
+         * @param fileId
+         *            file id.
          * @param majorVersion
-         *          file major version.
+         *            file major version.
          * @param minorVersion
-         *          file minor version.
+         *            file minor version.
          * @return file fulltext index info.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static ScmFileFulltextInfo getFileIndexInfo(ScmWorkspace ws, ScmId fileId,
                 int majorVersion, int minorVersion) throws ScmException {
@@ -2597,14 +2628,15 @@ public class ScmFactory {
         }
 
         /**
-         *  Get the fulltext index info in the specified file. 
+         * Get the fulltext index info in the specified file.
+         * 
          * @param ws
-         *          workspace.
+         *            workspace.
          * @param fileId
-         *          file id.
+         *            file id.
          * @return file fulltext index info.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static ScmFileFulltextInfo getFileIndexInfo(ScmWorkspace ws, ScmId fileId)
                 throws ScmException {
@@ -2612,14 +2644,16 @@ public class ScmFactory {
         }
 
         /**
-         * Get the file fulltext index info with specified index status, only return the files that match workspace fulltext matcher. 
-         * @param ws 
-         *          workspace.
+         * Get the file fulltext index info with specified index status, only
+         * return the files that match workspace fulltext matcher.
+         * 
+         * @param ws
+         *            workspace.
          * @param status
-         *          file fulltext index status.
+         *            file fulltext index status.
          * @return A cursor to traverse
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static ScmCursor<ScmFileFulltextInfo> listWithFulltextMatcher(ScmWorkspace ws,
                 ScmFileFulltextStatus status) throws ScmException {
@@ -2637,14 +2671,16 @@ public class ScmFactory {
         }
 
         /**
-         * Get the file count with specified fulltext index status, only count the files that match workspace fulltext matcher. 
-         * @param ws 
-         *          workspace.
+         * Get the file count with specified fulltext index status, only count
+         * the files that match workspace fulltext matcher.
+         * 
+         * @param ws
+         *            workspace.
          * @param status
-         *          file fulltext index status.
+         *            file fulltext index status.
          * @return file count.
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          */
         public static long countWithFulltextMatcher(ScmWorkspace ws, ScmFileFulltextStatus status)
                 throws ScmException {

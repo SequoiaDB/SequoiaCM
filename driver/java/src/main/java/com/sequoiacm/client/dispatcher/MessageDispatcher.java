@@ -86,7 +86,7 @@ public interface MessageDispatcher extends Closeable {
     BSONObject uploadFile(String workspaceName, String breakpointFileName, BSONObject fileInfo,
             BSONObject uploadConfig) throws ScmException;
 
-    HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo)
+    HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo, BSONObject uploadConf)
             throws ScmException;
 
     CloseableFileDataEntity downloadFile(String workspace_name, String fileId, int majorVersion,
