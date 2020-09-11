@@ -48,8 +48,7 @@ public class InternalScheduleController {
             throws Exception {
         String leaderUrl = ScheduleCommonTools.joinInternalUrlElems(leaderId.split(":"));
         ScheduleClient client = clientFactory.getFeignClientByNodeUrl(leaderUrl);
-        return client.createSchedule(null, null,
-                ScheduleEntityTranslator.UserInfo.toJSONString(info));
+        return client.createSchedule(ScheduleEntityTranslator.UserInfo.toJSONString(info));
     }
 
     @RequestMapping(value = "/schedules", method = { RequestMethod.POST, RequestMethod.PUT })
@@ -83,7 +82,7 @@ public class InternalScheduleController {
     private void deleteSchedule2Leader(String leaderId, String scheduleId) throws Exception {
         String targetUrl = ScheduleCommonTools.joinInternalUrlElems(leaderId.split(":"));
         ScheduleClient client = clientFactory.getFeignClientByNodeUrl(targetUrl);
-        client.deleteSchdule(null, null, scheduleId);
+        client.deleteSchdule(scheduleId);
     }
 
     @GetMapping("/schedules/status/{schedule_name}")

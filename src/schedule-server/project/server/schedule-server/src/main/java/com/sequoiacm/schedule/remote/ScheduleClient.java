@@ -19,12 +19,21 @@ public interface ScheduleClient {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestParam(RestCommonDefine.RestParam.KEY_DESCRIPTION) String userEntityJson)
-                    throws ScheduleException;
+            throws ScheduleException;
+
+    @PostMapping(value = "/schedules")
+    public ScheduleFullEntity createSchedule(
+            @RequestParam(RestCommonDefine.RestParam.KEY_DESCRIPTION) String userEntityJson)
+            throws ScheduleException;
 
     @DeleteMapping(value = "/schedules/{schedule_id}")
     public void deleteSchdule(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String userDetail,
             @PathVariable("schedule_id") String scheduleId) throws ScheduleException;
+
+    @DeleteMapping(value = "/schedules/{schedule_id}")
+    public void deleteSchdule(@PathVariable("schedule_id") String scheduleId)
+            throws ScheduleException;
 
     @PutMapping(value = "/schedules/{schedule_id}")
     public ScheduleFullEntity updateSchdule(
@@ -32,7 +41,7 @@ public interface ScheduleClient {
             @RequestHeader(RestField.USER_ATTRIBUTE) String userDetail,
             @PathVariable("schedule_id") String scheduleId,
             @RequestParam(RestCommonDefine.RestParam.KEY_DESCRIPTION) String description)
-                    throws ScheduleException;
+            throws ScheduleException;
 
     @PostMapping(value = "/tasks/{taskId}/notify")
     public void notifyTask(@PathVariable("taskId") String taskId,
