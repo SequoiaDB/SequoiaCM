@@ -93,9 +93,11 @@ public class ConsumerClient<M> implements Closeable {
             logger.warn("failed to connect message queue server", e);
             return null;
         }
+        
+        lastPullMsgIds.clear();
+        
         if (msgs != null && msgs.size() > 0) {
             List<Message<M>> ret = new ArrayList<>();
-            lastPullMsgIds.clear();
             for (MessageInternal m : msgs) {
                 Message<M> retMessage = new Message<>();
                 retMessage.setCreateTime(m.getCreateTime());
