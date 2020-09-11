@@ -28,19 +28,19 @@ public class ScmWorkspaceMgr {
     private Map<String, ScmWorkspaceInfo> wsInfos = new ConcurrentHashMap<>();
     private ConfServiceClient confClient;
 
-    @Autowired
     private List<ScmWorkspaceEventListener> wsEventListeners;
 
     @Autowired
-    public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig)
+    public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig,  List<ScmWorkspaceEventListener> wsEventListeners)
             throws FullTextException {
         this.confClient = confClient;
+        this.wsEventListeners = wsEventListeners;
         confClient.registerSubscriber(
                 new ScmWorkspaceSubscriber(this, versionConfig.getWorkspaceHeartbeat()));
         List<WorkspaceConfig> wsList = confClient.getWorkspaceList();
         for (WorkspaceConfig ws : wsList) {
             ScmWorkspaceInfo wsInfo = createWsInfo(ws);
-            wsInfos.put(wsInfo.getName(), wsInfo);
+            addWs(wsInfo);
         }
     }
 
