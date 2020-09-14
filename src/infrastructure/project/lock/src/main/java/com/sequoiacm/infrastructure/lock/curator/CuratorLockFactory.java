@@ -19,12 +19,10 @@ public class CuratorLockFactory implements LockFactory {
     private static final Logger logger = LoggerFactory.getLogger(CuratorLockFromReadWrite.class);
     private Random ran = new Random();
     private List<CuratorFramework> clientList = new ArrayList<>();
-    private String zkConnStr;
     private boolean enableContainer;
     private ScmTimer t;
 
     public CuratorLockFactory(String zkUrl, int zkClientNum) throws Exception {
-        this.zkConnStr = zkUrl;
         // SEQUOIACM-485:enableContainer is false, zk server version below 3.5
         enableContainer = ZKCompaticify.enableContainer(zkUrl);
         try {
@@ -101,18 +99,17 @@ public class CuratorLockFactory implements LockFactory {
             }
 
             t = ScmTimerFactory.createScmTimer();
-            CuratorCleanJob task = new CuratorCleanJob(zkConnStr, enableContainer, maxResidualTime,
-                    maxChildNum, cleanCount, true);
+            CuratorCleanJob task = new CuratorCleanJob(this, maxResidualTime, maxChildNum,
+                    cleanCount, true);
             t.schedule(task, 0, period);
             logger.info(
                     "start clean job cleanJobResidualTime={}, maxChildNum={},cleanJobPeriod={}, cleanAllCountPeriod={}",
                     maxResidualTime, maxChildNum, period, cleanCount);
-
         }
         else {
             // enableContainer is true, clean only once
             logger.info("clean all old zookeeper node");
-            CuratorCleanJob task = new CuratorCleanJob(zkConnStr, enableContainer, 0, 0, 0, false);
+            CuratorCleanJob task = new CuratorCleanJob(this, 0, 0, 0, false);
             new Thread(task).start();
 
         }
