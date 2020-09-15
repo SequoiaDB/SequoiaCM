@@ -90,7 +90,7 @@ public class ScmListToolImpl extends ScmTool {
             }
         }
         for (int i = 0; i < pidList.size(); i++) {
-            System.out.println(nodeList.get(i) + " (" + pidList.get(i) + ")");
+            System.out.println(nodeList.get(i).getNodeType().getName().toUpperCase()+"(" + nodeList.get(i).getPort() + ")" + " (" + pidList.get(i) + ")");
         }
         System.out.println("Total:" + pidList.size());
         if (pidList.size() == 0) {

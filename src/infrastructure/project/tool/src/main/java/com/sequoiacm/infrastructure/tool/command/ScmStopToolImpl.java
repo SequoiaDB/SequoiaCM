@@ -147,8 +147,8 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node + " is successfully stopped");
-                        System.out.println("Suscess:" + node + " is successfully stopped");
+                        logger.info("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")" + " is successfully stopped");
+                        System.out.println("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")" + " is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -189,8 +189,8 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node + " is successfully stopped");
-                        System.out.println("Suscess:" + node + " is successfully stopped");
+                        logger.info("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully stopped");
+                        System.out.println("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully stopped");
                         it.remove();
                         success++;
                     }

@@ -184,9 +184,9 @@ public class ScmStartToolImpl extends ScmTool {
                         String runningStatus = getNodeRunningStatus(node.getPort(), restTemplate);
                         if (runningStatus.equals("UP")) {
                             System.out.println(
-                                    "Suscess:" + node + " is successfully started (" + pid + ")");
+                                    "Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully started (" + pid + ")");
                             logger.info(
-                                    "Suscess:" + node + " is successfully started (" + pid + ")");
+                                    "Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully started (" + pid + ")");
                             success++;
                             it.remove();
                             port2Status.remove(node);
