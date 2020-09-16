@@ -107,7 +107,7 @@ public class ScheduleWorkerMgr {
         schId2Worker.put(schId, worker);
     }
 
-    void workerExit(String schId) {
+    synchronized void workerExit(String schId) {
         schId2WorkerFuture.remove(schId);
         schId2Worker.remove(schId);
     }
