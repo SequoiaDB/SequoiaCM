@@ -1,35 +1,40 @@
-package com.sequoiacm.fulltext.server.es.es_6_8_10;
+package com.sequoiacm.fulltext.server.es.es_6_3_2;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseListener;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,24 +82,30 @@ class EsClientImpl implements EsClient {
     @Override
     public void deleteAsyncByDocId(String index, String docid) {
         DeleteRequest deleteRequest = new DeleteRequest(index, "_doc", docid);
-        restClient.deleteAsync(deleteRequest, RequestOptions.DEFAULT,
-                new DeleteDocAsyncListener(index, docid));
+        restClient.deleteAsync(deleteRequest, new DeleteDocAsyncListener(index, docid));
     }
 
     @Override
     public void deleteAsyncByFileId(String index, String fileId) {
-        DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(index);
-        deleteByQueryRequest
-                .setQuery(new TermQueryBuilder(FulltextDocDefine.FIELD_FILE_ID, fileId));
-        restClient.deleteByQueryAsync(deleteByQueryRequest, RequestOptions.DEFAULT, null);
+        try {
+            String filter = String.format("{ \"query\": {\"term\": {\"%s\": \"%s\"} }  }",
+                    FulltextDocDefine.FIELD_FILE_ID, fileId);
+            HttpEntity entity = new NStringEntity(filter, ContentType.APPLICATION_JSON);
+            Map<String, String> params = Collections.singletonMap("conflicts", "proceed");
+            restClient.getLowLevelClient().performRequestAsync("POST",
+                    String.format("/%s/_doc/_delete_by_query", index), params, entity,
+                    new DeleteDocByFileIdRespListener(index, fileId));
+        }
+        catch (Exception e) {
+            logger.warn("failed to delete index document:index={}, fileId={}", index, fileId, e);
+        }
     }
 
     @Override
     public void refreshIndexSilence(String index) {
         RefreshRequest refreshRequest = new RefreshRequest(index);
         try {
-            RefreshResponse resp = restClient.indices().refresh(refreshRequest,
-                    RequestOptions.DEFAULT);
+            RefreshResponse resp = restClient.indices().refresh(refreshRequest);
             logger.debug(
                     "refresh index resp:index={}, FailedShards={}, SuccessfulShards={}, TotalShards={}, RestStatus={}",
                     index, resp.getFailedShards(), resp.getSuccessfulShards(),
@@ -118,7 +129,7 @@ class EsClientImpl implements EsClient {
                     .field(FulltextDocDefine.FIELD_FILE_VERSION, document.getFileVersion())
                     .field(FulltextDocDefine.FIELD_FILE_CONTENT, document.getContent()).endObject();
             req.source(builder);
-            IndexResponse resp = restClient.index(req, RequestOptions.DEFAULT);
+            IndexResponse resp = restClient.index(req);
             return resp.getId();
         }
         catch (ElasticsearchException e) {
@@ -139,7 +150,7 @@ class EsClientImpl implements EsClient {
     public void dropIndex(String index) throws FullTextException {
         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(index);
         try {
-            restClient.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
+            restClient.indices().delete(deleteIndexRequest);
         }
         catch (ElasticsearchException e) {
             if (e.status() == RestStatus.NOT_FOUND) {
@@ -158,8 +169,7 @@ class EsClientImpl implements EsClient {
     public void dropIndexAsync(String index) throws FullTextException {
         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(index);
         try {
-            restClient.indices().deleteAsync(deleteIndexRequest, RequestOptions.DEFAULT,
-                    new DropIndexAsyncListener(index));
+            restClient.indices().deleteAsync(deleteIndexRequest, new DropIndexAsyncListener(index));
         }
         catch (Exception e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
@@ -171,7 +181,7 @@ class EsClientImpl implements EsClient {
     public void createIndexWithOverwrite(String index) throws FullTextException {
         CreateIndexRequest createIndexRequest = requestForCreateIndex(index);
         try {
-            restClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+            restClient.indices().create(createIndexRequest);
         }
         catch (ElasticsearchException e) {
             if (e.status() != RestStatus.BAD_REQUEST) {
@@ -180,7 +190,7 @@ class EsClientImpl implements EsClient {
             }
             dropIndex(index);
             try {
-                restClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+                restClient.indices().create(createIndexRequest);
             }
             catch (Exception e1) {
                 throw new FullTextException(ScmError.SYSTEM_ERROR,
@@ -192,7 +202,7 @@ class EsClientImpl implements EsClient {
                     "failed to create index in elasticsearch:index=" + index, e);
         }
     }
-    
+
     private CreateIndexRequest requestForCreateIndex(String index) throws FullTextException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
         try {
@@ -201,12 +211,13 @@ class EsClientImpl implements EsClient {
                     .field("type", "keyword").endObject()
                     .startObject(FulltextDocDefine.FIELD_FILE_VERSION).field("type", "keyword")
                     .endObject().startObject(FulltextDocDefine.FIELD_FILE_CONTENT)
-                    .field("type", "text").field("analyzer", "ik_max_word")
-                    .field("search_analyzer", "ik_smart").endObject().endObject().endObject();
+                    .field("type", "text").field("analyzer", esConfig.getAnalyzer())
+                    .field("search_analyzer", esConfig.getSearchAnalyzer()).endObject().endObject()
+                    .endObject();
             XContentBuilder setting = XContentFactory.jsonBuilder().startObject()
                     .field("number_of_shards", esConfig.getIndexShards())
                     .field("number_of_replicas", esConfig.getIndexReplicas()).endObject();
-            createIndexRequest.mapping(mapping);
+            createIndexRequest.mapping("_doc", mapping);
             createIndexRequest.settings(setting);
         }
         catch (Exception e) {
@@ -216,20 +227,42 @@ class EsClientImpl implements EsClient {
         return createIndexRequest;
     }
 
-//    public static void main(String[] args)
-//            throws FullTextException, InterruptedException, IOException {
-//        EsClientConfig config = new EsClientConfig();
-//        EsClientImpl esClient = new EsClientImpl(config);
-//     
-//        esClient.createIndexIfNotExist("test1-1231");
-//        esClient.createIndexWithOverwrite("test1-1231");
-//        esClient.destory();
-//    }
+    public static void main(String[] args)
+            throws FullTextException, InterruptedException, IOException {
+        EsClientConfig config = new EsClientConfig();
+        EsClientImpl esClient = new EsClientImpl(config);
+        String idxName = "test-index-1";
+        esClient.dropIndex(idxName);
+        esClient.createIndexIfNotExist(idxName);
+
+        EsDocument doc = new EsDocument();
+        doc.setFileId("f1");
+        doc.setFileVersion("1.2");
+        doc.setContent("content hahaha");
+        String res = esClient.index(idxName, doc, true);
+
+        System.out.println(esClient.isIndexExist(idxName));
+        esClient.refreshIndexSilence(idxName);
+        EsDoumentCursor c = esClient.search(idxName, new BasicBSONObject());
+        System.out.println(c.getNextBatch());
+        c.close();
+
+        esClient.deleteAsyncByDocId(idxName, res);
+        logger.info("hahah");
+        c = esClient.search(idxName, new BasicBSONObject());
+        System.out.println(c.getNextBatch());
+        c.close();
+
+        esClient.dropIndexAsync(idxName);
+
+        esClient.destory();
+    }
 
     private boolean isIndexExist(String idx) {
-        GetIndexRequest req = new GetIndexRequest(idx);
+        GetIndexRequest req = new GetIndexRequest();
+        req.indices(idx);
         try {
-            return restClient.indices().exists(req, RequestOptions.DEFAULT);
+            return restClient.indices().exists(req);
         }
         catch (Exception e) {
             logger.warn("failed to check index is exist:index={}", idx, e);
@@ -241,7 +274,7 @@ class EsClientImpl implements EsClient {
     public void createIndexIfNotExist(String index) throws FullTextException {
         CreateIndexRequest createIndexRequest = requestForCreateIndex(index);
         try {
-            restClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+            restClient.indices().create(createIndexRequest);
         }
         catch (ElasticsearchException e) {
             if (e.status() == RestStatus.BAD_REQUEST) {
@@ -260,7 +293,7 @@ class EsClientImpl implements EsClient {
     }
 }
 
-class DropIndexAsyncListener implements ActionListener<AcknowledgedResponse> {
+class DropIndexAsyncListener implements ActionListener<DeleteIndexResponse> {
     private static final Logger logger = LoggerFactory.getLogger(DropIndexAsyncListener.class);
 
     private String indexName;
@@ -270,7 +303,7 @@ class DropIndexAsyncListener implements ActionListener<AcknowledgedResponse> {
     }
 
     @Override
-    public void onResponse(AcknowledgedResponse response) {
+    public void onResponse(DeleteIndexResponse response) {
         logger.debug("drop index complete in elasticsearch:index={}", indexName);
     }
 
@@ -341,6 +374,29 @@ class DeleteDocAsyncListener implements ActionListener<DeleteResponse> {
         }
         logger.error("failed to delete document in elasticsearch:index={}, id={}", indexName, id,
                 e);
+    }
+
+}
+
+class DeleteDocByFileIdRespListener implements ResponseListener {
+    private static final Logger logger = LoggerFactory
+            .getLogger(DeleteDocByFileIdRespListener.class);
+    private String index;
+    private String fileId;
+
+    public DeleteDocByFileIdRespListener(String index, String fileId) {
+        this.index = index;
+        this.fileId = fileId;
+    }
+
+    @Override
+    public void onFailure(Exception e) {
+        logger.warn("failed to delete index document:index={}, fileId={}", index, fileId, e);
+    }
+
+    @Override
+    public void onSuccess(Response arg0) {
+        logger.debug("delete index document success:index={}, fileId={}", index, fileId);
     }
 
 }

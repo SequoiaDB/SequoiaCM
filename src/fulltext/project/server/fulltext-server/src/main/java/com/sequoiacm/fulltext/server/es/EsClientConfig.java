@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("scm.fulltext.es")
 @Component
 public class EsClientConfig {
-    private List<String> urls = Arrays.asList("http://192.168.20.46:9200");
+    private List<String> urls = Arrays.asList("http://localhost:9200");
     private int searchScrollTimeout = 60 * 1000 * 3;
-    
+
     private int searchScrollSize = 1000;
     private int indexShards = 5;
     private int indexReplicas = 1;
     private RefreshPolicy syncRefreshPolicy = RefreshPolicy.WAIT_UNTIL;
+    private String analyzer = "ik_max_word";
+    private String searchAnalyzer = "ik_smart";
 
     public RefreshPolicy getSyncRefreshPolicy() {
         return syncRefreshPolicy;
@@ -64,6 +66,22 @@ public class EsClientConfig {
 
     public void setUrls(List<String> urls) {
         this.urls = urls;
+    }
+
+    public String getAnalyzer() {
+        return analyzer;
+    }
+
+    public void setAnalyzer(String analyzer) {
+        this.analyzer = analyzer;
+    }
+
+    public String getSearchAnalyzer() {
+        return searchAnalyzer;
+    }
+
+    public void setSearchAnalyzer(String searchAnalyzer) {
+        this.searchAnalyzer = searchAnalyzer;
     }
 
 }

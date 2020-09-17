@@ -13,6 +13,10 @@
     <name>SequoiaCM Full Text Server</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.elasticsearch.version>6.3.2</org.elasticsearch.version>
+        <org.apache.poi.version>3.11</org.apache.poi.version>
+        <org.testng.version>6.14.3</org.testng.version>
+        <org.bytedeco.version>4.0.0-1.4.4</org.bytedeco.version>
     </properties>
     <dependencies>
         <dependency>
@@ -91,38 +95,38 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>6.8.10</version>
+            <version>${org.elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>6.8.10</version>
+            <version>${org.elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.14.3</version>
+            <version>${org.testng.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.11</version>
+            <version>${org.apache.poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.11</version>
+            <version>${org.apache.poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>3.11</version>
+            <version>${org.apache.poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>tesseract-platform</artifactId>
-            <version>4.0.0-1.4.4</version>
+            <version>${org.bytedeco.version}</version>
         </dependency>
 
         <dependency>

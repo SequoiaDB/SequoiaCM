@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltext.server.es.es_6_8_10;
+package com.sequoiacm.fulltext.server.es.es_6_3_2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
@@ -15,8 +18,6 @@ import org.bson.util.JSON;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
@@ -74,7 +75,7 @@ class EsDoumentCursorImpl implements EsDoumentCursor {
         searchScrollRequest.scroll(TimeValue.timeValueMillis(esConfig.getSearchScrollTimeout()));
         SearchResponse resp;
         try {
-            resp = restClient.scroll(searchScrollRequest, RequestOptions.DEFAULT);
+            resp = restClient.searchScroll(searchScrollRequest);
         }
         catch (Exception e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
@@ -107,10 +108,12 @@ class EsDoumentCursorImpl implements EsDoumentCursor {
 
     @SuppressWarnings("unchecked")
     private List<EsSearchRes> initScroll() throws IOException {
-        Request request = new Request("POST",
-                "/" + index + "/_search?scroll=" + esConfig.getSearchScrollTimeout() + "ms");
-        request.setJsonEntity(queryBody.toString());
-        Response resp = restClient.getLowLevelClient().performRequest(request);
+        HttpEntity entity = new NStringEntity(queryBody.toString(), ContentType.APPLICATION_JSON);
+        Map<String, String> params = Collections.singletonMap("scroll",
+                esConfig.getSearchScrollTimeout() + "ms");
+        Response resp = restClient.getLowLevelClient().performRequest("POST",
+                "/" + index + "/_doc/_search?scroll=" + esConfig.getSearchScrollTimeout() + "ms", params,
+                entity);
         BSONObject bson = (BSONObject) JSON.parse(EntityUtils.toString(resp.getEntity()));
         scrollId = BsonUtils.getStringChecked(bson, "_scroll_id");
         BSONObject hits = BsonUtils.getBSON(bson, "hits");
@@ -151,7 +154,7 @@ class EsDoumentCursorImpl implements EsDoumentCursor {
         ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
         clearScrollRequest.addScrollId(scrollId);
         try {
-            restClient.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
+            restClient.clearScroll(clearScrollRequest);
         }
         catch (Exception e) {
             logger.warn("failed to clear scroll:index={},scrollId={}", index, scrollId, e);
