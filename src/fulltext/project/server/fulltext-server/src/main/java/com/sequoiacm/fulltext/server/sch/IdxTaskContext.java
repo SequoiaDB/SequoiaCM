@@ -60,7 +60,7 @@ public class IdxTaskContext {
         return false;
     }
 
-    public void incTaskCount() {
+    public synchronized void incTaskCount() {
         totalTaskCount++;
     }
 }
