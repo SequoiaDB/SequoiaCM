@@ -1,7 +1,5 @@
 package com.sequoiacm.tools.command;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -10,7 +8,8 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.tools.ScmAdmin;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
@@ -48,6 +47,8 @@ public class ScmDeleteSiteToolImpl extends ScmTool {
         String gatewayUrl = cl.getOptionValue(OPT_LONG_URL);
         String user = cl.getOptionValue(OPT_LONG_USER);
         String passwd = cl.getOptionValue(OPT_LONG_PASSWD);
+
+        ScmCommandUtil.checkArgInUriPath("siteName", siteName);
 
         ScmSession ss = null;
         try {

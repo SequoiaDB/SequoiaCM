@@ -7,8 +7,10 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
-import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.tools.exception.ScmExitCode;
 
 /**
  * Site config class.
@@ -51,10 +53,9 @@ public class ScmSiteConfig {
      * @param siteName
      *            site name.
      * @return Site config builder instance.
-     * @throws ScmInvalidArgumentException
-     *             if error happens.
+     * @throws ScmToolsException
      */
-    public static Builder start(String siteName) throws ScmInvalidArgumentException {
+    public static Builder start(String siteName) throws ScmToolsException {
         return new Builder(siteName);
     }
 
@@ -80,13 +81,11 @@ public class ScmSiteConfig {
          * 
          * @param siteName
          *            site name.
-         * @throws ScmInvalidArgumentException
-         *             if error happens.
+         * 
+         * @throws ScmToolsException
          */
-        private Builder(String siteName) throws ScmInvalidArgumentException {
-            if (siteName == null || siteName.trim().isEmpty()) {
-                throw new ScmInvalidArgumentException("site name is null or empty");
-            }
+        private Builder(String siteName) throws ScmToolsException {
+            ScmCommandUtil.checkArgInUriPath("siteName", siteName);
             this.name = siteName;
         }
 
@@ -108,13 +107,11 @@ public class ScmSiteConfig {
          * @param dataType
          *            data source type,default value SEQUOIADB.
          * @return Site config builder instance.
-         * @throws ScmInvalidArgumentException
-         *             if error happens.
+         * 
          */
-        public Builder SetDataSourceType(DatasourceType dataType)
-                throws ScmInvalidArgumentException {
+        public Builder SetDataSourceType(DatasourceType dataType) throws ScmToolsException {
             if (dataType == null) {
-                throw new ScmInvalidArgumentException("data source type is null");
+                throw new ScmToolsException("data source type is null", ScmExitCode.INVALID_ARG);
             }
             this.dataType = dataType;
             return this;
@@ -133,20 +130,22 @@ public class ScmSiteConfig {
          * @param dataConfig
          *            data source config options.
          * @return Site config builder instance.
-         * @throws ScmInvalidArgumentException
-         *             if error happens.
+         *
+         * @throws ScmToolsException
          */
         public Builder setDataSource(List<String> dataUrl, String dataUser, String dataPassword,
-                Map<String, String> dataConfig) throws ScmInvalidArgumentException {
+                Map<String, String> dataConfig) throws ScmToolsException {
             if (dataUrl == null || dataUrl.size() == 0) {
-                throw new ScmInvalidArgumentException(
-                        "data source urls is null or dataUrl size is 0");
+                throw new ScmToolsException("data source urls is null or empty",
+                        ScmExitCode.INVALID_ARG);
             }
             if (dataUser == null) {
-                throw new ScmInvalidArgumentException("data source username is null");
+                throw new ScmToolsException("data source username is null",
+                        ScmExitCode.INVALID_ARG);
             }
             if (dataPassword == null) {
-                throw new ScmInvalidArgumentException("data source password is null");
+                throw new ScmToolsException("data source password is null",
+                        ScmExitCode.INVALID_ARG);
             }
 
             this.dataUrl = dataUrl;
@@ -168,20 +167,22 @@ public class ScmSiteConfig {
          * @param metaPassword
          *            meta source password, data password is path.
          * @return Site config builder instance.
-         * @throws ScmInvalidArgumentException
-         *             if error happens.
+         * @throws ScmToolsException
+         * 
          */
         public Builder setMetaSource(List<String> metaUrl, String metaUser, String metaPassword)
-                throws ScmInvalidArgumentException {
+                throws ScmToolsException {
             if (metaUrl == null || metaUrl.size() == 0) {
-                throw new ScmInvalidArgumentException(
-                        "meta source urls is null or dataUrl size is 0");
+                throw new ScmToolsException("meta source urls is null or empty",
+                        ScmExitCode.INVALID_ARG);
             }
             if (metaUser == null) {
-                throw new ScmInvalidArgumentException("meta source username is null");
+                throw new ScmToolsException("meta source username is null",
+                        ScmExitCode.INVALID_ARG);
             }
             if (metaPassword == null) {
-                throw new ScmInvalidArgumentException("meta source password is null");
+                throw new ScmToolsException("meta source password is null",
+                        ScmExitCode.INVALID_ARG);
             }
 
             this.metaUser = metaUser;
@@ -205,10 +206,8 @@ public class ScmSiteConfig {
      * site config transform bson.
      * 
      * @return bson instance.
-     * @throws ScmInvalidArgumentException
-     *             if error happens.
      */
-    public BSONObject toBsonObject() throws ScmInvalidArgumentException {
+    public BSONObject toBsonObject() {
         BasicBSONObject confBson = new BasicBSONObject();
 
         confBson.put(FieldName.FIELD_CLSITE_NAME, name);

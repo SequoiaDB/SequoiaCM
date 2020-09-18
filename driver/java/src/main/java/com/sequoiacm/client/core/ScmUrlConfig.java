@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
+import com.sequoiacm.common.ScmArgChecker;
 
 /**
  * Url config.
@@ -39,6 +40,10 @@ public class ScmUrlConfig {
             }
             else {
                 urlTargetSite = url.substring(i + 1).toLowerCase();
+                if (!ScmArgChecker.checkUriPathArg(urlTargetSite)) {
+                    throw new ScmInvalidArgumentException(
+                            "sitName is invalid:siteName=" + urlTargetSite);
+                }
                 tmpUrl = url.substring(0, i) + "/" + urlTargetSite;
             }
 

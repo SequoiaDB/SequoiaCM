@@ -974,7 +974,7 @@ public class ScmFactory {
         public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
                 ScmChecksumType checksumType) throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
+            checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("checksumType", checksumType);
             return new ScmBreakpointFileImpl(workspace, fileName, checksumType);
         }
@@ -997,7 +997,7 @@ public class ScmFactory {
         public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
                 ScmChecksumType checksumType, int breakpointSize) throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
+            checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("checksumType", checksumType);
             return new ScmBreakpointFileImpl(workspace, fileName, checksumType, breakpointSize,
                     false);
@@ -1022,7 +1022,7 @@ public class ScmFactory {
         public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
                 ScmBreakpointFileOption option) throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
+            checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("option", option);
             return new ScmBreakpointFileImpl(workspace, fileName, option);
         }
@@ -1041,8 +1041,7 @@ public class ScmFactory {
         public static ScmBreakpointFile getInstance(ScmWorkspace workspace, String fileName)
                 throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
-
+            checkArgInUriPath("breakfileName", fileName);
             BSONObject obj = workspace.getSession().getDispatcher()
                     .getBreakpointFile(workspace.getName(), fileName);
             return new ScmBreakpointFileImpl(workspace, obj);
@@ -1064,7 +1063,7 @@ public class ScmFactory {
         public static ScmBreakpointFile getInstance(ScmWorkspace workspace, String fileName,
                 int breakpointSize) throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
+            checkArgInUriPath("breakfileName", fileName);
 
             BSONObject obj = workspace.getSession().getDispatcher()
                     .getBreakpointFile(workspace.getName(), fileName);
@@ -1125,7 +1124,7 @@ public class ScmFactory {
         public static void deleteInstance(ScmWorkspace workspace, String fileName)
                 throws ScmException {
             checkArgNotNull("workspace", workspace);
-            checkStringArgNotEmpty("fileName", fileName);
+            checkArgInUriPath("breakfileName", fileName);
             workspace.getSession().getDispatcher().deleteBreakpointFile(workspace.getName(),
                     fileName);
         }
@@ -1571,8 +1570,7 @@ public class ScmFactory {
         public static ScmRole createRole(ScmSession session, String roleName, String description)
                 throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("roleName", roleName);
-
+            checkArgInUriPath("roleName", roleName);
             BSONObject obj = session.getDispatcher().createRole(roleName, description);
             return new ScmRoleImpl(obj);
         }
@@ -1590,8 +1588,7 @@ public class ScmFactory {
          */
         public static ScmRole getRole(ScmSession session, String roleName) throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("roleName", roleName);
-
+            checkArgInUriPath("roleName", roleName);
             BSONObject obj = session.getDispatcher().getRole(roleName);
             return new ScmRoleImpl(obj);
         }
@@ -1610,7 +1607,6 @@ public class ScmFactory {
         public static ScmRole getRoleById(ScmSession session, String roleId) throws ScmException {
             checkArgNotNull("session", session);
             checkStringArgNotEmpty("roleId", roleId);
-
             BSONObject obj = session.getDispatcher().getRoleById(roleId);
             return new ScmRoleImpl(obj);
         }
@@ -1675,8 +1671,7 @@ public class ScmFactory {
          */
         public static void deleteRole(ScmSession session, String roleName) throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("roleName", roleName);
-
+            checkArgInUriPath("roleName", roleName);
             session.getDispatcher().deleteRole(roleName);
         }
 
@@ -1691,7 +1686,6 @@ public class ScmFactory {
          *             If error happens
          */
         public static void deleteRole(ScmSession session, ScmRole role) throws ScmException {
-            checkArgNotNull("session", session);
             checkArgNotNull("role", role);
             deleteRole(session, role.getRoleName());
         }
@@ -1828,7 +1822,7 @@ public class ScmFactory {
         public static ScmUser createUser(ScmSession session, String username,
                 ScmUserPasswordType passwordType, String password) throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("username", username);
+            checkArgInUriPath("username", username);
             checkArgNotNull("passwordType", passwordType);
             if (passwordType != ScmUserPasswordType.LDAP
                     && passwordType != ScmUserPasswordType.TOKEN) {
@@ -1851,8 +1845,7 @@ public class ScmFactory {
          */
         public static ScmUser getUser(ScmSession session, String username) throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("username", username);
-
+            checkArgInUriPath("username", username);
             BSONObject obj = session.getDispatcher().getUser(username);
             return new ScmUserImpl(obj);
         }
@@ -1875,7 +1868,6 @@ public class ScmFactory {
             checkArgNotNull("session", session);
             checkArgNotNull("user", user);
             checkArgNotNull("modifier", modifier);
-
             BSONObject obj = session.getDispatcher().alterUser(user.getUsername(), modifier);
             return new ScmUserImpl(obj);
         }
@@ -1956,7 +1948,7 @@ public class ScmFactory {
          */
         public static void deleteUser(ScmSession session, String username) throws ScmException {
             checkArgNotNull("session", session);
-            checkStringArgNotEmpty("username", username);
+            checkArgInUriPath("username", username);
 
             session.getDispatcher().deleteUser(username);
         }
@@ -2003,13 +1995,8 @@ public class ScmFactory {
          */
         public static ScmWorkspace createWorkspace(ScmSession ss, ScmWorkspaceConf conf)
                 throws ScmException {
-            if (ss == null) {
-                throw new ScmInvalidArgumentException("session is null");
-            }
-
-            if (conf == null) {
-                throw new ScmInvalidArgumentException("conf is null");
-            }
+            checkArgNotNull("session", ss);
+            checkArgNotNull("workspaceConf", conf);
             BSONObject wsBSON = ss.getDispatcher().createWorkspace(conf.getName(),
                     conf.getBSONObject());
             return new ScmWorkspaceImpl(ss, wsBSON);
@@ -2028,12 +2015,8 @@ public class ScmFactory {
          * @since 2.1
          */
         public static ScmWorkspace getWorkspace(String name, ScmSession ss) throws ScmException {
-            if (name == null) {
-                throw new ScmInvalidArgumentException("name is null");
-            }
-            if (ss == null) {
-                throw new ScmInvalidArgumentException("session is null");
-            }
+            checkArgNotNull("session", ss);
+            checkArgInUriPath("workspaceName", name);
 
             BSONObject wsBSON = ss.getDispatcher().getWorkspace(name);
 
@@ -2110,13 +2093,9 @@ public class ScmFactory {
          */
         public static void deleteWorkspace(ScmSession ss, String wsName, boolean isEnforced)
                 throws ScmException {
-            if (ss == null) {
-                throw new ScmInvalidArgumentException("session is null");
-            }
+            checkArgNotNull("session", ss);
+            checkArgInUriPath("workspaceName", wsName);
 
-            if (wsName == null) {
-                throw new ScmInvalidArgumentException("wsName is null");
-            }
             ss.getDispatcher().deleteWorkspace(wsName, isEnforced);
         }
 
@@ -2254,7 +2233,7 @@ public class ScmFactory {
         public static ScmClass createInstance(ScmWorkspace ws, String className, String description)
                 throws ScmException {
             checkArgNotNull("workspace", ws);
-
+            checkStringArgNotEmpty("className", className);
             ScmClassImpl scmClass = new ScmClassImpl();
             scmClass.setName(className);
             scmClass.setDescription(description);
@@ -2280,7 +2259,6 @@ public class ScmFactory {
         public static ScmClass getInstance(ScmWorkspace ws, ScmId classId) throws ScmException {
             checkArgNotNull("workspace", ws);
             checkArgNotNull("classId", classId);
-
             BSONObject classInfo = ws.getSession().getDispatcher().getClassInfo(ws.getName(),
                     classId);
             return new ScmClassImpl(ws, classInfo);
@@ -2303,8 +2281,7 @@ public class ScmFactory {
         public static ScmClass getInstanceByName(ScmWorkspace ws, String className)
                 throws ScmException {
             checkArgNotNull("workspace", ws);
-            checkArgNotNull("className", className);
-
+            checkStringArgNotEmpty("className", className);
             BSONObject classInfo = ws.getSession().getDispatcher().getClassInfo(ws.getName(),
                     className);
             return new ScmClassImpl(ws, classInfo);
@@ -2369,7 +2346,7 @@ public class ScmFactory {
         public static void deleteInstanceByName(ScmWorkspace ws, String className)
                 throws ScmException {
             checkArgNotNull("workspace", ws);
-            checkArgNotNull("className", className);
+            checkStringArgNotEmpty("className", className);
             ws.getSession().getDispatcher().deleteClass(ws.getName(), className);
         }
     }
@@ -2694,6 +2671,13 @@ public class ScmFactory {
     private static void checkArgNotNull(String argName, Object arg) throws ScmException {
         if (arg == null) {
             throw new ScmInvalidArgumentException(argName + " is null");
+        }
+    }
+
+    private static void checkArgInUriPath(String argName, String argValue) throws ScmException {
+        if (!ScmArgChecker.checkUriPathArg(argValue)) {
+            throw new ScmInvalidArgumentException(
+                    argName + " is invalid:" + argName + "=" + argValue);
         }
     }
 

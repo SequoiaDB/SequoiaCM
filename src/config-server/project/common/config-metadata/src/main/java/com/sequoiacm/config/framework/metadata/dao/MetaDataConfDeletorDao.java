@@ -61,7 +61,7 @@ public class MetaDataConfDeletorDao {
             BSONObject oldRecord = classTable.deleteAndCheck(classMatcher);
             if (oldRecord == null) {
                 throw new ScmConfigException(ScmConfError.CLASS_NOT_EXIST,
-                        "class not exist:classId=" + classFilter.getId());
+                        "class not exist:filter=" + classFilter);
             }
 
             String classId = (String) oldRecord.get(FieldName.ClassTable.FIELD_ID);

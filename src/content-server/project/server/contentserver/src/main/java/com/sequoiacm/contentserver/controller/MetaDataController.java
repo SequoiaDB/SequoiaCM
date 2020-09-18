@@ -28,7 +28,6 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.AttrManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
@@ -40,6 +39,7 @@ import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IMetaDataService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
@@ -109,12 +109,12 @@ public class MetaDataController {
         return this.metadataService.getClassInfoWithAttr(workspaceName, classId);
     }
 
-    @RequestMapping(value = { "/metadatas/classes/{class_name}" }, params = "type=name", method = {
+    @RequestMapping(value = { "/metadatas/classes" }, params = "action=findOneByName", method = {
             RequestMethod.GET })
     public MetadataClass getClassInfoByName(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
-            @PathVariable("class_name") String className, HttpServletRequest request,
-            Authentication auth) throws ScmServerException {
+            @RequestParam(CommonDefine.RestArg.METADATA_CLASS_NAME) String className,
+            HttpServletRequest request, Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
         ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
                 ScmPrivilegeDefine.READ, "get class info with attr");
@@ -161,11 +161,11 @@ public class MetaDataController {
                 "delete class by classid=" + classId);
     }
 
-    @DeleteMapping(value = { "/metadatas/classes/{class_name}" }, params = "type=name")
+    @DeleteMapping(value = { "/metadatas/classes" }, params = "action=deleteByName")
     public void deleteClassByName(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
-            @PathVariable("class_name") String className, Authentication auth)
-            throws ScmServerException {
+            @RequestParam(CommonDefine.RestArg.METADATA_CLASS_NAME) String className,
+            Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
         String user = auth.getName();
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,

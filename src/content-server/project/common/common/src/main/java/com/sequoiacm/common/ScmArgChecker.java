@@ -159,11 +159,28 @@ public class ScmArgChecker {
                 return false;
             }
 
-            if (name.contains(":")) {
-                return false;
+            for (int index = 0; index < name.length(); index++) {
+                char ch = name.charAt(index);
+                if (ch == '/' || ch == '\\' || ch == '%' || ch == ';' || ch == ':') {
+                    return false;
+                }
             }
             return true;
         }
+    }
+
+    public static boolean checkUriPathArg(String uriPathArg) {
+        if (uriPathArg == null || uriPathArg.length() <= 0) {
+            return false;
+        }
+
+        for (int index = 0; index < uriPathArg.length(); index++) {
+            char ch = uriPathArg.charAt(index);
+            if (ch == '/' || ch == '\\' || ch == '%' || ch == ';') {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

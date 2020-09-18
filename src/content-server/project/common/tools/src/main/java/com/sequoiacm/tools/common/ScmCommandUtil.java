@@ -3,7 +3,6 @@ package com.sequoiacm.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -17,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.LocationMsg;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteInfo;
@@ -46,11 +47,11 @@ public class ScmCommandUtil {
                 false, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_MDSUSER,
                 "meta datasource user name of root site, if --" + OPT_LONG_MDSURL
-                + "\nis specified, the default username is empty,\nelse system will search sysconf.properties for\nrootsite.user.",
+                        + "\nis specified, the default username is empty,\nelse system will search sysconf.properties for\nrootsite.user.",
                 false, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_MDSPASSWD,
                 "meta datasource password of root site, if --" + OPT_LONG_MDSURL
-                + "\nis specified, the default passwd is empty,\nelse system will search sysconf.properties for\nrootsite.passwd.",
+                        + "\nis specified, the default passwd is empty,\nelse system will search sysconf.properties for\nrootsite.passwd.",
                 false, true, false));
 
         // invisible options,for backupwards compatibility
@@ -59,11 +60,11 @@ public class ScmCommandUtil {
                 false, true, true));
         ops.addOption(hp.createOpt(null, OPT_LONG_RDSUSER,
                 "meta datasource user name of root site, if --" + OPT_LONG_RDSURL
-                + "\nis specified, the default username is empty,\nelse system will search sysconf.properties for\nrootsite.user.",
+                        + "\nis specified, the default username is empty,\nelse system will search sysconf.properties for\nrootsite.user.",
                 false, true, true));
         ops.addOption(hp.createOpt(null, OPT_LONG_RDSPASSWD,
                 "meta datasource password of root site, if --" + OPT_LONG_RDSURL
-                + "\nis specified, the default passwd is empty,\nelse system will search sysconf.properties for\nrootsite.passwd.",
+                        + "\nis specified, the default passwd is empty,\nelse system will search sysconf.properties for\nrootsite.passwd.",
                 false, true, true));
 
         return;
@@ -138,7 +139,7 @@ public class ScmCommandUtil {
                 throw new ScmToolsException(
                         "Can't find data source url of root site in local conf,please set --"
                                 + OPT_LONG_MDSURL,
-                                ScmExitCode.INVALID_ARG);
+                        ScmExitCode.INVALID_ARG);
             }
             info.setSdbUrl(localSdbInfo.getSdbUrl());
             info.setSdbPasswd(localSdbInfo.getSdbPasswd());
@@ -249,11 +250,16 @@ public class ScmCommandUtil {
                 + FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE + "'\n");
         dataOpDescBuilder.append("specifies table sharding type, default:'month',\n");
 
-        //        dataOpDescBuilder.append("fields '"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_OPERATION_TIMEOUT+"'\n");
-        //        dataOpDescBuilder.append("'"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_PAUSE+"' '"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_RETRIES_NUMBER+"'\n");
-        //        dataOpDescBuilder.append("'"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD+"' '"+FieldName.FIELD_CLWORKSPACE_HBASE_RPC_TIMEOUT+"'\n");
-        //        dataOpDescBuilder.append("specifies hbase conection properties, those\n");
-        dataOpDescBuilder.append("field '"+FieldName.FIELD_CLWORKSPACE_HABSE_NAME_SPACE+"' specifies a namespace for\n");
+        // dataOpDescBuilder.append("fields
+        // '"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_OPERATION_TIMEOUT+"'\n");
+        // dataOpDescBuilder.append("'"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_PAUSE+"'
+        // '"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_RETRIES_NUMBER+"'\n");
+        // dataOpDescBuilder.append("'"+FieldName.FIELD_CLWORKSPACE_HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD+"'
+        // '"+FieldName.FIELD_CLWORKSPACE_HBASE_RPC_TIMEOUT+"'\n");
+        // dataOpDescBuilder.append("specifies hbase conection properties,
+        // those\n");
+        dataOpDescBuilder.append("field '" + FieldName.FIELD_CLWORKSPACE_HABSE_NAME_SPACE
+                + "' specifies a namespace for\n");
         dataOpDescBuilder.append("scm hbase table, default:'default'\n");
         dataOpDescBuilder.append("\n");
 
@@ -286,13 +292,11 @@ public class ScmCommandUtil {
                 "     " + CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME + ":\"rootSite\",\n");
         metaOpDesc.append(
                 "     " + FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN + ":\"metaDomain\",\n");
-        metaOpDesc.append("     " + FieldName.FIELD_CLWORKSPACE_META_SHARDING_TYPE + ":\"year\",\n");
-        metaOpDesc.append(
-                "     " + FieldName.FIELD_CLWORKSPACE_META_OPTIONS + ":{\n");
-        metaOpDesc.append(
-                "         collection_space:{LobPageSize:262144},\n");
-        metaOpDesc.append(
-                "         collection:{ReplSize:-1}\n");
+        metaOpDesc
+                .append("     " + FieldName.FIELD_CLWORKSPACE_META_SHARDING_TYPE + ":\"year\",\n");
+        metaOpDesc.append("     " + FieldName.FIELD_CLWORKSPACE_META_OPTIONS + ":{\n");
+        metaOpDesc.append("         collection_space:{LobPageSize:262144},\n");
+        metaOpDesc.append("         collection:{ReplSize:-1}\n");
         metaOpDesc.append("    }\n");
         metaOpDesc.append("}'\n");
         metaOpDesc.append("default meta sharding type is 'year', all supported\n");
@@ -309,5 +313,14 @@ public class ScmCommandUtil {
             urls.add(url);
         }
         return urls;
+    }
+
+    public static void checkArgInUriPath(String argName, String argValue)
+            throws ScmToolsException {
+        if (!ScmArgChecker.checkUriPathArg(argValue)) {
+            throw new ScmToolsException(
+                    argName + " is invalid:" + argName + "=" + argValue,
+                    ScmExitCode.INVALID_ARG);
+        }
     }
 }

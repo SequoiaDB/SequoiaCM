@@ -1027,9 +1027,9 @@ public class RestDispatcher implements MessageDispatcher {
     public BSONObject getClassInfo(String workspaceName, String className) throws ScmException {
         URIBuilder uriBuilder = new URIBuilder();
         uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES)
-                .appendAndEncodeURL(className)
                 .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName)
-                .appendParam("type", "name");
+                .appendParam(CommonDefine.RestArg.METADATA_CLASS_NAME, className)
+                .appendParam("action", "findOneByName");
         HttpGet request = new HttpGet(uriBuilder.toString());
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }
@@ -1060,9 +1060,9 @@ public class RestDispatcher implements MessageDispatcher {
     public void deleteClass(String workspaceName, String className) throws ScmException {
         URIBuilder uriBuilder = new URIBuilder();
         uriBuilder.appendURL(URL_PREFIX, url, API_VERSION, METADATA_CLASSES)
-                .appendAndEncodeURL(className)
                 .appendParam(CommonDefine.RestArg.WORKSPACE_NAME, workspaceName)
-                .appendParam("type", "name");
+                .appendParam(CommonDefine.RestArg.METADATA_CLASS_NAME, className)
+                .appendParam("action", "deleteByName");
         HttpDelete request = new HttpDelete(uriBuilder.toString());
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }

@@ -32,6 +32,8 @@ public class Gateway implements ApplicationRunner {
     private ScmConfClient confClient;
 
     public static void main(String[] args) {
+        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+        System.setProperty("org.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH", "true");
         new SpringApplicationBuilder(Gateway.class).web(true).run(args);
     }
 
