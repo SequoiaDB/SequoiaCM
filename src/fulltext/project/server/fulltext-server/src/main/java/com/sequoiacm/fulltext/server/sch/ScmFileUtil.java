@@ -26,6 +26,7 @@ public class ScmFileUtil {
         int count = 0;
         try {
             while (cursor.hasNext()) {
+                cursor.getNext();
                 count++;
             }
         }
