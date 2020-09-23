@@ -17,7 +17,7 @@ public class ScmFulltexInfo {
     private ScmFulltextStatus status;
     private BSONObject fileMatcher;
     private String fulltextLocation;
-    private ScmFulltextMode mode = ScmFulltextMode.async;
+    private ScmFulltextMode mode = null;
 
     private ScmFulltextJobInfo jobInfo;
 

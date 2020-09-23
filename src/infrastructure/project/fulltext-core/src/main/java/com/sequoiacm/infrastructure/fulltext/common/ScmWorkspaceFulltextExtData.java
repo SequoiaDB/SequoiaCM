@@ -20,7 +20,7 @@ public class ScmWorkspaceFulltextExtData {
 
     private boolean enabled = false;
     private ScmFulltextStatus indexStatus = ScmFulltextStatus.NONE;
-    private ScmFulltextMode mode = ScmFulltextMode.async;
+    private ScmFulltextMode mode = null;
     private BSONObject fileMatcher = null;
     private String fulltextJobName = null;
     private String indexDataLocation = null;
@@ -55,9 +55,10 @@ public class ScmWorkspaceFulltextExtData {
         String indexStatusStr = BsonUtils.getStringOrElse(externalData, FIELD_WS_EXT_DATA_STATUS,
                 indexStatus.name());
         indexStatus = ScmFulltextStatus.valueOf(indexStatusStr);
-        String modeStr = BsonUtils.getStringOrElse(externalData, FIELD_WS_EXT_DATA_MODE,
-                mode.name());
-        mode = ScmFulltextMode.valueOf(modeStr);
+        String modeStr = BsonUtils.getString(externalData, FIELD_WS_EXT_DATA_MODE);
+        if (modeStr != null) {
+            mode = ScmFulltextMode.valueOf(modeStr);
+        }
         fileMatcher = BsonUtils.getBSON(externalData, FIELD_WS_EXT_DATA_MATCHER);
         indexDataLocation = BsonUtils.getString(externalData, FIELD_WS_EXT_DATA_LOCATION);
         fulltextJobName = BsonUtils.getString(externalData, FIELD_WS_EXT_DATA_SCHNAME);
@@ -67,8 +68,13 @@ public class ScmWorkspaceFulltextExtData {
         BasicBSONObject bson = new BasicBSONObject();
         bson.put(FIELD_WS_EXT_DATA_ENABLED, enabled);
         bson.put(FIELD_WS_EXT_DATA_MATCHER, fileMatcher);
-        bson.put(FIELD_WS_EXT_DATA_MODE, mode.name());
         bson.put(FIELD_WS_EXT_DATA_STATUS, indexStatus.name());
+        if (mode != null) {
+            bson.put(FIELD_WS_EXT_DATA_MODE, mode.name());
+        }
+        else {
+            bson.put(FIELD_WS_EXT_DATA_MODE, null);
+        }
         return bson;
     }
 
