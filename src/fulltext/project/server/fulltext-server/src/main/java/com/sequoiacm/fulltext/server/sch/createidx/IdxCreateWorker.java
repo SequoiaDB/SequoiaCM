@@ -54,13 +54,22 @@ public class IdxCreateWorker extends IdxWorkerBase {
 
     protected void createIndex(FulltextIdxSchJobData data, ContentserverClient csClient,
             BSONObject wsFulltextFileMatcher) throws ScmServerException, ScheduleException {
-        //拼上$ne CREATED，同时保证先建历史文件的索引，如果历史建立失败，最新文件不建
-        BasicBSONList andArr = new BasicBSONList();
-        andArr.add(wsFulltextFileMatcher);
-        BasicBSONObject neq = new BasicBSONObject("$ne", ScmFileFulltextStatus.CREATED.name());
-        andArr.add(new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
-                + ScmFileFulltextExtData.FIELD_IDX_STATUS, neq));
-        BasicBSONObject condition = new BasicBSONObject("$and", andArr);
+        // 工作区条件 && (不存在external_data字段 || external_data.status!=created)，
+        BasicBSONObject notExistExternal = new BasicBSONObject(
+                FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA, new BasicBSONObject("$exists", 0));
+        BasicBSONObject existExternal = new BasicBSONObject(
+                FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
+                        + ScmFileFulltextExtData.FIELD_IDX_STATUS,
+                new BasicBSONObject("$ne", ScmFileFulltextStatus.CREATED.name()));
+        BasicBSONList orCondList = new BasicBSONList();
+        orCondList.add(notExistExternal);
+        orCondList.add(existExternal);
+        BasicBSONObject notCreatedMacther = new BasicBSONObject("$or", orCondList);
+
+        BasicBSONList andCondList = new BasicBSONList();
+        andCondList.add(wsFulltextFileMatcher);
+        andCondList.add(notCreatedMacther);
+        BasicBSONObject condition = new BasicBSONObject("$and", andCondList);
 
         ScmEleCursor<ScmFileInfo> cursor = csClient.listFile(data.getWs(), condition,
                 CommonDefine.Scope.SCOPE_CURRENT, null, 0, -1);
@@ -95,7 +104,7 @@ public class IdxCreateWorker extends IdxWorkerBase {
         createIndex(jobData, csClient, jobData.getFileMatcher());
 
         getTaskContext().waitAllTaskFinish();
-        
+
         esClient.refreshIndexSilence(jobData.getIndexDataLocation());
 
         WsFulltextExtDataModifier modifier = new WsFulltextExtDataModifier(jobData.getWs(),
@@ -117,4 +126,5 @@ public class IdxCreateWorker extends IdxWorkerBase {
     public String toString() {
         return "index create, jobData=" + jobData;
     }
+
 }

@@ -79,6 +79,7 @@ public class IdxCreateDao {
         }
     }
 
+    // 保证先建历史文件的索引，如果历史建立失败，最新文件不建
     public void createIdx() throws FullTextException, ScmServerException {
         ContentserverClient rootSiteCsClient = csMgr.getClient(siteInfoMgr.getRootSiteName());
         ScmFileInfo latestVersionFile = rootSiteCsClient.getFileInfo(wsName, fileId, -1, -1);
