@@ -76,9 +76,7 @@ public class AuthLogin315 extends TestScmBase {
         // ScmConfigOption()
         ScmConfigOption scOpt = new ScmConfigOption();
         // not set before get
-        // TODO: SEQUOIACM-545
-        // Assert.assertEquals( scOpt.getUrls().toString(), "[]" );
-        // Assert.assertNull( scOpt.getUrls() );
+        Assert.assertEquals( scOpt.getUrls().toString(), "[]" );
         scOpt.getUser();
         Assert.assertEquals( scOpt.getUser(), null );
         Assert.assertEquals( scOpt.getPasswd(), null );
