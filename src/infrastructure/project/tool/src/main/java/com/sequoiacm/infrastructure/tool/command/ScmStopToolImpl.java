@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-
 public class ScmStopToolImpl extends ScmTool {
     protected final String OPT_SHORT_PORT = "p";
     protected final String OPT_LONG_PORT = "port";
@@ -22,7 +21,7 @@ public class ScmStopToolImpl extends ScmTool {
     protected final String OPT_SHORT_FORCE = "f";
 
     protected int SLEEP_TIME = 200;
-    protected int STOP_TIMEOUT = 30*1000;
+    protected int STOP_TIMEOUT = 30 * 1000;
 
     protected Options options;
     protected ScmHelpGenerator hp;
@@ -36,8 +35,8 @@ public class ScmStopToolImpl extends ScmTool {
         this.nodeTypes = nodeTypes;
         options = new Options();
         hp = new ScmHelpGenerator();
-        options.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true,
-                false));
+        options.addOption(
+                hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
 
         ScmCommandUtil.addTypeOption(nodeTypes, options, hp, false, true);
 
@@ -55,7 +54,7 @@ public class ScmStopToolImpl extends ScmTool {
         if (commandLine.hasOption(OPT_SHORT_PORT)
                 && commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)
                 || !commandLine.hasOption(OPT_SHORT_PORT)
-                && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
+                        && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
             logger.error("Invalid arg:please set -t or -p");
             throw new ScmToolsException("please set -t or -p", ScmExitCode.INVALID_ARG);
         }
@@ -71,7 +70,8 @@ public class ScmStopToolImpl extends ScmTool {
             }
             catch (ScmToolsException e) {
                 e.printErrorMsg();
-                logger.error("failed to stop node=" + commandLine.getOptionValue(OPT_SHORT_PORT), e);
+                logger.error("failed to stop node=" + commandLine.getOptionValue(OPT_SHORT_PORT),
+                        e);
                 System.out.println("Total:1;Success:0;Failed:1");
                 logger.info("Total:1;Success:0;Failed:1");
                 throw new ScmToolsException(e.getExitCode());
@@ -124,8 +124,11 @@ public class ScmStopToolImpl extends ScmTool {
                     checkList.add(needStopMap.get(key));
                 }
                 else {
-                    logger.info("Suscess:" + needStopMap.get(key) + " is already stopped");
-                    System.out.println("Suscess:" + needStopMap.get(key) + " is already stopped");
+                    logger.info("Suscess:" + needStopMap.get(key).getNodeType().getUpperName() + "("
+                            + needStopMap.get(key).getPort() + ")" + " is already stopped");
+                    System.out.println(
+                            "Suscess:" + needStopMap.get(key).getNodeType().getUpperName() + "("
+                                    + needStopMap.get(key).getPort() + ")" + " is already stopped");
                     success++;
                 }
             }
@@ -147,14 +150,17 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")" + " is successfully stopped");
-                        System.out.println("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")" + " is successfully stopped");
+                        logger.info("Suscess:" + node.getNodeType().getUpperName() + "("
+                                + node.getPort() + ")" + " is successfully stopped");
+                        System.out.println("Suscess:" + node.getNodeType().getUpperName() + "("
+                                + node.getPort() + ")" + " is successfully stopped");
                         it.remove();
                         success++;
                     }
                 }
                 catch (ScmToolsException e) {
-                    logger.error("check node status failed,node:" + node, e);
+                    logger.error("check node status failed,node:"
+                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")", e);
                     e.printErrorMsg();
                     rc = false;
                     it.remove();
@@ -172,13 +178,16 @@ public class ScmStopToolImpl extends ScmTool {
         if (isForce) {
             for (ScmNodeInfo node : checkList) {
                 try {
-                    logger.info("force stop node:" + node);
+                    logger.info("force stop node:" + node.getNodeType().getUpperName() + "("
+                            + node.getPort() + ")");
                     executor.stopNode(node.getPort(), true);
                 }
                 catch (ScmToolsException e) {
-                    logger.error("force stop node occur exception,node:" + node, e);
-                    System.out.println("force stop node occur exception,node:" + node + ",error:"
-                            + e.getMessage());
+                    logger.error("force stop node occur exception,node:"
+                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")", e);
+                    System.out.println("force stop node occur exception,node:"
+                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
+                            + ",error:" + e.getMessage());
                     rc = false;
                 }
             }
@@ -189,8 +198,10 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully stopped");
-                        System.out.println("Suscess:" + node.getNodeType().getName().toUpperCase()+"(" + node.getPort() + ")"  + " is successfully stopped");
+                        logger.info("Suscess:" + node.getNodeType().getUpperName() + "("
+                                + node.getPort() + ")" + " is successfully stopped");
+                        System.out.println("Suscess:" + node.getNodeType().getUpperName() + "("
+                                + node.getPort() + ")" + " is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -208,8 +219,10 @@ public class ScmStopToolImpl extends ScmTool {
         }
 
         for (ScmNodeInfo node : checkList) {
-            logger.error("Failed:" + node + " failed to stop, timeout, node still running");
-            System.out.println("Failed:" + node + " failed to stop");
+            logger.error("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
+                    + " failed to stop, timeout, node still running");
+            System.out.println("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort()
+                    + ")" + " failed to stop");
         }
         return false;
     }

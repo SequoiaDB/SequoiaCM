@@ -55,7 +55,7 @@ public class ScmNodeCreator {
                     + exe.getNode(port).getConfPath(), ScmExitCode.SCM_PORT_OCCUPIED);
         }
         createNodeByType(type, port);
-        System.out.println("Create node success: " + type + "(" + port + ")");
+        System.out.println("Create node success: " + type.getUpperName() + "(" + port + ")");
     }
 
     private String loadDefaultPort() throws ScmToolsException {

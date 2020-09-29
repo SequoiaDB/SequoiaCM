@@ -1,6 +1,5 @@
 package com.sequoiacm.infrastructure.tool.element;
 
-
 public class ScmNodeType {
     private String type;
     private String name;
@@ -14,7 +13,7 @@ public class ScmNodeType {
     }
 
     public ScmNodeType(String type, String name, String jarNamePrefix,
-                        String confTemplateNamePrefix) {
+            String confTemplateNamePrefix) {
         this(type, name, jarNamePrefix);
         this.confTemplateNamePrefix = confTemplateNamePrefix;
     }
@@ -33,6 +32,10 @@ public class ScmNodeType {
 
     public String getConfTemplateNamePrefix() {
         return confTemplateNamePrefix;
+    }
+
+    public String getUpperName() {
+        return getName().toUpperCase();
     }
 
     @Override
