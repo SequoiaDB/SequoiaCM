@@ -3,6 +3,7 @@ package com.sequoiacm.fulltext.server.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bson.BSONObject;
@@ -112,7 +113,7 @@ public class FulltextIdxController {
         checkPriv(ws, username, ScmPrivilegeDefine.READ, "get fulltext index info");
         resp.setHeader("Content-Type", "application/json;charset=utf-8");
         ScmFileFulltextInfoCursor cursor = service.getFileIndexInfo(ws, status);
-        putCursorToWriter(cursor, getWriter(resp));
+        putCursorToResponse(cursor, resp);
     }
 
     @GetMapping(value = "fulltext", params = "action=count_file")
@@ -146,15 +147,17 @@ public class FulltextIdxController {
         checkPriv(ws, username, ScmPrivilegeDefine.READ, "fulltext search");
         resp.setHeader("Content-Type", "application/json;charset=utf-8");
         FulltextSearchCursor cursor = service.search(ws, scope, contentCondition, fileCondition);
-        putCursorToWriter(cursor, getWriter(resp));
+        putCursorToResponse(cursor, resp);
     }
 
-    public static void putCursorToWriter(FulltextCursor cursor, PrintWriter writer)
+    public static void putCursorToResponse(FulltextCursor cursor, ServletResponse response)
             throws FullTextException {
+        PrintWriter writer = null;
         try {
             int count = 0;
-            writer.write("[");
             if (cursor.hasNext()) {
+                writer = getWriter(response);
+                writer.write("[");
                 while (true) {
                     cursor.writeNextToWriter(writer);
                     if (cursor.hasNext()) {
@@ -171,26 +174,32 @@ public class FulltextIdxController {
                         count = 0;
                     }
                 }
+                writer.write("]");
             }
-            writer.write("]");
+            else {
+                writer = getWriter(response);
+                writer.write("[]");
+            }
             if (writer.checkError()) {
                 throw new ScmServerException(ScmError.NETWORK_IO,
                         "failed to write response to client because of ioexception");
             }
         }
         catch (FullTextException e) {
-            throw new FullTextException(e.getError(), "Failed to put cursor to writer", e);
+            throw e;
         }
         catch (Exception e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR, "traverse cursor failed", e);
         }
         finally {
             cursor.close();
-            writer.flush();
+            if (writer != null) {
+                writer.flush();
+            }
         }
     }
 
-    public static PrintWriter getWriter(HttpServletResponse response) throws FullTextException {
+    public static PrintWriter getWriter(ServletResponse response) throws FullTextException {
         try {
             return response.getWriter();
         }
