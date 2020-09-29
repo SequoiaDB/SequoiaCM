@@ -1,12 +1,16 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -14,7 +18,9 @@ import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServerMapping;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
@@ -131,8 +137,8 @@ public class ScmMetaSourceHelper {
         MetaCursor cursor = null;
         try {
             MetaAccessor workspaceAccesor = metasource.getWorkspaceAccessor();
-            cursor = workspaceAccesor.query(null, null, new BasicBSONObject(
-                    FieldName.FIELD_CLWORKSPACE_ID, 1));
+            cursor = workspaceAccesor.query(null, null,
+                    new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_ID, 1));
 
             List<BSONObject> workspaceList = new ArrayList<>();
             while (cursor.hasNext()) {
@@ -183,8 +189,8 @@ public class ScmMetaSourceHelper {
 
     public static BSONObject dollarSiteNotInList(int siteId) {
         BSONObject listSiteId = new BasicBSONObject();
-        String listSiteKey = FieldName.FIELD_CLFILE_FILE_SITE_LIST + "."
-                + SEQUOIADB_MATCHER_DOLLAR0 + "." + FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID;
+        String listSiteKey = FieldName.FIELD_CLFILE_FILE_SITE_LIST + "." + SEQUOIADB_MATCHER_DOLLAR0
+                + "." + FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID;
 
         // {"site_list.$0.site_id" : siteId}
         listSiteId.put(listSiteKey, siteId);
@@ -222,19 +228,19 @@ public class ScmMetaSourceHelper {
             throws ScmServerException {
         Object value = obj.get(fieldName);
         if (value == null) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                    + "] is not exist!");
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + fieldName + "] is not exist!");
         }
 
         if (!(value instanceof String)) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                    + "] is not String format!");
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + fieldName + "] is not String format!");
         }
 
         String valueStr = (String) value;
         if (valueStr.length() == 0) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR, "field[" + fieldName
-                    + "]'s length can't be 0");
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + fieldName + "]'s length can't be 0");
         }
 
         return value;
@@ -295,7 +301,7 @@ public class ScmMetaSourceHelper {
 
     public static int parseFileSelector(BSONObject fileSelector) {
         if (fileSelector == null) {
-            //selector is null, we need a complete file record
+            // selector is null, we need a complete file record
             return QUERY_IN_FILE_TABLE;
         }
         return parseFileOderby(fileSelector);
@@ -378,7 +384,8 @@ public class ScmMetaSourceHelper {
         while (it.hasNext()) {
             String key = it.next();
             if (copyFileTableBSON.get(key) instanceof BSONObject) {
-                BSONObject relBSON = getRelBSONFromFileBSON((BSONObject) copyFileTableBSON.get(key));
+                BSONObject relBSON = getRelBSONFromFileBSON(
+                        (BSONObject) copyFileTableBSON.get(key));
                 if (FILE_FIELD_MAP_REL_FIELD.containsKey(key)) {
                     needReplaceMap.put(FILE_FIELD_MAP_REL_FIELD.get(key), relBSON);
                 }

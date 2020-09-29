@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.node.metasource.NodeMetaService;
@@ -19,7 +20,6 @@ import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -121,7 +121,7 @@ public class DeleteSiteDao {
         if (siteConfig.isRootSite()) {
             // branch site size 0
             BSONObject branchSiteMatcher = new BasicBSONObject(
-                    FieldName.FIELD_CLSITE_SITE_ROOT_SITE_FLAG, false);
+                    FieldName.FIELD_CLSITE_MAINFLAG, false);
             MetaCursor siteCursor = null;
             try {
                 siteCursor = siteTable.query(branchSiteMatcher, null, null);
@@ -176,7 +176,7 @@ public class DeleteSiteDao {
         else {
             // node size 0 in the site
             MetaCursor nodeCursor = null;
-            BSONObject siteIdMatcher = new BasicBSONObject(FieldName.FIELD_CLCONTENT_SERVER_SITE_ID,
+            BSONObject siteIdMatcher = new BasicBSONObject(FieldName.FIELD_CLCONTENTSERVER_SITEID,
                     siteConfig.getId());
             try {
                 nodeCursor = nodeTable.query(siteIdMatcher, null, null);

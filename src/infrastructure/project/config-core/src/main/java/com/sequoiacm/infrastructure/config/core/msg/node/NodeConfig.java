@@ -3,7 +3,7 @@ package com.sequoiacm.infrastructure.config.core.msg.node;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
 public class NodeConfig implements Config {
@@ -65,12 +65,12 @@ public class NodeConfig implements Config {
     @Override
     public BSONObject toBSONObject() {
         BSONObject nodeConfigObj = new BasicBSONObject();
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_ID, id);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_NAME, name);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_TYPE, type);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_SITE_ID, siteId);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_HOST_NAME, hostName);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENT_SERVER_PORT, port);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_ID, id);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_NAME, name);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_TYPE, type);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_SITEID, siteId);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_HOST_NAME, hostName);
+        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_PORT, port);
         return nodeConfigObj;
     }
 }

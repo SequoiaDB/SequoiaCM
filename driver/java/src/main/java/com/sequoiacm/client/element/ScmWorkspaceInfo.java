@@ -7,6 +7,7 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.mapping.ScmMappingException;
 import com.sequoiacm.common.mapping.ScmWorkspaceObj;
 
@@ -27,6 +28,10 @@ public class ScmWorkspaceInfo {
     private String updateUser;
     private String createUser;
     private Date updateTime;
+    private ScmShardingType batchShardingType;
+    private String batchIdTimeRegex;
+    private String batchIdTimePattern;
+    private boolean batchFileNameUnique;
 
     /**
      * Create a instance of ScmWorkspaceInfo.
@@ -52,6 +57,10 @@ public class ScmWorkspaceInfo {
             this.createUser = wsObj.getCreateUser();
             this.updateUser = wsObj.getUpdateUser();
             this.updateTime = new Date(wsObj.getUpdateTime());
+            this.batchFileNameUnique = wsObj.isBatchFileNameUnique();
+            this.batchIdTimePattern = wsObj.getBatchIdTimePattern();
+            this.batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
+            this.batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
         }
         catch (ScmMappingException e) {
             throw new ScmInvalidArgumentException(e.getMessage(), e);
@@ -133,12 +142,48 @@ public class ScmWorkspaceInfo {
         return metaShardingType;
     }
 
+    /**
+     * Returns the sharding type of batch.
+     * 
+     * @return batch sharding type.
+     */
+    public ScmShardingType getBatchShardingType() {
+        return batchShardingType;
+    }
+
+    /**
+     * Returns the time regex of batch id.
+     * 
+     * @return regex.
+     */
+    public String getBatchIdTimeRegex() {
+        return batchIdTimeRegex;
+    }
+
+    /**
+     * Returns the time pattern of batch id.
+     * 
+     * @return time pattern.
+     */
+    public String getBatchIdTimePattern() {
+        return batchIdTimePattern;
+    }
+
+    /**
+     * Return true if the file name is unique in a batch, elase return false.
+     * 
+     * @return return true if the file name is unique in a batch.
+     */
+    public boolean isBatchFileNameUnique() {
+        return batchFileNameUnique;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("id:" + id).append(",").append("name:" + name).append(",")
-        .append("metaLocation:" + metaLocation).append(",")
-        .append("metaShardinType:" + metaShardingType).append(",");
+                .append("metaLocation:" + metaLocation).append(",")
+                .append("metaShardinType:" + metaShardingType).append(",");
 
         if (dataLocation != null) {
             sb.append("dataLocation:" + dataLocation.toString()).append(",");
@@ -164,7 +209,11 @@ public class ScmWorkspaceInfo {
         sb.append("createUser:" + createUser).append(",");
         sb.append("updateUser:" + updateUser).append(",");
         sb.append("createTime:" + createTime).append(",");
-        sb.append("updateTime:" + updateTime);
+        sb.append("updateTime:" + updateTime).append(",");
+        sb.append("batchShardingType:" + batchShardingType).append(",");
+        sb.append("batchIdTimeRegex:" + batchIdTimeRegex).append(",");
+        sb.append("batchIdTimePattern:" + batchIdTimePattern).append(",");
+        sb.append("batchFileNameUnique:" + batchFileNameUnique);
         return sb.toString();
 
     }

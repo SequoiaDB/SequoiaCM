@@ -3,8 +3,8 @@ package com.sequoiacm.infrastructure.config.core.msg.metadata;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
 public class MetaDataClassConfig {
@@ -19,16 +19,16 @@ public class MetaDataClassConfig {
 
     public MetaDataClassConfig(BSONObject object) {
         wsName = BsonUtils.getString(object, ScmRestArgDefine.META_DATA_WORKSPACE_NAME);
-        id = BsonUtils.getString(object, FieldName.ClassTable.FIELD_ID);
-        name = BsonUtils.getString(object, FieldName.ClassTable.FIELD_NAME);
-        description = BsonUtils.getStringOrElse(object, FieldName.ClassTable.FIELD_DESCRIPTION, "");
-        createUser = BsonUtils.getString(object, FieldName.ClassTable.FIELD_INNER_CREATE_USER);
+        id = BsonUtils.getString(object, FieldName.Class.FIELD_ID);
+        name = BsonUtils.getString(object, FieldName.Class.FIELD_NAME);
+        description = BsonUtils.getStringOrElse(object, FieldName.Class.FIELD_DESCRIPTION, "");
+        createUser = BsonUtils.getString(object, FieldName.Class.FIELD_INNER_CREATE_USER);
         createTime = BsonUtils
-                .getNumberOrElse(object, FieldName.ClassTable.FIELD_INNER_CREATE_TIME, 0)
+                .getNumberOrElse(object, FieldName.Class.FIELD_INNER_CREATE_TIME, 0)
                 .longValue();
-        updateUser = BsonUtils.getString(object, FieldName.ClassTable.FIELD_INNER_UPDATE_USER);
+        updateUser = BsonUtils.getString(object, FieldName.Class.FIELD_INNER_UPDATE_USER);
         updateTime = BsonUtils
-                .getNumberOrElse(object, FieldName.ClassTable.FIELD_INNER_UPDATE_TIME, 0)
+                .getNumberOrElse(object, FieldName.Class.FIELD_INNER_UPDATE_TIME, 0)
                 .longValue();
     }
 
@@ -98,13 +98,13 @@ public class MetaDataClassConfig {
 
     public BSONObject toRecord() {
         BasicBSONObject record = new BasicBSONObject();
-        record.put(FieldName.ClassTable.FIELD_DESCRIPTION, description);
-        record.put(FieldName.ClassTable.FIELD_ID, id);
-        record.put(FieldName.ClassTable.FIELD_INNER_CREATE_TIME, createTime);
-        record.put(FieldName.ClassTable.FIELD_INNER_CREATE_USER, createUser);
-        record.put(FieldName.ClassTable.FIELD_INNER_UPDATE_TIME, updateTime);
-        record.put(FieldName.ClassTable.FIELD_INNER_UPDATE_USER, updateUser);
-        record.put(FieldName.ClassTable.FIELD_NAME, name);
+        record.put(FieldName.Class.FIELD_DESCRIPTION, description);
+        record.put(FieldName.Class.FIELD_ID, id);
+        record.put(FieldName.Class.FIELD_INNER_CREATE_TIME, createTime);
+        record.put(FieldName.Class.FIELD_INNER_CREATE_USER, createUser);
+        record.put(FieldName.Class.FIELD_INNER_UPDATE_TIME, updateTime);
+        record.put(FieldName.Class.FIELD_INNER_UPDATE_USER, updateUser);
+        record.put(FieldName.Class.FIELD_NAME, name);
         return record;
     }
 

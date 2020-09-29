@@ -14,6 +14,7 @@ public class ServerConfig {
     private int transferReadTimeout = 120000;
     private int listInstanceCheckInterval = 2000;
     private int fulltextCreateTimeout = 10000;
+    private int fileRenameBatchLockTimeout = 10000;
 
     @Value("${server.port}")
     private int serverPort;
@@ -62,4 +63,11 @@ public class ServerConfig {
         this.transferReadTimeout = transferReadTimeout;
     }
 
+    public int getFileRenameBatchLockTimeout() {
+        return fileRenameBatchLockTimeout;
+    }
+
+    public void setFileRenameBatchLockTimeout(int fileRenameBatchLockTimeout) {
+        this.fileRenameBatchLockTimeout = fileRenameBatchLockTimeout;
+    }
 }

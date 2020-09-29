@@ -5,9 +5,9 @@ import java.net.UnknownHostException;
 
 import org.bson.BSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
@@ -29,27 +29,27 @@ public class NodeBsonConverter implements BsonConverter {
     @Override
     public Config convertToConfig(BSONObject config) {
         NodeConfig nodeConfig = new NodeConfig();
-        Integer nodeId = BsonUtils.getInteger(config, FieldName.FIELD_CLCONTENT_SERVER_ID);
+        Integer nodeId = BsonUtils.getInteger(config, FieldName.FIELD_CLCONTENTSERVER_ID);
         if (nodeId != null) {
             nodeConfig.setId(nodeId);
         }
 
-        String name = BsonUtils.getStringChecked(config, FieldName.FIELD_CLCONTENT_SERVER_NAME);
+        String name = BsonUtils.getStringChecked(config, FieldName.FIELD_CLCONTENTSERVER_NAME);
         nodeConfig.setName(name);
 
         Integer nodeType = BsonUtils.getIntegerChecked(config,
-                FieldName.FIELD_CLCONTENT_SERVER_TYPE);
+                FieldName.FIELD_CLCONTENTSERVER_TYPE);
         nodeConfig.setType(nodeType);
 
         Integer siteId = BsonUtils.getIntegerChecked(config,
-                FieldName.FIELD_CLCONTENT_SERVER_SITE_ID);
+                FieldName.FIELD_CLCONTENTSERVER_SITEID);
         nodeConfig.setSiteId(siteId);
 
         String hostName = BsonUtils.getStringChecked(config,
-                FieldName.FIELD_CLCONTENT_SERVER_HOST_NAME);
+                FieldName.FIELD_CLCONTENTSERVER_HOST_NAME);
         nodeConfig.setHostName(hostName);
 
-        Integer port = BsonUtils.getIntegerChecked(config, FieldName.FIELD_CLCONTENT_SERVER_PORT);
+        Integer port = BsonUtils.getIntegerChecked(config, FieldName.FIELD_CLCONTENTSERVER_PORT);
         nodeConfig.setPort(port);
 
         return nodeConfig;

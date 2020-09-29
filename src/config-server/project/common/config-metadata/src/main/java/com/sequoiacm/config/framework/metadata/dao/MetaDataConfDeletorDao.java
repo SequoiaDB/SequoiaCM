@@ -5,6 +5,7 @@ import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.lock.ScmLockManager;
@@ -15,7 +16,6 @@ import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -51,11 +51,11 @@ public class MetaDataConfDeletorDao {
                     .getAttributeClassRelTableDao(classFilter.getWsName(), t);
             BasicBSONObject classMatcher = new BasicBSONObject();
             if (classFilter.getId() != null) {
-                classMatcher.put(FieldName.ClassTable.FIELD_ID, classFilter.getId());
+                classMatcher.put(FieldName.Class.FIELD_ID, classFilter.getId());
             }
             else {
                 if (classFilter.getName() != null) {
-                    classMatcher.put(FieldName.ClassTable.FIELD_NAME, classFilter.getName());
+                    classMatcher.put(FieldName.Class.FIELD_NAME, classFilter.getName());
                 }
             }
             BSONObject oldRecord = classTable.deleteAndCheck(classMatcher);
@@ -64,7 +64,7 @@ public class MetaDataConfDeletorDao {
                         "class not exist:filter=" + classFilter);
             }
 
-            String classId = (String) oldRecord.get(FieldName.ClassTable.FIELD_ID);
+            String classId = (String) oldRecord.get(FieldName.Class.FIELD_ID);
             BasicBSONObject relMatcher = new BasicBSONObject(FieldName.ClassAttrRel.FIELD_CLASS_ID,
                     classId);
             relTable.delete(relMatcher);
@@ -113,7 +113,7 @@ public class MetaDataConfDeletorDao {
                                 + attributeFilter.getId());
             }
 
-            BasicBSONObject matcher = new BasicBSONObject(FieldName.ClassTable.FIELD_ID,
+            BasicBSONObject matcher = new BasicBSONObject(FieldName.Class.FIELD_ID,
                     attributeFilter.getId());
             BSONObject oldRecord = attributeTable.deleteAndCheck(matcher);
             if (oldRecord == null) {

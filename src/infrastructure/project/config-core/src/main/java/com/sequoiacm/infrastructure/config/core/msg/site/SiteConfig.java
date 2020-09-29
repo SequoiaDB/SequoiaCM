@@ -3,7 +3,7 @@ package com.sequoiacm.infrastructure.config.core.msg.site;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
 public class SiteConfig implements Config {
@@ -56,12 +56,12 @@ public class SiteConfig implements Config {
     @Override
     public BSONObject toBSONObject() {
         BSONObject siteConfigObj = new BasicBSONObject();
-        siteConfigObj.put(FieldName.FIELD_CLSITE_SITE_ID, id);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_SITE_NAME, name);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_SITE_ROOT_SITE_FLAG, isRootSite);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_SITE_DATA, dataSource);
+        siteConfigObj.put(FieldName.FIELD_CLSITE_ID, id);
+        siteConfigObj.put(FieldName.FIELD_CLSITE_NAME, name);
+        siteConfigObj.put(FieldName.FIELD_CLSITE_MAINFLAG, isRootSite);
+        siteConfigObj.put(FieldName.FIELD_CLSITE_DATA, dataSource);
         if (metaSource != null) {
-            siteConfigObj.put(FieldName.FIELD_CLSITE_SITE_META, metaSource);
+            siteConfigObj.put(FieldName.FIELD_CLSITE_META, metaSource);
         }
         return siteConfigObj;
     }

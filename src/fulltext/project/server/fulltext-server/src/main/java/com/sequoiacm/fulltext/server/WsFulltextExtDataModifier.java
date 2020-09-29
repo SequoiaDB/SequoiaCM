@@ -3,7 +3,7 @@ package com.sequoiacm.fulltext.server;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
@@ -22,7 +22,7 @@ public class WsFulltextExtDataModifier {
 
     public WsFulltextExtDataModifier(String ws, String schName) {
         this(ws);
-        matcher.put(FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA + "."
+        matcher.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA + "."
                 + ScmWorkspaceFulltextExtData.FIELD_WS_EXT_DATA_SCHNAME, schName);
     }
 

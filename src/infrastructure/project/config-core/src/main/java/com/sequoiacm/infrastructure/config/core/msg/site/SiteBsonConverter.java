@@ -2,9 +2,9 @@ package com.sequoiacm.infrastructure.config.core.msg.site;
 
 import org.bson.BSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverter;
@@ -24,23 +24,23 @@ public class SiteBsonConverter implements BsonConverter {
     @Override
     public Config convertToConfig(BSONObject config) {
         SiteConfig siteConfig = new SiteConfig();
-        Integer siteId = BsonUtils.getInteger(config, FieldName.FIELD_CLSITE_SITE_ID);
+        Integer siteId = BsonUtils.getInteger(config, FieldName.FIELD_CLSITE_ID);
         if (siteId != null) {
             siteConfig.setId(siteId);
         }
 
-        String name = BsonUtils.getStringChecked(config, FieldName.FIELD_CLSITE_SITE_NAME);
+        String name = BsonUtils.getStringChecked(config, FieldName.FIELD_CLSITE_NAME);
         siteConfig.setName(name);
 
         boolean isRootSite = BsonUtils.getBooleanChecked(config,
-                FieldName.FIELD_CLSITE_SITE_ROOT_SITE_FLAG);
+                FieldName.FIELD_CLSITE_MAINFLAG);
         siteConfig.setRootSite(isRootSite);
 
-        BSONObject dataBSON = BsonUtils.getBSON(config, FieldName.FIELD_CLSITE_SITE_DATA);
+        BSONObject dataBSON = BsonUtils.getBSON(config, FieldName.FIELD_CLSITE_DATA);
         siteConfig.setDataSource(dataBSON);
 
         if (isRootSite) {
-            BSONObject metaBSON = BsonUtils.getBSON(config, FieldName.FIELD_CLSITE_SITE_META);
+            BSONObject metaBSON = BsonUtils.getBSON(config, FieldName.FIELD_CLSITE_META);
             siteConfig.setMetaSource(metaBSON);
         }
 

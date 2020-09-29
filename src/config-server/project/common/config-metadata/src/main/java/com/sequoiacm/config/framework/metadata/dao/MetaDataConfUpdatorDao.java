@@ -7,6 +7,7 @@ import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.lock.ScmLockManager;
@@ -18,7 +19,6 @@ import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -55,28 +55,25 @@ public class MetaDataConfUpdatorDao {
             t = metasource.createTransaction();
             t.begin();
             TableDao attributeTable = metaDataService.getAttributeTableDao(updator.getWsName(), t);
-            BasicBSONObject matcher = new BasicBSONObject(FieldName.AttributeTable.FIELD_ID,
+            BasicBSONObject matcher = new BasicBSONObject(FieldName.Attribute.FIELD_ID,
                     updator.getAttributeId());
             BasicBSONObject updatorObj = new BasicBSONObject();
-            updatorObj.put(FieldName.AttributeTable.FIELD_INNER_UPDATE_TIME, new Date().getTime());
-            updatorObj.put(FieldName.AttributeTable.FIELD_INNER_UPDATE_USER,
-                    updator.getUpdateUser());
+            updatorObj.put(FieldName.Attribute.FIELD_INNER_UPDATE_TIME, new Date().getTime());
+            updatorObj.put(FieldName.Attribute.FIELD_INNER_UPDATE_USER, updator.getUpdateUser());
             boolean isNeedNotify = false;
             if (updator.getIsRequire() != null) {
-                updatorObj.put(FieldName.AttributeTable.FIELD_REQUIRED, updator.getIsRequire());
+                updatorObj.put(FieldName.Attribute.FIELD_REQUIRED, updator.getIsRequire());
                 isNeedNotify = true;
             }
             if (updator.getCheckRule() != null) {
-                updatorObj.put(FieldName.AttributeTable.FIELD_CHECK_RULE, updator.getCheckRule());
+                updatorObj.put(FieldName.Attribute.FIELD_CHECK_RULE, updator.getCheckRule());
                 isNeedNotify = true;
             }
             if (updator.getDescription() != null) {
-                updatorObj.put(FieldName.AttributeTable.FIELD_DESCRIPTION,
-                        updator.getDescription());
+                updatorObj.put(FieldName.Attribute.FIELD_DESCRIPTION, updator.getDescription());
             }
             if (updator.getDisplayName() != null) {
-                updatorObj.put(FieldName.AttributeTable.FIELD_DISPLAY_NAME,
-                        updator.getDisplayName());
+                updatorObj.put(FieldName.Attribute.FIELD_DISPLAY_NAME, updator.getDisplayName());
             }
             BSONObject updatedAttributeRecord = null;
             try {
@@ -185,17 +182,17 @@ public class MetaDataConfUpdatorDao {
     private BSONObject updateClassRecord(MetaDataClassConfigUpdator updator, TableDao classTable)
             throws MetasourceException, ScmConfigException {
         BasicBSONObject classUpdator = new BasicBSONObject();
-        classUpdator.put(FieldName.ClassTable.FIELD_INNER_UPDATE_USER, updator.getUpdateUser());
-        classUpdator.put(FieldName.ClassTable.FIELD_INNER_UPDATE_TIME, new Date().getTime());
+        classUpdator.put(FieldName.Class.FIELD_INNER_UPDATE_USER, updator.getUpdateUser());
+        classUpdator.put(FieldName.Class.FIELD_INNER_UPDATE_TIME, new Date().getTime());
         if (updator.getDescription() != null) {
-            classUpdator.put(FieldName.ClassTable.FIELD_DESCRIPTION, updator.getDescription());
+            classUpdator.put(FieldName.Class.FIELD_DESCRIPTION, updator.getDescription());
         }
 
         if (updator.getName() != null) {
-            classUpdator.put(FieldName.ClassTable.FIELD_NAME, updator.getName());
+            classUpdator.put(FieldName.Class.FIELD_NAME, updator.getName());
         }
 
-        BasicBSONObject classMather = new BasicBSONObject(FieldName.ClassTable.FIELD_ID,
+        BasicBSONObject classMather = new BasicBSONObject(FieldName.Class.FIELD_ID,
                 updator.getClassId());
         BSONObject classRecord = null;
         try {
@@ -234,7 +231,7 @@ public class MetaDataConfUpdatorDao {
     private void attachAttribute(MetaDataClassConfigUpdator updator, TableDao relTable,
             TableDao classTable, TableDao attributeTable)
             throws MetasourceException, ScmConfigException {
-        BasicBSONObject classMatcher = new BasicBSONObject(FieldName.ClassTable.FIELD_ID,
+        BasicBSONObject classMatcher = new BasicBSONObject(FieldName.Class.FIELD_ID,
                 updator.getClassId());
         BSONObject classRecord = classTable.queryOne(classMatcher, null, null);
         if (classRecord == null) {
@@ -242,7 +239,7 @@ public class MetaDataConfUpdatorDao {
                     "class not exist:classId=" + updator.getClassId());
         }
 
-        BasicBSONObject attributeMatcher = new BasicBSONObject(FieldName.AttributeTable.FIELD_ID,
+        BasicBSONObject attributeMatcher = new BasicBSONObject(FieldName.Attribute.FIELD_ID,
                 updator.getAttachAttributeId());
         BSONObject attributeRecord = attributeTable.queryOne(attributeMatcher, null, null);
         if (attributeRecord == null) {

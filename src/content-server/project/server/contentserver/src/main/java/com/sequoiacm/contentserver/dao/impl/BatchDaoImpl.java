@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
@@ -41,7 +43,7 @@ public class BatchDaoImpl implements IBatchDao {
         String batchId = null;
         try {
             batchInfo = checkCreateObj(batchInfo);
-            batchId = addExtraFields(batchInfo, userName);
+            batchId = addExtraFields(wsInfo, batchInfo, userName);
 
             ScmContentServer.getInstance().getMetaService().insertBatch(wsInfo, batchInfo);
         }
@@ -54,11 +56,11 @@ public class BatchDaoImpl implements IBatchDao {
     }
 
     @Override
-    public void delete(ScmWorkspaceInfo wsInfo, String batchId, String sessionId, String userDetail,
-            String user) throws ScmServerException {
+    public void delete(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
+            String sessionId, String userDetail, String user) throws ScmServerException {
         try {
-            ScmContentServer.getInstance().getMetaService().deleteBatch(wsInfo.getName(), batchId,
-                    sessionId, userDetail, user, listenerMgr);
+            ScmContentServer.getInstance().getMetaService().deleteBatch(wsInfo, batchId,
+                    batchCreateMonth, sessionId, userDetail, user, listenerMgr);
         }
         catch (ScmServerException e) {
             logger.error("delete batch failed: workspace={}, batchId={}", wsInfo.getName(),
@@ -68,11 +70,12 @@ public class BatchDaoImpl implements IBatchDao {
     }
 
     @Override
-    public BSONObject queryById(ScmWorkspaceInfo wsInfo, String batchId) throws ScmServerException {
+    public BSONObject queryById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth)
+            throws ScmServerException {
         BSONObject batchInfo = null;
         try {
-            batchInfo = ScmContentServer.getInstance().getMetaService()
-                    .getBatchInfo(wsInfo.getName(), batchId);
+            batchInfo = ScmContentServer.getInstance().getMetaService().getBatchInfo(wsInfo,
+                    batchId, batchCreateMonth);
         }
         catch (ScmServerException e) {
             logger.error("queryById failed: workspace={}, batchId={}", wsInfo.getName(), batchId);
@@ -105,11 +108,11 @@ public class BatchDaoImpl implements IBatchDao {
     }
 
     @Override
-    public void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String fileId,
-            String updateUser) throws ScmServerException {
+    public void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
+            String fileId, String user) throws ScmServerException {
         try {
-            ScmContentServer.getInstance().getMetaService().batchAttachFile(wsInfo.getName(),
-                    batchId, fileId, updateUser);
+            ScmContentServer.getInstance().getMetaService().batchAttachFile(wsInfo, batchId,
+                    batchCreateMonth, fileId, user);
         }
         catch (ScmServerException e) {
             logger.error("attachFile failed: workspace={}, batchId={}, fileId={}", wsInfo.getName(),
@@ -119,11 +122,11 @@ public class BatchDaoImpl implements IBatchDao {
     }
 
     @Override
-    public void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String fileId,
-            String updateUser) throws ScmServerException {
+    public void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
+            String fileId, String updateUser) throws ScmServerException {
         try {
             ScmContentServer.getInstance().getMetaService().batchDetachFile(wsInfo.getName(),
-                    batchId, fileId, updateUser);
+                    batchId, batchCreateMonth, fileId, updateUser);
         }
         catch (ScmServerException e) {
             logger.error("detachFile failed: workspace={}, batchId={},fileId={}", wsInfo.getName(),
@@ -133,8 +136,8 @@ public class BatchDaoImpl implements IBatchDao {
     }
 
     @Override
-    public boolean updateById(ScmWorkspaceInfo wsInfo, String batchId, BSONObject updator,
-            String user) throws ScmServerException {
+    public boolean updateById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
+            BSONObject updator, String user) throws ScmServerException {
         try {
             checkUpdateObj(updator);
 
@@ -145,7 +148,7 @@ public class BatchDaoImpl implements IBatchDao {
             if (updator.containsField(classIdKey) || updator.containsField(propertiesKey)
                     || metaDataManager.isUpdateSingleClassProperty(updator, propertiesKey)) {
                 ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
-                BSONObject oldbatch = metaService.getBatchInfo(wsInfo.getName(), batchId);
+                BSONObject oldbatch = metaService.getBatchInfo(wsInfo, batchId, batchCreateMonth);
                 if (oldbatch == null) {
                     return false;
                 }
@@ -163,7 +166,7 @@ public class BatchDaoImpl implements IBatchDao {
                     + ",user=" + user + ",updator=" + updator.toString());
 
             boolean ret = ScmContentServer.getInstance().getMetaService()
-                    .updateBatchInfo(wsInfo.getName(), batchId, updator);
+                    .updateBatchInfo(wsInfo.getName(), batchId, batchCreateMonth, updator);
             return ret;
         }
         catch (ScmServerException e) {
@@ -172,22 +175,69 @@ public class BatchDaoImpl implements IBatchDao {
         }
     }
 
-    private String addExtraFields(BSONObject obj, String userName) throws ScmSystemException {
-        Date createDate = new Date();
-
-        String batchId = ScmIdGenerator.BatchId.get(createDate);
-        obj.put(FieldName.Batch.FIELD_ID, batchId);
+    private String addExtraFields(ScmWorkspaceInfo ws, BSONObject obj, String userName)
+            throws ScmServerException {
         obj.put(FieldName.Batch.FIELD_INNER_CREATE_USER, userName);
-        obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
         obj.put(FieldName.Batch.FIELD_INNER_UPDATE_USER, userName);
-        obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
         obj.put(FieldName.Batch.FIELD_FILES, new BasicBSONList());
 
-        return batchId;
+        String clientBatchId = (String) obj.get(FieldName.Batch.FIELD_ID);
+
+        // 不分区
+        if (!ws.isBatchSharding()) {
+            Date createDate = new Date();
+            if (clientBatchId == null) {
+                // 不指定ID
+                String batchId = ScmIdGenerator.BatchId.get(createDate);
+                obj.put(FieldName.Batch.FIELD_ID, batchId);
+                obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
+                obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
+                obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
+                        ScmSystemUtils.getCurrentYearMonth(createDate));
+                return batchId;
+            }
+            // 指定ID
+            obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
+            obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
+            obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
+                    ScmSystemUtils.getCurrentYearMonth(createDate));
+            return clientBatchId;
+        }
+
+        // 分区
+        if (clientBatchId == null) {
+            // 不指定ID
+            if (!ws.isBatchUseSystemId()) {
+                throw new ScmInvalidArgumentException("please specify batch id:ws=" + ws.getName());
+            }
+            Date createDate = new Date();
+            String batchId = ScmIdGenerator.BatchId.get(createDate);
+            obj.put(FieldName.Batch.FIELD_ID, batchId);
+            obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
+            obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
+            obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
+                    ScmSystemUtils.getCurrentYearMonth(createDate));
+            return batchId;
+        }
+        // 指定 ID
+        if (ws.isBatchUseSystemId()) {
+            throw new ScmInvalidArgumentException("can not specify batch id:ws=" + ws.getName());
+        }
+        Date clientIdDate = ScmSystemUtils.getDateFromCustomBatchId(clientBatchId,
+                ws.getBatchIdTimeRegex(), ws.getBatchIdTimePattern());
+
+        obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, clientIdDate.getTime());
+        obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, clientIdDate.getTime());
+        obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
+                ScmSystemUtils.getCurrentYearMonth(clientIdDate));
+        return clientBatchId;
+
     }
 
     private BSONObject checkCreateObj(BSONObject batchObj) throws ScmServerException {
         BSONObject result = new BasicBSONObject();
+
+        result.put(FieldName.Batch.FIELD_ID, batchObj.get(FieldName.Batch.FIELD_ID));
 
         String fieldName = FieldName.Batch.FIELD_NAME;
         result.put(fieldName, checkExistString(batchObj, fieldName));

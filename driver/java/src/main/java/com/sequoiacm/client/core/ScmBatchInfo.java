@@ -21,9 +21,15 @@ public class ScmBatchInfo {
 
     /**
      * Create a instance of ScmBatchInfo,this instance's properties is null.
+     * 
+     * @throws ScmException
+     *             if error happens.
      *
      */
-    ScmBatchInfo() {
+    ScmBatchInfo(String id) throws ScmException {
+        if (id != null) {
+            this.id = new ScmId(id, false);
+        }
     }
 
     /**
@@ -44,6 +50,7 @@ public class ScmBatchInfo {
 
     /**
      * Returns the id of the batch.
+     * 
      * @return batch id.
      */
     public ScmId getId() {
@@ -56,6 +63,7 @@ public class ScmBatchInfo {
 
     /**
      * Return the name of the batch.
+     * 
      * @return batch name.
      */
     public String getName() {
@@ -68,6 +76,7 @@ public class ScmBatchInfo {
 
     /**
      * Return the files count of the batch.
+     * 
      * @return files count.
      */
     public int getFilesCount() {
@@ -80,6 +89,7 @@ public class ScmBatchInfo {
 
     /**
      * Returns the create time of the batch.
+     * 
      * @return create time.
      */
     public Date getCreateTime() {

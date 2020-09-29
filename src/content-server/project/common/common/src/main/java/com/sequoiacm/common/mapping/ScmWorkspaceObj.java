@@ -7,6 +7,8 @@ import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 
 public class ScmWorkspaceObj {
     private int id;
@@ -22,6 +24,10 @@ public class ScmWorkspaceObj {
     private String createUser;
     private String updateUser;
     private BSONObject externalData;
+    private String batchShardingType;
+    private String batchIdTimeRegex;
+    private String batchIdTimePattern;
+    private boolean batchFileNameUnique;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -57,6 +63,16 @@ public class ScmWorkspaceObj {
             dataShardingType = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
 
             externalData = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_EXT_DATA);
+
+            batchFileNameUnique = BsonUtils.getBooleanOrElse(obj,
+                    FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false);
+            batchIdTimePattern = BsonUtils.getString(obj,
+                    FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN);
+            batchIdTimeRegex = BsonUtils.getString(obj,
+                    FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX);
+            batchShardingType = BsonUtils.getStringOrElse(obj,
+                    FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE,
+                    ScmShardingType.NONE.getName());
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -70,6 +86,22 @@ public class ScmWorkspaceObj {
             throw new ScmMappingException("field is not exist:fieldName=" + key);
         }
         return value;
+    }
+
+    public String getBatchShardingType() {
+        return batchShardingType;
+    }
+
+    public String getBatchIdTimeRegex() {
+        return batchIdTimeRegex;
+    }
+
+    public String getBatchIdTimePattern() {
+        return batchIdTimePattern;
+    }
+
+    public boolean isBatchFileNameUnique() {
+        return batchFileNameUnique;
     }
 
     @SuppressWarnings("unchecked")

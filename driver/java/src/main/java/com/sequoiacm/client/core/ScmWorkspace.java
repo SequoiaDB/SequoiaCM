@@ -8,6 +8,7 @@ import org.bson.BSONObject;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmShardingType;
 
 /**
  * The interface to operate ScmWorkspace object.
@@ -103,11 +104,39 @@ public abstract class ScmWorkspace {
      */
     public abstract void removeDataLocation(String siteName) throws ScmException;
 
+    /**
+     * Returns the sharding type of batch.
+     * 
+     * @return batch sharding type.
+     */
+    public abstract ScmShardingType getBatchShardingType();
+
+    /**
+     * Returns the time regex of batch id.
+     * 
+     * @return regex.
+     */
+    public abstract String getBatchIdTimeRegex();
+
+    /**
+     * Returns the time pattern of batch id.
+     * 
+     * @return time pattern.
+     */
+    public abstract String getBatchIdTimePattern();
+
+    /**
+     * Return true if the file name is unique in a batch, elase return false.
+     * 
+     * @return return true if the file name is unique in a batch.
+     */
+    public abstract boolean isBatchFileNameUnique();
+
     abstract ScmSession getSession();
 
     abstract int getId();
 
     abstract void setId(int id);
-    
+
     abstract BSONObject getExtData();
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.exception.ScmServerException;
@@ -20,6 +22,7 @@ import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.hdfs.HdfsDataLocation;
+import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
@@ -80,7 +83,7 @@ public class WorkspaceCreator {
         if (metaSiteName == null) {
             throw new ScmInvalidArgumentException(
                     "failed to create workspace, metalocation missing site name:wsName=" + wsName
-                    + ",metaLocation=" + metaLocationObj);
+                            + ",metaLocation=" + metaLocationObj);
         }
         ScmSite metaSiteInfo = contentserver.getSiteInfo(metaSiteName);
         if (metaSiteInfo == null) {
@@ -90,7 +93,7 @@ public class WorkspaceCreator {
         if (!metaSiteInfo.isRootSite()) {
             throw new ScmInvalidArgumentException(
                     "failed to create workspace,metalocation must be root site:wsName=" + wsName
-                    + ",metalocation=" + metaLocationObj);
+                            + ",metalocation=" + metaLocationObj);
         }
         metaLocationObj.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
         metaLocationObj.put(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, metaSiteInfo.getId());
@@ -101,7 +104,7 @@ public class WorkspaceCreator {
         catch (SdbMetasourceException e) {
             throw new ScmInvalidArgumentException(
                     "failed to create workspace, invlid metalocation:wsName=" + wsName
-                    + ",metaLocation=" + metaLocationObj,
+                            + ",metaLocation=" + metaLocationObj,
                     e);
         }
         wsConfig.setMetalocation(metaLocationObj);
@@ -132,7 +135,7 @@ public class WorkspaceCreator {
             catch (ScmDatasourceException e) {
                 throw new ScmInvalidArgumentException(
                         "failed to create workspace, invlid datalocation:wsName=" + wsName
-                        + ",dataLocation=" + dataLocationObj);
+                                + ",dataLocation=" + dataLocationObj);
             }
             if (siteInfo.isRootSite()) {
                 isDatalocationsContainRootSite = true;
@@ -146,7 +149,64 @@ public class WorkspaceCreator {
 
         wsConfig.setDataLocations(dataLocations);
 
+        wsConfig.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false));
+        wsConfig.setBatchIdTimePattern(BsonUtils.getString(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN));
+        wsConfig.setBatchIdTimeRegex(BsonUtils.getString(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX));
+        wsConfig.setBatchShardingType(BsonUtils.getStringOrElse(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName()));
+
+        checkBatchConf(wsConfig);
+
         return wsConfig;
+    }
+
+    private void checkBatchConf(WorkspaceConfig wsConfig) throws ScmInvalidArgumentException {
+        if (ScmShardingType.getShardingType(wsConfig.getBatchShardingType()) == null) {
+            throw new ScmInvalidArgumentException(
+                    "batch sharding type is invalid:" + wsConfig.getBatchShardingType());
+        }
+        // 不分区，不能带ID解析参数：不分区不需要解析ID
+        if (wsConfig.getBatchShardingType().equals(ScmShardingType.NONE.getName())) {
+            if (wsConfig.getBatchIdTimePattern() != null
+                    || wsConfig.getBatchIdTimeRegex() != null) {
+                throw new ScmInvalidArgumentException(
+                        "batch sharding type is " + ScmShardingType.NONE.getName()
+                                + ", can not set batchIdTimeRegex and batchIdTimePattern");
+            }
+        }
+        else {
+            // 分区，同时带上pattern和regex两个参数，表示用户使用自定义ID建立批次
+            // 分区，同时不带上pattern和regex两个参数，表示用户使用系统ID建立批次
+            if (wsConfig.getBatchIdTimePattern() == null
+                    && wsConfig.getBatchIdTimeRegex() != null) {
+                throw new ScmInvalidArgumentException(
+                        "please set batchIdTimeRegex and batchIdTimePattern at the same time");
+            }
+            if (wsConfig.getBatchIdTimePattern() != null
+                    && wsConfig.getBatchIdTimeRegex() == null) {
+                throw new ScmInvalidArgumentException(
+                        "please set batchIdTimeRegex and batchIdTimePattern at the same time");
+            }
+
+            // 示例：
+            // BatchIdTimeRegex: (?<=\\w{1,2}\\.[^.]{1,27}\\.)(\\d{4}-\\d{2}-\\d{2})(?=\\..{1,192})
+            // BatchIdTimePattern: yyyy-MM-dd
+            // 可解析ID如：zh.kjgyg_staff.2013-05-17.123456789001
+            if (wsConfig.getBatchIdTimeRegex() != null) {
+                try {
+                    Pattern.compile(wsConfig.getBatchIdTimeRegex());
+                }
+                catch (Exception e) {
+                    throw new ScmInvalidArgumentException("batchIdTimeRegex is not valid:ws="
+                            + wsConfig.getWsName() + ", regex=" + wsConfig.getBatchIdTimeRegex()
+                            + ", causeBy=" + e.getMessage(), e);
+                }
+            }
+
+        }
     }
 
     private BSONObject createHdfsTableNameRec(String wsName, int siteId, String rootPath) {

@@ -778,8 +778,28 @@ public class ScmFactory {
          *             If error happens.
          */
         public static ScmBatch createInstance(ScmWorkspace ws) throws ScmException {
+            return createInstance(ws, null);
+        }
+
+        /**
+         * Constructs a new instance of the subclassable ScmBatch class to be
+         * persisted in the specified ScmWorkspace.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param batchId
+         *            batch id.
+         * @return An object reference to a new instance of this class.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmBatch createInstance(ScmWorkspace ws, String batchId) throws ScmException {
             checkArgNotNull("workspace", ws);
-            ScmBatchImpl batch = new ScmBatchImpl();
+            if (batchId != null) {
+                checkArgInUriPath("batchId", batchId);
+            }
+            ScmBatchImpl batch = new ScmBatchImpl(batchId);
             batch.setWorkspace(ws);
             return batch;
         }

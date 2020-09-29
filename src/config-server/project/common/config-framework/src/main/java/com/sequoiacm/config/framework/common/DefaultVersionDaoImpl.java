@@ -8,13 +8,13 @@ import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
 import com.sequoiacm.infrastructure.config.core.msg.DefaultVersionFilter;

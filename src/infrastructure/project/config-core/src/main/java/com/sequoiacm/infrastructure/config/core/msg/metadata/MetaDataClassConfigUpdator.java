@@ -3,8 +3,8 @@ package com.sequoiacm.infrastructure.config.core.msg.metadata;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
 public class MetaDataClassConfigUpdator {
@@ -30,8 +30,8 @@ public class MetaDataClassConfigUpdator {
                 ScmRestArgDefine.META_DATA_ATTACH_ATTRUBUTE_ID);
         dettachAttributeId = BsonUtils.getString(obj,
                 ScmRestArgDefine.META_DATA_DETTACH_ATTRUBUTE_ID);
-        name = BsonUtils.getString(obj, FieldName.ClassTable.FIELD_NAME);
-        description = BsonUtils.getString(obj, FieldName.ClassTable.FIELD_DESCRIPTION);
+        name = BsonUtils.getString(obj, FieldName.Class.FIELD_NAME);
+        description = BsonUtils.getString(obj, FieldName.Class.FIELD_DESCRIPTION);
         wsName = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_WORKSPACE_NAME);
         classId = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_CLASS_ID);
         updateUser = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_UPDATE_USER);
@@ -115,8 +115,8 @@ public class MetaDataClassConfigUpdator {
 
     public BSONObject toBSONObject() {
         BasicBSONObject obj = new BasicBSONObject();
-        obj.put(FieldName.ClassTable.FIELD_DESCRIPTION, description);
-        obj.put(FieldName.ClassTable.FIELD_NAME, name);
+        obj.put(FieldName.Class.FIELD_DESCRIPTION, description);
+        obj.put(FieldName.Class.FIELD_NAME, name);
         obj.put(ScmRestArgDefine.META_DATA_ATTACH_ATTRUBUTE_ID, attachAttributeId);
         obj.put(ScmRestArgDefine.META_DATA_DETTACH_ATTRUBUTE_ID, dettachAttributeId);
         obj.put(ScmRestArgDefine.META_DATA_WORKSPACE_NAME, wsName);

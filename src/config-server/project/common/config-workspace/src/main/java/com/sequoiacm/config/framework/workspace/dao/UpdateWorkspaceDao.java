@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
@@ -15,7 +16,6 @@ import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaSerivce;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;

@@ -3,8 +3,8 @@ package com.sequoiacm.infrastructure.config.core.msg.metadata;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
 public class MetaDataAttributeConfig {
@@ -23,24 +23,24 @@ public class MetaDataAttributeConfig {
 
     public MetaDataAttributeConfig(BSONObject config) {
         wsName = BsonUtils.getString(config, ScmRestArgDefine.META_DATA_WORKSPACE_NAME);
-        id = BsonUtils.getString(config, FieldName.AttributeTable.FIELD_ID);
-        checkRule = BsonUtils.getBSON(config, FieldName.AttributeTable.FIELD_CHECK_RULE);
-        description = BsonUtils.getStringOrElse(config, FieldName.AttributeTable.FIELD_DESCRIPTION,
+        id = BsonUtils.getString(config, FieldName.Attribute.FIELD_ID);
+        checkRule = BsonUtils.getBSON(config, FieldName.Attribute.FIELD_CHECK_RULE);
+        description = BsonUtils.getStringOrElse(config, FieldName.Attribute.FIELD_DESCRIPTION,
                 "");
-        displayName = BsonUtils.getStringOrElse(config, FieldName.AttributeTable.FIELD_DISPLAY_NAME,
+        displayName = BsonUtils.getStringOrElse(config, FieldName.Attribute.FIELD_DISPLAY_NAME,
                 "");
         createTime = BsonUtils
-                .getNumberOrElse(config, FieldName.AttributeTable.FIELD_INNER_CREATE_TIME, 0)
+                .getNumberOrElse(config, FieldName.Attribute.FIELD_INNER_CREATE_TIME, 0)
                 .longValue();
-        createUser = BsonUtils.getString(config, FieldName.AttributeTable.FIELD_INNER_CREATE_USER);
+        createUser = BsonUtils.getString(config, FieldName.Attribute.FIELD_INNER_CREATE_USER);
         updateTime = BsonUtils
-                .getNumberOrElse(config, FieldName.AttributeTable.FIELD_INNER_UPDATE_TIME, 0)
+                .getNumberOrElse(config, FieldName.Attribute.FIELD_INNER_UPDATE_TIME, 0)
                 .longValue();
-        updateUser = BsonUtils.getString(config, FieldName.AttributeTable.FIELD_INNER_UPDATE_USER);
-        name = BsonUtils.getString(config, FieldName.AttributeTable.FIELD_NAME);
-        required = BsonUtils.getBooleanOrElse(config, FieldName.AttributeTable.FIELD_REQUIRED,
+        updateUser = BsonUtils.getString(config, FieldName.Attribute.FIELD_INNER_UPDATE_USER);
+        name = BsonUtils.getString(config, FieldName.Attribute.FIELD_NAME);
+        required = BsonUtils.getBooleanOrElse(config, FieldName.Attribute.FIELD_REQUIRED,
                 false);
-        type = BsonUtils.getString(config, FieldName.AttributeTable.FIELD_TYPE);
+        type = BsonUtils.getString(config, FieldName.Attribute.FIELD_TYPE);
     }
 
     public String getId() {
@@ -141,17 +141,17 @@ public class MetaDataAttributeConfig {
 
     public BSONObject toRecord() {
         BasicBSONObject obj = new BasicBSONObject();
-        obj.put(FieldName.AttributeTable.FIELD_CHECK_RULE, checkRule);
-        obj.put(FieldName.AttributeTable.FIELD_DESCRIPTION, description);
-        obj.put(FieldName.AttributeTable.FIELD_DISPLAY_NAME, displayName);
-        obj.put(FieldName.AttributeTable.FIELD_ID, id);
-        obj.put(FieldName.AttributeTable.FIELD_INNER_CREATE_TIME, createTime);
-        obj.put(FieldName.AttributeTable.FIELD_INNER_CREATE_USER, createUser);
-        obj.put(FieldName.AttributeTable.FIELD_INNER_UPDATE_TIME, updateTime);
-        obj.put(FieldName.AttributeTable.FIELD_INNER_UPDATE_USER, updateUser);
-        obj.put(FieldName.AttributeTable.FIELD_NAME, name);
-        obj.put(FieldName.AttributeTable.FIELD_REQUIRED, required);
-        obj.put(FieldName.AttributeTable.FIELD_TYPE, type);
+        obj.put(FieldName.Attribute.FIELD_CHECK_RULE, checkRule);
+        obj.put(FieldName.Attribute.FIELD_DESCRIPTION, description);
+        obj.put(FieldName.Attribute.FIELD_DISPLAY_NAME, displayName);
+        obj.put(FieldName.Attribute.FIELD_ID, id);
+        obj.put(FieldName.Attribute.FIELD_INNER_CREATE_TIME, createTime);
+        obj.put(FieldName.Attribute.FIELD_INNER_CREATE_USER, createUser);
+        obj.put(FieldName.Attribute.FIELD_INNER_UPDATE_TIME, updateTime);
+        obj.put(FieldName.Attribute.FIELD_INNER_UPDATE_USER, updateUser);
+        obj.put(FieldName.Attribute.FIELD_NAME, name);
+        obj.put(FieldName.Attribute.FIELD_REQUIRED, required);
+        obj.put(FieldName.Attribute.FIELD_TYPE, type);
         return obj;
     }
 

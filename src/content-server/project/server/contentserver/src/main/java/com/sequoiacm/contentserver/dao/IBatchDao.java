@@ -11,21 +11,22 @@ public interface IBatchDao {
     String insert(ScmWorkspaceInfo wsInfo, BSONObject batchInfo, String userName)
             throws ScmServerException;
 
-    void delete(ScmWorkspaceInfo wsInfo, String batchId, String sessionId, String userDetail,
-            String user) throws ScmServerException;
+    void delete(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth, String sessionId,
+            String userDetail, String user) throws ScmServerException;
 
-    BSONObject queryById(ScmWorkspaceInfo wsInfo, String batchId) throws ScmServerException;
+    BSONObject queryById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth)
+            throws ScmServerException;
 
     MetaCursor query(ScmWorkspaceInfo wsInfo, BSONObject matcher, BSONObject orderBy, long skip,
             long limit) throws ScmServerException;
 
-    void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String fileId, String user)
-            throws ScmServerException;
+    void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth, String fileId,
+            String user) throws ScmServerException;
 
-    void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String fileId, String user)
-            throws ScmServerException;
+    void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth, String fileId,
+            String user) throws ScmServerException;
 
-    boolean updateById(ScmWorkspaceInfo wsInfo, String batchId, BSONObject updator, String user)
-            throws ScmServerException;
+    boolean updateById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
+            BSONObject updator, String user) throws ScmServerException;
 
 }

@@ -7,13 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbMetasource;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;
@@ -34,8 +36,9 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
     }
 
     @Override
-    public void createWorkspaceMetaTable(String wsName, BSONObject metalocation)
-            throws MetasourceException {
+    public void createWorkspaceMetaTable(WorkspaceConfig wsConfig) throws MetasourceException {
+        String wsName = wsConfig.getWsName();
+        BSONObject metalocation = wsConfig.getMetalocation();
         String domain = (String) metalocation.get("domain");
         if (domain == null) {
             throw new IllegalArgumentException("metalocation missing domain filed:" + metalocation);
@@ -48,7 +51,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                     FieldName.FIELD_CLWORKSPACE_META_OPTIONS);
             if (metaOptions != null) {
                 BSONObject customCsOptions = BsonUtils.getBSON(metaOptions,
-                        FieldName.FIELD_CLWORKSPACE_META_CS_OPTIONS);
+                        FieldName.FIELD_CLWORKSPACE_META_CS);
                 if (customCsOptions != null) {
                     csOption.putAll(customCsOptions);
                 }
@@ -101,12 +104,12 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             DBCollection classCl = wsCs
                     .createCollection(MetaSourceDefine.SequoiadbTableName.CL_CLASS, null);
             BSONObject classNameIdx = new BasicBSONObject();
-            classNameIdx.put(FieldName.FIELD_CLCLASS_NAME, 1);
+            classNameIdx.put(FieldName.Class.FIELD_NAME, 1);
             logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     classCl.getFullName(), classNameIdx.toString(), true, true);
             classCl.createIndex("idx_class_name", classNameIdx, true, true);
             BSONObject classIdIdx = new BasicBSONObject();
-            classIdIdx.put(FieldName.FIELD_CLCLASS_ID, 1);
+            classIdIdx.put(FieldName.Class.FIELD_ID, 1);
             logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     classCl.getFullName(), classIdIdx.toString(), true, true);
             classCl.createIndex("idx_class_id", classIdIdx, true, true);
@@ -118,12 +121,12 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             DBCollection attrCl = wsCs
                     .createCollection(MetaSourceDefine.SequoiadbTableName.CL_ATTRIBUTE, null);
             BSONObject attrNameIdx = new BasicBSONObject();
-            attrNameIdx.put(FieldName.FIELD_CLATTR_NAME, 1);
+            attrNameIdx.put(FieldName.Attribute.FIELD_NAME, 1);
             logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     attrCl.getFullName(), attrNameIdx.toString(), true, true);
             attrCl.createIndex("idx_attr_name", attrNameIdx, true, true);
             BSONObject attrIdIdx = new BasicBSONObject();
-            attrIdIdx.put(FieldName.FIELD_CLATTR_ID, 1);
+            attrIdIdx.put(FieldName.Attribute.FIELD_ID, 1);
             logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     attrCl.getFullName(), attrIdIdx.toString(), true, true);
             attrCl.createIndex("idx_attr_id", attrIdIdx, true, true);
@@ -135,8 +138,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             DBCollection attrAttrRelCl = wsCs
                     .createCollection(MetaSourceDefine.SequoiadbTableName.CL_CLASS_ATTR_REL, null);
             BSONObject classAttrRelIdx = new BasicBSONObject();
-            classAttrRelIdx.put(FieldName.FIELD_CL_CLASS_ATTR_REL_CLASS_ID, 1);
-            classAttrRelIdx.put(FieldName.FIELD_CL_CLASS_ATTR_REL_ATTR_ID, 1);
+            classAttrRelIdx.put(FieldName.ClassAttrRel.FIELD_CLASS_ID, 1);
+            classAttrRelIdx.put(FieldName.ClassAttrRel.FIELD_ATTR_ID, 1);
             logger.info("creating index:clName={},key={},isUnique={},enforced={}",
                     attrAttrRelCl.getFullName(), classAttrRelIdx.toString(), true, true);
             attrAttrRelCl.createIndex("idx_rel_id", classAttrRelIdx, true, true);
@@ -193,18 +196,33 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_TRANSACTION_LOG);
 
             // BATCH
-            BSONObject key = new BasicBSONObject(FieldName.FIELD_CLBATCH_ID, 1);
-            BSONObject batchOptions = new BasicBSONObject();
-            batchOptions.put("ShardingType", "hash");
-            batchOptions.put("ShardingKey", key);
-            batchOptions.put("Compressed", true);
-            batchOptions.put("CompressionType", "lzw");
-            batchOptions.put("ReplSize", -1);
-            batchOptions.put("AutoSplit", true);
-            logger.info("creating cl:clName={}.{},options={}",
-                    wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
-                    MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions.toString());
-            wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions);
+            if (wsConfig.getBatchShardingType().equals(ScmShardingType.NONE.getName())) {
+                BSONObject key = new BasicBSONObject(FieldName.Batch.FIELD_ID, 1);
+                BSONObject batchOptions = new BasicBSONObject();
+                batchOptions.put("ShardingType", "hash");
+                batchOptions.put("ShardingKey", key);
+                batchOptions.put("Compressed", true);
+                batchOptions.put("CompressionType", "lzw");
+                batchOptions.put("ReplSize", -1);
+                batchOptions.put("AutoSplit", true);
+                logger.info("creating cl:clName={}.{},options={}",
+                        wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
+                        MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions.toString());
+                wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions);
+            }
+            else {
+                BSONObject batchOptions = new BasicBSONObject();
+                batchOptions.put("ShardingType", "range");
+                BSONObject batchClShardingKey = new BasicBSONObject(
+                        FieldName.Batch.FIELD_INNER_CREATE_MONTH, 1);
+                batchOptions.put("ShardingKey", batchClShardingKey);
+                batchOptions.put("IsMainCL", true);
+                logger.info("creating cl:clName={}.{},options={}",
+                        wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
+                        MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions.toString());
+                wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions);
+            }
+
         }
         catch (Exception e) {
             throw new MetasourceException("create meta collection failed:wsName=" + wsName, e);

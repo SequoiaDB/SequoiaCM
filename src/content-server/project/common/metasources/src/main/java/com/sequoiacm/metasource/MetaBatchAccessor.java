@@ -1,18 +1,25 @@
 package com.sequoiacm.metasource;
 
+import java.util.Date;
+
 import org.bson.BSONObject;
 
-public interface MetaBatchAccessor extends MetaAccessor {
-    
-    void attachFile(String batchId, String fileId, String user) 
-            throws ScmMetasourceException;
-    
-    void detachFile(String batchId, String fileId, String user) 
-            throws ScmMetasourceException;
-    
-    void delete(String batchId) throws ScmMetasourceException;
+import com.sequoiacm.common.ScmShardingType;
 
-    boolean update(String batchId, BSONObject newBatchInfo) 
+public interface MetaBatchAccessor extends MetaAccessor {
+
+    void attachFile(String batchId, String batchCreateMonth, String fileId, String user)
+            throws ScmMetasourceException;
+
+    void detachFile(String batchId, String batchCreateMonth, String fileId, String user)
+            throws ScmMetasourceException;
+
+    void delete(String batchId, String batchCreateMonth) throws ScmMetasourceException;
+
+    boolean update(String batchId, String batchCreateMonth, BSONObject newBatchInfo)
+            throws ScmMetasourceException;
+
+    void createSubTable(ScmShardingType shardingType, Date createTime)
             throws ScmMetasourceException;
 
 }

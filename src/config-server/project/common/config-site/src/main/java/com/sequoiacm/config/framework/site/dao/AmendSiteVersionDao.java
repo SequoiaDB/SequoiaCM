@@ -8,12 +8,12 @@ import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.site.metasource.SiteMetaService;
 import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -43,7 +43,7 @@ public class AmendSiteVersionDao {
             metaCursor = tableDao.query(null, null, null);
             while (metaCursor.hasNext()) {
                 BSONObject tableRecord = metaCursor.getNext();
-                String bussinessName = (String) tableRecord.get(FieldName.FIELD_CLSITE_SITE_NAME);
+                String bussinessName = (String) tableRecord.get(FieldName.FIELD_CLSITE_NAME);
                 if (!configNameSet.contains(bussinessName)) {
                     try {
                         versionDao.createVersion(ScmConfigNameDefine.SITE, bussinessName);

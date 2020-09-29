@@ -1,11 +1,13 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
@@ -27,6 +30,8 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class FileInfoUpdatorDao {
@@ -123,7 +128,79 @@ public class FileInfoUpdatorDao {
 
         checkExistDir(fileName,
                 (String) latestFileInfo.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID));
+
+        if (ws.isBatchFileNameUnique()) {
+            checkBatchFileNameUniqueAndUpdate(fileName);
+            return;
+        }
+
         metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+    }
+
+    private void checkBatchFileNameUniqueAndUpdate(String newFileName) throws ScmServerException {
+        String oldFileName = (String) latestFileInfo.get(FieldName.FIELD_CLFILE_NAME);
+        if (newFileName.equals(oldFileName)) {
+            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            return;
+        }
+
+        String batchId = (String) latestFileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
+        if (batchId == null || batchId.length() <= 0) {
+            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            return;
+        }
+
+        ScmLockPath batchLockPath = ScmLockPathFactory.createBatchLockPath(ws.getName(), batchId);
+        ScmLock batchLock = ScmLockManager.getInstance().acquiresLock(batchLockPath,
+                PropertiesUtils.getServerConfig().getFileRenameBatchLockTimeout());
+        if (batchLock == null) {
+            throw new ScmServerException(ScmError.OPERATION_TIMEOUT,
+                    "acquires batch lock timeout:ws=" + ws.getName() + ", batch=" + batchId
+                            + ", file=" + fileId);
+        }
+        try {
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(ws, batchId);
+            BSONObject batch = metaService.getBatchInfo(ws, batchId, batchCreateMonth);
+            if (batch == null) {
+                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+                return;
+            }
+            BasicBSONList files = BsonUtils.getArray(batch, FieldName.Batch.FIELD_FILES);
+            if (files == null || files.size() <= 1) {
+                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+                return;
+            }
+            BasicBSONObject condition = new BasicBSONObject();
+            ArrayList<String> ids = new ArrayList<>(files.size());
+            for (Object file : files) {
+                BSONObject fileBson = (BSONObject) file;
+                ids.add(BsonUtils.getStringChecked(fileBson, FieldName.FIELD_CLFILE_ID));
+            }
+            BasicBSONObject dollarInFileIds = new BasicBSONObject("$in", ids);
+            condition.put(FieldName.FIELD_CLFILE_ID, dollarInFileIds);
+
+            ArrayList<String> fileCreateMonths = new ArrayList<>(files.size());
+            for (String id : ids) {
+                ScmIdParser idParser = new ScmIdParser(id);
+                fileCreateMonths.add(idParser.getMonth());
+            }
+            BasicBSONObject dollarInCreateMonths = new BasicBSONObject("$in", fileCreateMonths);
+            condition.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, dollarInCreateMonths);
+
+            condition.put(FieldName.FIELD_CLFILE_NAME, newFileName);
+            long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
+                    .getCurrentFileCount(ws.getMetaLocation(), ws.getName(), condition);
+            if (sameNameFileCount > 0) {
+                throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
+                        "rename file failed, the batch already attach a file with same name:ws="
+                                + ws.getName() + ", batch=" + batchId + ", fileName="
+                                + newFileName);
+            }
+            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+        }
+        finally {
+            batchLock.unlock();
+        }
     }
 
     private void moveFile() throws ScmServerException {

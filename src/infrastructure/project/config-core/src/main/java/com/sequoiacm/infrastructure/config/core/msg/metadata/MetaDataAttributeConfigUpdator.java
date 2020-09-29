@@ -3,8 +3,8 @@ package com.sequoiacm.infrastructure.config.core.msg.metadata;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
 public class MetaDataAttributeConfigUpdator {
@@ -29,10 +29,10 @@ public class MetaDataAttributeConfigUpdator {
         wsName = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_WORKSPACE_NAME);
         attributeId = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_ATTRIBUTE_ID);
         updateUser = BsonUtils.getString(obj, ScmRestArgDefine.META_DATA_UPDATE_USER);
-        displayName = BsonUtils.getString(obj, FieldName.AttributeTable.FIELD_DISPLAY_NAME);
-        description = BsonUtils.getString(obj, FieldName.AttributeTable.FIELD_DESCRIPTION);
-        checkRule = BsonUtils.getBSON(obj, FieldName.AttributeTable.FIELD_CHECK_RULE);
-        isRequire = BsonUtils.getBoolean(obj, FieldName.AttributeTable.FIELD_REQUIRED);
+        displayName = BsonUtils.getString(obj, FieldName.Attribute.FIELD_DISPLAY_NAME);
+        description = BsonUtils.getString(obj, FieldName.Attribute.FIELD_DESCRIPTION);
+        checkRule = BsonUtils.getBSON(obj, FieldName.Attribute.FIELD_CHECK_RULE);
+        isRequire = BsonUtils.getBoolean(obj, FieldName.Attribute.FIELD_REQUIRED);
     }
 
     public String getUpdateUser() {
@@ -113,10 +113,10 @@ public class MetaDataAttributeConfigUpdator {
 
     public BSONObject toBSONObject() {
         BasicBSONObject obj = new BasicBSONObject();
-        obj.put(FieldName.AttributeTable.FIELD_REQUIRED, isRequire);
-        obj.put(FieldName.AttributeTable.FIELD_CHECK_RULE, checkRule);
-        obj.put(FieldName.AttributeTable.FIELD_DESCRIPTION, description);
-        obj.put(FieldName.AttributeTable.FIELD_DISPLAY_NAME, displayName);
+        obj.put(FieldName.Attribute.FIELD_REQUIRED, isRequire);
+        obj.put(FieldName.Attribute.FIELD_CHECK_RULE, checkRule);
+        obj.put(FieldName.Attribute.FIELD_DESCRIPTION, description);
+        obj.put(FieldName.Attribute.FIELD_DISPLAY_NAME, displayName);
         obj.put(ScmRestArgDefine.META_DATA_WORKSPACE_NAME, wsName);
         obj.put(ScmRestArgDefine.META_DATA_ATTRIBUTE_ID, attributeId);
         obj.put(ScmRestArgDefine.META_DATA_UPDATE_USER, updateUser);

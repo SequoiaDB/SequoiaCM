@@ -36,15 +36,15 @@ class ScmBatchImpl implements ScmBatch {
     private ScmWorkspace ws;
     private boolean exist = false;
 
-    public ScmBatchImpl() {
-        this.batchInfo = new ScmBatchInfo();
+    public ScmBatchImpl(String id) throws ScmException {
+        this.batchInfo = new ScmBatchInfo(id);
         this.tags = new ScmTags();
         this.fileList = new ArrayList<ScmFile>();
     }
 
     public static ScmBatchImpl getInstance(BSONObject bsonObj, ScmWorkspace ws)
             throws ScmException {
-        ScmBatchImpl batch = new ScmBatchImpl();
+        ScmBatchImpl batch = new ScmBatchImpl(null);
         updateScmBatch(batch, bsonObj, ws);
         batch.setWorkspace(ws);
         batch.setExist(true);
@@ -198,6 +198,10 @@ class ScmBatchImpl implements ScmBatch {
         }
 
         BSONObject info = new BasicBSONObject();
+
+        if (getId() != null) {
+            info.put(FieldName.Batch.FIELD_ID, getId().get());
+        }
 
         checkStrNotEmpty(FieldName.Batch.FIELD_NAME, getName());
         info.put(FieldName.Batch.FIELD_NAME, getName());

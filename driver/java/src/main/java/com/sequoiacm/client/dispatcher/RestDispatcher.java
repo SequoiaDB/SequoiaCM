@@ -909,7 +909,8 @@ public class RestDispatcher implements MessageDispatcher {
      */
     @Override
     public BSONObject getBatchInfo(String workspaceName, String batchId) throws ScmException {
-        String uri = String.format("%s%s%s%s%s?%s=%s", URL_PREFIX, url, API_VERSION, BATCH, batchId,
+        String uri = String.format("%s%s%s%s%s?%s=%s", URL_PREFIX, url, API_VERSION, BATCH,
+                encode(batchId),
                 CommonDefine.RestArg.BATCH_WS_NAME, encode(workspaceName));
         HttpGet request = new HttpGet(uri);
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
@@ -940,7 +941,7 @@ public class RestDispatcher implements MessageDispatcher {
      */
     @Override
     public void deleteBatch(String workspaceName, String batchID) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BATCH + batchID + "?"
+        String uri = URL_PREFIX + url + API_VERSION + BATCH + encode(batchID) + "?"
                 + CommonDefine.RestArg.BATCH_WS_NAME + "=" + encode(workspaceName);
         HttpDelete request = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
@@ -952,7 +953,7 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public void updateBatchInfo(String workspaceName, String batchId, BSONObject batchInfo)
             throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BATCH + batchId + "?"
+        String uri = URL_PREFIX + url + API_VERSION + BATCH + encode(batchId) + "?"
                 + CommonDefine.RestArg.BATCH_WS_NAME + "=" + encode(workspaceName);
         HttpPut request = new HttpPut(uri);
 
@@ -969,7 +970,7 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public void batchAttachFile(String workspaceName, String batchId, String fileId)
             throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BATCH + batchId + "/attachfile";
+        String uri = URL_PREFIX + url + API_VERSION + BATCH + encode(batchId) + "/attachfile";
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -985,7 +986,7 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public void batchDetachFile(String workspaceName, String batchId, String fileId)
             throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BATCH + batchId + "/detachfile";
+        String uri = URL_PREFIX + url + API_VERSION + BATCH + encode(batchId) + "/detachfile";
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();

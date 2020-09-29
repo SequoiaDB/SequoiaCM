@@ -3,9 +3,10 @@ package com.sequoiacm.infrastructure.config.core.msg.workspace;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverter;
@@ -59,8 +60,16 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION);
         wsConfig.setDataLocations(dataLocations);
 
-        wsConfig.setExternalData(
-                BsonUtils.getBSON(config, FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA));
+        wsConfig.setExternalData(BsonUtils.getBSON(config, FieldName.FIELD_CLWORKSPACE_EXT_DATA));
+
+        wsConfig.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(config,
+                FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false));
+        wsConfig.setBatchIdTimePattern(
+                BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN));
+        wsConfig.setBatchIdTimeRegex(
+                BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX));
+        wsConfig.setBatchShardingType(BsonUtils.getStringOrElse(config,
+                FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName()));
         return wsConfig;
     }
 

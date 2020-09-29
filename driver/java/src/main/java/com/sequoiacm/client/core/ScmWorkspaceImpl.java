@@ -22,6 +22,7 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 
 /**
@@ -40,6 +41,10 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private Date createTime;
     private Date updateTime;
     private BSONObject extData;
+    private ScmShardingType batchShardingType;
+    private String batchIdTimeRegex;
+    private String batchIdTimePattern;
+    private boolean batchFileNameUnique;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -71,6 +76,16 @@ class ScmWorkspaceImpl extends ScmWorkspace {
             dataLocations.add(createDataLocation((BSONObject) dataBSON));
         }
         extData = BsonUtils.getBSON(newWsInfo, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+
+        batchFileNameUnique = BsonUtils.getBooleanOrElse(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false);
+        batchIdTimePattern = BsonUtils.getString(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN);
+        batchIdTimeRegex = BsonUtils.getString(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX);
+        String batchShardingTypeStr = BsonUtils.getStringOrElse(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName());
+        batchShardingType = ScmShardingType.getShardingType(batchShardingTypeStr);
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -209,4 +224,23 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         return extData;
     }
 
+    @Override
+    public String getBatchIdTimePattern() {
+        return batchIdTimePattern;
+    }
+
+    @Override
+    public String getBatchIdTimeRegex() {
+        return batchIdTimeRegex;
+    }
+
+    @Override
+    public ScmShardingType getBatchShardingType() {
+        return batchShardingType;
+    }
+
+    @Override
+    public boolean isBatchFileNameUnique() {
+        return batchFileNameUnique;
+    }
 }

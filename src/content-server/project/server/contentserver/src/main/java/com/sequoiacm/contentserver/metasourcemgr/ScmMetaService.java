@@ -517,7 +517,7 @@ public class ScmMetaService {
                         wsName, fileID, majorVersion, minorVersion);
                 return null;
             }
-           
+
             return CommonHelper.completeHisotryFileRec(historyFile, currentFile);
         }
         catch (ScmServerException e) {
@@ -1478,13 +1478,30 @@ public class ScmMetaService {
     }
 
     /********* batch ***********/
-
     public void insertBatch(ScmWorkspaceInfo wsInfo, BSONObject batch) throws ScmServerException {
+        MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsInfo.getName(), null);
         try {
-            MetaAccessor batchAccessor = metasource.getBatchAccessor(wsInfo.getName(), null);
             batchAccessor.insert(batch);
         }
         catch (ScmMetasourceException e) {
+            if (wsInfo.isBatchSharding() && e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
+                logger.debug("create table", e);
+                try {
+                    Date createDate = new Date(BsonUtils
+                            .getNumberChecked(batch, FieldName.Batch.FIELD_INNER_CREATE_TIME)
+                            .longValue());
+                    batchAccessor.createSubTable(wsInfo.getBatchShardingType(), createDate);
+                }
+                catch (Exception ex) {
+                    throw new ScmServerException(ScmError.METASOURCE_ERROR,
+                            "insert batch failed, create batch sub table failed:ws="
+                                    + wsInfo.getName() + ",siteId=" + siteId + ",file="
+                                    + batch.get(FieldName.Batch.FIELD_ID),
+                            ex);
+                }
+                insertBatch(wsInfo, batch);
+                return;
+            }
             throw new ScmServerException(e.getScmError(), "insertBatch failed: workspace="
                     + wsInfo.getName() + ",batch=" + batch.toString(), e);
         }
@@ -1494,56 +1511,59 @@ public class ScmMetaService {
         }
     }
 
-    public BSONObject getBatchInfo(String wsName, String batchId) throws ScmServerException {
+    public BSONObject getBatchInfo(ScmWorkspaceInfo ws, String batchId, String createMonth)
+            throws ScmServerException {
         try {
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, null);
+            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(ws.getName(), null);
             BSONObject matcher = new BasicBSONObject();
             matcher.put(FieldName.Batch.FIELD_ID, batchId);
+            if (createMonth != null) {
+                matcher.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH, createMonth);
+            }
             return ScmMetaSourceHelper.queryOne(batchAccessor, matcher);
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
-                    "getBatchInfo failed:workspace=" + wsName + ",batchId=" + batchId, e);
+                    "getBatchInfo failed:workspace=" + ws.getName() + ",batchId=" + batchId, e);
         }
         catch (Exception e) {
             throw new ScmSystemException(
-                    "getBatchInfo failed:workspace=" + wsName + ",batchId=" + batchId, e);
+                    "getBatchInfo failed:workspace=" + ws.getName() + ",batchId=" + batchId, e);
         }
     }
 
-    public void deleteBatch(String wsName, String batchId, String sessionId, String userDetail,
-            String user, FileOperationListenerMgr listenerMgr) throws ScmServerException {
+    public void deleteBatch(ScmWorkspaceInfo ws, String batchId, String batchCreateMonth,
+            String sessionId, String userDetail, String user, FileOperationListenerMgr listenerMgr)
+            throws ScmServerException {
         try {
             // check whether the batch exists
-            BSONObject batch = getBatchInfo(wsName, batchId);
+            BSONObject batch = getBatchInfo(ws, batchId, batchCreateMonth);
             if (null == batch) {
                 throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
-                        "batch not found:ws=" + wsName + ",batchId=" + batchId);
+                        "batch not found:ws=" + ws.getName() + ",batchId=" + batchId);
             }
 
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, null);
+            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(ws.getName(), null);
             FileDeletorDao fileDeletorDao = new FileDeletorDao();
             BasicBSONList files = (BasicBSONList) batch.get(FieldName.Batch.FIELD_FILES);
             for (Object obj : files) {
                 BSONObject file = (BSONObject) obj;
                 String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
                 // detach file
-                batchDetachFile(wsName, batchId, fileId, user);
+                batchDetachFile(ws.getName(), batchCreateMonth, batchId, fileId, user);
                 // delete file
-                fileDeletorDao.init(sessionId, userDetail,
-                        ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName), fileId, -1,
-                        -1, true, listenerMgr);
+                fileDeletorDao.init(sessionId, userDetail, ws, fileId, -1, -1, true, listenerMgr);
                 fileDeletorDao.delete();
             }
-            batchAccessor.delete(batchId);
+            batchAccessor.delete(batchId, batchCreateMonth);
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
-                    "deleteBatch failed: workspace=" + wsName + ",batchId=" + batchId, e);
+                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
         }
         catch (Exception e) {
             throw new ScmSystemException(
-                    "deleteBatch failed: workspace=" + wsName + ",batchId=" + batchId, e);
+                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
         }
     }
 
@@ -1564,42 +1584,42 @@ public class ScmMetaService {
         }
     }
 
-    public void batchAttachFile(String wsName, String batchId, String fileId, String updateUser)
-            throws ScmServerException {
+    public void batchAttachFile(ScmWorkspaceInfo ws, String batchId, String batchCreateMonth,
+            String fileId, String updateUser) throws ScmServerException {
         TransactionContext context = null;
         try {
             context = metasource.createTransactionContext();
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, context);
+            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(ws.getName(), context);
 
             context.begin();
-            updateBatchIdOfFile(wsName, batchId, fileId, updateUser, context);
-            batchAccessor.attachFile(batchId, fileId, updateUser);
+            updateBatchIdOfFile(ws.getName(), batchId, fileId, updateUser, context);
+            batchAccessor.attachFile(batchId, batchCreateMonth, fileId, updateUser);
             context.commit();
         }
         catch (ScmServerException e) {
             rollbackTransaction(context);
-            throw new ScmServerException(e.getError(), "batchAttachFile failed: workspace=" + wsName
-                    + ",batchId=" + batchId + ",fileId=" + fileId, e);
+            throw new ScmServerException(e.getError(), "batchAttachFile failed: workspace="
+                    + ws.getName() + ",batchId=" + batchId + ",fileId=" + fileId, e);
         }
         catch (Exception e) {
             rollbackTransaction(context);
-            throw new ScmSystemException("batchAttachFile failed: workspace=" + wsName + ",batchId="
-                    + batchId + ",fileId=" + fileId, e);
+            throw new ScmSystemException("batchAttachFile failed: workspace=" + ws.getName()
+                    + ",batchId=" + batchId + ",fileId=" + fileId, e);
         }
         finally {
             closeTransactionContext(context);
         }
     }
 
-    public void batchDetachFile(String wsName, String batchId, String fileId, String updateUser)
-            throws ScmServerException {
+    public void batchDetachFile(String wsName, String batchId, String batchCreateMonth,
+            String fileId, String updateUser) throws ScmServerException {
         TransactionContext context = null;
         try {
             context = metasource.createTransactionContext();
             MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, context);
 
             context.begin();
-            batchAccessor.detachFile(batchId, fileId, updateUser);
+            batchAccessor.detachFile(batchId, batchCreateMonth, fileId, updateUser);
             updateBatchIdOfFile(wsName, "", fileId, updateUser, context);
             context.commit();
         }
@@ -1636,11 +1656,11 @@ public class ScmMetaService {
         }
     }
 
-    public boolean updateBatchInfo(String wsName, String batchId, BSONObject updator)
-            throws ScmServerException {
+    public boolean updateBatchInfo(String wsName, String batchId, String batchCreateMonth,
+            BSONObject updator) throws ScmServerException {
         try {
             MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, null);
-            return batchAccessor.update(batchId, updator);
+            return batchAccessor.update(batchId, batchCreateMonth, updator);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "updateBatchInfo failed: workspace="

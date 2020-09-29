@@ -58,6 +58,10 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_DATA_OPTIONS = "data_options";
     public static final String FIELD_CLWORKSPACE_META_OPTIONS = "meta_options";
     public static final String FIELD_CLWORKSPACE_EXT_DATA = "external_data";
+    public static final String FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE = "batch_sharding_type";
+    public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX = "batch_id_time_regex";
+    public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN = "batch_id_time_pattern";
+    public static final String FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE = "batch_file_name_unique";
     public static final String FIELD_CLWORKSPACE_CONTAINER_PREFIX = "container_prefix"; // only
                                                                                         // in
                                                                                         // s3
@@ -217,6 +221,21 @@ public class FieldName {
 
     public static final String FIELD_CLBREAKPOINTFILE_FILE_NAME = "file_name";
 
+    // CL DATA_TABLE_NAME_HOISTORY
+    public static final String FIELD_CLTABLE_NAME_HISTORY_WORKSPACE_NAME = "workspace_name";
+    public static final String FIELD_CLTABLE_NAME_HISTORY_SITE_NAME = "site_name";
+    public static final String FIELD_CLTABLE_NAME_HISTORY_WORKSPACE_IS_DELTED = "workspace_is_deleted";
+    public static final String FIELD_CLTABLE_NAME_HISTORY_TABLE_CREATE_TIME = "table_create_time";
+    public static final String FIELD_CLTABLE_NAME_HISTORY_TABLE_NAME = "table_name";
+
+    // CL_SUBSCRIBER
+    public static final String FIELD_CLSUBSCRIBER_CONFIG_NAME = "config_name";
+    public static final String FIELD_CLSUBSCRIBER_SERVICE_NAME = "service_name";
+
+    // CL_CONTENTSERVER_CONF_VERSION
+    public static final String FIELD_CLVERSION_BUSINESS_TYPE = "business_type";
+    public static final String FIELD_CLVERSION_BUSINESS_NAME = "business_name";
+    public static final String FIELD_CLVERSION_BUSINESS_VERSION = "business_version";
     public static class Task {
         public static final String FIELD_ID = "id";
         public static final String FIELD_TYPE = "type";
@@ -264,6 +283,8 @@ public class FieldName {
                                                                             // user
         public static final String FIELD_INNER_UPDATE_TIME = "update_time"; // long,
                                                                             // 1485239715515(ms)
+        public static final String FIELD_INNER_CREATE_MONTH = "create_month";
+
     }
 
     public static class BreakpointFile {

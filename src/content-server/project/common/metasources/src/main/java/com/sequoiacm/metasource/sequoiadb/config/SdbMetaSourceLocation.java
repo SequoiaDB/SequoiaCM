@@ -7,6 +7,7 @@ import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmMonthRange;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
@@ -39,31 +40,6 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
         }
     }
 
-    protected String getShardingStr(ScmShardingType type, Date createDate) {
-        StringBuilder sb = new StringBuilder();
-        switch (type) {
-            case YEAR:
-                sb.append(CommonHelper.getCurrentYear(createDate));
-                break;
-
-            case MONTH:
-                sb.append(CommonHelper.getCurrentYearMonth(createDate));
-                break;
-
-            case QUARTER:
-                sb.append(CommonHelper.getCurrentYear(createDate));
-                String month = CommonHelper.getCurrentMonth(createDate);
-                sb.append(CommonHelper.getQuarter(month));
-                break;
-
-            default:
-                // default do nothing
-                break;
-        }
-
-        return sb.toString();
-    }
-
     @Override
     public int getSiteId() {
         return siteId;
@@ -76,9 +52,9 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
     public SdbMetaSourceLocation(BSONObject metaLocation, BSONObject metaShardingType)
             throws SdbMetasourceException {
         try {
-            siteId = (int)metaLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-            domain = (String)metaLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
-            if(domain == null) {
+            siteId = (int) metaLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
+            domain = (String) metaLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
+            if (domain == null) {
                 throw new SdbMetasourceException(ScmError.INVALID_ARGUMENT.getErrorCode(),
                         "domain not exists:" + metaLocation);
             }
@@ -106,26 +82,27 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_INVALIDARG.getErrorCode(),
-                    "get site id failed:fieldName="
-                            + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, e);
+                    "get site id failed:fieldName=" + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID,
+                    e);
         }
     }
 
     private void parseMetaOptions(BSONObject metaLocation) {
-        BSONObject metaOptions = (BSONObject) metaLocation.get(FieldName.FIELD_CLWORKSPACE_META_OPTIONS);
-        if(metaOptions == null) {
+        BSONObject metaOptions = (BSONObject) metaLocation
+                .get(FieldName.FIELD_CLWORKSPACE_META_OPTIONS);
+        if (metaOptions == null) {
             clOptions = new BasicBSONObject();
         }
         else {
             clOptions = (BSONObject) metaOptions.get(FieldName.FIELD_CLWORKSPACE_META_CL);
-            if(clOptions == null) {
+            if (clOptions == null) {
                 clOptions = new BasicBSONObject();
             }
         }
     }
 
     public SdbClFileInfo getClFileInfo(String mainClName, Date createDate) {
-        String shardingStr = getShardingStr(clShardingType, createDate);
+        String shardingStr = CommonHelper.getShardingStr(clShardingType, createDate);
 
         StringBuilder sb = new StringBuilder();
         sb.append(mainClName);
@@ -137,56 +114,12 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
         sbHistory.append("_");
         sbHistory.append(shardingStr);
 
-        SdbClFileInfo metaInfo = new SdbClFileInfo(sb.toString(), sbHistory.toString(), "",
-                "", clOptions);
-        setYearMonthRange(metaInfo, clShardingType, createDate);
+        SdbClFileInfo metaInfo = new SdbClFileInfo(sb.toString(), sbHistory.toString(), "", "",
+                clOptions);
+        ScmMonthRange range = CommonHelper.getMonthRange(clShardingType, createDate);
+        metaInfo.setLowMonth(range.getLowBound());
+        metaInfo.setUpperMonth(range.getUpBound());
         return metaInfo;
-    }
-
-    private void setYearMonthRange(SdbClFileInfo metaInfo, ScmShardingType type, Date createDate) {
-        String lowYearMonth;
-        String upperYearMonth;
-
-        switch (type) {
-            case YEAR:
-                lowYearMonth = CommonHelper.getCurrentYear(createDate) + CommonHelper.MONTH1;
-                upperYearMonth = CommonHelper.getNextYear(createDate) + CommonHelper.MONTH1;
-                break;
-
-            case MONTH:
-                lowYearMonth = CommonHelper.getCurrentYearMonth(createDate);
-                upperYearMonth = CommonHelper.getNextYearMonth(createDate);
-                break;
-
-            default:
-                String year = CommonHelper.getCurrentYear(createDate);
-                String quarter = CommonHelper.getQuarter(CommonHelper
-                        .getCurrentMonth(createDate));
-
-                if (quarter.equals(CommonHelper.QUARTER1)) {
-                    lowYearMonth = year + CommonHelper.MONTH1;
-                    upperYearMonth = year + CommonHelper.MONTH4;
-                }
-                else if (quarter.equals(CommonHelper.QUARTER2)) {
-                    lowYearMonth = year + CommonHelper.MONTH4;
-                    upperYearMonth = year + CommonHelper.MONTH7;
-                }
-                else if (quarter.equals(CommonHelper.QUARTER3)) {
-                    lowYearMonth = year + CommonHelper.MONTH7;
-                    upperYearMonth = year + CommonHelper.MONTH10;
-                }
-                else {
-                    // QUARTER4
-                    lowYearMonth = year + CommonHelper.MONTH10;
-
-                    String nextYear = CommonHelper.getNextYear(createDate);
-                    upperYearMonth = nextYear + CommonHelper.MONTH1;
-                }
-                break;
-        }
-
-        metaInfo.setLowMonth(lowYearMonth);
-        metaInfo.setUpperMonth(upperYearMonth);
     }
 
     public String getDomain() {
@@ -195,7 +128,7 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
 
     @Override
     public String getType() {
-        //TODO:
+        // TODO:
         return "sequoiadb";
     }
 
@@ -222,7 +155,7 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
             return false;
         }
 
-        SdbMetaSourceLocation r = (SdbMetaSourceLocation)right;
+        SdbMetaSourceLocation r = (SdbMetaSourceLocation) right;
         return siteId == r.siteId && domain.equals(r.domain);
     }
 }

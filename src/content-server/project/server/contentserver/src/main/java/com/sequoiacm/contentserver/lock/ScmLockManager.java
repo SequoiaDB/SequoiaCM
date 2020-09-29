@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.lock;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.slf4j.Logger;
@@ -96,6 +97,22 @@ public class ScmLockManager {
             throw new ScmLockException(
                     "failed to acquires writelock:locakPath=" + Arrays.toString(lockPath.getPath()),
                     e);
+        }
+    }
+
+    // return null if timeout!
+    public ScmLock acquiresLock(ScmLockPath lockPath, long timeoutInMs) throws ScmServerException {
+        try {
+            checkAndInit();
+            ScmLock lock = innerFactory.createLock(lockPath.getPath());
+            if (lock.lock(timeoutInMs, TimeUnit.MILLISECONDS)) {
+                return lock;
+            }
+            return null;
+        }
+        catch (Exception e) {
+            throw new ScmLockException(
+                    "failed to acquires lock:locakPath=" + Arrays.toString(lockPath.getPath()), e);
         }
     }
 

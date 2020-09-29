@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.mapping.ScmWorkspaceObj;
 import com.sequoiacm.contentserver.cache.ScmDirCache;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
@@ -47,6 +48,11 @@ public class ScmWorkspaceInfo {
 
     private ScmWorkspaceFulltextExtData fulltextExtData;
 
+    private ScmShardingType batchShardingType;
+    private String batchIdTimeRegex;
+    private String batchIdTimePattern;
+    private boolean batchFileNameUnique;
+
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
         try {
             ScmWorkspaceObj wsObj = new ScmWorkspaceObj(workspaceObj);
@@ -81,6 +87,10 @@ public class ScmWorkspaceInfo {
             }
 
             fulltextExtData = new ScmWorkspaceFulltextExtData(name, id, wsObj.getExternalData());
+            batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
+            batchFileNameUnique = wsObj.isBatchFileNameUnique();
+            batchIdTimePattern = wsObj.getBatchIdTimePattern();
+            batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -91,6 +101,34 @@ public class ScmWorkspaceInfo {
             throw new ScmInvalidArgumentException(
                     "parse workspace info failed:record=" + workspaceObj.toString(), e);
         }
+    }
+
+    public BSONObject getWsBson() {
+        return wsBson;
+    }
+
+    public boolean isBatchSharding() {
+        return batchShardingType != ScmShardingType.NONE;
+    }
+
+    public ScmShardingType getBatchShardingType() {
+        return batchShardingType;
+    }
+
+    public String getBatchIdTimeRegex() {
+        return batchIdTimeRegex;
+    }
+
+    public boolean isBatchUseSystemId() {
+        return batchIdTimePattern == null || batchIdTimeRegex == null;
+    }
+
+    public String getBatchIdTimePattern() {
+        return batchIdTimePattern;
+    }
+
+    public boolean isBatchFileNameUnique() {
+        return batchFileNameUnique;
     }
 
     private void checkWorkspace(ScmBizConf bizConf) throws ScmServerException {

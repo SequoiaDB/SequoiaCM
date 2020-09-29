@@ -4,7 +4,7 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
 public class WorkspaceConfig implements Config {
@@ -18,6 +18,10 @@ public class WorkspaceConfig implements Config {
     private BSONObject metalocation;
     private BasicBSONList dataLocations;
     private BSONObject externalData;
+    private String batchShardingType;
+    private String batchIdTimeRegex;
+    private String batchIdTimePattern;
+    private boolean batchFileNameUnique;
 
     public WorkspaceConfig() {
     }
@@ -102,6 +106,38 @@ public class WorkspaceConfig implements Config {
         this.wsId = wsId;
     }
 
+    public String getBatchShardingType() {
+        return batchShardingType;
+    }
+
+    public void setBatchShardingType(String batchShardingType) {
+        this.batchShardingType = batchShardingType;
+    }
+
+    public String getBatchIdTimeRegex() {
+        return batchIdTimeRegex;
+    }
+
+    public void setBatchIdTimeRegex(String batchIdTimeRegex) {
+        this.batchIdTimeRegex = batchIdTimeRegex;
+    }
+
+    public String getBatchIdTimePattern() {
+        return batchIdTimePattern;
+    }
+
+    public void setBatchIdTimePattern(String batchIdTimePattern) {
+        this.batchIdTimePattern = batchIdTimePattern;
+    }
+
+    public boolean isBatchFileNameUnique() {
+        return batchFileNameUnique;
+    }
+
+    public void setBatchFileNameUnique(boolean batchFileNameUnique) {
+        this.batchFileNameUnique = batchFileNameUnique;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject wsConfigObj = new BasicBSONObject();
@@ -114,7 +150,12 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_UPDATETIME, updateTime);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_META_LOCATION, metalocation);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION, dataLocations);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA, externalData);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA, externalData);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN, batchIdTimePattern);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX, batchIdTimeRegex);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, batchFileNameUnique);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, batchShardingType);
         return wsConfigObj;
     }
+
 }

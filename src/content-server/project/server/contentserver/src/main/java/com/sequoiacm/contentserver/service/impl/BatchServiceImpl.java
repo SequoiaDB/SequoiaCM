@@ -1,6 +1,9 @@
 package com.sequoiacm.contentserver.service.impl;
 
+import java.util.ArrayList;
+
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -23,6 +27,8 @@ import com.sequoiacm.contentserver.service.IBatchService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
 
@@ -43,7 +49,9 @@ public class BatchServiceImpl implements IBatchService {
         BSONObject batch = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
-            batch = getAndCheckBatch(wsInfo, batchId);
+
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
+            batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
 
             if (isDetail) {
                 // get file info by file id
@@ -92,6 +100,7 @@ public class BatchServiceImpl implements IBatchService {
 
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
             // lock
             try {
                 batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
@@ -105,7 +114,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // delete batch
-            batchDao.delete(wsInfo, batchId, sessionId, userDetail, user);
+            batchDao.delete(wsInfo, batchId, batchCreateMonth, sessionId, userDetail, user);
         }
         catch (ScmServerException e) {
             throw e;
@@ -144,6 +153,7 @@ public class BatchServiceImpl implements IBatchService {
 
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
             // lock
             try {
                 batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
@@ -156,7 +166,7 @@ public class BatchServiceImpl implements IBatchService {
                         e);
             }
 
-            boolean ret = batchDao.updateById(wsInfo, batchId, updator, user);
+            boolean ret = batchDao.updateById(wsInfo, batchId, batchCreateMonth, updator, user);
             if (!ret) {
                 throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
                         "update failed, batch is unexist: workspace=" + workspaceName + ", batchId="
@@ -187,6 +197,7 @@ public class BatchServiceImpl implements IBatchService {
         OperationCompleteCallback callback = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
 
             String lockFlag = "";
             try {
@@ -205,7 +216,7 @@ public class BatchServiceImpl implements IBatchService {
                         + fileLockPath, e);
             }
 
-            BSONObject batch = getAndCheckBatch(wsInfo, batchId);
+            BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
             BSONObject fileInfo = ScmContentServer.getInstance().getCurrentFileInfo(wsInfo, fileId);
             // file unexist
             if (null == fileInfo) {
@@ -238,8 +249,12 @@ public class BatchServiceImpl implements IBatchService {
                 // detachFile(), just attach again.
             }
 
+            if (wsInfo.isBatchFileNameUnique()) {
+                checkFileNameUnique(wsInfo, batchId, batch, fileInfo);
+            }
+
             // attach
-            batchDao.attachFile(wsInfo, batchId, fileId, user);
+            batchDao.attachFile(wsInfo, batchId, batchCreateMonth, fileId, user);
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
         }
         catch (ScmServerException e) {
@@ -257,6 +272,42 @@ public class BatchServiceImpl implements IBatchService {
         callback.onComplete();
     }
 
+    private void checkFileNameUnique(ScmWorkspaceInfo wsInfo, String batchId, BSONObject batch,
+            BSONObject fileInfo) throws ScmServerException {
+        BasicBSONList files = (BasicBSONList) batch.get(FieldName.Batch.FIELD_FILES);
+        if (files != null && files.size() != 0) {
+            BasicBSONObject condition = new BasicBSONObject();
+            ArrayList<String> ids = new ArrayList<>(files.size());
+            for (Object file : files) {
+                BSONObject fileBson = (BSONObject) file;
+                ids.add(BsonUtils.getStringChecked(fileBson, FieldName.FIELD_CLFILE_ID));
+            }
+
+            BasicBSONObject dollarInIds = new BasicBSONObject("$in", ids);
+            condition.put(FieldName.FIELD_CLFILE_ID, dollarInIds);
+
+            ArrayList<String> fileCreateMonths = new ArrayList<>(files.size());
+            for (String id : ids) {
+                ScmIdParser idParser = new ScmIdParser(id);
+                fileCreateMonths.add(idParser.getMonth());
+            }
+            BasicBSONObject dollarInCreateMonths = new BasicBSONObject("$in", fileCreateMonths);
+            condition.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, dollarInCreateMonths);
+
+            String fileName = (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME);
+            condition.put(FieldName.FIELD_CLFILE_NAME, fileName);
+
+            // condition= {id: {$in: [id1, id2]}, create_month:{$in: ["202001"]}, name: "fileName"}
+            long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
+                    .getCurrentFileCount(wsInfo.getMetaLocation(), wsInfo.getName(), condition);
+            if (sameNameFileCount > 0) {
+                throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
+                        "the batch already attach a file with same name:ws=" + wsInfo.getName()
+                                + ", batch=" + batchId + ", fileName=" + fileName);
+            }
+        }
+    }
+
     @Override
     public void detachFile(String user, String workspaceName, String batchId, String fileId)
             throws ScmServerException {
@@ -269,6 +320,7 @@ public class BatchServiceImpl implements IBatchService {
         OperationCompleteCallback callback = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
             // lock
             try {
                 batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
@@ -285,7 +337,7 @@ public class BatchServiceImpl implements IBatchService {
                         e);
             }
 
-            BSONObject batch = getAndCheckBatch(wsInfo, batchId);
+            BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
             BSONObject fileInfo = ScmContentServer.getInstance().getCurrentFileInfo(wsInfo, fileId);
             String batchIdInFile = null;
             if (null != fileInfo) {
@@ -315,7 +367,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // detach
-            batchDao.detachFile(wsInfo, batchId, fileId, user);
+            batchDao.detachFile(wsInfo, batchId, batchCreateMonth, fileId, user);
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
         }
         catch (ScmServerException e) {
@@ -373,9 +425,9 @@ public class BatchServiceImpl implements IBatchService {
      * @return batch info
      * @throws ScmServerException
      */
-    private BSONObject getAndCheckBatch(ScmWorkspaceInfo wsInfo, String batchId)
-            throws ScmServerException {
-        BSONObject batch = batchDao.queryById(wsInfo, batchId);
+    private BSONObject getAndCheckBatch(ScmWorkspaceInfo wsInfo, String batchId,
+            String batchCreateMonth) throws ScmServerException {
+        BSONObject batch = batchDao.queryById(wsInfo, batchId, batchCreateMonth);
         if (null == batch) {
             throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
                     "batch is unexist: workspaceName=" + wsInfo.getName() + ", batchId=" + batchId);

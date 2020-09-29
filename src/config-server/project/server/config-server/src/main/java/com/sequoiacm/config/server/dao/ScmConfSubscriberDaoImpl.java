@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.subscriber.ScmConfSubscriber;
 import com.sequoiacm.config.metasource.EnableMetasource;
 import com.sequoiacm.config.metasource.MetaCursor;
@@ -16,7 +17,6 @@ import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.config.server.core.ScmConfFrameworkMgr;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 

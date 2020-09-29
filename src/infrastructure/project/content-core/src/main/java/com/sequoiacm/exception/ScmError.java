@@ -44,6 +44,7 @@ public enum ScmError {
     DIR_MOVE_TO_SUBDIR(-243, "Can not move dir to a subdir of itself"),
 
     BATCH_NOT_FOUND(-250, "Batch not found"),
+    BATCH_FILE_SAME_NAME(-251, "The batch already attach a file with same name"),
 
     FILE_EXIST(-261, "File already exists"),
     FILE_NOT_FOUND(-262, "File not found"),
@@ -86,7 +87,7 @@ public enum ScmError {
 
     // client related error 6xx
     FILE_IO(-601, "File IO Exception"),
-    FILE_NOT_EXIST(-602, "File is not exist"), //use for local file not found
+    FILE_NOT_EXIST(-602, "File is not exist"), // use for local file not found
     FILE_IS_DIRECTORY(-603, "File Is Directory"),
     FILE_ALREADY_EXISTS(-604, "File already exists"),
     FILE_CREATE_FAILED(-605, "File Create Failed"),
@@ -99,14 +100,13 @@ public enum ScmError {
     CONFIG_SERVER_ERROR(-700, "Config server error"),
     WORKSPACE_CACHE_EXPIRE(-701, "Workspace cache is expire"),
 
-//    CLOUD_DISK_DIR_NOT_EXIST(-803, "dir not exist"),
     FULL_TEXT_INDEX_ALREADY_CREATED(-900, "full text index already created"),
     FULL_TEXT_INDEX_IS_DELETING(-901, "full text index is deleting"),
     FULL_TEXT_INDEX_IS_CREATING(-902, "full text index is creating"),
     FILE_NOT_MEET_WORKSPACE_INDEX_MATCHER(-903, "scm file not meet the matcher of workspace fulltext"),
     FULL_TEXT_INDEX_DISABLE(-904, "full text index is disable"),
     FULL_TEXT_INDEX_CREATE_ERROR(-905, "failed to create full text index"),
-    
+
     // http related error
     HTTP_BAD_REQUEST(400, "Bad Request"),
     HTTP_UNAUTHORIZED(401, "Unauthorized"),

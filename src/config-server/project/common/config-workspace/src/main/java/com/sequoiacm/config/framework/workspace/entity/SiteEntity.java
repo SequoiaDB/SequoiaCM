@@ -2,8 +2,8 @@ package com.sequoiacm.config.framework.workspace.entity;
 
 import org.bson.BSONObject;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
 public class SiteEntity {
@@ -11,8 +11,8 @@ public class SiteEntity {
     private String siteName;
 
     public SiteEntity(BSONObject siteObj) throws ScmConfigException {
-        siteId = BsonUtils.getIntegerChecked(siteObj, FieldName.FIELD_CLSITE_SITE_ID);
-        siteName = BsonUtils.getStringChecked(siteObj, FieldName.FIELD_CLSITE_SITE_NAME);
+        siteId = BsonUtils.getIntegerChecked(siteObj, FieldName.FIELD_CLSITE_ID);
+        siteName = BsonUtils.getStringChecked(siteObj, FieldName.FIELD_CLSITE_NAME);
     }
 
     public int getSiteId() {

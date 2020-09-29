@@ -5,13 +5,13 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.springframework.util.Assert;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbMetasource;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 
 public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements SysWorkspaceTableDao {
 
@@ -73,7 +73,7 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
             throws MetasourceException {
         BSONObject updator = new BasicBSONObject();
         for (String key : externalData.keySet()) {
-            updator.put(FieldName.FIELD_CLWORKSPACE_EXTERNAL_DATA + "." + key,
+            updator.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA + "." + key,
                     externalData.get(key));
         }
         return updateAndCheck(matcher, updator);

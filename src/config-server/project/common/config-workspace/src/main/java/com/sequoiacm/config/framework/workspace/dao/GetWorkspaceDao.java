@@ -7,10 +7,10 @@ import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceTableDao;
 import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaSerivce;
 import com.sequoiacm.config.metasource.MetaCursor;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;

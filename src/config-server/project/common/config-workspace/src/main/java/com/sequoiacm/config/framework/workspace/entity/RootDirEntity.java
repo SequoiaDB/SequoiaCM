@@ -3,7 +3,7 @@ package com.sequoiacm.config.framework.workspace.entity;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
+import com.sequoiacm.common.FieldName;
 
 public class RootDirEntity {
     private String id = "000000000000000000000000";

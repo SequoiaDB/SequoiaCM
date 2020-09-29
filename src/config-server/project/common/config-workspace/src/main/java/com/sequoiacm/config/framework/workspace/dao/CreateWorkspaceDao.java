@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
@@ -22,7 +23,6 @@ import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -87,8 +87,7 @@ public class CreateWorkspaceDao {
             lock = null;
 
             // create ws table
-            workspaceMetaService.createWorkspaceMetaTable(wsConfig.getWsName(),
-                    wsConfig.getMetalocation());
+            workspaceMetaService.createWorkspaceMetaTable(wsConfig);
             isNeedRollbackMetaTable = true;
             TableDao dirDao = workspaceMetaService.getWorkspaceDirTableDao(wsConfig.getWsName(),
                     transaction);
@@ -162,6 +161,14 @@ public class CreateWorkspaceDao {
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_UPDATETIME, wsConfig.getUpdateTime());
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_UPDATEUSER, wsConfig.getCreateUser());
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_DESCRIPTION, wsConfig.getDesc());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN,
+                wsConfig.getBatchIdTimePattern());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX,
+                wsConfig.getBatchIdTimeRegex());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE,
+                wsConfig.isBatchFileNameUnique());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE,
+                wsConfig.getBatchShardingType());
         return wsRecord;
     }
 }

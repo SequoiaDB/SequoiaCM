@@ -398,5 +398,9 @@ public class PropertiesUtils {
     public static long getNodeVersionHeartbeat() {
         return versionConfig.getNodeHeartbeat();
     }
+    
+    public static ServerConfig getServerConfig() {
+        return serverConfig;
+    }
 
 }

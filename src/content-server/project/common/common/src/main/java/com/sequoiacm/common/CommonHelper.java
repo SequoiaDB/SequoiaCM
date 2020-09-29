@@ -219,6 +219,73 @@ public class CommonHelper {
         }
     }
 
+    public static String getShardingStr(ScmShardingType type, Date createDate) {
+        StringBuilder sb = new StringBuilder();
+        switch (type) {
+            case YEAR:
+                sb.append(CommonHelper.getCurrentYear(createDate));
+                break;
+
+            case MONTH:
+                sb.append(CommonHelper.getCurrentYearMonth(createDate));
+                break;
+
+            case QUARTER:
+                sb.append(CommonHelper.getCurrentYear(createDate));
+                String month = CommonHelper.getCurrentMonth(createDate);
+                sb.append(CommonHelper.getQuarter(month));
+                break;
+
+            default:
+                // default do nothing
+                break;
+        }
+        return sb.toString();
+    }
+
+    public static ScmMonthRange getMonthRange(ScmShardingType type, Date createDate) {
+        String lowYearMonth;
+        String upperYearMonth;
+
+        switch (type) {
+            case YEAR:
+                lowYearMonth = CommonHelper.getCurrentYear(createDate) + CommonHelper.MONTH1;
+                upperYearMonth = CommonHelper.getNextYear(createDate) + CommonHelper.MONTH1;
+                break;
+
+            case MONTH:
+                lowYearMonth = CommonHelper.getCurrentYearMonth(createDate);
+                upperYearMonth = CommonHelper.getNextYearMonth(createDate);
+                break;
+
+            default:
+                String year = CommonHelper.getCurrentYear(createDate);
+                String quarter = CommonHelper.getQuarter(CommonHelper.getCurrentMonth(createDate));
+
+                if (quarter.equals(CommonHelper.QUARTER1)) {
+                    lowYearMonth = year + CommonHelper.MONTH1;
+                    upperYearMonth = year + CommonHelper.MONTH4;
+                }
+                else if (quarter.equals(CommonHelper.QUARTER2)) {
+                    lowYearMonth = year + CommonHelper.MONTH4;
+                    upperYearMonth = year + CommonHelper.MONTH7;
+                }
+                else if (quarter.equals(CommonHelper.QUARTER3)) {
+                    lowYearMonth = year + CommonHelper.MONTH7;
+                    upperYearMonth = year + CommonHelper.MONTH10;
+                }
+                else {
+                    // QUARTER4
+                    lowYearMonth = year + CommonHelper.MONTH10;
+
+                    String nextYear = CommonHelper.getNextYear(createDate);
+                    upperYearMonth = nextYear + CommonHelper.MONTH1;
+                }
+                break;
+        }
+        return new ScmMonthRange(lowYearMonth, upperYearMonth);
+    }
+
     public static String getCurrentDay(Date date) {
         synchronized (CommonHelper.class) {
             return ymdDateFormat.format(date);

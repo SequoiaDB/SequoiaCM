@@ -28,6 +28,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-common</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-content-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>

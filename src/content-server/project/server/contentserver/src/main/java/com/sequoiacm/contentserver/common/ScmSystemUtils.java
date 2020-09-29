@@ -10,21 +10,27 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.tomcat.websocket.WsIOException;
 import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
@@ -481,4 +487,50 @@ public class ScmSystemUtils {
         byte[] md5Bytes = md5Calc.digest();
         return DatatypeConverter.printBase64Binary(md5Bytes);
     }
+
+    public static Date getDateFromCustomBatchId(String batchId, String idTimeRegex,
+            String idTimePattern) throws ScmServerException {
+        Pattern p = Pattern.compile(idTimeRegex);
+        Matcher m = p.matcher(batchId);
+        if (!m.find()) {
+            throw new ScmServerException(ScmError.INVALID_ID,
+                    "failed to parse batch id, can not find time in batch id:batchId=" + batchId
+                            + ", timeRegex=" + idTimeRegex);
+        }
+        try {
+            String timeStr = m.group();
+            SimpleDateFormat sdfDate = new SimpleDateFormat(idTimePattern);
+            return sdfDate.parse(timeStr);
+        }
+        catch (Exception e) {
+            throw new ScmServerException(ScmError.INVALID_ID,
+                    "failed to parse batch id, can not format time:batchId=" + batchId
+                            + ", timePattern=" + idTimePattern);
+        }
+    }
+
+    public static String getCreateMonthFromBatchId(ScmWorkspaceInfo ws, String batchId)
+            throws ScmServerException {
+        if (!ws.isBatchSharding()) {
+            return null;
+        }
+        try {
+            if (!ws.isBatchUseSystemId()) {
+                Date date = getDateFromCustomBatchId(batchId, ws.getBatchIdTimeRegex(),
+                        ws.getBatchIdTimePattern());
+                return getCurrentYearMonth(date);
+            }
+            return new ScmIdParser(batchId).getMonth();
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.INVALID_ID) {
+                throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
+                        "batch not found, cause by failed to parse batchId:ws=" + ws.getName()
+                                + ", batchId=" + batchId,
+                        e);
+            }
+            throw e;
+        }
+    }
+
 }
