@@ -8,7 +8,7 @@ public class CuratorLockProperty {
     public static final long BIGSLEEPTIME = 10000;
 
     // Curator client retryPolicy properties
-    public static final int MAXRETRIES = 29;
+    public static final int MAXRETRIES = 3;
     public static final int BASESLEEPTIMEMS = 1000;
 
     public static final int SLEEPMSBETWEENRETRIES = 1000;
