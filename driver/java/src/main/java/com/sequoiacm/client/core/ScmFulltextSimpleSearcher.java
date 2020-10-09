@@ -37,8 +37,9 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the min score.
+     * 
      * @param minScore
-     *          min score.
+     *            min score.
      * @return {@code this}
      */
     public ScmFulltextSimpleSearcher minScore(double minScore) {
@@ -48,11 +49,12 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the keyword that must match.
+     * 
      * @param keywords
-     *          keywords.
+     *            keywords.
      * @return {@code this}
      * @throws ScmInvalidArgumentException
-     *          if error happens.
+     *             if error happens.
      */
     public ScmFulltextSimpleSearcher match(String... keywords) throws ScmInvalidArgumentException {
         if (keywords != null && keywords.length > 0) {
@@ -69,11 +71,12 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the keyword that should match.
+     * 
      * @param keywords
-     *          keywords.
+     *            keywords.
      * @return {@code this}
      * @throws ScmInvalidArgumentException
-     *          if error happens.
+     *             if error happens.
      */
     public ScmFulltextSimpleSearcher shouldMatch(String... keywords)
             throws ScmInvalidArgumentException {
@@ -91,8 +94,9 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Enable highlight and specified highlight option.
+     * 
      * @param option
-     *          highlight option.
+     *            highlight option.
      * @return {@code this}
      */
     public ScmFulltextSimpleSearcher highlight(ScmFulltextHighlightOption option) {
@@ -102,11 +106,12 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the file scope.
+     * 
      * @param scope
-     *          file scope.
+     *            file scope.
      * @return {@code this}
      * @throws ScmInvalidArgumentException
-     *          if error happens.
+     *             if error happens.
      */
     public ScmFulltextSimpleSearcher scope(ScopeType scope) throws ScmInvalidArgumentException {
         if (scope == null) {
@@ -118,9 +123,10 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the file condition.
+     * 
      * @param fileCondition
-     *          file condition.
-     * @return  {@code this}
+     *            file condition.
+     * @return {@code this}
      */
     public ScmFulltextSimpleSearcher fileCondition(BSONObject fileCondition) {
         this.fileCondition = fileCondition;
@@ -129,11 +135,12 @@ public class ScmFulltextSimpleSearcher {
 
     /**
      * Set the keywords that must not match.
+     * 
      * @param keywords
-     *          keywords.
+     *            keywords.
      * @return {@code this}
      * @throws ScmInvalidArgumentException
-     *          if error happens.
+     *             if error happens.
      */
     public ScmFulltextSimpleSearcher notMatch(String... keywords)
             throws ScmInvalidArgumentException {
@@ -160,10 +167,11 @@ public class ScmFulltextSimpleSearcher {
     }
 
     /**
-     * Performs search. 
+     * Performs search.
+     * 
      * @return A cursor to traverse
      * @throws ScmException
-     *          if error happens.
+     *             if error happens.
      */
     public ScmCursor<ScmFulltextSearchResult> search() throws ScmException {
         BSONObject contentCondition = buildContentCondition();
@@ -175,7 +183,7 @@ public class ScmFulltextSimpleSearcher {
                 new ScmFultextSearchResBsonConverter());
     }
 
-    private BSONObject buildContentCondition() {
+    private BSONObject buildContentCondition() throws ScmInvalidArgumentException {
         /*  此函数构建如下形式的JSON
          *  {
          *      "min_score": 0.7,
@@ -204,7 +212,10 @@ public class ScmFulltextSimpleSearcher {
          *      }
          *  }
          */
-
+        if (mustMatchs.size() == 0 && mustNotMatchs.size() == 0 && shouldMatchs.size() == 0) {
+            throw new ScmInvalidArgumentException(
+                    "full-text condition is empty, please use method:[ match, notMatch, shouldMatch ]");
+        }
         BSONObject contentCondition = new BasicBSONObject();
         contentCondition.put("min_score", minScore);
         BasicBSONObject queryValue = new BasicBSONObject();
