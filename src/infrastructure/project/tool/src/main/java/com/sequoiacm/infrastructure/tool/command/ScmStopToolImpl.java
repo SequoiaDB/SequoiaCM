@@ -124,10 +124,10 @@ public class ScmStopToolImpl extends ScmTool {
                     checkList.add(needStopMap.get(key));
                 }
                 else {
-                    logger.info("Suscess:" + needStopMap.get(key).getNodeType().getUpperName() + "("
+                    logger.info("Success:" + needStopMap.get(key).getNodeType().getUpperName() + "("
                             + needStopMap.get(key).getPort() + ")" + " is already stopped");
                     System.out.println(
-                            "Suscess:" + needStopMap.get(key).getNodeType().getUpperName() + "("
+                            "Success:" + needStopMap.get(key).getNodeType().getUpperName() + "("
                                     + needStopMap.get(key).getPort() + ")" + " is already stopped");
                     success++;
                 }
@@ -150,9 +150,9 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node.getNodeType().getUpperName() + "("
+                        logger.info("Success:" + node.getNodeType().getUpperName() + "("
                                 + node.getPort() + ")" + " is successfully stopped");
-                        System.out.println("Suscess:" + node.getNodeType().getUpperName() + "("
+                        System.out.println("Success:" + node.getNodeType().getUpperName() + "("
                                 + node.getPort() + ")" + " is successfully stopped");
                         it.remove();
                         success++;
@@ -198,9 +198,9 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(node.getPort());
                     if (pid == -1) {
-                        logger.info("Suscess:" + node.getNodeType().getUpperName() + "("
+                        logger.info("Success:" + node.getNodeType().getUpperName() + "("
                                 + node.getPort() + ")" + " is successfully stopped");
-                        System.out.println("Suscess:" + node.getNodeType().getUpperName() + "("
+                        System.out.println("Success:" + node.getNodeType().getUpperName() + "("
                                 + node.getPort() + ")" + " is successfully stopped");
                         it.remove();
                         success++;
