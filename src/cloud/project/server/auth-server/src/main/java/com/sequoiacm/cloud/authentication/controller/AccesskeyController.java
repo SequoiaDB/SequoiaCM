@@ -5,8 +5,9 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,9 @@ public class AccesskeyController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SaltSource saltSource;
 
     @GetMapping("/internal/v1/secretkey")
     public AccesskeyInfo getSecretkey(@RequestParam("accesskey") String accesskey) {
@@ -88,7 +92,8 @@ public class AccesskeyController {
                 catch (Exception e) {
                     throw new BadRequestException("failed to decrypt password");
                 }
-                if (!passwordEncoder.matches(srcPassword, targetUser.getPassword())) {
+                Object salt = saltSource.getSalt(targetUser);
+                if (!passwordEncoder.isPasswordValid(srcPassword, targetUser.getPassword(), salt)) {
                     throw new BadRequestException("Incorrect password for user " + username);
                 }
             }

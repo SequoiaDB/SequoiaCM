@@ -4,6 +4,7 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,6 +34,7 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
     private PasswordEncoder passwordEncoder;
     private String userNotFoundEncodedPassword;
 
+    @Autowired
     private SaltSource saltSource;
 
     private ScmUserDetailsService userDetailsService;
@@ -168,11 +170,6 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
         catch (UsernameNotFoundException notFound) {
             logger.error("failed to login, user not found", notFound);
-            if (authentication.getCredentials() != null) {
-                String presentedPassword = authentication.getCredentials().toString();
-                passwordEncoder.isPasswordValid(userNotFoundEncodedPassword, presentedPassword,
-                        null);
-            }
             throw notFound;
         }
         catch (Exception repositoryProblem) {

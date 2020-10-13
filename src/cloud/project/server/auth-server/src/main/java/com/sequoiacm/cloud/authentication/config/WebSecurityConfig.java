@@ -1,20 +1,24 @@
 package com.sequoiacm.cloud.authentication.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import com.sequoiacm.cloud.authentication.dao.SequoiadbScmUserRoleRepository;
 import com.sequoiacm.cloud.authentication.security.AuthenticationOptions;
 import com.sequoiacm.cloud.authentication.security.Http401UnauthorizedEntryPoint;
+import com.sequoiacm.cloud.authentication.security.SCMPasswordEncoder;
 import com.sequoiacm.cloud.authentication.security.ScmAuthenticationConfigurer;
 import com.sequoiacm.cloud.authentication.security.ScmAuthenticationFailureHandler;
 import com.sequoiacm.cloud.authentication.security.ScmAuthenticationSuccessHandler;
@@ -24,6 +28,8 @@ import com.sequoiacm.cloud.authentication.security.SignatureInfoDetailSource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
+import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
 import com.sequoiadb.base.SequoiadbDatasource;
 
 @EnableWebSecurity
@@ -46,6 +52,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private ScmAudit audit;
+    
+    @Value(value = "${scm.auth.passwordEncoderCacheSize}")
+    private int cacheNum;
 
     @Bean
     ScmUserRoleRepository userRoleRepository() {
@@ -62,7 +71,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new SCMPasswordEncoder();
     }
 
     @Bean
@@ -76,6 +85,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.apply(scmAuthenticationConfigurer());
+    }
+    
+    @Bean
+    SaltSource saltSource() {
+        return new SaltSource() {
+            @Override
+            public Object getSalt(UserDetails user) {
+                return user;
+            }
+        };
+    }
+
+    @Bean
+    ConcurrentLruMap<String, String> passCache() {
+        return ConcurrentLruMapFactory.create(cacheNum);
     }
 
     @Override

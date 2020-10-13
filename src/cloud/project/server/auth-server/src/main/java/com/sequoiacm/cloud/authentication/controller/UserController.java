@@ -7,8 +7,9 @@ import java.util.Map;
 
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -57,6 +58,9 @@ public class UserController {
     @Autowired
     private ScmAudit audit;
 
+    @Autowired
+    private SaltSource saltSource;
+
     @PostMapping("/users/{username:.+}")
     public ScmUser createUser(@PathVariable("username") String username,
             @RequestParam(value = "password_type", required = false) String type,
@@ -80,7 +84,7 @@ public class UserController {
             if (!StringUtils.hasText(password)) {
                 throw new BadRequestException("Invalid password");
             }
-            passwd = passwordEncoder.encode(password);
+            passwd = passwordEncoder.encodePassword(password, null);
         }
 
         if (passwordType == ScmUserPasswordType.TOKEN && !tokenConfig.isEnabled()) {
@@ -208,12 +212,13 @@ public class UserController {
                     throw new BadRequestException("Missing old password for user " + username);
                 }
 
-                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                Object salt = (String) saltSource.getSalt(user);
+                if (!passwordEncoder.isPasswordValid(oldPassword, user.getPassword(), salt)) {
                     throw new BadRequestException("Incorrect old password for user " + username);
                 }
             }
 
-            builder.password(passwordEncoder.encode(newPassword));
+            builder.password(passwordEncoder.encodePassword(newPassword, null));
 
             altered = true;
             securityAltered = true;

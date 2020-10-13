@@ -8,7 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 import com.sequoiacm.cloud.authentication.service.IPrivilegeService;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
@@ -76,7 +76,7 @@ public class AuthenticationServer implements ApplicationRunner {
         ScmUser authAdminUser = ScmUser.withUsername(DEFAULT_ADMIN_USER)
                 .userId(userRoleDao.generateUserId()).passwordType(ScmUserPasswordType.LOCAL)
                 .disabled(false).roles(authAdminRole)
-                .password(passwordEncoder.encode(DEFAULT_ADMIN_USER)).build();
+                .password(passwordEncoder.encodePassword(DEFAULT_ADMIN_USER, null)).build();
         initDefaultUser(authAdminUser);
 
         ScmRole monitorRole = ScmRole.withRoleName(ScmRole.AUTH_MONITOR_ROLE_NAME)
@@ -86,7 +86,7 @@ public class AuthenticationServer implements ApplicationRunner {
         ScmUser monitorUser = ScmUser.withUsername(DEFAULT_MONITOR_USER)
                 .userId(userRoleDao.generateUserId()).passwordType(ScmUserPasswordType.LOCAL)
                 .disabled(false).roles(monitorRole)
-                .password(passwordEncoder.encode(DEFAULT_MONITOR_USER)).build();
+                .password(passwordEncoder.encodePassword(DEFAULT_MONITOR_USER, null)).build();
         initDefaultUser(monitorUser);
 
         privService.grantPrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, monitorRole.getRoleId(),
