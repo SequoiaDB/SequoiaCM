@@ -30,6 +30,7 @@ import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
+import com.sequoiacm.schedule.common.ScheduleDefine.ScopeType;
 
 @Component
 public class FulltextIdxCreatedStateOp extends FulltextIdxOperator {
@@ -153,8 +154,9 @@ public class FulltextIdxCreatedStateOp extends FulltextIdxOperator {
         }
     }
 
-    private ScmFileInfo tryGetFileWithFulltextMatcher(ScmWorkspaceFulltextExtData currentWsFulltextExtData,
-            String fileId) throws FullTextException {
+    private ScmFileInfo tryGetFileWithFulltextMatcher(
+            ScmWorkspaceFulltextExtData currentWsFulltextExtData, String fileId)
+            throws FullTextException {
         BasicBSONList andArr = new BasicBSONList();
         andArr.add(currentWsFulltextExtData.getFileMatcher());
         andArr.add(new BasicBSONObject(FieldName.FIELD_CLFILE_ID, fileId));
@@ -166,6 +168,12 @@ public class FulltextIdxCreatedStateOp extends FulltextIdxOperator {
             cursor = csClient.listFile(currentWsFulltextExtData.getWsName(), matcher,
                     CommonDefine.Scope.SCOPE_CURRENT, null, 0, 1);
             if (!cursor.hasNext()) {
+                ScmFileInfo fileInfo = csClient.getFileInfo(currentWsFulltextExtData.getWsName(),
+                        fileId, -1, -1);
+                if (fileInfo == null) {
+                    throw new FullTextException(ScmError.FILE_NOT_FOUND, "file not found:ws="
+                            + currentWsFulltextExtData.getWsName() + ", fileId=" + fileId);
+                }
                 throw new FullTextException(ScmError.FILE_NOT_MEET_WORKSPACE_INDEX_MATCHER,
                         "file not meet workspace index matcher:ws="
                                 + currentWsFulltextExtData.getWsName() + ", wsFulltextIdxMatcher="
