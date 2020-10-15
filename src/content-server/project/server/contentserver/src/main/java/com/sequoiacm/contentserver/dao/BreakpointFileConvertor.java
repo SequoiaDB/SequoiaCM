@@ -6,6 +6,7 @@ import org.bson.BasicBSONObject;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -30,21 +31,11 @@ public class BreakpointFileConvertor implements IFileCreatorDao {
     @Override
     public BSONObject insert() throws ScmServerException {
         String parentId = (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        BSONObject parentDirMatcher = new BasicBSONObject();
-        parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentId);
 
-        ScmLock rLock = null;
-        if (!parentId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
-            ScmLockPath lockPath = ScmLockPathFactory.createDirLockPath(wsInfo.getName(), parentId);
-            rLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
-        }
+        ScmLock rLock = ScmFileOperateUtils.lockDirForCreateFile(wsInfo, parentId);
         ScmContentServer contentServer = ScmContentServer.getInstance();
         try {
-            if (contentServer.getMetaService().getDirCount(wsInfo.getName(),
-                    parentDirMatcher) <= 0) {
-                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
-                        "parent directory not exists:parentDirectoryId=" + parentId);
-            }
+            ScmFileOperateUtils.checkDirForCreateFile(wsInfo, parentId);
             contentServer.getMetaService().breakpointFileToFile(wsInfo, breakpointFile, fileInfo);
         }
         finally {

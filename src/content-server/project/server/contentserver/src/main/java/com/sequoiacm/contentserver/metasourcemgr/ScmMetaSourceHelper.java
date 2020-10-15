@@ -299,15 +299,18 @@ public class ScmMetaSourceHelper {
         return relInsertor;
     }
 
-    public static int parseFileSelector(BSONObject fileSelector) {
+    public static int parseFileSelector(ScmWorkspaceInfo ws, BSONObject fileSelector) {
         if (fileSelector == null) {
             // selector is null, we need a complete file record
             return QUERY_IN_FILE_TABLE;
         }
-        return parseFileOderby(fileSelector);
+        return parseFileOderby(ws, fileSelector);
     }
 
-    public static int parseFileOderby(BSONObject fileOderby) {
+    public static int parseFileOderby(ScmWorkspaceInfo ws, BSONObject fileOderby) {
+        if(!ws.isEnableDirectory()) {
+            return QUERY_IN_FILE_TABLE;
+        }
         ParseContext parseContext = new ParseContext();
         parseFileMatcher(fileOderby, parseContext);
         if (parseContext.isAllFieldInRelTable()) {
@@ -316,7 +319,10 @@ public class ScmMetaSourceHelper {
         return QUERY_IN_FILE_TABLE;
     }
 
-    public static int parseFileMatcher(BSONObject fileMatcher) {
+    public static int parseFileMatcher(ScmWorkspaceInfo ws, BSONObject fileMatcher) {
+        if(!ws.isEnableDirectory()) {
+            return QUERY_IN_FILE_TABLE;
+        }
         ParseContext parseContext = new ParseContext();
         parseFileMatcher(fileMatcher, parseContext);
         return parseContext.getParseResult();
@@ -403,11 +409,6 @@ public class ScmMetaSourceHelper {
         return copyFileTableBSON;
     }
 
-    public static void main(String[] args) {
-        BSONObject b = (BSONObject) JSON.parse("{author:'sadas'}");
-        System.out.println(parseFileOderby(b));
-
-    }
 }
 
 class ParseContext {

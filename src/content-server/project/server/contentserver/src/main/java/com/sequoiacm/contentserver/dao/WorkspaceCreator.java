@@ -160,6 +160,9 @@ public class WorkspaceCreator {
 
         checkBatchConf(wsConfig);
 
+        wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true));
+
         return wsConfig;
     }
 
@@ -192,7 +195,8 @@ public class WorkspaceCreator {
             }
 
             // 示例：
-            // BatchIdTimeRegex: (?<=\\w{1,2}\\.[^.]{1,27}\\.)(\\d{4}-\\d{2}-\\d{2})(?=\\..{1,192})
+            // BatchIdTimeRegex:
+            // (?<=\\w{1,2}\\.[^.]{1,27}\\.)(\\d{4}-\\d{2}-\\d{2})(?=\\..{1,192})
             // BatchIdTimePattern: yyyy-MM-dd
             // 可解析ID如：zh.kjgyg_staff.2013-05-17.123456789001
             if (wsConfig.getBatchIdTimeRegex() != null) {

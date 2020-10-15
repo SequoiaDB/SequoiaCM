@@ -25,6 +25,7 @@ public class ScmWorkspaceConf {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory = true;
 
     /**
      * Create a empty config instance.
@@ -231,6 +232,7 @@ public class ScmWorkspaceConf {
         if (batchIdTimeRegex != null) {
             bson.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX, batchIdTimeRegex);
         }
+        bson.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
         return bson;
     }
 
@@ -342,4 +344,22 @@ public class ScmWorkspaceConf {
         this.batchFileNameUnique = batchFileNameUnique;
     }
 
+    /**
+     * Return true if the workspace enable directory feature, else return false.
+     * 
+     * @return return true if the workspace enable directory feature.
+     */
+    public boolean isEnableDirectory() {
+        return enableDirectory;
+    }
+
+    /**
+     * Enable the directory feature or not.
+     * 
+     * @param enableDirectory
+     *            is enable or not.
+     */
+    public void setEnableDirectory(boolean enableDirectory) {
+        this.enableDirectory = enableDirectory;
+    }
 }

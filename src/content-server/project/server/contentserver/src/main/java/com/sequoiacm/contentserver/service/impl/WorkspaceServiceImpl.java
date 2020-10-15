@@ -101,7 +101,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             ScmWorkspaceInfo ws = contentserver.getWorkspaceInfo(wsName);
             if (ws != null) {
                 long fileCount = contentserver.getMetaService()
-                        .getCurrentFileCount(ws.getMetaLocation(), wsName, null);
+                        .getCurrentFileCount(ws, null);
                 if (fileCount > 0) {
                     throw new ScmServerException(ScmError.WORKSPACE_NOT_EMPTY,
                             "workspace is not empty:wsName=" + wsName);

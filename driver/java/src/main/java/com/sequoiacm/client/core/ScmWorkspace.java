@@ -126,11 +126,18 @@ public abstract class ScmWorkspace {
     public abstract String getBatchIdTimePattern();
 
     /**
-     * Return true if the file name is unique in a batch, elase return false.
+     * Return true if the file name is unique in a batch, else return false.
      * 
      * @return return true if the file name is unique in a batch.
      */
     public abstract boolean isBatchFileNameUnique();
+
+    /**
+     * Return true if the workspace enable directory feature, else return false.
+     * 
+     * @return return true if the workspace enable directory feature.
+     */
+    public abstract boolean isEnableDirectory();
 
     abstract ScmSession getSession();
 

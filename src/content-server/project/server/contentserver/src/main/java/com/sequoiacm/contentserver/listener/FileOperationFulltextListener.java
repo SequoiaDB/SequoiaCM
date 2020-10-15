@@ -202,8 +202,8 @@ public class FileOperationFulltextListener implements FileOperationListener {
         BasicBSONObject condition = new BasicBSONObject("$and", andArr);
         MetaCursor cursor = null;
         try {
-            cursor = ScmContentServer.getInstance().getMetaService().queryCurrentFile(
-                    wsInfo.getMetaLocation(), wsInfo.getName(), condition, null, null, 0, 1);
+            cursor = ScmContentServer.getInstance().getMetaService().queryCurrentFile(wsInfo,
+                    condition, null, null, 0, 1);
             return cursor.getNext();
         }
         catch (Exception e) {

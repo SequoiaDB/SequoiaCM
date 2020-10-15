@@ -297,9 +297,10 @@ public class BatchServiceImpl implements IBatchService {
             String fileName = (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME);
             condition.put(FieldName.FIELD_CLFILE_NAME, fileName);
 
-            // condition= {id: {$in: [id1, id2]}, create_month:{$in: ["202001"]}, name: "fileName"}
+            // condition= {id: {$in: [id1, id2]}, create_month:{$in:
+            // ["202001"]}, name: "fileName"}
             long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
-                    .getCurrentFileCount(wsInfo.getMetaLocation(), wsInfo.getName(), condition);
+                    .getCurrentFileCount(wsInfo, condition);
             if (sameNameFileCount > 0) {
                 throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
                         "the batch already attach a file with same name:ws=" + wsInfo.getName()

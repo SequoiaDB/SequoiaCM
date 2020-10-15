@@ -89,12 +89,15 @@ public class CreateWorkspaceDao {
             // create ws table
             workspaceMetaService.createWorkspaceMetaTable(wsConfig);
             isNeedRollbackMetaTable = true;
-            TableDao dirDao = workspaceMetaService.getWorkspaceDirTableDao(wsConfig.getWsName(),
-                    transaction);
-            RootDirEntity rootDir = new RootDirEntity(wsConfig.getCreateUser(),
-                    createTime.getTime());
-            // insert root dir record
-            dirDao.insert(rootDir.toReocord());
+
+            if (wsConfig.isEnableDirectory()) {
+                TableDao dirDao = workspaceMetaService.getWorkspaceDirTableDao(wsConfig.getWsName(),
+                        transaction);
+                RootDirEntity rootDir = new RootDirEntity(wsConfig.getCreateUser(),
+                        createTime.getTime());
+                // insert root dir record
+                dirDao.insert(rootDir.toReocord());
+            }
 
             // insert ws version record
             versionDao.createVersion(ScmConfigNameDefine.WORKSPACE, wsConfig.getWsName(),
@@ -169,6 +172,7 @@ public class CreateWorkspaceDao {
                 wsConfig.isBatchFileNameUnique());
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE,
                 wsConfig.getBatchShardingType());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, wsConfig.isEnableDirectory());
         return wsRecord;
     }
 }

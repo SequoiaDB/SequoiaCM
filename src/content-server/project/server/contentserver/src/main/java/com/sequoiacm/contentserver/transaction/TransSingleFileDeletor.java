@@ -85,7 +85,8 @@ public class TransSingleFileDeletor extends ScmTransBase {
     }
 
     private void removeFileInfo() throws ScmServerException {
-        contentServer.deleteCurrentFile(wsInfo, fileID, majorVersion, minorVersion);
+        // contentServer.deleteCurrentFile(wsInfo, fileID, majorVersion,
+        // minorVersion);
     }
 
     private void saveFileHistoryInfo() throws ScmServerException {
@@ -93,9 +94,9 @@ public class TransSingleFileDeletor extends ScmTransBase {
                 wsInfo.getName(), fileID, majorVersion, minorVersion);
 
         if (null == file) {
-            throw new ScmFileNotFoundException("file is unexist:workspace=" + workspaceName
-                    + ",file=" + fileID + ",version="
-                    + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+            throw new ScmFileNotFoundException(
+                    "file is unexist:workspace=" + workspaceName + ",file=" + fileID + ",version="
+                            + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
         // TODO:
@@ -124,8 +125,8 @@ public class TransSingleFileDeletor extends ScmTransBase {
             boolean isUpdated = sms.updateTransId(wsInfo, fileID, majorVersion, minorVersion,
                     ServiceDefine.FileStatus.DELETING, getTransID());
             if (!isUpdated) {
-                throw new ScmFileNotFoundException("file is unexist:workspace="
-                        + getWorkspaceName() + ",file=" + fileID + ",version="
+                throw new ScmFileNotFoundException("file is unexist:workspace=" + getWorkspaceName()
+                        + ",file=" + fileID + ",version="
                         + ScmSystemUtils.getVersionStr(majorVersion, minorVersion) + ",transID="
                         + "\"\"");
             }

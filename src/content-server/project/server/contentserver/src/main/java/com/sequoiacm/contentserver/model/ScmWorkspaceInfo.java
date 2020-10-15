@@ -52,6 +52,7 @@ public class ScmWorkspaceInfo {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory;
 
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
         try {
@@ -91,6 +92,7 @@ public class ScmWorkspaceInfo {
             batchFileNameUnique = wsObj.isBatchFileNameUnique();
             batchIdTimePattern = wsObj.getBatchIdTimePattern();
             batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
+            enableDirectory = wsObj.isEnableDirectory();
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -262,5 +264,9 @@ public class ScmWorkspaceInfo {
 
     public ScmWorkspaceFulltextExtData getFulltextExtData() {
         return fulltextExtData;
+    }
+
+    public boolean isEnableDirectory() {
+        return enableDirectory;
     }
 }

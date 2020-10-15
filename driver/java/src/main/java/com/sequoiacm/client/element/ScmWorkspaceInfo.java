@@ -32,6 +32,7 @@ public class ScmWorkspaceInfo {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory;
 
     /**
      * Create a instance of ScmWorkspaceInfo.
@@ -61,6 +62,7 @@ public class ScmWorkspaceInfo {
             this.batchIdTimePattern = wsObj.getBatchIdTimePattern();
             this.batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
             this.batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
+            this.enableDirectory = wsObj.isEnableDirectory();
         }
         catch (ScmMappingException e) {
             throw new ScmInvalidArgumentException(e.getMessage(), e);
@@ -263,4 +265,12 @@ public class ScmWorkspaceInfo {
         return updateTime;
     }
 
+    /**
+     * Return true if the workspace enable directory feature, else return false.
+     * 
+     * @return return true if the workspace enable directory feature.
+     */
+    public boolean isEnableDirectory() {
+        return enableDirectory;
+    }
 }

@@ -62,6 +62,7 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX = "batch_id_time_regex";
     public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN = "batch_id_time_pattern";
     public static final String FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE = "batch_file_name_unique";
+    public static final String FIELD_CLWORKSPACE_ENABLE_DIRECTORY = "enable_directory";
     public static final String FIELD_CLWORKSPACE_CONTAINER_PREFIX = "container_prefix"; // only
                                                                                         // in
                                                                                         // s3

@@ -32,7 +32,12 @@ public class DirServiceImpl implements IDirService {
     public BSONObject getDirInfoById(String wsName, String dirId) throws ScmServerException {
         try {
             ScmContentServer contentserver = ScmContentServer.getInstance();
-            contentserver.getWorkspaceInfoChecked(wsName);
+            ScmWorkspaceInfo ws = contentserver.getWorkspaceInfoChecked(wsName);
+            if (!ws.isEnableDirectory()) {
+                throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                        "failed to get directory, directory feature is disable:ws=" + ws.getName()
+                                + ", id=" + dirId);
+            }
             BSONObject destDir = contentserver.getMetaService().getDirInfo(wsName, dirId);
             if (destDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
@@ -53,6 +58,11 @@ public class DirServiceImpl implements IDirService {
     public BSONObject getDirInfoByPath(String wsName, String dirPath) throws ScmServerException {
         try {
             ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+            if (!ws.isEnableDirectory()) {
+                throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                        "failed to get directory, directory feature is disable:ws=" + ws.getName()
+                                + ", path=" + dirPath);
+            }
             BSONObject destDir = DirOperator.getInstance().getDirByPath(ws, dirPath);
             if (destDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
@@ -71,8 +81,13 @@ public class DirServiceImpl implements IDirService {
 
     @Override
     public String getDirPathById(String wsName, String dirId) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to get directory path, directory feature is disable:ws=" + ws.getName()
+                            + ", id=" + dirId);
+        }
         try {
-            ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
             String path = DirOperator.getInstance().getPathById(ws, dirId);
             return path;
         }
@@ -90,7 +105,12 @@ public class DirServiceImpl implements IDirService {
             long limit) throws ScmServerException {
         try {
             ScmContentServer cs = ScmContentServer.getInstance();
-            cs.getWorkspaceInfoChecked(wsName);
+            ScmWorkspaceInfo ws = cs.getWorkspaceInfoChecked(wsName);
+            if (!ws.isEnableDirectory()) {
+                throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                        "failed to list directory, directory feature is disable:ws=" + ws.getName()
+                                + ", condition=" + condition);
+            }
             MetaDirAccessor dirAccessor = cs.getMetaService().getMetaSource()
                     .getDirAccessor(wsName);
             return dirAccessor.query(condition, null, orderby, skip, limit);
@@ -110,6 +130,12 @@ public class DirServiceImpl implements IDirService {
 
     @Override
     public void deleteDir(String wsName, String id, String path) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to delete directory, directory feature is disable:ws=" + ws.getName()
+                            + ", id=" + id + ", path=" + path);
+        }
         try {
             DireDeletorDao dao = new DireDeletorDao(wsName, id, path);
             dao.delete();
@@ -126,6 +152,12 @@ public class DirServiceImpl implements IDirService {
     @Override
     public BSONObject createDirByPath(String user, String wsName, String path)
             throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to create directory, directory feature is disable:ws=" + ws.getName()
+                            + ", path=" + path);
+        }
         try {
             DirCreatorDao dao = new DirCreatorDao(user, wsName);
             return dao.createDirByPath(path);
@@ -142,6 +174,12 @@ public class DirServiceImpl implements IDirService {
     @Override
     public BSONObject createDirByPidAndName(String user, String wsName, String name,
             String parentID) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to create directory, directory feature is disable:ws=" + ws.getName()
+                            + ", name=" + name + ", parentId=" + parentID);
+        }
         try {
             if (!ScmArgChecker.Directory.checkDirectoryName(name)) {
                 throw new ScmInvalidArgumentException("invalid directory name:name=" + name);
@@ -163,6 +201,12 @@ public class DirServiceImpl implements IDirService {
     @Override
     public long reanmeDirById(String user, String wsName, String dirId, String newName)
             throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to rename directory, directory feature is disable:ws=" + ws.getName()
+                            + ", id=" + dirId + ", newName=" + newName);
+        }
         try {
             if (!ScmArgChecker.Directory.checkDirectoryName(newName)) {
                 throw new ScmInvalidArgumentException("invalid directory name:name=" + newName);
@@ -186,6 +230,12 @@ public class DirServiceImpl implements IDirService {
     @Override
     public long renameDirByPath(String user, String wsName, String dirPath, String newName)
             throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to rename directory, directory feature is disable:ws=" + ws.getName()
+                            + ", dir=" + dirPath + ", newName=" + newName);
+        }
         try {
             if (!ScmArgChecker.Directory.checkDirectoryName(newName)) {
                 throw new ScmInvalidArgumentException("invalid directory name:name=" + newName);
@@ -209,6 +259,13 @@ public class DirServiceImpl implements IDirService {
     @Override
     public long moveDirById(String user, String wsName, String dirId, String newParentId,
             String newParentPath) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to move directory, directory feature is disable:ws=" + ws.getName()
+                            + ", dirId=" + dirId + ", newParentPath=" + newParentPath
+                            + ", newParentId=" + newParentId);
+        }
         try {
             DirUpdatorDao dao = createDirUpdatorDao(wsName, newParentId, newParentPath, user);
             return dao.updateById(dirId);
@@ -226,6 +283,13 @@ public class DirServiceImpl implements IDirService {
     @Override
     public long moveDirByPath(String user, String wsName, String dirPath, String newParentId,
             String newParentPath) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to move directory, directory feature is disable:ws=" + ws.getName()
+                            + ", dir=" + dirPath + ", newParentPath=" + newParentPath
+                            + ", newParentId=" + newParentId);
+        }
         try {
             DirUpdatorDao dao = createDirUpdatorDao(wsName, newParentId, newParentPath, user);
             return dao.updateByPath(dirPath);
@@ -258,6 +322,12 @@ public class DirServiceImpl implements IDirService {
 
     @Override
     public long countDir(String wsName, BSONObject condition) throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to count directory, directory feature is disable:ws=" + ws.getName()
+                            + ", condition=" + condition);
+        }
         ScmContentServer contentserver = ScmContentServer.getInstance();
         contentserver.getWorkspaceInfoChecked(wsName);
         return contentserver.getMetaService().getDirCount(wsName, condition);

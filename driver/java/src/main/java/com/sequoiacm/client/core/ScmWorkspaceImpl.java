@@ -45,6 +45,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -86,6 +87,9 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         String batchShardingTypeStr = BsonUtils.getStringOrElse(newWsInfo,
                 FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName());
         batchShardingType = ScmShardingType.getShardingType(batchShardingTypeStr);
+
+        enableDirectory = BsonUtils.getBooleanOrElse(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -242,5 +246,10 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     @Override
     public boolean isBatchFileNameUnique() {
         return batchFileNameUnique;
+    }
+
+    @Override
+    public boolean isEnableDirectory() {
+        return enableDirectory;
     }
 }

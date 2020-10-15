@@ -28,6 +28,7 @@ public class ScmWorkspaceObj {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -73,6 +74,9 @@ public class ScmWorkspaceObj {
             batchShardingType = BsonUtils.getStringOrElse(obj,
                     FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE,
                     ScmShardingType.NONE.getName());
+
+            enableDirectory = BsonUtils.getBooleanOrElse(obj,
+                    FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -167,6 +171,10 @@ public class ScmWorkspaceObj {
 
     public BSONObject getExternalData() {
         return externalData;
+    }
+
+    public boolean isEnableDirectory() {
+        return enableDirectory;
     }
 
 }

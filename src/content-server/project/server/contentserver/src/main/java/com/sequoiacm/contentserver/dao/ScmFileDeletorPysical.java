@@ -124,8 +124,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         }
 
         // delete file meta
-        contentServer.getMetaService().deleteFile(wsInfo.getMetaLocation(), wsInfo.getName(),
-                fileId);
+        contentServer.getMetaService().deleteFile(wsInfo, fileId);
 
         // delete file data
         for (BSONObject fileRecord : allVersionFile) {

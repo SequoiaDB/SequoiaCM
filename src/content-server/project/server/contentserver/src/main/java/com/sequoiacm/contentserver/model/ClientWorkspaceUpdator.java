@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.model;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
@@ -45,16 +46,22 @@ public class ClientWorkspaceUpdator {
 
     public static ClientWorkspaceUpdator fromBSONObject(BSONObject obj)
             throws ScmInvalidArgumentException {
+        BSONObject objCopy = new BasicBSONObject(obj.toMap());
         ClientWorkspaceUpdator updator = new ClientWorkspaceUpdator();
-        String desc = (String) obj.get(CommonDefine.RestArg.WORKSPACE_UPDATOR_DESCRIPTION);
+        String desc = (String) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_DESCRIPTION);
         updator.setDescription(desc);
-        String removeDataLocation = (String) obj
-                .get(CommonDefine.RestArg.WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION);
+        String removeDataLocation = (String) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION);
         updator.setRemoveDataLocation(removeDataLocation);
-        BSONObject addDataLocation = (BSONObject) obj
-                .get(CommonDefine.RestArg.WORKSPACE_UPDATOR_ADD_DATA_LOCATION);
+        BSONObject addDataLocation = (BSONObject) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_ADD_DATA_LOCATION);
         if (addDataLocation != null) {
             updator.setAddDataLocation(new ClientLocationOutline(addDataLocation));
+        }
+        if (!objCopy.isEmpty()) {
+            throw new ScmInvalidArgumentException(
+                    "failed to update workspace, updator contain invalid key:" + objCopy.keySet());
         }
         return updator;
     }

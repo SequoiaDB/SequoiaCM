@@ -63,40 +63,42 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             CollectionSpace wsCs = sdb.createCollectionSpace(
                     wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL, csOption);
 
-            // DIRECTORY
-            logger.info("creating cl:clName={}.{}",
-                    wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
-                    MetaSourceDefine.SequoiadbTableName.CL_DIRECTORY);
-            DBCollection dirCl = wsCs
-                    .createCollection(MetaSourceDefine.SequoiadbTableName.CL_DIRECTORY);
-            BasicBSONObject dirPidNameIdx = new BasicBSONObject();
-            dirPidNameIdx.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, 1);
-            dirPidNameIdx.put(FieldName.FIELD_CLDIR_NAME, 1);
-            dirCl.createIndex("idx_name_pid", dirPidNameIdx, true, true);
-            BasicBSONObject dirIdIdx = new BasicBSONObject(FieldName.FIELD_CLDIR_ID, 1);
-            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
-                    dirCl.getFullName(), dirIdIdx.toString(), true, true);
-            dirCl.createIndex("idx_id", dirIdIdx, true, true);
+            if (wsConfig.isEnableDirectory()) {
+                // DIRECTORY
+                logger.info("creating cl:clName={}.{}",
+                        wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
+                        MetaSourceDefine.SequoiadbTableName.CL_DIRECTORY);
+                DBCollection dirCl = wsCs
+                        .createCollection(MetaSourceDefine.SequoiadbTableName.CL_DIRECTORY);
+                BasicBSONObject dirPidNameIdx = new BasicBSONObject();
+                dirPidNameIdx.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, 1);
+                dirPidNameIdx.put(FieldName.FIELD_CLDIR_NAME, 1);
+                dirCl.createIndex("idx_name_pid", dirPidNameIdx, true, true);
+                BasicBSONObject dirIdIdx = new BasicBSONObject(FieldName.FIELD_CLDIR_ID, 1);
+                logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                        dirCl.getFullName(), dirIdIdx.toString(), true, true);
+                dirCl.createIndex("idx_id", dirIdIdx, true, true);
 
-            // FILE_DIRECTORY_REL
-            BSONObject relClOptions = new BasicBSONObject();
-            relClOptions.put("ShardingType", "hash");
-            relClOptions.put("AutoSplit", true);
-            BSONObject relClShardingKey = new BasicBSONObject(FieldName.FIELD_CLREL_DIRECTORY_ID,
-                    1);
-            relClOptions.put("ShardingKey", relClShardingKey);
-            logger.info("creating cl:clName={}.{},options={}",
-                    wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
-                    MetaSourceDefine.SequoiadbTableName.CL_FILE_RELATION, relClOptions.toString());
-            DBCollection relCl = wsCs.createCollection(
-                    MetaSourceDefine.SequoiadbTableName.CL_FILE_RELATION, relClOptions);
-            BSONObject relIdx = new BasicBSONObject();
-            relIdx.put(FieldName.FIELD_CLREL_DIRECTORY_ID, 1);
-            relIdx.put(FieldName.FIELD_CLREL_FILENAME, 1);
-            logger.info("creating index:clName={},key={},isUnique={},enforced={}",
-                    relCl.getFullName(), relIdx.toString(), true, true);
-            relCl.createIndex("idx_name_pid", relIdx, true, true);
-
+                // FILE_DIRECTORY_REL
+                BSONObject relClOptions = new BasicBSONObject();
+                relClOptions.put("ShardingType", "hash");
+                relClOptions.put("AutoSplit", true);
+                BSONObject relClShardingKey = new BasicBSONObject(
+                        FieldName.FIELD_CLREL_DIRECTORY_ID, 1);
+                relClOptions.put("ShardingKey", relClShardingKey);
+                logger.info("creating cl:clName={}.{},options={}",
+                        wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
+                        MetaSourceDefine.SequoiadbTableName.CL_FILE_RELATION,
+                        relClOptions.toString());
+                DBCollection relCl = wsCs.createCollection(
+                        MetaSourceDefine.SequoiadbTableName.CL_FILE_RELATION, relClOptions);
+                BSONObject relIdx = new BasicBSONObject();
+                relIdx.put(FieldName.FIELD_CLREL_DIRECTORY_ID, 1);
+                relIdx.put(FieldName.FIELD_CLREL_FILENAME, 1);
+                logger.info("creating index:clName={},key={},isUnique={},enforced={}",
+                        relCl.getFullName(), relIdx.toString(), true, true);
+                relCl.createIndex("idx_name_pid", relIdx, true, true);
+            }
             // CLASS
             logger.info("creating cl:clName={}.{},options=null",
                     wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,

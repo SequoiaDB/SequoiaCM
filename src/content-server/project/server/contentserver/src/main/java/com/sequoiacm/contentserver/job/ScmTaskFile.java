@@ -55,7 +55,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     private boolean running = true;
     private BSONObject actualMatcher;
     private int scope = CommonDefine.Scope.SCOPE_CURRENT;
-    private long maxExecTime = 0;  // 0 means unlimited
+    private long maxExecTime = 0; // 0 means unlimited
 
     private Date taskStartTime;
 
@@ -133,8 +133,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
 
         BSONObject task = ScmContentServer.getInstance().getTaskInfo(matcher);
         if (null == task) {
-            throw new ScmServerException(ScmError.TASK_NOT_EXIST, "task is inexistent:taskId="
-                    + taskId);
+            throw new ScmServerException(ScmError.TASK_NOT_EXIST,
+                    "task is inexistent:taskId=" + taskId);
         }
 
         return (int) task.get(FieldName.Task.FIELD_RUNNING_FLAG);
@@ -143,17 +143,15 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     protected MetaCursor getCursor(ScmMetaService sms) throws ScmServerException {
         switch (scope) {
             case CommonDefine.Scope.SCOPE_CURRENT:
-                return sms.queryCurrentFile(wsInfo.getMetaLocation(), wsInfo.getName(),
-                        actualMatcher, null, null, 0, -1);
+                return sms.queryCurrentFile(wsInfo, actualMatcher, null, null, 0, -1);
             case CommonDefine.Scope.SCOPE_ALL:
-                return sms.queryAllFile(wsInfo.getMetaLocation(), wsInfo.getName(), actualMatcher,
-                        null);
+                return sms.queryAllFile(wsInfo, actualMatcher, null);
             case CommonDefine.Scope.SCOPE_HISTORY:
                 return sms.queryHistoryFile(wsInfo.getMetaLocation(), wsInfo.getName(),
                         actualMatcher, null, null, 0, -1);
             default:
-                throw new ScmInvalidArgumentException("runtask failed,unknow scope type:taskId="
-                        + taskId + ",scope=" + scope);
+                throw new ScmInvalidArgumentException(
+                        "runtask failed,unknow scope type:taskId=" + taskId + ",scope=" + scope);
         }
     }
 
@@ -176,8 +174,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             int progress = calculateProgress(successCount, failedCount);
 
             if (progress - preProgress >= PROGRESS_STEP || seconds > DATE_STEP) {
-                ScmContentServer.getInstance().getMetaService()
-                        .updateTaskProgress(taskId, progress, successCount, failedCount);
+                ScmContentServer.getInstance().getMetaService().updateTaskProgress(taskId, progress,
+                        successCount, failedCount);
 
                 preProgress = progress;
                 preDate = date;
@@ -205,10 +203,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         try {
             switch (scope) {
                 case CommonDefine.Scope.SCOPE_CURRENT:
-                    actualCount = sms.getCurrentFileCount(wsInfo.getMetaLocation(),
-                            wsInfo.getName(), actualMatcher);
-                    estimateCount = sms.getCurrentFileCount(wsInfo.getMetaLocation(),
-                            wsInfo.getName(), taskMatcher);
+                    actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
+                    estimateCount = sms.getCurrentFileCount(wsInfo, taskMatcher);
                     break;
                 case CommonDefine.Scope.SCOPE_ALL:
                     actualCount = sms.getAllFileCount(wsInfo.getMetaLocation(), wsInfo.getName(),
@@ -223,8 +219,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                             wsInfo.getName(), taskMatcher);
                     break;
                 default:
-                    throw new ScmInvalidArgumentException(
-                            "runtask failed,unknow scope type:taskId=" + taskId + ",scope=" + scope);
+                    throw new ScmInvalidArgumentException("runtask failed,unknow scope type:taskId="
+                            + taskId + ",scope=" + scope);
             }
         }
         catch (ScmServerException e) {
@@ -242,8 +238,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         try {
             BasicBSONList matcherList = new BasicBSONList();
             BSONObject taskMatcher = getTaskContent();
-            BSONObject mySiteFileMatcher = ScmMetaSourceHelper.dollarSiteInList(ScmContentServer
-                    .getInstance().getLocalSite());
+            BSONObject mySiteFileMatcher = ScmMetaSourceHelper
+                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
             matcherList.add(taskMatcher);
             matcherList.add(mySiteFileMatcher);
 
@@ -294,8 +290,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                 String dataId = (String) file.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
                 int majorVersion = (int) file.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
                 int minorVersion = (int) file.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
-                ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(getWorkspaceInfo()
-                        .getName(), fileId);
+                ScmLockPath lockPath = ScmLockPathFactory
+                        .createFileLockPath(getWorkspaceInfo().getName(), fileId);
                 DoFileRes res;
                 ScmLock fileReadLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
                 try {

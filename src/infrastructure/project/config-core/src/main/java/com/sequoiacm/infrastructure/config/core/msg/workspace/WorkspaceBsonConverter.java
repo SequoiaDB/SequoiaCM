@@ -70,6 +70,9 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX));
         wsConfig.setBatchShardingType(BsonUtils.getStringOrElse(config,
                 FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName()));
+
+        wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(config,
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true));
         return wsConfig;
     }
 

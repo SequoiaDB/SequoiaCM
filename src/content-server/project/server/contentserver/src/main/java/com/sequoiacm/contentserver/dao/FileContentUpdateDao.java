@@ -49,7 +49,8 @@ public class FileContentUpdateDao {
     private FileOperationListenerMgr listenerMgr;
 
     public FileContentUpdateDao(String user, String wsName, String fileId, int majorVersion,
-            int minorVersion, ScmUpdateContentOption option, FileOperationListenerMgr listenerMgr) throws ScmServerException {
+            int minorVersion, ScmUpdateContentOption option, FileOperationListenerMgr listenerMgr)
+            throws ScmServerException {
         this.user = user;
         this.fileId = fileId;
         this.clientMajorVersion = majorVersion;
@@ -204,16 +205,15 @@ public class FileContentUpdateDao {
         try {
             BSONObject currentFile = getCurrentFileAndCheckVersion();
             BSONObject historyRec = createHistoryRecord(currentFile);
-            newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId,
-                    dataSize, createTime, md5);
+            newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId, dataSize,
+                    createTime, md5);
             listenerMgr.preUpdateContent(ws, newVersionUpdator);
             if (breakFileName == null) {
-                contentserver.getMetaService().addNewFileVersion(ws.getName(), ws.getMetaLocation(),
-                        fileId, historyRec, newVersionUpdator);
+                contentserver.getMetaService().addNewFileVersion(ws, fileId, historyRec,
+                        newVersionUpdator);
             }
             else {
-                contentserver.getMetaService().breakpointFileToNewVersionFile(ws.getName(),
-                        ws.getMetaLocation(), breakFileName, fileId, historyRec, newVersionUpdator);
+                contentserver.getMetaService().breakpointFileToNewVersionFile(ws, breakFileName, fileId, historyRec, newVersionUpdator);
             }
             onCompleteCallback = listenerMgr.postUpdateContent(ws, fileId);
         }

@@ -5,21 +5,15 @@ import java.io.InputStream;
 import java.util.Date;
 
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.lock.ScmLockPath;
-import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
@@ -28,6 +22,7 @@ import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class FileCreatorDao implements IFileCreatorDao {
@@ -136,40 +131,18 @@ public class FileCreatorDao implements IFileCreatorDao {
     public BSONObject insert() throws ScmServerException {
         String parentId = (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
         ScmMetaService metaservice = ScmContentServer.getInstance().getMetaService();
-        BSONObject parentDirMatcher = new BasicBSONObject();
-        parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentId);
 
-        ScmLockPath lockPath = ScmLockPathFactory.createDirLockPath(wsInfo.getName(), parentId);
-        ScmLock rLock = null;
-        if (!parentId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
-            rLock = readLock(lockPath);
-        }
+        ScmLock rLock = ScmFileOperateUtils.lockDirForCreateFile(wsInfo, parentId);
         try {
-            if (metaservice.getDirCount(wsInfo.getName(), parentDirMatcher) <= 0) {
-                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
-                        "parent directory not exists:preantDirectoryId=" + parentId);
-            }
+            ScmFileOperateUtils.checkDirForCreateFile(wsInfo, parentId);
             metaservice.insertFile(wsInfo, fileInfo);
         }
         finally {
-            unlock(rLock, lockPath);
-        }
-        return fileInfo;
-    }
-
-    private void unlock(ScmLock lock, ScmLockPath lockPath) {
-        try {
-            if (lock != null) {
-                lock.unlock();
+            if (rLock != null) {
+                rLock.unlock();
             }
         }
-        catch (Exception e) {
-            logger.warn("failed to unlock:path={}", lockPath, e);
-        }
-    }
-
-    private ScmLock readLock(ScmLockPath lockPath) throws ScmServerException {
-        return ScmLockManager.getInstance().acquiresReadLock(lockPath);
+        return fileInfo;
     }
 
     @Override

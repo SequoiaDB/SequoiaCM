@@ -228,14 +228,17 @@ public class ScmContentServer {
     }
 
     private void checkAndAmendDirVersion() throws ScmServerException {
-        List<String> wsNames = getWorkspaceNames();
-        for (String wsName : wsNames) {
+        for (ScmWorkspaceInfo ws : getWorkspaceInfos()) {
+            if (!ws.isEnableDirectory()) {
+                continue;
+            }
             try {
-                getMetaService().getMetaSource().getDirAccessor(wsName).checkAndAmendVersion();
+                getMetaService().getMetaSource().getDirAccessor(ws.getName())
+                        .checkAndAmendVersion();
             }
             catch (ScmMetasourceException e) {
                 throw new ScmServerException(e.getScmError(),
-                        "check and amend directory version failed, wsName=" + wsName, e);
+                        "check and amend directory version failed, wsName=" + ws.getName(), e);
             }
         }
     }
@@ -501,13 +504,6 @@ public class ScmContentServer {
         return ss.getCurrentFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileID);
     }
 
-    public void deleteCurrentFile(ScmWorkspaceInfo wsInfo, String fileID, int majorVersion,
-            int minorVersion) throws ScmServerException {
-        ScmMetaService ss = getMetaService();
-        ss.deleteCurrentFile(wsInfo.getMetaLocation(), wsInfo.getName(), fileID, majorVersion,
-                minorVersion);
-    }
-
     public void insertTransLog(String workspaceName, BSONObject transRecord)
             throws ScmServerException {
         ScmMetaService ss = getMetaService();
@@ -535,7 +531,7 @@ public class ScmContentServer {
             throws ScmServerException {
         ScmMetaService ss = getMetaService();
 
-        return ss.getCurrentFileCount(wsInfo.getMetaLocation(), wsInfo.getName(), matcher);
+        return ss.getCurrentFileCount(wsInfo, matcher);
     }
 
     public boolean isInMainSite() {

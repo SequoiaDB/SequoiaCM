@@ -22,6 +22,7 @@ public class WorkspaceConfig implements Config {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
+    private boolean enableDirectory = true;
 
     public WorkspaceConfig() {
     }
@@ -138,6 +139,14 @@ public class WorkspaceConfig implements Config {
         this.batchFileNameUnique = batchFileNameUnique;
     }
 
+    public void setEnableDirectory(boolean enableDirectory) {
+        this.enableDirectory = enableDirectory;
+    }
+
+    public boolean isEnableDirectory() {
+        return enableDirectory;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject wsConfigObj = new BasicBSONObject();
@@ -155,6 +164,7 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX, batchIdTimeRegex);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, batchFileNameUnique);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, batchShardingType);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
         return wsConfigObj;
     }
 

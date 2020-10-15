@@ -82,6 +82,11 @@ public class FileInfoUpdatorDao {
             moveFile();
         }
         else if (updator.containsField(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH)) {
+            if (!ws.isEnableDirectory()) {
+                throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                        "can not update file parent directory, directory feature is disable:ws="
+                                + ws.getName() + ", fileId=" + fileId);
+            }
             String moveToPath = (String) updator
                     .get(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
             moveToPath = ScmSystemUtils.formatDirPath(moveToPath);
@@ -125,9 +130,6 @@ public class FileInfoUpdatorDao {
         if (!ScmArgChecker.File.checkFileName(fileName)) {
             throw new ScmInvalidArgumentException("invalid arg:newFileName=" + fileName);
         }
-
-        checkExistDir(fileName,
-                (String) latestFileInfo.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID));
 
         if (ws.isBatchFileNameUnique()) {
             checkBatchFileNameUniqueAndUpdate(fileName);
@@ -189,7 +191,7 @@ public class FileInfoUpdatorDao {
 
             condition.put(FieldName.FIELD_CLFILE_NAME, newFileName);
             long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
-                    .getCurrentFileCount(ws.getMetaLocation(), ws.getName(), condition);
+                    .getCurrentFileCount(ws, condition);
             if (sameNameFileCount > 0) {
                 throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
                         "rename file failed, the batch already attach a file with same name:ws="
@@ -204,6 +206,11 @@ public class FileInfoUpdatorDao {
     }
 
     private void moveFile() throws ScmServerException {
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "can not update file parent directory, directory feature is disable:ws="
+                            + ws.getName() + ", fileId=" + fileId);
+        }
         String parentDirId = (String) updator.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
 
         // updator only have one properties now,

@@ -42,6 +42,7 @@ public enum ScmError {
     DIR_NOT_FOUND(-241, "Directory not found"),
     DIR_NOT_EMPTY(-242, "Directory not empty"),
     DIR_MOVE_TO_SUBDIR(-243, "Can not move dir to a subdir of itself"),
+    DIR_FEATURE_DISABLE(-244, "Directory is disable"),
 
     BATCH_NOT_FOUND(-250, "Batch not found"),
     BATCH_FILE_SAME_NAME(-251, "The batch already attach a file with same name"),
