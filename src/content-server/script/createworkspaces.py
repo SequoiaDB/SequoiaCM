@@ -57,6 +57,24 @@ def create_workspace(ws_conf, url, user, password):
     if 'description' in ws_conf:
         desc = ws_conf['description']
         cmd += " --description " + desc
+    if 'batch_sharding_type' in ws_conf:
+        batch_sharding_type = ws_conf['batch_sharding_type']
+        cmd += " --batch-sharding-type " + batch_sharding_type
+    if 'batch_id_time_regex' in ws_conf:
+        batch_id_time_regex = ws_conf['batch_id_time_regex']
+        cmd += " --batch-id-time-regex '" + batch_id_time_regex + "'"
+    if 'batch_id_time_pattern' in ws_conf:
+        batch_id_time_pattern = ws_conf['batch_id_time_pattern']
+        cmd += " --batch-id-time-pattern " + batch_id_time_pattern
+    if 'batch_file_name_unique' in ws_conf:
+        batch_file_name_unique = ws_conf['batch_file_name_unique']
+        if batch_file_name_unique:
+            cmd += " --batch-file-name-unique"
+    if 'enable_directory' in ws_conf:
+        enable_directory = ws_conf['enable_directory']
+        if not enable_directory:
+            cmd += " --disable-directory"
+    
     cmd += ' --user ' + user
     cmd += ' --password ' + password
     cmd += ' --url ' + url

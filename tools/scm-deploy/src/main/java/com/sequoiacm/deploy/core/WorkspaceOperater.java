@@ -25,6 +25,8 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.deploy.common.BsonUtils;
 import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.RestTools;
@@ -136,6 +138,23 @@ public class WorkspaceOperater {
             conf.addDataLocation(
                     ScmCommon.createDataLocation((BSONObject) datalocationBSON, siteMap));
         }
+
+        conf.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(wsBSON,
+                FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false));
+        conf.setBatchIdTimePattern(
+                BsonUtils.getString(wsBSON, FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN));
+        conf.setBatchIdTimeRegex(
+                BsonUtils.getString(wsBSON, FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX));
+        String shardingTypeStr = BsonUtils.getStringOrElse(wsBSON,
+                FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName());
+        ScmShardingType shardingType = ScmShardingType.getShardingType(shardingTypeStr);
+        if (shardingType == null) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "unknown batch sharding type:ws="
+                    + conf.getName() + ", shardingType=" + shardingTypeStr);
+        }
+        conf.setBatchShardingType(shardingType);
+        conf.setEnableDirectory(BsonUtils.getBooleanOrElse(wsBSON,
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true));
 
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace(ss, conf);
         return ws.getName();

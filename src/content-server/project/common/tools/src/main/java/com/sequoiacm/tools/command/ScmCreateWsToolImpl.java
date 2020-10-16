@@ -22,6 +22,7 @@ import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
@@ -36,6 +37,11 @@ public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_SHORT_DATA = "d";
     private final String OPT_LONG_DATA = "data";
     private final String OPT_LONG_DESC = "description";
+    private final String OPT_LONG_BATCH_SHARDING_TYPE = "batch-sharding-type";
+    private final String OPT_LONG_BATCH_ID_TIME_REGEX = "batch-id-time-regex";
+    private final String OPT_LONG_BATCH_ID_TIME_PATTERN = "batch-id-time-pattern";
+    private final String OPT_LONG_BATCH_FILE_NAME_UNIQUE = "batch-file-name-unique";
+    private final String OPT_LONG_DISABLE_DIRECOTRY = "disable-directory";
 
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -64,6 +70,18 @@ public class ScmCreateWsToolImpl extends ScmTool {
         // desc
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_DESC, "workspace description.", false, true, false));
+
+        ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_SHARDING_TYPE,
+                "batch sharding type, default is none, all available sharding type: none, year, month, quarter.",
+                false, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_ID_TIME_REGEX, "batch id time regex.",
+                false, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_ID_TIME_PATTERN, "batch id time pattern.",
+                false, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_FILE_NAME_UNIQUE,
+                "set the file name is unique in the same batch.", false, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_DISABLE_DIRECOTRY, "disable directory feature.",
+                false, false, false));
 
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
@@ -106,7 +124,18 @@ public class ScmCreateWsToolImpl extends ScmTool {
                 conf.addDataLocation(
                         ScmCommon.createDataLocation((BSONObject) datalocationBSON, siteMap));
             }
-
+            conf.setBatchFileNameUnique(cl.hasOption(OPT_LONG_BATCH_FILE_NAME_UNIQUE));
+            conf.setBatchIdTimePattern(cl.getOptionValue(OPT_LONG_BATCH_ID_TIME_PATTERN));
+            conf.setBatchIdTimeRegex(cl.getOptionValue(OPT_LONG_BATCH_ID_TIME_REGEX));
+            String shardingTypeStr = cl.getOptionValue(OPT_LONG_BATCH_SHARDING_TYPE,
+                    ScmShardingType.NONE.getName());
+            ScmShardingType shardingType = ScmShardingType.getShardingType(shardingTypeStr);
+            if (shardingType == null) {
+                throw new ScmToolsException("invalid batch sharding type:" + shardingTypeStr,
+                        ScmExitCode.INVALID_ARG);
+            }
+            conf.setBatchShardingType(shardingType);
+            conf.setEnableDirectory(!cl.hasOption(OPT_LONG_DISABLE_DIRECOTRY));
             ScmFactory.Workspace.createWorkspace(ss, conf);
             logger.info("create workspace success:wsName={}", wsName);
             System.out.println("Create workspace success:" + wsName);
