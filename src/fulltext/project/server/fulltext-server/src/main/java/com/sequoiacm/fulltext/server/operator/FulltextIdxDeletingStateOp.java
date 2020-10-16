@@ -50,7 +50,7 @@ public class FulltextIdxDeletingStateOp extends FulltextIdxOperator {
 
     @Override
     public void inspectIndex(ScmWorkspaceFulltextExtData fulltextData) throws FullTextException {
-        throw new FullTextException(ScmError.FULL_TEXT_INDEX_IS_CREATING,
+        throw new FullTextException(ScmError.FULL_TEXT_INDEX_IS_DELETING,
                 "fulltext index is deleting, can not inspect now:workspace="
                         + fulltextData.getWsName());
     }
