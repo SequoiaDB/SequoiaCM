@@ -46,6 +46,7 @@ public enum ScmError {
 
     BATCH_NOT_FOUND(-250, "Batch not found"),
     BATCH_FILE_SAME_NAME(-251, "The batch already attach a file with same name"),
+    BATCH_EXIST(-252, "Batch already exists"),
 
     FILE_EXIST(-261, "File already exists"),
     FILE_NOT_FOUND(-262, "File not found"),

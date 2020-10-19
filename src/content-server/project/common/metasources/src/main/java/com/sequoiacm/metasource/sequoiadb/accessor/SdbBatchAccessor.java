@@ -39,6 +39,9 @@ public class SdbBatchAccessor extends SdbMetaAccessor implements MetaBatchAccess
             if (e.getErrcode() == SDBError.SDB_CAT_NO_MATCH_CATALOG.getErrorCode()) {
                 e.setScmError(ScmError.FILE_TABLE_NOT_FOUND);
             }
+            else if (e.getErrcode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
+                e.setScmError(ScmError.BATCH_EXIST);
+            }
             throw e;
         }
     }
