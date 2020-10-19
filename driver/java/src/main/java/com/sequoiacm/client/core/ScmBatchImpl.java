@@ -19,6 +19,7 @@ import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 
 class ScmBatchImpl implements ScmBatch {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileImpl.class);
@@ -383,10 +384,10 @@ class ScmBatchImpl implements ScmBatch {
         }
 
         // createTime
-        obj = bsonObj.get(FieldName.Batch.FIELD_INNER_CREATE_TIME);
-        if (null != obj) {
-            Long ts = (Long) obj;
-            batch.setCreateTime(new Date(ts));
+        Number createTimeNumber = BsonUtils.getNumber(bsonObj,
+                FieldName.Batch.FIELD_INNER_CREATE_TIME);
+        if (createTimeNumber != null) {
+            batch.setCreateTime(new Date(createTimeNumber.longValue()));
         }
 
         obj = bsonObj.get(FieldName.Batch.FIELD_INNER_UPDATE_USER);
@@ -395,10 +396,10 @@ class ScmBatchImpl implements ScmBatch {
         }
 
         // updateTime
-        obj = bsonObj.get(FieldName.Batch.FIELD_INNER_UPDATE_TIME);
-        if (null != obj) {
-            Long ts = (Long) obj;
-            batch.setUpdateTime(new Date(ts));
+        Number updateTimeNumber = BsonUtils.getNumber(bsonObj,
+                FieldName.Batch.FIELD_INNER_UPDATE_TIME);
+        if (updateTimeNumber != null) {
+            batch.setUpdateTime(new Date(updateTimeNumber.longValue()));
         }
 
         // files
