@@ -93,7 +93,7 @@ public class AccesskeyController {
                     throw new BadRequestException("failed to decrypt password");
                 }
                 Object salt = saltSource.getSalt(targetUser);
-                if (!passwordEncoder.isPasswordValid(srcPassword, targetUser.getPassword(), salt)) {
+                if (!passwordEncoder.isPasswordValid(targetUser.getPassword(), srcPassword, salt)) {
                     throw new BadRequestException("Incorrect password for user " + username);
                 }
             }

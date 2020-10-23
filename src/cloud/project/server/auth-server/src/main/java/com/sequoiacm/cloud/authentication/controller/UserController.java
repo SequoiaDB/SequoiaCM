@@ -213,7 +213,7 @@ public class UserController {
                 }
 
                 Object salt = saltSource.getSalt(user);
-                if (!passwordEncoder.isPasswordValid(oldPassword, user.getPassword(), salt)) {
+                if (!passwordEncoder.isPasswordValid(user.getPassword(), oldPassword, salt)) {
                     throw new BadRequestException("Incorrect old password for user " + username);
                 }
             }
