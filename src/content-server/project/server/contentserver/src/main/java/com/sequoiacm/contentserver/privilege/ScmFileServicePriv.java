@@ -10,9 +10,11 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
 import com.sequoiacm.infrastructrue.security.core.ScmResource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
@@ -44,22 +46,12 @@ public class ScmFileServicePriv {
         this.client.updateHeartbeatInterval(hbInterval);
     }
 
-    public boolean hasPriority(String user, IResource resource, int opFlag) {
-        return client.check(user, resource, opFlag);
-    }
-
-    public boolean hasPriority(String user, String resourceType, String resource,
-            ScmPrivilegeDefine op) {
-        return hasPriority(user, resourceType, resource, op.getFlag());
-    }
-
-    public boolean hasPriority(String user, String resourceType, String resource, int opFlag) {
+    private boolean hasPriority(String user, String resourceType, String resource, int opFlag) {
         IResource r = createResource(resourceType, resource);
         if (null == r) {
             return false;
         }
-
-        return hasPriority(user, r, opFlag);
+        return client.check(user, r, opFlag);
     }
 
     public IResource createResource(String resourceType, String resource) {
@@ -87,25 +79,34 @@ public class ScmFileServicePriv {
 
     public void checkWsPriority(String userName, String wsName, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
-        if (!hasPriority(userName, ScmWorkspaceResource.RESOURCE_TYPE, wsName, op)) {
+        if (!hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             logger.error("do not have priority to {}:user={},ws={}", opDesc, userName, wsName);
             throw new ScmOperationUnauthorizedException(
                     opDesc + " failed, do not have priority:user=" + userName + ",ws=" + wsName);
         }
     }
 
+    private void checkWs(String wsName, String opDesc) throws ScmServerException {
+        if (ScmContentServer.getInstance().getWorkspaceInfo(wsName) == null) {
+            logger.error("workspace is not exist:ws={}", wsName);
+            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
+                    opDesc + " failed, workspace is not exist:ws=" + wsName);
+        }
+    }
+
     public void checkDirPriority(String userName, String wsName, String dir, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
+        checkWs(wsName, opDesc);
         checkDirPriority(userName, wsName, dir, op.getFlag(), opDesc);
     }
 
-    public void checkDirPriority(String userName, String wsName, String dir, int opFlag,
+    private void checkDirPriority(String userName, String wsName, String dir, int opFlag,
             String opDesc) throws ScmServerException {
         if (null == dir || dir.isEmpty()) {
             dir = "/";
         }
 
-        if (!hasPriority(userName, DirResource.RESOURCE_TYPE, wsName + ":" + dir, opFlag)) {
+        if (!hasDirPriority(userName, wsName, dir, opFlag)) {
             logger.error("do not have priority to {}:user={},ws={},dir={}", opDesc, userName,
                     wsName, dir);
             throw new ScmOperationUnauthorizedException(
@@ -122,7 +123,7 @@ public class ScmFileServicePriv {
     public void checkDirPriorityById(String userName, String wsName, IDirService dirService,
             String dirId, int opFlag, String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, opFlag)) {
+        if (hasWsPriority(userName, wsName, opFlag, opDesc)) {
             return;
         }
 
@@ -138,7 +139,7 @@ public class ScmFileServicePriv {
             IDirService dirService, String oldDir, String newParentId, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -154,14 +155,14 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(newParentDir, name);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByOldDirAndNewParentDir(String userName, String wsName,
             String oldDir, String newParentDir, ScmPrivilegeDefine op, String opDesc)
             throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -175,14 +176,14 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(newParentDir, name);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByOldIdAndNewParentId(String userName, String wsName,
             IDirService dirService, String oldId, String newParentId, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -199,14 +200,14 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(newParentDir, name);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByOldIdAndNewParentDir(String userName, String wsName,
             IDirService dirService, String oldId, String newParentDir, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -222,13 +223,13 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(newParentDir, name);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByOldDirAndNewName(String userName, String wsName, String oldDir,
             String newName, ScmPrivilegeDefine op, String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -237,14 +238,14 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(ScmSystemUtils.dirname(oldDir), newName);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByOldIdAndNewName(String userName, String wsName,
             IDirService dirService, String oldId, String newName, ScmPrivilegeDefine op,
             String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -254,14 +255,14 @@ public class ScmFileServicePriv {
         }
 
         String newDir = ScmSystemUtils.generatePath(ScmSystemUtils.dirname(oldDir), newName);
-        checkDirPriority(userName, wsName, newDir, op, opDesc);
+        checkDirPriority(userName, wsName, newDir, op.getFlag(), opDesc);
     }
 
     public void checkDirPriorityByFileId(String userName, String wsName, IFileService fileService,
             String fileId, int majorVerion, int minorVersion, IDirService dirService,
             ScmPrivilegeDefine op, String opDesc) throws ScmServerException {
         // check workspace priority first
-        if (hasWsPriority(userName, wsName, op)) {
+        if (hasWsPriority(userName, wsName, op.getFlag(), opDesc)) {
             return;
         }
 
@@ -273,16 +274,17 @@ public class ScmFileServicePriv {
             dir = dirService.getDirPathById(wsName, dirId);
         }
 
-        checkDirPriority(userName, wsName, dir, op, opDesc);
+        checkDirPriority(userName, wsName, dir, op.getFlag(), opDesc);
     }
 
-    private boolean hasWsPriority(String userName, String wsName, ScmPrivilegeDefine op)
+    private boolean hasDirPriority(String userName, String wsName, String dir, int opFlag)
             throws ScmServerException {
-        return hasWsPriority(userName, wsName, op.getFlag());
+        return hasPriority(userName, DirResource.RESOURCE_TYPE, wsName + ":" + dir, opFlag);
     }
 
-    private boolean hasWsPriority(String userName, String wsName, int opFlag)
+    private boolean hasWsPriority(String userName, String wsName, int opFlag, String opDesc)
             throws ScmServerException {
+        checkWs(wsName, opDesc);
         return hasPriority(userName, ScmWorkspaceResource.RESOURCE_TYPE, wsName, opFlag);
     }
 
