@@ -28,7 +28,11 @@ public class ScmId {
     }
 
     public ScmId(String id, boolean isNeedCheck) throws ScmException {
-        if(isNeedCheck) {
+        if (id == null) {
+            throw new ScmException(ScmError.INVALID_ID, "invalid id string:" + id);
+        }
+
+        if (isNeedCheck) {
             if (!isValid(id)) {
                 throw new ScmException(ScmError.INVALID_ID, "invalid id string:" + id);
             }
@@ -74,10 +78,6 @@ public class ScmId {
     }
 
     private boolean isValid(String s) {
-        if (s == null) {
-            return false;
-        }
-
         final int len = s.length();
         if (len != TOTAL_ID_LENGTH) {
             return false;
