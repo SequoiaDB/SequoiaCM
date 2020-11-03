@@ -51,7 +51,6 @@ public class IdxTaskContext {
         if (totalTaskCount <= 0) {
             return true;
         }
-        logger.debug("watiting for all background task exit");
         this.wait(timeout);
 
         if (totalTaskCount <= 0) {

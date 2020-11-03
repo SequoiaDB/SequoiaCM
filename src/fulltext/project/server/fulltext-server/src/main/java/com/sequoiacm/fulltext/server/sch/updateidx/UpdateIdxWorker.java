@@ -49,7 +49,6 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     @Override
     protected void exec(String schName, BSONObject jobData) throws Exception {
-
         FulltextIdxSchJobData data = new FulltextIdxSchJobData(jobData);
 
         boolean isConsumed = mqAdmin.waitForMsgConusmed(
@@ -74,15 +73,20 @@ public class UpdateIdxWorker extends IdxCreateWorker {
         reportInitStatus();
 
         dropIndex(data, csClient, dropIdxCondition);
+
         createIndex(data, csClient, createIdxCondition);
 
-        getTaskContext().waitAllTaskFinish();
+        waitSubTaskExit();
 
         esClient.refreshIndexSilence(data.getIndexDataLocation());
 
         WsFulltextExtDataModifier modifier = new WsFulltextExtDataModifier(data.getWs(), schName);
         modifier.setIndexStatus(ScmFulltextStatus.CREATED);
-        ScmLock lock = lockMgr.acquiresLock(lockPathFactory.fulltextLockPath(data.getWs()));
+        ScmLock lock = acquiresFulltextLockAndCheckStopFlag(data.getWs());
+        if (lock == null) {
+            // 没拿到锁说明任务已经被停了
+            return;
+        }
         try {
             confClient.updateWsExternalData(modifier);
         }
@@ -99,6 +103,11 @@ public class UpdateIdxWorker extends IdxCreateWorker {
                 CommonDefine.Scope.SCOPE_CURRENT, null, 0, -1);
         try {
             while (cursor.hasNext()) {
+                if (isStop()) {
+                    logger.info("worker catch stop signal, worker is stoping:schId={}, name={}",
+                            getScheduleId(), getScheduleName());
+                    break;
+                }
                 ScmFileInfo file = cursor.getNext();
                 IdxDropAndUpdateDao dao = IdxDropAndUpdateDao.newBuilder(csClient, esClient)
                         .file(data.getWs(), file.getId()).indexLocation(data.getIndexDataLocation())

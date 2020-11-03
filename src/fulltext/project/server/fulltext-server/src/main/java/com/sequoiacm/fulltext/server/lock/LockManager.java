@@ -1,6 +1,7 @@
 package com.sequoiacm.fulltext.server.lock;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.slf4j.Logger;
@@ -82,6 +83,22 @@ public class LockManager {
             throw new FullTextException(ScmError.LOCK_ERROR,
                     "failed to acquires writelock:locakPath=" + Arrays.toString(lockPath.getPath()),
                     e);
+        }
+    }
+
+    public ScmLock acquiresLock(LockPath lockPath, long timeout) throws FullTextException {
+        try {
+            checkAndInit();
+            ScmLock lock = innerFactory.createLock(lockPath.getPath());
+            boolean isLockSuccess = lock.lock(timeout, TimeUnit.MILLISECONDS);
+            if (isLockSuccess) {
+                return lock;
+            }
+            return null;
+        }
+        catch (Exception e) {
+            throw new FullTextException(ScmError.LOCK_ERROR,
+                    "failed to acquires lock:locakPath=" + Arrays.toString(lockPath.getPath()), e);
         }
     }
 

@@ -19,12 +19,15 @@ public abstract class ScheduleWorker implements Runnable {
     private ScheduleWorkerMgr workerMgr;
     private CountDownLatch exitLatch = new CountDownLatch(1);
     private String schName;
+    private volatile boolean isStop;
 
     @Override
     public void run() {
+        logger.info("schedule worker start:schId={}, schName={}", getScheduleId(),
+                getScheduleName());
         try {
             exec(schName, jobDataBson);
-            if (!hasReportFinish && !stopFlag()) {
+            if (!hasReportFinish && !isStop()) {
                 logger.debug("auto report finish:schId={}, startTime={}, jobData={}",
                         status.getSchId(), status.getStartTime(), jobDataBson);
                 reportStatus(null, true);
@@ -44,13 +47,15 @@ public abstract class ScheduleWorker implements Runnable {
             }
             exitLatch.countDown();
             workerMgr.workerExit(status.getSchId());
+            logger.info("schedule worker exit:schId={}, schName={}", getScheduleId(),
+                    getScheduleName());
         }
     }
 
     protected abstract void exec(String schName, BSONObject jobData) throws Exception;
 
-    public boolean stopFlag() {
-        return Thread.currentThread().isInterrupted();
+    public boolean isStop() {
+        return isStop;
     }
 
     protected void reportStatus(BSONObject statusInfo, boolean isFinish) throws ScheduleException {
@@ -83,5 +88,17 @@ public abstract class ScheduleWorker implements Runnable {
 
     protected void close() throws Exception {
 
+    }
+
+    protected String getScheduleName() {
+        return schName;
+    }
+
+    protected String getScheduleId() {
+        return status.getSchId();
+    }
+
+    void stop() {
+        isStop = true;
     }
 }

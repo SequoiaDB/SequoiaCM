@@ -64,7 +64,7 @@ public class ScheduleWorkerMgr {
             return;
         }
 
-        boolean ret = f.cancel(true);
+        boolean ret = f.cancel(false);
         if (!ret) {
             // 任务已完成或未开始
             schId2Worker.remove(schId);
@@ -77,6 +77,7 @@ public class ScheduleWorkerMgr {
             return;
         }
 
+        worker.stop();
         try {
             worker.waitExit();
         }

@@ -3,6 +3,8 @@ package com.sequoiacm.fulltext.server.sch.createidx;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
@@ -14,6 +16,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.WsFulltextExtDataModifier;
 import com.sequoiacm.fulltext.server.es.EsClient;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;
 import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
@@ -28,12 +31,13 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.schedule.common.model.ScheduleException;
 
 public class IdxCreateWorker extends IdxWorkerBase {
+    private static final Logger logger = LoggerFactory.getLogger(IdxCreateWorker.class);
     protected ContentserverClientMgr csMgr;
     protected ScmSiteInfoMgr siteInfoMgr;
     protected EsClient esClient;
     protected TextualParserMgr textParserMgr;
     protected ConfServiceClient confClient;
-    protected FulltextIdxSchJobData jobData;
+    private FulltextIdxSchJobData jobData;
 
     protected LockManager lockMgr;
     protected LockPathFactory lockPathFactory;
@@ -75,6 +79,11 @@ public class IdxCreateWorker extends IdxWorkerBase {
                 CommonDefine.Scope.SCOPE_CURRENT, null, 0, -1);
         try {
             while (cursor.hasNext()) {
+                if (isStop()) {
+                    logger.info("worker catch stop signal, worker is stoping:schId={}, name={}",
+                            getScheduleId(), getScheduleName());
+                    break;
+                }
                 ScmFileInfo file = cursor.getNext();
                 IdxCreateDao idxCreator = IdxCreateDao
                         .newBuilder(esClient, csMgr, textParserMgr, siteInfoMgr)
@@ -103,7 +112,11 @@ public class IdxCreateWorker extends IdxWorkerBase {
 
         createIndex(jobData, csClient, jobData.getFileMatcher());
 
-        getTaskContext().waitAllTaskFinish();
+        waitSubTaskExit();
+
+        if (isStop()) {
+            return;
+        }
 
         esClient.refreshIndexSilence(jobData.getIndexDataLocation());
 
@@ -111,7 +124,11 @@ public class IdxCreateWorker extends IdxWorkerBase {
                 schName);
         modifier.setIndexStatus(ScmFulltextStatus.CREATED);
 
-        ScmLock lock = lockMgr.acquiresLock(lockPathFactory.fulltextLockPath(jobData.getWs()));
+        ScmLock lock = acquiresFulltextLockAndCheckStopFlag(jobData.getWs());
+        if (lock == null) {
+            // 没拿到锁说明任务已经被停了
+            return;
+        }
         try {
             confClient.updateWsExternalData(modifier);
         }
@@ -120,6 +137,25 @@ public class IdxCreateWorker extends IdxWorkerBase {
         }
 
         reportStatusSlience(true);
+    }
+
+    protected ScmLock acquiresFulltextLockAndCheckStopFlag(String ws) throws FullTextException {
+        while (true) {
+            if (isStop()) {
+                return null;
+            }
+            ScmLock lock = lockMgr.acquiresLock(lockPathFactory.fulltextLockPath(ws), 2000);
+            if (lock != null) {
+                return lock;
+            }
+        }
+    }
+
+    protected void waitSubTaskExit() throws Exception {
+        while (!getTaskContext().waitAllTaskFinish(5000)) {
+            logger.info("wait subtask exit:schId={}, schName={}", getScheduleId(),
+                    getScheduleName());
+        }
     }
 
     @Override
