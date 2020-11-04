@@ -115,7 +115,8 @@ public class FulltextSearchCursor implements FulltextCursor {
                     ScmFileFulltextExtData scmFileExtData = new ScmFileFulltextExtData(
                             scmFile.getExternalData());
 
-                    // 将scm中查询到的文件包装成 EsSearchRes 对象，然后二分查找 esDocuments 中是否存在该对象，
+                    // 将scm中查询到的文件包装成 EsSearchRes 对象，然后二分查找 esDocuments
+                    // 中是否存在该对象，
                     // 存在表示这个scm文件是我们要的，不存在表示可能在 es 中查询到了残留数据，跳过这个文件。
                     EsSearchRes keyDoc = new EsSearchRes(scmFileExtData.getIdxDocumentId(),
                             scmFile.getId(),
@@ -141,7 +142,7 @@ public class FulltextSearchCursor implements FulltextCursor {
                 return ret;
             }
             catch (ScmServerException e) {
-                throw new FullTextException(ScmError.SYSTEM_ERROR,
+                throw new FullTextException(e.getError(),
                         "failed to query scm file in contentserver", e);
             }
             finally {
