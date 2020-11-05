@@ -1,5 +1,8 @@
 package com.sequoiacm.schedule.service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +80,39 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         InternalScheduleInfo jobInfo = new InternalScheduleInfo(sch.getId(), sch.getName(),
                 sch.getType(), sch.getWorkspace(), sch.getContent(), sch.getCron());
-        if (!jobInfo.getWorkerNode().equals(status.getWorkerNode())
+        if (!workerNoderEquals(jobInfo.getWorkerNode(), status.getWorkerNode())
                 || jobInfo.getWorkerNodeStartTime() != status.getStartTime()) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.WORKER_SHOULD_STOP,
                     "this schedule worker is change:" + sch);
         }
         status.setSchName(sch.getName());
         dao.upsertStatus(status);
+    }
+
+    public boolean workerNoderEquals(String jobInfoWorkNode, String statusWorkNode)
+            throws UnknownHostException, ScheduleException {
+        if (!jobInfoWorkNode.equals(statusWorkNode)) {
+            String[] splitstatusWorkerNode = statusWorkNode.split(":");
+            String[] splitjobInfoWorkerNode = jobInfoWorkNode.split(":");
+            if (splitstatusWorkerNode.length != 2 || splitjobInfoWorkerNode.length != 2) {
+                throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                        "the format of worknode is incorret, host names are: " + jobInfoWorkNode
+                                + " and " + statusWorkNode);
+            }
+
+            if (splitjobInfoWorkerNode[1].equals(splitstatusWorkerNode[1])) {
+
+                InetAddress statusInetAddress = InetAddress.getByName(splitstatusWorkerNode[0]);
+                String statusHostIp = statusInetAddress.getHostAddress();
+
+                InetAddress jobInfoInetAddress = InetAddress.getByName(splitjobInfoWorkerNode[0]);
+                String jobInfoHostIp = jobInfoInetAddress.getHostAddress();
+                if (jobInfoHostIp.equals(statusHostIp)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 }
