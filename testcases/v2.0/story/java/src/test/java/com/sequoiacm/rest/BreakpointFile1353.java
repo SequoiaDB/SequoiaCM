@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sequoiacm.rest;
 
 import java.io.File;
@@ -114,7 +111,7 @@ public class BreakpointFile1353 extends TestScmBase {
             Assert.fail( "use error ws get info should error" );
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {
             Assert.assertEquals( e.getStatusCode().value(),
-                    ScmError.HTTP_UNAUTHORIZED.getErrorCode(), e.getMessage() );
+                    ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode(), e.getMessage() );
         } finally {
             rest.disconnect();
         }

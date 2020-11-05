@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sequoiacm.rest;
 
 import java.io.File;
@@ -116,7 +113,7 @@ public class BreakpointFile1392 extends TestScmBase {
                         e.getMessage() );
             } else {
                 Assert.assertEquals( e.getStatusCode().value(),
-                        ScmError.HTTP_UNAUTHORIZED.getErrorCode(),
+                        ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode(),
                         e.getMessage() );
             }
         } finally {

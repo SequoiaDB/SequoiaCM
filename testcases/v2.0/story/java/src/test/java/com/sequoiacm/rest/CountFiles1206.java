@@ -73,7 +73,6 @@ public class CountFiles1206 extends TestScmBase {
                         new Object[] { "{\"author\":\"" + authorName + "\"}" } )
                 .setResponseType( String.class ).exec().getHeaders()
                 .get( "X-SCM-Count" ).toString();
-        System.out.println( response.toString() );
         Assert.assertEquals( response, "[5]" );
 
         try {
@@ -87,7 +86,7 @@ public class CountFiles1206 extends TestScmBase {
             Assert.fail( "count files of inexistent ws should not succeed" );
         } catch ( HttpClientErrorException | HttpServerErrorException e ) {
             Assert.assertEquals( e.getStatusCode().value(),
-                    ScmError.HTTP_UNAUTHORIZED.getErrorCode() );
+                    ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode() );
         }
     }
 
