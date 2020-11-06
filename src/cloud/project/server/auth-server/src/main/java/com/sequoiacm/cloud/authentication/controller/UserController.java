@@ -370,6 +370,9 @@ public class UserController {
             if (!roleName.startsWith(ScmRole.ROLE_NAME_PREFIX)) {
                 innerRoleName = ScmRole.ROLE_NAME_PREFIX + roleName;
             }
+            else {
+                innerRoleName=roleName;
+            }
         }
 
         List<ScmUser> findAllUsers = userRoleRepository.findAllUsers(type, enabled, innerRoleName,
