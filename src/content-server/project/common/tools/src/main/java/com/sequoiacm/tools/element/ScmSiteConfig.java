@@ -9,7 +9,7 @@ import org.bson.BasicBSONObject;
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 /**
@@ -85,7 +85,7 @@ public class ScmSiteConfig {
          * @throws ScmToolsException
          */
         private Builder(String siteName) throws ScmToolsException {
-            ScmCommandUtil.checkArgInUriPath("siteName", siteName);
+            ScmContentCommandUtil.checkArgInUriPath("siteName", siteName);
             this.name = siteName;
         }
 

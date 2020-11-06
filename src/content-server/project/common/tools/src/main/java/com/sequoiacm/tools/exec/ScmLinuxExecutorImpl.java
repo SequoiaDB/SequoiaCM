@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.PropertiesDefine;
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
@@ -49,13 +49,15 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (IOException e) {
             logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            throw new ScmToolsException("get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:"
-                    + e.getMessage(), ScmExitCode.IO_ERROR);
+            throw new ScmToolsException(
+                    "get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:" + e.getMessage(),
+                    ScmExitCode.IO_ERROR);
         }
         catch (Exception e) {
             logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            throw new ScmToolsException("get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:"
-                    + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException(
+                    "get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR);
         }
         finally {
             ps.destroy();
@@ -105,13 +107,15 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (IOException e) {
             logger.error("get cmd output failed,cmd:/bin/sh -c \"" + killCmd + "\"", e);
-            throw new ScmToolsException("get cmd std failed,cmd:/bin/sh -c \"" + killCmd
-                    + "\",error:" + e.getMessage(), ScmExitCode.IO_ERROR);
+            throw new ScmToolsException(
+                    "get cmd std failed,cmd:/bin/sh -c \"" + killCmd + "\",error:" + e.getMessage(),
+                    ScmExitCode.IO_ERROR);
         }
         catch (Exception e) {
             logger.error("exec cmd occur error,cmd:/bin/sh -c \"" + killCmd + "\"", e);
-            throw new ScmToolsException("get cmd std failed,cmd:/bin/sh -c \"" + killCmd
-                    + "\",error:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException(
+                    "get cmd std failed,cmd:/bin/sh -c \"" + killCmd + "\",error:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR);
         }
         finally {
             ps.destroy();
@@ -134,13 +138,13 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
 
         Options ops = new Options();
         ScmHelpGenerator hp = new ScmHelpGenerator();
-        ops.addOption(hp.createOpt(null, PropertiesDefine.APPLICATION_PROPERTIES_LOCATION, "",
-                true, true, false));
+        ops.addOption(hp.createOpt(null, PropertiesDefine.APPLICATION_PROPERTIES_LOCATION, "", true,
+                true, false));
         String[] args = psTrimedStr.substring(argsIdx).trim().split(" ");
         String confFile = null;
         for (String arg : args) {
             String[] tmpArray = new String[] { arg };
-            CommandLine cl = ScmCommandUtil.parseArgs(tmpArray, ops, true);
+            CommandLine cl = ScmContentCommandUtil.parseArgs(tmpArray, ops, true);
             if (cl.hasOption(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION)) {
                 confFile = cl.getOptionValue(PropertiesDefine.APPLICATION_PROPERTIES_LOCATION);
                 break;
@@ -161,11 +165,8 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
 
     @Override
     public ScmNodeStatus getNodeStatus() throws ScmToolsException {
-        String[] psCmd = {
-                "/bin/sh",
-                "-c",
-                "ps -eo pid,cmd | grep " + contentServerIdentify
-                        + " -w | grep -w -v grep | grep -w -v nohup" };
+        String[] psCmd = { "/bin/sh", "-c", "ps -eo pid,cmd | grep " + contentServerIdentify
+                + " -w | grep -w -v grep | grep -w -v nohup" };
         Process ps = null;
         ScmNodeStatus psRes = new ScmNodeStatus();
         int rc;
@@ -179,8 +180,9 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             if (rc != 0) {
                 String errMsg = getErrorMsg(ps);
                 logger.error("failed to exec cmd:" + cmd2Str(psCmd) + ",error:" + errMsg);
-                throw new ScmToolsException("failed to exec cmd:" + cmd2Str(psCmd) + ",error:"
-                        + errMsg, ScmExitCode.SHELL_EXEC_ERROR);
+                throw new ScmToolsException(
+                        "failed to exec cmd:" + cmd2Str(psCmd) + ",error:" + errMsg,
+                        ScmExitCode.SHELL_EXEC_ERROR);
             }
 
         }
@@ -189,24 +191,27 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
                 ps.destroy();
             }
             logger.error("exec cmd occur io error,cmd" + cmd2Str(psCmd), e);
-            throw new ScmToolsException("Failed to exec:" + cmd2Str(psCmd) + ",error:"
-                    + e.getMessage(), ScmExitCode.IO_ERROR);
+            throw new ScmToolsException(
+                    "Failed to exec:" + cmd2Str(psCmd) + ",error:" + e.getMessage(),
+                    ScmExitCode.IO_ERROR);
         }
         catch (InterruptedException e) {
             if (ps != null) {
                 ps.destroy();
             }
             logger.error("wait cmd return occur error,cmd:" + cmd2Str(psCmd), e);
-            throw new ScmToolsException("Failed to exec:" + cmd2Str(psCmd) + ",error:"
-                    + e.getMessage(), ScmExitCode.INTERRUPT_ERROR);
+            throw new ScmToolsException(
+                    "Failed to exec:" + cmd2Str(psCmd) + ",error:" + e.getMessage(),
+                    ScmExitCode.INTERRUPT_ERROR);
         }
         catch (Exception e) {
             if (ps != null) {
                 ps.destroy();
             }
             logger.error("exec cmd occur error,cmd:" + cmd2Str(psCmd), e);
-            throw new ScmToolsException("Failed to exec:" + cmd2Str(psCmd) + ",error:"
-                    + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException(
+                    "Failed to exec:" + cmd2Str(psCmd) + ",error:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR);
         }
 
         BufferedReader bfr = null;

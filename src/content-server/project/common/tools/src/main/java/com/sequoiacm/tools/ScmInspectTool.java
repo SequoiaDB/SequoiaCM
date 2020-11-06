@@ -1,15 +1,15 @@
 package com.sequoiacm.tools;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.common.ScmInspector;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -25,8 +25,7 @@ public class ScmInspectTool extends ScmTool {
 
     public static void main(String[] argss) {
         try {
-            ScmCommon.setLogAndProperties(ScmCommon.INSPECT_LOG_PATH,
-                    ScmCommon.LOG_FILE_INSPECT);
+            ScmCommon.setLogAndProperties(ScmCommon.INSPECT_LOG_PATH, ScmCommon.LOG_FILE_INSPECT);
             ScmInspectTool tool = new ScmInspectTool();
             tool.process(argss);
             System.exit(ScmExitCode.SUCCESS);
@@ -51,26 +50,26 @@ public class ScmInspectTool extends ScmTool {
         ops.addOption(hp.createOpt(OPT_SHORT_SITE, OPT_LONG_SITE,
                 "site name, which must belong to data location of\nthe workspcace(specified by -w).",
                 true, true, false));
-        ScmCommandUtil.addDsOption(ops, hp);
+        ScmContentCommandUtil.addDsOption(ops, hp);
 
-        ops.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_VER, ScmCommandUtil.OPT_LONG_VER,
+        ops.addOption(hp.createOpt(ScmContentCommandUtil.OPT_SHORT_VER, ScmContentCommandUtil.OPT_LONG_VER,
                 "version", false, false, false));
-        ops.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_HELP, ScmCommandUtil.OPT_LONG_HELP,
+        ops.addOption(hp.createOpt(ScmContentCommandUtil.OPT_SHORT_HELP, ScmContentCommandUtil.OPT_LONG_HELP,
                 "help", false, false, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        if (ScmCommandUtil.isContainHelpArg(args)) {
+        if (ScmContentCommandUtil.isContainHelpArg(args)) {
             printHelp(false);
             return;
         }
-        if (ScmCommandUtil.isNeedPrintVersion(args)) {
+        if (ScmContentCommandUtil.isNeedPrintVersion(args)) {
             ScmCommon.printVersion();
             return;
         }
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
-        ScmSdbInfo mainSiteSdb = ScmCommandUtil.parseDsOption(cl);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
+        ScmSdbInfo mainSiteSdb = ScmContentCommandUtil.parseDsOption(cl);
 
         ScmInspector inspector = new ScmInspector(cl.getOptionValue(OPT_LONG_SITE),
                 cl.getOptionValue(OPT_LONG_WS), mainSiteSdb);

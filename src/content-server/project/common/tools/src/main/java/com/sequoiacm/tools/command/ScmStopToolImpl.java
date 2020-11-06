@@ -6,19 +6,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.common.ScmHelper;
-import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.tools.ScmCtl;
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -44,8 +43,8 @@ public class ScmStopToolImpl extends ScmTool {
                 hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
         options.addOption(
                 hp.createOpt(OPT_SHORT_ALL, OPT_LONG_ALL, "start all node.", false, false, false));
-        options.addOption(hp.createOpt(OPT_SHORT_FORCE, OPT_LONG_FORCE, "force to stop node.", false,
-                false, false));
+        options.addOption(hp.createOpt(OPT_SHORT_FORCE, OPT_LONG_FORCE, "force to stop node.",
+                false, false, false));
     }
 
     @Override
@@ -54,10 +53,10 @@ public class ScmStopToolImpl extends ScmTool {
 
         executor = new ScmExecutorWrapper();
 
-        CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
+        CommandLine commandLine = ScmContentCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_PORT) && commandLine.hasOption(OPT_SHORT_ALL)
                 || !commandLine.hasOption(OPT_SHORT_PORT)
-                && !commandLine.hasOption(OPT_SHORT_ALL)) {
+                        && !commandLine.hasOption(OPT_SHORT_ALL)) {
             logger.error("Invalid arg:please set -a or -p");
             throw new ScmToolsException("please set -a or -p", ScmExitCode.INVALID_ARG);
         }
@@ -93,13 +92,14 @@ public class ScmStopToolImpl extends ScmTool {
         }
 
         List<Integer> checkList = new ArrayList<>();
-        stopNodes(needStopMap,checkList);
+        stopNodes(needStopMap, checkList);
 
         // check stop resault and force option
         boolean stopRes = isStopSuccess(checkList, commandLine.hasOption(OPT_SHORT_FORCE));
-        System.out
-        .println("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:" + (needStopMap.size() - success));
-        logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:" + (needStopMap.size() - success));
+        System.out.println("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
+                + (needStopMap.size() - success));
+        logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
+                + (needStopMap.size() - success));
         if (!stopRes || needStopMap.size() != success) {
             throw new ScmToolsException(ScmExitCode.COMMON_UNKNOW_ERROR);
         }
@@ -138,7 +138,7 @@ public class ScmStopToolImpl extends ScmTool {
                     if (pid == -1) {
                         logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
                         System.out
-                        .println("Success:sequoiacm(" + port + ") is successfully stopped");
+                                .println("Success:sequoiacm(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -181,7 +181,7 @@ public class ScmStopToolImpl extends ScmTool {
                     if (pid == -1) {
                         logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
                         System.out
-                        .println("Success:sequoiacm(" + port + ") is successfully stopped");
+                                .println("Success:sequoiacm(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }

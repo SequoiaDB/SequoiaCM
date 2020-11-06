@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.common.ScmHelper;
-import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -25,10 +21,13 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmProcessInfo;
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.tools.ScmCtl;
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -54,11 +53,11 @@ public class ScmStartToolImpl extends ScmTool {
         super("start");
         options = new Options();
         hp = new ScmHelpGenerator();
-        options.addOption(hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true,
-                false));
+        options.addOption(
+                hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
 
-        options.addOption(hp.createOpt(OPT_SHORT_ALL, OPT_LONG_ALL, "start all node.", false,
-                false, false));
+        options.addOption(
+                hp.createOpt(OPT_SHORT_ALL, OPT_LONG_ALL, "start all node.", false, false, false));
 
         options.addOption(hp.createOpt(OPT_SHORT_TIME_OUT, OPT_LONG_TIME_OUT,
                 "sets the starting timeout in seconds, default:50", false, true, false));
@@ -76,9 +75,10 @@ public class ScmStartToolImpl extends ScmTool {
     public void process(String[] args) throws ScmToolsException {
         ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.START_LOG_CONF);
 
-        CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
+        CommandLine commandLine = ScmContentCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_PORT) && commandLine.hasOption(OPT_SHORT_ALL)
-                || !commandLine.hasOption(OPT_SHORT_PORT) && !commandLine.hasOption(OPT_SHORT_ALL)) {
+                || !commandLine.hasOption(OPT_SHORT_PORT)
+                        && !commandLine.hasOption(OPT_SHORT_ALL)) {
             logger.error("Invalid arg:please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT);
             throw new ScmToolsException("please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT,
                     ScmExitCode.INVALID_ARG);
@@ -86,10 +86,11 @@ public class ScmStartToolImpl extends ScmTool {
         String contentServerJarFile = ScmCommon.getContentServerJarName();
         File f = new File(contentServerJarFile);
         if (!f.exists()) {
-            logger.error("Can't find " + ScmCommon.getContenserverAbsolutePath()
-            + contentServerJarFile);
-            throw new ScmToolsException("Can't find " + ScmCommon.getContenserverAbsolutePath()
-            + contentServerJarFile, ScmExitCode.FILE_NOT_FIND);
+            logger.error(
+                    "Can't find " + ScmCommon.getContenserverAbsolutePath() + contentServerJarFile);
+            throw new ScmToolsException(
+                    "Can't find " + ScmCommon.getContenserverAbsolutePath() + contentServerJarFile,
+                    ScmExitCode.FILE_NOT_FIND);
         }
 
         if (commandLine.hasOption(OPT_SHORT_TIME_OUT)) {
@@ -162,10 +163,10 @@ public class ScmStartToolImpl extends ScmTool {
                 else {
                     String status = getNodeRunningStatus(key);
                     if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                        System.out.println("Success:sequoiacm(" + key + ") is already started ("
-                                + pid + ")");
-                        logger.info("Success:sequoiacm(" + key + ") is already started (" + pid
-                                + ")");
+                        System.out.println(
+                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
+                        logger.info(
+                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
                         success++;
                     }
                     else {
@@ -254,18 +255,20 @@ public class ScmStartToolImpl extends ScmTool {
                     new ScmConfigOption("localhost:" + port));
         }
         catch (Exception e) {
-            return "failed to connect,error=" + e.toString() + ", stacktrace:"+Arrays.toString(e.getStackTrace());
+            return "failed to connect,error=" + e.toString() + ", stacktrace:"
+                    + Arrays.toString(e.getStackTrace());
         }
 
         try {
             ScmProcessInfo processInfo = ScmSystem.ProcessInfo.getProcessInfo(ss);
-            if(processInfo.getRunningStatus() == null) {
+            if (processInfo.getRunningStatus() == null) {
                 return "runningStatus is null";
             }
             return processInfo.getRunningStatus();
         }
         catch (Exception e) {
-            return "failed to get node status,error=" + e.toString() + ", stacktrace:"+Arrays.toString(e.getStackTrace());
+            return "failed to get node status,error=" + e.toString() + ", stacktrace:"
+                    + Arrays.toString(e.getStackTrace());
         }
         finally {
             ss.close();

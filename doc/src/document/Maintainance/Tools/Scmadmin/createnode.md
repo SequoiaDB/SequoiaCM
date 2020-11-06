@@ -13,7 +13,8 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 |--adpasswd |     |审计日志入库密码，Sequoiadb 的密码文件绝对路径          |是      |
 |--gateway  |     |网关地址，格式为:'host1:port,host2:port'                |是      |
 |--user     |     |管理员用户名                                            |是      |
-|--paword   |     |管理员密码                                              |是      |
+|--passwd   |     |管理员密码，指定值则使用明文输入，不指定值则命令行提示输入|否      |
+|--passwd-file|   |管理员密码文件，与 passwd 互斥                          |否      |
 |--mdsurl   |     |主站点元数据存储服务地址，格式为:'host1:port,host2:port'|否      |
 |--mdsuser  |     |主站点元数据存储服务的用户名，不指定则用户名为空        |否      |
 |--mdspasswd|     |主站点元数据存储服务的密码文件绝对路径，不指定则密码为空|否      |
@@ -25,6 +26,8 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 >  * 3.0版本中只能在当前机器上创建节点，因此 --serverurl 参数指定的 host 只能是本机的 host。
 >
 >  * 参数 --mdsurl、--mdsuser、--mdspasswd 用于指定主站点元数据存储服务 SequoiaDB 的地址和用户名、密码。以便工具获取系统的元数据信息
+>
+>  * 参数 --passwd、--passwd-file 两者填写其一
 >
 >  * 需在config节点和gateway节点启动后，进行内容节点创建
 >
@@ -41,14 +44,14 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 在本机，创建主站点的一个服务节点
 
 ```lang-javascript
-   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl server2:15000 --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt
+   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl server2:15000 --mdsurl metaServer1:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
 ```
 >  **Note:**
 >
 >  * 本机 host 为 server2
 >
 >  * 主站点名为 rootSite，新增的节点名为 rootSiteNode，新增加节点的 host 为 server2，服务端口为15000
->  * 网关地址 gateway为 server2:8080，管理员用户名user为 admin，管理员密码passwd为 admin
+>  * 网关地址 gateway为 server2:8080，管理员用户名 user 为 admin，命令行提示输入管理员密码
 >
 >  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
 

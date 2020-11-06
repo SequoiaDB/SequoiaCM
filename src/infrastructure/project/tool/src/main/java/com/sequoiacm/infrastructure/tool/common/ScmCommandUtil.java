@@ -1,13 +1,23 @@
 package com.sequoiacm.infrastructure.tool.common;
 
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.apache.commons.cli.*;
+import java.io.File;
+import java.util.List;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import com.sequoiacm.infrastructure.crypto.AuthInfo;
+import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmCommandUtil {
     private static final Logger logger = LoggerFactory.getLogger(ScmCommandUtil.class);
@@ -22,8 +32,8 @@ public class ScmCommandUtil {
 
     public static final String LOCALTION_SITE_NAME = "site";
 
-    public static void addTypeOption(List<ScmNodeType> nodeTyps, Options ops, ScmHelpGenerator hp, boolean isRequire,
-                                     boolean haveAllOpDesc) throws ScmToolsException {
+    public static void addTypeOption(List<ScmNodeType> nodeTyps, Options ops, ScmHelpGenerator hp,
+            boolean isRequire, boolean haveAllOpDesc) throws ScmToolsException {
         StringBuilder typeOptDesc = new StringBuilder();
         StringBuilder second = new StringBuilder();
         typeOptDesc.append("specify node type, arg:[");
@@ -97,6 +107,93 @@ public class ScmCommandUtil {
             timeout = shortestTimeout;
         }
         return timeout * 1000;
+    }
+
+    public static ScmUserInfo checkAndGetUser(CommandLine cl, String userOption, String pwdOption,
+            String pwdFileOption, boolean needRetypeInput, boolean pwdRequied)
+            throws ScmToolsException {
+        String username = cl.getOptionValue(userOption);
+        if (cl.hasOption(pwdOption) && cl.hasOption(pwdFileOption)) {
+            throw new ScmToolsException("do not specify --" + pwdOption + " and " + "--"
+                    + pwdFileOption + " at the same time", ScmExitCode.INVALID_ARG);
+        }
+
+        if (cl.hasOption(pwdOption)) {
+            String pwd = cl.getOptionValue(pwdOption);
+            if (pwd == null) {
+                if (needRetypeInput) {
+                    return new ScmUserInfo(username, readRetypeOptionValue(pwdOption));
+                }
+                return new ScmUserInfo(username, readOptionValue(pwdOption));
+            }
+            return new ScmUserInfo(username, pwd);
+        }
+        else if (cl.hasOption(pwdFileOption)) {
+            String pwdFile = cl.getOptionValue(pwdFileOption);
+            return new ScmUserInfo(username, parsePwdFile(username, pwdFile));
+        }
+        else {
+            if (pwdRequied) {
+                throw new ScmToolsException(
+                        "please specify --" + pwdOption + " or " + "--" + pwdFileOption,
+                        ScmExitCode.INVALID_ARG);
+            }
+            return new ScmUserInfo(username, null);
+        }
+    }
+
+    public static ScmUserInfo checkAndGetUser(CommandLine cl, String userOption, String pwdOption,
+            String pwdFileOption) throws ScmToolsException {
+        return checkAndGetUser(cl, userOption, pwdOption, pwdFileOption, false, true);
+    }
+
+    public static ScmUserInfo checkAndGetUser(CommandLine cl, String userOption, String pwdOption,
+            boolean needRetypeInput) throws ScmToolsException {
+        String username = cl.getOptionValue(userOption);
+        String pwd = cl.getOptionValue(pwdOption);
+        if (pwd == null) {
+            if (needRetypeInput) {
+                return new ScmUserInfo(username, readRetypeOptionValue(pwdOption));
+            }
+            return new ScmUserInfo(username, readOptionValue(pwdOption));
+
+        }
+        return new ScmUserInfo(username, pwd);
+    }
+
+    private static String parsePwdFile(String username, String pwdfile) throws ScmToolsException {
+        AuthInfo auth = null;
+        File file = new File(pwdfile);
+        if (file.isAbsolute()) {
+            auth = ScmFilePasswordParser.parserFile(pwdfile);
+        }
+        else {
+            auth = ScmFilePasswordParser.parserFile(ScmCommon.getUserWorkingDir() + "/" + pwdfile);
+        }
+        if (!username.equals(auth.getUserName())) {
+            throw new ScmToolsException("the specified username doesn't match with password file",
+                    ScmExitCode.PARSE_ERROR);
+        }
+        return auth.getPassword();
+    }
+
+    private static String readRetypeOptionValue(String optionName) throws ScmToolsException {
+        String password1 = readOptionValue(optionName);
+        System.out.print("retype " + optionName + " value: ");
+        String password2 = readPasswdFromStdIn();
+        if (!password1.equals(password2)) {
+            throw new ScmToolsException("passwords do not match", ScmExitCode.INVALID_ARG);
+        }
+        return password1;
+    }
+
+    private static String readOptionValue(String optionName) throws ScmToolsException {
+        System.out.print(optionName + " value: ");
+        return readPasswdFromStdIn();
+    }
+
+    private static String readPasswdFromStdIn() {
+        return new String(System.console().readPassword());
     }
 
 }

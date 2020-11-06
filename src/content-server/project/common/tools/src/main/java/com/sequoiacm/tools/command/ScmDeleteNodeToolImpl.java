@@ -3,8 +3,6 @@ package com.sequoiacm.tools.command;
 import java.io.File;
 import java.net.InetAddress;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -16,11 +14,14 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.tools.ScmAdmin;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -30,6 +31,7 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
     private final String OPT_LONG_URL = "url";
     private final String OPT_LONG_USER = "user";
     private final String OPT_LONG_PASSWD = "password";
+    private final String OPT_LONG_PASSWD_FILE = "password-file";
 
     private final String OPT_SHORT_PORT = "p";
 
@@ -46,28 +48,32 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
                 "gateway url, eg:'host1:port,host2:port,host3:port'.", true, true, false));
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_USER, "login admin username.", true, true, false));
-        ops.addOption(
-                hp.createOpt(null, OPT_LONG_PASSWD, "login admin password.", true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD, "login admin password.", false, true,
+                true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD_FILE, "login admin password file.", false,
+                true, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
         String portStr = cl.getOptionValue(OPT_LONG_PORT);
         int port = ScmCommon.convertStrToInt(portStr);
         String gatewayUrl = cl.getOptionValue(OPT_LONG_URL);
-        String user = cl.getOptionValue(OPT_LONG_USER);
-        String passwd = cl.getOptionValue(OPT_LONG_PASSWD);
+        ScmUserInfo adminuser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_USER, OPT_LONG_PASSWD,
+                OPT_LONG_PASSWD_FILE);
 
         ScmSession ss = null;
         try {
             ss = ScmFactory.Session.createSession(
-                    new ScmConfigOption(ScmCommandUtil.parseListUrls(gatewayUrl), user, passwd));
-            ScmUser scmUser = ScmFactory.User.getUser(ss, user);
+                    new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
+                            adminuser.getUsername(), adminuser.getPassword()));
+            ScmUser scmUser = ScmFactory.User.getUser(ss, adminuser.getUsername());
 
             if (!scmUser.hasRole("ROLE_AUTH_ADMIN")) {
                 throw new ScmException(ScmError.OPERATION_UNAUTHORIZED,
-                        "do not have priority to delete node: username=" + user + ", port=" + port);
+                        "do not have priority to delete node: username=" + adminuser.getUsername()
+                                + ", port=" + port);
             }
             stopNode(port);
 

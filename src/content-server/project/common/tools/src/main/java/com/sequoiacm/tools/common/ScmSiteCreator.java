@@ -1,9 +1,9 @@
 package com.sequoiacm.tools.common;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiadb.base.CollectionSpace;
@@ -12,12 +12,10 @@ import com.sequoiadb.base.Sequoiadb;
 
 public class ScmSiteCreator {
     private Sequoiadb db;
-    private String mainSiteUrl;
     private static final Logger logger = LoggerFactory.getLogger(ScmSiteCreator.class);
 
     public ScmSiteCreator(String mainSiteDbUrl, String user, String passwd)
             throws ScmToolsException {
-        this.mainSiteUrl = mainSiteDbUrl;
         db = SdbHelper.connectUrls(mainSiteDbUrl, user, passwd);
     }
 

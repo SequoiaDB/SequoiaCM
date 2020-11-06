@@ -1,16 +1,9 @@
 package com.sequoiacm.tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.tools.command.ScmAlterWorkspaceToolImpl;
 import com.sequoiacm.tools.command.ScmAttachRoleToolImpl;
 import com.sequoiacm.tools.command.ScmCreateNodeToolImpl;
@@ -32,9 +25,6 @@ import com.sequoiacm.tools.command.ScmListWorkspaceToolImpl;
 import com.sequoiacm.tools.command.ScmPasswordEncryptor;
 import com.sequoiacm.tools.command.ScmResetPassword;
 import com.sequoiacm.tools.command.ScmRevokeRoleToolImpl;
-import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.exception.ScmExitCode;
-
 
 public class ScmAdmin {
     // deleteuser deleterole revokerole
@@ -63,7 +53,8 @@ public class ScmAdmin {
             cmd.addTool(new ScmCreateSiteToolImpl());
             cmd.addTool(new ScmPasswordEncryptor());
             cmd.addTool(new ScmResetPassword());
-        } catch (ScmToolsException e) {
+        }
+        catch (ScmToolsException e) {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }

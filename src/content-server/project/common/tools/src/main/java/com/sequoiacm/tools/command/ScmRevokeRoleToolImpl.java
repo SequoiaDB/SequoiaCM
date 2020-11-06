@@ -1,7 +1,5 @@
 package com.sequoiacm.tools.command;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -12,11 +10,15 @@ import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
-import com.sequoiacm.tools.ScmAdmin;
-import com.sequoiacm.tools.common.ScmCommandUtil;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmRevokeRoleToolImpl extends ScmTool {
@@ -30,9 +32,8 @@ public class ScmRevokeRoleToolImpl extends ScmTool {
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
     private final String LONG_OP_ADMIN_PASSWD = "password";
+    private final String LONG_OP_ADMIN_PASSWD_FILE = "password-file";
 
-    private String adminUser;
-    private String adminPasswd;
     private String resourceType = "workspace";
 
     private Options ops;
@@ -42,68 +43,71 @@ public class ScmRevokeRoleToolImpl extends ScmTool {
         super("revokerole");
         ops = new Options();
         hp = new ScmHelpGenerator();
-        ops.addOption(hp.createOpt(SHORT_OP_ROLE, LONG_OP_ROLE, "the name of new role.", true,
-                true, false));
+        ops.addOption(hp.createOpt(SHORT_OP_ROLE, LONG_OP_ROLE, "the name of new role.", true, true,
+                false));
 
-        ops.addOption(hp.createOpt(null, LONG_OP_RESOURCE_TYPE,
-                "the type of resource, default:workspace. \n"
-                        + "all supported types:'workspace','directory'.", false, true, false));
+        ops.addOption(
+                hp.createOpt(null, LONG_OP_RESOURCE_TYPE,
+                        "the type of resource, default:workspace. \n"
+                                + "all supported types:'workspace','directory'.",
+                        false, true, false));
 
         ops.addOption(hp.createOpt(null, LONG_OP_RESOURCE,
                 "the resource to be granted. exam:'wsName' for workspace type \n"
-                        + "or 'wsName:/root/dir1' for directory type", true, true, false));
+                        + "or 'wsName:/root/dir1' for directory type",
+                true, true, false));
 
-        ops.addOption(hp.createOpt(null, LONG_OP_PRIVILEGE,
-                "revoked privilege. all supported value:\n"
+        ops.addOption(
+                hp.createOpt(null, LONG_OP_PRIVILEGE, "revoked privilege. all supported value:\n"
                         + "'READ','CREATE', 'UPDATE', 'DELETE', 'ALL'", true, true, false));
 
-        ops.addOption(hp
-                .createOpt(
-                        null,
-                        LONG_OP_URL,
-                        "gateway url. exam:\"host1:8080/rootsite,host2:8080/rootsite,host3:8080/rootsite\", \"rootsite\" is root site's service name",
-                        true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_USER, "login username.", true, true, false));
-        ops.addOption(hp
-                .createOpt(null, LONG_OP_ADMIN_PASSWD, "login password.", true, true, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_URL,
+                "gateway url. exam:\"host1:8080/rootsite,host2:8080/rootsite,host3:8080/rootsite\", \"rootsite\" is root site's service name",
+                true, true, false));
+        ops.addOption(
+                hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
+                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
+                false, true, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
         String roleName = cl.getOptionValue(SHORT_OP_ROLE);
         String gatewayUrl = cl.getOptionValue(LONG_OP_URL);
         String resource = cl.getOptionValue(LONG_OP_RESOURCE);
         String privilege = cl.getOptionValue(LONG_OP_PRIVILEGE);
-
-        adminPasswd = cl.getOptionValue(LONG_OP_ADMIN_PASSWD);
-        adminUser = cl.getOptionValue(LONG_OP_ADMIN_USER);
+        ScmUserInfo adminUserInfo = ScmCommandUtil.checkAndGetUser(cl, LONG_OP_ADMIN_USER,
+                LONG_OP_ADMIN_PASSWD, LONG_OP_ADMIN_PASSWD_FILE);
 
         if (cl.hasOption(LONG_OP_RESOURCE_TYPE)) {
             resourceType = cl.getOptionValue(LONG_OP_RESOURCE_TYPE);
         }
 
-        revokeRole(roleName, resourceType, resource, privilege, gatewayUrl);
+        revokeRole(roleName, resourceType, resource, privilege, gatewayUrl, adminUserInfo);
         System.out.println("Revoke role success:role=" + roleName + ",resource=" + resource
                 + ",privilege=" + privilege);
-        logger.info("Revoke role success:role=" + roleName + ",resource=" + resource
-                + ",privilege=" + privilege);
+        logger.info("Revoke role success:role=" + roleName + ",resource=" + resource + ",privilege="
+                + privilege);
     }
 
-    private void revokeRole(String roleName, String resourceType, String resource,
-            String privilege, String gatewayUrl) throws ScmToolsException {
+    private void revokeRole(String roleName, String resourceType, String resource, String privilege,
+            String gatewayUrl, ScmUserInfo adminUserInfo) throws ScmToolsException {
         ScmSession ss = null;
         try {
-            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
-                    ScmCommandUtil.parseListUrls(gatewayUrl), adminUser, adminPasswd));
+            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                    new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
+                            adminUserInfo.getUsername(), adminUserInfo.getPassword()));
 
             ScmResource r = ScmResourceFactory.createResource(resourceType, resource);
             ScmRole role = ScmFactory.Role.getRole(ss, roleName);
-            ScmFactory.Role.revokePrivilege(ss, role, r, privilege);
+            ScmFactory.Role.revokePrivilege(ss, role, r, ScmPrivilegeType.getType(privilege));
         }
         catch (Exception e) {
-            logger.error("revoke role failed:url={},admin={},newRole={}", gatewayUrl, adminUser,
-                    roleName, e);
+            logger.error("revoke role failed:url={},admin={},newRole={}", gatewayUrl,
+                    adminUserInfo.getUsername(), roleName, e);
             throw new ScmToolsException("revoke role failed", ScmExitCode.SYSTEM_ERROR);
         }
         finally {

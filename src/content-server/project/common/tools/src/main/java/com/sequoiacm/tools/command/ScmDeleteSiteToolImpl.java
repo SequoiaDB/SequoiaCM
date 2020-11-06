@@ -9,11 +9,13 @@ import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmDeleteSiteToolImpl extends ScmTool {
@@ -23,6 +25,7 @@ public class ScmDeleteSiteToolImpl extends ScmTool {
     private final String OPT_LONG_URL = "url";
     private final String OPT_LONG_USER = "user";
     private final String OPT_LONG_PASSWD = "password";
+    private final String OPT_LONG_PASSWD_FILE = "password-file";
 
     private final String OPT_SHORT_NAME = "n";
     private ScmHelpGenerator hp;
@@ -36,24 +39,27 @@ public class ScmDeleteSiteToolImpl extends ScmTool {
         ops.addOption(hp.createOpt(null, OPT_LONG_URL,
                 "gateway url, eg:'host1:port,host2:port,host3:port'.", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_USER, "login admin username", true, true, false));
-        ops.addOption(
-                hp.createOpt(null, OPT_LONG_PASSWD, "login admin username.", true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD, "login admin password.", false, true,
+                true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD_FILE, "login admin password file.",
+                false, true, true, false, false));
+
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
         String siteName = cl.getOptionValue(OPT_LONG_NAME);
         String gatewayUrl = cl.getOptionValue(OPT_LONG_URL);
-        String user = cl.getOptionValue(OPT_LONG_USER);
-        String passwd = cl.getOptionValue(OPT_LONG_PASSWD);
-
-        ScmCommandUtil.checkArgInUriPath("siteName", siteName);
+        ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_USER, OPT_LONG_PASSWD,
+                OPT_LONG_PASSWD_FILE);
+        ScmContentCommandUtil.checkArgInUriPath("siteName", siteName);
 
         ScmSession ss = null;
         try {
             ss = ScmFactory.Session.createSession(
-                    new ScmConfigOption(ScmCommandUtil.parseListUrls(gatewayUrl), user, passwd));
+                    new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
+                            adminUser.getUsername(), adminUser.getPassword()));
             RestDispatcher.getInstance().deleteSite(ss, siteName);
             System.out.println("delete site success: siteName=" + siteName);
             logger.info("delete site success: siteName={}", siteName);

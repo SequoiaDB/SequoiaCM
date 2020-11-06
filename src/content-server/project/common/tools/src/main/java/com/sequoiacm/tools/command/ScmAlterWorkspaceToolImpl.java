@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.ScmAdmin;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmAlterWorkspaceToolImpl extends ScmTool {
@@ -12,6 +11,7 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
     public ScmAlterWorkspaceToolImpl() {
         super("alterws");
     }
+
     @Override
     public void process(String[] args) throws ScmToolsException {
         if (args.length > 0) {
@@ -40,6 +40,7 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         return instance;
     }
 
+    @Override
     public void printHelp(boolean isFullHelp) throws ScmToolsException {
         System.out.println("usage: scmadmin alterws <subcommand> [args]");
         System.out.println("Available subcommands:");

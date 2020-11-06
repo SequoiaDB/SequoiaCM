@@ -7,14 +7,17 @@ createws 子命令提供工作区的创建功能。
 |--name         |-n   |工作区的名字                                                                            |是      |
 |--meta         |-m   |指定工作区元数据的存储位置及参数                                                        |是      |
 |--data         |-d   |指定工作区数据的存储位置                                                                |是      |
-|--description  |    |工作区描述                                                               |否      |
-|--url   |     |(gateway)网关地址，eg:'localhost:8080/rootsite',rootsite是站点服务名（小写） |是      |
-|--user|     |管理员用户名         |是      |
-|--password|     |管理员密码        |是      |
+|--description  |     |工作区描述                                                                              |否      |
+|--url          |     |(gateway)网关地址，eg:'localhost:8080/rootsite',rootsite是站点服务名（小写）            |是      |
+|--user         |     |管理员用户名                                                                            |是      |
+|--password     |     |管理员密码，指定值则使用明文输入，不指定值则命令行提示输入                              |否      |
+|--password-file|     |管理员密码文件，与 password 互斥                                                        |否      |
 
 > **Note:**  
 >  
 > * --meta 选项只能指定为主站点，并且 --data 参数必须包含主站点。
+>
+> * 参数 --password、--password-file 两者填写其一
 
 选项 --meta 接受一个 JSON Object 格式的字符串，表示元数据站点，支持的 Key 如下：
 
@@ -81,7 +84,7 @@ sharding 类型说明：
 1. 采用默认参数创建一个名为 ws 的工作区
 
    ```lang-javascript
-   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}，{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password admin
+   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}，{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password 
    ```
 > **Note:** 
 >
@@ -98,7 +101,7 @@ sharding 类型说明：
 2. 采用自定义参数创建一个名为 ws 的工作区
 
    ```lang-javascript
-   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain",meta_sharding_type:"year",meta_options:{collection_space:{LobPageSize:262144},collection:{ReplSize:1}}}' --data '[{site:"rootSite",domain:"dataDomain",data_sharding_type:{collection_space:"quarter",collection:"month"},data_options:{collection_space:{LobPageSize:262114},collection:{ReplSize:1}}}]' --url localhost:8080/rootsite --user admin --password admin
+   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain",meta_sharding_type:"year",meta_options:{collection_space:{LobPageSize:262144},collection:{ReplSize:1}}}' --data '[{site:"rootSite",domain:"dataDomain",data_sharding_type:{collection_space:"quarter",collection:"month"},data_options:{collection_space:{LobPageSize:262114},collection:{ReplSize:1}}}]' --url localhost:8080/rootsite --user admin --password
    ```
 > **Note:** 
 >

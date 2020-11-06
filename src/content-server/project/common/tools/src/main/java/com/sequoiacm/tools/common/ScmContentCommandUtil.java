@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.LocationMsg;
 import com.sequoiacm.tools.element.ScmSdbInfo;
@@ -24,8 +25,8 @@ import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
-public class ScmCommandUtil {
-    private static final Logger logger = LoggerFactory.getLogger(ScmCommandUtil.class);
+public class ScmContentCommandUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ScmContentCommandUtil.class);
     public static final String OPT_LONG_RDSURL = "rdsurl";
     public static final String OPT_LONG_RDSUSER = "rdsuser";
     public static final String OPT_LONG_RDSPASSWD = "rdspasswd";
@@ -315,11 +316,9 @@ public class ScmCommandUtil {
         return urls;
     }
 
-    public static void checkArgInUriPath(String argName, String argValue)
-            throws ScmToolsException {
+    public static void checkArgInUriPath(String argName, String argValue) throws ScmToolsException {
         if (!ScmArgChecker.checkUriPathArg(argValue)) {
-            throw new ScmToolsException(
-                    argName + " is invalid:" + argName + "=" + argValue,
+            throw new ScmToolsException(argName + " is invalid:" + argName + "=" + argValue,
                     ScmExitCode.INVALID_ARG);
         }
     }

@@ -1,15 +1,15 @@
 package com.sequoiacm.tools;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.common.ScmMetaGenerator;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -31,11 +31,12 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
             ScmCommon.setLogAndProperties(ScmCommon.GENERATE_META_LOG_PATH,
                     ScmCommon.LOG_FILE_GENERATE_META);
 
-            logger.error("can't reused sdb's ObjectId as scm's fileId. see more details on scm's id generator");
+            logger.error(
+                    "can't reused sdb's ObjectId as scm's fileId. see more details on scm's id generator");
             throw new Exception(
                     "can't reused sdb's ObjectId as scm's fileId. see more details on scm's id generator");
-            //            tool = new ScmGenerateMetaToolImpl();
-            //            tool.process(args);
+            // tool = new ScmGenerateMetaToolImpl();
+            // tool.process(args);
         }
         catch (ScmToolsException e) {
             e.printErrorMsg();
@@ -54,24 +55,24 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
         ops.addOption(hp.createOpt(OPT_SHORT_WS, OPT_LONG_WS, "workspace name", true, true, false));
         ops.addOption(hp.createOpt(OPT_SHORT_CL, OPT_LONG_CL,
                 "lob collection full name, eg:'cs.cl'", true, true, false));
-        ScmCommandUtil.addDsOption(ops, hp);
-        ops.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_VER, ScmCommandUtil.OPT_LONG_VER,
+        ScmContentCommandUtil.addDsOption(ops, hp);
+        ops.addOption(hp.createOpt(ScmContentCommandUtil.OPT_SHORT_VER, ScmContentCommandUtil.OPT_LONG_VER,
                 "version", false, false, false));
         ops.addOption(hp.createOpt(OPT_SHORT_HELP, OPT_LONG_HELP, "help", false, false, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        if (ScmCommandUtil.isContainHelpArg(args)) {
+        if (ScmContentCommandUtil.isContainHelpArg(args)) {
             printHelp(false);
             return;
         }
-        if (ScmCommandUtil.isNeedPrintVersion(args)) {
+        if (ScmContentCommandUtil.isNeedPrintVersion(args)) {
             ScmCommon.printVersion();
             return;
         }
 
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
         // cs & cl
         String clFullName = cl.getOptionValue(OPT_LONG_CL);
         String[] clAndCs = clFullName.split("\\.");
@@ -83,7 +84,7 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
         String lobClName = clAndCs[1];
         String lonCsName = clAndCs[0];
 
-        ScmSdbInfo mainSdb = ScmCommandUtil.parseDsOption(cl);
+        ScmSdbInfo mainSdb = ScmContentCommandUtil.parseDsOption(cl);
         ScmMetaGenerator smg = new ScmMetaGenerator(cl.getOptionValue(OPT_SHORT_WS), lonCsName,
                 lobClName, mainSdb);
 

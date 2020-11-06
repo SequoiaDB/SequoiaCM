@@ -1,16 +1,17 @@
 package com.sequoiacm.tools.command;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import com.sequoiacm.tools.ScmAdmin;
-import com.sequoiacm.tools.common.ScmCommandUtil;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmPasswordEncryptor extends ScmTool {
@@ -27,21 +28,19 @@ public class ScmPasswordEncryptor extends ScmTool {
         super("encrypt");
         ops = new Options();
         hp = new ScmHelpGenerator();
+        ops.addOption(hp.createOpt(SHORT_USER, LONG_USER, "the name of user.", true, true, false));
         ops.addOption(hp.createOpt(SHORT_PASSWD, LONG_PASSWD, "password to be encrypted.", true,
-                true, false));
-        ops.addOption(hp.createOpt(SHORT_USER, LONG_USER, "password to be encrypted.", true, true,
-                false));
+                true, true, false, false));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
-        String user = cl.getOptionValue(LONG_USER);
-        String passwd = cl.getOptionValue(LONG_PASSWD);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
+        ScmUserInfo userInfo = ScmCommandUtil.checkAndGetUser(cl, LONG_USER, LONG_PASSWD, false);
         try {
             String encrypted = ScmPasswordMgr.getInstance()
-                    .encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, passwd);
-            System.out.println(user + ":" + encrypted);
+                    .encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, userInfo.getPassword());
+            System.out.println(userInfo.getUsername() + ":" + encrypted);
         }
         catch (Exception e) {
             logger.error("encrypt failed", e);

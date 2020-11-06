@@ -6,17 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.ScmCtl;
-import com.sequoiacm.tools.common.ScmCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
-import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exec.ScmExecutorWrapper;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
+import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.exception.ScmExitCode;
+import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
 public class ScmListToolImpl extends ScmTool {
     private Options options;
@@ -35,7 +34,7 @@ public class ScmListToolImpl extends ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
+        CommandLine commandLine = ScmContentCommandUtil.parseArgs(args, options);
         Map<Integer, String> node2Conf = executor.getAllNode();
         Map<String, Integer> runningNode = executor.getNodeStatus();
         boolean printRunningOnly = true;

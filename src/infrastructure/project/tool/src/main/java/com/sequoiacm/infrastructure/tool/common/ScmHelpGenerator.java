@@ -1,13 +1,13 @@
 package com.sequoiacm.infrastructure.tool.common;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.apache.commons.cli.*;
-import org.apache.commons.cli.Option.Builder;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Option.Builder;
+
+import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmHelpGenerator {
     List<String> optionList = new ArrayList<>();
@@ -60,11 +60,17 @@ public class ScmHelpGenerator {
 
     public Option createOpt(String shortOpt, String longOpt, String desc, boolean isRequire,
             boolean hasArg, boolean isHide) throws ScmToolsException {
-        return createOpt(shortOpt, longOpt, desc, isRequire, hasArg, isHide, false);
+        return createOpt(shortOpt, longOpt, desc, isRequire, hasArg, false, isHide, false);
     }
 
     public Option createOpt(String shortOpt, String longOpt, String desc, boolean isRequire,
             boolean hasArg, boolean isHide, boolean hasArgs) throws ScmToolsException {
+        return createOpt(shortOpt, longOpt, desc, isRequire, hasArg, false, isHide, hasArgs);
+    }
+
+    public Option createOpt(String shortOpt, String longOpt, String desc, boolean isRequire,
+            boolean hasArg, boolean optionalArg, boolean isHide, boolean hasArgs)
+            throws ScmToolsException {
         Builder opb;
         String opt;
         if (longOpt != null && shortOpt != null) {
@@ -81,7 +87,7 @@ public class ScmHelpGenerator {
         }
         else {
             throw new ScmToolsException(
-                    "Inser Error,failed to generate help msg,longOpt is null,shortOpt is null",
+                    "Inner Error,failed to generate help msg,longOpt is null,shortOpt is null",
                     ScmExitCode.SYSTEM_ERROR);
         }
 
@@ -91,7 +97,10 @@ public class ScmHelpGenerator {
         }
         else if (hasArg) {
             opb.hasArg(true);
-            opt = opt + " arg";
+            opb.optionalArg(optionalArg);
+            if (!optionalArg) {
+                opt = opt + " arg";
+            }
         }
 
         if (isRequire) {
@@ -101,18 +110,4 @@ public class ScmHelpGenerator {
         return opb.build();
 
     }
-
-    public static void main(String[] args) throws ParseException {
-        Option op = Option.builder("D").hasArgs().hasArg().valueSeparator().build();
-        Options ops = new Options();
-        ops.addOption(op);
-        CommandLineParser parser = new DefaultParser();
-
-        String[] argss = new String[] { "-Dkey1=value", "-Dkey2=value", "-Dkey1=value" };
-        CommandLine cl = parser.parse(ops, argss, false);
-        Properties v = cl.getOptionProperties("D");
-        System.out.println(v);
-
-    }
-
 }

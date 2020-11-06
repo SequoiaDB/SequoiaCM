@@ -3,19 +3,18 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.ScmAdmin;
-import com.sequoiacm.tools.common.ScmCommandUtil;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.printor.SiteInfoPrinter;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
 
 public class ScmListSiteToolImpl extends ScmTool {
     private Options options;
@@ -30,20 +29,20 @@ public class ScmListSiteToolImpl extends ScmTool {
         super("listsite");
         options = new Options();
         hp = new ScmHelpGenerator();
-        options.addOption(hp.createOpt("n", "name", "site name, default:list all site.", false,
-                true, false));
-        ScmCommandUtil.addDsOption(options, hp);
+        options.addOption(
+                hp.createOpt("n", "name", "site name, default:list all site.", false, true, false));
+        ScmContentCommandUtil.addDsOption(options, hp);
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, options);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, options);
         String name = null;
         if (cl.hasOption("n")) {
             name = cl.getOptionValue("n");
         }
 
-        ScmSdbInfo mainSiteSdb = ScmCommandUtil.parseDsOption(cl);
+        ScmSdbInfo mainSiteSdb = ScmContentCommandUtil.parseDsOption(cl);
 
         ScmMetaMgr mg = new ScmMetaMgr(mainSiteSdb.getSdbUrl(), mainSiteSdb.getSdbUser(),
                 mainSiteSdb.getSdbPasswd());

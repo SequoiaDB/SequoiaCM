@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +37,13 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 
 public class ScmCommon {
     public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
@@ -188,7 +187,6 @@ public class ScmCommon {
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configure = new JoranConfigurator();
             configure.setContext(lc);
-            FixedWindowRollingPolicy f;
             lc.reset();
             configure.doConfigure(is);
         }

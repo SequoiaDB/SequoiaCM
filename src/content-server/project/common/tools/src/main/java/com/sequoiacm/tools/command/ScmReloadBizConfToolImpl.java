@@ -3,8 +3,6 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -18,10 +16,11 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
-import com.sequoiacm.tools.ScmCtl;
-import com.sequoiacm.tools.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ReloadResInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -67,7 +66,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
+        CommandLine commandLine = ScmContentCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_ALL) && (commandLine.hasOption(OPT_SHORT_SITE)
                 || commandLine.hasOption(OPT_SHORT_NODE))) {
             throw new ScmToolsException("--" + OPT_LONG_ALL + " --" + OPT_LONG_SITE + " --"

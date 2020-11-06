@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -31,13 +29,16 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
-import com.sequoiacm.tools.ScmAdmin;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
 import com.sequoiacm.tools.common.PropertiesUtil;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.common.SdbHelper;
 import com.sequoiacm.tools.element.ScmSdbInfo;
@@ -60,6 +61,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
     private final String OPT_LONG_GATEWAY = "gateway";
     private final String OPT_LONG_AMDIN_USER = "user";
     private final String OPT_LONG_AMDIN_PASSWORD = "passwd";
+    private final String OPT_LONG_AMDIN_PASSWORD_FILE = "passwd-file";
 
     private Options ops;
     private String sysConfPath;
@@ -102,9 +104,11 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                 "gateway url, eg:'host1:port,host2:port,host3:port'.", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_USER, "login admin username.", true, true,
                 false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.", true,
-                true, false));
-        ScmCommandUtil.addDsOption(ops, hp);
+        ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.",
+                false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD_FILE, "login admin password file.",
+                false, true, false));
+        ScmContentCommandUtil.addDsOption(ops, hp);
     }
 
     @Override
@@ -114,10 +118,14 @@ public class ScmCreateNodeToolImpl extends ScmTool {
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
-        ScmSdbInfo mainSdb = ScmCommandUtil.parseDsOption(cl);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
+        ScmSdbInfo mainSdb = ScmContentCommandUtil.parseDsOption(cl);
         String serverName = cl.getOptionValue(OPT_LONG_NAME);
         String mySiteName = cl.getOptionValue(OPT_LONG_SITENAME);
+        String gatewayUrl = cl.getOptionValue(OPT_LONG_GATEWAY);
+        ScmUserInfo adminUserInfo = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_AMDIN_USER,
+                OPT_LONG_AMDIN_PASSWORD, OPT_LONG_AMDIN_PASSWORD_FILE);
+
         if (cl.hasOption(OPT_SHORT_CUSTOM_PROP)) {
             parseCustomProp(cl);
         }
@@ -192,11 +200,10 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             serverRec.put(FieldName.FIELD_CLCONTENTSERVER_SITEID, mySiteInfo.getId());
             serverRec.put(FieldName.FIELD_CLCONTENTSERVER_HOST_NAME, host);
             serverRec.put(FieldName.FIELD_CLCONTENTSERVER_PORT, port);
-            String gatewayUrl = cl.getOptionValue(OPT_LONG_GATEWAY);
-            String adminUser = cl.getOptionValue(OPT_LONG_AMDIN_USER);
-            String adminPasswd = cl.getOptionValue(OPT_LONG_AMDIN_PASSWORD);
-            ss = ScmFactory.Session.createSession(new ScmConfigOption(
-                    ScmCommandUtil.parseListUrls(gatewayUrl), adminUser, adminPasswd));
+
+            ss = ScmFactory.Session.createSession(
+                    new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
+                            adminUserInfo.getUsername(), adminUserInfo.getPassword()));
             RestDispatcher.getInstance().createNode(ss, serverRec);
         }
         catch (ScmToolsException e) {

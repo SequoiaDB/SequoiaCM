@@ -3,8 +3,6 @@ package com.sequoiacm.tools.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sequoiacm.infrastructure.tool.command.ScmTool;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -18,12 +16,15 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine.DataSourceType;
-import com.sequoiacm.tools.ScmAdmin;
+import com.sequoiacm.infrastructure.tool.command.ScmTool;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommandUtil;
 import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmDatasourceUtil;
-import com.sequoiacm.tools.common.ScmHelpGenerator;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteConfig;
 import com.sequoiacm.tools.element.ScmSiteInfo;
@@ -50,6 +51,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
     private final String OPT_LONG_GATEWAY = "gateway";
     private final String OPT_LONG_AMDIN_USER = "user";
     private final String OPT_LONG_AMDIN_PASSWORD = "passwd";
+    private final String OPT_LONG_AMDIN_PASSWORD_FILE = "passwd-file";
 
     private Options options;
     private ScmHelpGenerator hp;
@@ -86,34 +88,38 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 "gateway url, eg:'host1:port,host2:port,host3:port'.", true, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_AMDIN_USER, "login admin username.", true,
                 true, false));
-        options.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.", true,
-                true, false));
-        ScmCommandUtil.addDsOption(options, hp);
+        options.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.",
+                false, true, true, false, false));
+        options.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD_FILE,
+                "login admin password file.", false, true, false));
+        ScmContentCommandUtil.addDsOption(options, hp);
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
-        CommandLine cl = ScmCommandUtil.parseArgs(args, options);
+        CommandLine cl = ScmContentCommandUtil.parseArgs(args, options);
         boolean isRootSite;
         ScmSdbInfo metaDsInfo = null;
         ScmSdbInfo dataDsInfo = null;
 
         if (cl.hasOption(OPT_SHORT_ROOT)) {
             // for backupwards compatibility
-            if (cl.hasOption(ScmCommandUtil.OPT_LONG_RDSURL)) {
-                metaDsInfo = parseSdbInfoOps(ScmCommandUtil.OPT_LONG_RDSURL,
-                        ScmCommandUtil.OPT_LONG_RDSUSER, ScmCommandUtil.OPT_LONG_RDSPASSWD, null,
-                        cl);
+            if (cl.hasOption(ScmContentCommandUtil.OPT_LONG_RDSURL)) {
+                metaDsInfo = parseSdbInfoOps(ScmContentCommandUtil.OPT_LONG_RDSURL,
+                        ScmContentCommandUtil.OPT_LONG_RDSUSER,
+                        ScmContentCommandUtil.OPT_LONG_RDSPASSWD, null, cl);
             }
             else {
-                metaDsInfo = parseSdbInfoOps(ScmCommandUtil.OPT_LONG_MDSURL,
-                        ScmCommandUtil.OPT_LONG_MDSUSER, ScmCommandUtil.OPT_LONG_MDSPASSWD, null,
-                        cl);
+                metaDsInfo = parseSdbInfoOps(ScmContentCommandUtil.OPT_LONG_MDSURL,
+                        ScmContentCommandUtil.OPT_LONG_MDSUSER,
+                        ScmContentCommandUtil.OPT_LONG_MDSPASSWD, null, cl);
             }
             if (metaDsInfo == null) {
-                throw new ScmToolsException("missing options:--" + ScmCommandUtil.OPT_LONG_MDSURL
-                        + ",--" + ScmCommandUtil.OPT_LONG_MDSUSER + ",--"
-                        + ScmCommandUtil.OPT_LONG_MDSPASSWD, ScmExitCode.INVALID_ARG);
+                throw new ScmToolsException(
+                        "missing options:--" + ScmContentCommandUtil.OPT_LONG_MDSURL + ",--"
+                                + ScmContentCommandUtil.OPT_LONG_MDSUSER + ",--"
+                                + ScmContentCommandUtil.OPT_LONG_MDSPASSWD,
+                        ScmExitCode.INVALID_ARG);
             }
             isRootSite = true;
         }
@@ -167,10 +173,11 @@ public class ScmCreateSiteToolImpl extends ScmTool {
             }
 
             String urls = cl.getOptionValue(OPT_LONG_GATEWAY);
-            String user = cl.getOptionValue(OPT_LONG_AMDIN_USER);
-            String pwd = cl.getOptionValue(OPT_LONG_AMDIN_PASSWORD);
-            ss = ScmFactory.Session.createSession(
-                    new ScmConfigOption(ScmCommandUtil.parseListUrls(urls), user, pwd));
+            ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_AMDIN_USER,
+                    OPT_LONG_AMDIN_PASSWORD, OPT_LONG_AMDIN_PASSWORD_FILE);
+            ss = ScmFactory.Session
+                    .createSession(new ScmConfigOption(ScmContentCommandUtil.parseListUrls(urls),
+                            adminUser.getUsername(), adminUser.getPassword()));
             RestDispatcher.getInstance().createSite(ss, siteConf);
             System.out.println("create site success:siteName=" + siteName);
         }

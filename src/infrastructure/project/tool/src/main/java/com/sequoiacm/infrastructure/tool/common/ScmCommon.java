@@ -1,18 +1,5 @@
 package com.sequoiacm.infrastructure.tool.common;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.infrastructure.common.ScmManifestParser;
-import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +12,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sequoiacm.infrastructure.common.ScmManifestParser;
+import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 
 public class ScmCommon {
     public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
@@ -463,4 +464,12 @@ public class ScmCommon {
         }
     }
 
+    public static String getUserWorkingDir() throws ScmToolsException {
+        String dir = System.getProperty("userWorkingDirectory");
+        if (dir == null) {
+            throw new ScmToolsException("missing system property:userWorkingDirectory",
+                    ScmExitCode.SYSTEM_ERROR);
+        }
+        return dir;
+    }
 }
