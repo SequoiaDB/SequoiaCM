@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class DefineAttr_Param_Class_GetInstance1898 extends TestScmBase {
-    private String classname = "Param1898 中文.!@#$*()_+::<>\"test";
+    private String classname = "Param1898 中文.!@#$*()/%\\；_+::<>\"test";
     private String desc = "Param1898 It is a test";
     private ScmClass expClass = null;
     private SiteWrapper site = null;
@@ -41,7 +41,7 @@ public class DefineAttr_Param_Class_GetInstance1898 extends TestScmBase {
         expClass = ScmFactory.Class.createInstance( ws, classname, desc );
     }
 
-    @Test(enabled = false)// TODO: SEQUOIACM-548
+    @Test
     private void test() throws ScmException {
        ScmClass actClass = ScmFactory.Class.getInstanceByName( ws, classname );
        Assert.assertEquals( actClass.getName(),classname );

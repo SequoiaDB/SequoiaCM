@@ -41,9 +41,9 @@ public class DefineAttr_Param_Class_DeleteInstance1900 extends TestScmBase {
         expClass = ScmFactory.Class.createInstance( ws, classname, desc );
     }
 
-    @Test(enabled = false) // TODO: SEQUOIACM-548
+    @Test
     private void test() throws ScmException {
-        String classname = "Param1900 中文.!@#$*()_+::<>\"test";
+        String classname = "Param1900 中文.!@#$*()/%\\_+::<>\"test";
         ScmClass scmClass = ScmFactory.Class.createInstance( ws,classname, desc);
         ScmFactory.Class.deleteInstanceByName( ws, classname );
         try {
