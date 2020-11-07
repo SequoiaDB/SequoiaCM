@@ -28,6 +28,7 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -46,17 +47,118 @@ public class ScmWorkspaceUtil extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( ScmWorkspaceUtil.class );
 
+    /**
+     * 创建普通的工作区
+     * 
+     * @param session
+     * @param wsName
+     * @param siteNum
+     * @return
+     * @throws ScmException
+     * @throws InterruptedException
+     */
     public static ScmWorkspace createWS( ScmSession session, String wsName,
             int siteNum ) throws ScmException, InterruptedException {
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations( getDataLocationList( siteNum ) );
+        conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+        conf.setName( wsName );
+        return createWS( session, conf );
+    }
 
+    /**
+     * 创建带批次和目录开关的工作区
+     * 
+     * @param session
+     * @param wsName
+     * @param siteNum
+     * @param batchShardingType
+     * @param regexp
+     * @param pattern
+     * @param isFileNameUnique
+     * @param enableDir
+     * @return
+     * @throws ScmException
+     * @throws InterruptedException
+     */
+    public static ScmWorkspace createWS( ScmSession session, String wsName,
+            int siteNum, ScmShardingType batchShardingType, String regexp,
+            String pattern, boolean isFileNameUnique, boolean enableDir )
+            throws ScmException, InterruptedException {
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations( getDataLocationList( siteNum ) );
+        conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+        conf.setName( wsName );
+        conf.setBatchIdTimeRegex( regexp );
+        conf.setBatchShardingType( batchShardingType );
+        conf.setBatchIdTimePattern( pattern );
+        conf.setBatchFileNameUnique( isFileNameUnique );
+        conf.setEnableDirectory( enableDir );
+        return createWS( session, conf );
+    }
+
+    /**
+     * 创建带批次信息的工作区
+     * 
+     * @param session
+     * @param wsName
+     * @param siteNum
+     * @param batchShardingType
+     * @param regexp
+     * @param pattern
+     * @param isFileNameUnique
+     * @return
+     * @throws ScmException
+     * @throws InterruptedException
+     */
+    public static ScmWorkspace createWS( ScmSession session, String wsName,
+            int siteNum, ScmShardingType batchShardingType, String regexp,
+            String pattern, boolean isFileNameUnique )
+            throws ScmException, InterruptedException {
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations( getDataLocationList( siteNum ) );
+        conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+        conf.setName( wsName );
+        conf.setBatchIdTimeRegex( regexp );
+        conf.setBatchShardingType( batchShardingType );
+        conf.setBatchIdTimePattern( pattern );
+        conf.setBatchFileNameUnique( isFileNameUnique );
+        return createWS( session, conf );
+    }
+
+    public static ScmWorkspace createWS( ScmSession session,
+            ScmWorkspaceConf conf ) throws ScmException, InterruptedException {
+        ScmFactory.Workspace.createWorkspace( session, conf );
+        ScmWorkspace ws = null;
+        for ( int i = 0; i < 15; i++ ) {
+            Thread.sleep( 1000 );
+            try {
+                ws = ScmFactory.Workspace.getWorkspace( conf.getName(),
+                        session );
+                break;
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+                    throw e;
+                }
+            }
+        }
+        return ws;
+    }
+
+    public static ScmMetaLocation getMetaLocation(
+            ScmShardingType scmShardingType )
+            throws ScmInvalidArgumentException {
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        List< ScmDataLocation > scmDataLocationList = new ArrayList< ScmDataLocation >();
-        ScmMetaLocation scmMetaLocation = null;
-        scmMetaLocation = new ScmSdbMetaLocation( rootSite.getSiteName(),
-                ScmShardingType.YEAR, TestSdbTools
-                        .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 ) );
+        return new ScmSdbMetaLocation( rootSite.getSiteName(), scmShardingType,
+                TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
+                        .get( 0 ) );
+    }
 
+    public static List< ScmDataLocation > getDataLocationList( int siteNum )
+            throws ScmInvalidArgumentException {
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        List< SiteWrapper > siteList = new ArrayList<>();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList<>();
         if ( siteNum > 1 ) {
             siteList = ScmInfo.getBranchSites( siteNum - 1 );
         } else if ( siteNum < 1 ) {
@@ -93,31 +195,11 @@ public class ScmWorkspaceUtil extends TestScmBase {
                 Assert.fail( "dataSourceType not match: " + dataType );
             }
         }
-
-        ScmWorkspaceConf conf = new ScmWorkspaceConf();
-        conf.setDataLocations( scmDataLocationList );
-        conf.setMetaLocation( scmMetaLocation );
-        conf.setName( wsName );
-        ScmFactory.Workspace.createWorkspace( session, conf );
-
-        ScmWorkspace ws = null;
-        for ( int i = 0; i < 15; i++ ) {
-            Thread.sleep( 1000 );
-            try {
-                ws = ScmFactory.Workspace.getWorkspace( wsName, session );
-                break;
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
-                    throw e;
-                }
-            }
-        }
-        return ws;
+        return scmDataLocationList;
     }
 
     public static void wsSetPriority( ScmSession session, String wsName )
             throws ScmException, InterruptedException {
-
         wsSetPriority( session, wsName, ScmPrivilegeType.ALL );
     }
 
@@ -226,8 +308,8 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
-     * @param wsM
-     * @param siteName
+     * @param ws
+     * @param site
      * @throws ScmException
      * @throws InterruptedException
      */

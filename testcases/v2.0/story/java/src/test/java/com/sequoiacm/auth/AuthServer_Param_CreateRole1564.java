@@ -1,10 +1,5 @@
 package com.sequoiacm.auth;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
@@ -14,6 +9,10 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * @Description: SCM-1564 :: createRole参数校验
@@ -26,14 +25,9 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
     private ScmSession session;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        session = TestScmTools.createSession( site );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -46,8 +40,7 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_BAD_REQUEST ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         } finally {
             if ( role != null ) {
@@ -57,15 +50,51 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRoleIsNull() {
+    private void testRoleIsNull() throws ScmException {
         String roleName = null;
         try {
             ScmFactory.Role.createRole( session, roleName, null );
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test3() throws ScmException {
+        String roleName = " Role1564 中文.!@#$*()_+::<>\"test";
+        // 创建
+        ScmFactory.Role.createRole( session, roleName, "" );
+
+        // 获取
+        ScmRole role = ScmFactory.Role.getRole( session, roleName );
+        Assert.assertEquals( role.getRoleName(), "ROLE_" + roleName );
+
+        // 删除
+        ScmFactory.Role.deleteRole( session, roleName );
+        try {
+            ScmFactory.Role.getRole( session, roleName );
+            Assert.fail( "exp fail but act success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                throw e;
+            }
+        }
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void teste4() throws ScmException {
+        String[] chars = { "/", "%", "\\", ";" };
+        for ( String c : chars ) {
+            try {
+                ScmFactory.Role.createRole( session, "test " + c, "" );
+                Assert.fail( "exp fail but act success!!! c = " + c );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                    throw e;
+                }
             }
         }
     }
