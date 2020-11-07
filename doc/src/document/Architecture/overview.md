@@ -24,13 +24,17 @@ cloud 组件服务包括： 网关服务、注册中心、认证服务、监控�
 
 ###核心服务###
 
-核心服务包括：内容服务、调度服务、配置服务。
+核心服务包括：内容服务、调度服务、配置服务、消息队列服务、全文检索服务。
 
 1. 内容服务 （Content Server） 内容服务以站点的形式存在，主要负责文件管理、目录管理、批次管理等功能
 
 2. 调度服务 （Schedule Server） 主要负责文件迁移、清理任务等后台任务
 
 3. 配置服务 （Config Server） 主要负责工作区配置、文件元数据配置刷新等功能
+
+4. 消息队列服务 （Message Queue Server） 主要负责系统内部的消息存储和投递
+
+5. 全文检索服务 （Fulltext Server） 主要负责对文件全文索引的建立，对外提供全文检索功能
 
 ##数据存储##
 
@@ -42,7 +46,11 @@ cloud 组件服务包括： 网关服务、注册中心、认证服务、监控�
 
 ##依赖服务##
 
-SequoiaCM 集群目前依赖 Zookeeper 提供的集群协调服务：为集群提供分布式锁支持，帮助调度服务的节点选举。
+1. Zookeeper：SequoiaCM 集群目前依赖 Zookeeper 提供的集群协调服务，为集群提供分布式锁支持，帮助调度服务的节点选举。
+
+2. Elasticsearch：SequoiaCM 的全文检索能力目前依赖 Elasticsearch 提供支持。
+
+
 
 
 [overview]:SequoiaCM_Intro/overall_arch.png

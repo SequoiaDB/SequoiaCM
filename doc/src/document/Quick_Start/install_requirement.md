@@ -18,6 +18,7 @@
 | ZooKeeper      | 3.4.12以上版本                         |
 | SequoiaDB      | 3.0.0以上版本                          |
 | python         | 2.7.x版本                              |
+| Elasticsearch  | 6.3.2版本                              |
 
 ##系统要求##
 

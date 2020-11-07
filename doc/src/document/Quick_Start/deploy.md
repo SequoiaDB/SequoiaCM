@@ -16,12 +16,16 @@
 |网关服务|scmServer:8080|提供路由、负载均衡功能|
 |认证服务|scmServer:8810|提供认证、权限控制功能|
 |监控服务|scmServer:8900|提供监控功能|
+|消息队列服务|scmServer:8710|提供集群内消息队列功能|
+|全文检索服务|scmServer:8610|提供文件的全文检索功能|
 
 >  **Note：**
 > 
->  * 本节假定用户已经具备版本匹配的 SequoiaDB ，不再介绍其部署步骤。后续介绍的安装部署命令均在 scmServer 机器上执行
->
+>  * 本节假定用户已经部署了版本匹配的 SequoiaDB 和 Elasticsearch，同时为 Elasticsearch 安装了 IK 中文分词器
+>  * 如果需要支持图片文件的全文检索，用户还需要自行在全文检索服务所在机器上安装 Tessract 图片识别引擎
 >  * 请确保 SequoiaDB 为集群模式部署，并且已经开启事务功能，本章节假定 SequoiaDB 的用户名密码均为 sdbadmin
+>  * 后续介绍的安装部署命令均在 scmServer 机器上执行
+
 
 ###安装包###
 
@@ -164,7 +168,6 @@
     9). 基础服务节点配置段:
 
     ```
-    #ServiceType 可选值：service-center auth-server gateway config-server schedule-server
     [servicenode]
     ZoneName,  ServiceType,       HostName,       Port,  CustomNodeConf
     zone1,     service-center,    scmServer,      8800,  
@@ -173,11 +176,14 @@
     zone1,     config-server,     scmServer,      8190,
     zone1,     schedule-server,   scmServer,      8910,
     zone1,     admin-server,      scmServer,      8900, 
+    zone1,     mq-server,         scmServer,      8710, 
+    zone1,     fulltext-server,   scmServer,      8610, '{"scm.fulltext.es.urls": "http://esServer:9200", "scm.fulltext.textualParser.pic.tessdataDir": "/usr/share/tesseract-ocr/tessdata/"}'
     ```
 
     >  **Note：**
     > 
     >  * 本段配置用于描述各个微服务的节点配置
+    >  * 全文检索服务配置项 scm.fulltext.es.urls 表示 Elasticsearch 地址，scm.fulltext.textualParser.pic.tessdataDir 表示 Teesract 引擎训练数据所在目录
     
 
 4. 执行部署

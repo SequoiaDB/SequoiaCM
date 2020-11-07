@@ -140,6 +140,12 @@
                 "file": "session_mgr_operation",
                 "cn": "会话池操作",
                 "en": "Session Manager Operation"
+            },
+            {
+                "id": 1581581136,
+                "file": "fulltext_operation",
+                "cn": "全文检索操作",
+                "en": "Fulltext Search Operation"
             }]
         }]
     },
@@ -200,6 +206,18 @@
                 "file": "config_server",
                 "cn": "配置服务",
                 "en": "Config Service"
+            },
+            {
+                "id": 1534830612,
+                "file": "message_queue_server",
+                "cn": "消息队列服务",
+                "en": "Message Queue Service"
+            },
+            {
+                "id": 1534812422,
+                "file": "fulltext_server",
+                "cn": "全文检索服务",
+                "en": "Fulltext Search Service"
             }]
         },
         {
@@ -306,7 +324,7 @@
                     "id": 1540964124,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540964405,
@@ -330,7 +348,7 @@
                     "id": 1540964563,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540964565,
@@ -366,7 +384,7 @@
                     "id": 1540964819,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540964834,
@@ -504,7 +522,7 @@
                     "id": 1540965705,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540965714,
@@ -546,7 +564,7 @@
                     "id": 1540965931,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540965944,
@@ -564,7 +582,7 @@
                     "id": 1540966099,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540966107,
@@ -600,7 +618,7 @@
                     "id": 1540966263,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540966270,
@@ -636,7 +654,7 @@
                     "id": 1540966371,
                     "file": "Readme",
                     "cn": "概述",
-                    "en": "概述"
+                    "en": "Overview"
                 },
                 {
                     "id": 1540966380,
@@ -662,6 +680,144 @@
                 "file": "config_deploy_script",
                 "cn": "配置服务部署工具",
                 "en": "config Deployment Script"
+            },
+            {
+                "id": 1535148929,
+                "dir": "Mqadmin",
+                "cn": "消息队列服务管理工具",
+                "en": "Mqadmin",
+                "contents": [{
+                    "id": 1540144157,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1540186370,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                },
+                {
+                    "id": 1521964177,
+                    "file": "createtopic",
+                    "cn": "createtopic",
+                    "en": "createtopic"
+                },
+                {
+                    "id": 1541236675,
+                    "file": "creategroup",
+                    "cn": "creategroup",
+                    "en": "creategroup"
+                },
+                {
+                    "id": 1544416215,
+                    "file": "listgroup",
+                    "cn": "listgroup",
+                    "en": "listgroup"
+                },
+                {
+                    "id": 1532116315,
+                    "file": "listtopic",
+                    "cn": "listtopic",
+                    "en": "listtopic"
+                },
+                {
+                    "id": 1545115611,
+                    "file": "updatetopic",
+                    "cn": "updatetopic",
+                    "en": "updatetopic"
+                }]
+            },
+            {
+                "id": 1535321020,
+                "dir": "Mqctl",
+                "cn": "消息队列服务节点管理工具",
+                "en": "Mqctl",
+                "contents": [{
+                    "id": 1540674271,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1544511280,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1531466387,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1540927895,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
+            {
+                "id": 1541564347,
+                "file": "mq_deploy_script",
+                "cn": "消息队列服务部署工具",
+                "en": "Mq Deployment Script"
+            },
+            {
+                "id": 1535118233,
+                "dir": "Ftadmin",
+                "cn": "全文检索服务管理工具",
+                "en": "Ftadmin",
+                "contents": [{
+                    "id": 1540225911,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1541132924,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                }]
+            },
+            {
+                "id": 1535311532,
+                "dir": "Ftctl",
+                "cn": "全文检索服务节点管理工具",
+                "en": "Ftctl",
+                "contents": [{
+                    "id": 1532153019,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1532675117,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1540933565,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1547656123,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
+            {
+                "id": 1541131277,
+                "file": "fulltext_deploy_script",
+                "cn": "全文检索服务部署工具",
+                "en": "Fulltext Deployment Script"
             }]
         },
         {
@@ -716,6 +872,18 @@
                 "file": "config",
                 "cn": "配置服务节点",
                 "en": "Config"
+            },
+            {
+                "id": 1533250805,
+                "file": "fulltext",
+                "cn": "全文检索服务节点",
+                "en": "Fulltext Search"
+            },
+            {
+                "id": 1534437805,
+                "file": "message_queue",
+                "cn": "消息队列服务节点",
+                "en": "Message Queue"
             }]
         },
         {
