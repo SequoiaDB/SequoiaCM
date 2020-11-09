@@ -1,0 +1,98 @@
+package com.sequoiacm.scmfile;
+
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmUpdateContentOption;
+import com.sequoiacm.testcommon.*;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.UUID;
+
+/**
+ * @Description: SCM-2969::指定计算md5，更新文件内容
+ * @author fanyu
+ * @Date:2020年8月26日
+ * @version:1.0
+ */
+public class ScmFileMD5Calc2969 extends TestScmBase {
+    private boolean runSuccess = false;
+    private SiteWrapper site = null;
+    private WsWrapper wsp = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
+    private String fileName = "file2969" + "_" + UUID.randomUUID();
+    private int fileSize = 200 * 1024;
+    private ScmId fileId = null;
+    private String filePath = null;
+    private File localPath = null;
+
+    @BeforeClass(alwaysRun = true)
+    private void setUp() throws ScmException, IOException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test() throws Exception {
+        // 创建无md5的文件
+        createFile();
+        // 指定计算md5,更新文件内容
+        updateFile();
+        // 检查结果
+        ScmFile currFile = ScmFactory.File.getInstance( ws, fileId );
+        Assert.assertEquals( currFile.getMd5(),
+                TestTools.getMD5AsBase64( filePath ), fileId.get() );
+        ScmFile histFile = ScmFactory.File.getInstance( ws, fileId, 1, 0 );
+        Assert.assertNull( histFile.getMd5(), fileId.get() );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void tearDown() throws ScmException {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private void createFile() throws ScmException {
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( fileName );
+        file.setContent( filePath );
+        fileId = file.save();
+    }
+
+    private void updateFile() throws ScmException, FileNotFoundException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        ScmUpdateContentOption option = new ScmUpdateContentOption();
+        option.setNeedMd5( true );
+        file.updateContent( new FileInputStream( new File( filePath ) ),
+                option );
+    }
+}

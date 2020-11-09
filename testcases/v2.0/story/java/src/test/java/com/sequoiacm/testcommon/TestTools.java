@@ -1,21 +1,16 @@
 package com.sequoiacm.testcommon;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import com.amazonaws.util.Base64;
+import com.sequoiacm.apache.commons.logging.LogFactory;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Random;
-
-import org.apache.commons.codec.binary.Hex;
-import org.apache.log4j.Logger;
 
 public class TestTools {
     private static final Logger logger = Logger.getLogger( TestSdbTools.class );
@@ -69,6 +64,68 @@ public class TestTools {
         } catch ( NoSuchAlgorithmException e ) {
             e.printStackTrace();
             throw new RuntimeException( "fail to get md5!" + e.getMessage() );
+        }
+    }
+
+    /**
+     * Returns the MD5 in base64 for the given filePath.
+     */
+    public static String getMD5AsBase64( String filePath )
+            throws IOException {
+        return Base64.encodeAsString( computeMD5Hash( new File( filePath ) ) );
+    }
+
+    /**
+     * Returns the MD5 in base64 for the data from the given input stream. Note
+     * this method closes the given input stream upon completion.
+     */
+    public static String getMD5AsBase64( InputStream is ) throws IOException {
+        return Base64.encodeAsString( computeMD5Hash( is ) );
+    }
+
+    /**
+     * Returns the MD5 in base64 for the given file.
+     */
+    public static String getMD5AsBase64( File file )
+            throws  IOException {
+        return Base64.encodeAsString( computeMD5Hash( file ) );
+    }
+
+    /**
+     * Computes the MD5 of the given file.
+     */
+    public static byte[] computeMD5Hash( File file )
+            throws IOException {
+        return computeMD5Hash( new FileInputStream( file ) );
+    }
+
+    /**
+     * Computes the MD5 hash of the data in the given input stream and returns
+     * it as an array of bytes. Note this method closes the given input stream
+     * upon completion.
+     */
+    public static byte[] computeMD5Hash( InputStream is ) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream( is );
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance( "MD5" );
+            byte[] buffer = new byte[ 1 << 14 ];
+            int bytesRead;
+            while ( ( bytesRead = bis.read( buffer, 0,
+                    buffer.length ) ) != -1 ) {
+                messageDigest.update( buffer, 0, bytesRead );
+            }
+            return messageDigest.digest();
+        } catch ( NoSuchAlgorithmException e ) {
+            // should never get here
+            throw new IllegalStateException( e );
+        } finally {
+            try {
+                bis.close();
+            } catch ( Exception e ) {
+                LogFactory.getLog( TestTools.class ).debug(
+                        "Unable to close input stream of hash candidate: "
+                                + e );
+            }
         }
     }
 
