@@ -4,7 +4,7 @@
 <suite name="scm_story" verbose="1" parallel="classes" thread-count="5">
    <parameter name="FORCECLEAR" value="false" />
    <parameter name="DATADIR" value="/tmp/ci_cm" />
-   <parameter name="NTPSERVER" value="192.168.20.11" />
+   <parameter name="NTPSERVER" value="192.168.20.200" />
    <parameter name="LOCALHOSTNAME" value="localhost" />
    
    <parameter name="SSHUSER" value="root" />
