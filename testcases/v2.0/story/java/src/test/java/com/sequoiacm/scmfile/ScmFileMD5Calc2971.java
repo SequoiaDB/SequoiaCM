@@ -96,7 +96,7 @@ public class ScmFileMD5Calc2971 extends TestScmBase {
         Assert.assertNull( histFile.getMd5(), fileId.get() );
         runSuccess = true;
     }
-    
+
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {

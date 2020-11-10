@@ -1,23 +1,33 @@
 package com.sequoiacm.scmfile;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmBreakpointFileOption;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.ScmUploadConf;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.ScmUpdateContentOption;
-import com.sequoiacm.testcommon.*;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 import java.util.UUID;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import com.sequoiacm.breakpointfile.BreakpointUtil;
+import com.sequoiacm.client.core.ScmBreakpointFile;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmBreakpointFileOption;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.bizconf.ScmUploadConf;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmUpdateContentOption;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * @Description: SCM-2978 ::不指定计算md5,创建文件/创建断点文件/更新文件内容
@@ -37,6 +47,7 @@ public class ScmFileMD5Calc2978 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
+        BreakpointUtil.checkDBDataSource();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
