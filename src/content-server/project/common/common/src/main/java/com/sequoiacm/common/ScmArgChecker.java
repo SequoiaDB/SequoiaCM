@@ -37,9 +37,10 @@ public class ScmArgChecker {
                 return false;
             }
 
-            if (name.contains("/") || name.contains("\\") || name.contains(":")
-                    || name.contains("*") || name.contains("?") || name.contains("\"")
-                    || name.contains("<") || name.contains(">") || name.contains("|")) {
+            if (name.contains("/") || name.contains("\\") || name.contains("%")
+                    || name.contains(";") || name.contains(":") || name.contains("*")
+                    || name.contains("?") || name.contains("\"") || name.contains("<")
+                    || name.contains(">") || name.contains("|")) {
                 return false;
             }
 
@@ -155,18 +156,22 @@ public class ScmArgChecker {
             if (name == null) {
                 return false;
             }
-            if (name.length() <= 0) {
+            // if name exist char of the Chinese,char size != Byte size
+            if (name.length() <= 0 || name.length() != name.getBytes().length) {
                 return false;
             }
 
             for (int index = 0; index < name.length(); index++) {
                 char ch = name.charAt(index);
-                if (ch == '/' || ch == '\\' || ch == '%' || ch == ';' || ch == ':') {
+                if (ch == '/' || ch == '\\' || ch == '%' || ch == ';' || ch == '|' || ch == '.'
+                        || ch == ':' || ch == '*' || ch == '?' || ch == '<' || ch == '>'
+                        || ch == '"') {
                     return false;
                 }
             }
             return true;
         }
+
     }
 
     public static boolean checkUriPathArg(String uriPathArg) {
@@ -182,5 +187,4 @@ public class ScmArgChecker {
         }
         return true;
     }
-
 }

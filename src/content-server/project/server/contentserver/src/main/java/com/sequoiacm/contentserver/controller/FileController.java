@@ -90,8 +90,7 @@ public class FileController {
         BSONObject file;
         if (type.equals("path")) {
             String ignoreStr = "/api/v1/files/path";
-            String filePath = request.getRequestURI().substring(ignoreStr.length());
-            filePath = RestUtils.urlDecode(filePath);
+            String filePath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             filePath = ScmSystemUtils.formatFilePath(filePath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspaceName,
                     filePath, ScmPrivilegeDefine.READ, "get file by path");

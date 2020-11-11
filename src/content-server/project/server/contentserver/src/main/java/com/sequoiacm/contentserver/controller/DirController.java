@@ -76,8 +76,7 @@ public class DirController {
         if (type.equals(CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH)) {
             String ignoreStr = "/api/v1/directories/"
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
-            String dirPath = request.getRequestURI().substring(ignoreStr.length());
-            dirPath = RestUtils.urlDecode(dirPath);
+            String dirPath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             dirPath = ScmSystemUtils.formatDirPath(dirPath);
             // check priority before search
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
@@ -157,8 +156,7 @@ public class DirController {
         if (type.equals(CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH)) {
             String ignoreStr = "/api/v1/directories/"
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
-            dirPath = request.getRequestURI().substring(ignoreStr.length());
-            dirPath = RestUtils.urlDecode(dirPath);
+            dirPath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             dirPath = ScmSystemUtils.formatDirPath(dirPath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
                     dirPath, ScmPrivilegeDefine.DELETE, "delete dir by path");
@@ -193,10 +191,9 @@ public class DirController {
         if (type.equals(CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH)) {
             String ignoreStr = "/api/v1/directories/"
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
-            dirPath = request.getRequestURI().substring(ignoreStr.length());
+            dirPath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             ignoreStr = "rename";
             dirPath = dirPath.substring(0, dirPath.lastIndexOf(ignoreStr));
-            dirPath = RestUtils.urlDecode(dirPath);
             dirPath = ScmSystemUtils.formatDirPath(dirPath);
             ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspace_name,
                     dirPath, ScmPrivilegeDefine.DELETE, "delete source when rename dir by path");
@@ -247,10 +244,9 @@ public class DirController {
         if (type.equals(CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH)) {
             String ignoreStr = "/api/v1/directories/"
                     + CommonDefine.Directory.SCM_REST_ARG_TYPE_PATH;
-            dirPath = request.getRequestURI().substring(ignoreStr.length());
+            dirPath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             ignoreStr = "move";
             dirPath = dirPath.substring(0, dirPath.lastIndexOf(ignoreStr));
-            dirPath = RestUtils.urlDecode(dirPath);
             dirPath = ScmSystemUtils.formatDirPath(dirPath);
 
             if (null != parent_directory_id) {

@@ -977,6 +977,12 @@
         "cn": "参考手册",
         "en": "Manual",
         "contents": [{
+            "id": 1605145163,
+            "file": "limitation",
+            "cn": "限制",
+            "en": "Limitation"
+        },
+        {
             "id": 1551231473,
             "file": "error_code",
             "cn": "错误码",

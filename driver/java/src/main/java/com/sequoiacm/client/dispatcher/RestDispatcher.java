@@ -49,6 +49,7 @@ import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.common.FultextRestCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
@@ -910,8 +911,7 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public BSONObject getBatchInfo(String workspaceName, String batchId) throws ScmException {
         String uri = String.format("%s%s%s%s%s?%s=%s", URL_PREFIX, url, API_VERSION, BATCH,
-                encode(batchId),
-                CommonDefine.RestArg.BATCH_WS_NAME, encode(workspaceName));
+                encode(batchId), CommonDefine.RestArg.BATCH_WS_NAME, encode(workspaceName));
         HttpGet request = new HttpGet(uri);
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request);
@@ -1452,6 +1452,7 @@ public class RestDispatcher implements MessageDispatcher {
         String[] names = path.split("/+");
         for (int i = 0; i < names.length; i++) {
             if (!names[i].isEmpty()) {
+                ScmArgChecker.Directory.checkDirectoryName(names[i]);
                 newPath.append(encode(names[i]));
                 newPath.append("/");
             }
