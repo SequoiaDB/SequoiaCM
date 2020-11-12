@@ -1,18 +1,19 @@
 package com.sequoiacm.infrastructure.tool;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.infrastructure.tool.command.ScmHelpFullToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmHelpToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class CommandManager {
     private Logger logger = LoggerFactory.getLogger(CommandManager.class.getName());;
@@ -137,9 +138,8 @@ public class CommandManager {
 
     private ScmTool getInstanceByToolName(String toolName) throws ScmToolsException {
         ScmTool instance = null;
-        ScmCommon.setLogAndProperties(ScmCommon.SCM_ADMIN_LOG_PATH, ScmCommon.LOG_FILE_ADMIN);
+        ScmCommon.configToolsLog(ScmCommon.LOG_FILE_ADMIN);
         instance = this.tools.get(toolName);
-
         return instance;
     }
 

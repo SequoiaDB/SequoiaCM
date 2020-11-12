@@ -40,8 +40,6 @@ public class ScmCommon {
     public static final String APPLICATION_PROPERTIES = "application.properties";
 
     public static final String LOGCONF_NAME = "logback.xml";
-    public static final String SCM_ADMIN_LOG_PATH = "." + File.separator + "log" + File.separator
-            + "admin" + File.separator + "admin.log";
     public static final String START_LOG_PATH = "." + File.separator + "log" + File.separator
             + "start.log";
     public static final String GENERATE_META_LOG_PATH = "." + File.separator + "log"
@@ -323,27 +321,6 @@ public class ScmCommon {
             logger.error("Faile to create file:" + filePath, e);
             throw new ScmToolsException("Failed to create file,permission error:" + filePath
                     + ",errorMsg:" + e.getMessage(), ScmExitCode.IO_ERROR);
-        }
-    }
-
-    public static void setLogAndProperties(String logPath, String propFileName)
-            throws ScmToolsException {
-        if (!ScmCommon.isFileExists(logPath)) {
-            ScmCommon.createFile(logPath);
-            // try {
-            // setFileOwnerAndGroup(logPath);
-            // }
-            // catch (ScmToolsException e) {
-            // System.out.println("WARN:" + e.getMessage());
-            // return;
-            // }
-            ScmCommon.configToolsLog(propFileName);
-        }
-        else if (ScmCommon.isFileCanWirte(logPath)) {
-            ScmCommon.configToolsLog(propFileName);
-        }
-        else {
-            System.out.println("WARN:could not write log to " + logPath + ",permission error");
         }
     }
 
