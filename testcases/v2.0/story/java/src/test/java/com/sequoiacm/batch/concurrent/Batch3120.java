@@ -109,7 +109,8 @@ public class Batch3120 extends TestScmBase {
                         new ScmId( batchId, false ) );
                 batch.attachFile( fileId );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
+                if ( e.getError() != ScmError.BATCH_NOT_FOUND
+                        && e.getError() != ScmError.FILE_NOT_FOUND ) {
                     throw e;
                 }
             } finally {
@@ -139,7 +140,8 @@ public class Batch3120 extends TestScmBase {
                 batch.detachFile( fileId );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.BATCH_NOT_FOUND
-                        && e.getError() != ScmError.FILE_NOT_IN_BATCH ) {
+                        && e.getError() != ScmError.FILE_NOT_IN_BATCH
+                        && e.getError() != ScmError.FILE_NOT_FOUND ) {
                     throw e;
                 }
             } finally {
