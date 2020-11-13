@@ -31,7 +31,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
- * @Testcase: SCM-883:主中心、分中心时间不同步，迁移任务 （分中心本地时间比主中心本地时间慢10分钟）
+ * @Testcase: SCM-883:主中心、分中心时间不同步，迁移任务 （分中心本地时间比主中心本地时间慢5分钟30秒）
  * @Author huangxiaoni init
  * @Date 2017.10.10
  */
@@ -54,12 +54,11 @@ public class Transfer_startAndStopTime883 extends TestScmBase {
             ws_T = ScmInfo.getWs();
 
             // set the system time of subCenter
-            SimpleDateFormat dateFmt = new SimpleDateFormat( "yyyyMMdd" );
-            Long updateTime = new Date().getTime() - 10 * 60 * 1000; // 10min
-                                                                     // slower
-                                                                     // than
-                                                                     // current
-                                                                     // time
+            SimpleDateFormat dateFmt = new SimpleDateFormat(
+                    "yyyyMMdd HH:mm:ss" );
+            // 5m30s slower than current time
+            Long updateTime = new Date().getTime() - 5 * 60 * 1000 - 30 * 1000;
+
             TestTools.setSystemTime( branceSite.getNode().getHost(),
                     dateFmt.format( updateTime ) );
 

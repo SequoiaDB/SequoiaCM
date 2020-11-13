@@ -56,7 +56,7 @@ public class GetWorkSpace1099 extends TestScmBase {
         JSONArray wsListInfo = new JSONArray( response1 );
         List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
         // just check num
-        Assert.assertEquals( wsList.size(), wsListInfo.length(),
+        Assert.assertTrue( wsList.size() <= wsListInfo.length(),
                 "wsListByRest = " + wsListInfo.toString() + ",wsListByDb = "
                         + wsList.toString() );
 
