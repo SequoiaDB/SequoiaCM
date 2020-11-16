@@ -55,12 +55,12 @@ public class Transfer_startAndStopTime883 extends TestScmBase {
 
             // set the system time of subCenter
             SimpleDateFormat dateFmt = new SimpleDateFormat(
-                    "yyyyMMdd HH:mm:ss" );
+                    "yyyy-MM-dd HH:mm:ss" );
             // 5m30s slower than current time
             Long updateTime = new Date().getTime() - 5 * 60 * 1000 - 30 * 1000;
 
-            TestTools.setSystemTime( branceSite.getNode().getHost(),
-                    dateFmt.format( updateTime ) );
+            TestTools.setSystemTime( branceSite.getNode().getHost(), "\"" +
+                    dateFmt.format( updateTime ) + "\"" );
 
             // login
             sessionA = TestScmTools.createSession( branceSite );

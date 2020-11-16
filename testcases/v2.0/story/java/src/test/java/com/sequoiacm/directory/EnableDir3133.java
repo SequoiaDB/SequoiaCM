@@ -297,8 +297,9 @@ public class EnableDir3133 extends TestScmBase {
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
-        ScmWorkspaceUtil.deleteWs( wsName, session );
-        if ( session != null )
+        if ( session != null ) {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             session.close();
+        }
     }
 }
