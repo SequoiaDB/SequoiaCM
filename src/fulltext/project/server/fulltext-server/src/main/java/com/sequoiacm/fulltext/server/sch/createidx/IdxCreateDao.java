@@ -198,7 +198,7 @@ public class IdxCreateDao {
             onException(e.getMessage(), rootSiteCsClient, esDocId, file);
             throw e;
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             onException(e.getMessage(), rootSiteCsClient, esDocId, file);
             throw e;
         }

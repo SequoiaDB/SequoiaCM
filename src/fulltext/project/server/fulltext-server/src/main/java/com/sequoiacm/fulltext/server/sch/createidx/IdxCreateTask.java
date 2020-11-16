@@ -23,7 +23,7 @@ public class IdxCreateTask implements Runnable {
                 context.incSuccessCount(idxCreator.fileCount());
             }
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             logger.error("failed to create index for file:ws={}, fileId={}", idxCreator.getWsName(),
                     idxCreator.getFileId(), e);
             if (context != null) {
