@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.util.List;
 
@@ -17,7 +17,6 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
@@ -25,31 +24,32 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description SCM-3104:批次有分区，设置批次id规则，指定和不指定批次id，创建/查询/删除批次
+ * @Description SCM-3102:批次不分区，未设置批次id规则，指定和不指定批次id，创建/删除批次
  * @author fanyu
  * @version 1.00
  * @Date 2020/10/13
  */
-public class Batch3104 extends TestScmBase {
-    private String wsName = "ws3104";
-    private String batchName = "batch3104";
-    private String fileName = "file3104";
+public class Batch3102 extends TestScmBase {
+    private String wsName = "ws3102";
+    private String batchName = "batch3102";
+    private String fileName = "file3102";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-    private String batchIdB = "20201013";
+    private ScmId batchIdA = null;
+    private String batchIdB = "NO3102";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
-        // 指定batch_sharding_type为YEAR,设置batch_id_time_regexp、batch_id_time_parttern
+        // 指定batch_sharding_type为NONE,不设置batch_id_time_regexp、batch_id_time_parttern
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
-                ScmShardingType.YEAR, ".*", "yyyyMMdd", false );
-        Assert.assertEquals( ws.getBatchShardingType(), ScmShardingType.YEAR );
-        Assert.assertEquals( ws.getBatchIdTimePattern(), "yyyyMMdd" );
-        Assert.assertEquals( ws.getBatchIdTimeRegex(), ".*" );
+                ScmShardingType.NONE, null, null, false );
+        Assert.assertEquals( ws.getBatchShardingType(), ScmShardingType.NONE );
+        Assert.assertEquals( ws.getBatchIdTimePattern(), null );
+        Assert.assertEquals( ws.getBatchIdTimeRegex(), null );
 
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         ScmFile file = ScmFactory.File.createInstance( ws );
@@ -59,29 +59,23 @@ public class Batch3104 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
+        // 不指定id创建批次
+        ScmBatch batchA = ScmFactory.Batch.createInstance( ws );
+        batchA.setName( batchName );
+        batchIdA = batchA.save();
+
         // 指定id创建批次
         ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchIdB );
         batchB.setName( batchName );
         batchB.save();
         batchB.attachFile( fileId );
 
-        // 不指定id创建批次
-        ScmBatch batchA = ScmFactory.Batch.createInstance( ws );
-        batchA.setName( batchName );
-        try {
-            batchA.save();
-            Assert.fail( "exp failed but act success!!!" );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
-                throw e;
-            }
-        }
-
         // 获取批次检查结果
         checkResults();
 
         // 删除批次
         ScmFactory.Batch.deleteInstance( ws, new ScmId( batchIdB, false ) );
+        ScmFactory.Batch.deleteInstance( ws, batchIdA );
 
         // 检查结果
         long count = ScmFactory.Batch.countInstance( ws, ScmQueryBuilder
@@ -98,11 +92,17 @@ public class Batch3104 extends TestScmBase {
 
     private void checkResults() throws ScmException {
         // 获取批次检查结果
+        ScmBatch getBatchA = ScmFactory.Batch.getInstance( ws, batchIdA );
+        Assert.assertEquals( getBatchA.getName(), batchName );
+        Assert.assertEquals( getBatchA.getId(), batchIdA );
+        List< ScmFile > files = getBatchA.listFiles();
+        Assert.assertEquals( files.size(), 0 );
+
         ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws,
                 new ScmId( batchIdB, false ) );
         Assert.assertEquals( getBatchB.getName(), batchName );
         Assert.assertEquals( getBatchB.getId(), new ScmId( batchIdB, false ) );
-        List< ScmFile > files = getBatchB.listFiles();
+        files = getBatchB.listFiles();
         Assert.assertEquals( files.size(), 1 );
         Assert.assertEquals( files.get( 0 ).getFileName(), fileName );
     }

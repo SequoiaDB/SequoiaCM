@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

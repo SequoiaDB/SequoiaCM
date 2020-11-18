@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.util.List;
 
@@ -18,7 +18,6 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
@@ -26,68 +25,54 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description SCM-3118:指定batch_file_name_unique为true，重命名文件
+ * @Description SCM-3115:指定batch_file_name_unique为false，关联同名文件和不同名文件
  * @author fanyu
  * @version 1.00
  * @Date 2020/10/14
  */
-public class Batch3118 extends TestScmBase {
-    private String wsName = "ws3118";
-    private String batchName = "batch3118";
-    private ScmId batchId = null;
-    private String fileNameBase = "file3118";
+public class Batch3115 extends TestScmBase {
+    private String wsName = "ws3115";
+    private String batchName = "batch3115";
+    private String fileNameBase = "file3115";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private String dirName = "/dir3118";
+    private String dirName = "/dir3115";
     private ScmId fileId1 = null;
     private ScmId fileId2 = null;
     private ScmId fileId3 = null;
+    private String batchId = "20201014";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
-        // 指定batch_sharding_type为YEAR,isFileNameUnique为true
+        // 指定batch_sharding_type,比如YEAR,设置batch_id_time_regexp、batch_id_time_parttern，设置batch_file_name_unique为false
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
-                ScmShardingType.YEAR, null, null, true );
+                ScmShardingType.YEAR, ".*", "yyyyMMdd", false );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         prepareFile();
     }
 
     @Test
     private void test() throws Exception {
-        // 不指定id创建批次
-        ScmBatch batch = ScmFactory.Batch.createInstance( ws );
-        batch.setName( batchName );
-        batchId = batch.save();
+        // 指定id创建批次
+        ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchId );
+        batchB.setName( batchName );
+        batchB.save();
 
         // 批次关联文件
-        ScmBatch getBatchA = ScmFactory.Batch.getInstance( ws, batchId );
+        ScmBatch getBatchA = ScmFactory.Batch.getInstance( ws,
+                new ScmId( batchId, false ) );
         getBatchA.attachFile( fileId1 );
         getBatchA.attachFile( fileId2 );
         getBatchA.attachFile( fileId3 );
 
-        // 重命名文件
-        ScmFile scmFile1 = ScmFactory.File.getInstance( ws, fileId2 );
-        // 与批次内文件同名
-        try {
-            scmFile1.setFileName( fileNameBase + "_1" );
-            Assert.fail(
-                    "exp failed but act success!!! fileId = " + fileId2.get() );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.BATCH_FILE_SAME_NAME ) {
-                throw e;
-            }
-        }
-        ScmFile scmFile2 = ScmFactory.File.getInstance( ws, fileId3 );
-        // 与批次内文件不同名
-        scmFile2.setFileName( fileNameBase + "_4" );
-
-        // 获取批次信息，检查结果
+        // 获取批次检查结果
         checkResults();
+
         // 删除批次
-        ScmFactory.Batch.deleteInstance( ws, batchId );
+        ScmFactory.Batch.deleteInstance( ws, new ScmId( batchId, false ) );
         // 检查结果
         long count = ScmFactory.Batch.countInstance( ws, ScmQueryBuilder
                 .start( ScmAttributeName.Batch.NAME ).is( batchName ).get() );
@@ -112,7 +97,7 @@ public class Batch3118 extends TestScmBase {
         ScmDirectory directory = ScmFactory.Directory.createInstance( ws,
                 dirName );
         ScmFile file2 = ScmFactory.File.createInstance( ws );
-        file2.setFileName( fileNameBase + "_2" );
+        file2.setFileName( fileNameBase + "_1" );
         file2.setAuthor( "A" );
         file2.setDirectory( directory.getId() );
         fileId2 = file2.save();
@@ -120,19 +105,26 @@ public class Batch3118 extends TestScmBase {
         // 创建不同名文件
         ScmFile file3 = ScmFactory.File.createInstance( ws );
         file3.setAuthor( "B" );
-        file3.setFileName( fileNameBase + "_3" );
+        file3.setFileName( fileNameBase + "_2" );
         fileId3 = file3.save();
     }
 
     private void checkResults() throws ScmException {
-        ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws, batchId );
+        ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws,
+                new ScmId( batchId, false ) );
         Assert.assertEquals( getBatchB.getName(), batchName );
-        Assert.assertEquals( getBatchB.getId(), batchId );
+        Assert.assertEquals( getBatchB.getId(), new ScmId( batchId, false ) );
         List< ScmFile > files = getBatchB.listFiles();
         Assert.assertEquals( files.size(), 3 );
         for ( ScmFile file : files ) {
-            Assert.assertEquals( file.getBatchId(), batchId );
+            Assert.assertEquals( file.getBatchId(),
+                    new ScmId( batchId, false ) );
             Assert.assertEquals( file.getSize(), 0 );
+            if ( file.getAuthor().equals( "A" ) ) {
+                Assert.assertEquals( file.getFileName(), fileNameBase + "_1" );
+            } else {
+                Assert.assertEquals( file.getFileName(), fileNameBase + "_2" );
+            }
         }
     }
 }

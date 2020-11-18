@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,11 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.core.ScmBatch;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -19,13 +20,14 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description SCM-3112:批次有分区，批次Id符合批次id规则，批次不存在，查询/删除批次
+ * @Description SCM-3109:指定相同的批次id，创建批次
  * @author fanyu
  * @version 1.00
  * @Date 2020/10/13
  */
-public class Batch3112 extends TestScmBase {
-    private String wsName = "ws3112";
+public class Batch3109 extends TestScmBase {
+    private String wsName = "ws3109";
+    private String batchName = "batch3109";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
 
@@ -34,7 +36,7 @@ public class Batch3112 extends TestScmBase {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
-        // 指定batch_sharding_type为NONE,设置batch_id_time_regexp、batch_id_time_parttern
+        // 指定batch_sharding_type,比如MONTH,设置batch_id_time_regexp、batch_id_time_parttern
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
                 ScmShardingType.MONTH, "[0-9].*", "yyyyMMdd", false );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
@@ -42,23 +44,24 @@ public class Batch3112 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        // 批次不存在查詢批次
-        String batchIdA = "NO20201013";
-        try {
-            ScmFactory.Batch.getInstance( ws, new ScmId( batchIdA, false ) );
-            Assert.fail( "exp failed but act success!!!" );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
-                throw e;
-            }
-        }
+        // 指定id创建批次
+        String batchIdA = "NONO20201013";
+        ScmBatch batchA = ScmFactory.Batch.createInstance( ws, batchIdA );
+        batchA.setName( batchName );
+        batchA.save();
+        ScmBatch getBatch = ScmFactory.Batch.getInstance( ws,
+                new ScmId( batchIdA, false ) );
+        Assert.assertEquals( getBatch.listFiles().size(), 0 );
 
-        // 批次不存在，刪除批次
+        // 重复指定id创建批次
+        String batchIdB = "NONO20201013";
+        ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchIdB );
+        batchB.setName( batchName );
         try {
-            ScmFactory.Batch.deleteInstance( ws, new ScmId( batchIdA, false ) );
+            batchB.save();
             Assert.fail( "exp failed but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
+            if ( e.getError() != ScmError.BATCH_EXIST ) {
                 throw e;
             }
         }

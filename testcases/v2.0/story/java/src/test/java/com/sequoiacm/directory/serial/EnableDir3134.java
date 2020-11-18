@@ -1,4 +1,4 @@
-package com.sequoiacm.directory;
+package com.sequoiacm.directory.serial;
 
 import java.io.ByteArrayInputStream;
 import java.util.Random;

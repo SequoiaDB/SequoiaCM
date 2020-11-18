@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.text.SimpleDateFormat;
 import java.util.UUID;

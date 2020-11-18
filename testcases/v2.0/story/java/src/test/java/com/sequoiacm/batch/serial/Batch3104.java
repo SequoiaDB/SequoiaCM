@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.util.List;
 
@@ -25,29 +25,32 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description SCM-3105:批次有分区，未设置批次id规则，指定和不指定批次id，创建批次
+ * @Description SCM-3104:批次有分区，设置批次id规则，指定和不指定批次id，创建/查询/删除批次
  * @author fanyu
  * @version 1.00
  * @Date 2020/10/13
  */
-public class Batch3105 extends TestScmBase {
-    private String wsName = "ws3105";
-    private String batchName = "batch3105";
-    private String fileName = "file3105";
+public class Batch3104 extends TestScmBase {
+    private String wsName = "ws3104";
+    private String batchName = "batch3104";
+    private String fileName = "file3104";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-    private String batchIdA = "20201013";
-    private ScmId batchIdB = null;
+    private String batchIdB = "20201013";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
-        // 指定batch_sharding_type,比如MONTH,未设置batch_id_time_regexp、batch_id_time_parttern
+        // 指定batch_sharding_type为YEAR,设置batch_id_time_regexp、batch_id_time_parttern
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
-                ScmShardingType.YEAR, null, null, false );
+                ScmShardingType.YEAR, ".*", "yyyyMMdd", false );
+        Assert.assertEquals( ws.getBatchShardingType(), ScmShardingType.YEAR );
+        Assert.assertEquals( ws.getBatchIdTimePattern(), "yyyyMMdd" );
+        Assert.assertEquals( ws.getBatchIdTimeRegex(), ".*" );
+
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
@@ -57,7 +60,13 @@ public class Batch3105 extends TestScmBase {
     @Test
     private void test() throws Exception {
         // 指定id创建批次
-        ScmBatch batchA = ScmFactory.Batch.createInstance( ws, batchIdA );
+        ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchIdB );
+        batchB.setName( batchName );
+        batchB.save();
+        batchB.attachFile( fileId );
+
+        // 不指定id创建批次
+        ScmBatch batchA = ScmFactory.Batch.createInstance( ws );
         batchA.setName( batchName );
         try {
             batchA.save();
@@ -68,17 +77,11 @@ public class Batch3105 extends TestScmBase {
             }
         }
 
-        // 不指定id创建批次
-        ScmBatch batchB = ScmFactory.Batch.createInstance( ws );
-        batchB.setName( batchName );
-        batchIdB = batchB.save();
-        batchB.attachFile( fileId );
-
-        // 获取批次，检查结果
+        // 获取批次检查结果
         checkResults();
 
         // 删除批次
-        ScmFactory.Batch.deleteInstance( ws, batchIdB );
+        ScmFactory.Batch.deleteInstance( ws, new ScmId( batchIdB, false ) );
 
         // 检查结果
         long count = ScmFactory.Batch.countInstance( ws, ScmQueryBuilder
@@ -95,9 +98,10 @@ public class Batch3105 extends TestScmBase {
 
     private void checkResults() throws ScmException {
         // 获取批次检查结果
-        ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws, batchIdB );
+        ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws,
+                new ScmId( batchIdB, false ) );
         Assert.assertEquals( getBatchB.getName(), batchName );
-        Assert.assertEquals( getBatchB.getId(), batchIdB );
+        Assert.assertEquals( getBatchB.getId(), new ScmId( batchIdB, false ) );
         List< ScmFile > files = getBatchB.listFiles();
         Assert.assertEquals( files.size(), 1 );
         Assert.assertEquals( files.get( 0 ).getFileName(), fileName );

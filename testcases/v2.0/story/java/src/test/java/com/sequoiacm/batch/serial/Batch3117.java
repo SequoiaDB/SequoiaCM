@@ -1,4 +1,4 @@
-package com.sequoiacm.batch;
+package com.sequoiacm.batch.serial;
 
 import java.util.List;
 
@@ -25,41 +25,41 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
- * @Description SCM-3115:指定batch_file_name_unique为false，关联同名文件和不同名文件
+ * @Description SCM-3117:指定batch_file_name_unique为false，重命名文件
  * @author fanyu
  * @version 1.00
  * @Date 2020/10/14
  */
-public class Batch3115 extends TestScmBase {
-    private String wsName = "ws3115";
-    private String batchName = "batch3115";
-    private String fileNameBase = "file3115";
+public class Batch3117 extends TestScmBase {
+    private String wsName = "ws3117";
+    private String batchName = "batch3117";
+    private String batchId = "NO3117";
+    private String fileNameBase = "file3117";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private String dirName = "/dir3115";
+    private String dirName = "/dir3117";
     private ScmId fileId1 = null;
     private ScmId fileId2 = null;
     private ScmId fileId3 = null;
-    private String batchId = "20201014";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
-        // 指定batch_sharding_type,比如YEAR,设置batch_id_time_regexp、batch_id_time_parttern，设置batch_file_name_unique为false
+        // 指定batch_sharding_type为NONE,不设置batch_id_time_regexp、batch_id_time_parttern，batch_file_name_unique为false
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
-                ScmShardingType.YEAR, ".*", "yyyyMMdd", false );
+                ScmShardingType.NONE, null, null, false );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         prepareFile();
     }
 
     @Test
     private void test() throws Exception {
-        // 指定id创建批次
-        ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchId );
-        batchB.setName( batchName );
-        batchB.save();
+        // 不指定id创建批次
+        ScmBatch batch = ScmFactory.Batch.createInstance( ws, batchId );
+        batch.setName( batchName );
+        batch.save();
 
         // 批次关联文件
         ScmBatch getBatchA = ScmFactory.Batch.getInstance( ws,
@@ -68,9 +68,16 @@ public class Batch3115 extends TestScmBase {
         getBatchA.attachFile( fileId2 );
         getBatchA.attachFile( fileId3 );
 
-        // 获取批次检查结果
-        checkResults();
+        // 重命名文件
+        ScmFile scmFile1 = ScmFactory.File.getInstance( ws, fileId2 );
+        // 与批次内文件不同名
+        scmFile1.setFileName( fileNameBase + "_1" );
+        ScmFile scmFile2 = ScmFactory.File.getInstance( ws, fileId3 );
+        // 与批次内文件同名
+        scmFile2.setFileName( fileNameBase + "_3" );
 
+        // 获取批次信息，检查结果
+        checkResults();
         // 删除批次
         ScmFactory.Batch.deleteInstance( ws, new ScmId( batchId, false ) );
         // 检查结果
@@ -97,7 +104,7 @@ public class Batch3115 extends TestScmBase {
         ScmDirectory directory = ScmFactory.Directory.createInstance( ws,
                 dirName );
         ScmFile file2 = ScmFactory.File.createInstance( ws );
-        file2.setFileName( fileNameBase + "_1" );
+        file2.setFileName( fileNameBase + "_2" );
         file2.setAuthor( "A" );
         file2.setDirectory( directory.getId() );
         fileId2 = file2.save();
@@ -113,18 +120,18 @@ public class Batch3115 extends TestScmBase {
         ScmBatch getBatchB = ScmFactory.Batch.getInstance( ws,
                 new ScmId( batchId, false ) );
         Assert.assertEquals( getBatchB.getName(), batchName );
-        Assert.assertEquals( getBatchB.getId(), new ScmId( batchId, false ) );
+        Assert.assertEquals( getBatchB.getId().get(), batchId );
         List< ScmFile > files = getBatchB.listFiles();
         Assert.assertEquals( files.size(), 3 );
         for ( ScmFile file : files ) {
-            Assert.assertEquals( file.getBatchId(),
-                    new ScmId( batchId, false ) );
-            Assert.assertEquals( file.getSize(), 0 );
+            System.out.println( "file = " + file.toString() );
             if ( file.getAuthor().equals( "A" ) ) {
                 Assert.assertEquals( file.getFileName(), fileNameBase + "_1" );
             } else {
-                Assert.assertEquals( file.getFileName(), fileNameBase + "_2" );
+                Assert.assertEquals( file.getFileName(), fileNameBase + "_3" );
             }
+            Assert.assertEquals( file.getBatchId().get(), batchId );
+            Assert.assertEquals( file.getSize(), 0 );
         }
     }
 }
