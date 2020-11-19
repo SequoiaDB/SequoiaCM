@@ -236,7 +236,7 @@
 	```
 	$ /opt/data/sequoiacm/scm.py workspace --create --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
 	```
-    
+
 4. 测试环境，将工作区权限赋给管理员用户，编辑权限配置，
 
     ```

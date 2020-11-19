@@ -50,9 +50,6 @@ SequoiaCM 系统管理工具提供 SequoiaCM 业务部署，及节点管理等�
 |--help     |-h   |打印帮助信息     |
 |--version  |-v   |查看版本信息     |
 
-> **Note：**
->
-> * 系统初始化工具 system.py、及各服务的部署工具 deploy.py，不提供 --version、-v 选项
 
 [system]:Maintainance/Tools/system_init_script.md
 [scmcloudadmin]:Maintainance/Tools/Scmcloudadmin/Readme.md

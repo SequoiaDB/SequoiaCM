@@ -36,7 +36,7 @@ ScmAttribute stringAttr = ScmFactory.Attribute.createInstance(workspace, attrCon
 >  **Note:**
 > 
 >  AttributeType 共有如下五种类型：
->	
+>
 >  * AttributeType.STRING  字符串类型，检验规则类：ScmStringRule
 >
 >  * AttributeType.INTEGER  整型，检验规则类：ScmIntegerRule
