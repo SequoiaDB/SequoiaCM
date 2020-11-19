@@ -12,6 +12,8 @@ ScmSession session = ScmFactory.Session.createSession(
 ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace("test_ws", session);
 // 创建批次"Batch"，并设置自定义标签
 ScmBatch batch = ScmFactory.Batch.createInstance(workspace);
+// 创建自定义ID批次
+// ScmFactory.Batch.createInstance(ws, "zh.aps_image.2020-10-28.bug589");
 ScmTags tags = new ScmTags();
 tags.addTag("tagValue");
 batch.setName("Batch");
@@ -59,7 +61,7 @@ batch.detachFile(file.getFileId());
 >  * 文件只能关联到一个批次
 
 * 删除批次
-	
+
 ```lang-javascript 
 //通过 batchID 删除批次
 ScmFactory.Batch.deleteInstance(workspace, batchID);

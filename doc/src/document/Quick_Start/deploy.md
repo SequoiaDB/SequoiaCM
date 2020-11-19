@@ -204,11 +204,14 @@
     {
         "url":"scmServer:8080/rootsite",
         "userName": "admin",
-        "password": "admin",   
+        "password": "admin", 
         "workspaces":[
             {
                 "name":"test_ws",
                 "description":"''",
+                "enable_directory": true,
+                "batch_sharding_type": "none",
+                "batch_file_name_unique": false,
                 "meta":{
                     "site":"rootSite",
                     "domain":"meta_domain",
@@ -230,6 +233,12 @@
     > * url 填写网关的地址，其中 rootsite 为主站点的服务名，在 url 中为全小写
     >
     > * userName 和 password 分别为系统默认的管理员用户密码
+    > 
+    > * enable_directory 为是否开启目录功能，默认为 true
+    > 
+    > * batch_sharding_type 为批次分区类型，默认为 none
+    > 
+    > * batch_file_name_unique 为批次内文件名是否唯一，默认 false
 
 3. 创建工作区
 
