@@ -1,4 +1,4 @@
-package com.sequoiacm.batch.concurrent;
+package com.sequoiacm.batch.serial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +144,8 @@ public class Batch3122 extends TestScmBase {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 file.setFileName( newName );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_FILE_SAME_NAME ) {
+                if ( e.getError() != ScmError.BATCH_FILE_SAME_NAME
+                        && e.getError() != ScmError.OPERATION_TIMEOUT ) {
                     throw e;
                 }
             } finally {

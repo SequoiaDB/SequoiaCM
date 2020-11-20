@@ -1,19 +1,18 @@
-package com.sequoiacm.batch.concurrent;
+package com.sequoiacm.batch.serial;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBatch;
 import com.sequoiacm.client.core.ScmDirectory;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
@@ -29,23 +28,24 @@ import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
- * @Description: SCM-3120:工作区batch_file_name_unique为true时，并发删除批次/批次关联文件/批次解除文件/更改批次属性
+ * @Description: SCM-3123:并发批次关联文件和删除文件
  * @author fanyu
  * @Date:2020/10/15
  * @version:1.0
  */
 
-public class Batch3120 extends TestScmBase {
+public class Batch3123 extends TestScmBase {
     private SiteWrapper site = null;
-    private String wsName = "ws3120";
-    private String batchName = "batch3120";
+    private String wsName = "ws3123";
+    private String batchName = "batch3123";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private String fileNameBase = "file3120_";
+    private String fileNameBase = "file3123_";
     private int fileNum = 20;
     private List< ScmId > fileIdList = new ArrayList<>();
-    private String batchId = "NO3120";
-    private String dirName = "/dir3120";
+    private String batchId = "NO3123";
+    private String dirName = "/dir3123";
+    private AtomicInteger count = new AtomicInteger( 0 );
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -71,16 +71,14 @@ public class Batch3120 extends TestScmBase {
             threadExec.addWorker( new AttachFile( fileId ) );
         }
         for ( ScmId fileId : fileIdList ) {
-            threadExec.addWorker( new DetachFile( fileId ) );
+            threadExec.addWorker( new DeleteFile( fileId ) );
         }
-        threadExec.addWorker( new UpdateBatch( batchId ) );
-        threadExec.addWorker( new DeleteBatch( batchId ) );
         threadExec.run();
-
         // 检查结果
-        long count = ScmFactory.Batch.countInstance( ws, ScmQueryBuilder
-                .start( ScmAttributeName.Batch.NAME ).is( batchName ).get() );
-        Assert.assertEquals( count, 0 );
+        ScmBatch getBatch = ScmFactory.Batch.getInstance( ws,
+                new ScmId( batchId, false ) );
+        Assert.assertEquals( getBatch.listFiles().size(),
+                fileNum - count.get() );
     }
 
     @AfterClass
@@ -109,8 +107,7 @@ public class Batch3120 extends TestScmBase {
                         new ScmId( batchId, false ) );
                 batch.attachFile( fileId );
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_NOT_FOUND
-                        && e.getError() != ScmError.FILE_NOT_FOUND ) {
+                if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
                     throw e;
                 }
             } finally {
@@ -121,85 +118,24 @@ public class Batch3120 extends TestScmBase {
         }
     }
 
-    private class DetachFile {
+    private class DeleteFile {
         private ScmId fileId;
 
-        public DetachFile( ScmId fileId ) {
+        public DeleteFile( ScmId fileId ) {
             this.fileId = fileId;
         }
 
         @ExecuteOrder(step = 1)
-        private void detachFile() throws ScmException {
+        private void delete() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
-                ScmBatch batch = ScmFactory.Batch.getInstance( ws,
-                        new ScmId( batchId, false ) );
-                batch.detachFile( fileId );
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                count.getAndIncrement();
             } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_NOT_FOUND
-                        && e.getError() != ScmError.FILE_NOT_IN_BATCH
-                        && e.getError() != ScmError.FILE_NOT_FOUND ) {
-                    throw e;
-                }
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
-        }
-    }
-
-    private class UpdateBatch {
-        private String batchId;
-
-        public UpdateBatch( String batchId ) {
-            this.batchId = batchId;
-        }
-
-        @ExecuteOrder(step = 1)
-        private void updateBatch() throws ScmException {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
-                        session );
-                ScmBatch batch = ScmFactory.Batch.getInstance( ws,
-                        new ScmId( batchId, false ) );
-                batch.setName( batchName + "_new" );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
-                    throw e;
-                }
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
-        }
-
-    }
-
-    private class DeleteBatch {
-        private String batchId;
-
-        public DeleteBatch( String batchId ) {
-            this.batchId = batchId;
-        }
-
-        @ExecuteOrder(step = 1)
-        private void deleteBatch() throws ScmException {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
-                        session );
-                ScmFactory.Batch.deleteInstance( ws,
-                        new ScmId( batchId, false ) );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.BATCH_NOT_FOUND ) {
+                if ( e.getError() != ScmError.FILE_IN_ANOTHER_BATCH ) {
                     throw e;
                 }
             } finally {
