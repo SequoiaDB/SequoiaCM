@@ -32,7 +32,8 @@ public interface ScheduleClient {
             @PathVariable("schedule_id") String scheduleId) throws ScheduleException;
 
     @DeleteMapping(value = "/schedules/{schedule_id}")
-    public void deleteSchdule(@PathVariable("schedule_id") String scheduleId)
+    public void deleteSchdule(@PathVariable("schedule_id") String scheduleId,
+            @RequestParam(RestCommonDefine.RestParam.STOP_WORKER) boolean stopWorker)
             throws ScheduleException;
 
     @PutMapping(value = "/schedules/{schedule_id}")

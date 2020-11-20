@@ -58,10 +58,10 @@ public abstract class IdxWorkerBase extends ScheduleWorker {
                 reportStatus(statusInfo.toBsonObject(), isFinish);
             }
             catch (ScheduleException e) {
-                if (e.getCode() == RestCommonDefine.ErrorCode.WORKER_SHOULD_STOP) {
+                if (e.getCode().equals(RestCommonDefine.ErrorCode.WORKER_SHOULD_STOP)) {
                     throw e;
                 }
-                logger.warn("failed to resport job status:{}, jobStatus={}", toString(),
+                logger.warn("failed to report job status:{}, jobStatus={}", toString(),
                         statusInfo.toBsonObject(), e);
             }
             lastReportStatusTime = now;

@@ -79,10 +79,10 @@ public class InternalScheduleController {
         }
     }
 
-    private void deleteSchedule2Leader(String leaderId, String scheduleId) throws Exception {
+    private void deleteSchedule2Leader(String leaderId, String scheduleId, boolean stopWorker) throws Exception {
         String targetUrl = ScheduleCommonTools.joinInternalUrlElems(leaderId.split(":"));
         ScheduleClient client = clientFactory.getFeignClientByNodeUrl(targetUrl);
-        client.deleteSchdule(scheduleId);
+        client.deleteSchdule(scheduleId, stopWorker);
     }
 
     @GetMapping("/schedules/status/{schedule_name}")
@@ -122,7 +122,7 @@ public class InternalScheduleController {
                 throw new ScheduleException(RestCommonDefine.ErrorCode.PERMISSION_DENIED,
                         "I'm not leader yet!:id=" + leaderId);
             }
-            deleteSchedule2Leader(leaderId, scheduleId);
+            deleteSchedule2Leader(leaderId, scheduleId, stopWorker);
         }
         else {
             service.deleteSchedule(scheduleId, stopWorker);

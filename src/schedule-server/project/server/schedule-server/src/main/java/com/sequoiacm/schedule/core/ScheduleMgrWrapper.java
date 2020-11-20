@@ -150,7 +150,7 @@ public class ScheduleMgrWrapper {
                     return info;
                 }
             }
-            logger.info("create schedule job sucess:id={},enable={}", jobInfo.getId(),
+            logger.info("create schedule job success:id={},enable={}", jobInfo.getId(),
                     info.isEnable());
             return info;
         }
@@ -199,7 +199,7 @@ public class ScheduleMgrWrapper {
 
             scheduleDao.delete(scheduleId);
             deleteJobSilence(scheduleId, stopWorker);
-            logger.info("delete schedule job sucess:id={}", scheduleId);
+            logger.info("delete schedule job success:id={}", scheduleId);
         }
         catch (Exception e) {
             logger.error("delete schedule failed:scheduleId={}", scheduleId);
@@ -228,7 +228,7 @@ public class ScheduleMgrWrapper {
             // remove schedule from db
             BSONObject wsMatcher = new BasicBSONObject(FieldName.Schedule.FIELD_WORKSPACE, wsName);
             scheduleDao.delete(wsMatcher);
-            logger.info("delete schedules sucess:ws={}", wsName);
+            logger.info("delete schedules success:ws={}", wsName);
         }
         catch (Exception e) {
             logger.error("delete schedules failed:ws={}", wsName, e);
@@ -294,7 +294,7 @@ public class ScheduleMgrWrapper {
             // 3.write to db
             scheduleDao.update(scheduleId, newValue);
 
-            logger.info("update schedule job sucess:id={}", scheduleId);
+            logger.info("update schedule job success:id={}", scheduleId);
 
             return newFullInfo;
         }
