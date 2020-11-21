@@ -34,8 +34,7 @@ public class CrudDir2942 extends TestScmBase {
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
-    // bug:SEQUOIACM-543
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
         // 创建工作区
         ScmWorkspace ws = ScmWorkspaceUtil.createWS( session, wsName,
