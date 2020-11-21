@@ -1,5 +1,8 @@
 package com.sequoiacm.fulltext.server.operator;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,9 +99,13 @@ public class FulltextIdxCreatingStateOp extends FulltextIdxCreatedStateOp {
 
     @Override
     public void inspectIndex(ScmWorkspaceFulltextExtData fulltextData) throws FullTextException {
-        throw new FullTextException(ScmError.FULL_TEXT_INDEX_IS_CREATING,
-                "fulltext index is creating, can not do inspect now:workspace="
-                        + fulltextData.getWsName());
+        String schName = fulltextData.getFulltextJobName();
+        if (schClient.isInternalSchExist(schName)) {
+            throw new FullTextException(ScmError.FULL_TEXT_INDEX_IS_CREATING,
+                    "fulltext index is creating, can not do inspect now:workspace="
+                            + fulltextData.getWsName());
+        }
+        updateAndBuildIndex(fulltextData, fulltextData.getFileMatcher(), fulltextData.getMode());
     }
 
     @Override
