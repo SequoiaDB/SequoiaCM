@@ -1,7 +1,5 @@
 package com.sequoiacm.auth;
 
-import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -33,11 +31,14 @@ import com.sequoiacm.testcommon.TestScmTools;
  */
 
 public class AuthServer_user1509_to_1516 extends TestScmBase {
-    private static final Logger logger = Logger
+    private final Logger logger = Logger
             .getLogger( AuthServer_user1509_to_1516.class );
-    private static final String NAME = "auth1509";
-    private static final String PASSWORD = NAME;
-    private static final int USER_NUM = 3;
+    private final String username = "auth1509";
+    private final String password = username;
+    private final String roleName1 = "1509A";
+    private final String roleName2 = "ROLE_1509B";
+    private final String roleNamePrefix = "ROLE_";
+    private final int userNum = 4;
     private boolean runSuccess = false;
     private int failTimes = 0;
     private SiteWrapper site = null;
@@ -50,9 +51,9 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
         session = TestScmTools.createSession( site );
 
         // clean new user
-        for ( int i = 0; i < USER_NUM; i++ ) {
+        for ( int i = 0; i < userNum; i++ ) {
             try {
-                ScmFactory.User.deleteUser( session, NAME + "_" + i );
+                ScmFactory.User.deleteUser( session, username + "_" + i );
             } catch ( ScmException e ) {
                 logger.info( "clean users in setUp, errorMsg = [" + e.getError()
                         + "]" );
@@ -60,7 +61,14 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
         }
 
         try {
-            ScmFactory.Role.deleteRole( session, NAME );
+            ScmFactory.Role.deleteRole( session, roleName1 );
+        } catch ( ScmException e ) {
+            logger.info(
+                    "clean roles in setUp, errorMsg = [" + e.getError() + "]" );
+        }
+
+        try {
+            ScmFactory.Role.deleteRole( session, roleName2 );
         } catch ( ScmException e ) {
             logger.info(
                     "clean roles in setUp, errorMsg = [" + e.getError() + "]" );
@@ -92,20 +100,48 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_listUserByFilter() throws ScmException {
         BSONObject cond = ScmQueryBuilder.start( "password_type" ).is( "LOCAL" )
-                .and( "enabled" ).is( false ).and( "has_role" ).is( NAME )
+                .and( "enabled" ).is( false ).and( "has_role" ).is( roleName1 )
                 .get();
-
         ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
                 cond );
-        ArrayList< ScmUser > rtUsers = new ArrayList< ScmUser >();
+        int i = 0;
         while ( cursor.hasNext() ) {
             ScmUser user = cursor.getNext();
-            rtUsers.add( user );
-            System.out.println( user.getUsername() );
+            Assert.assertEquals( user.getUsername(), username + "_2",
+                    user.toString() );
+            i++;
         }
-        Assert.assertEquals( rtUsers.size(), 1 );
-        Assert.assertEquals( rtUsers.get( 0 ).getUsername(), NAME + "_2" );
+        Assert.assertEquals( i, 1 );
+        runSuccess = true;
+    }
 
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void test_listUserByFullRoleName() throws ScmException {
+        BSONObject cond1 = ScmQueryBuilder.start( "has_role" )
+                .is( roleNamePrefix + roleName1 ).get();
+        ScmCursor< ScmUser > cursor1 = ScmFactory.User.listUsers( session,
+                cond1 );
+        int i = 0;
+        while ( cursor1.hasNext() ) {
+            ScmUser user = cursor1.getNext();
+            Assert.assertEquals( user.getUsername(), username + "_2",
+                    user.toString() );
+            i++;
+        }
+        Assert.assertEquals( i, 1 );
+
+        BSONObject cond2 = ScmQueryBuilder.start( "has_role" ).is( roleName2 )
+                .get();
+        ScmCursor< ScmUser > cursor2 = ScmFactory.User.listUsers( session,
+                cond2 );
+        int j = 0;
+        while ( cursor2.hasNext() ) {
+            ScmUser user = cursor2.getNext();
+            Assert.assertEquals( user.getUsername(), username + "_3",
+                    user.toString() );
+            j++;
+        }
+        Assert.assertEquals( j, 1 );
         runSuccess = true;
     }
 
@@ -155,10 +191,11 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                for ( int i = 0; i < USER_NUM; i++ ) {
-                    ScmFactory.User.deleteUser( session, NAME + "_" + i );
+                for ( int i = 0; i < userNum; i++ ) {
+                    ScmFactory.User.deleteUser( session, username + "_" + i );
                 }
-                ScmFactory.Role.deleteRole( session, NAME );
+                ScmFactory.Role.deleteRole( session, roleName1 );
+                ScmFactory.Role.deleteRole( session, roleName2 );
             }
         } finally {
             if ( null != session ) {
@@ -169,26 +206,34 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
 
     private void createUser() throws ScmException {
         // create role
-        ScmRole role = ScmFactory.Role.createRole( session, NAME, "" );
+        ScmRole role1 = ScmFactory.Role.createRole( session, roleName1, "" );
+        ScmRole role2 = ScmFactory.Role.createRole( session, roleName2, "" );
 
         // create admin user
-        ScmUser scmUser = ScmFactory.User.createUser( session, NAME + "_0",
-                ScmUserPasswordType.LOCAL, PASSWORD );
+        ScmUser scmUser = ScmFactory.User.createUser( session, username + "_0",
+                ScmUserPasswordType.LOCAL, password );
         ScmUserModifier modifier = new ScmUserModifier();
         modifier.addRole( authAdminRole );
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
         // create ordinary user
-        scmUser = ScmFactory.User.createUser( session, NAME + "_1",
-                ScmUserPasswordType.LOCAL, PASSWORD );
+        scmUser = ScmFactory.User.createUser( session, username + "_1",
+                ScmUserPasswordType.LOCAL, password );
         modifier = new ScmUserModifier();
         modifier.setEnabled( false );
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
-        scmUser = ScmFactory.User.createUser( session, NAME + "_2",
-                ScmUserPasswordType.LOCAL, PASSWORD );
+        scmUser = ScmFactory.User.createUser( session, username + "_2",
+                ScmUserPasswordType.LOCAL, password );
         modifier = new ScmUserModifier();
-        modifier.addRole( role );
+        modifier.addRole( role1 );
+        modifier.setEnabled( false );
+        ScmFactory.User.alterUser( session, scmUser, modifier );
+
+        scmUser = ScmFactory.User.createUser( session, username + "_3",
+                ScmUserPasswordType.LOCAL, password );
+        modifier = new ScmUserModifier();
+        modifier.addRole( role2 );
         modifier.setEnabled( false );
         ScmFactory.User.alterUser( session, scmUser, modifier );
     }
