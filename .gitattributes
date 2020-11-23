@@ -1,4 +1,4 @@
-* text=auto
+* -text
 *.txt text eol=lf
 *.java text eol=lf
 *.py text eol=lf
@@ -8,13 +8,3 @@
 *.md text eol=lf
 *.properties text eol=lf
 
-*.jpg binary
-*.png binary
-*.doc binary
-*.docx binary
-*.xls binary
-*.xlsx binary
-*.xls binary
-*.ppt binary
-*.pptx binary
-*.gz binary
