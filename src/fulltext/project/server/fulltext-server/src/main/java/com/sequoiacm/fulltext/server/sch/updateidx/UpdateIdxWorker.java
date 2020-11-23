@@ -64,7 +64,9 @@ public class UpdateIdxWorker extends IdxCreateWorker {
         String rootSite = siteInfoMgr.getRootSiteName();
         ContentserverClient csClient = csMgr.getClient(rootSite);
 
+        // 返回 null 表示没有文件需要删除索引
         BSONObject dropIdxCondition = conditionForDropIndex(data);
+
         BSONObject createIdxCondition = conditionForCreateIndex(data);
 
         long estimateCount = getEstimateFileCount(data, csClient, dropIdxCondition,
@@ -73,9 +75,10 @@ public class UpdateIdxWorker extends IdxCreateWorker {
         reportInitStatus();
 
         dropIndex(data, csClient, dropIdxCondition);
+        // 等删除索引的子任务全部完成后，再开始建索引，避免可能存在建索引和删除索引同时作用在一个文件上
+        waitSubTaskExit();
 
         createIndex(data, csClient, createIdxCondition);
-
         waitSubTaskExit();
 
         esClient.refreshIndexSilence(data.getIndexDataLocation());
@@ -99,6 +102,10 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     private void dropIndex(FulltextIdxSchJobData data, ContentserverClient csClient,
             BSONObject dropIdxCondition) throws ScmServerException, ScheduleException {
+        if(dropIdxCondition == null){
+            logger.info("fulltext matcher is empty, no need drop index:ws={}, matcher={}", data.getWs(), data.getFileMatcher());
+            return;
+        }
         ScmEleCursor<ScmFileInfo> cursor = csClient.listFile(data.getWs(), dropIdxCondition,
                 CommonDefine.Scope.SCOPE_CURRENT, null, 0, -1);
         try {
@@ -125,10 +132,12 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     private long getEstimateFileCount(FulltextIdxSchJobData data, ContentserverClient csClient,
             BSONObject dropIdxCondition, BSONObject createIdxCondition) throws ScmServerException {
-        BasicBSONList andList = new BasicBSONList();
-        andList.add(createIdxCondition);
-        andList.add(dropIdxCondition);
-        BasicBSONObject and = new BasicBSONObject("$or", andList);
+        BasicBSONList orList = new BasicBSONList();
+        orList.add(createIdxCondition);
+        if(dropIdxCondition != null) {
+            orList.add(dropIdxCondition);
+        }
+        BasicBSONObject and = new BasicBSONObject("$or", orList);
         return csClient.countFile(data.getWs(), CommonDefine.Scope.SCOPE_CURRENT, and);
     }
 
@@ -147,6 +156,11 @@ public class UpdateIdxWorker extends IdxCreateWorker {
         *   }]
         * }
         */
+
+        // 工作区的索引条件是空，表示所有文件都需要建索引，那么本次更新索引没有文件需要删除索引，返回一个空指针表示这种情况
+        if(data.getFileMatcher() == null || data.getFileMatcher().isEmpty()) {
+            return null;
+        }
 
         BasicBSONObject hasIndexFile = new BasicBSONObject();
         BasicBSONObject notEq = new BasicBSONObject("$ne", ScmFileFulltextStatus.NONE.name());
