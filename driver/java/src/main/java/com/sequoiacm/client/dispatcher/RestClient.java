@@ -11,6 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -34,6 +35,7 @@ final class RestClient {
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
     private static final String AUTHORIZATION = "x-auth-token";
     private static final String ERROR_ATTRIBUTE = "X-SCM-ERROR";
+    private static final String ERROR_ATTRIBUTE_CHARASET = "X-SCM-ERROR-CHARSET";
     private static final String NO_AUTH_SESSION_ID = "-1";
     private static final String CHARSET_UTF8 = "utf-8";
 
@@ -199,6 +201,9 @@ final class RestClient {
     private static CloseableHttpResponseWrapper sendRequest(CloseableHttpClient client,
             HttpRequestBase request) throws ScmException {
         try {
+            if (HttpHead.METHOD_NAME.equals(request.getMethod())) {
+                request.addHeader(ERROR_ATTRIBUTE_CHARASET, CHARSET_UTF8);
+            }
             CloseableHttpResponse response = client.execute(request);
             CloseableHttpResponseWrapper respWrapper = new CloseableHttpResponseWrapper(response,
                     null);
@@ -284,9 +289,19 @@ final class RestClient {
             }
         }
         else {
-            Header header = respWrapper.getFirstHeader(ERROR_ATTRIBUTE);
-            if (header != null) {
-                error = header.getValue();
+            Header errorHeader = respWrapper.getFirstHeader(ERROR_ATTRIBUTE);
+            if (errorHeader != null) {
+                error = errorHeader.getValue();
+                Header charsetHeader = respWrapper.getFirstHeader(ERROR_ATTRIBUTE_CHARASET);
+                if (charsetHeader != null) {
+                    String charset = charsetHeader.getValue();
+                    try {
+                        error = URLDecoder.decode(error, charset);
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        throw new ScmSystemException(charset, e);
+                    }
+                }
             }
         }
 

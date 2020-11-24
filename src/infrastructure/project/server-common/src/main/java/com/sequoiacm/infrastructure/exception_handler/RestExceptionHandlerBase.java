@@ -1,5 +1,8 @@
 package com.sequoiacm.infrastructure.exception_handler;
 
+import java.net.URLEncoder;
+import java.nio.charset.UnsupportedCharsetException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +18,8 @@ public abstract class RestExceptionHandlerBase {
     private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandlerBase.class);
     private static final String ERROR_ATTRIBUTE = "X-SCM-ERROR";
     private static final String ERROR_RESPONSE_HOST_INFO = "SCM-ERROR-HOST";
+    private static final String ERROR_ATTRIBUTE_CHARSET = "X-SCM-ERROR-CHARSET";
+    private static final String CHARSET_UTF8 = "UTF-8";
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
@@ -43,7 +48,19 @@ public abstract class RestExceptionHandlerBase {
                 request.getRequestURI(), exceptionBody.getStatus(), exceptionBody.getError());
         logger.error(log, e);
         if ("HEAD".equalsIgnoreCase(request.getMethod())) {
-            response.setHeader(ERROR_ATTRIBUTE, exceptionBody.toJson());
+            String exceptionMsg = exceptionBody.toJson();
+            String charsetStr = request.getHeader(ERROR_ATTRIBUTE_CHARSET);
+            if (charsetStr != null) {
+                try {
+                    exceptionMsg = URLEncoder.encode(exceptionMsg, charsetStr);
+                }
+                catch (UnsupportedCharsetException e1) {
+                    charsetStr = CHARSET_UTF8;
+                    exceptionMsg = URLEncoder.encode(exceptionMsg, charsetStr);
+                }
+                response.setHeader(ERROR_ATTRIBUTE_CHARSET, charsetStr);
+            }
+            response.setHeader(ERROR_ATTRIBUTE, exceptionMsg);
             return ResponseEntity.status(exceptionBody.getHttpStatus()).build();
         }
         else {
