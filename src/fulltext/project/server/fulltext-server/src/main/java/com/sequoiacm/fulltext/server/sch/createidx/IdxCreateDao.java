@@ -113,13 +113,13 @@ public class IdxCreateDao {
                             return;
                         }
                     }
-                    catch (Exception e) {
+                    catch (Throwable e) {
                         fileCount += ScmFileUtil.travelCursorSilenceForFileCount(historyFileCursor);
                         throw e;
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Throwable e) {
                 onException("failed to create index for the history version", rootSiteCsClient,
                         null, latestVersionFile);
                 throw e;
