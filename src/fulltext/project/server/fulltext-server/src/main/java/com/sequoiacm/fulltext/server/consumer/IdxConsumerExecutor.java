@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
+import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +24,15 @@ import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
 import com.sequoiacm.fulltext.server.sch.IdxThreadPoolConfig;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
-import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceEventListener;
-import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceInfo;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.mq.client.config.AdminClient;
 import com.sequoiacm.mq.client.core.ConsumerClientMgr;
 
 @Component
-public class IdxConsumerExecutor implements ScmWorkspaceEventListener {
+public class IdxConsumerExecutor {
     private static final Logger logger = LoggerFactory.getLogger(IdxConsumerExecutor.class);
+    private final ScmWorkspaceMgr wsMgr;
     @Autowired
     private ContentserverClientMgr csMgr;
     @Autowired
@@ -50,18 +50,22 @@ public class IdxConsumerExecutor implements ScmWorkspaceEventListener {
 
     @Autowired
     public IdxConsumerExecutor(AdminClient mqAdminClient, ConsumerClientMgr consumerClientMgr,
-            IdxThreadPoolConfig threadPoolConfig) {
+            IdxThreadPoolConfig threadPoolConfig, ScmWorkspaceMgr wsMgr,
+            FulltextMqConfig fulltextMqConfig) {
         this.mqAdminClient = mqAdminClient;
         this.consumerClientMgr = consumerClientMgr;
+        this.wsMgr = wsMgr;
         taskMgr = new ThreadPoolExecutor(threadPoolConfig.getCorePoolSize(),
                 threadPoolConfig.getMaxPoolSize(), threadPoolConfig.getKeepAliveTime(),
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(threadPoolConfig.getBlockingQueueSize()),
                 Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+        taskMgr.submit(new IdxConsumerMainTask(mqAdminClient, consumerClientMgr, this, wsMgr,
+                fulltextMqConfig));
     }
 
     @PreDestroy
-    public void destory() {
+    public void destroy() {
         if (taskMgr != null) {
             taskMgr.shutdownNow();
         }
@@ -72,65 +76,5 @@ public class IdxConsumerExecutor implements ScmWorkspaceEventListener {
         MsgProcessTask task = new MsgProcessTask(esClient, csMgr, textualParserMgr, siteInfoMgr,
                 msgs, wsExtData, context);
         taskMgr.submit(task);
-    }
-
-    @Override
-    public synchronized void onWorkspaceAdd(ScmWorkspaceInfo ws) {
-        if (ws.getExternalData().isEnabled()) {
-            IdxConsumerMainTask task = new IdxConsumerMainTask(mqAdminClient, consumerClientMgr,
-                    this, ws.getExternalData());
-            taskMgr.submit(task);
-            ws2Consumer.put(ws.getName(), task);
-            return;
-        }
-        IdxConsumerMainTask task = ws2Consumer.remove(ws.getName());
-        if (task != null) {
-            task.stop();
-        }
-
-    }
-
-    @Override
-    public synchronized void onWorkspaceRemove(ScmWorkspaceInfo ws) {
-        IdxConsumerMainTask task = ws2Consumer.remove(ws.getName());
-        if (task != null) {
-            task.stop();
-        }
-        try {
-            mqAdminClient.deleteTopic(ws.getName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
-        }
-        catch (Exception e) {
-            logger.warn("failed to remove topic:{}",
-                    ws.getName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL, e);
-        }
-
-        if (ws.getExternalData().getIndexDataLocation() != null) {
-            try {
-                esClient.dropIndexAsync(ws.getExternalData().getIndexDataLocation());
-            }
-            catch (Exception e) {
-                logger.warn("failed to remove index:ws={}, index={}", ws.getName(),
-                        ws.getExternalData().getIndexDataLocation(), e);
-            }
-        }
-    }
-
-    @Override
-    public synchronized void onWorkspaceUpdate(ScmWorkspaceInfo newWs) {
-        if (newWs.getExternalData().isEnabled()) {
-            IdxConsumerMainTask task = ws2Consumer.get(newWs.getName());
-            if (task == null) {
-                onWorkspaceAdd(newWs);
-                return;
-            }
-            task.updateWsExtData(newWs.getExternalData());
-            return;
-        }
-
-        IdxConsumerMainTask task = ws2Consumer.remove(newWs.getName());
-        if (task == null) {
-            return;
-        }
-        task.stop();
     }
 }

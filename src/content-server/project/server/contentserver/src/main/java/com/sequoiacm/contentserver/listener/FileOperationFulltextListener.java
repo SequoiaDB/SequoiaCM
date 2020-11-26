@@ -140,15 +140,17 @@ public class FileOperationFulltextListener implements FileOperationListener {
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
         msg.setOptionType(OptionType.CREATE_IDX);
         msg.setWsName(fulltextExt.getWsName());
-        String topic = fulltextExt.getWsName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL;
         try {
-            long msgId = producerClient.putMsg(topic, fileId, new FulltextMsgWrapper(msg));
+            long msgId = producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg));
             logger.debug("put fulltext msg to mq-server:" + msg);
             return msgId;
         }
         catch (Exception e) {
             throw new ScmServerException(ScmError.SYSTEM_ERROR,
-                    "failed to put fulltext msg to  mq-server:topic=" + topic + ", msg=" + msg, e);
+                    "failed to put fulltext msg to  mq-server:topic="
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC + ", msg=" + msg,
+                    e);
         }
     }
 
@@ -159,13 +161,14 @@ public class FileOperationFulltextListener implements FileOperationListener {
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
         msg.setOptionType(OptionType.DROP_IDX_ONLY);
         msg.setWsName(fulltextExt.getWsName());
-        String topic = fulltextExt.getWsName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL;
         try {
-            producerClient.putMsg(topic, fileId, new FulltextMsgWrapper(msg));
+            producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg));
             logger.debug("put fulltext msg to mq-server:" + msg);
         }
         catch (Exception e) {
-            logger.warn("failed to put fulltext msg to  mq-server:topic={}, msg={}", topic, msg, e);
+            logger.warn("failed to put fulltext msg to  mq-server:topic={}, msg={}",
+                    FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, msg, e);
         }
     }
 
@@ -176,14 +179,16 @@ public class FileOperationFulltextListener implements FileOperationListener {
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
         msg.setOptionType(OptionType.DROP_IDX_AND_UPDATE_FILE);
         msg.setWsName(fulltextExt.getWsName());
-        String topic = fulltextExt.getWsName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL;
         try {
-            producerClient.putMsg(topic, fileId, new FulltextMsgWrapper(msg));
+            producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg));
             logger.debug("put fulltext msg to mq-server:" + msg);
         }
         catch (Exception e) {
             throw new ScmServerException(ScmError.SYSTEM_ERROR,
-                    "failed to put fulltext msg to  mq-server:topic=" + topic + ", msg=" + msg, e);
+                    "failed to put fulltext msg to  mq-server:topic="
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC + ", msg=" + msg,
+                    e);
         }
     }
 
@@ -258,7 +263,7 @@ class WaitMsgConsumedCallback implements OperationCompleteCallback {
     public void onComplete() {
         try {
             boolean isConsumed = mqAdmin.waitForMsgConusmed(
-                    ws + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL, msgId, timeout, 300);
+                    FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, msgId, timeout, 300);
             if (!isConsumed) {
                 logger.warn(
                         "failed to wait for fulltext index to create, cause by timeout:ws={}, fileId={}, timeout={}",

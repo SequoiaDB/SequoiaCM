@@ -51,7 +51,6 @@ public class FulltextIdxCreatingStateOp extends FulltextIdxCreatedStateOp {
         }
         catch (Exception e) {
             rollbackToNoneSilence(wsName);
-            dropTopicSilence(wsName);
             dropIndexSilence(indexLocation);
             throw e;
         }

@@ -1,11 +1,14 @@
 package com.sequoiacm.fulltext.server.sch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @ConfigurationProperties("scm.fulltext.idxThreadPool")
 @Configuration
 public class IdxThreadPoolConfig {
+    private static final Logger logger = LoggerFactory.getLogger(IdxThreadPoolConfig.class);
     private int corePoolSize = 5;
     private int maxPoolSize = 10;
     private int keepAliveTime = 20; //second
@@ -16,6 +19,11 @@ public class IdxThreadPoolConfig {
     }
 
     public void setCorePoolSize(int corePoolSize) {
+        if(corePoolSize < 2){
+            logger.warn("scm.fulltext.idxThreadPool.corePoolSize must greater than 2 ({}), reset to 2", corePoolSize);
+            this.corePoolSize = 2;
+            return;
+        }
         this.corePoolSize = corePoolSize;
     }
 

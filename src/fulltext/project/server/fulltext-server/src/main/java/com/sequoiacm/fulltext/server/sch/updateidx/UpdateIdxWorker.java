@@ -51,13 +51,12 @@ public class UpdateIdxWorker extends IdxCreateWorker {
     protected void exec(String schName, BSONObject jobData) throws Exception {
         FulltextIdxSchJobData data = new FulltextIdxSchJobData(jobData);
 
-        boolean isConsumed = mqAdmin.waitForMsgConusmed(
-                data.getWs() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL, data.getLatestMsgId(),
-                Integer.MAX_VALUE, 5000);
+        boolean isConsumed = mqAdmin.waitForMsgConusmed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                data.getLatestMsgId(), Integer.MAX_VALUE, 5000);
         if (!isConsumed) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
-                    "failed to wait msg to be consumed, timeout: topic=" + data.getWs()
-                            + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL + ", msgId="
+                    "failed to wait msg to be consumed, timeout: topic="
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC + ", msgId="
                             + data.getLatestMsgId());
         }
 
@@ -102,8 +101,9 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     private void dropIndex(FulltextIdxSchJobData data, ContentserverClient csClient,
             BSONObject dropIdxCondition) throws ScmServerException, ScheduleException {
-        if(dropIdxCondition == null){
-            logger.info("fulltext matcher is empty, no need drop index:ws={}, matcher={}", data.getWs(), data.getFileMatcher());
+        if (dropIdxCondition == null) {
+            logger.info("fulltext matcher is empty, no need drop index:ws={}, matcher={}",
+                    data.getWs(), data.getFileMatcher());
             return;
         }
         ScmEleCursor<ScmFileInfo> cursor = csClient.listFile(data.getWs(), dropIdxCondition,
@@ -134,7 +134,7 @@ public class UpdateIdxWorker extends IdxCreateWorker {
             BSONObject dropIdxCondition, BSONObject createIdxCondition) throws ScmServerException {
         BasicBSONList orList = new BasicBSONList();
         orList.add(createIdxCondition);
-        if(dropIdxCondition != null) {
+        if (dropIdxCondition != null) {
             orList.add(dropIdxCondition);
         }
         BasicBSONObject and = new BasicBSONObject("$or", orList);
@@ -143,22 +143,12 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     private BSONObject conditionForDropIndex(FulltextIdxSchJobData data) {
         /*
-        * {
-        *    "$and": [{
-        *        "external_data.fulltext_status": {
-        *          "$ne": "NONE"
-        *       }
-        *   },
-        *   {
-        *       "$not": [{
-        *           "title": "fileTitle"
-        *       }]
-        *   }]
-        * }
-        */
+         * { "$and": [{ "external_data.fulltext_status": { "$ne": "NONE" } }, { "$not":
+         * [{ "title": "fileTitle" }] }] }
+         */
 
         // 工作区的索引条件是空，表示所有文件都需要建索引，那么本次更新索引没有文件需要删除索引，返回一个空指针表示这种情况
-        if(data.getFileMatcher() == null || data.getFileMatcher().isEmpty()) {
+        if (data.getFileMatcher() == null || data.getFileMatcher().isEmpty()) {
             return null;
         }
 

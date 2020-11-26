@@ -28,13 +28,10 @@ public class ScmWorkspaceMgr {
     private Map<String, ScmWorkspaceInfo> wsInfos = new ConcurrentHashMap<>();
     private ConfServiceClient confClient;
 
-    private List<ScmWorkspaceEventListener> wsEventListeners;
-
     @Autowired
-    public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig,  List<ScmWorkspaceEventListener> wsEventListeners)
+    public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig)
             throws FullTextException {
         this.confClient = confClient;
-        this.wsEventListeners = wsEventListeners;
         confClient.registerSubscriber(
                 new ScmWorkspaceSubscriber(this, versionConfig.getWorkspaceHeartbeat()));
         List<WorkspaceConfig> wsList = confClient.getWorkspaceList();
@@ -88,18 +85,13 @@ public class ScmWorkspaceMgr {
         if (wsInfo == null) {
             return;
         }
-        for (ScmWorkspaceEventListener l : wsEventListeners) {
-            l.onWorkspaceRemove(wsInfo);
-        }
     }
 
     void updateWs(String wsName) throws FullTextException {
         WorkspaceConfig wsConf = confClient.getWorkspace(wsName);
         ScmWorkspaceInfo wsInfo = createWsInfo(wsConf);
         wsInfos.put(wsName, wsInfo);
-        for (ScmWorkspaceEventListener l : wsEventListeners) {
-            l.onWorkspaceUpdate(wsInfo);
-        }
+
     }
 
     void addWs(String wsName) throws FullTextException {
@@ -110,8 +102,6 @@ public class ScmWorkspaceMgr {
 
     void addWs(ScmWorkspaceInfo wsInfo) {
         wsInfos.put(wsInfo.getName(), wsInfo);
-        for (ScmWorkspaceEventListener l : wsEventListeners) {
-            l.onWorkspaceAdd(wsInfo);
-        }
+
     }
 }

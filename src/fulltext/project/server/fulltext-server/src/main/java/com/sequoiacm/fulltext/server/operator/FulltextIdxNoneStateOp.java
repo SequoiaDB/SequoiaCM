@@ -41,7 +41,6 @@ public class FulltextIdxNoneStateOp extends FulltextIdxOperator {
             changeToCreateing(wsName, fileMatcher, mode, indexLocation, schName);
         }
         catch (Exception e) {
-            dropTopicSilence(wsName);
             dropIndexSilence(indexLocation);
             throw e;
         }
@@ -51,7 +50,6 @@ public class FulltextIdxNoneStateOp extends FulltextIdxOperator {
         }
         catch (Exception e) {
             rollbackToNoneSilence(wsName);
-            dropTopicSilence(wsName);
             dropIndexSilence(indexLocation);
             throw e;
         }

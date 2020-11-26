@@ -2,6 +2,8 @@ package com.sequoiacm.fulltext.server.operator;
 
 import java.util.UUID;
 
+import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
+import com.sequoiacm.mq.core.exception.MqError;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +36,8 @@ public abstract class FulltextIdxOperator {
     protected EsClient esClient;
     @Autowired
     protected AdminClient mqAdminClient;
-
-    @Value("${scm.fulltext.mq.topicPartitionNum:3}")
-    private int topicPartitionNum = 3;
+    @Autowired
+    private FulltextMqConfig mqConfig;
 
     @Autowired
     public FulltextIdxOperator() {
@@ -55,13 +56,22 @@ public abstract class FulltextIdxOperator {
 
     protected void createTopicIfNotExist(String wsName) throws FullTextException {
         try {
-            mqAdminClient.createTopicIfNotExist(wsName + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL,
-                    topicPartitionNum);
+            try {
+                mqAdminClient.getTopic(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC);
+                return;
+            }
+            catch (MqException e) {
+                if (e.getError() == MqError.TOPIC_NOT_EXIST) {
+                    mqAdminClient.createTopicIfNotExist(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                            mqConfig.getTopicPartitionNum());
+                }
+                throw e;
+            }
         }
         catch (MqException e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
-                    "failed to create topic for in mq-server:" + wsName
-                            + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL,
+                    "failed to create topic for in mq-server:"
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
                     e);
         }
     }
@@ -71,23 +81,13 @@ public abstract class FulltextIdxOperator {
 
     protected long getLatestMsgId(String ws) throws FullTextException {
         try {
-            return mqAdminClient.peekLatestMsgId(ws + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
+            return mqAdminClient.peekLatestMsgId(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC);
         }
         catch (MqException e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
                     "failed to get latest msg from mq-server", e);
         }
 
-    }
-
-    protected void dropTopicSilence(String wsName) throws FullTextException {
-        try {
-            mqAdminClient.deleteTopic(wsName + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
-        }
-        catch (MqException e) {
-            logger.warn("rollback failed, remove topic failed:topicName={}{}", wsName,
-                    FulltextCommonDefine.FULLTEXT_TOPIC_TAIL, e);
-        }
     }
 
     protected void dropIndexSilence(String indexName) {

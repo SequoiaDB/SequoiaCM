@@ -1,20 +1,12 @@
 package com.sequoiacm.fulltext.server.consumer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
+import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg;
-import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg.OptionType;
 import com.sequoiacm.mq.client.config.AdminClient;
 import com.sequoiacm.mq.client.core.ConsumerClient;
@@ -23,6 +15,14 @@ import com.sequoiacm.mq.client.core.MessageDeseserializer;
 import com.sequoiacm.mq.core.exception.MqException;
 import com.sequoiacm.mq.core.module.ConsumerGroupOffsetEnum;
 import com.sequoiacm.mq.core.module.Message;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IdxConsumerMainTask implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(IdxConsumerMainTask.class);
@@ -39,6 +39,8 @@ public class IdxConsumerMainTask implements Runnable {
             return ret;
         }
     };
+    private final ScmWorkspaceMgr wsInfoMgr;
+    private final FulltextMqConfig fulltextMqConfig;
 
     private IdxConsumerExecutor consumerExecutor;
     private AdminClient mqAdminClient;
@@ -46,28 +48,15 @@ public class IdxConsumerMainTask implements Runnable {
     private ConsumerClient<FulltextMsg> client;
     private String topic;
 
-    private volatile ScmWorkspaceFulltextExtData ws;
-
-    private volatile boolean stopFlag;
-
     public IdxConsumerMainTask(AdminClient mqAdminClient, ConsumerClientMgr consumerClientMgr,
-            IdxConsumerExecutor consumerExecutor, ScmWorkspaceFulltextExtData ws) {
+            IdxConsumerExecutor consumerExecutor, ScmWorkspaceMgr wsInfoMgr,
+            FulltextMqConfig fulltextMqConfig) {
         this.mqAdminClient = mqAdminClient;
         this.mqConsumerClientMgr = consumerClientMgr;
         this.consumerExecutor = consumerExecutor;
-        this.ws = ws;
-        this.topic = ws.getWsName() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL;
-    }
-
-    public void updateWsExtData(ScmWorkspaceFulltextExtData newWsExtData) {
-        this.ws = newWsExtData;
-    }
-
-    public synchronized void stop() {
-        this.stopFlag = true;
-        if (client != null) {
-            client.close();
-        }
+        this.topic = FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC;
+        this.wsInfoMgr = wsInfoMgr;
+        this.fulltextMqConfig = fulltextMqConfig;
     }
 
     @Override
@@ -78,10 +67,6 @@ public class IdxConsumerMainTask implements Runnable {
             }
             catch (Exception e) {
                 logger.error("consumer main task occur unexpected exception", e);
-            }
-            if (stopFlag) {
-                logger.info("consumer task exit:topic={}", topic);
-                return;
             }
         }
     }
@@ -106,37 +91,37 @@ public class IdxConsumerMainTask implements Runnable {
             return;
         }
 
-        Map<String, List<FulltextMsg>> fileId2Msgs = new HashMap<>(5);
+        Map<String, List<FulltextMsg>> wsAndFileId2Msgs = new HashMap<>(5);
         for (Message<FulltextMsg> m : msgs) {
-            String fileId = m.getMsgContent().getFileId();
-            List<FulltextMsg> sameFileIdMsgs = fileId2Msgs.get(fileId);
+            String wsAndFileId = m.getKey();
+            List<FulltextMsg> sameFileIdMsgs = wsAndFileId2Msgs.get(wsAndFileId);
             if (sameFileIdMsgs == null) {
                 sameFileIdMsgs = new ArrayList<FulltextMsg>(5);
-                fileId2Msgs.put(fileId, sameFileIdMsgs);
+                wsAndFileId2Msgs.put(wsAndFileId, sameFileIdMsgs);
             }
             sameFileIdMsgs.add(m.getMsgContent());
         }
 
-        IdxTaskContext contex = new IdxTaskContext();
-        for (List<FulltextMsg> sameFileIdMsg : fileId2Msgs.values()) {
-            consumerExecutor.asyncProcessMsg(ws, sameFileIdMsg, contex);
-            contex.incTaskCount();
+        IdxTaskContext context = new IdxTaskContext();
+        for (List<FulltextMsg> sameFileIdMsg : wsAndFileId2Msgs.values()) {
+            consumerExecutor.asyncProcessMsg(
+                    wsInfoMgr.getWorkspaceExtData(sameFileIdMsg.get(0).getWsName()), sameFileIdMsg,
+                    context);
+            context.incTaskCount();
         }
 
-        contex.waitAllTaskFinish();
+        context.waitAllTaskFinish();
     }
 
     private synchronized void recreateClient() throws MqException {
         if (client != null) {
             client.close();
         }
-        if (stopFlag) {
-            return;
-        }
         client = createConsumerClient(topic);
     }
 
     private ConsumerClient<FulltextMsg> createConsumerClient(String topic) throws MqException {
+        mqAdminClient.createTopicIfNotExist(topic, fulltextMqConfig.getTopicPartitionNum());
         String groupName = "fulltext-server-" + topic;
         mqAdminClient.createGroupIfNotExist("fulltext-server-" + topic, topic,
                 ConsumerGroupOffsetEnum.OLDEST);

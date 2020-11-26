@@ -65,7 +65,10 @@ public class MsgProcessTask implements Runnable {
 
     private void processMsg(FulltextMsg msg) throws FullTextException, ScmServerException {
         logger.debug("processing msg:{}", msg);
-        boolean syncIndex = wsExtData.getMode() == ScmFulltextMode.sync;
+        boolean syncIndex = false;
+        if (wsExtData != null && wsExtData.getMode() == ScmFulltextMode.sync) {
+            syncIndex = true;
+        }
         if (msg.getOptionType() == OptionType.CREATE_IDX) {
             IdxCreateDao idxCreator = IdxCreateDao
                     .newBuilder(esClient, csMgr, textualParserMgr, siteInfoMgr)

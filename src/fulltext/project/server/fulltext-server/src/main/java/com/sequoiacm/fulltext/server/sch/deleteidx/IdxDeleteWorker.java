@@ -47,7 +47,6 @@ public class IdxDeleteWorker extends ScheduleWorker {
     protected void exec(String schName, BSONObject jobData) throws Exception {
         FulltextIdxSchJobData data = new FulltextIdxSchJobData(jobData);
 
-        mqAdmin.deleteTopic(data.getWs() + FulltextCommonDefine.FULLTEXT_TOPIC_TAIL);
         esClient.dropIndexAsync(data.getIndexDataLocation());
 
         ContentserverClient csClient = csMgr.getClient(siteInfoMgr.getRootSite().getName());
