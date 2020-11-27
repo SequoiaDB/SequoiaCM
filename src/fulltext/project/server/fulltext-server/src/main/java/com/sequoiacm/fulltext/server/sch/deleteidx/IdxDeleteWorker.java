@@ -1,5 +1,7 @@
 package com.sequoiacm.fulltext.server.sch.deleteidx;
 
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -46,9 +48,14 @@ public class IdxDeleteWorker extends ScheduleWorker {
     @Override
     protected void exec(String schName, BSONObject jobData) throws Exception {
         FulltextIdxSchJobData data = new FulltextIdxSchJobData(jobData);
-
+        boolean isConsumed = mqAdmin.waitForMsgConsumed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, FulltextCommonDefine.FULLTEXT_GROUP_NAME, data.getLatestMsgId(), true, Integer.MAX_VALUE, 5000);
+        if (!isConsumed) {
+            throw new FullTextException(ScmError.SYSTEM_ERROR,
+                    "failed to wait msg to be consumed, timeout: topic="
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC + ", msgId="
+                            + data.getLatestMsgId());
+        }
         esClient.dropIndexAsync(data.getIndexDataLocation());
-
         ContentserverClient csClient = csMgr.getClient(siteInfoMgr.getRootSite().getName());
 
         ScmFileFulltextExtData newExtData = new ScmFileFulltextExtData(null,

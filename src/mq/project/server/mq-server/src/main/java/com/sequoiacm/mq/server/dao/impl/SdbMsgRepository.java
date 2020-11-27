@@ -3,8 +3,10 @@ package com.sequoiacm.mq.server.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.mq.core.module.Message;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +96,23 @@ public class SdbMsgRepository implements MsgRepository {
         }
     }
 
+    @Override public MessageInternal getMsg(String msgTable, long msgId) throws MqException {
+        SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
+        BasicBSONObject matcher = new BasicBSONObject(MessageInternal.FIELD_ID,
+                msgId);
+        try {
+            BSONObject record = cl.findOne(matcher);
+            if(record == null){
+                return null;
+            }
+            return new MessageInternal(record);
+        }
+        catch (Exception e) {
+            throw new MqException(MqError.METASOURCE_ERROR,
+                    "failed to get msg from sdb:table=" + msgTable + ",msgId=" + msgId, e);
+        }
+    }
+
     @Override
     public long putMsg(String msgTableName, MessageInternal msg) throws MqException {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTableName);
@@ -161,6 +180,25 @@ public class SdbMsgRepository implements MsgRepository {
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
                     "failed to get msg count:table=" + msgTable, e);
+        }
+    }
+
+    @Override
+    public long getMsgCount(String msgTable, int partitionNum, long greaterThanId,
+            long lessThanOrEqualsId) throws MqException {
+        SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
+        BasicBSONObject matcher = new BasicBSONObject();
+        BasicBSONList andList = new BasicBSONList();
+        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID, new BasicBSONObject("$gt", greaterThanId)));
+        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID, new BasicBSONObject("$lte", lessThanOrEqualsId)));
+        andList.add(new BasicBSONObject(MessageInternal.FIELD_PARTITION_NUM, partitionNum));
+        matcher.put("$and", andList);
+        try {
+            return cl.count(matcher);
+        }
+        catch (Exception e) {
+            throw new MqException(MqError.METASOURCE_ERROR,
+                    "failed to get msg count:table=" + msgTable + ", matcher=" + matcher, e);
         }
     }
 

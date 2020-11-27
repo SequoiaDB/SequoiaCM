@@ -122,10 +122,9 @@ public class IdxConsumerMainTask implements Runnable {
 
     private ConsumerClient<FulltextMsg> createConsumerClient(String topic) throws MqException {
         mqAdminClient.createTopicIfNotExist(topic, fulltextMqConfig.getTopicPartitionNum());
-        String groupName = "fulltext-server-" + topic;
-        mqAdminClient.createGroupIfNotExist("fulltext-server-" + topic, topic,
+        mqAdminClient.createGroupIfNotExist(FulltextCommonDefine.FULLTEXT_GROUP_NAME, topic,
                 ConsumerGroupOffsetEnum.OLDEST);
-        return mqConsumerClientMgr.createClient(groupName, deserializer);
+        return mqConsumerClientMgr.createClient(FulltextCommonDefine.FULLTEXT_GROUP_NAME, deserializer);
     }
 
 }

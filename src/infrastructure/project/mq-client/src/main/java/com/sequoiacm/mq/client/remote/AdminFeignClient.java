@@ -59,4 +59,13 @@ public interface AdminFeignClient {
     @GetMapping(value = "/msg_queue/msg")
     public MessageInternal peekLatestMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic)
             throws MqException;
+
+    @GetMapping(value = "/msg_queue/msg?" + CommonDefine.REST_ACTION + "="
+            + CommonDefine.REST_ACTION_CHECK_CONSUMED)
+    public boolean checkMsgConsumed(
+            @RequestParam(CommonDefine.REST_TOPIC) String topic,
+            @RequestParam(CommonDefine.REST_CONSUMER_GROUP) String group,
+            @RequestParam(CommonDefine.REST_MSG_ID) long msgId,
+            @RequestParam(value = CommonDefine.REST_ENSURE_LESS_THAN_OR_EQ_MSG_BE_CONSUMED, defaultValue = "false") boolean ensureLteMsgConsumed)
+            throws MqException;
 }

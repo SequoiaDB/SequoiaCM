@@ -241,6 +241,88 @@ public class MsgServiceImpl implements MsgService {
         return msg;
     }
 
+    @Override
+    public boolean checkMsgConsumed(String topicName, String group, long msgId,
+            boolean ensureLteMsgConsumed) throws MqException {
+        Topic topic = topicRepository.getTopic(topicName);
+        if (topic == null) {
+            throw new MqException(MqError.TOPIC_NOT_EXIST, "topic not exist:topic=" + topicName);
+        }
+        List<ConsumerPartitionInfo> partitionList = partitionRep.getPartitionByGroup(group);
+        if (partitionList.isEmpty()) {
+            throw new MqException(MqError.CONSUMER_GROUP_NOT_EXIST,
+                    "consumer group not exist:" + group);
+        }
+        Collections.sort(partitionList, new Comparator<ConsumerPartitionInfo>() {
+            @Override
+            public int compare(ConsumerPartitionInfo o1, ConsumerPartitionInfo o2) {
+                return o1.getLastDeliveredId() - o2.getLastDeliveredId() > 0 ? 1 : -1;
+            }
+        });
+        if (partitionList.get(0).getLastDeliveredId() >= msgId) {
+            /**
+             * 各分区消费情况如下
+             * p1->10
+             * p2->15
+             * p3->16
+             * 此时查询 9 号及之前的消息是否被消费，所有分区都已经超过 9 号，返回 true
+             */
+            return true;
+        }
+        if (partitionList.get(partitionList.size() - 1).getLastDeliveredId() < msgId) {
+            /**
+             * 各分区消费情况如下
+             * p1->10
+             * p2->15
+             * p3->16
+             * 此时查询 18 号及之前的消息是否被消费，所有分区都未超过 18 号，返回 false
+             */
+            return false;
+        }
+
+        if (ensureLteMsgConsumed) {
+            /**
+             * 各分区消费情况如下
+             * p1->10
+             * p2->20
+             * p3->30
+             * 此时查询 28 号及之前的消息是否被消费，同时满足如下条件可以确定 28 号及之前的消息已被消费：
+             * 1、p1分区不包含 (10, 28] 号消息
+             * 2、p2分区不包含 (20, 28] 号消息
+             */
+            for (ConsumerPartitionInfo p : partitionList) {
+                if (p.getLastDeliveredId() >= msgId) {
+                    continue;
+                }
+                long count = msgRepository.getMsgCount(topic.getMessageTableName(),
+                        p.getPartitionNum(), p.getLastDeliveredId(), msgId);
+                if (count > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 单独查询某条消息是否被消费，只要看该消息所在分区的消费进度即可
+        MessageInternal msg = msgRepository.getMsg(topic.getMessageTableName(), msgId);
+        if (msg == null) {
+            logger.info("no such msg, assume msg has been consumed:topic={}, msgId={}", topicName,
+                    msgId);
+            return true;
+        }
+        for (ConsumerPartitionInfo p : partitionList) {
+            if (p.getPartitionNum() != msg.getPartition()) {
+                continue;
+            }
+            if (p.getLastDeliveredId() >= msgId) {
+                return true;
+            }
+            return false;
+        }
+
+        return true;
+    }
+
 }
 
 class PartitionNumComparator implements Comparator<ConsumerPartitionInfo> {

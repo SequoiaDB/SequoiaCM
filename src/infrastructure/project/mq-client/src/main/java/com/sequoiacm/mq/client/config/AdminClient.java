@@ -111,26 +111,15 @@ public class AdminClient {
     }
 
     // TODO:在生产者client放一个接口
-    public boolean waitForMsgConusmed(String topic, long msgId, int timeout, int checkInterval)
+    public boolean waitForMsgConsumed(String topic, String group, long msgId, boolean ensureLteMsgConsumed, int timeout, int checkInterval)
             throws MqException, InterruptedException {
         if (msgId <= -1) {
             return true;
         }
         long startTime = System.currentTimeMillis();
         while (true) {
-            List<ConsumerGroupDetail> groups = listGroup(topic);
-            boolean msgConsumedByAllGroup = true;
-            for (ConsumerGroupDetail group : groups) {
-                if (!isConsumedByGroup(msgId, group)) {
-                    msgConsumedByAllGroup = false;
-                    logger.debug("waiting msg be consumed:topic={}{}, msgId={}, group={}", topic,
-                            msgId, group);
-                    break;
-                }
-            }
-            if (msgConsumedByAllGroup) {
-                logger.debug("msg has be consumed by all groups:topic={}{}, msgId={}", topic,
-                        msgId);
+            boolean isConsumed = client.checkMsgConsumed(topic, group, msgId, ensureLteMsgConsumed);
+            if(isConsumed){
                 return true;
             }
             if (System.currentTimeMillis() - startTime > timeout) {

@@ -262,8 +262,9 @@ class WaitMsgConsumedCallback implements OperationCompleteCallback {
     @Override
     public void onComplete() {
         try {
-            boolean isConsumed = mqAdmin.waitForMsgConusmed(
-                    FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, msgId, timeout, 300);
+            boolean isConsumed = mqAdmin
+                    .waitForMsgConsumed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                            FulltextCommonDefine.FULLTEXT_GROUP_NAME, msgId, false, timeout, 300);
             if (!isConsumed) {
                 logger.warn(
                         "failed to wait for fulltext index to create, cause by timeout:ws={}, fileId={}, timeout={}",

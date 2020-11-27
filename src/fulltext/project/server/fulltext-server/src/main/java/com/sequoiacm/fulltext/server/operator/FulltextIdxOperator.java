@@ -146,10 +146,13 @@ public abstract class FulltextIdxOperator {
         modifier.setFulltextJobName(schName);
         confClient.updateWsExternalData(modifier);
 
+        long latestMsgId = getLatestMsgId(wsName);
+
         FulltextIdxSchJobData fulltextSch = new FulltextIdxSchJobData();
         fulltextSch.setFileMatcher(null);
         fulltextSch.setIndexDataLocation(idxLocation);
         fulltextSch.setWs(wsName);
+        fulltextSch.setLatestMsgId(latestMsgId);
         schClient.createFulltextSch(schName, FulltextIdxSchJobType.FULLTEXT_INDEX_DELETE,
                 fulltextSch);
     }

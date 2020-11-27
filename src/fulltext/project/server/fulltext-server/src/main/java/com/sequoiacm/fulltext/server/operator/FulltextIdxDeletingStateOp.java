@@ -28,8 +28,10 @@ public class FulltextIdxDeletingStateOp extends FulltextIdxOperator {
         if (schClient.isInternalSchExist(currentWsFulltextExtData.getFulltextJobName())) {
             return;
         }
+        long latestMsgId = getLatestMsgId(currentWsFulltextExtData.getWsName());
         FulltextIdxSchJobData fulltextSch = new FulltextIdxSchJobData();
         fulltextSch.setFileMatcher(null);
+        fulltextSch.setLatestMsgId(latestMsgId);
         fulltextSch.setIndexDataLocation(currentWsFulltextExtData.getIndexDataLocation());
         fulltextSch.setWs(currentWsFulltextExtData.getWsName());
         schClient.createFulltextSch(currentWsFulltextExtData.getFulltextJobName(),

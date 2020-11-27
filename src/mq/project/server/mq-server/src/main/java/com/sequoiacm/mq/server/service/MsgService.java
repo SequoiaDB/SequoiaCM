@@ -19,4 +19,6 @@ public interface MsgService {
 
     public MessageInternal peekLatestMessage(String topic) throws MqException;
 
+    boolean checkMsgConsumed(String topic, String group, long msgId, boolean ensureLteMsgConsumed)
+            throws MqException;
 }
