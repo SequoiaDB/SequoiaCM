@@ -1,20 +1,31 @@
 package com.sequoiacm.scmfile;
 
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.ScmAttributeName;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmQueryBuilder;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @Testcase: SCM-173:setFileName参数校验
@@ -63,10 +74,9 @@ public class ScmFile_param_setFileName173 extends TestScmBase {
         runSuccess1 = true;
     }
 
-    // bug : SEQUOIACM-597
-    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test2() throws ScmException {
-        String fileName = " file173中文!@#$()._%test;+";
+        String fileName = " file173中文!@#$()._test+";
         // 创建
         ScmFile file1 = ScmFactory.File.createInstance( ws );
         file1.setFileName( fileName );
@@ -94,8 +104,8 @@ public class ScmFile_param_setFileName173 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test3() throws ScmException {
-        String[] chars = { "/", "\\", "//", "*", "?", "<", ">", "|", "\"",
-                ":" };
+        String[] chars = { "/", "\\", "//", "*", "?", "<", ">", "|", "\"", ":",
+                "%", ";" };
         for ( String c : chars ) {
             try {
                 ScmFile file = ScmFactory.File.createInstance( ws );

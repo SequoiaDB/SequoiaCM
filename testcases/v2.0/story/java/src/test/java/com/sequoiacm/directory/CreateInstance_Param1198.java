@@ -1,19 +1,24 @@
 package com.sequoiacm.directory;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.core.ScmDirectory;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.*;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * @Description:SCM-1198 :: ScmFactory.Directory中的createInstance参数校验
@@ -38,10 +43,9 @@ public class CreateInstance_Param1198 extends TestScmBase {
         ScmFactory.Directory.createInstance( ws, dirBasePath );
     }
 
-    // bug : SEQUOIACM-597
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testCreateChineseDir() throws ScmException {
-        String path = "/ dir1198 中文 .!_ test@#$()%+";
+        String path = "/ dir1198 中文 .!_ test@#$()+";
         ScmDirectory dir = ScmFactory.Directory.createInstance( ws, path );
         ScmDirectory checkDir1 = ScmFactory.Directory.getInstance( ws, path );
         Assert.assertEquals( checkDir1.getPath(), path + "/" );
@@ -108,7 +112,8 @@ public class CreateInstance_Param1198 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test1() throws ScmException {
-        String[] chars = { "//", "\\", "*", "?", "<", ">", "|", "::" };
+        String[] chars = { "//", "\\", "*", "?", "<", ">", "|", "::", "%",
+                ";" };
         for ( String c : chars ) {
             try {
                 ScmFactory.Directory.createInstance( ws, "1198" + c );
