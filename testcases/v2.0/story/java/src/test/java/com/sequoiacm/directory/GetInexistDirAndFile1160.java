@@ -29,7 +29,9 @@ import com.sequoiacm.testcommon.WsWrapper;
  * @version:1.0
  */
 public class GetInexistDirAndFile1160 extends TestScmBase {
-    private boolean runSuccess;
+    private boolean runSuccess1;
+    private boolean runSuccess2;
+    private boolean runSuccess3;
     private ScmSession session;
     private ScmWorkspace ws;
     private SiteWrapper site;
@@ -39,54 +41,44 @@ public class GetInexistDirAndFile1160 extends TestScmBase {
     private ScmDirectory dir;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            deleteDir( ws, fullPath1 );
-            dir = createDir( ws, fullPath1 );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void setUp() throws ScmException {
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        deleteDir( ws, fullPath1 );
+        dir = createDir( ws, fullPath1 );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void getInexistDirtest() {
+    private void getInexistDirtest() throws ScmException {
         try {
-            ScmFactory.Directory.getInstance( ws, "/1160_a" );
+            ScmFactory.Directory.getInstance( ws, "/1160_a/测试1160" );
             Assert.fail( "expect fail but act successfully" );
         } catch ( ScmException e ) {
+            Assert.assertTrue( e.getMessage().contains( "测试1160" ) );
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
-        runSuccess = true;
+        runSuccess1 = true;
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void getPathExisttest() {
-        try {
-            ScmFile file1 = ScmFactory.File.createInstance( ws );
-            String fileName = "GetInexistDirAndFile1160_getPathExisttest";
-            file1.setFileName( fileName );
-            file1.setDirectory( dir );
-            ScmId fileId = file1.save();
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            ScmFile file2 = dir.getSubfile( fileName );
-            Assert.assertNull( file2 );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-        runSuccess = true;
+    private void getPathExistTest() throws ScmException {
+        ScmFile file1 = ScmFactory.File.createInstance( ws );
+        String fileName = "GetInexistDirAndFile1160_getPathExisttest";
+        file1.setFileName( fileName );
+        file1.setDirectory( dir );
+        ScmId fileId = file1.save();
+        ScmFactory.File.deleteInstance( ws, fileId, true );
+        ScmFile file2 = dir.getSubfile( fileName );
+        Assert.assertNull( file2 );
+        runSuccess2 = true;
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void getFileExisttest() throws ScmException {
+    private void getFileExistTest() throws ScmException {
         ScmId fileId = null;
         try {
             ScmFile file1 = ScmFactory.File.createInstance( ws );
@@ -99,26 +91,21 @@ public class GetInexistDirAndFile1160 extends TestScmBase {
             dir.delete();
             ScmFile file2 = dir.getSubfile( fileName );
             Assert.assertNull( file2 );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( fileId != null ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         }
-        runSuccess = true;
+        runSuccess3 = true;
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
+            if ( runSuccess1 && runSuccess2 && runSuccess3
+                    || TestScmBase.forceClear ) {
                 deleteDir( ws, fullPath1 );
             }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
