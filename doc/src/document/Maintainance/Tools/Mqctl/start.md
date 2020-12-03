@@ -27,4 +27,4 @@ start 子命令提供消息队列服务节点的启动功能。
 > 
 >  * 节点配置文件的 scm.jvm.options 配置项可以配置节点启动时的额外 JVM 参数
 > 
->  * 节点配置文件位于：\<Fulltext-Server安装目录\>/conf/fulltext-server/\<节点端口号\>/application.properties
+>  * 节点配置文件位于：\<Message-Queue-Server安装目录\>/conf/mq-server/\<节点端口号\>/application.properties
