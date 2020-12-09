@@ -3,7 +3,11 @@ package com.sequoiacm.mq.server.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.mq.core.module.Message;
+import com.sequoiacm.mq.server.lock.LockManager;
+import com.sequoiacm.mq.server.lock.LockPath;
+import com.sequoiacm.mq.server.lock.LockPathFactory;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -29,6 +33,11 @@ public class SdbMsgRepository implements MsgRepository {
 
     @Autowired
     private SdbTopicRepository sdbTopicRep;
+
+    @Autowired
+    private LockManager lockManager;
+    @Autowired
+    private LockPathFactory lockPathFactory;
 
     @Override
     public TableCreateResult createMsgTable(String topicName) throws MqException {
@@ -96,13 +105,13 @@ public class SdbMsgRepository implements MsgRepository {
         }
     }
 
-    @Override public MessageInternal getMsg(String msgTable, long msgId) throws MqException {
+    @Override
+    public MessageInternal getMsg(String msgTable, long msgId) throws MqException {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
-        BasicBSONObject matcher = new BasicBSONObject(MessageInternal.FIELD_ID,
-                msgId);
+        BasicBSONObject matcher = new BasicBSONObject(MessageInternal.FIELD_ID, msgId);
         try {
             BSONObject record = cl.findOne(matcher);
-            if(record == null){
+            if (record == null) {
                 return null;
             }
             return new MessageInternal(record);
@@ -117,20 +126,26 @@ public class SdbMsgRepository implements MsgRepository {
     public long putMsg(String msgTableName, MessageInternal msg) throws MqException {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTableName);
         BasicBSONObject msgBson = new BasicBSONObject();
-        long msgId = sdbTopicRep.incAndGetLatestMsgId(msg.getTopic());
-        msgBson.put(MessageInternal.FIELD_ID, msgId);
         msgBson.put(MessageInternal.FIELD_CREATE_TIME, msg.getCreateTime());
         msgBson.put(MessageInternal.FIELD_KEY, msg.getKey());
         msgBson.put(MessageInternal.FIELD_MSG_CONTENT, msg.getMsgContent());
         msgBson.put(MessageInternal.FIELD_PARTITION_NUM, msg.getPartition());
         msgBson.put(MessageInternal.FIELD_TOPIC, msg.getTopic());
+
+        LockPath lockPath = lockPathFactory.genMsgIdAndInsertMsgLockPath(msg.getTopic());
+        ScmLock lock = lockManager.acquiresLock(lockPath);
         try {
+            long msgId = sdbTopicRep.incAndGetLatestMsgId(msg.getTopic());
+            msgBson.put(MessageInternal.FIELD_ID, msgId);
             cl.insert(msgBson);
             return msgId;
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
                     "failed to insert msg to sdb:table=" + msgTableName + ",msg=" + msg, e);
+        }
+        finally {
+            lock.unlock();
         }
     }
 
@@ -189,8 +204,10 @@ public class SdbMsgRepository implements MsgRepository {
         SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
         BasicBSONObject matcher = new BasicBSONObject();
         BasicBSONList andList = new BasicBSONList();
-        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID, new BasicBSONObject("$gt", greaterThanId)));
-        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID, new BasicBSONObject("$lte", lessThanOrEqualsId)));
+        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID,
+                new BasicBSONObject("$gt", greaterThanId)));
+        andList.add(new BasicBSONObject(MessageInternal.FIELD_ID,
+                new BasicBSONObject("$lte", lessThanOrEqualsId)));
         andList.add(new BasicBSONObject(MessageInternal.FIELD_PARTITION_NUM, partitionNum));
         matcher.put("$and", andList);
         try {
