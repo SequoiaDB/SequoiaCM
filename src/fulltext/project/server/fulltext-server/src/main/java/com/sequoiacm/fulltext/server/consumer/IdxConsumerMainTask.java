@@ -1,5 +1,14 @@
 package com.sequoiacm.fulltext.server.consumer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
@@ -15,17 +24,10 @@ import com.sequoiacm.mq.client.core.MessageDeseserializer;
 import com.sequoiacm.mq.core.exception.MqException;
 import com.sequoiacm.mq.core.module.ConsumerGroupOffsetEnum;
 import com.sequoiacm.mq.core.module.Message;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class IdxConsumerMainTask implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(IdxConsumerMainTask.class);
+    private boolean isClosed = false;
 
     private static final MessageDeseserializer<FulltextMsg> deserializer = new MessageDeseserializer<FulltextMsg>() {
         @Override
@@ -114,17 +116,30 @@ public class IdxConsumerMainTask implements Runnable {
     }
 
     private synchronized void recreateClient() throws MqException {
+        closeClient();
+        if (!isClosed) {
+            client = createConsumerClient(topic);
+        }
+
+    }
+
+    private void closeClient() {
         if (client != null) {
             client.close();
         }
-        client = createConsumerClient(topic);
+    }
+
+    public synchronized void relaseResource() {
+        isClosed = true;
+        closeClient();
     }
 
     private ConsumerClient<FulltextMsg> createConsumerClient(String topic) throws MqException {
         mqAdminClient.createTopicIfNotExist(topic, fulltextMqConfig.getTopicPartitionNum());
         mqAdminClient.createGroupIfNotExist(FulltextCommonDefine.FULLTEXT_GROUP_NAME, topic,
                 ConsumerGroupOffsetEnum.OLDEST);
-        return mqConsumerClientMgr.createClient(FulltextCommonDefine.FULLTEXT_GROUP_NAME, deserializer);
+        return mqConsumerClientMgr.createClient(FulltextCommonDefine.FULLTEXT_GROUP_NAME,
+                deserializer);
     }
 
 }

@@ -50,6 +50,9 @@ public class PartitionServiceImpl implements PartitionService {
                     "group not exist:group=" + groupName);
         }
         PartitionDistibutor partitionDistributor = new PartitionDistibutor(consumerPartitionInfo);
+        if (partitionDistributor.hasPartition(consumer)) {
+            return true;
+        }
         if (!partitionDistributor.hasPartitionForNewConsumer()) {
             return false;
         }
@@ -60,6 +63,10 @@ public class PartitionServiceImpl implements PartitionService {
         try {
             consumerPartitionInfo = partitionRep.getPartitionByGroup(groupName);
             partitionDistributor = new PartitionDistibutor(consumerPartitionInfo);
+            if (partitionDistributor.hasPartition(consumer)) {
+                return true;
+            }
+
             if (!partitionDistributor.hasPartitionForNewConsumer()) {
                 return false;
             }

@@ -10,20 +10,20 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
-import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
-import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.content.client.ContentserverClientMgr;
+import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
 import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
 import com.sequoiacm.fulltext.server.sch.IdxThreadPoolConfig;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
+import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.mq.client.config.AdminClient;
@@ -47,6 +47,7 @@ public class IdxConsumerExecutor {
     private Map<String, IdxConsumerMainTask> ws2Consumer = new ConcurrentHashMap<>();
     private AdminClient mqAdminClient;
     private ConsumerClientMgr consumerClientMgr;
+    private IdxConsumerMainTask idxConsumerMainTask;
 
     @Autowired
     public IdxConsumerExecutor(AdminClient mqAdminClient, ConsumerClientMgr consumerClientMgr,
@@ -60,8 +61,9 @@ public class IdxConsumerExecutor {
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(threadPoolConfig.getBlockingQueueSize()),
                 Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
-        taskMgr.submit(new IdxConsumerMainTask(mqAdminClient, consumerClientMgr, this, wsMgr,
-                fulltextMqConfig));
+        idxConsumerMainTask = new IdxConsumerMainTask(mqAdminClient, consumerClientMgr, this, wsMgr,
+                fulltextMqConfig);
+        taskMgr.submit(idxConsumerMainTask);
     }
 
     @PreDestroy
@@ -69,6 +71,10 @@ public class IdxConsumerExecutor {
         if (taskMgr != null) {
             taskMgr.shutdownNow();
         }
+        if (idxConsumerMainTask != null) {
+            idxConsumerMainTask.relaseResource();
+        }
+
     }
 
     void asyncProcessMsg(ScmWorkspaceFulltextExtData wsExtData, List<FulltextMsg> msgs,

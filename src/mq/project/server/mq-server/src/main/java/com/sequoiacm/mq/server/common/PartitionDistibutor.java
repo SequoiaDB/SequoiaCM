@@ -224,6 +224,13 @@ public class PartitionDistibutor {
         return rebalance();
     }
 
+    public boolean hasPartition(String consumer) {
+        if (consumer2Partitions.containsKey(consumer)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -253,4 +260,5 @@ public class PartitionDistibutor {
 
         return sb.toString();
     }
+
 }
