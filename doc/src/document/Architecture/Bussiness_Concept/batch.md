@@ -25,8 +25,8 @@ Batch （批次）是存在于 Workspace 中的一种逻辑概念，负责对多
 
 ##自定义ID##
 - 在批次分区情况下，要实现自定义ID，需要对工作区如下字段进行配置：
- 1. batch_id_time_regexp（批次ID时间信息正则表达式），该正则表达式用于获取ID中的时间信息
- 2. batch_id_time_parttern（批次ID时间格式），该时间格式用于将时间信息进行转换
+  1. batch_id_time_parttern（批次ID时间格式），该时间格式用于提取自定义ID中的时间信息
+  2. batch_id_time_regexp（批次ID时间信息正则表达式），该正则表达式用于检查自定义ID中的格式，且能提取出一个指定时间格式（batch_id_time_parttern）
 - 在批次不分区情况下，无需配置批次ID相关参数，用户可以自由使用自定义ID
 
 >  **Note：**

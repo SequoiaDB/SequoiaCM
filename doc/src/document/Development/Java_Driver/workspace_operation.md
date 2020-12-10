@@ -25,7 +25,7 @@ conf.setBatchShardingType(ScmShardingType.MONTH);
 // 设置批次ID时间格式
 // conf.setBatchIdTimePattern("yyyy-MM-dd");
 // 设置批次内的文件名唯一
-conf.setBatchFileNameUnique(false);
+// conf.setBatchFileNameUnique(true);
 // 创建工作区
 ScmWorkspace workspace = ScmFactory.Workspace.createWorkspace(session, conf);
 ```
