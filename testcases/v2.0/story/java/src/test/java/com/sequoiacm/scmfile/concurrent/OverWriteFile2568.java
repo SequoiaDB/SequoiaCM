@@ -213,11 +213,19 @@ public class OverWriteFile2568 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void detachFile() throws ScmException {
+            ScmSession session = TestScmTools.createSession( site );
             try {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
                 batch.detachFile( fileId );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.FILE_NOT_IN_BATCH ) {
                     throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
                 }
             }
         }

@@ -228,12 +228,19 @@ public class OverWriteFile2569 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void attachFile() throws ScmException {
+            ScmSession session = TestScmTools.createSession( site );
             try {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
                 batch.attachFile( fileId );
             } catch ( ScmException e ) {
-                System.out.println( "fail fileId = " + fileId.get() );
                 if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
                     throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
                 }
             }
         }
