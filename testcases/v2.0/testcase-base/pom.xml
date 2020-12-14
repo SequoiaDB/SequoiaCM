@@ -10,7 +10,7 @@
 
     <properties>
         <!-- sequoiacm jars -->
-        <scmdriver.version>3.1.0</scmdriver.version>
+        <scmdriver.version>3.1.1</scmdriver.version>
         <!--scmcommon.version>2.3.0</scmcommon.version -->
         <sdbdriver.version>3.0.1</sdbdriver.version>
 
