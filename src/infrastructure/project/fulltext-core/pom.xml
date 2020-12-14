@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-infrastructure</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>sequoiacm-infrastructure-fulltext-core</artifactId>
