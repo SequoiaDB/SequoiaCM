@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.config.ConfVersionConfig;
+import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
@@ -27,6 +28,9 @@ public class ScmWorkspaceMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmWorkspaceMgr.class);
     private Map<String, ScmWorkspaceInfo> wsInfos = new ConcurrentHashMap<>();
     private ConfServiceClient confClient;
+
+    @Autowired
+    private EsClient esClient;
 
     @Autowired
     public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig)
@@ -84,6 +88,16 @@ public class ScmWorkspaceMgr {
         ScmWorkspaceInfo wsInfo = wsInfos.remove(wsName);
         if (wsInfo == null) {
             return;
+        }
+        ScmWorkspaceFulltextExtData fulltextExtData = wsInfo.getExternalData();
+        if (fulltextExtData != null && fulltextExtData.getIndexDataLocation() != null) {
+            try {
+                esClient.dropIndexAsync(fulltextExtData.getIndexDataLocation());
+            }
+            catch (Exception e) {
+                logger.warn("failed to remove index:ws={}, index={}", wsInfo.getName(),
+                        fulltextExtData.getIndexDataLocation(), e);
+            }
         }
     }
 
