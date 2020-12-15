@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.tools.common.PropertiesUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ServerInfo;
@@ -27,7 +27,7 @@ public class ScmExecutorWrapper {
     private static final Logger logger = LoggerFactory.getLogger(ScmExecutorWrapper.class);
 
     public ScmExecutorWrapper() throws ScmToolsException {
-        if (ScmCommon.isLinux()) {
+        if (ScmContentCommon.isLinux()) {
             executor = new ScmLinuxExecutorImpl();
         }
         else {
@@ -39,16 +39,16 @@ public class ScmExecutorWrapper {
         String nodeConfPath = getNodeConfPath(port);
         try {
             String springConfigLocation = nodeConfPath + File.separator
-                    + ScmCommon.APPLICATION_PROPERTIES;
-            String loggingConfig = nodeConfPath + File.separator + ScmCommon.LOGCONF_NAME;
+                    + ScmContentCommon.APPLICATION_PROPERTIES;
+            String loggingConfig = nodeConfPath + File.separator + ScmContentCommon.LOGCONF_NAME;
 
             String logPath = ".." + File.separator + "log" + File.separator
-                    + ScmCommon.SCM_LOG_DIR_NAME + File.separator + port;
-            String errorLogPath = logPath + File.separator + ScmCommon.ERROR_LOG_FILE_NAME;
-            ScmCommon.createDir(logPath);
+                    + ScmContentCommon.SCM_LOG_DIR_NAME + File.separator + port;
+            String errorLogPath = logPath + File.separator + ScmContentCommon.ERROR_LOG_FILE_NAME;
+            ScmContentCommon.createDir(logPath);
 
             Properties sysPro = PropertiesUtil.loadProperties(
-                    nodeConfPath + File.separator + ScmCommon.APPLICATION_PROPERTIES);
+                    nodeConfPath + File.separator + ScmContentCommon.APPLICATION_PROPERTIES);
             String options = sysPro.getProperty(PropertiesDefine.PROPERTY_JVM_OPTIONS, "");
 
             executor.startNode(springConfigLocation, loggingConfig, errorLogPath, options);
@@ -85,7 +85,7 @@ public class ScmExecutorWrapper {
             }
             try {
                 Properties prop = PropertiesUtil
-                        .loadProperties(conf + ScmCommon.APPLICATION_PROPERTIES);
+                        .loadProperties(conf + ScmContentCommon.APPLICATION_PROPERTIES);
                 String sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL);
                 if (sdb != null && sdb.length() != 0) {
                     String sdbUser = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_USER, "");
@@ -94,17 +94,17 @@ public class ScmExecutorWrapper {
                     return new ScmSdbInfo(sdb, sdbUser, passwdFile);
                 }
                 logger.warn("server's conf file have no root site url:" + conf
-                        + ScmCommon.APPLICATION_PROPERTIES);
+                        + ScmContentCommon.APPLICATION_PROPERTIES);
                 continue;
             }
             catch (ScmToolsException e) {
                 logger.warn("failed to analyze server's conf file:" + conf
-                        + ScmCommon.APPLICATION_PROPERTIES, e);
+                        + ScmContentCommon.APPLICATION_PROPERTIES, e);
                 continue;
             }
             catch (Exception e) {
                 logger.warn("failed to analyze server's conf file:" + conf
-                        + ScmCommon.APPLICATION_PROPERTIES, e);
+                        + ScmContentCommon.APPLICATION_PROPERTIES, e);
                 continue;
             }
         }
@@ -155,7 +155,7 @@ public class ScmExecutorWrapper {
             return;
         }
         node2Conf = new HashMap<>();
-        String confPath = ScmCommon.getScmConfAbsolutePath();
+        String confPath = ScmContentCommon.getScmConfAbsolutePath();
         File confFile = new File(confPath);
         if (!confFile.isDirectory()) {
             return;
@@ -164,7 +164,7 @@ public class ScmExecutorWrapper {
         for (File f : files) {
             if (f.isDirectory() && !f.getName().equals("samples")) {
                 String sysconfPath = confPath + f.getName() + File.separator
-                        + ScmCommon.APPLICATION_PROPERTIES;
+                        + ScmContentCommon.APPLICATION_PROPERTIES;
                 String confPort;
                 try {
                     Properties prop = PropertiesUtil.loadProperties(sysconfPath);

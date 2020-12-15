@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmPasswordEncryptor extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmPasswordEncryptor.class);
@@ -44,7 +44,7 @@ public class ScmPasswordEncryptor extends ScmTool {
         }
         catch (Exception e) {
             logger.error("encrypt failed", e);
-            throw new ScmToolsException("encrypt failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("encrypt failed", e);
         }
     }
 

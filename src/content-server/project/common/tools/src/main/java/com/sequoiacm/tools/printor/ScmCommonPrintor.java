@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.sequoiacm.tools.common.ListLine;
 import com.sequoiacm.tools.common.ListTable;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 
 public class ScmCommonPrintor {
     private static List<Integer> getLengthList(List<String> header, ListTable t) {
@@ -57,7 +57,7 @@ public class ScmCommonPrintor {
             }
 
             if (i != lengthList.size() - 1) {
-                ScmCommon.printSpace(extraSpace);
+                ScmContentCommon.printSpace(extraSpace);
             }
         }
         System.out.println();
@@ -74,7 +74,7 @@ public class ScmCommonPrintor {
                 }
 
                 if (j != l.size() - 1) {
-                    ScmCommon.printSpace(extraSpace);
+                    ScmContentCommon.printSpace(extraSpace);
                 }
             }
 

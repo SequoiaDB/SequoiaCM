@@ -7,7 +7,7 @@ import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 
 public class ScmSimpleFileInfo {
 
@@ -56,7 +56,7 @@ public class ScmSimpleFileInfo {
         fileObj.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
         fileObj.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, metaCreateMill);
         fileObj.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH,
-                ScmCommon.DateUtil.getCurrentYearMonth(metaCreateDate));
+                ScmContentCommon.DateUtil.getCurrentYearMonth(metaCreateDate));
         fileObj.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, metaCreateMill);
         fileObj.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, DEFAULT_STATUS);
         fileObj.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, "");

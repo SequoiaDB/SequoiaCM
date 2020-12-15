@@ -449,4 +449,11 @@ public class ScmCommon {
         }
         return dir;
     }
+
+    public static void throwToolException(String msg, Exception e) throws ScmToolsException {
+        if (e instanceof ScmToolsException) {
+            throw (ScmToolsException) e;
+        }
+        throw new ScmToolsException(msg + ":error=" + e.getMessage(), ScmExitCode.SYSTEM_ERROR, e);
+    }
 }

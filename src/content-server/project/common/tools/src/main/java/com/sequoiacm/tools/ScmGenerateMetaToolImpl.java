@@ -9,7 +9,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmMetaGenerator;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -28,8 +28,8 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
     public static void main(String[] args) {
         ScmGenerateMetaToolImpl tool;
         try {
-            ScmCommon.setLogAndProperties(ScmCommon.GENERATE_META_LOG_PATH,
-                    ScmCommon.LOG_FILE_GENERATE_META);
+            ScmContentCommon.setLogAndProperties(ScmContentCommon.GENERATE_META_LOG_PATH,
+                    ScmContentCommon.LOG_FILE_GENERATE_META);
 
             logger.error(
                     "can't reused sdb's ObjectId as scm's fileId. see more details on scm's id generator");
@@ -68,7 +68,7 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
             return;
         }
         if (ScmContentCommandUtil.isNeedPrintVersion(args)) {
-            ScmCommon.printVersion();
+            ScmContentCommon.printVersion();
             return;
         }
 

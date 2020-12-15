@@ -20,7 +20,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ReloadResInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -40,8 +40,8 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
 
     private Options options;
     private ScmHelpGenerator hp;
-    private String contentserverHost = ScmCommon.DEFAULT_CONTENSERVER_HOST;;
-    private int contentserverPort = ScmCommon.DEDAULT_CONTENSERVER_PORT;
+    private String contentserverHost = ScmContentCommon.DEFAULT_CONTENSERVER_HOST;;
+    private int contentserverPort = ScmContentCommon.DEDAULT_CONTENSERVER_PORT;
     private String mainSiteUrl;
     private String mainSiteUser;
     private String mainSitePasswd;
@@ -85,7 +85,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
                         "wrong agument for --" + OPT_LONG_RUNNING_NODE + ":" + c,
                         ScmExitCode.INVALID_ARG);
             }
-            contentserverPort = ScmCommon.convertStrToInt(carrays[1]);
+            contentserverPort = ScmContentCommon.convertStrToInt(carrays[1]);
             contentserverHost = carrays[0];
         }
 

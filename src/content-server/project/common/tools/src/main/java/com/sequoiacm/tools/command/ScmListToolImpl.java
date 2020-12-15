@@ -13,7 +13,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -53,7 +53,7 @@ public class ScmListToolImpl extends ScmTool {
 
         if (commandLine.hasOption("p")) {
             String portStr = commandLine.getOptionValue("p");
-            int port = ScmCommon.convertStrToInt(portStr);
+            int port = ScmContentCommon.convertStrToInt(portStr);
             String confPath = node2Conf.get(port);
             if (confPath != null) {
                 Integer pidInteger = runningNode.get(confPath);

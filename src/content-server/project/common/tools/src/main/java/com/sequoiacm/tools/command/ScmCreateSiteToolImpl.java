@@ -18,12 +18,13 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine.DataSourceType;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmDatasourceUtil;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteConfig;
@@ -183,11 +184,10 @@ public class ScmCreateSiteToolImpl extends ScmTool {
         }
         catch (ScmException e) {
             logger.error("create site failed:siteName={}, error=", siteName, e.getError(), e);
-            throw new ScmToolsException("create site failed:error=" + e.getError(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("create site failed", e);
         }
         finally {
-            ScmCommon.closeResource(ss);
+            ScmContentCommon.closeResource(ss);
         }
     }
 

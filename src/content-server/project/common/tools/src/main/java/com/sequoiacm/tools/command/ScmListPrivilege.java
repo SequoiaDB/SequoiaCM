@@ -18,6 +18,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -48,8 +49,8 @@ public class ScmListPrivilege extends ScmTool {
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
                 "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true, true, false));
         ops.addOption(hp.createOpt(null, LONG_OP_USER, "login username.", true, true, false));
-        ops.addOption(
-                hp.createOpt(null, LONG_OP_PASSWD, "login password.", false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_PASSWD, "login password.", false, true, true,
+                false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_PASSWD_FILE, "login password file.", false, true,
                 false));
     }
@@ -110,7 +111,7 @@ public class ScmListPrivilege extends ScmTool {
         }
         catch (Exception e) {
             logger.error("list privilege failed:url={}", gatewayUrl, e);
-            throw new ScmToolsException("list privilege failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("list privilege failed", e);
         }
         finally {
             if (null != ss) {

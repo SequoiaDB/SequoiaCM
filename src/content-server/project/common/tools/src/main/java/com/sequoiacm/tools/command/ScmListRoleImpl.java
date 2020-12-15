@@ -16,6 +16,7 @@ import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -93,7 +94,7 @@ public class ScmListRoleImpl extends ScmTool {
         }
         catch (Exception e) {
             logger.error("list role failed:url={}", gatewayUrl, e);
-            throw new ScmToolsException("list role failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("list role failed", e);
         }
         finally {
             if (null != ss) {

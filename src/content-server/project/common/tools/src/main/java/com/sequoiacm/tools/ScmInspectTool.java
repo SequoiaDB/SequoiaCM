@@ -9,7 +9,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmInspector;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -25,7 +25,7 @@ public class ScmInspectTool extends ScmTool {
 
     public static void main(String[] argss) {
         try {
-            ScmCommon.setLogAndProperties(ScmCommon.INSPECT_LOG_PATH, ScmCommon.LOG_FILE_INSPECT);
+            ScmContentCommon.setLogAndProperties(ScmContentCommon.INSPECT_LOG_PATH, ScmContentCommon.LOG_FILE_INSPECT);
             ScmInspectTool tool = new ScmInspectTool();
             tool.process(argss);
             System.exit(ScmExitCode.SUCCESS);
@@ -65,7 +65,7 @@ public class ScmInspectTool extends ScmTool {
             return;
         }
         if (ScmContentCommandUtil.isNeedPrintVersion(args)) {
-            ScmCommon.printVersion();
+            ScmContentCommon.printVersion();
             return;
         }
         CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);

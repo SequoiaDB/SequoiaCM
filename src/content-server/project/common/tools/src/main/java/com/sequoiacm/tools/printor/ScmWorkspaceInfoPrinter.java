@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 
 public class ScmWorkspaceInfoPrinter {
@@ -75,57 +75,57 @@ public class ScmWorkspaceInfoPrinter {
     public void print() {
         // print head
         System.out.print(colOfName);
-        ScmCommon.printSpace(maxNameLen - colOfName.length());
+        ScmContentCommon.printSpace(maxNameLen - colOfName.length());
 
         System.out.print(colOfId);
-        ScmCommon.printSpace(maxIdLen - colOfId.length());
+        ScmContentCommon.printSpace(maxIdLen - colOfId.length());
 
         boolean isMetaShardTypeListHasValue = isContainNotNull(metaShardTypeList);
         if (isMetaShardTypeListHasValue) {
             System.out.print(colOfMetaShardType);
-            ScmCommon.printSpace(maxMetaShardTypeLen - colOfMetaShardType.length());
+            ScmContentCommon.printSpace(maxMetaShardTypeLen - colOfMetaShardType.length());
         }
 
         boolean isDataShardTypeListHasValue = isContainNotNull(dataSharTypeList);
         if (isDataShardTypeListHasValue) {
             System.out.print(colOfShardType);
-            ScmCommon.printSpace(maxDataShardTypeLen - colOfShardType.length());
+            ScmContentCommon.printSpace(maxDataShardTypeLen - colOfShardType.length());
         }
 
         boolean isDataOpsListHasValue = isContainNotNull(dataOpsList);
         if (isDataOpsListHasValue) {
             System.out.print(colOfDataOption);
-            ScmCommon.printSpace(maxDataOpsLen - colOfDataOption.length());
+            ScmContentCommon.printSpace(maxDataOpsLen - colOfDataOption.length());
         }
 
         System.out.print(colOfMeta);
-        ScmCommon.printSpace(maxMetaLen - colOfMeta.length());
+        ScmContentCommon.printSpace(maxMetaLen - colOfMeta.length());
 
         System.out.println(colOfData);
         for (int i = 0; i < nameList.size(); i++) {
             System.out.print(nameList.get(i));
-            ScmCommon.printSpace(maxNameLen - nameList.get(i).length());
+            ScmContentCommon.printSpace(maxNameLen - nameList.get(i).length());
 
             System.out.print(idList.get(i));
-            ScmCommon.printSpace(maxIdLen - idList.get(i).length());
+            ScmContentCommon.printSpace(maxIdLen - idList.get(i).length());
 
             if (isMetaShardTypeListHasValue) {
                 System.out.print(metaShardTypeList.get(i));
-                ScmCommon.printSpace(maxMetaShardTypeLen - metaShardTypeList.get(i).length());
+                ScmContentCommon.printSpace(maxMetaShardTypeLen - metaShardTypeList.get(i).length());
             }
 
             if (isDataShardTypeListHasValue) {
                 System.out.print(dataSharTypeList.get(i));
-                ScmCommon.printSpace(maxDataShardTypeLen - dataSharTypeList.get(i).length());
+                ScmContentCommon.printSpace(maxDataShardTypeLen - dataSharTypeList.get(i).length());
             }
 
             if (isDataOpsListHasValue) {
                 System.out.print(dataOpsList.get(i));
-                ScmCommon.printSpace(maxDataOpsLen - dataOpsList.get(i).length());
+                ScmContentCommon.printSpace(maxDataOpsLen - dataOpsList.get(i).length());
             }
 
             System.out.print(metaList.get(i));
-            ScmCommon.printSpace(maxMetaLen - metaList.get(i).length());
+            ScmContentCommon.printSpace(maxMetaLen - metaList.get(i).length());
 
             System.out.println(dataList.get(i));
         }

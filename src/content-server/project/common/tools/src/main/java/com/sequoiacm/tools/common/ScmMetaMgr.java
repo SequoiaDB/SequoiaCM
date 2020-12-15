@@ -3,12 +3,12 @@ package com.sequoiacm.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.element.ScmWorkspaceInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -278,7 +278,7 @@ public class ScmMetaMgr {
             }
         }
         catch (BaseException e) {
-            logger.error("Failed to find site  by name:" + name, e);
+            logger.error("Failed to find site by name:" + name, e);
             throw new ScmToolsException("Failed to find site  by name:" + name + ",errorMsg:"
                     + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
         }
@@ -302,12 +302,11 @@ public class ScmMetaMgr {
 
     public ScmSiteInfo getMainSiteChecked() throws ScmToolsException {
         ScmSiteInfo mainSite = getMainSite();
-        if(mainSite == null) {
+        if (mainSite == null) {
             throw new ScmToolsException("root site not exists", ScmExitCode.SCM_SITE_NOT_EXIST);
         }
         return mainSite;
     }
-
 
     public List<ScmSiteInfo> getSiteList() throws ScmToolsException {
         List<ScmSiteInfo> list = new ArrayList<>();

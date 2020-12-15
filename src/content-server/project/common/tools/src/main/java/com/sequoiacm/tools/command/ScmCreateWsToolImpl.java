@@ -23,11 +23,12 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmCreateWsToolImpl extends ScmTool {
@@ -89,8 +90,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -108,7 +109,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
             ss = ScmFactory.Session
                     .createSession(new ScmConfigOption(ScmContentCommandUtil.parseListUrls(urls),
                             adminUser.getUsername(), adminUser.getPassword()));
-            Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmCommon.querySite(ss);
+            Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmContentCommon
+                    .querySite(ss);
 
             ScmWorkspaceConf conf = new ScmWorkspaceConf();
 
@@ -127,8 +129,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
             // data
             BasicBSONList datalocationsBSON = (BasicBSONList) getValueAsBSON(cl, OPT_SHORT_DATA);
             for (Object datalocationBSON : datalocationsBSON) {
-                conf.addDataLocation(
-                        ScmCommon.createDataLocation((BSONObject) datalocationBSON, siteMap));
+                conf.addDataLocation(ScmContentCommon
+                        .createDataLocation((BSONObject) datalocationBSON, siteMap));
             }
             conf.setBatchFileNameUnique(cl.hasOption(OPT_LONG_BATCH_FILE_NAME_UNIQUE));
             conf.setBatchIdTimePattern(cl.getOptionValue(OPT_LONG_BATCH_ID_TIME_PATTERN));
@@ -148,11 +150,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
         }
         catch (ScmException e) {
             logger.error("create workspace failed:wsName={}, error=", wsName, e.getError(), e);
-            throw new ScmToolsException("create workspace failed:error=" + e.getError(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("create workspace failed", e);
         }
         finally {
-            ScmCommon.closeResource(ss);
+            ScmContentCommon.closeResource(ss);
         }
 
     }

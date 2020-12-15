@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.regex.Pattern;
 
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmFiledDefine;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
@@ -94,24 +94,24 @@ public class TimeArgWrapper {
             }
             calendar.setTime(date);
             switch (quarter) {
-                case ScmCommon.DateUtil.QUARTER1:
+                case ScmContentCommon.DateUtil.QUARTER1:
                     lower = date;
                     calendar.add(Calendar.MONTH, 3);
                     upper = calendar.getTime();
                     break;
-                case ScmCommon.DateUtil.QUARTER2:
+                case ScmContentCommon.DateUtil.QUARTER2:
                     calendar.add(Calendar.MONTH, 3);
                     lower = calendar.getTime();
                     calendar.add(Calendar.MONTH, 3);
                     upper = calendar.getTime();
                     break;
-                case ScmCommon.DateUtil.QUARTER3:
+                case ScmContentCommon.DateUtil.QUARTER3:
                     calendar.add(Calendar.MONTH, 6);
                     lower = calendar.getTime();
                     calendar.add(Calendar.MONTH, 3);
                     upper = calendar.getTime();
                     break;
-                case ScmCommon.DateUtil.QUARTER4:
+                case ScmContentCommon.DateUtil.QUARTER4:
                     calendar.add(Calendar.MONTH, 9);
                     lower = calendar.getTime();
                     calendar.add(Calendar.MONTH, 3);
@@ -145,7 +145,7 @@ public class TimeArgWrapper {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
                 ShardingType = ScmFiledDefine.WORKSPACE_SHARDING_MONTH_STR;
                 String month = upperTime.substring(4);
-                int monthInteger = ScmCommon.convertStrToInt(month);
+                int monthInteger = ScmContentCommon.convertStrToInt(month);
                 if (monthInteger > 12 || monthInteger < 1) {
                     throw new ScmToolsException("Invalid time:" + upperTime,
                             ScmExitCode.INVALID_ARG);

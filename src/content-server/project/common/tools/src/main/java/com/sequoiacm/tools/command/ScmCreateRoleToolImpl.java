@@ -11,11 +11,11 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmCreateRoleToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmCreateRoleToolImpl.class);
@@ -40,8 +40,8 @@ public class ScmCreateRoleToolImpl extends ScmTool {
                 "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -71,7 +71,7 @@ public class ScmCreateRoleToolImpl extends ScmTool {
         catch (Exception e) {
             logger.error("create role failed:url={},admin={},newRole={}", gatewayUrl,
                     adminUser.getUsername(), roleName, e);
-            throw new ScmToolsException("create role failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("create role failed", e);
         }
         finally {
             if (null != ss) {

@@ -1888,8 +1888,17 @@ public class ScmFactory {
             checkArgNotNull("session", session);
             checkArgNotNull("user", user);
             checkArgNotNull("modifier", modifier);
+            checkEmptyPassword("newPassword", modifier.getNewPassword());
             BSONObject obj = session.getDispatcher().alterUser(user.getUsername(), modifier);
             return new ScmUserImpl(obj);
+        }
+
+        private static void checkEmptyPassword(String argName, String password)
+                throws ScmInvalidArgumentException {
+            if (password != null && password.trim().equals("")) {
+                throw new ScmInvalidArgumentException(
+                        "Invalid " + argName + ", password is blank or empty");
+            }
         }
 
         /**

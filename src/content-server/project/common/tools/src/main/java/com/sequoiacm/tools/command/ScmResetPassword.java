@@ -13,6 +13,7 @@ import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -40,18 +41,18 @@ public class ScmResetPassword extends ScmTool {
         hp = new ScmHelpGenerator();
         ops.addOption(
                 hp.createOpt(null, LONG_OP_RESET_USER, "the name of user.", true, true, false));
-        ops.addOption(
-                hp.createOpt(null, LONG_OP_NEW_PASSWORD, "new password.", true, true, true, false, false));
-        ops.addOption(
-                hp.createOpt(null, LONG_OP_OLD_PASSWORD, "old password.", false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_NEW_PASSWORD, "new password.", true, true, true,
+                false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_OLD_PASSWORD, "old password.", false, true, true,
+                false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_OLD_PASSWORD_FILE, "old password file.", false,
                 true, false));
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
                 "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -94,7 +95,7 @@ public class ScmResetPassword extends ScmTool {
         catch (Exception e) {
             logger.error("reset password failed:url={},admin={},user={}", gatewayUrl,
                     adminUser.getUsername(), oldUser.getUsername(), e);
-            throw new ScmToolsException("reset password failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("reset password failed", e);
         }
         finally {
             if (null != ss) {

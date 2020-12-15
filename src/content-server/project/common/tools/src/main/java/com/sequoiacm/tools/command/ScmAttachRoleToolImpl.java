@@ -13,6 +13,7 @@ import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -44,8 +45,8 @@ public class ScmAttachRoleToolImpl extends ScmTool {
                 "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -86,7 +87,7 @@ public class ScmAttachRoleToolImpl extends ScmTool {
         catch (Exception e) {
             logger.error("attach role failed:url={},admin={},user={},role={}", gatewayUrl,
                     adminUser.getUsername(), userName, roleName, e);
-            throw new ScmToolsException("attach role failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("attach role failed", e);
         }
         finally {
             if (null != ss) {

@@ -3,7 +3,7 @@ package com.sequoiacm.tools.printor;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 
 public class SiteInfoPrinter {
@@ -59,28 +59,28 @@ public class SiteInfoPrinter {
     public void print() {
         // print head
         System.out.print(colOfName);
-        ScmCommon.printSpace(maxNameLen - colOfName.length());
+        ScmContentCommon.printSpace(maxNameLen - colOfName.length());
         System.out.print(colOfId);
-        ScmCommon.printSpace(maxIdLen - colOfId.length());
+        ScmContentCommon.printSpace(maxIdLen - colOfId.length());
         System.out.print(colOfIsMain);
-        ScmCommon.printSpace(maxIsMain - colOfIsMain.length());
+        ScmContentCommon.printSpace(maxIsMain - colOfIsMain.length());
         System.out.print(colOfDataType);
-        ScmCommon.printSpace(maxDataType - colOfDataType.length());
+        ScmContentCommon.printSpace(maxDataType - colOfDataType.length());
         System.out.print(colOfDataUrl);
-        ScmCommon.printSpace(maxDataUrl-colOfDataUrl.length());
+        ScmContentCommon.printSpace(maxDataUrl-colOfDataUrl.length());
         System.out.println(colOfMetaUrl);
 
         for (int i = 0; i < nameList.size(); i++) {
             System.out.print(nameList.get(i));
-            ScmCommon.printSpace(maxNameLen - nameList.get(i).length());
+            ScmContentCommon.printSpace(maxNameLen - nameList.get(i).length());
             System.out.print(idList.get(i));
-            ScmCommon.printSpace(maxIdLen - idList.get(i).length());
+            ScmContentCommon.printSpace(maxIdLen - idList.get(i).length());
             System.out.print(isMainList.get(i));
-            ScmCommon.printSpace(maxIsMain - isMainList.get(i).length());
+            ScmContentCommon.printSpace(maxIsMain - isMainList.get(i).length());
             System.out.print(dataTypeList.get(i));
-            ScmCommon.printSpace(maxDataType-dataTypeList.get(i).length());
+            ScmContentCommon.printSpace(maxDataType-dataTypeList.get(i).length());
             System.out.print(dataUrlList.get(i));
-            ScmCommon.printSpace(maxDataUrl-dataUrlList.get(i).length());
+            ScmContentCommon.printSpace(maxDataUrl-dataUrlList.get(i).length());
             System.out.println(metaUrlList.get(i));
         }
         System.out.println("Total:" + nameList.size());

@@ -11,11 +11,11 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmDeleteWorkspaceToolImpl extends ScmTool {
     private final String OPT_SHORT_NAME = "n";
@@ -45,8 +45,8 @@ public class ScmDeleteWorkspaceToolImpl extends ScmTool {
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -75,8 +75,7 @@ public class ScmDeleteWorkspaceToolImpl extends ScmTool {
         }
         catch (ScmException e) {
             logger.error("delete workspace failed:wsName={}, error=", wsName, e.getError(), e);
-            throw new ScmToolsException("delete workspace failed:error=" + e.getError(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("delete workspace failed", e);
         }
         finally {
             if (ss != null) {

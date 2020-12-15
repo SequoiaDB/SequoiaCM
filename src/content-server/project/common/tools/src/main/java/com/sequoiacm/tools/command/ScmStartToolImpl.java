@@ -27,7 +27,7 @@ import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -83,13 +83,13 @@ public class ScmStartToolImpl extends ScmTool {
             throw new ScmToolsException("please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT,
                     ScmExitCode.INVALID_ARG);
         }
-        String contentServerJarFile = ScmCommon.getContentServerJarName();
+        String contentServerJarFile = ScmContentCommon.getContentServerJarName();
         File f = new File(contentServerJarFile);
         if (!f.exists()) {
             logger.error(
-                    "Can't find " + ScmCommon.getContenserverAbsolutePath() + contentServerJarFile);
+                    "Can't find " + ScmContentCommon.getContenserverAbsolutePath() + contentServerJarFile);
             throw new ScmToolsException(
-                    "Can't find " + ScmCommon.getContenserverAbsolutePath() + contentServerJarFile,
+                    "Can't find " + ScmContentCommon.getContenserverAbsolutePath() + contentServerJarFile,
                     ScmExitCode.FILE_NOT_FIND);
         }
 
@@ -102,7 +102,7 @@ public class ScmStartToolImpl extends ScmTool {
         if (commandLine.hasOption(OPT_SHORT_PORT)) {
             String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
             try {
-                int port = ScmCommon.convertStrToInt(portString);
+                int port = ScmContentCommon.convertStrToInt(portString);
                 String confPath = executor.getNodeConfPath(port);
                 needStartMap.put(port, confPath);
             }
@@ -142,7 +142,7 @@ public class ScmStartToolImpl extends ScmTool {
     private void resetTimeout(CommandLine commandLine) throws ScmToolsException {
         int shortestTimeout = 5; // 5s
         String timeOut = commandLine.getOptionValue(OPT_SHORT_TIME_OUT);
-        TIME_WAIT_PROCESS_STATUS_NORMAL = ScmCommon.convertStrToInt(timeOut);
+        TIME_WAIT_PROCESS_STATUS_NORMAL = ScmContentCommon.convertStrToInt(timeOut);
         if (TIME_WAIT_PROCESS_STATUS_NORMAL < shortestTimeout) {
             logger.warn("rewrite timeout from {}s as {}s", TIME_WAIT_PROCESS_STATUS_NORMAL,
                     shortestTimeout);
@@ -236,7 +236,7 @@ public class ScmStartToolImpl extends ScmTool {
                 break;
             }
 
-            ScmCommon.sleep(200);
+            ScmContentCommon.sleep(200);
         }
 
         for (Entry<Integer, String> entry : port2Status.entrySet()) {

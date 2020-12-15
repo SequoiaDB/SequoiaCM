@@ -15,18 +15,18 @@ import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmLinuxExecutorImpl implements ScmExecutor {
     private static final Logger logger = LoggerFactory.getLogger(ScmLinuxExecutorImpl.class);
-    private final String contentServerIdentify = "sequoiacm-content-server";
+    private final String contentServerIdentify = ScmContentCommon.CONTENTSERVER_NAME;
 
     @Override
     public void startNode(String springConfigLocation, String loggingConfig, String errorLogPath,
             String options) throws ScmToolsException {
-        String cmd = " nohup java " + options + " -jar '" + ScmCommon.getContentServerJarName()
+        String cmd = " nohup java " + options + " -jar '" + ScmContentCommon.getContentServerJarName()
                 + "' --spring.config.location=" + springConfigLocation + " --logging.config="
                 + loggingConfig + " > " + errorLogPath + " 2>&1 &";
         logger.info("starting scm by exec cmd(/bin/sh -c \" " + cmd + "\")");

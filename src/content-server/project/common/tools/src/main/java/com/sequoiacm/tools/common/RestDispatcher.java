@@ -88,8 +88,8 @@ public class RestDispatcher {
                     ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
-            ScmCommon.closeResource(resp);
-            ScmCommon.closeResource(client);
+            ScmContentCommon.closeResource(resp);
+            ScmContentCommon.closeResource(client);
         }
     }
 
@@ -116,8 +116,8 @@ public class RestDispatcher {
                     + ", cause by:" + e.getMessage(), ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
-            ScmCommon.closeResource(resp);
-            ScmCommon.closeResource(client);
+            ScmContentCommon.closeResource(resp);
+            ScmContentCommon.closeResource(client);
         }
     }
 
@@ -143,8 +143,8 @@ public class RestDispatcher {
                     ScmExitCode.SCM_REQUEST_ERROR, e);
         }
         finally {
-            ScmCommon.closeResource(resp);
-            ScmCommon.closeResource(client);
+            ScmContentCommon.closeResource(resp);
+            ScmContentCommon.closeResource(client);
         }
     }
 
@@ -169,8 +169,8 @@ public class RestDispatcher {
                     ScmExitCode.SCM_REQUEST_ERROR);
         }
         finally {
-            ScmCommon.closeResource(resp);
-            ScmCommon.closeResource(client);
+            ScmContentCommon.closeResource(resp);
+            ScmContentCommon.closeResource(client);
         }
 
     }

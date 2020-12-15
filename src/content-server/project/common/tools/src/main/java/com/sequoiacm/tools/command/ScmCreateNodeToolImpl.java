@@ -31,14 +31,15 @@ import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
 import com.sequoiacm.tools.common.PropertiesUtil;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.common.SdbHelper;
 import com.sequoiacm.tools.element.ScmSdbInfo;
@@ -104,8 +105,8 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                 "gateway url, eg:'host1:port,host2:port,host3:port'.", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_USER, "login admin username.", true, true,
                 false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.",
-                false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD, "login admin password.", false,
+                true, true, false, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD_FILE, "login admin password file.",
                 false, true, false));
         ScmContentCommandUtil.addDsOption(ops, hp);
@@ -143,12 +144,12 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             throw new ScmToolsException("server'url must set as 'hostName:port',invalid url:" + url,
                     ScmExitCode.INVALID_ARG);
         }
-        int port = ScmCommon.convertStrToInt(hostAndPort[1]);
+        int port = ScmContentCommon.convertStrToInt(hostAndPort[1]);
         if (port > 65535 || port < 0) {
             throw new ScmToolsException("port out of range:" + port, ScmExitCode.INVALID_ARG);
         }
         String host = hostAndPort[0];
-        if (!ScmCommon.isLocalHost(host)) {
+        if (!ScmContentCommon.isLocalHost(host)) {
             throw new ScmToolsException("hostName is not this machine:hostName=" + host,
                     ScmExitCode.INVALID_ARG);
         }
@@ -173,10 +174,10 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             }
         }
 
-        sysConfPath = ScmCommon.getScmConfAbsolutePath() + port + File.separator
-                + ScmCommon.APPLICATION_PROPERTIES;
-        log4jConfPath = ScmCommon.getScmConfAbsolutePath() + port + File.separator
-                + ScmCommon.LOGCONF_NAME;
+        sysConfPath = ScmContentCommon.getScmConfAbsolutePath() + port + File.separator
+                + ScmContentCommon.APPLICATION_PROPERTIES;
+        log4jConfPath = ScmContentCommon.getScmConfAbsolutePath() + port + File.separator
+                + ScmContentCommon.LOGCONF_NAME;
         Sequoiadb db = null;
         ScmSession ss = null;
         try {
@@ -185,7 +186,11 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                     auth.getPassword());
             ScmMetaMgr mg = new ScmMetaMgr(db);
             mySiteInfo = mg.getSiteInfoByName(mySiteName);
-
+            if (mySiteInfo == null) {
+                logger.error("site not exists:" + mySiteName);
+                throw new ScmToolsException("site not exists:" + mySiteName,
+                        ScmExitCode.SCM_SITE_NOT_EXIST);
+            }
             createConfFile(sysConfPath);
             isNeedRollBackSysConf = true;
             createConfFile(log4jConfPath);
@@ -206,19 +211,13 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                             adminUserInfo.getUsername(), adminUserInfo.getPassword()));
             RestDispatcher.getInstance().createNode(ss, serverRec);
         }
-        catch (ScmToolsException e) {
-            rollBackFile();
-            logger.info("Failed to create node,error:{}", e.getMessage(), e);
-            throw e;
-        }
         catch (Exception e) {
             rollBackFile();
             logger.info("Failed to create node,error:{}", e.getMessage(), e);
-            throw new ScmToolsException("Failed to create node,error:" + e.getMessage(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("Failed to create node", e);
         }
         finally {
-            ScmCommon.closeResource(ss);
+            ScmContentCommon.closeResource(ss);
             SdbHelper.closeCursorAndDb(db);
         }
         System.out.println("Create node success:" + serverName);
@@ -272,14 +271,14 @@ public class ScmCreateNodeToolImpl extends ScmTool {
 
     private void createConfFile(String filePath) throws ScmToolsException {
         File file = new File(filePath);
-        if (ScmCommon.isFileExists(filePath)) {
+        if (ScmContentCommon.isFileExists(filePath)) {
             throw new ScmToolsException("Failed to create " + file.getName() + "," + file.getName()
                     + " already exist:" + file.toString(), ScmExitCode.FILE_ALREADY_EXIST);
         }
-        if (!ScmCommon.isFileExists(file.getParentFile().getPath())) {
+        if (!ScmContentCommon.isFileExists(file.getParentFile().getPath())) {
             isNeedRollBackDir = true;
         }
-        ScmCommon.createFile(filePath);
+        ScmContentCommon.createFile(filePath);
     }
 
     private void createDefaultConf(ScmSdbInfo mainSite, int port, String sysConfPath,
@@ -304,14 +303,14 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         }
 
         // save
-        writeDefaultConf(ScmCommon.SCM_SAMPLE_SYS_CONF_NAME, sysConfPath, modifier);
+        writeDefaultConf(ScmContentCommon.SCM_SAMPLE_SYS_CONF_NAME, sysConfPath, modifier);
 
         // clear
         modifier.clear();
 
         // log4j.properties
         String logOutputPath = ".." + File.separator + "log" + File.separator
-                + ScmCommon.SCM_LOG_DIR_NAME + File.separator + port;
+                + ScmContentCommon.SCM_LOG_DIR_NAME + File.separator + port;
         modifier.put(PropertiesUtil.SAMPLE_VALUE_SCM_LOG_PATH, logOutputPath);
         modifier.put(PropertiesUtil.SAMPLE_VALUE_SCM_AUDIT_SDB_URL, auditUrl);
         modifier.put(PropertiesUtil.SAMPLE_VALUE_SCM_AUDIT_SDB_USER, auditUser);
@@ -319,7 +318,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         logger.info("auditUrl=" + auditUrl + ", auditUser=" + auditUser + ", auditPasswd= "
                 + auditPassword);
         // save
-        writeDefaultConf(ScmCommon.SCM_SAMPLE_LOG_CONF_NAME, log4jConfPath, modifier);
+        writeDefaultConf(ScmContentCommon.SCM_SAMPLE_LOG_CONF_NAME, log4jConfPath, modifier);
     }
 
     private void writeDefaultConf(String sampleResFile, String outputPath,
@@ -335,7 +334,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         try {
             br = new BufferedReader(new InputStreamReader(is));
             bw = new BufferedWriter(new FileWriter(outputPath));
-            if (sampleResFile.equals(ScmCommon.SCM_SAMPLE_SYS_CONF_NAME)) {
+            if (sampleResFile.equals(ScmContentCommon.SCM_SAMPLE_SYS_CONF_NAME)) {
                 modifyForAppConf(modifier, br, bw);
             }
             else {

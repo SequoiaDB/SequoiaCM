@@ -32,7 +32,7 @@ import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.RestTools;
 import com.sequoiacm.deploy.config.CommonConfig;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 
 public class WorkspaceOperater {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceOperater.class);
@@ -124,7 +124,7 @@ public class WorkspaceOperater {
 
     private String createWorkspace(ScmSession ss, BSONObject wsBSON) throws Exception {
         logger.info("Creating workspace:{}", BsonUtils.getStringChecked(wsBSON, "name"));
-        Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmCommon.querySite(ss);
+        Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmContentCommon.querySite(ss);
         ScmWorkspaceConf conf = new ScmWorkspaceConf();
         // name
         conf.setName(BsonUtils.getStringChecked(wsBSON, "name"));
@@ -136,7 +136,7 @@ public class WorkspaceOperater {
         BasicBSONList datalocationsBSON = BsonUtils.getArrayChecked(wsBSON, "data");
         for (Object datalocationBSON : datalocationsBSON) {
             conf.addDataLocation(
-                    ScmCommon.createDataLocation((BSONObject) datalocationBSON, siteMap));
+                    ScmContentCommon.createDataLocation((BSONObject) datalocationBSON, siteMap));
         }
 
         conf.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(wsBSON,

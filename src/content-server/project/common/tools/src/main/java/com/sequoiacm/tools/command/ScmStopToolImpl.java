@@ -17,7 +17,7 @@ import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -66,7 +66,7 @@ public class ScmStopToolImpl extends ScmTool {
         if (commandLine.hasOption(OPT_SHORT_PORT)) {
             try {
                 String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
-                int port = ScmCommon.convertStrToInt(portString);
+                int port = ScmContentCommon.convertStrToInt(portString);
                 String nodeConf = executor.getNodeConfPath(port);
                 needStopMap.put(port, nodeConf);
             }
@@ -156,7 +156,7 @@ public class ScmStopToolImpl extends ScmTool {
             if (System.currentTimeMillis() - timeStamp > 30000) {
                 break;
             }
-            ScmCommon.sleep(200);
+            ScmContentCommon.sleep(200);
         }
 
         if (isForce) {
@@ -172,7 +172,7 @@ public class ScmStopToolImpl extends ScmTool {
                     rc = false;
                 }
             }
-            ScmCommon.sleep(200);
+            ScmContentCommon.sleep(200);
             Iterator<Integer> it = checkList.iterator();
             while (it.hasNext()) {
                 Integer port = it.next();

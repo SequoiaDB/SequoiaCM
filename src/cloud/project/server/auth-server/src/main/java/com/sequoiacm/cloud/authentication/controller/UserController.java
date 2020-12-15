@@ -156,6 +156,9 @@ public class UserController {
             @RequestParam(value = "enabled", required = false) Boolean enabled,
             @RequestParam(value = "clean_sessions", required = false) Boolean cleanSessions)
             throws Exception {
+        if (newPassword != null && "".equals(newPassword.trim())) {
+            throw new BadRequestException("Invalid new passwod, password is empty");
+        }
         if (!StringUtils.hasText(username)) {
             throw new BadRequestException("Invalid username");
         }
@@ -371,7 +374,7 @@ public class UserController {
                 innerRoleName = ScmRole.ROLE_NAME_PREFIX + roleName;
             }
             else {
-                innerRoleName=roleName;
+                innerRoleName = roleName;
             }
         }
 

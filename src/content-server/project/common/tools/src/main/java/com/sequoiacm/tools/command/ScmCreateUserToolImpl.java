@@ -12,6 +12,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -39,8 +40,8 @@ public class ScmCreateUserToolImpl extends ScmTool {
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, LONG_OP_USER, "the name of new user.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_PASSWD, "the password of new user.", true,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_PASSWD, "the password of new user.", true, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_PASSWD_TYPE,
                 "password's type, default:LOCAL.\n" + "all supported type:'LOCAL', 'LDAP', 'TOKEN'",
                 false, true, false));
@@ -48,8 +49,8 @@ public class ScmCreateUserToolImpl extends ScmTool {
                 "gateway url. exam:\"host1:8080,host2:8080,host3:8080\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -95,7 +96,7 @@ public class ScmCreateUserToolImpl extends ScmTool {
         catch (Exception e) {
             logger.error("create user failed:url={},admin={},newUser={}", gatewayUrl,
                     adminUserInfo.getUsername(), newUserInfo.getUsername(), e);
-            throw new ScmToolsException("create user failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("create user failed", e);
         }
         finally {
             if (null != ss) {

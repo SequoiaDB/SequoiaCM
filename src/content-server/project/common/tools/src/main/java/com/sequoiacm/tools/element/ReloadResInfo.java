@@ -6,7 +6,7 @@ import java.util.List;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.bson.BSONObject;
 
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
@@ -96,28 +96,28 @@ public class ReloadResInfo {
     public void printRes() {
         // print head
         System.out.print(NODE);
-        ScmCommon.printSpace(maxNodeLength - NODE.length());
+        ScmContentCommon.printSpace(maxNodeLength - NODE.length());
         System.out.print(SERVERNAME);
-        ScmCommon.printSpace(maxServerNameLength - SERVERNAME.length());
+        ScmContentCommon.printSpace(maxServerNameLength - SERVERNAME.length());
         System.out.print(SERVERID);
-        ScmCommon.printSpace(maxServerIdLength - SERVERID.length());
+        ScmContentCommon.printSpace(maxServerIdLength - SERVERID.length());
         System.out.print(SITENAME);
-        ScmCommon.printSpace(maxSiteNameLength - SITENAME.length());
+        ScmContentCommon.printSpace(maxSiteNameLength - SITENAME.length());
         System.out.print(SITEID);
-        ScmCommon.printSpace(maxSiteIdLength - SITEID.length());
+        ScmContentCommon.printSpace(maxSiteIdLength - SITEID.length());
         System.out.println(RESULT);
 
         for (int i = 0; i < nodeList.size(); i++) {
             System.out.print(nodeList.get(i));
-            ScmCommon.printSpace(maxNodeLength - nodeList.get(i).length());
+            ScmContentCommon.printSpace(maxNodeLength - nodeList.get(i).length());
             System.out.print(serverNameList.get(i));
-            ScmCommon.printSpace(maxServerNameLength - serverNameList.get(i).length());
+            ScmContentCommon.printSpace(maxServerNameLength - serverNameList.get(i).length());
             System.out.print(serverIdList.get(i));
-            ScmCommon.printSpace(maxServerIdLength - serverIdList.get(i).toString().length());
+            ScmContentCommon.printSpace(maxServerIdLength - serverIdList.get(i).toString().length());
             System.out.print(siteNameList.get(i));
-            ScmCommon.printSpace(maxSiteNameLength - siteNameList.get(i).length());
+            ScmContentCommon.printSpace(maxSiteNameLength - siteNameList.get(i).length());
             System.out.print(siteIdList.get(i));
-            ScmCommon.printSpace(maxSiteIdLength - siteIdList.get(i).toString().length());
+            ScmContentCommon.printSpace(maxSiteIdLength - siteIdList.get(i).toString().length());
             System.out.println(errorMsgList.get(i));
         }
 

@@ -16,12 +16,13 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.exception.ScmExitCode;
 import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
@@ -58,7 +59,7 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
     public void process(String[] args) throws ScmToolsException {
         CommandLine cl = ScmContentCommandUtil.parseArgs(args, ops);
         String portStr = cl.getOptionValue(OPT_LONG_PORT);
-        int port = ScmCommon.convertStrToInt(portStr);
+        int port = ScmContentCommon.convertStrToInt(portStr);
         String gatewayUrl = cl.getOptionValue(OPT_LONG_URL);
         ScmUserInfo adminuser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_USER, OPT_LONG_PASSWD,
                 OPT_LONG_PASSWD_FILE);
@@ -87,10 +88,10 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
         }
         catch (Exception e) {
             logger.error("delete content node failed: port={}", port, e);
-            throw new ScmToolsException("delete content node failed", ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("delete content node failed", e);
         }
         finally {
-            ScmCommon.closeResource(ss);
+            ScmContentCommon.closeResource(ss);
         }
 
     }
@@ -106,7 +107,7 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
     }
 
     private void clearNodeFile(int port) throws ScmToolsException {
-        String confPath = ScmCommon.getScmConfAbsolutePath() + port;
+        String confPath = ScmContentCommon.getScmConfAbsolutePath() + port;
         File confDir = new File(confPath);
         try {
             deleteFile(confDir);
@@ -117,8 +118,8 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
                     ScmExitCode.SYSTEM_ERROR, e);
         }
 
-        String logPath = ".." + File.separator + "log" + File.separator + ScmCommon.SCM_LOG_DIR_NAME
-                + File.separator + port;
+        String logPath = ".." + File.separator + "log" + File.separator
+                + ScmContentCommon.SCM_LOG_DIR_NAME + File.separator + port;
         File logDir = new File(logPath);
         try {
             deleteFile(logDir);

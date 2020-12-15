@@ -15,11 +15,11 @@ import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class ScmRevokeRoleToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmRevokeRoleToolImpl.class);
@@ -66,8 +66,8 @@ public class ScmRevokeRoleToolImpl extends ScmTool {
                 true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -108,7 +108,7 @@ public class ScmRevokeRoleToolImpl extends ScmTool {
         catch (Exception e) {
             logger.error("revoke role failed:url={},admin={},newRole={}", gatewayUrl,
                     adminUserInfo.getUsername(), roleName, e);
-            throw new ScmToolsException("revoke role failed", ScmExitCode.SYSTEM_ERROR);
+            ScmCommon.throwToolException("revoke role failed", e);
         }
         finally {
             if (null != ss) {

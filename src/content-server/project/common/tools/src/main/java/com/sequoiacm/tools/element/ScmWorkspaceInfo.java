@@ -8,7 +8,7 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.tools.common.ScmCommon;
+import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmFiledDefine;
 import com.sequoiacm.tools.common.SdbHelper;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -190,20 +190,20 @@ public class ScmWorkspaceInfo {
         String upperYearMonth = "";
 
         if (metaShardingType.equals(ScmFiledDefine.WORKSPACE_SHARDING_YEAR_STR)) {
-            String year = ScmCommon.DateUtil.getCurrentYear(createDate);
+            String year = ScmContentCommon.DateUtil.getCurrentYear(createDate);
             sb.append("_");
             sb.append(year);
 
             sbHistory.append("_");
             sbHistory.append(year);
 
-            lowYearMonth = year + ScmCommon.DateUtil.MONTH1;
+            lowYearMonth = year + ScmContentCommon.DateUtil.MONTH1;
 
-            String nextYear = ScmCommon.DateUtil.getNextYear(createDate);
-            upperYearMonth = nextYear + ScmCommon.DateUtil.MONTH1;
+            String nextYear = ScmContentCommon.DateUtil.getNextYear(createDate);
+            upperYearMonth = nextYear + ScmContentCommon.DateUtil.MONTH1;
         }
         else if (metaShardingType.equals(ScmFiledDefine.WORKSPACE_SHARDING_MONTH_STR)) {
-            String yearMonth = ScmCommon.DateUtil.getCurrentYearMonth(createDate);
+            String yearMonth = ScmContentCommon.DateUtil.getCurrentYearMonth(createDate);
             sb.append("_");
             sb.append(yearMonth);
 
@@ -211,13 +211,13 @@ public class ScmWorkspaceInfo {
             sbHistory.append(yearMonth);
 
             lowYearMonth = yearMonth;
-            upperYearMonth = ScmCommon.DateUtil.getNextYearMonth(createDate);
+            upperYearMonth = ScmContentCommon.DateUtil.getNextYearMonth(createDate);
         }
         else {
             // metaShardingType == SHARDING_TYPE_QUARTER
-            String quarter = ScmCommon.DateUtil.getQuarter(ScmCommon.DateUtil
+            String quarter = ScmContentCommon.DateUtil.getQuarter(ScmContentCommon.DateUtil
                     .getCurrentMonth(createDate));
-            String year = ScmCommon.DateUtil.getCurrentYear(createDate);
+            String year = ScmContentCommon.DateUtil.getCurrentYear(createDate);
 
             sb.append("_");
             sb.append(year);
@@ -227,24 +227,24 @@ public class ScmWorkspaceInfo {
             sbHistory.append(year);
             sbHistory.append(quarter);
 
-            if (quarter.equals(ScmCommon.DateUtil.QUARTER1)) {
-                lowYearMonth = year + ScmCommon.DateUtil.MONTH1;
-                upperYearMonth = year + ScmCommon.DateUtil.MONTH4;
+            if (quarter.equals(ScmContentCommon.DateUtil.QUARTER1)) {
+                lowYearMonth = year + ScmContentCommon.DateUtil.MONTH1;
+                upperYearMonth = year + ScmContentCommon.DateUtil.MONTH4;
             }
-            else if (quarter.equals(ScmCommon.DateUtil.QUARTER2)) {
-                lowYearMonth = year + ScmCommon.DateUtil.MONTH4;
-                upperYearMonth = year + ScmCommon.DateUtil.MONTH7;
+            else if (quarter.equals(ScmContentCommon.DateUtil.QUARTER2)) {
+                lowYearMonth = year + ScmContentCommon.DateUtil.MONTH4;
+                upperYearMonth = year + ScmContentCommon.DateUtil.MONTH7;
             }
-            else if (quarter.equals(ScmCommon.DateUtil.QUARTER3)) {
-                lowYearMonth = year + ScmCommon.DateUtil.MONTH7;
-                upperYearMonth = year + ScmCommon.DateUtil.MONTH10;
+            else if (quarter.equals(ScmContentCommon.DateUtil.QUARTER3)) {
+                lowYearMonth = year + ScmContentCommon.DateUtil.MONTH7;
+                upperYearMonth = year + ScmContentCommon.DateUtil.MONTH10;
             }
             else {
                 // QUARTER4
-                lowYearMonth = year + ScmCommon.DateUtil.MONTH10;
+                lowYearMonth = year + ScmContentCommon.DateUtil.MONTH10;
 
-                String nextYear = ScmCommon.DateUtil.getNextYear(createDate);
-                upperYearMonth = nextYear + ScmCommon.DateUtil.MONTH1;
+                String nextYear = ScmContentCommon.DateUtil.getNextYear(createDate);
+                upperYearMonth = nextYear + ScmContentCommon.DateUtil.MONTH1;
             }
         }
 
@@ -298,16 +298,16 @@ public class ScmWorkspaceInfo {
 
         if (dataCsShard.equals(ScmFiledDefine.WORKSPACE_SHARDING_YEAR_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYear(createDate));
+            sb.append(ScmContentCommon.DateUtil.getCurrentYear(createDate));
         }
         else if (dataCsShard.equals(ScmFiledDefine.WORKSPACE_SHARDING_MONTH_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYearMonth(createDate));
+            sb.append(ScmContentCommon.DateUtil.getCurrentYearMonth(createDate));
         }
         else if (dataCsShard.equals(ScmFiledDefine.WORKSPACE_SHARDING_QUARTER_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYear(createDate));
-            String month = ScmCommon.DateUtil.getCurrentMonth(createDate);
+            sb.append(ScmContentCommon.DateUtil.getCurrentYear(createDate));
+            String month = ScmContentCommon.DateUtil.getCurrentMonth(createDate);
             sb.append(getQuarter(month));
         }
         else {
@@ -324,16 +324,16 @@ public class ScmWorkspaceInfo {
 
         if (clSharding.equals(ScmFiledDefine.WORKSPACE_SHARDING_YEAR_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYear(createDate));
+            sb.append(ScmContentCommon.DateUtil.getCurrentYear(createDate));
         }
         else if (clSharding.equals(ScmFiledDefine.WORKSPACE_SHARDING_MONTH_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYearMonth(createDate));
+            sb.append(ScmContentCommon.DateUtil.getCurrentYearMonth(createDate));
         }
         else if (clSharding.equals(ScmFiledDefine.WORKSPACE_SHARDING_QUARTER_STR)) {
             sb.append("_");
-            sb.append(ScmCommon.DateUtil.getCurrentYear(createDate));
-            String month = ScmCommon.DateUtil.getCurrentMonth(createDate);
+            sb.append(ScmContentCommon.DateUtil.getCurrentYear(createDate));
+            String month = ScmContentCommon.DateUtil.getCurrentMonth(createDate);
             sb.append(getQuarter(month));
         }
         else {
@@ -345,20 +345,20 @@ public class ScmWorkspaceInfo {
 
     private String getQuarter(String month) {
         StringBuilder sb = new StringBuilder();
-        if (month.compareTo(ScmCommon.DateUtil.MONTH6) <= 0) {
-            if (month.compareTo(ScmCommon.DateUtil.MONTH3) <= 0) {
-                sb.append(ScmCommon.DateUtil.QUARTER1);
+        if (month.compareTo(ScmContentCommon.DateUtil.MONTH6) <= 0) {
+            if (month.compareTo(ScmContentCommon.DateUtil.MONTH3) <= 0) {
+                sb.append(ScmContentCommon.DateUtil.QUARTER1);
             }
             else {
-                sb.append(ScmCommon.DateUtil.QUARTER2);
+                sb.append(ScmContentCommon.DateUtil.QUARTER2);
             }
         }
         else {
-            if (month.compareTo(ScmCommon.DateUtil.MONTH9) <= 0) {
-                sb.append(ScmCommon.DateUtil.QUARTER3);
+            if (month.compareTo(ScmContentCommon.DateUtil.MONTH9) <= 0) {
+                sb.append(ScmContentCommon.DateUtil.QUARTER3);
             }
             else {
-                sb.append(ScmCommon.DateUtil.QUARTER4);
+                sb.append(ScmContentCommon.DateUtil.QUARTER4);
             }
         }
 

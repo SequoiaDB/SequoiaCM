@@ -17,12 +17,12 @@ import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
+import com.sequoiacm.tools.common.ScmContentCommon;
 
 public class ScmAddSiteToWsToolmpl extends ScmTool {
     private final String OPT_LONG_NAME = "name";
@@ -54,8 +54,8 @@ public class ScmAddSiteToWsToolmpl extends ScmTool {
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
         ops.addOption(
                 hp.createOpt(null, LONG_OP_ADMIN_USER, "login admin username.", true, true, false));
-        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false,
-                true, true, false, false));
+        ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD, "login admin password.", false, true,
+                true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -73,7 +73,8 @@ public class ScmAddSiteToWsToolmpl extends ScmTool {
             ss = ScmFactory.Session
                     .createSession(new ScmConfigOption(ScmContentCommandUtil.parseListUrls(urls),
                             adminUser.getUsername(), adminUser.getPassword()));
-            Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmCommon.querySite(ss);
+            Map<String, com.sequoiacm.client.element.ScmSiteInfo> siteMap = ScmContentCommon
+                    .querySite(ss);
 
             BasicBSONList dataLocationList = ScmContentCommandUtil
                     .parseDataLocation(cl.getOptionValue(OPT_LONG_DATA));
@@ -81,7 +82,7 @@ public class ScmAddSiteToWsToolmpl extends ScmTool {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, ss);
 
             for (Object location : dataLocationList) {
-                ScmDataLocation scmDataLocation = ScmCommon
+                ScmDataLocation scmDataLocation = ScmContentCommon
                         .createDataLocation((BSONObject) location, siteMap);
                 ws.addDataLocation(scmDataLocation);
                 System.out.println("Add site to workspace success,workspace:" + wsName
@@ -90,8 +91,7 @@ public class ScmAddSiteToWsToolmpl extends ScmTool {
         }
         catch (ScmException e) {
             logger.error("alter workspace failed:wsName={}, error=", wsName, e.getError(), e);
-            throw new ScmToolsException("create workspace failed:error=" + e.getError(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("alter workspace failed", e);
         }
         finally {
             if (ss != null) {

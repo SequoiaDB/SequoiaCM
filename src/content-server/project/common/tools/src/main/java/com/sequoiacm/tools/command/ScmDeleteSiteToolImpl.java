@@ -10,13 +10,13 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmCommon;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.exception.ScmExitCode;
+import com.sequoiacm.tools.common.ScmContentCommon;
 
 public class ScmDeleteSiteToolImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmDeleteSiteToolImpl.class);
@@ -41,8 +41,8 @@ public class ScmDeleteSiteToolImpl extends ScmTool {
         ops.addOption(hp.createOpt(null, OPT_LONG_USER, "login admin username", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD, "login admin password.", false, true,
                 true, false, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD_FILE, "login admin password file.",
-                false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_PASSWD_FILE, "login admin password file.", false,
+                true, true, false, false));
 
     }
 
@@ -66,11 +66,10 @@ public class ScmDeleteSiteToolImpl extends ScmTool {
         }
         catch (Exception e) {
             logger.error("delete site failed: siteName={}", siteName, e);
-            throw new ScmToolsException("delete site failed: siteName= " + siteName,
-                    ScmExitCode.SYSTEM_ERROR, e);
+            ScmCommon.throwToolException("delete site failed", e);
         }
         finally {
-            ScmCommon.closeResource(ss);
+            ScmContentCommon.closeResource(ss);
         }
     }
 

@@ -45,7 +45,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 
-public class ScmCommon {
+public class ScmContentCommon {
     public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
     public static final String LOG_FILE_CREATEWS = "logback_createws.xml";
     public static final String LOG_FILE_ADMIN = "logback_admin.xml";
@@ -83,12 +83,12 @@ public class ScmCommon {
     public static final String SDBADMIN_USER_NAME = "sdbadmin";
     public static final String SCM_SAMPLE_SYS_CONF_NAME = "scm.application.properties";
     public static final String SCM_SAMPLE_LOG_CONF_NAME = "scm.logback.xml";
-    private static final Logger logger = LoggerFactory.getLogger(ScmCommon.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScmContentCommon.class);
 
     public static void printVersion() throws ScmToolsException {
         ManifestInfo info;
         try {
-            info = ScmManifestParser.getManifestInfoFromJar(ScmCommon.class);
+            info = ScmManifestParser.getManifestInfoFromJar(ScmContentCommon.class);
         }
         catch (IOException e) {
             throw new ScmToolsException("failed to load manifest info:", ScmExitCode.SYSTEM_ERROR,
@@ -247,10 +247,10 @@ public class ScmCommon {
             owner = Files.getOwner(Paths.get(getContentServerJarName()), LinkOption.NOFOLLOW_LINKS);
         }
         catch (IOException e) {
-            logger.error("Failed to get owner of " + ScmCommon.getContenserverAbsolutePath()
+            logger.error("Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
                     + getContentServerJarName(), e);
             throw new ScmToolsException(
-                    "Failed to get owner of " + ScmCommon.getContenserverAbsolutePath()
+                    "Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
                             + getContentServerJarName() + ",errorMsg:" + e.getMessage(),
                     ScmExitCode.IO_ERROR);
         }
@@ -288,14 +288,14 @@ public class ScmCommon {
         GroupPrincipal contentServerGroup = null;
         try {
             contentServerGroup = (GroupPrincipal) Files.getAttribute(
-                    Paths.get(ScmCommon.getContenserverAbsolutePath()), "posix:group",
+                    Paths.get(ScmContentCommon.getContenserverAbsolutePath()), "posix:group",
                     LinkOption.NOFOLLOW_LINKS);
         }
         catch (IOException e) {
-            logger.error("Failed to get group name of " + ScmCommon.getContenserverAbsolutePath()
+            logger.error("Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
                     + getContentServerJarName(), e);
             throw new ScmToolsException(
-                    "Failed to get group name of " + ScmCommon.getContenserverAbsolutePath()
+                    "Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
                             + getContentServerJarName() + ",errorMsg" + e.getMessage(),
                     ScmExitCode.IO_ERROR);
         }
@@ -330,7 +330,7 @@ public class ScmCommon {
 
     public static void createFile(String filePath) throws ScmToolsException {
         File file = new File(filePath);
-        if (!ScmCommon.isFileExists(file.getParent())) {
+        if (!ScmContentCommon.isFileExists(file.getParent())) {
             try {
                 Files.createDirectories(Paths.get(file.getParent()));
             }
@@ -375,8 +375,8 @@ public class ScmCommon {
 
     public static void setLogAndProperties(String logPath, String propFileName)
             throws ScmToolsException {
-        if (!ScmCommon.isFileExists(logPath)) {
-            ScmCommon.createFile(logPath);
+        if (!ScmContentCommon.isFileExists(logPath)) {
+            ScmContentCommon.createFile(logPath);
             // try {
             // setFileOwnerAndGroup(logPath);
             // }
@@ -384,10 +384,10 @@ public class ScmCommon {
             // System.out.println("WARN:" + e.getMessage());
             // return;
             // }
-            ScmCommon.configToolsLog(propFileName);
+            ScmContentCommon.configToolsLog(propFileName);
         }
-        else if (ScmCommon.isFileCanWirte(logPath)) {
-            ScmCommon.configToolsLog(propFileName);
+        else if (ScmContentCommon.isFileCanWirte(logPath)) {
+            ScmContentCommon.configToolsLog(propFileName);
         }
         else {
             System.out.println("WARN:could not write log to " + logPath + ",permission error");
@@ -514,7 +514,7 @@ public class ScmCommon {
     public static String getContentServerJarName() throws ScmToolsException {
         String version;
         try {
-            version = ScmManifestParser.getManifestInfoFromJar(ScmCommon.class).getScmVersion();
+            version = ScmManifestParser.getManifestInfoFromJar(ScmContentCommon.class).getScmVersion();
         }
         catch (IOException e) {
             throw new ScmToolsException("failed to load manifest", ScmExitCode.SYSTEM_ERROR);

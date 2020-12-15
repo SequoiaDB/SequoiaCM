@@ -62,7 +62,7 @@ public class ScmDatasourceUtil {
             throw new ScmToolsException("invalid datasource type:" + type, ScmExitCode.INVALID_ARG);
         }
 
-        String jarDir = ScmCommon.getScmLibAbsolutePath() + type;
+        String jarDir = ScmContentCommon.getScmLibAbsolutePath() + type;
         URL[] urls = getURLsByPath(jarDir);
 
         URLClassLoader clazzLoader = (URLClassLoader) ScmDatasourceUtil.class.getClassLoader();
