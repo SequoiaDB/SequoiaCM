@@ -1,5 +1,5 @@
 <configuration scan="true" scanPeriod="60" debug="false">
-    <property name="LOG_PATH" value="../log" />
+    <property name="LOG_PATH" value="./log" />
     
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/admin/admin.log</file>
