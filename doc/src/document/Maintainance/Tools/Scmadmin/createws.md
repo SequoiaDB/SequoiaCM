@@ -114,7 +114,7 @@ sharding 类型说明：
 2. 采用自定义批次参数创建一个名为 ws 的工作区
 
    ```lang-javascript
-   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}]' --batch-sharding-type month --batch-id-time-regex '\w{1,20}-\d{8}' --batch-id-time-pattern yyyyMMdd  --url localhost:8080/rootsite --user admin --password
+   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}]' --batch-sharding-type month --batch-id-time-regex '(?<=\w{1,20}-)(\d{8})' --batch-id-time-pattern yyyyMMdd  --url localhost:8080/rootsite --user admin --password
    ```
 > **Note:** 
 >
@@ -126,7 +126,7 @@ sharding 类型说明：
 >
 > * 工作区中批次的分区策略为 'month'，时间信息的格式为 yyyyMMdd
 >
-> * 批次ID获取时间信息的正则表达式为 \w{1,20}-\d{8}。表示1-20个合法字符(大小写字母、数字、下划线)、连字符、8个数字（对应上述的日期格式yyyyMMdd）。合法自定义ID如：BatchId_1523-20200903
+> * 批次ID获取时间信息的正则表达式为 (?<=\w{1,20}-)(\d{8})。(?<=\w{1,20}-) 表示以1-20个合法字符(大小写字母、数字、下划线)、连字符开头，但不匹配到结果；(\d{8}) 表示8个数字（对应上述的日期格式yyyyMMdd），是匹配到结果的时间信息。合法自定义ID如：BatchId_1523-20200903
 
 
 3. 采用自定义参数创建一个名为 ws 的工作区
@@ -148,8 +148,8 @@ sharding 类型说明：
 >
 > * 工作区中批次的分区策略为 'month'，时间信息的格式为 yyyy-MM-dd，批次内的文件名必须唯一
 >
-> * 批次ID获取时间信息的正则表达式为 (?<=\w{1,50}\\.[\^.]{1,50}\\.)(\d{4}-\d{2}-\d{2})(?=\\..{1,200})。其中， (?<=\w{1,50}\\.[\^.]{1,50}\\.) 表示以1-50个合法字符(大小写字母、数字、下划线)、点字符、1-50个非点字符、点字符开头；
-(\d{4}-\d{2}-\d{2}) 表示中间是4个数字、连字符、2个数字、连字符、2个数字（对应上述的日期格式yyyy-MM-dd）；(?=\\..{1,200}) 表示以点字符、1-200个任意字符结尾。合法自定义ID如：BatchId_1523.aps_image.2020-09-03.test3
+> * 批次ID获取时间信息的正则表达式为 (?<=\w{1,50}\\.[\^.]{1,50}\\.)(\d{4}-\d{2}-\d{2})(?=\\..{1,200})。其中， (?<=\w{1,50}\\.[\^.]{1,50}\\.) 表示以1-50个合法字符(大小写字母、数字、下划线)、点字符、1-50个非点字符、点字符开头，但不匹配到到结果；
+(\d{4}-\d{2}-\d{2}) 表示中间是4个数字、连字符、2个数字、连字符、2个数字（对应上述的日期格式yyyy-MM-dd），是匹配到结果的时间信息；(?=\\..{1,200}) 表示以点字符、1-200个任意字符结尾，但不匹配到到结果。合法自定义ID如：BatchId_1523.aps_image.2020-09-03.test3
 >
 > * 工作区的目录功能不开启
 
