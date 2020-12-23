@@ -153,7 +153,7 @@ public class TopicServiceImpl implements TopicService {
                 transaction.begin();
                 for (Integer newPartitionNum : newPartitionNums) {
                     partitionRepository.createPartition(transaction, topic.getName(),
-                            group.getName(), newPartitionNum, -1, null);
+                            group.getName(), newPartitionNum, topic.getLatestMsgId(), null);
                 }
 
                 Map<Integer, String> modifier = pd.addPartition(newPartitionNums);

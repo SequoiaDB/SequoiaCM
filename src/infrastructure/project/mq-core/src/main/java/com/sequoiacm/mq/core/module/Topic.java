@@ -9,6 +9,7 @@ public class Topic {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_PARTITION_COUNT = "partition_count";
     public static final String FIELD_MESSAGE_TABLE_NAME = "message_table_name";
+    public static final String FIELD_LATEST_MSG_ID = "latest_msg_id";
 
     @JsonProperty(value = FIELD_NAME)
     protected String name;
@@ -16,6 +17,8 @@ public class Topic {
     protected int partitionCount;
     @JsonProperty(value = FIELD_MESSAGE_TABLE_NAME)
     protected String messageTableName;
+    @JsonProperty(value = FIELD_LATEST_MSG_ID)
+    protected long latestMsgId;
 
     public Topic() {
     }
@@ -24,12 +27,14 @@ public class Topic {
         this.name = name;
         this.partitionCount = partitionCount;
         this.messageTableName = messageTableName;
+        this.latestMsgId = 0L;
     }
 
     public Topic(BSONObject bson) {
         name = BsonUtils.getStringChecked(bson, FIELD_NAME);
         messageTableName = BsonUtils.getStringChecked(bson, FIELD_MESSAGE_TABLE_NAME);
         partitionCount = BsonUtils.getIntegerChecked(bson, FIELD_PARTITION_COUNT);
+        latestMsgId = BsonUtils.getNumberChecked(bson,FIELD_LATEST_MSG_ID).longValue();
     }
 
     public String getMessageTableName() {
@@ -56,10 +61,13 @@ public class Topic {
         this.messageTableName = messageTableName;
     }
 
+    public long getLatestMsgId() {
+        return latestMsgId;
+    }
+
     @Override
     public String toString() {
         return "Topic [name=" + name + ", partitionCount=" + partitionCount + ", messageTableName="
-                + messageTableName + "]";
+                + messageTableName +", latestMsgId=" + latestMsgId + "]";
     }
-
 }

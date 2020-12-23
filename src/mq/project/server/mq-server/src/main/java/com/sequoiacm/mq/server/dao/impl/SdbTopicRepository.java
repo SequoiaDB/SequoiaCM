@@ -25,14 +25,13 @@ import com.sequoiadb.exception.SDBError;
 @Repository
 public class SdbTopicRepository implements TopicRepository {
     private static final Logger logger = LoggerFactory.getLogger(SdbTopicRepository.class);
-    private static final String FIELD_LATEST_MSG_ID = "latest_msg_id";
     @Autowired
     private SdbTemplate sdbTemplate;
     private BSONObject incMsgIdModifier;
 
     public SdbTopicRepository() {
         incMsgIdModifier = new BasicBSONObject();
-        BSONObject incOne = new BasicBSONObject(FIELD_LATEST_MSG_ID, 1);
+        BSONObject incOne = new BasicBSONObject(Topic.FIELD_LATEST_MSG_ID, 1);
         incMsgIdModifier.put("$inc", incOne);
     }
 
@@ -53,7 +52,7 @@ public class SdbTopicRepository implements TopicRepository {
         if (topicBson == null) {
             throw new MqException(MqError.TOPIC_NOT_EXIST, "topic not exist:" + topic);
         }
-        return BsonUtils.getNumberChecked(topicBson, FIELD_LATEST_MSG_ID).longValue();
+        return BsonUtils.getNumberChecked(topicBson, Topic.FIELD_LATEST_MSG_ID).longValue();
     }
 
     @Override
@@ -63,7 +62,7 @@ public class SdbTopicRepository implements TopicRepository {
         record.put(Topic.FIELD_NAME, topic.getName());
         record.put(Topic.FIELD_PARTITION_COUNT, topic.getPartitionCount());
         record.put(Topic.FIELD_MESSAGE_TABLE_NAME, topic.getMessageTableName());
-        record.put(FIELD_LATEST_MSG_ID, 0);
+        record.put(Topic.FIELD_LATEST_MSG_ID, topic.getLatestMsgId());
 
         try {
             cl.insert(record, (SdbTransaction) transaction);
