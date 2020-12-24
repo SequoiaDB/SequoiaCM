@@ -13,7 +13,7 @@ public class EsClientConfig {
     private List<String> urls = Arrays.asList("http://localhost:9200");
     private int searchScrollTimeout = 60 * 1000 * 3;
 
-    private int searchScrollSize = 100;
+    private int searchScrollSize = 1000;
     private int indexShards = 5;
     private int indexReplicas = 1;
     private RefreshPolicy syncRefreshPolicy = RefreshPolicy.WAIT_UNTIL;
