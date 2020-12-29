@@ -3,16 +3,17 @@ package com.sequoiacm.fulltext.server.sch.updateidx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDao;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
 
-public class IdxDropAndUpdateFileTask implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(IdxDropAndUpdateFileTask.class);
+public class DropAndUpdateFileIdxTask implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(DropAndUpdateFileIdxTask.class);
 
     private IdxTaskContext context;
 
-    private IdxDropAndUpdateDao dao;
+    private FileIdxDao dao;
 
-    public IdxDropAndUpdateFileTask(IdxDropAndUpdateDao dao, IdxTaskContext context) {
+    public DropAndUpdateFileIdxTask(FileIdxDao dao, IdxTaskContext context) {
         this.dao = dao;
         this.context = context;
     }
@@ -20,16 +21,16 @@ public class IdxDropAndUpdateFileTask implements Runnable {
     @Override
     public void run() {
         try {
-            dao.dropAndUpdate();
+            dao.process();
             if (context != null) {
-                context.incSuccessCount(dao.getFileCount());
+                context.incSuccessCount(dao.processFileCount());
             }
         }
         catch (Exception e) {
-            logger.error("failed to drop index for file:ws={}, fileId={}", dao.getWs(),
+            logger.error("failed to drop index for file:ws={}, fileId={}", dao.getWsName(),
                     dao.getFileId(), e);
             if (context != null) {
-                context.incErrorCount(dao.getFileCount());
+                context.incErrorCount(dao.processFileCount());
             }
         }
         finally {

@@ -5,56 +5,41 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.content.client.ContentserverClient;
-import com.sequoiacm.content.client.ContentserverClientMgr;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.fulltext.server.es.EsClient;
-import com.sequoiacm.fulltext.server.exception.FullTextException;
-import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDao;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
-import com.sequoiacm.fulltext.server.sch.createidx.IdxCreateDao;
-import com.sequoiacm.fulltext.server.sch.updateidx.IdxDropAndUpdateDao;
-import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg;
-import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg.OptionType;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOpFeedback;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperations;
+import com.sequoiacm.mq.client.core.ConsumerClient;
+import com.sequoiacm.mq.core.module.Message;
 
 public class MsgProcessTask implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MsgProcessTask.class);
+    private final FileIdxDaoFactory scmFileIdxFactory;
 
-    private List<FulltextMsg> msgs;
-    private ScmWorkspaceFulltextExtData wsExtData;
-    private EsClient esClient;
-    private ContentserverClientMgr csMgr;
-    private TextualParserMgr textualParserMgr;
-    private ScmSiteInfoMgr siteInfoMgr;
+    private final List<Message<FileFulltextOperations>> msgs;
+    private final ConsumerClient<FileFulltextOperations, FileFulltextOpFeedback> msgClient;
+    private final IdxTaskContext context;
 
-    private IdxTaskContext context;
-
-    public MsgProcessTask(EsClient esClient, ContentserverClientMgr csMgr,
-            TextualParserMgr textualParserMgr, ScmSiteInfoMgr siteInfoMgr, List<FulltextMsg> msgs,
-            ScmWorkspaceFulltextExtData wsExtData, IdxTaskContext context) {
-        this.esClient = esClient;
-        this.csMgr = csMgr;
-        this.textualParserMgr = textualParserMgr;
-        this.siteInfoMgr = siteInfoMgr;
-
+    public MsgProcessTask(FileIdxDaoFactory scmFileIdxFactory,
+            ConsumerClient<FileFulltextOperations, FileFulltextOpFeedback> msgClient,
+            List<Message<FileFulltextOperations>> msgs, IdxTaskContext context) {
         this.msgs = msgs;
-        this.wsExtData = wsExtData;
-
         this.context = context;
+        this.msgClient = msgClient;
+        this.scmFileIdxFactory = scmFileIdxFactory;
     }
 
     @Override
     public void run() {
         try {
-            for (FulltextMsg m : msgs) {
+            for (Message<FileFulltextOperations> m : msgs) {
                 try {
                     processMsg(m);
                 }
                 catch (Throwable e) {
-                    logger.error("failed to proccess msg:{}", m, e);
+                    logger.error("failed to process msg:{}", m, e);
                 }
             }
         }
@@ -63,36 +48,34 @@ public class MsgProcessTask implements Runnable {
         }
     }
 
-    private void processMsg(FulltextMsg msg) throws FullTextException, ScmServerException {
+    private void processMsg(Message<FileFulltextOperations> msg) {
         logger.debug("processing msg:{}", msg);
-        boolean syncIndex = false;
-        if (wsExtData != null && wsExtData.getMode() == ScmFulltextMode.sync) {
-            syncIndex = true;
-        }
-        if (msg.getOptionType() == OptionType.CREATE_IDX) {
-            IdxCreateDao idxCreator = IdxCreateDao
-                    .newBuilder(esClient, csMgr, textualParserMgr, siteInfoMgr)
-                    .file(msg.getWsName(), msg.getFileId()).indexLocation(msg.getIndexLocation())
-                    .syncIndexInEs(syncIndex).get();
-            idxCreator.createIdx();
-            return;
+
+        FileFulltextOperations ops = msg.getMsgContent();
+        int successCount = 0;
+        int failedCount = 0;
+        for (FileFulltextOperation op : ops) {
+            FileIdxDao dao = null;
+            try {
+                dao = scmFileIdxFactory.createDao(op);
+                dao.process();
+                successCount += dao.processFileCount();
+            }
+            catch (Throwable e) {
+                logger.error("failed to process msg:topic={}, key={}, id={}, op={}", msg.getTopic(),
+                        msg.getKey(), msg.getId(), op, e);
+                if (dao == null) {
+                    failedCount++;
+                }
+                else {
+                    failedCount += dao.processFileCount();
+                }
+            }
         }
 
-        if (msg.getOptionType() == OptionType.DROP_IDX_AND_UPDATE_FILE) {
-            String rootSite = siteInfoMgr.getRootSiteName();
-            ContentserverClient csClient = csMgr.getClient(rootSite);
-            IdxDropAndUpdateDao dao = IdxDropAndUpdateDao.newBuilder(csClient, esClient)
-                    .file(msg.getWsName(), msg.getFileId()).indexLocation(msg.getIndexLocation())
-                    .get();
-            dao.dropAndUpdate();
-            return;
-        }
-
-        if (msg.getOptionType() == OptionType.DROP_IDX_ONLY) {
-            IdxDropDao dao = IdxDropDao.newBuilder(esClient).file(msg.getFileId())
-                    .indexLocation(msg.getIndexLocation()).get();
-            dao.drop();
-            return;
+        if (msg.getMsgProducer() != null) {
+            FileFulltextOpFeedback feedback = new FileFulltextOpFeedback(successCount, failedCount);
+            msgClient.feedbackSilence(msg, feedback);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.sequoiacm.contentserver.listener;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -18,19 +20,17 @@ import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg;
-import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
-import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
-import com.sequoiacm.infrastructure.fulltext.common.FulltextMsg.OptionType;
+import com.sequoiacm.infrastructure.fulltext.common.*;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation.OperationType;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.mq.client.EnableScmMqAdmin;
 import com.sequoiacm.mq.client.EnableScmMqProducer;
-import com.sequoiacm.mq.client.config.AdminClient;
+import com.sequoiacm.mq.client.core.FeedbackCallback;
 import com.sequoiacm.mq.client.core.ProducerClient;
-import com.sequoiacm.mq.client.core.SerializeableMessage;
+import com.sequoiacm.mq.client.core.SerializableMessage;
+import com.sequoiacm.mq.core.exception.MqException;
 
 @Component
 @EnableScmMqAdmin
@@ -44,8 +44,6 @@ public class FileOperationFulltextListener implements FileOperationListener {
 
     @Autowired
     private ServerConfig serverConfig;
-    @Autowired
-    private AdminClient mqAdmin;
 
     @Override
     public OperationCompleteCallback postUpdateContent(ScmWorkspaceInfo ws, String fileId)
@@ -72,13 +70,15 @@ public class FileOperationFulltextListener implements FileOperationListener {
             if (fileExtData.getIdxStatus() == ScmFileFulltextStatus.CREATED) {
                 return OperationCompleteCallback.EMPTY_CALLBACK;
             }
-            long msgId = putCreateIndexMsg(wsFulltextExt, fileId);
-
             if (wsFulltextExt.getMode() == ScmFulltextMode.async) {
+                putCreateIndexMsg(wsFulltextExt, fileId, null);
                 return OperationCompleteCallback.EMPTY_CALLBACK;
             }
 
-            return new WaitMsgConsumedCallback(mqAdmin, ws.getName(), fileId, msgId,
+            FulltextIndexCreateFeedbackCallback feedbackCallback = new FulltextIndexCreateFeedbackCallback(
+                    ws.getName(), fileId);
+            long msgId = putCreateIndexMsg(wsFulltextExt, fileId, feedbackCallback);
+            return new WaitMsgConsumedCallback(feedbackCallback, ws.getName(), fileId, msgId,
                     serverConfig.getFulltextCreateTimeout());
         }
 
@@ -124,25 +124,35 @@ public class FileOperationFulltextListener implements FileOperationListener {
             return OperationCompleteCallback.EMPTY_CALLBACK;
         }
 
-        long msgId = putCreateIndexMsg(fulltextExt, fileId);
+        if (fulltextExt.getMode() == ScmFulltextMode.async) {
+            putCreateIndexMsg(fulltextExt, fileId, null);
+            return OperationCompleteCallback.EMPTY_CALLBACK;
+        }
+
+        FulltextIndexCreateFeedbackCallback feedbackCallback = new FulltextIndexCreateFeedbackCallback(
+                ws.getName(), fileId);
+        long msgId = putCreateIndexMsg(fulltextExt, fileId, feedbackCallback);
 
         if (fulltextExt.getMode() == ScmFulltextMode.async) {
             return OperationCompleteCallback.EMPTY_CALLBACK;
         }
-        return new WaitMsgConsumedCallback(mqAdmin, ws.getName(), fileId, msgId,
+        return new WaitMsgConsumedCallback(feedbackCallback, ws.getName(), fileId, msgId,
                 serverConfig.getFulltextCreateTimeout());
     }
 
-    private long putCreateIndexMsg(ScmWorkspaceFulltextExtData fulltextExt, String fileId)
-            throws ScmServerException {
-        FulltextMsg msg = new FulltextMsg();
+    private long putCreateIndexMsg(ScmWorkspaceFulltextExtData fulltextExt, String fileId,
+            FulltextIndexCreateFeedbackCallback feedbackCallback) throws ScmServerException {
+        FileFulltextOperation msg = new FileFulltextOperation();
         msg.setFileId(fileId);
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
-        msg.setOptionType(OptionType.CREATE_IDX);
+        msg.setOperationType(OperationType.CREATE_IDX);
         msg.setWsName(fulltextExt.getWsName());
+        msg.setSyncSaveIndex(fulltextExt.getMode() == ScmFulltextMode.sync);
+        msg.setReindex(false);
         try {
             long msgId = producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
-                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg));
+                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg),
+                    serverConfig.getFulltextCreateTimeout(), feedbackCallback);
             logger.debug("put fulltext msg to mq-server:" + msg);
             return msgId;
         }
@@ -156,10 +166,10 @@ public class FileOperationFulltextListener implements FileOperationListener {
 
     private void putDropIndexMsgForDeleteFile(ScmWorkspaceFulltextExtData fulltextExt,
             String fileId) throws ScmServerException {
-        FulltextMsg msg = new FulltextMsg();
+        FileFulltextOperation msg = new FileFulltextOperation();
         msg.setFileId(fileId);
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
-        msg.setOptionType(OptionType.DROP_IDX_ONLY);
+        msg.setOperationType(OperationType.DROP_IDX_ONLY);
         msg.setWsName(fulltextExt.getWsName());
         try {
             producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
@@ -174,10 +184,10 @@ public class FileOperationFulltextListener implements FileOperationListener {
 
     private void putDropIndexMsg(ScmWorkspaceFulltextExtData fulltextExt, String fileId)
             throws ScmServerException {
-        FulltextMsg msg = new FulltextMsg();
+        FileFulltextOperation msg = new FileFulltextOperation();
         msg.setFileId(fileId);
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
-        msg.setOptionType(OptionType.DROP_IDX_AND_UPDATE_FILE);
+        msg.setOperationType(OperationType.DROP_IDX_AND_UPDATE_FILE);
         msg.setWsName(fulltextExt.getWsName());
         try {
             producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
@@ -248,11 +258,11 @@ class WaitMsgConsumedCallback implements OperationCompleteCallback {
     private long msgId;
     private String fileId;
     private String ws;
-    private AdminClient mqAdmin;
+    private FulltextIndexCreateFeedbackCallback feedbackCallback;
 
-    public WaitMsgConsumedCallback(AdminClient mqAdmin, String ws, String fileID, long msgId,
-            int timeout) {
-        this.mqAdmin = mqAdmin;
+    public WaitMsgConsumedCallback(FulltextIndexCreateFeedbackCallback feedbackCallback, String ws,
+            String fileID, long msgId, int timeout) {
+        this.feedbackCallback = feedbackCallback;
         this.ws = ws;
         this.fileId = fileID;
         this.msgId = msgId;
@@ -262,37 +272,71 @@ class WaitMsgConsumedCallback implements OperationCompleteCallback {
     @Override
     public void onComplete() {
         try {
-            boolean isConsumed = mqAdmin
-                    .waitForMsgConsumed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
-                            FulltextCommonDefine.FULLTEXT_GROUP_NAME, msgId, false, timeout, 300);
-            if (!isConsumed) {
-                logger.warn(
-                        "failed to wait for fulltext index to create, cause by timeout:ws={}, fileId={}, timeout={}",
-                        ws, fileId, timeout);
-            }
+            feedbackCallback.waitFeedback(timeout);
         }
         catch (Exception e) {
             logger.warn("failed to wait for fulltext index to create:ws={}, fileId={}, timeout={}",
-                    ws, fileId);
+                    ws, fileId, timeout, e);
         }
     }
-
 }
 
-class FulltextMsgWrapper implements SerializeableMessage {
-    private FulltextMsg message;
+class FulltextMsgWrapper implements SerializableMessage {
+    private FileFulltextOperation message;
 
-    public FulltextMsgWrapper(FulltextMsg m) {
+    public FulltextMsgWrapper(FileFulltextOperation m) {
         this.message = m;
     }
 
     @Override
     public BSONObject serialize() {
-        BasicBSONObject ret = new BasicBSONObject();
-        ret.put(FulltextMsg.KEY_FILE_ID, message.getFileId());
-        ret.put(FulltextMsg.KEY_IDX_LOCATION, message.getIndexLocation());
-        ret.put(FulltextMsg.KEY_OPTION_TYPE, message.getOptionType().name());
-        ret.put(FulltextMsg.KEY_WS_NAME, message.getWsName());
-        return ret;
+        return message.toBSON();
+    }
+}
+
+class FulltextIndexCreateFeedbackCallback extends FeedbackCallback<FileFulltextOpFeedback> {
+    private static final Logger logger = LoggerFactory
+            .getLogger(FulltextIndexCreateFeedbackCallback.class);
+
+    private final CountDownLatch countdownLatch;
+    private final String fileId;
+    private final String wsName;
+
+    public FulltextIndexCreateFeedbackCallback(String wsName, String fileId) {
+        super(FulltextCommonDefine.FULLTEXT_GROUP_NAME);
+        this.fileId = fileId;
+        this.wsName = wsName;
+        countdownLatch = new CountDownLatch(1);
+    }
+
+    @Override
+    public void onFeedback(String topic, String key, long msgId,
+            FileFulltextOpFeedback feedbackContent) {
+        logger.debug("file create index feedback:ws={}, fileId={}, topic={}, msgId={}, feedback={}",
+                wsName, fileId, topic, msgId, feedbackContent);
+        countdownLatch.countDown();
+    }
+
+    @Override
+    public void onTimeout(String topic, String key, long msgId) {
+        logger.warn(
+                "failed to wait file create index, cause by msg feedback timeout:ws={}, fileId={}, topic={}, msgId={}",
+                wsName, fileId, topic, msgId);
+        countdownLatch.countDown();
+    }
+
+    @Override
+    protected FileFulltextOpFeedback convert(BSONObject feedback) throws MqException {
+        return new FileFulltextOpFeedback(feedback);
+    }
+
+    public void waitFeedback(long timeout) throws InterruptedException {
+        boolean awaitSuccess = countdownLatch.await(timeout, TimeUnit.MILLISECONDS);
+        if (!awaitSuccess) {
+            logger.warn(
+                    "failed to wait file create index, cause by msg feedback timeout, remove feedback callback:ws={}, fileId={}",
+                    wsName, fileId);
+            unregisterCallback();
+        }
     }
 }

@@ -16,6 +16,7 @@ public class MessageInternal extends Message<BSONObject> {
         partition = BsonUtils.getNumberChecked(record, FIELD_PARTITION_NUM).intValue();
         createTime = BsonUtils.getNumberChecked(record, FIELD_CREATE_TIME).longValue();
         msgContent = BsonUtils.getBSONChecked(record, FIELD_MSG_CONTENT);
+        msgProducer = BsonUtils.getString(record, FIELD_MSG_PRODUCER);
     }
 
 }

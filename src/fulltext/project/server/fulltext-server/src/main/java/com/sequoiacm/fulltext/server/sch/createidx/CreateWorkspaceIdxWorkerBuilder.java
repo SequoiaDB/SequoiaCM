@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltext.server.sch.deleteidx;
+package com.sequoiacm.fulltext.server.sch.createidx;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,13 +9,15 @@ import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobType;
+import com.sequoiacm.fulltext.server.sch.IdxThreadPool;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
 import com.sequoiacm.mq.client.config.AdminClient;
+import com.sequoiacm.mq.client.core.ProducerClient;
 import com.sequoiacm.schedule.client.worker.ScheduleWorker;
 import com.sequoiacm.schedule.client.worker.ScheduleWorkerBuilder;
 
 @Component
-public class IdxDeleteWorkerFactory implements ScheduleWorkerBuilder {
+public class CreateWorkspaceIdxWorkerBuilder implements ScheduleWorkerBuilder {
     @Autowired
     private ContentserverClientMgr csMgr;
     @Autowired
@@ -30,17 +32,22 @@ public class IdxDeleteWorkerFactory implements ScheduleWorkerBuilder {
     @Autowired
     private LockPathFactory lockPathFactory;
     @Autowired
-    private AdminClient mqAdmin;
+    private IdxThreadPool idxThreadPool;
+    @Autowired
+    protected ProducerClient producerClient;
+    @Autowired
+    protected AdminClient adminClient;
+    @Autowired
+    protected CreateWorkspaceIdxWorkerConfig conf;
 
     @Override
     public String getJobType() {
-        return FulltextIdxSchJobType.FULLTEXT_INDEX_DELETE.name();
+        return FulltextIdxSchJobType.FULLTEXT_INDEX_CREATE.name();
     }
 
     @Override
     public ScheduleWorker createWorker() {
-        return new IdxDeleteWorker(mqAdmin, csMgr, esClient, siteInfoMgr, confClient, lockManager,
-                lockPathFactory);
+        return new CreateWorkspaceIdxWorker(conf, esClient, csMgr, siteInfoMgr, confClient, lockManager,
+                lockPathFactory, idxThreadPool, producerClient, adminClient);
     }
-
 }

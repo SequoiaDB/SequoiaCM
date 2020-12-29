@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltext.server.sch.createidx;
+package com.sequoiacm.fulltext.server.fileidx;
 
 import java.io.InputStream;
 import java.util.List;
@@ -28,40 +28,41 @@ import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 
-public class IdxCreateDao {
-    private static final Logger logger = LoggerFactory.getLogger(IdxCreateDao.class);
+class CreateFileIdxDao extends FileIdxDao {
+    private static final Logger logger = LoggerFactory.getLogger(CreateFileIdxDao.class);
     private ContentserverClientMgr csMgr;
     private TextualParserMgr textualParserMgr;
     private EsClient esClient;
     private ScmSiteInfoMgr siteInfoMgr;
-    private String indexLocation;
-    private String wsName;
     private Random random = new Random();
 
-    private String fileId;
     private boolean syncIndex;
     private int fileCount = 1;
     public boolean reindex = false;
 
-    private IdxCreateDao(EsClient esClient, ContentserverClientMgr csMgr,
+    CreateFileIdxDao(String ws, String fileId, String esIdxLocation, boolean syncIndex,
+            boolean reindex, EsClient esClient, ContentserverClientMgr csMgr,
             TextualParserMgr textualParserMgr, ScmSiteInfoMgr siteInfoMgr) {
+        super(ws, fileId, esIdxLocation);
         this.esClient = esClient;
         this.csMgr = csMgr;
         this.textualParserMgr = textualParserMgr;
         this.siteInfoMgr = siteInfoMgr;
+        this.syncIndex = syncIndex;
+        this.reindex = reindex;
     }
 
     private void updateFileExtDataSilence(ContentserverClient csClient, ScmFileInfo file,
             ScmFileFulltextExtData extData) {
         try {
-            csClient.updateFileExternalData(wsName, file.getId(), file.getMajorVersion(),
+            csClient.updateFileExternalData(getWsName(), file.getId(), file.getMajorVersion(),
                     file.getMinorVersion(), extData.toBson());
         }
         catch (Exception e) {
             logger.warn(
                     "failed update ext data for scm file:ws={}, fileId={}, version={}.{}, extData={}",
-                    wsName, file.getId(), file.getMajorVersion(), file.getMinorVersion(), extData,
-                    e);
+                    getWsName(), file.getId(), file.getMajorVersion(), file.getMinorVersion(),
+                    extData, e);
         }
     }
 
@@ -70,28 +71,31 @@ public class IdxCreateDao {
             return;
         }
         try {
-            esClient.deleteAsyncByDocId(indexLocation, docId);
+            esClient.deleteAsyncByDocId(getEsIdxLocation(), docId);
         }
         catch (Exception e) {
             logger.warn(
                     "failed delete document for scm file:ws={}, fileId={}, version={}.{}, doumentId={}",
-                    wsName, file.getId(), file.getMajorVersion(), file.getMinorVersion(), docId, e);
+                    getWsName(), file.getId(), file.getMajorVersion(), file.getMinorVersion(),
+                    docId, e);
         }
     }
 
     // 保证先建历史文件的索引，如果历史建立失败，最新文件不建
-    public void createIdx() throws FullTextException, ScmServerException {
+    public void process() throws FullTextException, ScmServerException {
         ContentserverClient rootSiteCsClient = csMgr.getClient(siteInfoMgr.getRootSiteName());
-        ScmFileInfo latestVersionFile = rootSiteCsClient.getFileInfo(wsName, fileId, -1, -1);
+        ScmFileInfo latestVersionFile = rootSiteCsClient.getFileInfo(getWsName(), getFileId(), -1,
+                -1);
         if (latestVersionFile == null) {
-            logger.debug("file not found for create index:ws={}, fileId={}", wsName, fileId);
+            logger.debug("file not found for create index:ws={}, fileId={}", getWsName(),
+                    getFileId());
             fileCount = 0;
             return;
         }
         if (!ScmFileUtil.isFirstVersion(latestVersionFile)) {
-            ScmEleCursor<ScmFileInfo> historyFileCursor = rootSiteCsClient.listFile(wsName,
-                    new BasicBSONObject(FieldName.FIELD_CLFILE_ID, fileId), Scope.SCOPE_HISTORY,
-                    null, 0, -1);
+            ScmEleCursor<ScmFileInfo> historyFileCursor = rootSiteCsClient.listFile(getWsName(),
+                    new BasicBSONObject(FieldName.FIELD_CLFILE_ID, getFileId()),
+                    Scope.SCOPE_HISTORY, null, 0, -1);
             try {
                 while (historyFileCursor.hasNext()) {
                     ScmFileInfo historyFile = historyFileCursor.getNext();
@@ -107,8 +111,8 @@ public class IdxCreateDao {
                         boolean isCreateSuccess = createIdxForOneFile(rootSiteCsClient,
                                 historyFile);
                         if (!isCreateSuccess) {
-                            logger.debug("file not found for create index:ws={}, fileId={}", wsName,
-                                    fileId);
+                            logger.debug("file not found for create index:ws={}, fileId={}",
+                                    getWsName(), getFileId());
                             fileCount = 0;
                             return;
                         }
@@ -130,8 +134,8 @@ public class IdxCreateDao {
         }
 
         createIdxForOneFile(rootSiteCsClient, latestVersionFile);
-        logger.debug("create index for file success:ws={}, fileId={}, latestVesion={}.{}", wsName,
-                latestVersionFile.getId(), latestVersionFile.getMajorVersion(),
+        logger.debug("create index for file success:ws={}, fileId={}, latestVesion={}.{}",
+                getWsName(), latestVersionFile.getId(), latestVersionFile.getMajorVersion(),
                 latestVersionFile.getMinorVersion());
     }
 
@@ -163,7 +167,7 @@ public class IdxCreateDao {
                                 + ", fileSize=" + file.getFileSize());
             }
 
-            fileData = csClient.download(wsName, file.getId(), file.getMajorVersion(),
+            fileData = csClient.download(getWsName(), file.getId(), file.getMajorVersion(),
                     file.getMinorVersion());
             String text = parser.parse(fileData);
 
@@ -171,28 +175,28 @@ public class IdxCreateDao {
             document.setContent(text);
             document.setFileId(file.getId());
             document.setFileVersion(file.getMajorVersion() + "." + file.getMinorVersion());
-            esDocId = esClient.index(indexLocation, document, syncIndex);
+            esDocId = esClient.index(getEsIdxLocation(), document, syncIndex);
 
             ScmFileFulltextExtData extData = new ScmFileFulltextExtData(esDocId,
                     ScmFileFulltextStatus.CREATED, null);
 
-            boolean isUpdated = csClient.updateFileExternalData(wsName, fileId,
+            boolean isUpdated = csClient.updateFileExternalData(getWsName(), getFileId(),
                     file.getMajorVersion(), file.getMinorVersion(), extData.toBson());
             if (!isUpdated) {
-                logger.debug("file not found:ws={}, fileId={}, version={}.{}", wsName, fileId,
-                        file.getMajorVersion(), file.getMinorVersion());
+                logger.debug("file not found:ws={}, fileId={}, version={}.{}", getWsName(),
+                        getFileId(), file.getMajorVersion(), file.getMinorVersion());
                 unindexSlience(file, esDocId);
                 return false;
             }
-            logger.debug("create index for scm file:ws={}, fileId={}, version={}.{}", wsName,
+            logger.debug("create index for scm file:ws={}, fileId={}, version={}.{}", getWsName(),
                     file.getId(), file.getMajorVersion(), file.getMinorVersion());
             unindexSlience(file, oldEsDocId);
             return true;
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.FILE_NOT_FOUND) {
-                logger.debug("file not found:ws={}, fileId={}, version={}.{}", wsName, fileId,
-                        file.getMajorVersion(), file.getMinorVersion());
+                logger.debug("file not found:ws={}, fileId={}, version={}.{}", getWsName(),
+                        getFileId(), file.getMajorVersion(), file.getMinorVersion());
                 return false;
             }
             onException(e.getMessage(), rootSiteCsClient, esDocId, file);
@@ -210,7 +214,8 @@ public class IdxCreateDao {
     private void onException(String errorMsg, ContentserverClient csClient, String esDocId,
             ScmFileInfo file) {
         logger.warn("failed create index for scm file:ws={}, fileId={}, version={}.{}, causeby={}",
-                wsName, file.getId(), file.getMajorVersion(), file.getMinorVersion(), errorMsg);
+                getWsName(), file.getId(), file.getMajorVersion(), file.getMinorVersion(),
+                errorMsg);
         unindexSlience(file, esDocId);
         if (csClient != null) {
             ScmFileFulltextExtData extData = new ScmFileFulltextExtData(null,
@@ -227,55 +232,9 @@ public class IdxCreateDao {
         return siteInfoMgr.getSiteNameById(fileSites.get(random.nextInt(fileSites.size())));
     }
 
-    public static Builder newBuilder(EsClient esClient, ContentserverClientMgr csMgr,
-            TextualParserMgr textualParserMgr, ScmSiteInfoMgr siteInfoMgr) {
-        return new Builder(esClient, csMgr, textualParserMgr, siteInfoMgr);
-    }
-
-    public int fileCount() {
+    @Override
+    public int processFileCount() {
         return fileCount;
-    }
-
-    public String getFileId() {
-        return fileId;
-    }
-
-    public String getWsName() {
-        return wsName;
-    }
-
-    public static class Builder {
-        private IdxCreateDao creator;
-
-        private Builder(EsClient esClient, ContentserverClientMgr csMgr,
-                TextualParserMgr textualParserMgr, ScmSiteInfoMgr siteInfoMgr) {
-            creator = new IdxCreateDao(esClient, csMgr, textualParserMgr, siteInfoMgr);
-        }
-
-        public Builder file(String wsName, String fileId) {
-            creator.wsName = wsName;
-            creator.fileId = fileId;
-            return this;
-        }
-
-        public Builder syncIndexInEs(boolean syncIndexInEs) {
-            creator.syncIndex = syncIndexInEs;
-            return this;
-        }
-
-        public Builder indexLocation(String indexLocation) {
-            creator.indexLocation = indexLocation;
-            return this;
-        }
-
-        public Builder reindex(boolean reindex) {
-            creator.reindex = reindex;
-            return this;
-        }
-
-        public IdxCreateDao get() {
-            return creator;
-        }
     }
 
 }

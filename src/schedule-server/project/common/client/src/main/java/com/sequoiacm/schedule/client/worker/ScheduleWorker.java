@@ -98,7 +98,7 @@ public abstract class ScheduleWorker implements Runnable {
         return status.getSchId();
     }
 
-    void stop() {
+    protected void stop() {
         isStop = true;
     }
 }

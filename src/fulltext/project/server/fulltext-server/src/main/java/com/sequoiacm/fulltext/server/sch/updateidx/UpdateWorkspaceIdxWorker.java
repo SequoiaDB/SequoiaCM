@@ -18,39 +18,47 @@ import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.WsFulltextExtDataModifier;
 import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDao;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;
-import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobData;
 import com.sequoiacm.fulltext.server.sch.IdxThreadPool;
-import com.sequoiacm.fulltext.server.sch.createidx.IdxCreateWorker;
+import com.sequoiacm.fulltext.server.sch.createidx.CreateWorkspaceIdxWorker;
+import com.sequoiacm.fulltext.server.sch.createidx.CreateWorkspaceIdxWorkerConfig;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.mq.client.config.AdminClient;
+import com.sequoiacm.mq.client.core.ProducerClient;
 import com.sequoiacm.schedule.common.model.ScheduleException;
 
-public class UpdateIdxWorker extends IdxCreateWorker {
+public class UpdateWorkspaceIdxWorker extends CreateWorkspaceIdxWorker {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpdateIdxWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(UpdateWorkspaceIdxWorker.class);
+    private final FileIdxDaoFactory scmFileIdDaoFactory;
     private AdminClient mqAdmin;
 
-    public UpdateIdxWorker(EsClient esClient, ContentserverClientMgr csMgr,
-            TextualParserMgr textualParserMgr, ScmSiteInfoMgr siteInfoMgr,
-            ConfServiceClient confClient, LockManager lockMgr, LockPathFactory lockPathFactory,
-            AdminClient adminClient, IdxThreadPool idxThreadPool) {
-        super(esClient, csMgr, textualParserMgr, siteInfoMgr, confClient, lockMgr, lockPathFactory,
-                idxThreadPool);
+    public UpdateWorkspaceIdxWorker(FileIdxDaoFactory scmFileIdDaoFactory, CreateWorkspaceIdxWorkerConfig conf, EsClient esClient,
+            ContentserverClientMgr csMgr, ScmSiteInfoMgr siteInfoMgr, ConfServiceClient confClient,
+            LockManager lockMgr, LockPathFactory lockPathFactory, AdminClient adminClient,
+            IdxThreadPool idxThreadPool, ProducerClient producerClient) {
+        super(conf, esClient, csMgr, siteInfoMgr, confClient, lockMgr, lockPathFactory,
+                idxThreadPool, producerClient, adminClient);
         this.mqAdmin = adminClient;
+        this.scmFileIdDaoFactory = scmFileIdDaoFactory;
     }
 
     @Override
     protected void exec(String schName, BSONObject jobData) throws Exception {
         FulltextIdxSchJobData data = new FulltextIdxSchJobData(jobData);
-        boolean isConsumed = mqAdmin.waitForMsgConsumed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, FulltextCommonDefine.FULLTEXT_GROUP_NAME, data.getLatestMsgId(), true, Integer.MAX_VALUE, 5000);
+        boolean isConsumed = mqAdmin.waitForMsgConsumed(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                FulltextCommonDefine.FULLTEXT_GROUP_NAME, data.getLatestMsgId(), true,
+                Integer.MAX_VALUE, 5000);
         if (!isConsumed) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,
                     "failed to wait msg to be consumed, timeout: topic="
@@ -94,11 +102,12 @@ public class UpdateIdxWorker extends IdxCreateWorker {
             lock.unlock();
         }
 
-        reportStatusSlience(true);
+        reportStatus(true);
     }
 
     private void dropIndex(FulltextIdxSchJobData data, ContentserverClient csClient,
-            BSONObject dropIdxCondition) throws ScmServerException, ScheduleException {
+            BSONObject dropIdxCondition)
+            throws ScmServerException, ScheduleException, FullTextException {
         if (dropIdxCondition == null) {
             logger.info("fulltext matcher is empty, no need drop index:ws={}, matcher={}",
                     data.getWs(), data.getFileMatcher());
@@ -114,13 +123,17 @@ public class UpdateIdxWorker extends IdxCreateWorker {
                     break;
                 }
                 ScmFileInfo file = cursor.getNext();
-                IdxDropAndUpdateDao dao = IdxDropAndUpdateDao.newBuilder(csClient, esClient)
-                        .file(data.getWs(), file.getId()).indexLocation(data.getIndexDataLocation())
-                        .get();
-                IdxDropAndUpdateFileTask task = new IdxDropAndUpdateFileTask(dao, getTaskContext());
+                FileFulltextOperation op = new FileFulltextOperation();
+                op.setOperationType(FileFulltextOperation.OperationType.DROP_IDX_AND_UPDATE_FILE);
+                op.setWsName(data.getWs());
+                op.setIndexLocation(data.getIndexDataLocation());
+                op.setFileId(file.getId());
+
+                FileIdxDao dao = scmFileIdDaoFactory.createDao(op);
+                DropAndUpdateFileIdxTask task = new DropAndUpdateFileIdxTask(dao, getTaskContext());
                 submit(task);
                 getTaskContext().incTaskCount();
-                reportStatusSlience(false);
+                reportStatus(false);
             }
         }
         finally {
@@ -141,19 +154,9 @@ public class UpdateIdxWorker extends IdxCreateWorker {
 
     private BSONObject conditionForDropIndex(FulltextIdxSchJobData data) {
         /*
-        * {
-        *    "$and": [{
-        *        "external_data.fulltext_status": {
-        *          "$ne": "NONE"
-        *       }
-        *   },
-        *   {
-        *       "$not": [{
-        *           "title": "fileTitle"
-        *       }]
-        *   }]
-        * }
-        */
+         * { "$and": [{ "external_data.fulltext_status": { "$ne": "NONE" } }, { "$not":
+         * [{ "title": "fileTitle" }] }] }
+         */
         // 工作区的索引条件是空，表示所有文件都需要建索引，那么本次更新索引没有文件需要删除索引，返回一个空指针表示这种情况
         if (data.getFileMatcher() == null || data.getFileMatcher().isEmpty()) {
             return null;

@@ -12,7 +12,7 @@ public interface MsgService {
     public List<MessageInternal> pullMsg(String consumerGroup, String consumer, int pullMaxRetSize,
             int ackPartitionNum, List<Long> ackMsg) throws MqException;
 
-    public long putMsg(String topic, String key, BSONObject content) throws MqException;
+    public long putMsg(String topic, String key, String producer, BSONObject content) throws MqException;
 
     public void commitMsg(String consumerGroup, String consumer, int partitionNum,
             List<Long> commitMsg) throws MqException;
@@ -21,4 +21,7 @@ public interface MsgService {
 
     boolean checkMsgConsumed(String topic, String group, long msgId, boolean ensureLteMsgConsumed)
             throws MqException;
+
+    void feedback(String topic, String group, long msgId, String msgKey, BSONObject feedback) throws MqException;
+
 }

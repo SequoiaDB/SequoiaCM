@@ -10,9 +10,9 @@ import com.sequoiacm.mq.core.exception.MqException;
 
 @RequestMapping("/internal/v1/msg_queue")
 public interface ProducerFeignClient {
-    @PostMapping(value = "/msg")
+    @PostMapping(value = "/msg?" + CommonDefine.REST_ACTION + "=" + CommonDefine.REST_ACTION_PUT)
     public long putMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic,
             @RequestParam(CommonDefine.REST_KEY) String key,
-            @RequestParam(CommonDefine.REST_MSG_CONTENT) BSONObject content,
-            @RequestParam(CommonDefine.REST_ACTION) String action) throws MqException;
+            @RequestParam(CommonDefine.REST_MSG_CONTENT) String content,
+            @RequestParam(value = CommonDefine.REST_PRODUCER) String producerAddr) throws MqException;
 }

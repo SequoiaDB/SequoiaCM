@@ -18,6 +18,8 @@ public interface PartitionRepository {
 
     public List<ConsumerPartitionInfo> getPartitionByGroup(String groupName) throws MqException;
 
+    public List<ConsumerPartitionInfo> getPartitionByTopicAndNum(String topicName, int partitionNum) throws MqException;
+
     public Map<Integer, List<ConsumerPartitionInfo>> getPartitionByTopic(String topicName)
             throws MqException;
 

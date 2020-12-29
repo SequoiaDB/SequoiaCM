@@ -5,8 +5,6 @@ import java.util.UUID;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,28 +18,27 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.fulltext.server.WsFulltextExtDataModifier;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
-import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDao;
+import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobData;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobType;
-import com.sequoiacm.fulltext.server.sch.createidx.IdxCreateDao;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
 import com.sequoiacm.infrastructure.common.IOUtils;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.schedule.common.ScheduleDefine.ScopeType;
 
 @Component
 public class FulltextIdxCreatedStateOp extends FulltextIdxOperator {
-    private static final Logger logger = LoggerFactory.getLogger(FulltextIdxCreatedStateOp.class);
 
     @Autowired
     private ScmSiteInfoMgr siteMgr;
     @Autowired
     private ContentserverClientMgr csMgr;
     @Autowired
-    private TextualParserMgr textualParserMgr;
+    private FileIdxDaoFactory scmFileIdDaoFactory;
 
     @Override
     public void createIndex(ScmWorkspaceFulltextExtData currentWsFulltextExtData,
@@ -135,12 +132,17 @@ public class FulltextIdxCreatedStateOp extends FulltextIdxOperator {
     public void rebuildIndex(ScmWorkspaceFulltextExtData currentWsFulltextExtData, String fileId)
             throws FullTextException {
         tryGetFileWithFulltextMatcher(currentWsFulltextExtData, fileId);
-        IdxCreateDao creator = IdxCreateDao.newBuilder(esClient, csMgr, textualParserMgr, siteMgr)
-                .file(currentWsFulltextExtData.getWsName(), fileId).reindex(true)
-                .indexLocation(currentWsFulltextExtData.getIndexDataLocation()).syncIndexInEs(true)
-                .get();
+        FileFulltextOperation op = new FileFulltextOperation();
+        op.setReindex(true);
+        op.setSyncSaveIndex(true);
+        op.setWsName(currentWsFulltextExtData.getWsName());
+        op.setOperationType(FileFulltextOperation.OperationType.CREATE_IDX);
+        op.setIndexLocation(currentWsFulltextExtData.getIndexDataLocation());
+        op.setFileId(fileId);
+
         try {
-            creator.createIdx();
+            FileIdxDao dao = scmFileIdDaoFactory.createDao(op);
+            dao.process();
         }
         catch (FullTextException e) {
             throw e;

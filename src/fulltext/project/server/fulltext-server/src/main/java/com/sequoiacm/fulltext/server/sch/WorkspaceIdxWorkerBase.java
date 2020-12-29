@@ -7,8 +7,8 @@ import com.sequoiacm.schedule.client.worker.ScheduleWorker;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
 
-public abstract class IdxWorkerBase extends ScheduleWorker {
-    private static final Logger logger = LoggerFactory.getLogger(IdxWorkerBase.class);
+public abstract class WorkspaceIdxWorkerBase extends ScheduleWorker {
+    private static final Logger logger = LoggerFactory.getLogger(WorkspaceIdxWorkerBase.class);
 
     private SchJobStatus statusInfo;
     private long lastReportStatusTime;
@@ -16,7 +16,7 @@ public abstract class IdxWorkerBase extends ScheduleWorker {
 
     private IdxThreadPool taskMgr;
 
-    public IdxWorkerBase(IdxThreadPool taskMgr) {
+    public WorkspaceIdxWorkerBase(IdxThreadPool taskMgr) {
         this.taskMgr = taskMgr;
         statusInfo = new SchJobStatus(0, 0, 0, 0);
         context = new IdxTaskContext();
@@ -26,7 +26,7 @@ public abstract class IdxWorkerBase extends ScheduleWorker {
         return statusInfo;
     }
 
-    protected IdxTaskContext getTaskContext() {
+    public IdxTaskContext getTaskContext() {
         return context;
     }
 
@@ -36,7 +36,7 @@ public abstract class IdxWorkerBase extends ScheduleWorker {
         reportStatus(statusInfo.toBsonObject(), false);
     }
 
-    protected void reportStatusSlience(boolean isFinish) throws ScheduleException {
+    public void reportStatus(boolean isFinish) throws ScheduleException {
         long processCount = context.getErrorCount() + context.getSuccessCount();
         long delta = processCount - (statusInfo.getErrorCount() + statusInfo.getSuccessCount());
         long now = System.currentTimeMillis();
@@ -59,6 +59,7 @@ public abstract class IdxWorkerBase extends ScheduleWorker {
             }
             catch (ScheduleException e) {
                 if (e.getCode().equals(RestCommonDefine.ErrorCode.WORKER_SHOULD_STOP)) {
+                    stop();
                     throw e;
                 }
                 logger.warn("failed to report job status:{}, jobStatus={}", toString(),

@@ -56,17 +56,8 @@ public abstract class FulltextIdxOperator {
 
     protected void createTopicIfNotExist(String wsName) throws FullTextException {
         try {
-            try {
-                mqAdminClient.getTopic(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC);
-                return;
-            }
-            catch (MqException e) {
-                if (e.getError() == MqError.TOPIC_NOT_EXIST) {
-                    mqAdminClient.createTopicIfNotExist(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
-                            mqConfig.getTopicPartitionNum());
-                }
-                throw e;
-            }
+            mqAdminClient.createTopicIfNotExist(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                    mqConfig.getTopicPartitionNum());
         }
         catch (MqException e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,

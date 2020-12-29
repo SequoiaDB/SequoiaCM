@@ -1,18 +1,23 @@
 package com.sequoiacm.mq.server.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.mq.core.CommonDefine;
+import com.sequoiacm.mq.core.exception.FeignExceptionConverter;
 import com.sequoiacm.mq.core.exception.MqError;
 import com.sequoiacm.mq.core.exception.MqException;
 import com.sequoiacm.mq.core.module.ConsumerGroup;
@@ -44,6 +49,11 @@ public class MsgServiceImpl implements MsgService {
     private LockManager lockMgr;
     @Autowired
     private LockPathFactory lockPathFactory;
+
+    @Autowired
+    private ProducerAnConsumerClientMgr clientsMgr;
+    @Autowired
+    private MsgArriveNotifier msgArriveNotifier;
 
     private void applyAck(ConsumerPartitionInfo ackPartition, List<Long> ackMsg)
             throws MqException {
@@ -158,13 +168,16 @@ public class MsgServiceImpl implements MsgService {
     }
 
     @Override
-    public long putMsg(String topicName, String key, BSONObject content) throws MqException {
+    public long putMsg(String topicName, String key, String producer, BSONObject content)
+            throws MqException {
         int keyHash = Math.abs(key.hashCode());
         MessageInternal msg = new MessageInternal();
         msg.setCreateTime(System.currentTimeMillis());
         msg.setKey(key);
         msg.setMsgContent(content);
         msg.setTopic(topicName);
+        msg.setMsgProducer(producer);
+
         ScmLock readLock = lockMgr.acquiresReadLock(lockPathFactory.putMsgLockPath(topicName));
         try {
             Topic topic = topicRepository.getTopic(topicName);
@@ -173,11 +186,15 @@ public class MsgServiceImpl implements MsgService {
                         "topic not exist:topic=" + topicName);
             }
             msg.setPartition(keyHash % topic.getPartitionCount());
-            return msgRepository.putMsg(topic.getMessageTableName(), msg);
+            msg.setId(msgRepository.putMsg(topic.getMessageTableName(), msg));
         }
         finally {
             readLock.unlock();
         }
+
+        msgArriveNotifier.asyncNotify(msg);
+
+        return msg.getId();
     }
 
     private int indexOfPartition(List<ConsumerPartitionInfo> partitions, int partitionNum) {
@@ -323,6 +340,130 @@ public class MsgServiceImpl implements MsgService {
         return true;
     }
 
+    @Async("feedbackExecutor")
+    @Override
+    public void feedback(String topicName, String group, long msgId, String msgKey,
+            BSONObject feedback) throws MqException {
+        Topic topic = topicRepository.getTopic(topicName);
+        if (topic == null) {
+            throw new MqException(MqError.TOPIC_NOT_EXIST, "topic not exist:topic=" + topicName);
+        }
+        MessageInternal msg = msgRepository.getMsgById(topic.getMessageTableName(), msgId);
+        if (msg == null) {
+            logger.warn("failed to feedback, msg is not found:topic={}, msgId={}, feedback={}",
+                    topicName, msgId, feedback);
+            return;
+        }
+
+        if (msg.getMsgProducer() == null) {
+            logger.warn("msg do not contain producer:topic={}, msgId={}, feedback={}", topicName,
+                    msgId, feedback);
+            return;
+        }
+
+        ProducerAnConsumerClient client = clientsMgr.getClient(msg.getMsgProducer());
+        int retryTimes = 3;
+        while (retryTimes-- > 0) {
+            try {
+                client.feedback(topicName, group, msgId, msgKey, feedback);
+                break;
+            }
+            catch (Exception e) {
+                logger.warn(
+                        "failed to feedback producer:topic={}, msgId={}, producer={}, feedback={}",
+                        topicName, msgId, msg.getMsgProducer(), feedback, e);
+            }
+            try {
+                Thread.sleep(200);
+            }
+            catch (InterruptedException e) {
+                throw new MqException(MqError.SYSTEM_ERROR,
+                        "retry to feedback producer failed, cause by interrupt:topic=" + topicName
+                                + ", msgId=" + msgId + ", producer=" + msg.getMsgProducer()
+                                + ", feedback=" + feedback,
+                        e);
+            }
+        }
+    }
+
+}
+
+@Component
+class ProducerAnConsumerClientMgr {
+
+    private Map<String, ProducerAnConsumerClient> clients = new ConcurrentHashMap<>();
+
+    @Autowired
+    private ScmFeignClient feignClient;
+
+    public ProducerAnConsumerClient getClient(String instanceAddr) {
+        ProducerAnConsumerClient client = clients.get(instanceAddr);
+        if (client == null) {
+            client = feignClient.builder().exceptionConverter(new FeignExceptionConverter())
+                    .instanceTarget(ProducerAnConsumerClient.class, instanceAddr);
+            clients.put(instanceAddr, client);
+        }
+        return client;
+    }
+}
+
+@Component
+class MsgArriveNotifier {
+    private static final Logger logger = LoggerFactory.getLogger(MsgArriveNotifier.class);
+
+    @Autowired
+    private PartitionRepository partitionRep;
+
+    @Autowired
+    private ProducerAnConsumerClientMgr clientsMgr;
+
+    @Async("msgArriveNotifierExecutor")
+    public void asyncNotify(MessageInternal msg) throws MqException {
+        List<ConsumerPartitionInfo> partitions;
+        try {
+            partitions = partitionRep.getPartitionByTopicAndNum(msg.getTopic(), msg.getPartition());
+        }
+        catch (Exception e) {
+            logger.warn("failed to notify new msg arrive: topic={}, partition={}", msg.getTopic(),
+                    msg.getPartition(), e);
+            return;
+        }
+        for (ConsumerPartitionInfo p : partitions) {
+            if (p.getConsumer() == null || p.getConsumer().trim().length() == 0) {
+                // 这个消费组在这个分区还没有消费者，不需要通知
+                continue;
+            }
+            if (p.getPendingMsgs() != null && p.getPendingMsgs().size() > 0) {
+                // 这个消费组在这个分区的消费者有正在处理的消息，处理完消息后它会立刻来拿新消息，所以也不需要通知
+                continue;
+            }
+
+            // 这个消费组在这个分区的消费者没有正在处理的消息，很有可能在休眠，通知它有新消息到了
+            try {
+                ProducerAnConsumerClient client = clientsMgr.getClient(p.getConsumer());
+                client.newMsgNotify(p.getConsumerGroup());
+            }
+            catch (Exception e) {
+                logger.warn(
+                        "failed to notify new msg arrive:topic={}, partition={}, group={}, consumer={}",
+                        msg.getTopic(), msg.getPartition(), p.getConsumerGroup(), p.getConsumer());
+            }
+        }
+    }
+}
+
+@RequestMapping("/internal/v1")
+interface ProducerAnConsumerClient {
+    @PostMapping("/msg_queue/client/feedback")
+    public void feedback(@RequestParam(CommonDefine.REST_TOPIC) String topic,
+            @RequestParam(CommonDefine.REST_CONSUMER_GROUP) String group,
+            @RequestParam(CommonDefine.REST_MSG_ID) long msgId,
+            @RequestParam(CommonDefine.REST_KEY) String msgKey,
+            @RequestParam(CommonDefine.REST_MSG_FEEDBACK) BSONObject feedback) throws MqException;
+
+    @PostMapping("/msg_queue/client/new_msg_notify")
+    public void newMsgNotify(@RequestParam(CommonDefine.REST_CONSUMER_GROUP) String group)
+            throws MqException;
 }
 
 class PartitionNumComparator implements Comparator<ConsumerPartitionInfo> {

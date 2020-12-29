@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltext.server;
 
+import com.sequoiacm.mq.client.EnableScmMqProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,6 +24,7 @@ import com.sequoiacm.schedule.client.EnableScheduleWorker;
 @EnableScheduleWorker
 @EnableScmMqConsumer
 @EnableScmMqAdmin
+@EnableScmMqProducer
 @EnableContentserverClient
 public class FulltextServer implements ApplicationRunner {
 

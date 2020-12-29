@@ -1,6 +1,7 @@
 package com.sequoiacm.mq.server.dao.impl;
 
-import static com.sequoiacm.mq.server.dao.impl.SdbDaoCommonDefine.*;
+import static com.sequoiacm.mq.server.dao.impl.SdbDaoCommonDefine.MQ_CONSUMER_PARTITION_INFO_CL_NAME;
+import static com.sequoiacm.mq.server.dao.impl.SdbDaoCommonDefine.MQ_CS_NAME;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,26 +81,47 @@ public class SdbPartitionRepository implements PartitionRepository {
         }
     }
 
+    private List<ConsumerPartitionInfo> queryPartitions(BSONObject matcher) {
+        SequoiadbCollectionTemplate cl = sdbTemplate.collection(MQ_CS_NAME,
+                MQ_CONSUMER_PARTITION_INFO_CL_NAME);
+        List<BSONObject> records = cl.find(matcher);
+        List<ConsumerPartitionInfo> ret = new ArrayList<>();
+        for (BSONObject r : records) {
+            ConsumerPartitionInfo p = new ConsumerPartitionInfo(r);
+            ret.add(p);
+        }
+        return ret;
+    }
+
+    @Override
+    public List<ConsumerPartitionInfo> getPartitionByTopicAndNum(String topicName, int partitionNum)
+            throws MqException {
+        try {
+            BasicBSONObject matcher = new BasicBSONObject(ConsumerPartitionInfo.FIELD_TOPIC,
+                    topicName);
+            matcher.put(ConsumerPartitionInfo.FIELD_PARTITION_NUM, partitionNum);
+            return queryPartitions(matcher);
+        }
+        catch (Exception e) {
+            throw new MqException(MqError.METASOURCE_ERROR,
+                    "failed to get consumer partition info from sdb:topic=" + topicName
+                            + ", partitionNum=" + partitionNum,
+                    e);
+        }
+    }
+
     @Override
     public List<ConsumerPartitionInfo> getPartitions(String groupName, String consumer)
             throws MqException {
-        SequoiadbCollectionTemplate cl = sdbTemplate.collection(MQ_CS_NAME,
-                MQ_CONSUMER_PARTITION_INFO_CL_NAME);
         try {
             BasicBSONObject matcher = new BasicBSONObject(
                     ConsumerPartitionInfo.FIELD_CONSUMER_GROUP, groupName);
             matcher.put(ConsumerPartitionInfo.FIELD_CONSUMER, consumer);
-            List<BSONObject> records = cl.find(matcher);
-            List<ConsumerPartitionInfo> ret = new ArrayList<>();
-            for (BSONObject r : records) {
-                ConsumerPartitionInfo p = new ConsumerPartitionInfo(r);
-                ret.add(p);
-            }
-            return ret;
+            return queryPartitions(matcher);
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
-                    "failed to get consumer patition info from sdb:group=" + groupName
+                    "failed to get consumer partition info from sdb:group=" + groupName
                             + ", consumer=" + consumer,
                     e);
         }
@@ -115,7 +137,7 @@ public class SdbPartitionRepository implements PartitionRepository {
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
-                    "failed to remove consumer patition info from sdb:group=" + group, e);
+                    "failed to remove consumer partition info from sdb:group=" + group, e);
         }
     }
 
@@ -137,7 +159,7 @@ public class SdbPartitionRepository implements PartitionRepository {
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
-                    "failed to update consumer patition info in sdb:group=" + groupName
+                    "failed to update consumer partition info in sdb:group=" + groupName
                             + ", partitionNum=" + num + ", newConsumer=" + newConsumer,
                     e);
         }
@@ -161,7 +183,7 @@ public class SdbPartitionRepository implements PartitionRepository {
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
-                    "failed to update consumer patition info in sdb:group=" + groupName
+                    "failed to update consumer partition info in sdb:group=" + groupName
                             + ", partitionNum=" + num + ", newLastDeleveredId="
                             + newLastDeleveredId,
                     e);
@@ -191,7 +213,7 @@ public class SdbPartitionRepository implements PartitionRepository {
         }
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
-                    "failed to update consumer patition info in sdb:group=" + groupName
+                    "failed to update consumer partition info in sdb:group=" + groupName
                             + ", partitionNum=" + num + ", newPendingMsg=" + newPendingMsg,
                     e);
         }

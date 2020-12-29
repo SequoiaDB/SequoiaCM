@@ -1,18 +1,62 @@
 package com.sequoiacm.mq.client.core;
 
 import com.sequoiacm.mq.client.remote.ProducerFeignClient;
-import com.sequoiacm.mq.core.CommonDefine;
 import com.sequoiacm.mq.core.exception.MqException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ProducerClient {
+    private static final Logger logger = LoggerFactory.getLogger(ProducerClient.class);
+    private final String producerAddr;
+    private final ProducerLockManager lockMgr;
     private ProducerFeignClient client;
+    private FeedbackCallbackMgr feedbackCallbackMgr;
 
-    public ProducerClient(ProducerFeignClient client) {
+    public ProducerClient(String producerAddr, ProducerFeignClient client,
+            FeedbackCallbackMgr feedbackCallbackMgr, ProducerLockManager lockMgr) {
         this.client = client;
+        this.feedbackCallbackMgr = feedbackCallbackMgr;
+        this.producerAddr = producerAddr;
+        this.lockMgr = lockMgr;
     }
 
-    public long putMsg(String topic, String key, SerializeableMessage m) throws MqException {
-        return client.putMsg(topic, key, m.serialize(), CommonDefine.REST_ACTION_PUT);
+    public long putMsg(String topic, String key, SerializableMessage m) throws MqException {
+        return client.putMsg(topic, key, m.serialize().toString(), null);
+    }
+
+    public long putMsg(String topic, String key, SerializableMessage m,
+            long registerCallbackTimeout, FeedbackCallback<?>... callbacks)
+            throws MqException, InterruptedException {
+        if (callbacks.length <= 0) {
+            return putMsg(topic, key, m);
+        }
+
+        // 投递消息和注册回调在一把锁内，找 feedbackCallbackMgr 获取回调也需要加这把锁，
+        // 防止在投递消息与注册回调之间的空隙，有线程来找回调对象
+        ReentrantLock lock = lockMgr.getLock(key);
+        lock.lock();
+        try {
+            long msgId = client.putMsg(topic, key, m.serialize().toString(), producerAddr);
+            feedbackCallbackMgr.registerCallback(topic, key, msgId, Arrays.asList(callbacks),
+                    registerCallbackTimeout);
+            return msgId;
+        }
+        finally {
+            lock.unlock();
+        }
+    }
+
+    public long putMsg(String topic, String key, SerializableMessage m,
+            FeedbackCallback<?>... callbacks) throws MqException, InterruptedException {
+        return putMsg(topic, key, m, Long.MAX_VALUE, callbacks);
+    }
+
+    public void triggerListenerTimeout(String topic, String group, long lessThanOrEqualsMsgId) {
+        feedbackCallbackMgr.triggerTimeout(topic, group, lessThanOrEqualsMsgId);
     }
 
 }

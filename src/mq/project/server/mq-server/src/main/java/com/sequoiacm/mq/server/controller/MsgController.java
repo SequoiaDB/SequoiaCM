@@ -2,6 +2,7 @@ package com.sequoiacm.mq.server.controller;
 
 import java.util.List;
 
+import com.sequoiacm.mq.core.exception.MqError;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +25,13 @@ public class MsgController {
     @PostMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
             + CommonDefine.REST_ACTION_PUT)
     public long putMsg(@RequestParam(CommonDefine.REST_TOPIC) String topic,
-            @RequestParam(CommonDefine.REST_KEY) String key,
-            @RequestParam(CommonDefine.REST_MSG_CONTENT) BSONObject content) throws MqException {
-        return service.putMsg(topic, key, content);
+                       @RequestParam(CommonDefine.REST_KEY) String key,
+                       @RequestParam(CommonDefine.REST_MSG_CONTENT) BSONObject content,
+                       @RequestParam(value = CommonDefine.REST_PRODUCER, required = false) String producer) throws MqException {
+        if (producer != null && producer.trim().isEmpty()) {
+            throw new MqException(MqError.INVALID_ARG, "producer is empty");
+        }
+        return service.putMsg(topic, key, producer, content);
     }
 
     @PostMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
@@ -56,6 +61,16 @@ public class MsgController {
         return service.peekLatestMessage(topic);
     }
 
+    @PostMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
+            + CommonDefine.REST_ACTION_FEEDBACK)
+    public void feedback(@RequestParam(CommonDefine.REST_TOPIC) String topic,
+                         @RequestParam(CommonDefine.REST_CONSUMER_GROUP) String group,
+                         @RequestParam(CommonDefine.REST_MSG_ID) long msgId,
+                         @RequestParam(CommonDefine.REST_KEY) String msgKey,
+                         @RequestParam(CommonDefine.REST_MSG_FEEDBACK) BSONObject feedback) throws MqException{
+        service.feedback(topic, group, msgId, msgKey, feedback);
+    }
+
     @GetMapping(value = "/msg", params = CommonDefine.REST_ACTION + "="
             + CommonDefine.REST_ACTION_CHECK_CONSUMED)
     public boolean checkMsgConsumed(@RequestParam(CommonDefine.REST_TOPIC) String topic,
@@ -72,4 +87,5 @@ public class MsgController {
          */
         return service.checkMsgConsumed(topic, group, msgId, ensureLteMsgConsumed);
     }
+
 }

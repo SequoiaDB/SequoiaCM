@@ -9,6 +9,7 @@ public class Message<T> {
     public static final String FIELD_TOPIC = "topic";
     public static final String FIELD_CREATE_TIME = "create_time";
     public static final String FIELD_MSG_CONTENT = "msg_content";
+    public static final String FIELD_MSG_PRODUCER = "msg_producer";
 
     @JsonProperty(FIELD_KEY)
     protected String key;
@@ -23,6 +24,9 @@ public class Message<T> {
 
     @JsonProperty(FIELD_MSG_CONTENT)
     protected T msgContent;
+
+    @JsonProperty(FIELD_MSG_PRODUCER)
+    protected String msgProducer;
 
     public String getKey() {
         return key;
@@ -70,6 +74,14 @@ public class Message<T> {
 
     public void setMsgContent(T msgContent) {
         this.msgContent = msgContent;
+    }
+
+    public void setMsgProducer(String msgProducer) {
+        this.msgProducer = msgProducer;
+    }
+
+    public String getMsgProducer() {
+        return msgProducer;
     }
 
     @Override

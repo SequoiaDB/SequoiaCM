@@ -21,16 +21,24 @@ public class ConsumerBeanAutoConfig {
     private int consumerClientPort;
 
     @Bean
-    public ConsumerClientMgr consumerClient(ScmFeignClient feignClient,
-            ConsumerController consumerController) throws UnknownHostException {
+    public ConsumerClientMgr consumerClient(ScmFeignClient feignClient, ConsumerConfProperties consumerConfProperties)
+            throws UnknownHostException {
         ConsumerFeignClient feign = feignClient.builder()
                 .exceptionConverter(new FeignExceptionConverter())
                 .serviceTarget(ConsumerFeignClient.class, AdminBeanAutoConfig.SERVICE_NAME);
-        return new ConsumerClientMgr(feign, consumerClientPort, consumerController);
+        return new ConsumerClientMgr(feign, consumerClientPort, consumerConfProperties);
     }
 
     @Bean
-    public ConsumerController consumerController() throws UnknownHostException {
-        return new ConsumerController();
+    public ConsumerController consumerController(ConsumerClientMgr consumerMgr)
+            throws UnknownHostException {
+        return new ConsumerController(consumerMgr);
     }
+
+    @Bean
+    public ConsumerConfProperties consumerConfProperties(){
+        return new ConsumerConfProperties();
+    }
+
 }
+

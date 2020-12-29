@@ -1,77 +1,45 @@
-package com.sequoiacm.fulltext.server.sch.updateidx;
+package com.sequoiacm.fulltext.server.fileidx;
 
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.common.CommonDefine.Scope;
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.content.client.ContentserverClient;
+import com.sequoiacm.content.client.ContentserverClientMgr;
 import com.sequoiacm.content.client.ScmEleCursor;
 import com.sequoiacm.content.client.model.ScmFileInfo;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.sch.ScmFileUtil;
+import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
 import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 
-public class IdxDropAndUpdateDao {
-    private static final Logger logger = LoggerFactory.getLogger(IdxDropAndUpdateDao.class);
-    private String ws;
-    private String indexLocation;
-
-    private String fileId;
-
-    private ContentserverClient csClient;
-    private EsClient esClient;
+class DropAndUpdateFileIdxDao extends FileIdxDao {
+    private static final Logger logger = LoggerFactory.getLogger(DropAndUpdateFileIdxDao.class);
+    private final ScmSiteInfoMgr siteInfoMgr;
+    private final ContentserverClientMgr csClientMgr;
+    private final EsClient esClient;
     private int fileCount = 1;
 
-    public static Builder newBuilder(ContentserverClient csClient, EsClient esClient) {
-        return new Builder(csClient, esClient);
-    }
-
-    public static class Builder {
-        private IdxDropAndUpdateDao dao;
-
-        private Builder(ContentserverClient csClient, EsClient esClient) {
-            dao = new IdxDropAndUpdateDao(csClient, esClient);
-        }
-
-        public Builder file(String ws, String fileId) {
-            dao.ws = ws;
-            dao.fileId = fileId;
-            return this;
-        }
-
-        public Builder indexLocation(String indexLocation) {
-            dao.indexLocation = indexLocation;
-            return this;
-        }
-
-        public IdxDropAndUpdateDao get() {
-            return dao;
-        }
-    }
-
-    private IdxDropAndUpdateDao(ContentserverClient csClient, EsClient esClient) {
-        this.csClient = csClient;
+    DropAndUpdateFileIdxDao(String ws, String fileId, String esIndexlocation,
+            ContentserverClientMgr csClientMgr, ScmSiteInfoMgr siteInfoMgr, EsClient esClient) {
+        super(ws, fileId, esIndexlocation);
+        this.csClientMgr = csClientMgr;
         this.esClient = esClient;
+        this.siteInfoMgr = siteInfoMgr;
     }
 
-    public int getFileCount() {
+    @Override
+    public int processFileCount() {
         return fileCount;
     }
 
-    public String getFileId() {
-        return fileId;
-    }
-
-    public String getWs() {
-        return ws;
-    }
-
-    public void dropAndUpdate() throws FullTextException, ScmServerException {
+    public void process() throws FullTextException, ScmServerException {
+        ContentserverClient csClient = csClientMgr.getClient(siteInfoMgr.getRootSiteName());
         ScmFileFulltextExtData newExtData = new ScmFileFulltextExtData(null,
                 ScmFileFulltextStatus.NONE, null);
 
@@ -86,8 +54,8 @@ public class IdxDropAndUpdateDao {
 
         if (!ScmFileUtil.isFirstVersion(latestVersionFile)) {
             ScmEleCursor<ScmFileInfo> historyFileCursor = csClient.listFile(ws,
-                    new BasicBSONObject(FieldName.FIELD_CLFILE_ID, fileId), Scope.SCOPE_HISTORY,
-                    null, 0, -1);
+                    new BasicBSONObject(FieldName.FIELD_CLFILE_ID, fileId),
+                    CommonDefine.Scope.SCOPE_HISTORY, null, 0, -1);
             try {
                 while (historyFileCursor.hasNext()) {
                     ScmFileInfo historyFile = historyFileCursor.getNext();
@@ -119,7 +87,7 @@ public class IdxDropAndUpdateDao {
                         fileCount += ScmFileUtil.travelCursorSilenceForFileCount(historyFileCursor);
                         throw e;
                     }
-                    unindexSlience(indexLocation, historyExtData.getIdxDocumentId(), historyFile);
+                    unindexSilence(esIdxLocation, historyExtData.getIdxDocumentId(), historyFile);
                 }
             }
             catch (Exception e) {
@@ -128,7 +96,7 @@ public class IdxDropAndUpdateDao {
                     newExtData.setErrorMsg(e.getMessage());
                     csClient.updateFileExternalData(ws, fileId, latestVersionFile.getMajorVersion(),
                             latestVersionFile.getMinorVersion(), newExtData.toBson());
-                    unindexSlience(indexLocation, latestFileExtData.getIdxDocumentId(),
+                    unindexSilence(esIdxLocation, latestFileExtData.getIdxDocumentId(),
                             latestVersionFile);
                 }
                 catch (Exception e1) {
@@ -145,11 +113,11 @@ public class IdxDropAndUpdateDao {
         }
         csClient.updateFileExternalData(ws, fileId, latestVersionFile.getMajorVersion(),
                 latestVersionFile.getMinorVersion(), newExtData.toBson());
-        unindexSlience(indexLocation, latestFileExtData.getIdxDocumentId(), latestVersionFile);
+        unindexSilence(esIdxLocation, latestFileExtData.getIdxDocumentId(), latestVersionFile);
         logger.debug("drop index for scm file:ws={}, fileId={}", ws, fileId);
     }
 
-    private void unindexSlience(String indexLocation, String docId, ScmFileInfo file) {
+    private void unindexSilence(String indexLocation, String docId, ScmFileInfo file) {
         if (docId == null || docId.trim().length() == 0) {
             return;
         }

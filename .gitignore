@@ -8,3 +8,5 @@ deploy/
 !/tools/scm-deploy/src/main/java/com/sequoiacm/deploy/
 /archive-target/
 test-output/
+.idea/
+*.iml

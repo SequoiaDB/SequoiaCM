@@ -1,16 +1,16 @@
 package com.sequoiacm.fulltext.server.sch.deleteidx;
 
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.fulltext.server.exception.FullTextException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.content.client.ContentserverClient;
 import com.sequoiacm.content.client.ContentserverClientMgr;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.WsFulltextExtDataModifier;
 import com.sequoiacm.fulltext.server.es.EsClient;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobData;
@@ -23,7 +23,7 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.mq.client.config.AdminClient;
 import com.sequoiacm.schedule.client.worker.ScheduleWorker;
 
-public class IdxDeleteWorker extends ScheduleWorker {
+public class DeleteWorkspaceIdxWorker extends ScheduleWorker {
     private AdminClient mqAdmin;
     private ContentserverClientMgr csMgr;
     private EsClient esClient;
@@ -33,7 +33,7 @@ public class IdxDeleteWorker extends ScheduleWorker {
     private LockManager lockMgr;
     private LockPathFactory lockPathFactory;
 
-    public IdxDeleteWorker(AdminClient mqAdmin, ContentserverClientMgr csMgr, EsClient esClient,
+    public DeleteWorkspaceIdxWorker(AdminClient mqAdmin, ContentserverClientMgr csMgr, EsClient esClient,
             ScmSiteInfoMgr siteInfoMgr, ConfServiceClient confClient, LockManager lockMgr,
             LockPathFactory lockPathFactory) {
         this.mqAdmin = mqAdmin;

@@ -25,6 +25,16 @@ public class AdminClient {
 
     public void createTopicIfNotExist(String topic, int partitionNum) throws MqException {
         try {
+            client.getTopic(topic);
+            return;
+        }
+        catch (MqException e) {
+            if (e.getError() != MqError.TOPIC_NOT_EXIST) {
+                throw e;
+            }
+        }
+
+        try {
             client.createTopic(topic, partitionNum);
         }
         catch (MqException e) {
@@ -58,6 +68,19 @@ public class AdminClient {
     public void createGroupIfNotExist(String group, String topic, ConsumerGroupOffsetEnum p)
             throws MqException {
         try {
+            ConsumerGroupDetail g = client.getGroup(group);
+            if (g.getTopic().equals(topic)) {
+                return;
+            }
+            throw new MqException(MqError.CONSUMER_GROUP_EXIST,
+                    "group exist, but topic is unexpected: " + g);
+        }
+        catch (MqException e) {
+            if (e.getError() != MqError.CONSUMER_GROUP_NOT_EXIST) {
+                throw e;
+            }
+        }
+        try {
             client.createGroup(topic, group, p);
         }
         catch (MqException e) {
@@ -66,6 +89,8 @@ public class AdminClient {
                 if (g.getTopic().equals(topic)) {
                     return;
                 }
+                throw new MqException(MqError.CONSUMER_GROUP_EXIST,
+                        "group exist, but topic is unexpected: " + g, e);
             }
             throw e;
         }
@@ -111,7 +136,8 @@ public class AdminClient {
     }
 
     // TODO:在生产者client放一个接口
-    public boolean waitForMsgConsumed(String topic, String group, long msgId, boolean ensureLteMsgConsumed, int timeout, int checkInterval)
+    public boolean waitForMsgConsumed(String topic, String group, long msgId,
+            boolean ensureLteMsgConsumed, int timeout, int checkInterval)
             throws MqException, InterruptedException {
         if (msgId <= -1) {
             return true;
@@ -119,7 +145,7 @@ public class AdminClient {
         long startTime = System.currentTimeMillis();
         while (true) {
             boolean isConsumed = client.checkMsgConsumed(topic, group, msgId, ensureLteMsgConsumed);
-            if(isConsumed){
+            if (isConsumed) {
                 return true;
             }
             if (System.currentTimeMillis() - startTime > timeout) {
@@ -127,14 +153,5 @@ public class AdminClient {
             }
             Thread.sleep(checkInterval);
         }
-    }
-
-    private boolean isConsumedByGroup(long msgId, ConsumerGroupDetail group) {
-        for (ConsumerPartitionInfo p : group.getConsumerPartitionInfos()) {
-            if (p.getLastDeliveredId() >= msgId) {
-                return true;
-            }
-        }
-        return false;
     }
 }

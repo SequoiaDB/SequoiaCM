@@ -131,6 +131,9 @@ public class SdbMsgRepository implements MsgRepository {
         msgBson.put(MessageInternal.FIELD_MSG_CONTENT, msg.getMsgContent());
         msgBson.put(MessageInternal.FIELD_PARTITION_NUM, msg.getPartition());
         msgBson.put(MessageInternal.FIELD_TOPIC, msg.getTopic());
+        if(msg.getMsgProducer() != null) {
+            msgBson.put(MessageInternal.FIELD_MSG_PRODUCER, msg.getMsgProducer());
+        }
 
         LockPath lockPath = lockPathFactory.genMsgIdAndInsertMsgLockPath(msg.getTopic());
         ScmLock lock = lockManager.acquiresLock(lockPath);
@@ -216,6 +219,24 @@ public class SdbMsgRepository implements MsgRepository {
         catch (Exception e) {
             throw new MqException(MqError.METASOURCE_ERROR,
                     "failed to get msg count:table=" + msgTable + ", matcher=" + matcher, e);
+        }
+    }
+
+    @Override
+    public MessageInternal getMsgById(String msgTable, long msgId) throws MqException {
+        SequoiadbCollectionTemplate cl = sdbTemplate.collection(msgTable);
+        BSONObject matcher = new BasicBSONObject();
+        matcher.put(MessageInternal.FIELD_ID, msgId);
+        try {
+            BSONObject record = cl.findOne(matcher);
+            if (record == null) {
+                return null;
+            }
+            return new MessageInternal(record);
+        }
+        catch (Exception e) {
+            throw new MqException(MqError.METASOURCE_ERROR,
+                    "failed to get msg:table=" + msgTable + ", id=" + msgId, e);
         }
     }
 
