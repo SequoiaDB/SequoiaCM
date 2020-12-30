@@ -903,6 +903,18 @@
                 "cn": "审计日志",
                 "en": "Audit Log"
             }]
+        },
+        {
+            "id": 1561241336,
+            "dir": "Upgrade",
+            "cn": "升级",
+            "en": "Upgrade",
+            "contents": [{
+                "id": 1551311568,
+                "file": "compatibility",
+                "cn": "版本兼容性",
+                "en": "Compatibility"
+            }]
         }]
     },
     {
