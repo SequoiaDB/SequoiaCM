@@ -20,8 +20,12 @@ import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.fulltext.common.*;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOpFeedback;
+import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation.OperationType;
+import com.sequoiacm.infrastructure.fulltext.common.FulltextCommonDefine;
+import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
+import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.metasource.MetaCursor;
@@ -147,7 +151,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
         msg.setOperationType(OperationType.CREATE_IDX);
         msg.setWsName(fulltextExt.getWsName());
-        msg.setSyncSaveIndex(fulltextExt.getMode() == ScmFulltextMode.sync);
+        msg.setSyncSaveIndex(true);
         msg.setReindex(false);
         try {
             long msgId = producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
