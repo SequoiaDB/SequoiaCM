@@ -69,6 +69,18 @@
             <version>6.14.3</version>
             <scope>test</scope>
         </dependency>
+
+        <!--加入SpringBoot Test的相关依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

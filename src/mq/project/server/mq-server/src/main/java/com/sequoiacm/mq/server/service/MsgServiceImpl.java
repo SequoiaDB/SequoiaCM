@@ -49,7 +49,6 @@ public class MsgServiceImpl implements MsgService {
     private LockManager lockMgr;
     @Autowired
     private LockPathFactory lockPathFactory;
-
     @Autowired
     private ProducerAnConsumerClientMgr clientsMgr;
     @Autowired
@@ -287,14 +286,42 @@ public class MsgServiceImpl implements MsgService {
             return true;
         }
         if (partitionList.get(partitionList.size() - 1).getLastDeliveredId() < msgId) {
-            /**
-             * 各分区消费情况如下
+            // 根据消息ID查询消息
+            MessageInternal msg = msgRepository.getMsg(topic.getMessageTableName(), msgId);
+            if(msg==null){
+                // 消息不存在
+                return false;
+            }
+
+            // 查询消息所在分区
+            for(ConsumerPartitionInfo partitionInfo:partitionList){
+                if(partitionInfo.getPartitionNum() == msg.getPartition()){
+                    /*
+                     * 要查询的消息存在现有分区 返回false
+                     * 各分区的消费情况如下：
+                     * p1->10
+                     * p2->15
+                     * p3->16
+                     *
+                     * 现在查询的msgId是18，由于msgId在最外面的大分支里大于所有分区的last_delivered_id
+                     * 而现在msgId在现有分区里，那就说明该msgId还没有被消费，返回false
+                     */
+                    return false;
+                }
+            }
+
+            /*
+             * 要查询的消息不在现有分区，表明这条消息所在的分区被删除了，那么该消息及其之前的消息都被消费了。
+             *
+             * 各分区的消费情况如下：
              * p1->10
              * p2->15
-             * p3->16
-             * 此时查询 18 号及之前的消息是否被消费，所有分区都未超过 18 号，返回 false
+             * p3->16(已删除的分区)
+             *
+             * 现在查询的msgId是16，既然到了这里，说明16不在现在存在的分区里，只能说明16所在的分区被删除了，
+             * 而一个分区删除的前提是，当前topic所有的消息都被消费完了，所以可以判定16以及之前的消息都被消费了，返回true。
              */
-            return false;
+            return true;
         }
 
         if (ensureLteMsgConsumed) {

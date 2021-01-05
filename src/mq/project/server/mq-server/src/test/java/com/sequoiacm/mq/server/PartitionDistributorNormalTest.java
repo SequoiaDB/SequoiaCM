@@ -1,4 +1,4 @@
-package org.sequoiacm.mq.server;
+package com.sequoiacm.mq.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
