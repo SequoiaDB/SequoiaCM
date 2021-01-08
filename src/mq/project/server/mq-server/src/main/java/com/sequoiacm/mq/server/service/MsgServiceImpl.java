@@ -111,6 +111,10 @@ public class MsgServiceImpl implements MsgService {
     @Override
     public List<MessageInternal> pullMsg(String consumerGroup, String consumer, int pullMaxRetSize,
             int ackPartNum, List<Long> ackMsg) throws MqException {
+        if(pullMaxRetSize < 0){
+            throw new MqException(MqError.INVALID_ARG,
+                    "msg pull size must be greater than or equals 0:msg_pull_size=" + pullMaxRetSize);
+        }
         ConsumerGroup group = consumerGroupRepository.getGroupByName(consumerGroup);
         if (group == null) {
             throw new MqException(MqError.CONSUMER_GROUP_NOT_EXIST,
