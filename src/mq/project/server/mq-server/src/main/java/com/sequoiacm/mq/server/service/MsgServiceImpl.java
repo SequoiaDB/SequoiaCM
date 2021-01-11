@@ -173,6 +173,10 @@ public class MsgServiceImpl implements MsgService {
     @Override
     public long putMsg(String topicName, String key, String producer, BSONObject content)
             throws MqException {
+        if(content == null || content.isEmpty()){
+            throw new MqException(MqError.INVALID_ARG,
+                    "msg content is empty:msg_content=" + content);
+        }
         int keyHash = Math.abs(key.hashCode());
         MessageInternal msg = new MessageInternal();
         msg.setCreateTime(System.currentTimeMillis());
