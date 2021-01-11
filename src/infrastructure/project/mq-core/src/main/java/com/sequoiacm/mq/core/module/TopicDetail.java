@@ -14,7 +14,7 @@ public class TopicDetail extends Topic {
     }
 
     public TopicDetail(Topic t, List<String> consumerGroup) {
-        super(t.getName(), t.getPartitionCount(), t.getMessageTableName());
+        super(t.getName(), t.getPartitionCount(), t.getMessageTableName(),t.getLatestMsgId());
         this.consumerGroup = consumerGroup;
     }
 

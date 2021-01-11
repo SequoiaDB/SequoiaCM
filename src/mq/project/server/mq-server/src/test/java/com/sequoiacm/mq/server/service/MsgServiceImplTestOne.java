@@ -102,7 +102,7 @@ class TestTopicRepository implements TopicRepository{
 
     @Override
     public Topic getTopic(String topicName) throws MqException {
-        return new Topic("sequoiadb_ws_FULLTEXT_FILE_OP",3,"SCMSYSTEM.MQ_MSG_sequoiadb_ws_FULLTEXT_FILE_OP");
+        return new Topic("sequoiadb_ws_FULLTEXT_FILE_OP",3,"SCMSYSTEM.MQ_MSG_sequoiadb_ws_FULLTEXT_FILE_OP",0L);
     }
 
     @Override

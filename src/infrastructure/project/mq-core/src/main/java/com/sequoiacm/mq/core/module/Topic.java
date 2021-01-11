@@ -23,11 +23,11 @@ public class Topic {
     public Topic() {
     }
 
-    public Topic(String name, int partitionCount, String messageTableName) {
+    public Topic(String name, int partitionCount, String messageTableName, long latestMsgId) {
         this.name = name;
         this.partitionCount = partitionCount;
         this.messageTableName = messageTableName;
-        this.latestMsgId = 0L;
+        this.latestMsgId = latestMsgId;
     }
 
     public Topic(BSONObject bson) {

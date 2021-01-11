@@ -57,7 +57,7 @@ public class TopicServiceImpl implements TopicService {
             throw new MqException(MqError.TOPIC_EXIST, "topic alredy exist:topic" + topicName);
         }
         TableCreateResult tableCreateRes = msgRepository.createMsgTable(topicName);
-        topic = new Topic(topicName, partitionCount, tableCreateRes.getTableName());
+        topic = new Topic(topicName, partitionCount, tableCreateRes.getTableName(),0L);
         Transaction transaction = null;
         try {
             transaction = transactionFactory.createTransaction();
