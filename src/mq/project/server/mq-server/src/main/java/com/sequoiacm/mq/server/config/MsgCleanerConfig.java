@@ -34,6 +34,8 @@ public class MsgCleanerConfig {
             logger.warn("scm.mq.msgCleaner.period is not valid:" + period + ", reset to 1000");
             this.period = 1000;
         }
-        this.period = period;
+        else {
+            this.period = period;
+        }
     }
 }
