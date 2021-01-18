@@ -28,7 +28,7 @@ public class ScmDeleteGroupToolImpl extends MqToolBase {
             client.deleteGroup(name);
             System.out.println("delete group success:" + name);
         }
-        catch (MqException e) {
+        catch (Exception e) {
             throw new ScmToolsException(
                     "failed to delete group:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);

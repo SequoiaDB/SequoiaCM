@@ -42,7 +42,7 @@ public class ScmCreateGroupToolImpl extends MqToolBase {
             offset = ConsumerGroupOffsetEnum.valueOf(p.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            throw new ScmToolsException("consume position:" + p, ScmExitCode.INVALID_ARG, e);
+            throw new ScmToolsException("unrecognized offset: " + p, ScmExitCode.INVALID_ARG, e);
         }
 
         AdminClient client = getAdminClient(cl);
@@ -55,6 +55,11 @@ public class ScmCreateGroupToolImpl extends MqToolBase {
                 throw new ScmToolsException("group already exist:" + name, ScmExitCode.TOPIC_EXIST,
                         e);
             }
+            throw new ScmToolsException(
+                    "failed to create group:" + name + ", cause by:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR, e);
+        }
+        catch (Exception e) {
             throw new ScmToolsException(
                     "failed to create group:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);

@@ -53,17 +53,23 @@ public class ScmListTopicToolImpl extends MqToolBase {
                     "failed to list topic:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }
+        catch (Exception e) {
+            throw new ScmToolsException(
+                    "failed to list topic:" + name + ", cause by:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR, e);
+        }
 
         ListTable listTable = new ListTable();
         for (TopicDetail t : topics) {
             ListLine line = new ListLine();
             line.addItem(t.getName());
+            line.addItem(t.getLatestMsgId() + "");
             line.addItem(t.getMessageTableName());
             line.addItem(t.getPartitionCount() + "");
             line.addItem(ScmCommon.listToString(t.getConsumerGroup()));
             listTable.addLine(line);
         }
-        List<String> header = Arrays.asList("Name", "MessageTable", "PartitionCount",
+        List<String> header = Arrays.asList("Name", "LatestMsgId", "MessageTable", "PartitionCount",
                 "ConsumerGroup");
         ScmCommonPrintor.print(header, listTable);
     }

@@ -55,14 +55,18 @@ public class ScmListGroupToolImpl extends MqToolBase {
             }
             List<String> header = Arrays.asList("PartitionNum", "Consumer", "LastDeleveredId",
                     "LastRequestTime", "PendingMsg");
-            ScmCommonPrintor.print(header, listTable);
             System.out.println("Topic:" + group.getTopic() + ", Group:" + group.getName());
+            ScmCommonPrintor.print(header, listTable);
         }
         catch (MqException e) {
             if (e.getError() == MqError.CONSUMER_GROUP_NOT_EXIST) {
                 throw new ScmToolsException("group not exist:" + cl.getOptionValue(OPT_SHORT_NAME),
                         ScmExitCode.GROUP_NOT_EXIST, e);
             }
+            throw new ScmToolsException("failed to list group, cause by:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR, e);
+        }
+        catch (Exception e) {
             throw new ScmToolsException("failed to list group, cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }
@@ -82,7 +86,7 @@ public class ScmListGroupToolImpl extends MqToolBase {
             List<String> header = Arrays.asList("Topic", "Group");
             ScmCommonPrintor.print(header, listTable);
         }
-        catch (MqException e) {
+        catch (Exception e) {
             throw new ScmToolsException("failed to list group, cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }

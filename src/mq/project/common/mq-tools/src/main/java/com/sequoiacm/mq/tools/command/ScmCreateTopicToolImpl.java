@@ -47,6 +47,11 @@ public class ScmCreateTopicToolImpl extends MqToolBase {
                     "failed to create topic:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }
+        catch (Exception e) {
+            throw new ScmToolsException(
+                    "failed to create topic:" + name + ", cause by:" + e.getMessage(),
+                    ScmExitCode.SYSTEM_ERROR, e);
+        }
     }
 
 }

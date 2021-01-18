@@ -48,7 +48,7 @@ public class ScmUpdateTopicToolImpl extends MqToolBase {
             client.updateTopicPartitionCount(name, newPartitionCount, timeout);
             System.out.println("update topic success:" + name);
         }
-        catch (MqException e) {
+        catch (Exception e) {
             throw new ScmToolsException(
                     "failed to update topic:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);

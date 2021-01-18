@@ -28,7 +28,7 @@ public class ScmDeleteTopicToolImpl extends MqToolBase {
             client.deleteTopic(name);
             System.out.println("delete topic success:" + name);
         }
-        catch (MqException e) {
+        catch (Exception e) {
             throw new ScmToolsException(
                     "failed to delete topic:" + name + ", cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);
