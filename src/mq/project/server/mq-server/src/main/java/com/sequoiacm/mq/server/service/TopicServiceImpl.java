@@ -59,10 +59,13 @@ public class TopicServiceImpl implements TopicService {
         if (topic != null) {
             throw new MqException(MqError.TOPIC_EXIST, "topic alredy exist:topic" + topicName);
         }
-        TableCreateResult tableCreateRes = msgRepository.createMsgTable(topicName);
-        topic = new Topic(topicName, partitionCount, tableCreateRes.getTableName(),0L);
+        ScmLock lock = lockMgr.acquiresLock(lockPathFactory.topicLockPath(topicName));
         Transaction transaction = null;
+        TableCreateResult tableCreateRes = null;
         try {
+            tableCreateRes = msgRepository.createMsgTable(topicName);
+            topic = new Topic(topicName, partitionCount, tableCreateRes.getTableName(), 0L);
+
             transaction = transactionFactory.createTransaction();
             transaction.begin();
             topicRepository.createTopic(transaction, topic);
@@ -73,11 +76,16 @@ public class TopicServiceImpl implements TopicService {
             if (transaction != null) {
                 transaction.rollback();
             }
-            if (!tableCreateRes.isAlreadyExist()) {
+            if (tableCreateRes != null && !tableCreateRes.isAlreadyExist()) {
                 msgRepository.dropMsgTableSilence(tableCreateRes.getTableName());
             }
             throw e;
+
         }
+        finally {
+            lock.unlock();
+        }
+
     }
 
     @Override
