@@ -46,20 +46,20 @@ createsite 子命令提供创建站点的功能。
 1. 创建主站点，命名为 rootSite，指定元数据存储服务地址为 metaServer1:11810,metaServer2:11810，数据存储服务地址为 dataServer1:11810,dataServer2:11810，数据存储服务类型为 SequoiaDB，用户名为 sdbadmin, 密码文件绝对路径为 /home/scm/myPassword.txt
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name rootSite --root --dstype 1 --dsurl dataServer1:11810,dataServer2:11810 --dsuser sdbadmin --dspasswd sdbadmin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd
+   $ scmadmin.sh createsite --name rootSite --root --dstype 1 --dsurl dataServer1:11810,dataServer2:11810 --dsuser sdbadmin --dspasswd /home/scm/myPassword.txt --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
 ```
 
 2. 创建分站点，并命名为 site2，数据存储服务类型不指定则默认为 SequoiaDB，用户名密码均为 sdbadmin
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site2 --dsurl dataServer3:11810,dataServer4:11810 --dsuser sdbadmin --dspasswd sdbadmin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
+   $ scmadmin.sh createsite --name site2 --dsurl dataServer3:11810,dataServer4:11810 --dsuser sdbadmin --dspasswd /home/scm/myPassword.txt --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
 ```
 
 >  **Note:**
 >
 >  * 创建SequoiDB数据源类型站点时，需要指定--dsurl参数，不需要指定--dsconf参数
 >
->  * 新创建的分站点 site2 的数据存储服务地址 dsurl 为 dataServer3:11810,dataServer4:11810，dsuser 及 dspasswd 均为 sdbadmin
+>  * 新创建的分站点 site2 的数据存储服务地址 dsurl 为 dataServer3:11810,dataServer4:11810，dsuser 为 sdbadmin，dspassword 为数据源用户密码路径
 >
 >  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
 
@@ -122,7 +122,7 @@ createsite 子命令提供创建站点的功能。
 创建分站点，并命名为 site5，数据存储服务类型指定为Hdfs，dsuser 为sdbadmin
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site5 --dstype 5 --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2", "dfs.ha.automatic-failover.enabled.scmserver":"true", "dfs.client.failover.max.attempts":"5", "dfs.client.failover.sleep.base.millis":"100"}' --dsuser sdbadmin --dspasswd sdbadmin --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt
+   $ scmadmin.sh createsite --name site5 --dstype 5 --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2", "dfs.ha.automatic-failover.enabled.scmserver":"true", "dfs.client.failover.max.attempts":"5", "dfs.client.failover.sleep.base.millis":"100"}' --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt 
 ```
 
 > **Note:**
