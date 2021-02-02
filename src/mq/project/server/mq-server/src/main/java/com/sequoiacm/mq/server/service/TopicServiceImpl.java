@@ -52,7 +52,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void createTopic(String topicName, int partitionCount) throws MqException {
-        if (topicName == null || topicName.isEmpty() || !topicName.matches("\\w+")) {
+        if (topicName == null || topicName.isEmpty() || !topicName.matches("[\\w-]+")) {
             throw new MqException(MqError.INVALID_ARG, "topic name is irregular:name=" + topicName);
         }
         Topic topic = topicRepository.getTopic(topicName);

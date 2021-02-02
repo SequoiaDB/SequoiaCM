@@ -56,7 +56,7 @@ public class ConsumerGroupServiceImpl implements ConsumerGroupService {
     @Override
     public void createGroup(String topic, String name, ConsumerGroupOffsetEnum consumePosition)
             throws MqException {
-        if (name == null || name.isEmpty() || !name.matches("\\w+")) {
+        if (name == null || name.isEmpty() || !name.matches("[\\w-]+")) {
             throw new MqException(MqError.INVALID_ARG, "group name is irregular:name=" + name);
         }
         ScmLock readLock = lockMgr.acquiresReadLock(lockPathFactory.pullMsgLockPath(topic));
