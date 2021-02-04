@@ -15,16 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class S3Ctl {
-        public static void main(String[] args) {
+    public static void main(String[] args) {
         CommandManager cmd = new CommandManager("s3ctl");
         // 初始化节点类型信息
-            ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-omserver-"));
+        ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
+        nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-server-"));
         try {
-            cmd.addTool(new ScmStartToolImpl(nodeTypes));
+            cmd.addTool(new ScmStartToolImpl(nodeTypes, "/health?action=actuator"));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));
             cmd.addTool(new ScmListToolImpl(nodeTypes));
-        } catch (ScmToolsException e) {
+        }
+        catch (ScmToolsException e) {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }

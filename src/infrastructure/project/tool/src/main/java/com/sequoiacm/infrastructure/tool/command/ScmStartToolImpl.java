@@ -34,8 +34,10 @@ public class ScmStartToolImpl extends ScmTool {
     private Options options;
     private ScmNodeTypeList nodeTypes;
     private RestTemplate restTemplate;
+    private String healthEndpoint;
 
-    public ScmStartToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
+    public ScmStartToolImpl(ScmNodeTypeList nodeTypes, String healthEndpoint)
+            throws ScmToolsException {
         super("start");
         this.nodeTypes = nodeTypes;
         options = new Options();
@@ -55,6 +57,11 @@ public class ScmStartToolImpl extends ScmTool {
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(5000);
         restTemplate = new RestTemplate(factory);
+        this.healthEndpoint = healthEndpoint;
+    }
+
+    public ScmStartToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
+        this(nodeTypes, "health");
     }
 
     @Override
@@ -245,7 +252,7 @@ public class ScmStartToolImpl extends ScmTool {
     protected String getNodeRunningStatus(int port, RestTemplate restTemplate) {
         // return "OK";
         try {
-            Map<?, ?> resp = restTemplate.getForObject("http://localhost:" + port + "/health",
+            Map<?, ?> resp = restTemplate.getForObject("http://localhost:" + port + "/" + healthEndpoint,
                     Map.class);
             return resp.get("status").toString().trim();
         }
