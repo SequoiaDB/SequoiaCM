@@ -87,3 +87,10 @@ newMinorStr = '"minor": ' + newMinor
 
 modifyFile(docVersion, oldMajorStr, newMajorStr)
 modifyFile(docVersion, oldMinorStr, newMinorStr)
+
+print "changing testcase version..."
+ret = os.system("python " + GIT_ROOT_PATH + os.sep + "testcases" + os.sep + "v2.0" + os.sep + "testcase-base" + os.sep + "version.py -v " + newVersion)
+if ret != 0:
+    print "change testcase version failed"
+    sys.exit(-1)
+print "change testcase version successed"
