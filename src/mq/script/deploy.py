@@ -8,9 +8,10 @@ import socket
 
 CONF_ADMIN = "mqadmin.sh"
 CONF_CTL = "mqctl.sh"
+ROOT_DIR = sys.path[0]
+BIN_PATH = ROOT_DIR + os.sep + "bin"
+node_has_create = False
 dry_run = False
-rootDir = sys.path[0]
-BIN_PATH = rootDir + os.sep + "bin"
 
 
 def command(cmd):
@@ -48,6 +49,7 @@ def create_node(type, config):
         cmd += ' -D'+key+'='+config[key]
     scm_admin(cmd)
 
+
 def hostAdaptor(hostname):
     local_hostname = socket.gethostname()
     local_hostip = socket.gethostbyname(local_hostname)
@@ -57,13 +59,12 @@ def hostAdaptor(hostname):
         return False
 
 def create_nodes(type, config):
+    global node_has_create
     for ele in config:
-        if "hostname" in ele:
-            hostname = ele.pop("hostname")
-            if hostAdaptor(hostname):    
-                create_node(type, ele)
-        else:
+        if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
+            node_has_create = True
             create_node(type, ele)
+
 
 def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
     global BIN_PATH
@@ -96,7 +97,7 @@ def start_node(port=0):
 
 
 def main(argv):
-    config = rootDir + os.sep + "deploy.json"
+    config = ROOT_DIR + os.sep + "deploy.json"
     bin_path = None
     start = False
     dryrun = False
@@ -120,6 +121,9 @@ def main(argv):
             dryrun = True
     conf = load_config(config)
     deploy_scm(conf, bin_path, dryrun)
+    if not node_has_create:
+        print("no node was created!")
+        sys.exit(-2)
     if start:
         start_node()
 

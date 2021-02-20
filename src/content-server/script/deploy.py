@@ -22,7 +22,7 @@ SCM_CTL = "scmctl.sh"
 mdsurlSetCMD = ""
 
 dry_run = False
-
+node_has_create = False
 
 if platform.system() == "Windows":
     SCM_ADMIN = "scmadmin.bat"
@@ -166,11 +166,13 @@ def create_site(site_conf, gateway_conf):
 
 
 def create_nodes(nodes_conf, audit_conf, gateway_conf):
+    global node_has_create
     for node_conf in nodes_conf:
         if 'node' in node_conf:
             conf = node_conf['node']
             for p in conf:
                 if hostAdaptor(p['url']):
+                    node_has_create = True
                     create_node(p, audit_conf, gateway_conf)
 
 def create_node(conf, audit_conf, gateway_conf):
@@ -219,6 +221,9 @@ def deploy_scm(config):
     if NEDD_CREATNODE == 1:
         if 'nodes' in config:
             create_nodes(config['nodes'], config['audit'], config['gateway'])
+    if not node_has_create:
+        print("no node was created!")
+        sys.exit(-2)
     
 
 def displayHelp(name):

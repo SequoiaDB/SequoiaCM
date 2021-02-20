@@ -14,6 +14,7 @@ ZK_CONF_PATH = ZK_HOME + "conf" + os.sep
 ZK_DATA_PATH = ZK_HOME + "data" + os.sep
 #ZK_DATALOG_PATH = ZK_HOME + os.sep + "logs"
 START_ZK = False
+node_has_create = False
 servers = {}
 
 
@@ -60,10 +61,10 @@ def modify_config(myid, config, zk_cfg):
     servers["server.%d" % myid] = convert_localhost(server)
     hostname = server.split(":")[0];
     if hostAdaptor(hostname) == False:
-        return
+        return False
         
     if config["deploy"] == False:
-        return
+        return False
         
     sample_cfg = ZK_CONF_PATH + "zoo_sample.cfg"
     copy_cfg = ZK_CONF_PATH + "zoo" + str(myid) + ".cfg"
@@ -81,20 +82,25 @@ def modify_config(myid, config, zk_cfg):
     #datalog_dir = ZK_DATALOG_PATH + os.sep + config['clientPort']
     #execCMD("mkdir %s" % datalog_dir)
     #update_param("dataLogDir", data_dir, "zoo%d.cfg" % myid)
+    return True
 
 def deploy_zk(config):
+    global node_has_create
     if 'zookeeper-server' in config:
         zk_cfg = []
         for index, item in enumerate(config['zookeeper-server']):
             myid = item['myid']
-            modify_config(myid, item, zk_cfg)
+            if modify_config(myid, item, zk_cfg):
+                node_has_create = True
 
         server_params = dict2Str(servers)
 
         
         for cfg in zk_cfg:
             execCMD("echo \"%s\" >> %s" % (server_params, cfg))
-
+    if not node_has_create:
+        print("no node was created!")
+        sys.exit(-2)
 
 def start_zk(config):
     display_info("Begin to start zookeeper...")

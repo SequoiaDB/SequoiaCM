@@ -11,6 +11,7 @@ SCH_CTL = "schctl.sh"
 dry_run = False
 rootDir = sys.path[0]
 BIN_PATH = rootDir + os.sep + "bin"
+node_has_create = False
 
 def command(cmd):
     print(cmd)
@@ -60,12 +61,10 @@ def hostAdaptor(hostname):
         return False
 
 def create_nodes(type, config, auditconf):
+    global node_has_create
     for ele in config:
-        if "hostname" in ele:
-            hostname = ele.pop("hostname")
-            if hostAdaptor(hostname):    
-                create_node(type, ele, auditconf)
-        else:
+        if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
+            node_has_create = True
             create_node(type, ele, auditconf)
 
 def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
@@ -123,6 +122,9 @@ def main(argv):
             dryrun = True
     conf = load_config(config)
     deploy_scm(conf, bin_path, dryrun)
+    if not node_has_create:
+        print("no node was created!")
+        sys.exit(-2)
     if start:
         start_node()
 

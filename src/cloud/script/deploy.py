@@ -12,6 +12,7 @@ root_dir = sys.path[0]
 bin_path = root_dir + os.sep + "bin"
 dry_run = False
 clean_systable = False
+node_has_create = False
 
 def command(cmd):
     print(cmd)
@@ -77,17 +78,15 @@ def hostAdaptor(hostname):
         return False
         
 def create_nodes(node_type, auditconf, config):
+    global node_has_create
     if not isinstance(config, list):
         raise Exception('Invalid node config: %s', str(config))
     if len(config) > 0 and clean_systable:
         clean_system_table(node_type, config[0])
     for ele in config:
-        if "hostname" in ele:
-            if hostAdaptor(ele["hostname"]):
-                ele.pop("hostname")
-                create_node(node_type, auditconf, ele)
-        else:
-            create_node(node_type, auditconf, ele)
+       if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
+           node_has_create = True
+           create_node(node_type, auditconf, ele)
 
 def deploy_scm(config):
     auditconf = config['audit']
@@ -101,7 +100,6 @@ def deploy_scm(config):
         create_nodes('service-trace', auditconf, config['serviceTrace'])
     if 'adminServer' in config:
         create_nodes('admin-server', auditconf, config['adminServer'])
-
 
 def print_help(name):
     print('usage: %s [option]...' % name)
@@ -155,6 +153,9 @@ def main(argv):
 
     
     deploy_scm(conf)
+    if not node_has_create:
+        print("no node was created!")
+        sys.exit(-2)
     if start:
         start_node()
 
