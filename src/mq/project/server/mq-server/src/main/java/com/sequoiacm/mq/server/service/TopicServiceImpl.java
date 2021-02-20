@@ -32,6 +32,8 @@ import com.sequoiacm.mq.server.lock.LockPathFactory;
 @Service
 public class TopicServiceImpl implements TopicService {
     private static final Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
+    private static final int max_partitionCount = 256;
+
     @Autowired
     private TopicRepository topicRepository;
 
@@ -52,6 +54,10 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void createTopic(String topicName, int partitionCount) throws MqException {
+        if (partitionCount < 1 || partitionCount > max_partitionCount) {
+            throw new MqException(MqError.INVALID_ARG,
+                    "partition count must be in the range of [1," + max_partitionCount + "]");
+        }
         if (topicName == null || topicName.isEmpty() || !topicName.matches("[\\w-]+")) {
             throw new MqException(MqError.INVALID_ARG, "topic name is irregular:name=" + topicName);
         }
@@ -115,6 +121,10 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void updateTopicPartition(String topicName, int newPartitionCount, long timeout)
             throws MqException {
+        if (newPartitionCount < 1 || newPartitionCount > max_partitionCount) {
+            throw new MqException(MqError.INVALID_ARG,
+                    "partition count must be in the range of [1," + max_partitionCount + "]");
+        }
         ScmLock pullMsgWriteLock = null;
         ScmLock putMsgWriteLock = lockMgr
                 .acquiresWriteLock(lockPathFactory.putMsgLockPath(topicName));

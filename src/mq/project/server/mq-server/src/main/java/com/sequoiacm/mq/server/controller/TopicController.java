@@ -34,10 +34,6 @@ public class TopicController {
     public void createTopic(@RequestParam(CommonDefine.REST_NAME) String topicName,
             @RequestParam(CommonDefine.REST_PARTITION_COUNT) int partitionCount)
             throws MqException {
-        if (partitionCount < 1) {
-            throw new MqException(MqError.INVALID_ARG,
-                    "partition count must be greater than or equals 1");
-        }
         service.createTopic(topicName, partitionCount);
     }
 
@@ -48,10 +44,6 @@ public class TopicController {
             @RequestParam(value = CommonDefine.REST_TIMEOUT, required = false, defaultValue = Long.MAX_VALUE
                     + "") long timeout)
             throws MqException {
-        if (newPartitionCount < 1) {
-            throw new MqException(MqError.INVALID_ARG,
-                    "partition count must be greater than or equals 1");
-        }
         if (timeout < 0) {
             timeout = Long.MAX_VALUE;
         }
