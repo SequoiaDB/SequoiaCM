@@ -42,15 +42,12 @@ public class CommandManager {
             try {
                 tool = getInstanceByToolName(args[0]);
             }
-            catch (ScmToolsException e) {
-                e.printErrorMsg();
-                System.exit(e.getExitCode());
-            }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
-                System.err
-                        .println("create  " + args[0] + " subcommand instance failed,stack trace:");
-                e.printStackTrace();
+                System.err.println("create " + args[0] + " subcommand instance failed:" + e.getMessage());
+                if (e instanceof ScmToolsException) {
+                    System.exit(((ScmToolsException)e).getExitCode());
+                }
                 System.exit(ScmExitCode.SYSTEM_ERROR);
             }
 
@@ -61,14 +58,12 @@ public class CommandManager {
                     tool.process(toolsArgs);
                     System.exit(ScmExitCode.SUCCESS);
                 }
-                catch (ScmToolsException e) {
-                    e.printErrorMsg();
-                    System.exit(e.getExitCode());
-                }
                 catch (Exception e) {
                     logger.error("process failed,subcommand:" + args[0], e);
-                    System.err.println("process failed,subcommand:" + args[0] + ",stack trace:");
-                    e.printStackTrace();
+                    System.err.println("process failed,subcommand:" + args[0] + "\nerror message:" + e.getMessage());
+                    if (e instanceof ScmToolsException) {
+                        System.exit(((ScmToolsException)e).getExitCode());
+                    }
                     System.exit(ScmExitCode.SYSTEM_ERROR);
                 }
             }
@@ -78,28 +73,24 @@ public class CommandManager {
                         ScmCommon.printVersion();
                         System.exit(ScmExitCode.SUCCESS);
                     }
-                    catch (ScmToolsException e) {
-                        e.printErrorMsg();
-                        System.exit(e.getExitCode());
-                    }
                     catch (Exception e) {
                         logger.error("print version failed", e);
-                        System.err.println("print version failed,stack trace:");
-                        e.printStackTrace();
+                        System.err.println("print version failed:" + e.getMessage());
+                        if (e instanceof ScmToolsException) {
+                            System.exit(((ScmToolsException)e).getExitCode());
+                        }
                         System.exit(ScmExitCode.SYSTEM_ERROR);
                     }
                 }
                 try {
                     checkHelpArgs(args);
                 }
-                catch (ScmToolsException e) {
-                    e.printErrorMsg();
-                    System.exit(e.getExitCode());
-                }
                 catch (Exception e) {
                     logger.error("analyze args failed", e);
-                    System.err.println("analyze args failed,stack trace:");
-                    e.printStackTrace();
+                    System.err.println("analyze args failed:" + e.getMessage());
+                    if (e instanceof ScmToolsException) {
+                        System.exit(((ScmToolsException)e).getExitCode());
+                    }
                     System.exit(ScmExitCode.SYSTEM_ERROR);
                 }
                 System.out.println("No such subcommand");
