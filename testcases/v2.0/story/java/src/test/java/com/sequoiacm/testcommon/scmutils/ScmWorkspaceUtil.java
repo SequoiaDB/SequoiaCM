@@ -131,12 +131,12 @@ public class ScmWorkspaceUtil extends TestScmBase {
         ScmFactory.Workspace.createWorkspace( session, conf );
         ScmWorkspace ws = null;
         for ( int i = 0; i < 15; i++ ) {
-            Thread.sleep( 1000 );
             try {
                 ws = ScmFactory.Workspace.getWorkspace( conf.getName(),
                         session );
                 break;
             } catch ( ScmException e ) {
+                Thread.sleep( 1000 );
                 if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
                     throw e;
                 }
@@ -269,6 +269,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
         try {
             ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
         } catch ( ScmException e ) {
+            e.printStackTrace();
             if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
                 throw e;
             }

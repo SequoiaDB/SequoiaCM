@@ -263,22 +263,37 @@ public class ScmInfo {
     }
 
     /**
+             *排除全文索引工作区
      * get all workspace if there is a new ws to use this function, otherwise,
      * recommended to use getAllWorkspaces()
      */
     public static List< WsWrapper > getWsList( ScmSession session )
             throws ScmException {
+        return  getWsList( session, TestScmBase.FULLTEXT_WS_PREFIX );
+    }
+    
+    /**
+              *  排除某些ws，获取ws列表
+     * @param session
+     * @param excludePrefix
+     * @return
+     * @throws ScmException
+     */
+    public static List< WsWrapper > getWsList( ScmSession session,
+            String excludePrefix ) throws ScmException {
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         List< ScmWorkspaceInfo > wsInfoList = new ArrayList<>();
         try {
             cursor = ScmFactory.Workspace.listWorkspace( session );
             while ( cursor.hasNext() ) {
                 ScmWorkspaceInfo info = cursor.getNext();
-                wsInfoList.add( info );
+                if ( !info.getName().startsWith( excludePrefix ) ) {
+                    if ( info.isEnableDirectory()
+                            && !info.isBatchFileNameUnique() ) {
+                        wsInfoList.add( info );
+                    }
+                }
             }
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            throw e;
         } finally {
             if ( null != cursor ) {
                 cursor.close();

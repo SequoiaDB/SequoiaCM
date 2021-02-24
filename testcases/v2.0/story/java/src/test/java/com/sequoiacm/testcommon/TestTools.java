@@ -1,19 +1,29 @@
 package com.sequoiacm.testcommon;
 
-import com.amazonaws.util.Base64;
-import com.sequoiacm.apache.commons.logging.LogFactory;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.log4j.Logger;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.log4j.Logger;
+
+import com.amazonaws.util.Base64;
+import com.sequoiacm.apache.commons.logging.LogFactory;
+
 public class TestTools {
-    private static final Logger logger = Logger.getLogger( TestSdbTools.class );
+    private static final Logger logger = Logger.getLogger( TestTools.class );
+    private static final ClassLoader loader = TestTools.class.getClassLoader();
 
     /**
      * get file's md5
@@ -128,6 +138,7 @@ public class TestTools {
             }
         }
     }
+
 
     /**
      * random generate string
@@ -276,6 +287,9 @@ public class TestTools {
     }
 
     public static class LocalFile {
+        public enum FileType {
+            TEXT, DOC, DOCX, XLSX, XLS, BMP, PNG, JPEG
+        };
 
         /**
          * read the specify file length after seek, to compare the read results
@@ -290,7 +304,7 @@ public class TestTools {
          */
         public static void readFile( String filePath, int size, int len,
                 String downloadPath )
-                throws FileNotFoundException, IOException {
+                throws IOException {
             RandomAccessFile raf = null;
             OutputStream fos = null;
             try {
@@ -375,6 +389,11 @@ public class TestTools {
             }
         }
 
+        /**
+         * remove file
+         * 
+         * @param file
+         */
         public static void removeFile( File file ) {
             if ( file.exists() ) {
                 if ( file.isFile() ) {
@@ -491,6 +510,35 @@ public class TestTools {
             }
             return downloadPath;
         }
-    }
 
+        public static String getFileByType( FileType fileType )
+                throws Exception {
+            switch ( fileType ) {
+            case DOC:
+                return loader.getResource( "file/file_doc.doc" ).getPath();
+            case DOCX:
+                return loader.getResource( "file/file_docx.docx" ).getPath();
+            case TEXT:
+                return loader.getResource( "file/file_txt.txt" ).getPath();
+            case XLS:
+                return loader.getResource( "file/file_xls.xls" ).getPath();
+            case XLSX:
+                return loader.getResource( "file/file_xlsx.xlsx" ).getPath();
+            case BMP:
+                return loader.getResource( "file/file_bmp.bmp" ).getPath();
+            case JPEG:
+                return loader.getResource( "file/file_jpeg.JPG" ).getPath();
+            case PNG:
+                return loader.getResource( "file/file_png.PNG" ).getPath();
+            default:
+                throw new Exception( "file is not found!!!!" );
+            }
+        }
+
+        public static String getRandomFile() throws Exception {
+            FileType[] fileTypes = FileType.values();
+            int index = new Random().nextInt( fileTypes.length );
+            return getFileByType( fileTypes[ index ] );
+        }
+    }
 }

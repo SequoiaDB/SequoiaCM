@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testcases xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<testcase name="指定单个userType，&#xA;审计类型任意&#xA;">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定单个scm.audit.userType.{type}，type覆盖：LOCAL,TOKEN，LADP,ALL
+,审计类型任意
+2、创建对应类型的用户操作业务
+3、检查配置文件的配置的值
+4、检查审计日志是否被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件被正确的配置
+步骤4：审计日志正确的被记录
+
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定多个不重复的userType，审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定的多个不重复的userType，审计类型有重叠部分，如：userTy为:
+LOCAL,TOKEN
+审计类型为：FILE_DML，ALL
+2、创建对应的类型的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件配置正确
+步骤4：审计日志正常的被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定多个重复的userType,审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定多个重复的userType，审计类型有重叠部分，如：userTy为:
+LOCAL,LOCAL
+审计类型为：ALL，FILE_DML
+2、创建对应的类型的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件配置正确
+步骤4：只记录FILE_DML相关的审计日志，其他的操作的日志未记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定单个username,审计类型任意">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定单个username，user的类型覆盖：LOCAL、TOKEN、LADP，审计类型任意
+2、创建对应的类型用户名，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件配置正确
+步骤4：该用户操作业务记录被被正确的记录，其他用户的操作的记录未被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定多个不重复的username，审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定多个不重复的username，审计类型有重叠，比如：
+scm.audit.user.test1=FILE_DML
+scm.audit.user.test2=ALL
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件配置正确
+步骤4：审计日志正确的被记录，比如：test1只记录FILE_DML相关的操作记录，test2记录所有的操作记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定重复的username，审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定重复的username，审计类型有重叠，比如：
+scm.audit.user.test=ALL scm.audit.user.test=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件的配置正确
+步骤4：在重复配置的情况下，最后的配置生效，生效的是：scm.audit.user.test=FILE_DML，只记录FILE_DML的操作记录，其他操作记录不记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定userType和user的用户类型相同，审计类型相同">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和user的用户类型相同，审计类型有重叠，如：
+scm.audit.userType.LOCAL=FILE_DML;
+scm.audit.user.test=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：审计日志被正确的记录，比如：用用户test创建文件的操作会被记录，创建文件夹的操作不会被记录，其他用户创建文件的记录会被记录，其他操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定userType和user的用户类型相同，审计类型不同">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和user的用户类型相同，审计类型无交集，如：
+scm.audit.userType.LOCAL=DIR_DML
+scm.audit.user.test=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：审计日志被正确的记录，比如：用用户test创建文件的操作会被记录，创建文件夹的操作不会被记录，其他用户创建文件夹的记录会被记录，其他操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定userType和user的用户类型相同，审计类型有空字符串">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和user的用户类型相同，审计类型分别为空字符串和任意类型，覆盖以下情况如：
+a、
+scm.audit.userType.LOCAL=""
+scm.audit.user.test=FILE_DML
+b、
+scm.audit.userType.LOCAL=DIR_DML
+scm.audit.user.test=""
+c、
+scm.audit.userType.LOCAL=""
+scm.audit.user.test=""
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+情况a：
+用用户test有关于FILE_DML的记录会被记录，其他操作未被记录；其他用户操作的审计日志未被记录；
+情况b：
+用用户test操作的记录未被记录，其他的用户操作的记录记录相关的操作
+情况c:
+用户c和其他的用户操作的记录均未被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType和user的用户类型不同，审计类型相同">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定的userType和user的用户类型不同，审计类型相同，如：test用户的类型为TOKEN
+scm.audit.userType.LOCAL=FILE_DML
+scm.audit.user.test=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+用test创建文件，会被记录；用LOCAL类型的其他用户创建文件的操作会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType和user的用户类型不同，审计类型不同">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定的userType和user的用户类型不同，审计类型不同，如：test用户的类型为TOKEN
+scm.audit.userType.LOCAL=FILE_DML
+scm.audit.user.test=DIR_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+用test创建文件夹，会被记录，其他操作不会记录；用LOCAL类型的其他用户创建文件的操作会被记录，其他操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType和user的用户类型不同，审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和user的用户类型不同，审计类型有重叠，如：
+test的用户类型为TOKEN类型
+scm.audit.userType.LOCAL=FILE_DML | DIR_DML;
+scm.audit.user.test=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+用test创建文件，会被记录，其他操作不会记录；用LOCAL类型的其他用户创建文件和文件夹的操作会被记录，其他操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType与指定的userMask相同，审计类型有重叠">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和userMask相同，审计类型有重叠，如：
+a、scm.audit.userType.LOCAL=FILE_DML|DIRDML，
+b、
+scm.audit.userMask=LOCAL
+ scm.audit.mask=FILE_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+配置项有冲突的情况下，以新配置为准，使用类型为LOCAL的用户有关于FILE_DML|DIRDML操作会被记录，其他的操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType与指定的userMask相同，审计类型不同">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和userMask相同，审计类型有不同，如：
+a、scm.audit.userType.LOCAL=FILE_DML，
+b、
+scm.audit.userMask=LOCAL
+scm.audit.mask=DIR_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+配置项有冲突的情况下，以新配置为准，使用类型为LOCAL的用户有关于FILE_DML操作会被记录，其他的操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="指定的userType与b指定的userMask不同，审计类型任意">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、指定userType和userMask相同，审计类型任意，覆盖以下情况：
+1）审计类型相同
+2）审计类型不同
+如：
+a、scm.audit.userType.TOKEN=FILE_DML，
+b、
+scm.audit.userMask=LOCAL
+scm.audit.mask=DIR_DML
+2、创建对应的用户，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件正确
+步骤4：
+配置项无冲突的情况下，新的配置项和旧的配置项合并，使用类型为LOCAL的用户有关于DIR_DML操作会被记录，其他的操作不会被记录,使用类型为TOKEN用户有关于FILE_DML的操作会被记录，其他的操作不会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="所有的配置项都配置，指定操作用户与配置不符">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、所有的配置项都配置的情况下，指定操作用户与配置的不符合，如：
+scm.audit.mask=FILE_DML
+scm.audit.userMask=LADP|TOKEN|ALL
+scm.audit.userType.TOKEN=FILE_DML
+scm.audit.userType.TOKEN=DIR_DML scm.audit.user.test =FILE_SQL 
+2、创建用户，如用户的类型为LOCAL，操作业务
+3、检查配置文件
+4、检查审计日志是否正确的被记录
+</actions>
+				<expectedresults>步骤1：配置成功
+步骤3：配置文件的配置正确
+步骤4：
+LOCAL在指定的类型中未配置，所以审计类型为ALL,因此该用户所有的操作都会被记录
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+	<testcase name="配置参数校验">
+		<preconditions>默认情况下，其他审计日志配置项未配置</preconditions>
+		<execution_type>1</execution_type>
+		<importance>2</importance>
+		<steps>
+			<step>
+				<step_number>1</step_number>
+				<actions>1、scm.audit.userType.{type}中的type值缺省，value为非审计类型的值，如：LOCAL1
+2、scm.audit.user.username中的username值缺省，value值为非审计的值,如：FILE_DML$
+3、scm.audit.user.username中的username的值带符号（.）,如JK.Rolin，带有空格,如JK Rolin
+4配置项有前后有空格
+以上步骤，操作业务进行验证
+</actions>
+				<expectedresults>步骤1：
+操作不会被记录审计日志
+步骤2:
+操作不会被记录审计日志
+步骤3：
+操作正常被记录
+步骤4：
+操作正常被记录审计日志
+</expectedresults>
+				<execution_type>1</execution_type>
+			</step>
+		</steps>
+	</testcase>
+</testcases>
