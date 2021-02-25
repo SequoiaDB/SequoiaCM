@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltextsearch.concurrent;
+package com.sequoiacm.fulltextsearch.serial;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;

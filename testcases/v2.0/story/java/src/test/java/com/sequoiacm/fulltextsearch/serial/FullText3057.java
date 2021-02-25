@@ -1,25 +1,21 @@
-package com.sequoiacm.fulltextsearch.concurrent;
+package com.sequoiacm.fulltextsearch.serial;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.fulltext.ScmFulltextModifiler;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.MimeType;
@@ -36,18 +32,18 @@ import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
- * @Description: SCM-3054 :: 并发工作区更新索引和删除工作区
+ * @Description: SCM-3057 :: 并发工作区删除索引和删除工作区
  * @author fanyu
  * @Date:2020/11/17
  * @version:1.0
  */
-public class FullText3054 extends TestScmBase {
+public class FullText3057 extends TestScmBase {
     private SiteWrapper site = null;
     private ScmSession session = null;
-    private String wsName = "ws3054";
+    private String wsName = "ws3057";
     private ScmWorkspace ws = null;
     private List< ScmId > fileIdList = new ArrayList<>();
-    private String fileNameBase = "file3054-";
+    private String fileNameBase = "file3057-";
     private int fileNum = 10;
 
     @BeforeClass
@@ -59,17 +55,16 @@ public class FullText3054 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         prepareFile();
-        BSONObject fileCondition = ScmQueryBuilder
-                .start( ScmAttributeName.File.AUTHOR ).is( fileNameBase ).get();
-        ScmFactory.Fulltext.createIndex( ws,
-                new ScmFulltextOption( fileCondition, ScmFulltextMode.sync ) );
+        // 创建索引
+        ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                new BasicBSONObject(), ScmFulltextMode.async ) );
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
     }
 
     @Test
     private void test() throws Throwable {
         ThreadExecutor threadExec = new ThreadExecutor();
-        threadExec.addWorker( new UpdateIndex() );
+        threadExec.addWorker( new DropIndex() );
         threadExec.addWorker( new DropWs() );
         threadExec.run();
         try {
@@ -102,19 +97,16 @@ public class FullText3054 extends TestScmBase {
         }
     }
 
-    private class UpdateIndex {
+    private class DropIndex {
 
         @ExecuteOrder(step = 1)
-        private void update() throws ScmException {
+        private void drop() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
-                ScmFactory.Fulltext.alterIndex( ws,
-                        new ScmFulltextModifiler()
-                                .newMode( ScmFulltextMode.async )
-                                .newFileCondition( new BasicBSONObject() ) );
+                ScmFactory.Fulltext.dropIndex( ws );
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST
                         && e.getError() != ScmError.CONFIG_SERVER_ERROR ) {

@@ -30,7 +30,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
  */
 public class WsPool {
     private static final int timeout = 2;
-    private static final int newWsNum = 5;
+    private static final int newWsNum = 3;
     private static ArrayBlockingQueue< String > resources;
     private static AtomicInteger count = new AtomicInteger( 0 );
     private static List< String > wsList = new CopyOnWriteArrayList<>();
@@ -40,7 +40,7 @@ public class WsPool {
         resources = new ArrayBlockingQueue<>( 12 );
         resources.addAll( list );
         wsList.addAll( list );
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = TestScmTools.createSession( ScmInfo.getSite() );
     }
 
     public static String get() throws Exception {
@@ -56,9 +56,6 @@ public class WsPool {
                         ScmFulltextStatus.CREATED ) && isWsEmpty( resource ) ) {
                     dropIndex( resource );
                     return resource;
-                }
-                if ( resources.size() != 0 ) {
-                    continue;
                 }
             } else {
                 // create new resource
@@ -84,9 +81,7 @@ public class WsPool {
     }
 
     public static void destroy() throws Exception {
-        // ScmSession session = null;
         try {
-            // session = TestScmTools.createSession( ScmInfo.getRootSite() );
             ThreadExecutor threadExec = new ThreadExecutor();
             for ( String wsName : wsList ) {
                 if ( getWsIndexStatus( wsName ).equals( ScmFulltextStatus.NONE )
@@ -152,35 +147,36 @@ public class WsPool {
     }
 
     private static boolean isWsEmpty( String wsName ) throws ScmException {
-        // ScmSession session = null;
+        ScmSession session = null;
         try {
-            // session = TestScmTools.createSession( ScmInfo.getRootSite() );
+            session = TestScmTools.createSession( ScmInfo.getSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             long count = ScmFactory.File.countInstance( ws,
                     ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject() );
             return count == 0;
         } finally {
-            // if ( session != null ) {
-            // session.close();
-            // }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 
     private static String createNewWs()
             throws ScmException, UnknownHostException, InterruptedException {
-        String wsName = InetAddress.getLocalHost().getHostName().replace( "-",
+        String wsName = TestScmBase.FULLTEXT_WS_PREFIX + InetAddress.getLocalHost().getHostName().replace( "-",
                 "_" ) + "_new_" + count.get();
-        // ScmSession session = null;
+         ScmSession session = null;
         try {
-            // session = TestScmTools.createSession( ScmInfo.getRootSite() );
+             session = TestScmTools.createSession( ScmInfo.getSite() );
             ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( session, wsName );
             wsList.add( wsName );
             return wsName;
         } finally {
-            // if ( session != null ) {
-            // session.close();
+             if ( session != null ) {
+                 session.close();
+             }
         }
     }
 }

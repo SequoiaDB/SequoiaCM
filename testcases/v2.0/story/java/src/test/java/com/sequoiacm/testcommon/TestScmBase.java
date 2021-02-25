@@ -172,10 +172,9 @@ public class TestScmBase {
                 ScmWorkspaceUtil.deleteWs( info.getName(), session );
             }
         }
-        wsNamePrefix = wsNamePrefix + "_test";
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( int i = 0; i < WS_NUM_PER_POOL; i++ ) {
-            String wsName = wsNamePrefix + "_" + i;
+            String wsName =  wsNamePrefix + "_test_" + i;
             threadExec.addWorker(
                     new TestScmBase().new CreateWS( session, wsName ) );
             wsNames.add( wsName );

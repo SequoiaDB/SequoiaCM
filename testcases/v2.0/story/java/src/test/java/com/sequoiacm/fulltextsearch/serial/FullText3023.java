@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltextsearch;
+package com.sequoiacm.fulltextsearch.serial;
 
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
