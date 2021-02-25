@@ -62,7 +62,9 @@ public class StandardBucketServiceImpl implements BucketService {
     }
 
     private Map<String, Bucket> getBucketMap() throws S3ServerException {
-        initMap();
+        if (bucketMap == null) {
+            initMap();
+        }
         return bucketMap;
     }
     
@@ -81,14 +83,14 @@ public class StandardBucketServiceImpl implements BucketService {
                     return;
                 }
                 catch (Exception e1) {
-                    throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map",
+                    throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init bucket map",
                             e1);
                 }
             }
-            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map", e);
+            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init bucket map", e);
         }
         catch (Exception e) {
-            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init burket map", e);
+            throw new S3ServerException(S3Error.SYSTEM_ERROR, "failed to init bucket map", e);
         }
     }
 

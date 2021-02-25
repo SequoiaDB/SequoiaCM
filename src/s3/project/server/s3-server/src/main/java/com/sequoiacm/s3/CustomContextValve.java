@@ -27,10 +27,8 @@ public class CustomContextValve extends S3ContextValveBase {
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
-        logger.info(" expect valve.");
         if (request.getHeader(RestParamDefine.EXPECT) != null && request.getMethod().equals("PUT")
                 && request.getContentLength() > 512 * 1024) {
-            logger.info("get expect.");
             try {
                 ObjectMeta meta = createObjectMeta(request);
                 if (meta != null) {

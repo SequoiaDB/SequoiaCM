@@ -50,7 +50,7 @@ public class S3ListObjContextMgr {
 
     }
 
-    private Map<String, S3ListObjContextMeta> getMontextMetas() throws S3ServerException {
+    private Map<String, S3ListObjContextMeta> getContextMetas() throws S3ServerException {
         initMap();
         return contextMetas;
     }
@@ -105,7 +105,7 @@ public class S3ListObjContextMgr {
     }
 
     public S3ListObjContext getContext(ScmSession session, String id) throws S3ServerException {
-        S3ListObjContextMeta meta = getMontextMetas().get(id);
+        S3ListObjContextMeta meta = getContextMetas().get(id);
         if (meta == null) {
             throw new S3ServerException(S3Error.OBJECT_INVALID_TOKEN,
                     "The continuation token provided is incorrect.token:" + id);
@@ -117,20 +117,20 @@ public class S3ListObjContextMgr {
     }
 
     void updateContextMeta(S3ListObjContextMeta meta) throws S3ServerException {
-        getMontextMetas().put(meta.getId(), meta);
+        getContextMetas().put(meta.getId(), meta);
     }
 
     public void remove(String meta) throws S3ServerException {
-        getMontextMetas().remove(meta);
+        getContextMetas().remove(meta);
     }
 
     void cleanExpireContext() throws S3ServerException {
         long now = System.currentTimeMillis();
-        Set<String> keyset = getMontextMetas().keySet();
+        Set<String> keyset = getContextMetas().keySet();
         for (String key : keyset) {
-            S3ListObjContextMeta meta = getMontextMetas().get(key);
+            S3ListObjContextMeta meta = getContextMetas().get(key);
             if (meta != null && now - meta.getUpdateTime() > contextConfig.getKeepaliveTime()) {
-                getMontextMetas().remove(key);
+                getContextMetas().remove(key);
             }
         }
     }
