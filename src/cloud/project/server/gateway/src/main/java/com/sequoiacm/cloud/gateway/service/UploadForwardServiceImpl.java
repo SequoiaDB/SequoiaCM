@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -48,6 +50,8 @@ import com.sequoiacm.infrastructure.security.auth.RestField;
 @Service
 public class UploadForwardServiceImpl implements UploadForwardService {
     private static final Logger logger = LoggerFactory.getLogger(UploadForwardServiceImpl.class);
+
+    private static final List<String> IGNORE_RESP_HEADERS = Arrays.asList("Transfer-Encoding");
 
     @Autowired
     private LoadBalancerClient loadBalancerClient;
@@ -236,46 +240,37 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             forwardRespBody = body.getContent();
         }
 
+        // copy header from forward response.
+        copyHeaderFromForwardResp(clientResp, forwardResp);
+        
         // do not close clientOuputStream in finally block, if occur exception,
         // spring will take over it.
         ServletOutputStream clientOuputStream = clientResp.getOutputStream();
 
-        String transferEncoding = null;
-        Header transferEncodingHeader = forwardResp.getFirstHeader("Transfer-Encoding");
-        if (transferEncodingHeader != null) {
-            transferEncoding = transferEncodingHeader.getValue();
-        }
-        OutputStream encodeOutputStream = encode(transferEncoding, clientOuputStream);
-
-        // copy header from forward response.
-        copyHeaderFromForwardResp(clientResp, forwardResp);
-
         // transfer body
         if (forwardRespBody != null) {
-            transfer(forwardRespBody, encodeOutputStream);
+            transfer(forwardRespBody, clientOuputStream);
         }
-        encodeOutputStream.close();
+        clientOuputStream.close();
     }
 
     private void copyHeaderFromForwardResp(HttpServletResponse clientResp,
             CloseableHttpResponse forwardResp) {
         Header[] forwardRespHeaders = forwardResp.getAllHeaders();
         for (Header forwardRespHeader : forwardRespHeaders) {
-            clientResp.addHeader(forwardRespHeader.getName(), forwardRespHeader.getValue());
+            if (!ignoreCaseContains(IGNORE_RESP_HEADERS, forwardRespHeader.getName())) {
+                clientResp.addHeader(forwardRespHeader.getName(), forwardRespHeader.getValue());
+            }
         }
     }
 
-    private OutputStream encode(String transferEncoding, OutputStream clientOuputStream)
-            throws IOException {
-        if (transferEncoding == null) {
-            return clientOuputStream;
+    private boolean ignoreCaseContains(List<String> list, String dest) {
+        for (String e : list) {
+            if (e.equalsIgnoreCase(dest)) {
+                return true;
+            }
         }
-
-        if (transferEncoding.equalsIgnoreCase("chunked")) {
-            return new ChunkedOutputStream(clientOuputStream, 4096);
-        }
-
-        throw new UnsupportedEncodingException("Unsupported transfer-encoding:" + transferEncoding);
+        return false;
     }
 
     private void transfer(InputStream is, OutputStream os) throws IOException {
