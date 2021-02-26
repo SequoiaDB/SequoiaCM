@@ -81,9 +81,6 @@
    		 <!-- definemeta -->  
    		 <package name="com.sequoiacm.definemeta"/> 
 		 <package name="com.sequoiacm.definemeta.concurrent"/>
-         <!-- fulltext -->
-         <package name="com.sequoiacm.fulltextsearch"/>
-         <package name="com.sequoiacm.fulltextsearch.concurrent"/>
       </packages>
    </test>
 

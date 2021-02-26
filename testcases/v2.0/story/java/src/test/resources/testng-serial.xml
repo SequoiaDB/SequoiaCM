@@ -75,6 +75,8 @@
             <!--directory -->
             <package name="com.sequoiacm.directory.serial"/>
             <!--fulltext-->
+            <package name="com.sequoiacm.fulltextsearch"/>
+            <package name="com.sequoiacm.fulltextsearch.concurrent"/>
             <package name="com.sequoiacm.fulltextsearch.serial"/>
       </packages>
    </test>
