@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltextsearch;
+package com.sequoiacm.fulltextsearch.serial;
 
 import java.util.ArrayList;
 import java.util.List;
