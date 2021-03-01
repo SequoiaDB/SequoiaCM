@@ -34,13 +34,11 @@ public class WsPool {
     private static ArrayBlockingQueue< String > resources;
     private static AtomicInteger count = new AtomicInteger( 0 );
     private static List< String > wsList = new CopyOnWriteArrayList<>();
-    private static ScmSession session;
 
     public static void init( List< String > list ) throws ScmException {
         resources = new ArrayBlockingQueue<>( 12 );
         resources.addAll( list );
         wsList.addAll( list );
-        session = TestScmTools.createSession( ScmInfo.getSite() );
     }
 
     public static String get() throws Exception {
@@ -81,7 +79,9 @@ public class WsPool {
     }
 
     public static void destroy() throws Exception {
+        ScmSession session = null;
         try {
+            session = TestScmTools.createSession( ScmInfo.getSite() );
             ThreadExecutor threadExec = new ThreadExecutor();
             for ( String wsName : wsList ) {
                 if ( getWsIndexStatus( wsName ).equals( ScmFulltextStatus.NONE )
