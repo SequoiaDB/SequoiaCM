@@ -25,7 +25,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
     protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
-    private static final int WS_NUM_PER_POOL = 3;
+    private static final int WS_NUM_PER_POOL = 1;
 
     protected static boolean forceClear;
     protected static String dataDirectory;
