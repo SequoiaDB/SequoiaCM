@@ -11,11 +11,12 @@ public class ObjectMatcher {
     private String ifModifiedSince;
     private String ifUnmodifiedSince;
 
-    public ObjectMatcher(HttpServletRequest req) {
-        ifMatch = req.getHeader(RestParamDefine.CopyObjectHeader.IF_MATCH);
-        ifNoneMatch = req.getHeader(RestParamDefine.CopyObjectHeader.IF_NONE_MATCH);
-        ifModifiedSince = req.getHeader(RestParamDefine.CopyObjectHeader.IF_MODIFIED_SINCE);
-        ifUnmodifiedSince = req.getHeader(RestParamDefine.CopyObjectHeader.IF_UNMODIFIED_SINCE);
+    public ObjectMatcher(String ifMatch, String ifNoneMatch, String ifModifiedSince,
+            String ifUnmodifiedSince) {
+        this.ifMatch = ifMatch;
+        this.ifNoneMatch = ifNoneMatch;
+        this.ifModifiedSince = ifModifiedSince;
+        this.ifUnmodifiedSince = ifUnmodifiedSince;
     }
 
     public String getIfMatch() {

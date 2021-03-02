@@ -10,6 +10,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.s3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +35,6 @@ import com.sequoiacm.s3.core.Range;
 import com.sequoiacm.s3.core.S3InputStreamReaderChunk;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
-import com.sequoiacm.s3.model.CopyObjectResult;
-import com.sequoiacm.s3.model.GetResult;
-import com.sequoiacm.s3.model.ListObjectsResult;
-import com.sequoiacm.s3.model.ListObjectsResultV1;
-import com.sequoiacm.s3.model.ListVersionsResult;
-import com.sequoiacm.s3.model.ObjectMatcher;
-import com.sequoiacm.s3.model.ObjectUri;
-import com.sequoiacm.s3.model.PutDeleteResult;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.CommonUtil;
@@ -109,7 +102,7 @@ public class ObjectController {
     @GetMapping(value = "/{bucketname:.+}/**", produces = MediaType.APPLICATION_XML_VALUE)
     public void getObject(@PathVariable("bucketname") String bucketName, ScmSession session,
             @RequestParam(value = RestParamDefine.VERSION_ID, required = false) String versionId,
-            ObjectMatcher matcher, HttpServletRequest httpServletRequest,
+            HeadObjectMatcher matcher, HttpServletRequest httpServletRequest,
             HttpServletResponse response) throws S3ServerException, IOException {
         try {
             String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
@@ -362,7 +355,7 @@ public class ObjectController {
     public void headObject(@PathVariable("bucketname") String bucketName, ScmSession session,
             @RequestParam(value = RestParamDefine.VERSION_ID, required = false) String versionId,
             HttpServletRequest httpServletRequest, HttpServletResponse response,
-            ObjectMatcher matcher) throws S3ServerException {
+            HeadObjectMatcher matcher) throws S3ServerException {
         try {
             String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
             logger.debug("head object. bucketName={}, objectName={}", bucketName, objectName);
@@ -405,7 +398,7 @@ public class ObjectController {
             @RequestHeader(name = RestParamDefine.CopyObjectHeader.X_AMZ_COPY_SOURCE) String copySource,
             @RequestHeader(name = RestParamDefine.CopyObjectHeader.METADATA_DIRECTIVE, required = false) String directive,
             HttpServletRequest httpServletRequest, HttpServletResponse response,
-            ObjectMatcher matcher, ObjectMeta obj) throws S3ServerException, IOException {
+            CopyObjectMatcher matcher, ObjectMeta obj) throws S3ServerException, IOException {
         try {
             String objectName = obj.getKey();
             logger.debug("copy object. bucketName={}, objectName={}, source={}", bucketName,

@@ -107,6 +107,13 @@ public class RestParamDefine {
         public static final String IF_NONE_MATCH = "x-amz-copy-source-if-none-match";
     }
 
+    public static class HeadObjectHeader {
+        public static final String IF_MODIFIED_SINCE = "if-modified-since";
+        public static final String IF_UNMODIFIED_SINCE = "if-unmodified-since";
+        public static final String IF_MATCH = "if-match";
+        public static final String IF_NONE_MATCH = "if-none-match";
+    }
+
     public static class CopyObjectResultHeader {
         public static final String VERSION_ID = "x-amz-version-id";
         public static final String SOURCE_VERSION_ID = "x-amz-copy-source-version-id";

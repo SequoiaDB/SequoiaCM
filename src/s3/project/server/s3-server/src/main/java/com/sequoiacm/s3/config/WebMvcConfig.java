@@ -65,7 +65,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         super.addArgumentResolvers(argumentResolvers);
         argumentResolvers.add(new ScmSessionArgResolver());
-        argumentResolvers.add(new ObjMetaArgResolver());
+        argumentResolvers.add(new HeadObjArgResolver());
+        argumentResolvers.add(new CopyObjArgResolver());
         argumentResolvers.add(new ObjMatcherArgResolver());
     }
 
