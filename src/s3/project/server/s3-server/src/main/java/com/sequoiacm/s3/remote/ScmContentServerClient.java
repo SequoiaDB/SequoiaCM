@@ -397,11 +397,29 @@ public class ScmContentServerClient {
         }
     }
 
-    private ScmFileInfo uploadFileWithRetry(String breakFileName, BSONObject scmFileInfo)
+    private ScmFileInfo overwriteFile(String breakFileName, BSONObject scmFileInfo)
+            throws S3ServerException, ScmFeignException {
+        int retryCount = 10;
+        ScmFeignException lastException = null;
+        while (retryCount-- > 0) {
+            try {
+                return service.uploadFile(session.getSessionId(), session.getUserDetail(), ws,
+                        scmFileInfo, breakFileName, UPLOAD_FILE_CONFIG);
+            }
+            catch (ScmFeignException e) {
+                if (e.getStatus() != ScmError.FILE_EXIST.getErrorCode()) {
+                    throw e;
+                }
+                lastException = e;
+            }
+        }
+        throw lastException;
+    }
+
+    private ScmFileInfo overwriteFileWithRetry(String breakFileName, BSONObject scmFileInfo)
             throws S3ServerException, ScmFeignException {
         try {
-            return service.uploadFile(session.getSessionId(), session.getUserDetail(), ws,
-                    scmFileInfo, breakFileName, UPLOAD_FILE_CONFIG);
+            return overwriteFile(breakFileName, scmFileInfo);
         }
         catch (ScmFeignException e) {
             if (e.getStatus() == ScmError.METADATA_CLASS_NOT_EXIST.getErrorCode()) {
@@ -409,19 +427,15 @@ public class ScmContentServerClient {
                 String classId = getS3ClassId();
                 CLASS_ID_CACHE.put(ws, classId);
                 scmFileInfo.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, classId);
-                return service.uploadFile(session.getSessionId(), session.getUserDetail(), ws,
-                        scmFileInfo, breakFileName, UPLOAD_FILE_CONFIG);
+                return overwriteFile(breakFileName, scmFileInfo);
             }
             throw e;
         }
     }
 
-    public void createScmFile(String bucketDir, ObjectMeta meta) {
-
-    }
-
-    public ScmFileInfo createScmFile(String breakFileName, String bucketDir, ObjectMeta meta)
-            throws ScmFeignException, S3ServerException {
+    // 覆盖上传的方式写SCM文件
+    public ScmFileInfo createScmFileWithOverwrite(String breakFileName, String bucketDir,
+            ObjectMeta meta) throws ScmFeignException, S3ServerException {
         String key = meta.getKey();
         ScmDirPath subPathInBucket = new ScmDirPath(key);
         String scmFileName = subPathInBucket.getNamebyLevel(subPathInBucket.getLevel());
@@ -432,7 +446,7 @@ public class ScmContentServerClient {
             ScmDirInfo scmFileParentDir = getDir(bucketDir);
             scmFileInfo.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, scmFileParentDir.getId());
             try {
-                return uploadFileWithRetry(breakFileName, scmFileInfo);
+                return overwriteFileWithRetry(breakFileName, scmFileInfo);
             }
             catch (ScmFeignException e) {
                 if (e.getStatus() == ScmError.DIR_NOT_FOUND.getErrorCode()) {
@@ -461,13 +475,13 @@ public class ScmContentServerClient {
 
         scmFileInfo.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, scmFileParentDir.getId());
         try {
-            return uploadFileWithRetry(breakFileName, scmFileInfo);
+            return overwriteFileWithRetry(breakFileName, scmFileInfo);
         }
         catch (ScmFeignException e) {
             if (e.getStatus() == ScmError.DIR_NOT_FOUND.getErrorCode()) {
                 scmFileParentDir = createSubPathWithRetry(bucketDir, subPathInBucket);
                 scmFileInfo.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, scmFileParentDir.getId());
-                return uploadFileWithRetry(breakFileName, scmFileInfo);
+                return overwriteFileWithRetry(breakFileName, scmFileInfo);
             }
             throw e;
         }

@@ -84,7 +84,7 @@ public class ObjServiceImpl implements ObjectService {
 
             // 使用断点文件上传除了要计算MD5外， 还有就是创建SCM文件需要重试（目录不存在） 
             try {
-                client.createScmFile(breakFileName, bucket.getBucketDir(), meta);
+                client.createScmFileWithOverwrite(breakFileName, bucket.getBucketDir(), meta);
             }
             catch (ScmFeignException e) {
                 throw new S3ServerException(S3Error.OBJECT_PUT_FAILED,
@@ -330,7 +330,7 @@ public class ObjServiceImpl implements ObjectService {
             logger.debug("creating scm breakpointfile() for object()", breakFileName,
                     dest.getKey());
             client.createBreakpointFile(breakFileName, is);
-            scmFile = client.createScmFile(breakFileName, bucket.getBucketDir(), dest);
+            scmFile = client.createScmFileWithOverwrite(breakFileName, bucket.getBucketDir(), dest);
         }
         catch (Exception e) {
             client.deleteBreakpointFileSilence(breakFileName);
