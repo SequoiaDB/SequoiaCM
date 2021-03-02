@@ -107,7 +107,12 @@ public class TestScmBase {
             session = ScmFactory.Session
                     .createSession( SessionType.AUTH_SESSION, scOpt );
             ScmInfo.refresh( session );
-            WsPool.init( prepareWs( session ) );
+            List< String > wsNames = prepareWs( session );
+            List<WsWrapper> wsps = ScmInfo.getWsList( session );
+            for(WsWrapper wsp:wsps ){
+                wsNames.add( wsp.getName() );
+            }
+            WsPool.init( wsNames );
         } finally {
             if ( null != session ) {
                 session.close();
