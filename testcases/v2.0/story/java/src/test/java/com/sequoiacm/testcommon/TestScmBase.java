@@ -109,7 +109,7 @@ public class TestScmBase {
             ScmInfo.refresh( session );
             List< String > wsNames = prepareWs( session );
             List<WsWrapper> wsps = ScmInfo.getWsList( session );
-            for(WsWrapper wsp:wsps ){
+            for ( WsWrapper wsp : wsps ) {
                 wsNames.add( wsp.getName() );
             }
             WsPool.init( wsNames );
