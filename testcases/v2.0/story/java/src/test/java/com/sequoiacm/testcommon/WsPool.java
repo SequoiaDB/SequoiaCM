@@ -85,7 +85,8 @@ public class WsPool {
             ThreadExecutor threadExec = new ThreadExecutor();
             for ( String wsName : wsList ) {
                 if ( getWsIndexStatus( wsName ).equals( ScmFulltextStatus.NONE )
-                        && isWsEmpty( wsName ) ) {
+                        && isWsEmpty( wsName ) && wsName.startsWith(
+                                TestScmBase.FULLTEXT_WS_PREFIX ) ) {
                     threadExec.addWorker(
                             new WsPool().new DropWS( session, wsName ) );
                 }
