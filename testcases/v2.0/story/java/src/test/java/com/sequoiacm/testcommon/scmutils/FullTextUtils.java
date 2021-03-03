@@ -28,7 +28,7 @@ import com.sequoiacm.testcommon.TestTools;
  */
 public class FullTextUtils {
     public final static int FILE_NUM = 10;
-    public final static int TIMEOUT = 1000 * 180;
+    public final static int TIMEOUT = 1000 * 300;
     public final static int INTERVAL = 200;
     public final static TestTools.LocalFile.FileType[] fileTypes = TestTools.LocalFile.FileType
             .values();
