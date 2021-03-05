@@ -86,7 +86,8 @@ public class FullText3024 extends TestScmBase {
                     .newFileCondition( new BasicBSONObject() ) );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING
+                    && e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
                 throw e;
             }
         }
