@@ -60,7 +60,7 @@ public class FullText3064 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        site = ScmInfo.getSite();
+        site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
@@ -108,6 +108,10 @@ public class FullText3064 extends TestScmBase {
             threadExec.addWorker( new UpdateContent( fileIdList1.get( i ) ) );
         }
         threadExec.run();
+
+        // 上述并发有可能出现不符合索引条件且有索引的现象，需要重新inspect
+        ScmFactory.Fulltext.inspectIndex( ws );
+        FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
 
         // 检查文件索引状态
         List< String > fileIdStrList = new ArrayList<>();
@@ -192,13 +196,14 @@ public class FullText3064 extends TestScmBase {
 
     private class Inspect {
         @ExecuteOrder(step = 1)
-        private void inspect() throws ScmException {
+        private void inspect() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.inspectIndex( ws );
+                FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
             } finally {
                 if ( session != null ) {
                     session.close();
