@@ -108,6 +108,7 @@ public class FullText3154 extends TestScmBase {
                 .get();
         FullTextUtils.searchAndCheckResults( ws, ScmType.ScopeType.SCOPE_ALL,
                 new BasicBSONObject(), expCondition );
+        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
