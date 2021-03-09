@@ -58,12 +58,6 @@ public class S3AuthorizationV4 extends S3Authorization {
 
     private String getReqToSign(HttpServletRequest req, AuthorizationInfo authorizationInfo) {
         String path = req.getRequestURI();
-        try {
-            path = URLDecoder.decode(path, "utf-8");
-        }
-        catch (UnsupportedEncodingException e1) {
-            throw new RuntimeException(e1);
-        }
         String forwardPrefix = getForwardPrefix(req);
         path = forwardPrefix + path;
         String queryParameters = "";
@@ -177,19 +171,15 @@ public class S3AuthorizationV4 extends S3Authorization {
      * Returns the canonicalized resource path for the service endpoint.
      */
     protected String getCanonicalizedResourcePath(String path) {
-        if (path == null) {
-            return "/";
-        }
         if (path == null || path.isEmpty()) {
             return "/";
         }
 
-        String encodedPath = urlEncode(path, true);
-        if (encodedPath.startsWith("/")) {
-            return encodedPath;
+        if (path.startsWith("/")) {
+            return path;
         }
         else {
-            return "/".concat(encodedPath);
+            return "/".concat(path);
         }
     }
 
@@ -234,13 +224,19 @@ public class S3AuthorizationV4 extends S3Authorization {
         String encoded;
         try {
             encoded = URLEncoder.encode(url, "UTF-8");
+
+            encoded = encoded.replace("+", "%20");
+            encoded = encoded.replace("*", "%2A");
+            encoded = encoded.replace("%7E", "~");
+            if (keepPathSlash) {
+                encoded = encoded.replace("%2F", "/");
+            }
+
         }
         catch (UnsupportedEncodingException e) {
             throw new RuntimeException("UTF-8 encoding is not supported.", e);
         }
-        if (keepPathSlash) {
-            encoded = encoded.replace("%2F", "/");
-        }
+
         return encoded;
     }
 
