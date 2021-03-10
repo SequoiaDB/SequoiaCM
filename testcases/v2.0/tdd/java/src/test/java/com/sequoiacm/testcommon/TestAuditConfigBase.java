@@ -48,6 +48,8 @@ import com.sequoiacm.common.AttributeType;
 
 public class TestAuditConfigBase extends ScmTestMultiCenterBase {
 
+    private static final Logger logger = Logger.getLogger(TestAuditConfigBase.class);
+
     public void clearAudit(ScmSession adminsession, String username) throws ScmException {
         ScmUpdateConfResultSet ret = ScmSystem.Configuration.setConfigProperties(adminsession,
                 ScmConfigProperties.builder().service("rootsite", "schedule-server", "auth-server")
@@ -117,7 +119,7 @@ public class TestAuditConfigBase extends ScmTestMultiCenterBase {
             }
             else {
                 isSuccess = false;
-                logger.info(isSuccess + ":" + null);
+                logger.info("auditNoFound: username:" + username + ",auditType:" + auditType);
                 cursor.close();
                 break;
             }
@@ -131,11 +133,15 @@ public class TestAuditConfigBase extends ScmTestMultiCenterBase {
                     new BasicBSONObject(ScmAttributeName.Audit.USERNAME, username)
                             .append(ScmAttributeName.Audit.USERTYPE, userType));
             while (cursor.hasNext()) {
-                cursor.getNext();
+                ScmAuditInfo auditInfo = cursor.getNext();
+                if (!auditTypes.contains(auditInfo.getType())) {
+                    logger.info("auditTypeNoMatch: " + auditInfo);
+                }
                 logCount += 1;
             }
             if (logCount != configLogCount) {
                 isSuccess = false;
+                logger.info("The number of audit logs does not match: username:" + username);
             }
             cursor.close();
         }
@@ -157,10 +163,11 @@ public class TestAuditConfigBase extends ScmTestMultiCenterBase {
         file.setFileName("audit_crete_test_file" + time);
         file.setAuthor("xxxx");
         file.save();
+        logger.info("fileId:" + file.getFileId());
         ScmFactory.File.deleteInstance(ws, file.getFileId(), true);
         // FILE_DQL 内容服务节点 查询文件操作
         ScmCursor<ScmFileBasicInfo> fileCursor = ScmFactory.File.listInstance(ws,
-                ScopeType.SCOPE_ALL, new BasicBSONObject());
+                ScopeType.SCOPE_ALL, new BasicBSONObject(ScmAttributeName.File.FILE_NAME, "audit_crete_test_file" + time));
         fileCursor.close();
 
         // DIR_DML 内容服务节点 目录创建、删除、更新操作
