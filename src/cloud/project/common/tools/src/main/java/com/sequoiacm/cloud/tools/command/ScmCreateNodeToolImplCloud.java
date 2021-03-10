@@ -54,7 +54,7 @@ public class ScmCreateNodeToolImplCloud extends ScmCreateNodeToolImpl {
         String adurl = cl.getOptionValue(OPT_LONG_AUDIT_URL);
         String aduser = cl.getOptionValue(OPT_LONG_AUDIT_USER);
         String adpasswd = cl.getOptionValue(OPT_LONG_AUDIT_PASSWD);
-        logger.info("adurl="+adurl+", aduser"+aduser+", adpasswd="+adpasswd);
+        logger.info("adurl="+adurl+", aduser="+aduser);
 
         Map<Object, Object> otherLog = new HashMap<>();
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_URL, adurl);
