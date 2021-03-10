@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import com.sequoiacm.s3.common.S3Codec;
 import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
@@ -152,7 +153,7 @@ public class S3ObjectCursor {
                     }
                     if (!isEmpty(file)) {
                         return new ListObjRecord(
-                                encode(file.getRelativePath(bucketDir), encodingType));
+                                S3Codec.encode(file.getRelativePath(bucketDir), encodingType));
                     }
                     continue;
                 }
@@ -162,7 +163,8 @@ public class S3ObjectCursor {
                     owner.setUserName(file.getUser());
                     owner.setUserId(file.getUser());
                 }
-                return new ListObjRecord(encode(file.getRelativePath(bucketDir), encodingType),
+                return new ListObjRecord(
+                        S3Codec.encode(file.getRelativePath(bucketDir), encodingType),
                         file.getUpdateTime(), file.getEtag(), file.getSize(), owner);
             }
             if (cursorStack.peek() == cursor) {
@@ -171,18 +173,6 @@ public class S3ObjectCursor {
         }
 
         return null;
-    }
-
-    private String encode(String src, String encodingType) throws S3ServerException {
-        try {
-            if (null != encodingType) {
-                return URLEncoder.encode(src, "UTF-8");
-            }
-            return src;
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new S3ServerException(S3Error.INTERNAL_ERROR, "URL encode failed:" + src, e);
-        }
     }
 
     private boolean isEmpty(FileDirInfo d) throws S3ServerException {

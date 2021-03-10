@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.sequoiacm.s3.exception.S3Error;
+import com.sequoiacm.s3.common.S3Codec;
 import com.sequoiacm.s3.exception.S3ServerException;
 
 @JacksonXmlRootElement(localName = "ListVersionsResult")
@@ -61,31 +61,13 @@ public class ListVersionsResult {
     public ListVersionsResult(String bucketName, Integer maxKeys, String encodingType,
             String prefix, String delimiter, String keyMarker, String versionIdMarker)
             throws S3ServerException {
-        try {
-            this.name = bucketName;
-            this.maxKeys = maxKeys;
-            this.encodingType = encodingType;
-            this.versionIdMarker = versionIdMarker;
-            if (null != encodingType) {
-                if (null != prefix) {
-                    this.prefix = URLEncoder.encode(prefix, "UTF-8");
-                }
-                if (null != delimiter) {
-                    this.delimiter = URLEncoder.encode(delimiter, "UTF-8");
-                }
-                if (null != keyMarker) {
-                    this.keyMarker = URLEncoder.encode(keyMarker, "UTF-8");
-                }
-            }
-            else {
-                this.prefix = prefix;
-                this.delimiter = delimiter;
-                this.keyMarker = keyMarker;
-            }
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new S3ServerException(S3Error.INTERNAL_ERROR, "URL encode failed", e);
-        }
+        this.name = bucketName;
+        this.maxKeys = maxKeys;
+        this.encodingType = encodingType;
+        this.versionIdMarker = versionIdMarker;
+        this.prefix = S3Codec.encode(prefix, encodingType);
+        this.delimiter = S3Codec.encode(delimiter, encodingType);
+        this.keyMarker = S3Codec.encode(keyMarker, encodingType);
     }
 
     public void setCommonPrefixList(List<ListObjRecord> commonPrefixList) {

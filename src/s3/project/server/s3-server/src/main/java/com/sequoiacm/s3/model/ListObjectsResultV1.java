@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.sequoiacm.s3.common.S3Codec;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 
@@ -49,32 +50,14 @@ public class ListObjectsResultV1 {
 
     public ListObjectsResultV1(String bucketName, Integer maxKeys, String encodingType,
             String prefix, String startAfter, String delimiter) throws S3ServerException {
-        try {
-            this.name = bucketName;
-            this.maxKeys = maxKeys;
-            this.encodingType = encodingType;
-            this.contentList = new ArrayList<>();
-            this.commonPrefixList = new ArrayList<>();
-            if (null != encodingType) {
-                if (null != prefix) {
-                    this.prefix = URLEncoder.encode(prefix, "UTF-8");
-                }
-                if (null != delimiter) {
-                    this.delimiter = URLEncoder.encode(delimiter, "UTF-8");
-                }
-                if (null != startAfter) {
-                    this.startAfter = URLEncoder.encode(startAfter, "UTF-8");
-                }
-            }
-            else {
-                this.prefix = prefix;
-                this.delimiter = delimiter;
-                this.startAfter = startAfter;
-            }
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new S3ServerException(S3Error.INTERNAL_ERROR, "URL encode failed", e);
-        }
+        this.name = bucketName;
+        this.maxKeys = maxKeys;
+        this.encodingType = encodingType;
+        this.contentList = new ArrayList<>();
+        this.commonPrefixList = new ArrayList<>();
+        this.prefix = S3Codec.encode(prefix, encodingType);
+        this.delimiter = S3Codec.encode(delimiter, encodingType);
+        this.startAfter = S3Codec.encode(startAfter, encodingType);
     }
 
     public void setName(String name) {

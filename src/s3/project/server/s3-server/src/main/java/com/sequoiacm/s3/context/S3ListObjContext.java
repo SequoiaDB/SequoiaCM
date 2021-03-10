@@ -1,8 +1,12 @@
 package com.sequoiacm.s3.context;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.s3.common.S3Codec;
 import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.cursor.S3ObjectCursor;
 import com.sequoiacm.s3.exception.S3Error;
@@ -81,7 +85,7 @@ public class S3ListObjContext {
         if (contentList.size() > 0) {
             b.setContent(contentList);
         }
-        updateLastMarker(last);
+        updateLastMarker(last, encodingType);
         return b;
     }
 
@@ -93,15 +97,15 @@ public class S3ListObjContext {
         return m;
     }
 
-    private void updateLastMarker(ListObjRecord r) {
+    private void updateLastMarker(ListObjRecord r, String encodingType) throws S3ServerException {
         if (r == null) {
             return;
         }
         if (r.isContent()) {
-            meta.updateLastMarker(r.getKey());
+            meta.updateLastMarker(S3Codec.decode(r.getKey(), encodingType));
             return;
         }
-        meta.updateLastMarker(r.getPrefix());
+        meta.updateLastMarker(S3Codec.decode(r.getPrefix(), encodingType));
 
     }
 
