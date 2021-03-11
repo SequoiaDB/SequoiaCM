@@ -175,7 +175,9 @@ public class StandardBucketServiceImpl implements BucketService {
                     "The bucket you tried to delete is not empty. bucket name = " + bucketName);
         }
         // TODO:putObject和删除桶存在并发问题
-        getBucketMap().remove(bucketName);
+        if (getBucketMap().remove(bucketName) == null) {
+            throw new S3ServerException(S3Error.BUCKET_NOT_EXIST, "The bucket you tried to delete is not exist. bucket name = " + bucketName);
+        }
         ScmContentServerClient client = clientFactory.getContentServerClient(session,
                 bucket.getWorkspace());
         try {
