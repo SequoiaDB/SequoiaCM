@@ -167,7 +167,7 @@ public class TestAuditConfigBase extends ScmTestMultiCenterBase {
         ScmFactory.File.deleteInstance(ws, file.getFileId(), true);
         // FILE_DQL 内容服务节点 查询文件操作
         ScmCursor<ScmFileBasicInfo> fileCursor = ScmFactory.File.listInstance(ws,
-                ScopeType.SCOPE_ALL, new BasicBSONObject(ScmAttributeName.File.FILE_NAME, "audit_crete_test_file" + time));
+                ScopeType.SCOPE_ALL, new BasicBSONObject(ScmAttributeName.File.FILE_ID, file.getFileId().get()));
         fileCursor.close();
 
         // DIR_DML 内容服务节点 目录创建、删除、更新操作
