@@ -6,14 +6,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.s3.core.ScmFileInputStream;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -732,16 +728,7 @@ public class ScmContentServerClient {
 
     public InputStream downloadScmFile(String fileId, long off, long len)
             throws ScmFeignException, S3ServerException {
-        Response resp = service.downloadFile(session.getSessionId(), session.getUserDetail(), ws,
-                fileId, off, len);
-        checkResponse("downloadFile", resp);
-        try {
-            return resp.body().asInputStream();
-        }
-        catch (IOException e) {
-            throw new S3ServerException(S3Error.SCM_DOWNLOAD_FILE_FAILED,
-                    "failed to download scm file:ws=" + ws + ",fileId=" + fileId, e);
-        }
+        return new ScmFileInputStream(service, session, ws, fileId, off, len);
     }
 
 }
