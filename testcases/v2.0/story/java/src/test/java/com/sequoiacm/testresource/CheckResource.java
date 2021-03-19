@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sequoiacm.testresource;
 
 import java.util.ArrayList;
@@ -27,6 +24,7 @@ import com.sequoiadb.base.Sequoiadb;
 public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
+    private static final int fileNum = 200;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -87,36 +85,45 @@ public class CheckResource extends TestScmBase {
     }
 
     private List< String > isRemainScmFile() throws Exception {
-        Sequoiadb db = null;
-        DBCursor cursor = null;
         List< String > fileList = new ArrayList<>();
-        try {
-            List< WsWrapper > wss = ScmInfo.getAllWorkspaces();
-            for ( WsWrapper ws : wss ) {
+        List< WsWrapper > wss = ScmInfo.getAllWorkspaces();
+        for ( WsWrapper ws : wss ) {
+            Sequoiadb db = null;
+            DBCursor cursor = null;
+            try {
                 String wsName = ws.getName();
                 db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
                 DBCollection cl = db.getCollectionSpace( wsName + "_META" )
                         .getCollection( "FILE" );
-
                 long cnt = cl.getCount();
                 if ( 0 != cnt ) {
                     cursor = cl.query();
-                    while ( cursor.hasNext() ) {
-                        BSONObject info = cursor.getNext();
-                        String name = ( String ) info.get( "name" );
-                        fileList.add( name );
+                    if ( cnt < fileNum ) {
+                        while ( cursor.hasNext() ) {
+                            BSONObject info = cursor.getNext();
+                            String name = ( String ) info.get( "name" );
+                            fileList.add( name );
+                            logger.error( "remain scmfile \nwsName = " + wsName
+                                    + ",fileInfo = " + info.toString() );
+                        }
+                    } else {
+                        while ( cursor.hasNext() ) {
+                            BSONObject info = cursor.getNext();
+                            String name = ( String ) info.get( "name" );
+                            fileList.add( name );
+                        }
+                        logger.error( "remain scmfile \nwsName = " + wsName
+                                + ", remainNum = " + cnt + ", "
+                                + "scmfile name = " + fileList );
                     }
-                    logger.error( "remain scmfile \nwsName = " + wsName
-                            + ", remainNum = " + cnt + ", " + "scmfile name = "
-                            + fileList );
                 }
-            }
-        } finally {
-            if ( null != cursor ) {
-                cursor.close();
-            }
-            if ( null != db ) {
-                db.close();
+            } finally {
+                if ( cursor != null ) {
+                    cursor.close();
+                }
+                if ( db != null ) {
+                    db.close();
+                }
             }
         }
         return fileList;
