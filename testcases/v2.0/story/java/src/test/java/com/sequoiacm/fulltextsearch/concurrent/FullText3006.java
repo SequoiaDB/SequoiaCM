@@ -25,7 +25,6 @@ import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.MimeType;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -82,15 +81,10 @@ public class FullText3006 extends TestScmBase {
                 fileIdList.subList( 2 * fileNum / 4, 3 * fileNum / 4 ),
                 rootDirId ) );
         threadExec.addWorker( new UpdateFile(
-                fileIdList.subList( 4 * fileNum / 4, 4 * fileNum / 4 ),
+                fileIdList.subList( 3 * fileNum / 4, 4 * fileNum / 4 ),
                 rootDirId ) );
         threadExec.run();
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.NONE );
-        BSONObject condition = ScmQueryBuilder
-                .start( "external_data.fulltext_status" ).is( "NONE" ).get();
-        long actCount = ScmFactory.File.countInstance( ws,
-                ScmType.ScopeType.SCOPE_ALL, condition );
-        Assert.assertEquals( actCount, fileNum );
         try {
             ScmFactory.Fulltext.simpleSeracher( ws )
                     .fileCondition( new BasicBSONObject() ).notMatch( " " )
@@ -100,6 +94,21 @@ public class FullText3006 extends TestScmBase {
             if ( e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
                 throw e;
             }
+        }
+        BSONObject condition = ScmQueryBuilder
+                .start( "external_data.fulltext_status" ).is( "NONE" ).get();
+        long actCount = ScmFactory.File.countInstance( ws,
+                ScmType.ScopeType.SCOPE_ALL, condition );
+        if ( actCount != fileNum ) {
+            System.out.println(
+                    "actCount = " + actCount + ",fileNum = " + fileNum );
+            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                    new BasicBSONObject(), ScmFulltextMode.sync ) );
+            FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                    ScmFulltextStatus.CREATED );
+            FullTextUtils.searchAndCheckResults( ws,
+                    ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject(),
+                    new BasicBSONObject() );
         }
         runSuccess = true;
     }
@@ -112,13 +121,9 @@ public class FullText3006 extends TestScmBase {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
                 ScmFactory.Directory.deleteInstance( ws, dirName );
-                ScmFulltexInfo indexInfo = ScmFactory.Fulltext
-                        .getIndexInfo( ws );
-                if ( !indexInfo.getStatus().equals( ScmFulltextStatus.NONE ) ) {
-                    ScmFactory.Fulltext.dropIndex( ws );
-                    FullTextUtils.waitWorkSpaceIndexStatus( ws,
-                            ScmFulltextStatus.NONE );
-                }
+                ScmFactory.Fulltext.dropIndex( ws );
+                FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                        ScmFulltextStatus.NONE );
             }
         } finally {
             if ( wsName != null ) {
