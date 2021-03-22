@@ -121,9 +121,12 @@ public class FullText3006 extends TestScmBase {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
                 ScmFactory.Directory.deleteInstance( ws, dirName );
-                ScmFactory.Fulltext.dropIndex( ws );
-                FullTextUtils.waitWorkSpaceIndexStatus( ws,
-                        ScmFulltextStatus.NONE );
+                if ( ScmFactory.Fulltext.getIndexInfo( ws ).getStatus()
+                        .equals( ScmFulltextStatus.CREATED ) ) {
+                    ScmFactory.Fulltext.dropIndex( ws );
+                    FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                            ScmFulltextStatus.NONE );
+                }
             }
         } finally {
             if ( wsName != null ) {

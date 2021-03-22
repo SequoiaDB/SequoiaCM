@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 public class FullText3023 extends TestScmBase {
     private SiteWrapper site = null;
     private ScmSession session = null;
-    private String wsName = "ws2023";
+    private String wsName = "ws3023";
     private ScmWorkspace ws = null;
 
     @BeforeClass
@@ -55,7 +55,8 @@ public class FullText3023 extends TestScmBase {
                             .newFileCondition( new BasicBSONObject() ) );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST
+                    && e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 throw e;
             }
         }
@@ -65,7 +66,8 @@ public class FullText3023 extends TestScmBase {
             ScmFactory.Fulltext.dropIndex( ws );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST
+                    && e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 throw e;
             }
         }
@@ -76,7 +78,8 @@ public class FullText3023 extends TestScmBase {
                     new ScmId( "5fabc9e4400001007fe7e8de" ) );
             Assert.fail( "exp fail but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
+            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST
+                    && e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
                 throw e;
             }
         }

@@ -43,9 +43,9 @@ public class FullText3017 extends TestScmBase {
     private ScmSession session = null;
     private String wsName = null;
     private ScmWorkspace ws = null;
-    private List<ScmId> fileIdList = new ArrayList<>(  );
+    private List< ScmId > fileIdList = new ArrayList<>();
     private String fileNameBase = "file3017_";
-    private int fileNum = 200;
+    private int fileNum = 50;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -53,53 +53,61 @@ public class FullText3017 extends TestScmBase {
         session = TestScmTools.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
-        for(int i = 0; i < fileNum; i++){
+        for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = ScmFileUtils.create( ws, fileNameBase + i,
-                    TestTools.LocalFile.getFileByType( TestTools.LocalFile.FileType.DOC ));
+                    TestTools.LocalFile.getFileByType(
+                            TestTools.LocalFile.FileType.DOC ) );
             fileIdList.add( fileId );
         }
     }
 
     @Test
     private void test() throws Exception {
-        //  工作区创建索引
-        ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption( new BasicBSONObject(  ), ScmFulltextMode.async ) );
+        // 工作区创建索引
+        ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                new BasicBSONObject(), ScmFulltextMode.async ) );
 
         // 工作区索引状态为CREATING
         ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
-        while (  indexInfo.getStatus() != ScmFulltextStatus.CREATING ){
+        while ( indexInfo.getStatus() != ScmFulltextStatus.CREATING ) {
             indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
         }
-        try{
-            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption( new BasicBSONObject(  ), ScmFulltextMode.async ) );
+        try {
+            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                    new BasicBSONObject(), ScmFulltextMode.async ) );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( ScmException e ){
-            if(e.getError() != ScmError.FULL_TEXT_INDEX_IS_CREATING){
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_CREATING && e
+                    .getError() != ScmError.FULL_TEXT_INDEX_ALREADY_CREATED ) {
                 throw e;
             }
         }
 
         // 工作区索引状态为CREATED
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
-        try{
-            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption( new BasicBSONObject(  ), ScmFulltextMode.async ) );
+        try {
+            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                    new BasicBSONObject(), ScmFulltextMode.async ) );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( ScmException e ){
-            if(e.getError() != ScmError.FULL_TEXT_INDEX_ALREADY_CREATED){
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_ALREADY_CREATED ) {
                 throw e;
             }
         }
         // 检查结果
-        checkIndexInfo( new BasicBSONObject(  ));
-        FullTextUtils.searchAndCheckResults( ws, ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject(  ), new BasicBSONObject(  ) );
+        checkIndexInfo( new BasicBSONObject() );
+        FullTextUtils.searchAndCheckResults( ws, ScmType.ScopeType.SCOPE_ALL,
+                new BasicBSONObject(), new BasicBSONObject() );
 
         // 工作区索引状态为DELETING
         ScmFactory.Fulltext.dropIndex( ws );
-        try{
-            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption( new BasicBSONObject(  ), ScmFulltextMode.async ) );
+        try {
+            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                    new BasicBSONObject(), ScmFulltextMode.async ) );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( ScmException e ){
-            if(e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING){
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING
+                    && e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
                 throw e;
             }
         }
@@ -125,15 +133,16 @@ public class FullText3017 extends TestScmBase {
         }
     }
 
-    private void checkIndexInfo(BSONObject fileCondition) throws Exception {
+    private void checkIndexInfo( BSONObject fileCondition ) throws Exception {
         ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
         Assert.assertEquals( indexInfo.getFileMatcher(), fileCondition );
         Assert.assertNotNull( indexInfo.getFulltextLocation() );
         Assert.assertEquals( indexInfo.getMode(), ScmFulltextMode.async );
         Assert.assertEquals( indexInfo.getStatus(), ScmFulltextStatus.CREATED );
         ScmFulltextJobInfo jodInfo = indexInfo.getJobInfo();
-        long count =  ScmFactory.File.countInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, fileCondition );
-        while ( jodInfo.getProgress() !=  100){
+        long count = ScmFactory.File.countInstance( ws,
+                ScmType.ScopeType.SCOPE_CURRENT, fileCondition );
+        while ( jodInfo.getSuccessCount() != count ) {
             jodInfo = ScmFactory.Fulltext.getIndexInfo( ws ).getJobInfo();
         }
         try {
@@ -142,7 +151,7 @@ public class FullText3017 extends TestScmBase {
             Assert.assertEquals( jodInfo.getSuccessCount(), count );
             Assert.assertEquals( jodInfo.getProgress(), 100 );
             Assert.assertNotNull( jodInfo.getSpeed() );
-        }catch ( AssertionError e ){
+        } catch ( AssertionError e ) {
             throw new Exception( "jodInfo = " + jodInfo.toString(), e );
         }
     }
