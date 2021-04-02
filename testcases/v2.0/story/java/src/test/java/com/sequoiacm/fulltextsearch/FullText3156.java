@@ -81,7 +81,8 @@ public class FullText3156 extends TestScmBase {
             ScmFactory.Fulltext.rebuildFileIndex( ws, fileIdList.get( 0 ) );
             Assert.fail( "exp failed but act success!!!" );
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING
+                    && e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
                 throw e;
             }
         }
