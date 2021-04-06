@@ -1,16 +1,14 @@
 package com.sequoiacm.s3.service.impl;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -306,15 +304,18 @@ public class ObjServiceImpl implements ObjectService {
             }
         }
 
+        sourceMeta.setBucketName(dest.getBucketName());
+        sourceMeta.setKey(dest.getKey());
+
         if (!directiveCopy) {
+            // merge basic metadata from sourceMeta to dest
+            mergeObjectMeta(sourceMeta, dest);
             if (dest.getMetaListlength() > RestParamDefine.X_AMZ_META_LENGTH) {
                 throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
                         "metadata headers exceed the maximum. xMeta:" + sourceMeta.getMetaList());
             }
         }
         else {
-            sourceMeta.setBucketName(dest.getBucketName());
-            sourceMeta.setKey(dest.getKey());
             dest = sourceMeta;
         }
 
@@ -345,6 +346,29 @@ public class ObjServiceImpl implements ObjectService {
         copyObjectResult.seteTag(sourceMeta.geteTag());
         copyObjectResult.setLastModified(DataFormatUtils.formatDate(scmFile.getUpdateTime()));
         return copyObjectResult;
+    }
+
+    private void mergeObjectMeta(ObjectMeta sourceMeta, ObjectMeta dest) {
+        Class objectMetaClass = sourceMeta.getClass();
+        Field[] fields = objectMetaClass.getDeclaredFields();
+        // 复制sourceMeta所有的基本属性到dest中（不包括metaListlength、metaList）
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if (fieldName.equals("metaListlength") || fieldName.equals("metaList")) {
+                continue;
+            }
+            // 是否可以访问
+            boolean flag = field.isAccessible();
+            try {
+                field.setAccessible(true);
+                field.set(dest, field.get(sourceMeta));
+            }
+            catch (IllegalAccessException e) {
+                logger.info("convert the value fail, cause by:", e);
+            }
+            // 还原访问权限
+            field.setAccessible(flag);
+        }
     }
 
     @Override
