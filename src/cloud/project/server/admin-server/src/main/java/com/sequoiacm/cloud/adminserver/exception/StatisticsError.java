@@ -9,4 +9,5 @@ public final class StatisticsError {
     public static final String INTERNAL_ERROR = "internal_error";
     public static final String BAD_REQUEST = "bad_request";
     public static final String METASOURCE_ERROR = "metasource_error";
+    public static final String LOCK_ERROR = "lock_error";
 }

@@ -35,16 +35,6 @@ public class WebMvcConfig {
     }
 
     @Bean
-    public StatisticReqPreFilter statisticReqPreFilter() {
-        return new StatisticReqPreFilter();
-    }
-
-    @Bean
-    public StatisticReqPostFilter statisticReqPostFilter() {
-        return new StatisticReqPostFilter();
-    }
-
-    @Bean
     public PostAccessFilter postAccessFilter() {
         return new PostAccessFilter();
     }

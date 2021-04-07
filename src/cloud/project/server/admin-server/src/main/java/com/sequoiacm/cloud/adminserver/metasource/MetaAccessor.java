@@ -15,10 +15,14 @@ public interface MetaAccessor {
     public void ensureIndex(String indexName, BSONObject indexDefinition, boolean isUnique)
             throws ScmMetasourceException;
 
-    
+    public BSONObject queryOne(BSONObject matcher) throws ScmMetasourceException;
 
-    //    public void delete(BSONObject deletor) throws ScmInnerException;
-    
-    //    public void update(BSONObject matcher, BSONObject updator) throws ScmInnerException;
-    //    public boolean updateAndCheck(BSONObject matcher, BSONObject updator) throws ScmInnerException;
+    public void ensureTable() throws ScmMetasourceException;
+
+    // public void delete(BSONObject deletor) throws ScmInnerException;
+
+    // public void update(BSONObject matcher, BSONObject updator) throws
+    // ScmInnerException;
+    // public boolean updateAndCheck(BSONObject matcher, BSONObject updator) throws
+    // ScmInnerException;
 }

@@ -32,7 +32,7 @@ public class SequoiadbMetaSource implements MetaSource {
 
         String user = config.getMetaUser();
         AuthInfo auth = ScmFilePasswordParser.parserFile(config.getMetaPassword());
-        
+
         String[] urlArray = config.getMetaUrl().split(",");
         List<String> urlList = new ArrayList<>();
         Collections.addAll(urlList, urlArray);
@@ -108,6 +108,12 @@ public class SequoiadbMetaSource implements MetaSource {
     public MetaAccessor getFileDeltaAccessor() throws ScmMetasourceException {
         return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
                 MetaSourceDefine.SystemClName.CL_FILE_DELTA);
+    }
+
+    @Override
+    public MetaAccessor getFileStatisticsAccessor() throws ScmMetasourceException {
+        return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_STATISTICS_DATA);
     }
 
 }

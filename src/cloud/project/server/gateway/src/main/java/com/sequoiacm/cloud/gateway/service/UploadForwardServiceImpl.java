@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
@@ -19,7 +18,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.ChunkedOutputStream;
+import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
+import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -51,10 +54,17 @@ import com.sequoiacm.infrastructure.security.auth.RestField;
 public class UploadForwardServiceImpl implements UploadForwardService {
     private static final Logger logger = LoggerFactory.getLogger(UploadForwardServiceImpl.class);
 
-    private static final List<String> IGNORE_RESP_HEADERS = Arrays.asList("Transfer-Encoding");
+    private static final List<String> IGNORE_RESP_HEADERS = Arrays.asList("Transfer-Encoding",
+            ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
 
     @Autowired
     private LoadBalancerClient loadBalancerClient;
+
+    @Autowired
+    private ScmStatisticsDeciderGroup statisticsDecider;
+
+    @Autowired
+    private ScmStatisticsRawDataReporter statisticsRawDataReporter;
 
     private PoolingHttpClientConnectionManager connectionManager;
     private ScmTimer connectionManagerTimer;
@@ -107,11 +117,14 @@ public class UploadForwardServiceImpl implements UploadForwardService {
     @Override
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
             HttpServletResponse clientResp, boolean chunked) throws IOException {
+        long requestStartTime = System.currentTimeMillis();
         ServiceInstance instance = loadBalancerClient.choose(targetService);
         if (instance == null) {
             throw new IllegalArgumentException("unknown service:" + targetService);
         }
         HttpHost targetInstance = new HttpHost(instance.getHost(), instance.getPort());
+
+        ScmStatisticsDecisionResult statisticsDecideResult = statisticsDecider.decide(clientReq);
 
         CloseableHttpResponse forwardResp = null;
         ServletInputStream clientInputstream = null;
@@ -121,6 +134,10 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             clientInputstream = clientReq.getInputStream();
             HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream, clientReq,
                     chunked);
+            if (statisticsDecideResult.isNeedStatistics()) {
+                forwardReq.addHeader(ScmStatisticsDefine.STATISTICS_HEADER,
+                        statisticsDecideResult.getStatisticsType());
+            }
             forwardReq.addHeader("x-forwarded-prefix", "/" + targetService);
             logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
 
@@ -130,14 +147,25 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             clientInputstreamWasConsumed = true;
             logger.debug("forward upload response:instance={},resp={}", targetInstance,
                     forwardResp);
-
-            logIfError(targetService, targetInstance, clientReq, forwardReq, forwardResp);
+            boolean isSuccessResponse = isSuccessResponse(forwardResp);
+            if (!isSuccessResponse) {
+                logError(targetService, targetInstance, clientReq, forwardReq, forwardResp);
+            }
 
             // send response to client.
             sendResponseToClient(clientResp, forwardResp);
 
             // consume entity, release connection to pool
             EntityUtils.consume(forwardResp.getEntity());
+
+            long duration = System.currentTimeMillis() - requestStartTime;
+            if (statisticsDecideResult.isNeedStatistics() && isSuccessResponse) {
+                String userName = (String) clientReq.getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
+                Header extraHeader = forwardResp
+                        .getFirstHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
+                statisticsRawDataReporter.report(statisticsDecideResult.getStatisticsType(),
+                        userName, requestStartTime, duration, extraHeader.getValue());
+            }
         }
         catch (Exception e) {
             // if forward occur exception, just close the connection to
@@ -155,12 +183,16 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         }
     }
 
-    private void logIfError(String targetService, HttpHost httpHost, HttpServletRequest clientReq,
-            HttpRequest forwardReq, CloseableHttpResponse forwardResp) {
-        int statusCode = forwardResp.getStatusLine().getStatusCode();
+    private boolean isSuccessResponse(CloseableHttpResponse resp) {
+        int statusCode = resp.getStatusLine().getStatusCode();
         if (statusCode >= 200 && statusCode < 300) {
-            return;
+            return true;
         }
+        return false;
+    }
+
+    private void logError(String targetService, HttpHost httpHost, HttpServletRequest clientReq,
+            HttpRequest forwardReq, CloseableHttpResponse forwardResp) {
         logger.error("proxy={}", targetService);
         String method = forwardReq.getRequestLine().getMethod();
         String uri = "/" + targetService + forwardReq.getRequestLine().getUri();
@@ -168,7 +200,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         String toServiceAddr = httpHost.getHostName() + ":" + httpHost.getPort();
         String session = clientReq.getHeader(RestField.SESSION_ATTRIBUTE);
         logger.error("send {} request {} from {} to {} with session {} failed(status={})", method,
-                uri, clientAddr, toServiceAddr, session, statusCode);
+                uri, clientAddr, toServiceAddr, session,
+                forwardResp.getStatusLine().getStatusCode());
     }
 
     private HttpRequest buildForwardRequest(String targetServiceApi, InputStream clientBody,
@@ -242,7 +275,7 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
         // copy header from forward response.
         copyHeaderFromForwardResp(clientResp, forwardResp);
-        
+
         // do not close clientOuputStream in finally block, if occur exception,
         // spring will take over it.
         ServletOutputStream clientOuputStream = clientResp.getOutputStream();

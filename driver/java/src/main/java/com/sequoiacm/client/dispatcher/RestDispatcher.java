@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -1929,5 +1930,14 @@ public class RestDispatcher implements MessageDispatcher {
         String countStr = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
                 request, X_SCM_COUNT);
         return Long.valueOf(countStr);
+    }
+
+    @Override
+    public BSONObject getStatisticsData(String type, BSONObject condition) throws ScmException {
+        String s = encodeCondition(condition);
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + STATISTICS + "types/"
+                + type + "?" + ScmStatisticsDefine.REST_PARAM_CONDITION + "=" + s;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }
 }

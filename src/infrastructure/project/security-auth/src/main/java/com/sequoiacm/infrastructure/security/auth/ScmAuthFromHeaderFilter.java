@@ -79,6 +79,7 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
                 }
             }
             request.setAttribute(RestField.USER_ATTRIBUTE, userDetails);
+            request.setAttribute(RestField.USER_ATTRIBUTE_USER_NAME, user.getUsername());
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             user, null, user.getAuthorities());

@@ -9,6 +9,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -189,14 +194,16 @@ public class FileController {
         audit.info(ScmAuditType.FILE_DQL, auth, workspace_name, 0, message);
     }
 
+    // 文件上传接口在网关 UploadFileStatisticsDeciderImpl 中对其进行了捕获，修改下载接口需要考虑网关
     @PostMapping("/files")
-    public BSONObject uploadFile(
+    public ResponseEntity<BSONObject> uploadFile(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @RequestHeader(value = CommonDefine.RestArg.FILE_DESCRIPTION) String desc,
             @RequestParam(value = CommonDefine.RestArg.FILE_BREAKPOINT_FILE, required = false) String breakpointFileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_UPLOAD_CONFIG, required = false) BSONObject uploadConfig,
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, Authentication auth)
             throws ScmServerException, IOException {
         // statistical traffic
@@ -210,6 +217,8 @@ public class FileController {
         // it's always return a not null InputStream whether the client set
         // InputStreamEntity or not
         InputStream is = request.getInputStream();
+
+        String username = auth.getName();
         try {
             BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(desc));
             fileInfo.putAll(description);
@@ -220,7 +229,6 @@ public class FileController {
                     (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_CLASS_ID),
                     (BSONObject) fileInfo.get(FieldName.FIELD_CLFILE_PROPERTIES));
 
-            String username = auth.getName();
             ScmFileServicePriv privService = ScmFileServicePriv.getInstance();
 
             // overwrite file priv
@@ -262,7 +270,15 @@ public class FileController {
         }
 
         audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0, message);
-        return new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO, fullFileInfo);
+        BSONObject body = new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO,
+                fullFileInfo);
+        ResponseEntity.BodyBuilder e = ResponseEntity.ok();
+        if (ScmStatisticsType.FILE_UPLOAD.equals(statisticsType)) {
+            ScmStatisticsFileMeta staticsExtra = createStatisticsFileMeta(fullFileInfo,
+                    workspaceName, username, -1);
+            e.header(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, staticsExtra.toJSON());
+        }
+        return e.body(body);
     }
 
     // @PostMapping("/files")
@@ -344,6 +360,24 @@ public class FileController {
     // fullFileInfo);
     // }
 
+    public ScmStatisticsFileMeta createStatisticsFileMeta(BSONObject fileInfo, String workspace,
+            String userName, long trafficSize) {
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        String mySiteName = contentServer.getSiteInfo(contentServer.getLocalSite()).getName();
+        String mimeType = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+        String batchId = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_BATCH_ID);
+        String versionStr = BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MAJOR_VERSION)
+                + "." + BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MINOR_VERSION);
+        long size = BsonUtils.getLongChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_SIZE);
+        if (trafficSize <= -1) {
+            trafficSize = size;
+        }
+        return new ScmStatisticsFileMeta(workspace, mySiteName, userName, mimeType, versionStr,
+                batchId, size, trafficSize);
+
+    }
+
+    // 文件下载接口在网关 DownloadFileStatisticsDeciderImpl 中对其进行了捕获，修改下载接口需要考虑网关
     @GetMapping("/files/{file_id}")
     public void downloadFile(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspace_name,
@@ -356,6 +390,7 @@ public class FileController {
                     + "") int length,
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         // statistical traffic
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_DOWNLOAD + workspace_name);
@@ -392,8 +427,15 @@ public class FileController {
         try {
             dao.seek(offset);
             if (length == CommonDefine.File.UNTIL_END_OF_FILE) {
+                long readLen = dao.getSize() - offset;
+                if (ScmStatisticsType.FILE_DOWNLOAD.equals(statisticsType)) {
+                    response.setHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
+                            createStatisticsFileMeta(fileInfo, workspace_name, auth.getName(),
+                                    readLen).toJSON());
+                }
+
                 // read all file data
-                response.setHeader(CommonDefine.RestArg.DATA_LENGTH, dao.getSize() - offset + "");
+                response.setHeader(CommonDefine.RestArg.DATA_LENGTH, readLen + "");
                 dao.read(os);
             }
             else {
@@ -406,6 +448,13 @@ public class FileController {
                 else {
                     expectedLength = length;
                 }
+
+                if (ScmStatisticsType.FILE_DOWNLOAD.equals(statisticsType)) {
+                    response.setHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
+                            createStatisticsFileMeta(fileInfo, workspace_name, auth.getName(),
+                                    expectedLength).toJSON());
+                }
+
                 byte[] buffer = new byte[expectedLength];
                 int actualReadLength = dao.read(buffer, 0, expectedLength);
                 response.setHeader(CommonDefine.RestArg.DATA_LENGTH, actualReadLength + "");

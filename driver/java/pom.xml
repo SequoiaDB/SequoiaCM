@@ -67,6 +67,11 @@
             <version>6.8.10</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-statistics-common</artifactId>
+        </dependency>
          
     </dependencies>
 
@@ -97,6 +102,7 @@
                                 <include>com.sequoiadb:sequoiacm-infrastructure-common</include>
                                 <include>com.sequoiadb:sequoiacm-infrastructure-fulltext-core</include>
                                 <include>com.sequoiadb:sequoiacm-infrastructure-content-core</include>
+                                <include>com.sequoiadb:sequoiacm-infrastructure-statistics-common</include>
                                 <include>org.apache.httpcomponents:httpmime</include>
                                 <include>org.apache.httpcomponents:httpclient</include>
                                 <include>org.apache.httpcomponents:httpcore</include>

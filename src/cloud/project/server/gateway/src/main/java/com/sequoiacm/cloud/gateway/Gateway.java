@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.gateway;
 
+import com.sequoiacm.infrastructure.statistics.client.EnableScmStatisticsClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -27,6 +28,7 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 @EnableConfClient
 @ComponentScan(excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, value = ApacheHttpClientConfiguration.class))
 @RibbonClients(defaultConfiguration = ApacheHttpClientConfiguration.class)
+@EnableScmStatisticsClient
 public class Gateway implements ApplicationRunner {
     @Autowired
     private ScmConfClient confClient;
@@ -39,6 +41,7 @@ public class Gateway implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
+        confClient.registerConfigPropVerifier(
+                new PreventingModificationVerifier("scm.", "scm.statistics."));
     }
 }

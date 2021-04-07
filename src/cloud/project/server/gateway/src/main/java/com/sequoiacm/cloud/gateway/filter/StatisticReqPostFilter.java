@@ -2,12 +2,33 @@ package com.sequoiacm.cloud.gateway.filter;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.monitor.ReqRecorder;
+import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
+import java.util.List;
+
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+
+@Component
 public class StatisticReqPostFilter extends ZuulFilter {
+
+    private final ScmStatisticsRawDataReporter reporter;
+
+    @Autowired
+    public StatisticReqPostFilter(ScmStatisticsRawDataReporter reporter) {
+        this.reporter = reporter;
+    }
 
     @Override
     public boolean shouldFilter() {
@@ -18,11 +39,24 @@ public class StatisticReqPostFilter extends ZuulFilter {
     public Object run() throws ZuulException {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest req = ctx.getRequest();
-        if (req != null) {
-            Long preTime = (Long) req.getAttribute("preTime");
-            if (preTime != null) {
-                long time = System.currentTimeMillis() - preTime.longValue();
-                ReqRecorder.getInstance().addRecord(time);
+        if (req == null) {
+            return null;
+        }
+        Long preTime = (Long) req.getAttribute("preTime");
+        if (preTime == null) {
+            return null;
+        }
+        long time = System.currentTimeMillis() - preTime;
+        ReqRecorder.getInstance().addRecord(time);
+
+        if (ctx.getResponseStatusCode() >= 200 && ctx.getResponseStatusCode() < 300) {
+            String type = ctx.getZuulRequestHeaders().get(ScmStatisticsDefine.STATISTICS_HEADER);
+            if (type != null) {
+                String userName = (String) ctx.getRequest()
+                        .getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
+                String extraStatistics = (String) ctx.getRequest()
+                        .getAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
+                reporter.report(type, userName, preTime, time, extraStatistics);
             }
         }
         return null;
@@ -35,8 +69,49 @@ public class StatisticReqPostFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        // TODO Auto-generated method stub
         return Integer.MAX_VALUE;
     }
 
+}
+
+// 阻止下游服务的响应头 X-STATISTICS-EXTRA 传递到客户端
+// 将响应头 X-STATISTICS-EXTRA 存放至 Request Attribute 中，以便后续过滤器获取
+@Component
+class ExtraStatisticHeaderHandleFilter extends ZuulFilter {
+
+    @Override
+    public String filterType() {
+        return POST_TYPE;
+    }
+
+    @Override
+    public int filterOrder() {
+        return SEND_RESPONSE_FILTER_ORDER - 1;
+    }
+
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
+
+    @Override
+    public Object run() throws ZuulException {
+        if (RequestContext.getCurrentContext().getRequest()
+                .getAttribute(StatisticReqPreFilter.STATISTICS_FLAG) == null) {
+            return null;
+        }
+        List<Pair<String, String>> headers = RequestContext.getCurrentContext()
+                .getZuulResponseHeaders();
+        Iterator<Pair<String, String>> it = headers.iterator();
+        while (it.hasNext()) {
+            Pair<String, String> header = it.next();
+            if (header.first().equalsIgnoreCase(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER)) {
+                it.remove();
+                RequestContext.getCurrentContext().getRequest()
+                        .setAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, header.second());
+                break;
+            }
+        }
+        return null;
+    }
 }

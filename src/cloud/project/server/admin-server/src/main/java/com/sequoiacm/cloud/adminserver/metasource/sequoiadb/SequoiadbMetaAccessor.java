@@ -1,5 +1,7 @@
 package com.sequoiacm.cloud.adminserver.metasource.sequoiadb;
 
+import com.sequoiacm.cloud.adminserver.dao.FileStatisticsDao;
+import com.sequoiadb.base.CollectionSpace;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cloud.adminserver.common.SequoiadbHelper;
@@ -140,6 +142,43 @@ public class SequoiadbMetaAccessor implements MetaAccessor {
             throw new ScmMetasourceException("ensure index failed:csName=" + csName + ",clName="
                     + clName + ",indexName=" + indexName + ",indexDefinition=" + indexDefinition,
                     e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public BSONObject queryOne(BSONObject matcher) throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBCollection cl = SequoiadbHelper.getCL(db, csName, clName);
+            return cl.queryOne(matcher, null, null, null, 0);
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException(
+                    "query failed:csName=" + csName + ",clName=" + clName + ",matcher=" + matcher,
+                    e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public void ensureTable() throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            if (!cs.isCollectionExist(clName)) {
+                cs.createCollection(clName);
+            }
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() != SDBError.SDB_DMS_EXIST.getErrorCode()) {
+                throw new ScmMetasourceException(StatisticsError.METASOURCE_ERROR,
+                        "failed to collection:" + csName + "." + clName, e);
+            }
         }
         finally {
             releaseConnection(db);

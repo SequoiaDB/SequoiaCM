@@ -1,5 +1,11 @@
 package com.sequoiacm.cloud.adminserver.service.impl;
 
+import com.sequoiacm.cloud.adminserver.AdminServerConfig;
+import com.sequoiacm.cloud.adminserver.StatisticsConfig;
+import com.sequoiacm.cloud.adminserver.dao.FileStatisticsDao;
+import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsData;
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataQueryCondition;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +22,22 @@ import com.sequoiacm.cloud.adminserver.metasource.MetaCursor;
 import com.sequoiacm.cloud.adminserver.model.WorkspaceInfo;
 import com.sequoiacm.cloud.adminserver.service.StatisticsService;
 
+import java.util.regex.Pattern;
+
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     private StatisticsDao statisticsDao;
-    
+
+    @Autowired
+    private FileStatisticsDao fileStatisticsDao;
+
+    @Autowired
+    private StatisticsConfig config;
+
+    private final String datePattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
+
     @Override
     public void refresh(int type, String wsName) throws StatisticsException {
         WorkspaceInfo workspaceInfo = StatisticsServer.getInstance().getWorkspaceChecked(wsName);
@@ -36,7 +52,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             throw new StatisticsException(StatisticsError.INVALID_ARGUMENT,
                     "unknown statistics type: type=" + type);
         }
-        
+
         statis.refresh(workspaceInfo);
     }
 
@@ -49,4 +65,48 @@ public class StatisticsServiceImpl implements StatisticsService {
     public MetaCursor getFileDeltaList(BSONObject filter) throws StatisticsException {
         return statisticsDao.getFileDeltaList(filter);
     }
+
+    @Override
+    public FileStatisticsData getFileStatistics(String fileStatisticsType,
+            FileStatisticsDataQueryCondition condition) throws StatisticsException {
+        if (condition.getBegin() == null) {
+            throw new StatisticsException(StatisticsError.BAD_REQUEST,
+                    "missing required field in condition: begin");
+        }
+        if (condition.getEnd() == null) {
+            throw new StatisticsException(StatisticsError.BAD_REQUEST,
+                    "missing required field in condition: end");
+        }
+        if (!Pattern.matches(datePattern, condition.getBegin())) {
+            throw new StatisticsException(StatisticsError.BAD_REQUEST, "invalid date format:begin="
+                    + condition.getBegin() + ", expected format is 'yyyy-MM-dd HH-mm-ss'");
+        }
+        if (!Pattern.matches(datePattern, condition.getEnd())) {
+            throw new StatisticsException(StatisticsError.BAD_REQUEST, "invalid date format:end="
+                    + condition.getEnd() + ", expected format is 'yyyy-MM-dd HH-mm-ss'");
+        }
+        if (condition.getEnd().compareTo(condition.getBegin()) <= 0) {
+            throw new StatisticsException(StatisticsError.BAD_REQUEST,
+                    "invalid condition, end must great than begin:end=" + condition.getEnd()
+                            + ", begin=" + condition.getBegin());
+        }
+        String newBegin;
+        String newEnd;
+        if (condition.getTimeAccuracy() != null) {
+            newBegin = ScmTimeAccuracy.truncateTime(condition.getBegin(),
+                    condition.getTimeAccuracy());
+            newEnd = ScmTimeAccuracy.truncateTime(condition.getEnd(),
+                    condition.getTimeAccuracy());
+        }
+        else {
+            newBegin = ScmTimeAccuracy.truncateTime(condition.getBegin(),
+                    config.getTimeGranularity());
+            newEnd = ScmTimeAccuracy.truncateTime(condition.getEnd(),
+                    config.getTimeGranularity());
+        }
+        FileStatisticsDataQueryCondition newCondition = new FileStatisticsDataQueryCondition(condition.getUser(),
+                condition.getWorkspace(), newBegin, newEnd, condition.getTimeAccuracy());
+        return fileStatisticsDao.getFileStatisticData(fileStatisticsType, newCondition);
+    }
+
 }

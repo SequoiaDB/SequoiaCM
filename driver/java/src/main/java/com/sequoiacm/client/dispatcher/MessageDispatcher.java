@@ -86,8 +86,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject uploadFile(String workspaceName, String breakpointFileName, BSONObject fileInfo,
             BSONObject uploadConfig) throws ScmException;
 
-    HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo, BSONObject uploadConf)
-            throws ScmException;
+    HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException;
 
     CloseableFileDataEntity downloadFile(String workspace_name, String fileId, int majorVersion,
             int minorVersion, int readFlag) throws ScmException;
@@ -269,7 +269,6 @@ public interface MessageDispatcher extends Closeable {
     String calcScmFileMd5(String wsName, String fileId, int majorVersion, int minorVersion)
             throws ScmException;
 
-
     void createFulltextIndex(String wsName, BSONObject fileCondition, ScmFulltextMode mode)
             throws ScmException;
 
@@ -290,4 +289,6 @@ public interface MessageDispatcher extends Closeable {
     BsonReader listFileWithFileIdxStatus(String ws, String status) throws ScmException;
 
     long countFileWithFileIdxStatus(String ws, String status) throws ScmException;
+
+    BSONObject getStatisticsData(String type, BSONObject condition) throws ScmException;
 }

@@ -863,6 +863,20 @@ public class ScmSystem {
                     });
             return cursor;
         }
+
+        /**
+         * Returns an file statistician for query statistics data.
+         * 
+         * @param session
+         *            session.
+         * @return statistician.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmFileStatistician fileStatistician(ScmSession session) throws ScmException {
+            checkArgNotNull("session", session);
+            return new ScmFileStatistician(session);
+        }
     }
 
     /**

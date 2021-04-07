@@ -186,6 +186,20 @@
         {
             "csName": "SCMSYSTEM",
             "clName": "SCHEDULE_STATUS"
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "STATISTICS_DATA",
+            "indexes": [
+                {
+                    "name": "idx_time",
+                    "indexDef": {
+                        "time": 1
+                    },
+                    "isUnique": "false",
+                    "enforced": "false"
+                }
+            ]
         }
     ]
 }

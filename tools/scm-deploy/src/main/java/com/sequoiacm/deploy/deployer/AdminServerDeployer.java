@@ -46,6 +46,7 @@ public class AdminServerDeployer extends ServiceDeployerBase {
                 getDeployInfoMgr().getMetasourceInfo().getUser());
         decoratedAdminBSON.put(DeployJsonDefine.STORE_SDB_PASSWORD,
                 pwdFileSender.getMetasourcePasswdFilePath());
+        decoratedAdminBSON.put(DeployJsonDefine.ZOOKEEPER_URL, getDeployInfoMgr().getZkUrls());
         decoratedAdminArray.add(decoratedAdminBSON);
 
         BSONObject auditBSON = BsonUtils.getBSONObject(templateBson, DeployJsonDefine.AUDIT);

@@ -51,7 +51,7 @@
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
             "scm.jvm.options":"''",
-            "spring.zipkin.enabled": "true",
+            "spring.zipkin.enabled": "false",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",

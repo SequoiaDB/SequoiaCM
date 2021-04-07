@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.adminserver;
 
+import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import de.codecentric.boot.admin.config.EnableAdminServer;
 @SpringBootApplication
 @EnableScmMonitorServer
 @EnableConfClient
+@EnableScmLock
 @ComponentScan(basePackages = { "com.sequoiacm.cloud.adminserver" })
 public class AdminServer implements ApplicationRunner {
 
@@ -70,7 +72,7 @@ public class AdminServer implements ApplicationRunner {
                     + StatisticsDefine.LOGGING_CONFIG + " must be specified");
         }
 
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
+        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm.", "scm.statistics"));
         
         initSystem(config);
     }

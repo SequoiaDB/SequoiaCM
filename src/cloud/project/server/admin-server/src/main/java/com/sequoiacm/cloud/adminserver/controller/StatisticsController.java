@@ -2,6 +2,11 @@ package com.sequoiacm.cloud.adminserver.controller;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsData;
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataForClient;
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataQueryCondition;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,5 +61,23 @@ public class StatisticsController {
         response.setHeader(RestCommonDefine.CONTENT_TYPE, RestCommonDefine.APPLICATION_JSON_UTF8);
         MetaCursor cursor = statisticsService.getFileDeltaList(filter);
         RestUtils.putCursorToWriter(cursor, RestUtils.getWriter(response));
+    }
+
+    @GetMapping("/statistics/types/" + ScmStatisticsType.FILE_UPLOAD)
+    public FileStatisticsDataForClient getFileUploadStatisticsData(
+            @RequestParam(ScmStatisticsDefine.REST_PARAM_CONDITION) FileStatisticsDataQueryCondition condition)
+            throws StatisticsException {
+        FileStatisticsData statisticsData = statisticsService
+                .getFileStatistics(ScmStatisticsType.FILE_UPLOAD, condition);
+        return new FileStatisticsDataForClient(statisticsData, condition);
+    }
+
+    @GetMapping("/statistics/types/" + ScmStatisticsType.FILE_DOWNLOAD)
+    public FileStatisticsDataForClient getFileDownloadStatisticsData(
+            @RequestParam(ScmStatisticsDefine.REST_PARAM_CONDITION) FileStatisticsDataQueryCondition condition)
+            throws StatisticsException {
+        FileStatisticsData statisticsData = statisticsService
+                .getFileStatistics(ScmStatisticsType.FILE_DOWNLOAD, condition);
+        return new FileStatisticsDataForClient(statisticsData, condition);
     }
 }

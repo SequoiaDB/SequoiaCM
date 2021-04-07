@@ -54,6 +54,8 @@
         <module>./content-client</module>
         <module>./fulltext-core</module>
         <module>./tool</module>
+        <module>./statistics-common</module>
+        <module>./statistics-client</module>
     </modules>
 
     <dependencyManagement>
@@ -201,6 +203,12 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-statistics-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

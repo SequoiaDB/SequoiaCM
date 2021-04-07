@@ -1,5 +1,7 @@
 package com.sequoiacm.cloud.adminserver.service;
 
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsData;
+import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataQueryCondition;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
@@ -12,4 +14,6 @@ public interface StatisticsService {
     MetaCursor getTrafficList(BSONObject filter) throws StatisticsException;
     
     MetaCursor getFileDeltaList(BSONObject filter) throws StatisticsException;
+
+    FileStatisticsData getFileStatistics(String fileStatisticsType, FileStatisticsDataQueryCondition condition)throws StatisticsException;
 }
