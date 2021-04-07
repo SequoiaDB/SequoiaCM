@@ -16,6 +16,7 @@ import com.sequoiacm.exception.ScmError;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
+    protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
 
     protected static boolean forceClear;
     protected static String dataDirectory;

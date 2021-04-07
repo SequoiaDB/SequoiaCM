@@ -101,13 +101,14 @@ public class FullText3017 extends TestScmBase {
 
         // 工作区索引状态为DELETING
         ScmFactory.Fulltext.dropIndex( ws );
+        ScmFulltexInfo indexInfo1 = ScmFactory.Fulltext.getIndexInfo( ws );
         try {
-            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
-                    new BasicBSONObject(), ScmFulltextMode.async ) );
-            Assert.fail( "exp failed but act success!!!" );
+            if ( indexInfo1.getStatus().equals( ScmFulltextStatus.DELETING ) ) {
+                ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                        new BasicBSONObject(), ScmFulltextMode.async ) );
+            }
         } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING
-                    && e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING ) {
                 throw e;
             }
         }
