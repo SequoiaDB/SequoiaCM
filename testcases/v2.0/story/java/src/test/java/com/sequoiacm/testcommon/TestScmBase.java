@@ -45,7 +45,6 @@ public class TestScmBase {
     protected static String scmUserName;
     protected static String scmPassword;
     protected static String scmPasswordPath;
-    protected static String cloudDiskUserName;
 
     protected static String ldapUserName;
     protected static String ldapPassword;
@@ -53,15 +52,15 @@ public class TestScmBase {
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
             "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-            "CLOUDDISKUSERNAME", "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
+            "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String CLOUDDISKUSERNAME,
-            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH )
+            String SCMUSER, String SCMPASSWD, String LDAPUSER,
+            String LDAPPASSWD, String SCMPASSWDPATH )
             throws Exception {
 
         forceClear = FORCECLEAR;
@@ -82,7 +81,6 @@ public class TestScmBase {
         scmUserName = SCMUSER;
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
-        cloudDiskUserName = CLOUDDISKUSERNAME;
 
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
