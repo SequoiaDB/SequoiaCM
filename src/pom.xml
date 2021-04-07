@@ -6,7 +6,7 @@
 
     <groupId>com.sequoiadb</groupId>
     <artifactId>sequoiacm-parent</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <packaging>pom</packaging>
     <name>SequoiaCM Parent</name>
     <description>SequoiaCM Parent</description>
