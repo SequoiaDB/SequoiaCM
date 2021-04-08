@@ -101,18 +101,14 @@ public class FullText3017 extends TestScmBase {
 
         // 工作区索引状态为DELETING
         ScmFactory.Fulltext.dropIndex( ws );
-        ScmFulltexInfo indexInfo1 = ScmFactory.Fulltext.getIndexInfo( ws );
         try {
-            if ( indexInfo1.getStatus().equals( ScmFulltextStatus.DELETING ) ) {
-                ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
-                        new BasicBSONObject(), ScmFulltextMode.async ) );
-            }
+            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
+                    new BasicBSONObject(), ScmFulltextMode.async ) );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.FULL_TEXT_INDEX_IS_DELETING ) {
                 throw e;
             }
         }
-        FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.NONE );
         runSuccess = true;
     }
 
@@ -120,6 +116,19 @@ public class FullText3017 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFulltexInfo indexInfo1 = ScmFactory.Fulltext
+                        .getIndexInfo( ws );
+                if ( indexInfo1.getStatus()
+                        .equals( ScmFulltextStatus.CREATING ) ) {
+                    FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                            ScmFulltextStatus.CREATED );
+                    ScmFactory.Fulltext.dropIndex( ws );
+                } else if ( indexInfo1.getStatus()
+                        .equals( ScmFulltextStatus.CREATED ) ) {
+                    ScmFactory.Fulltext.dropIndex( ws );
+                }
+                FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                        ScmFulltextStatus.NONE );
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
