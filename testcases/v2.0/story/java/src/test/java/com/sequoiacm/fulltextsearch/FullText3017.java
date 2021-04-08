@@ -68,10 +68,6 @@ public class FullText3017 extends TestScmBase {
                 new BasicBSONObject(), ScmFulltextMode.async ) );
 
         // 工作区索引状态为CREATING
-        ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
-        while ( indexInfo.getStatus() != ScmFulltextStatus.CREATING ) {
-            indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
-        }
         try {
             ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
                     new BasicBSONObject(), ScmFulltextMode.async ) );
