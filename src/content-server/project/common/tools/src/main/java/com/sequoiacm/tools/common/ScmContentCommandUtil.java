@@ -3,6 +3,7 @@ package com.sequoiacm.tools.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -34,6 +35,8 @@ public class ScmContentCommandUtil {
     public static final String OPT_LONG_MDSURL = "mdsurl";
     public static final String OPT_LONG_MDSUSER = "mdsuser";
     public static final String OPT_LONG_MDSPASSWD = "mdspasswd";
+
+    public static final String OPT_SHORT_CUSTOM_PROP = "D";
 
     public static final String OPT_SHORT_HELP = "h";
     public static final String OPT_LONG_HELP = "help";
@@ -68,6 +71,20 @@ public class ScmContentCommandUtil {
                         + "\nis specified, the default passwd is empty,\nelse system will search sysconf.properties for\nrootsite.passwd.",
                 false, true, true));
 
+        return;
+    }
+
+    public static void addDOption(ScmNodeRequiredParamGroup scmNodeRequiredParamGroup,
+            Options ops, ScmHelpGenerator hp) throws ScmToolsException {
+        StringBuilder second = new StringBuilder();
+        second.append("specify properties, required properties: \r\n");
+        for (String str : scmNodeRequiredParamGroup.getExample()) {
+            second.append("\t");
+            second.append(str);
+            second.append(" \r\n");
+        }
+        ops.addOption(
+                hp.createDOption(OPT_SHORT_CUSTOM_PROP, second.toString()));
         return;
     }
 

@@ -45,7 +45,7 @@ public class ScmStartToolImpl extends ScmTool {
         options.addOption(
                 hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
 
-        ScmCommandUtil.addTypeOption(nodeTypes, options, hp, false, true);
+        ScmCommandUtil.addTypeOptionForStartOrStop(nodeTypes, options, hp, false, true);
 
         options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
         options.addOption(hp.createOpt(null, OPT_LONG_TIMEOUT,
@@ -152,14 +152,13 @@ public class ScmStartToolImpl extends ScmTool {
                 else {
                     String status = getNodeRunningStatus(key, restTemplate);
                     if (status.equals("UP")) {
-                        System.out.println("Success:"
-                                + needStartMap.get(key).getNodeType().getUpperName() + "("
-                                + needStartMap.get(key).getPort() + ")" + " is already started ("
-                                + pid + ")");
-                        logger.info("Success:"
-                                + needStartMap.get(key).getNodeType().getUpperName() + "("
-                                + needStartMap.get(key).getPort() + ")" + " is already started ("
-                                + pid + ")");
+                        System.out.println(
+                                "Success:" + needStartMap.get(key).getNodeType().getUpperName()
+                                        + "(" + needStartMap.get(key).getPort() + ")"
+                                        + " is already started (" + pid + ")");
+                        logger.info("Success:" + needStartMap.get(key).getNodeType().getUpperName()
+                                + "(" + needStartMap.get(key).getPort() + ")"
+                                + " is already started (" + pid + ")");
                         success++;
                     }
                     else {
@@ -167,10 +166,10 @@ public class ScmStartToolImpl extends ScmTool {
                                 + needStartMap.get(key).getNodeType().getUpperName() + "("
                                 + needStartMap.get(key).getPort() + ")" + " is already started ("
                                 + pid + "),but node status is not normal");
-                        logger.info("Failed:"
-                                + needStartMap.get(key).getNodeType().getUpperName() + "("
-                                + needStartMap.get(key).getPort() + ")" + " is already started ("
-                                + pid + "),but node status is not normal:" + status);
+                        logger.info("Failed:" + needStartMap.get(key).getNodeType().getUpperName()
+                                + "(" + needStartMap.get(key).getPort() + ")"
+                                + " is already started (" + pid + "),but node status is not normal:"
+                                + status);
                     }
                 }
             }
@@ -197,13 +196,12 @@ public class ScmStartToolImpl extends ScmTool {
                         isPidExist = true;
                         String runningStatus = getNodeRunningStatus(node.getPort(), restTemplate);
                         if (runningStatus.equals("UP")) {
-                            System.out
-                                    .println("Success:" + node.getNodeType().getUpperName()
-                                            + "(" + node.getPort() + ")"
-                                            + " is successfully started (" + pid + ")");
-                            logger.info("Success:" + node.getNodeType().getUpperName()
-                                    + "(" + node.getPort() + ")" + " is successfully started ("
-                                    + pid + ")");
+                            System.out.println("Success:" + node.getNodeType().getUpperName() + "("
+                                    + node.getPort() + ")" + " is successfully started (" + pid
+                                    + ")");
+                            logger.info("Success:" + node.getNodeType().getUpperName() + "("
+                                    + node.getPort() + ")" + " is successfully started (" + pid
+                                    + ")");
                             success++;
                             it.remove();
                             port2Status.remove(node);
@@ -239,11 +237,10 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         for (Entry<ScmNodeInfo, String> entry : port2Status.entrySet()) {
-            logger.error("failed to start node"
-                    + entry.getKey().getNodeType().getUpperName() + "("
+            logger.error("failed to start node" + entry.getKey().getNodeType().getUpperName() + "("
                     + entry.getKey().getPort() + ")" + ",timeout,node status:" + entry.getValue());
-            System.out.println("Failed:" + entry.getKey().getNodeType().getUpperName()
-                    + "(" + entry.getKey().getPort() + ")" + " failed to start");
+            System.out.println("Failed:" + entry.getKey().getNodeType().getUpperName() + "("
+                    + entry.getKey().getPort() + ")" + " failed to start");
         }
 
         return false;

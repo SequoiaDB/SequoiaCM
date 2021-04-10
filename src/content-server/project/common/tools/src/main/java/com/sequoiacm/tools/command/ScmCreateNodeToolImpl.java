@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -79,9 +80,11 @@ public class ScmCreateNodeToolImpl extends ScmTool {
     private String auditUrl;
     private String auditUser = "sdbadmin";
     private String auditPassword = "sdbadmin";
+    private ScmNodeRequiredParamGroup scmNodeRequiredParamGroup;
 
-    public ScmCreateNodeToolImpl() throws ScmToolsException {
+    public ScmCreateNodeToolImpl(ScmNodeRequiredParamGroup scmNodeRequiredParamGroup) throws ScmToolsException {
         super("createnode");
+        this.scmNodeRequiredParamGroup = scmNodeRequiredParamGroup;
         ops = new Options();
         hp = new ScmHelpGenerator();
         ops.addOption(
@@ -90,9 +93,8 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                 "new node url(hostName:port).", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_SITENAME,
                 "site name, new node belongs to this site.", true, true, false));
-        ops.addOption(hp.createOpt(OPT_SHORT_CUSTOM_PROP, null,
-                "custom node properties, eg:'-Dkey1=value1,-Dkey2=value2'.", false, true, false,
-                true));
+
+        ScmContentCommandUtil.addDOption(scmNodeRequiredParamGroup, ops, hp);
         ops.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_AUDIT_URL, "audit to sdb url.", false, true, false));
@@ -129,6 +131,10 @@ public class ScmCreateNodeToolImpl extends ScmTool {
 
         if (cl.hasOption(OPT_SHORT_CUSTOM_PROP)) {
             parseCustomProp(cl);
+        }
+
+        if(customProp != null) {
+            scmNodeRequiredParamGroup.check(customProp);
         }
 
         // int type = ScmCommon.convertStrToInt(cl.getOptionValue("type"));

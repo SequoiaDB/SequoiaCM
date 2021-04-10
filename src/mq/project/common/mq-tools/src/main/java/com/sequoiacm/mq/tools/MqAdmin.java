@@ -1,27 +1,16 @@
 package com.sequoiacm.mq.tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.mq.tools.command.ScmCreateGroupToolImpl;
-import com.sequoiacm.mq.tools.command.ScmCreateTopicToolImpl;
-import com.sequoiacm.mq.tools.command.ScmDeleteGroupToolImpl;
-import com.sequoiacm.mq.tools.command.ScmDeleteTopicToolImpl;
-import com.sequoiacm.mq.tools.command.ScmListGroupToolImpl;
-import com.sequoiacm.mq.tools.command.ScmListTopicToolImpl;
-import com.sequoiacm.mq.tools.command.ScmUpdateTopicToolImpl;
-import com.sequoiacm.mq.tools.exception.ScmExitCode;
+import com.sequoiacm.mq.tools.command.*;
 
 public class MqAdmin {
     public static void main(String[] args) throws ScmToolsException {
@@ -29,8 +18,13 @@ public class MqAdmin {
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
         nodeTypes.add(new ScmNodeType("1", "mq-server", "sequoiacm-mq-server-"));
+        HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
+        ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
+                .addCloudParam().addSdbParam().addServerPortParam(8610).get();
+
+        nodeProperties.put("1", scmNodeRequiredParamGroup);
         try {
-            cmd.addTool(new ScmCreateNodeToolImpl(nodeTypes));
+            cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
             cmd.addTool(new ScmCreateTopicToolImpl());
             cmd.addTool(new ScmCreateGroupToolImpl());
             cmd.addTool(new ScmDeleteTopicToolImpl());
@@ -38,7 +32,8 @@ public class MqAdmin {
             cmd.addTool(new ScmListTopicToolImpl());
             cmd.addTool(new ScmListGroupToolImpl());
             cmd.addTool(new ScmUpdateTopicToolImpl());
-        } catch (ScmToolsException e) {
+        }
+        catch (ScmToolsException e) {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }

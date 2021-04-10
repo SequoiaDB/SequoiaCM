@@ -16,7 +16,7 @@ createnode 子命令提供创建配置服务节点的功能。
 创建配置服务节点
 
    ```lang-javascript
-   $  confadmin.sh createnode --type config-server -Dserver.port=8190 
+   $  confadmin.sh createnode --type config-server -Dserver.port=8190 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=sdbadmin -Dscm.store.sequoiadb.password=/home/scm/sdb.passwd
    ```
 
 [config]:Maintainance/Node_Config/config.md

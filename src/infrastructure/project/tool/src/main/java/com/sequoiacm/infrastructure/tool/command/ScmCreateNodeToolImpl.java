@@ -1,20 +1,21 @@
 package com.sequoiacm.infrastructure.tool.command;
 
-import com.sequoiacm.infrastructure.tool.common.ScmNodeCreator;
-import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
-import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Properties;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.common.ScmNodeCreator;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmCreateNodeToolImpl extends ScmTool {
     protected final String OPT_SHORT_CUSTOM_PROP = "D";
@@ -22,16 +23,19 @@ public class ScmCreateNodeToolImpl extends ScmTool {
     protected ScmHelpGenerator hp;
     protected final Logger logger = LoggerFactory.getLogger(ScmCreateNodeToolImpl.class.getName());
     protected ScmNodeTypeList nodeTypes;
+    protected Map<String, ScmNodeRequiredParamGroup> nodeType2RequireParams;
 
-    public ScmCreateNodeToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
+    public ScmCreateNodeToolImpl(Map<String, ScmNodeRequiredParamGroup> nodeType2RequireParams,
+            ScmNodeTypeList nodeTypes) throws ScmToolsException {
         super("createnode");
         this.nodeTypes = nodeTypes;
+        this.nodeType2RequireParams = nodeType2RequireParams;
         ops = new Options();
         hp = new ScmHelpGenerator();
         String dOptDesc = "specify properties";
         Option op = hp.createDOption(OPT_SHORT_CUSTOM_PROP, dOptDesc);
         ops.addOption(op);
-        ScmCommandUtil.addTypeOption(nodeTypes, ops, hp, true, false);
+        ScmCommandUtil.addTypeOptionForCreate(nodeType2RequireParams, nodeTypes, ops, hp, true, false);
     }
 
     @Override
@@ -54,10 +58,14 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             nodeConf = new Properties();
         }
 
+        if (nodeConf != null) {
+            ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = nodeType2RequireParams.get(typEnum.getType());
+            if (scmNodeRequiredParamGroup != null) {
+                scmNodeRequiredParamGroup.check(nodeConf);
+            }
+        }
         ScmNodeCreator creator = new ScmNodeCreator(typEnum, nodeConf, this.nodeTypes);
         creator.create();
     }
-
-
 
 }

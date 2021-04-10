@@ -2,18 +2,15 @@ package com.sequoiacm.infrastructure.tool.common;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
@@ -32,8 +29,15 @@ public class ScmCommandUtil {
 
     public static final String LOCALTION_SITE_NAME = "site";
 
-    public static void addTypeOption(List<ScmNodeType> nodeTyps, Options ops, ScmHelpGenerator hp,
-            boolean isRequire, boolean haveAllOpDesc) throws ScmToolsException {
+    public static void addTypeOptionForStartOrStop(List<ScmNodeType> nodeTyps, Options ops,
+            ScmHelpGenerator hp, boolean isRequire, boolean haveAllOpDesc)
+            throws ScmToolsException {
+        addTypeOptionForCreate(null, nodeTyps, ops, hp, isRequire, haveAllOpDesc);
+    }
+
+    public static void addTypeOptionForCreate(Map<String, ScmNodeRequiredParamGroup> nodeProperties,
+            List<ScmNodeType> nodeTyps, Options ops, ScmHelpGenerator hp, boolean isRequire,
+            boolean haveAllOpDesc) throws ScmToolsException {
         StringBuilder typeOptDesc = new StringBuilder();
         StringBuilder second = new StringBuilder();
         typeOptDesc.append("specify node type, arg:[");
@@ -46,19 +50,29 @@ public class ScmCommandUtil {
         for (ScmNodeType nodeType : nodeTyps) {
             typeOptDesc.append(String.format(" %s |", nodeType.getType()));
             second.append(String.format("%s:%s, ", nodeType.getType(), nodeType.getName()));
+            second.append("required properties: \r\n");
+            if (nodeProperties != null && nodeProperties.size() > 0) {
+                ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = nodeProperties.get(nodeType.getType());
+                if (scmNodeRequiredParamGroup != null) {
+                    for (String str : scmNodeRequiredParamGroup.getExample()) {
+                        second.append("\t");
+                        second.append(str);
+                        second.append(" \r\n");
+                    }
+                }
+            }
         }
         // 去掉末尾的 "|"
         typeOptDesc.deleteCharAt(typeOptDesc.length() - 1);
         typeOptDesc.append("],").append(System.lineSeparator());
         // 去掉末尾的 " ,"
-        second.delete(second.length() - 2, second.length());
+        // second.delete(second.length() - 2, second.length());
 
         // 合并
         typeOptDesc.append(second);
         Option op = hp.createOpt(OPT_SHORT_NODE_TYPE, OPT_LONG_NODE_TYPE, typeOptDesc.toString(),
                 isRequire, true, false);
         ops.addOption(op);
-        return;
     }
 
     public static CommandLine parseArgs(String[] args, Options options, boolean stopAtNonOption)

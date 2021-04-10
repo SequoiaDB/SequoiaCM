@@ -44,7 +44,7 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 在本机，创建主站点的一个服务节点
 
 ```lang-javascript
-   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl server2:15000 --mdsurl metaServer1:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
+   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl 192.168.31.14:15100 --mdsurl 192.168.20.74:11810 --mdsuser sdbadmin --mdspasswd /opt/sequoiacm/pw.txt --gateway 192.168.31.14:8080 --user admin --passwd admin -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 
 ```
 >  **Note:**
 >

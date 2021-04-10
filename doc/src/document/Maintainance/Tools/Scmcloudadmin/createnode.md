@@ -23,7 +23,7 @@ createnode 子命令提供创建 Cloud 服务节点的功能。
 创建 service-center 类型的 Cloud 服务节点
 
 ```lang-javascript
-   $ scmcloudadmin.sh  createnode --type service-center --adurl localhost:11800 --aduser sdbadmin --adpasswd /home/mount/scm/contentserver/sdb.passwd -Dserver.port=8800
+   $ scmcloudadmin.sh  createnode --type service-center --adurl localhost:11800 --aduser sdbadmin --adpasswd /home/mount/scm/contentserver/sdb.passwd -Dserver.port=8800 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/
 ```
 
 

@@ -1,31 +1,29 @@
 package com.sequoiacm.schedule.tools.command;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
-import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.common.ScmNodeCreator;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
 
 public class ScmCreateNodeToolImplSchedule extends ScmCreateNodeToolImpl {
     private final String OPT_LONG_AUDIT_URL = "adurl";
     private final String OPT_LONG_AUDIT_USER = "aduser";
     private final String OPT_LONG_AUDIT_PASSED = "adpasswd";
 
-    public ScmCreateNodeToolImplSchedule(ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        super(nodeTypes);
-        ops.addOption(hp.createOpt(null, OPT_LONG_AUDIT_URL, "audit to sdb url.", true, true,
-                false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_AUDIT_USER, "audit to sdb user.", true, true,
-                false));
+    public ScmCreateNodeToolImplSchedule(HashMap<String, ScmNodeRequiredParamGroup> nodeProperties,
+            ScmNodeTypeList nodeTypes) throws ScmToolsException {
+        super(nodeProperties, nodeTypes);
+        ops.addOption(
+                hp.createOpt(null, OPT_LONG_AUDIT_URL, "audit to sdb url.", true, true, false));
+        ops.addOption(
+                hp.createOpt(null, OPT_LONG_AUDIT_USER, "audit to sdb user.", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_AUDIT_PASSED, "audit to sdb passwd.", true, true,
                 false));
     }
@@ -45,10 +43,16 @@ public class ScmCreateNodeToolImplSchedule extends ScmCreateNodeToolImpl {
             nodeConf = new Properties();
         }
 
+        if (nodeConf != null) {
+            ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = nodeType2RequireParams.get(typEnum.getType());
+            if (scmNodeRequiredParamGroup != null) {
+                scmNodeRequiredParamGroup.check(nodeConf);
+            }
+        }
         String adurl = cl.getOptionValue(OPT_LONG_AUDIT_URL);
         String aduser = cl.getOptionValue(OPT_LONG_AUDIT_USER);
         String adpasswd = cl.getOptionValue(OPT_LONG_AUDIT_PASSED);
-        logger.info("adurl="+adurl+", aduser"+aduser+", adpasswd="+adpasswd);
+        logger.info("adurl=" + adurl + ", aduser" + aduser + ", adpasswd=" + adpasswd);
 
         Map<Object, Object> otherLog = new HashMap<>();
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_URL, adurl);
