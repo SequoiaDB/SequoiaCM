@@ -308,16 +308,15 @@ public class ObjServiceImpl implements ObjectService {
         sourceMeta.setKey(dest.getKey());
 
         if (!directiveCopy) {
-            // merge basic metadata from sourceMeta to dest
-            mergeObjectMeta(sourceMeta, dest);
+            // retain basic metaData attributes beside metaList and metaListLength
+            sourceMeta.setMetaList(dest.getMetaList());
+            sourceMeta.setMetaListlength(dest.getMetaListlength());
             if (dest.getMetaListlength() > RestParamDefine.X_AMZ_META_LENGTH) {
                 throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
                         "metadata headers exceed the maximum. xMeta:" + sourceMeta.getMetaList());
             }
         }
-        else {
-            dest = sourceMeta;
-        }
+        dest = sourceMeta;
 
         ScmContentServerClient client = clientFactory.getContentServerClient(session,
                 bucket.getWorkspace());
@@ -346,29 +345,6 @@ public class ObjServiceImpl implements ObjectService {
         copyObjectResult.seteTag(sourceMeta.geteTag());
         copyObjectResult.setLastModified(DataFormatUtils.formatDate(scmFile.getUpdateTime()));
         return copyObjectResult;
-    }
-
-    private void mergeObjectMeta(ObjectMeta sourceMeta, ObjectMeta dest) {
-        Class objectMetaClass = sourceMeta.getClass();
-        Field[] fields = objectMetaClass.getDeclaredFields();
-        // 复制sourceMeta所有的基本属性到dest中（不包括metaListlength、metaList）
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            if (fieldName.equals("metaListlength") || fieldName.equals("metaList")) {
-                continue;
-            }
-            // 是否可以访问
-            boolean flag = field.isAccessible();
-            try {
-                field.setAccessible(true);
-                field.set(dest, field.get(sourceMeta));
-            }
-            catch (IllegalAccessException e) {
-                logger.info("convert the value fail, cause by:", e);
-            }
-            // 还原访问权限
-            field.setAccessible(flag);
-        }
     }
 
     @Override

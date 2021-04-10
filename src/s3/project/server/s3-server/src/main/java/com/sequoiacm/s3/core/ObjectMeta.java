@@ -72,6 +72,10 @@ public class ObjectMeta {
         return metaListlength;
     }
 
+    public void setMetaListlength(int metaListlength) {
+        this.metaListlength = metaListlength;
+    }
+
     public String getScmFileId() {
         return scmFileId;
     }
