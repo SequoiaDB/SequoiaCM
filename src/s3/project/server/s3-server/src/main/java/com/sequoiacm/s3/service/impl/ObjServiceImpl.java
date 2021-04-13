@@ -304,18 +304,18 @@ public class ObjServiceImpl implements ObjectService {
             }
         }
 
-        sourceMeta.setBucketName(dest.getBucketName());
-        sourceMeta.setKey(dest.getKey());
-
         if (!directiveCopy) {
-            // retain basic metaData attributes beside metaList and metaListLength
-            sourceMeta.setMetaList(dest.getMetaList());
-            sourceMeta.setMetaListlength(dest.getMetaListlength());
             if (dest.getMetaListlength() > RestParamDefine.X_AMZ_META_LENGTH) {
                 throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
                         "metadata headers exceed the maximum. xMeta:" + sourceMeta.getMetaList());
             }
+            // retain basic metaData attributes beside metaList and metaListLength
+            sourceMeta.setMetaList(dest.getMetaList());
+            sourceMeta.setMetaListlength(dest.getMetaListlength());
         }
+
+        sourceMeta.setBucketName(dest.getBucketName());
+        sourceMeta.setKey(dest.getKey());
         dest = sourceMeta;
 
         ScmContentServerClient client = clientFactory.getContentServerClient(session,
