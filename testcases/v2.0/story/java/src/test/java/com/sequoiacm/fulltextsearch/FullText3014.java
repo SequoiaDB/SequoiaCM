@@ -87,14 +87,19 @@ public class FullText3014 extends TestScmBase {
         crudFile();
 
         // 全文检索，检查结果
-        FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED, fileIdList1.size()*2 );
-        List<String> fileIdStrList = new ArrayList<>(  );
-        for(ScmId fileId : fileIdList1){
+        FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.NONE,
+                fileIdList2.get( fileIdList2.size() - 1 ) );
+        FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED,
+                fileIdList1.size() * 2 );
+        List< String > fileIdStrList = new ArrayList<>();
+        for ( ScmId fileId : fileIdList1 ) {
             fileIdStrList.add( fileId.get() );
         }
-        BSONObject expFileCondition = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID ).in( fileIdStrList ).get();
-        FullTextUtils.searchAndCheckResults( ws,
-                ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject(), expFileCondition );
+        BSONObject expFileCondition = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_ID ).in( fileIdStrList )
+                .get();
+        FullTextUtils.searchAndCheckResults( ws, ScmType.ScopeType.SCOPE_ALL,
+                new BasicBSONObject(), expFileCondition );
         runSuccess = true;
     }
 
@@ -125,8 +130,10 @@ public class FullText3014 extends TestScmBase {
 
     private void crudFile() throws Exception {
         // 创建文件，符合工作区条件
-        String filePath = TestTools.LocalFile.getFileByType( TestTools.LocalFile.FileType.TEXT );
-        ScmId fileId = ScmFileUtils.create( ws, fileNameBase + fileNum, filePath );
+        String filePath = TestTools.LocalFile
+                .getFileByType( TestTools.LocalFile.FileType.TEXT );
+        ScmId fileId = ScmFileUtils.create( ws, fileNameBase + fileNum,
+                filePath );
         fileIdList1.add( fileId );
 
         // 新增文件版本
@@ -134,13 +141,15 @@ public class FullText3014 extends TestScmBase {
         file.updateContent( filePath );
 
         // 更新旧文件属性，由符合条件更新为不符合条件
-        ScmId updatedFileId = fileIdList1.remove( new Random(  ).nextInt( fileIdList1.size()-1 ) );
-        ScmFile updateFile = ScmFactory.File.getInstance( ws,updatedFileId  );
+        ScmId updatedFileId = fileIdList1
+                .remove( new Random().nextInt( fileIdList1.size() - 1 ) );
+        ScmFile updateFile = ScmFactory.File.getInstance( ws, updatedFileId );
         updateFile.setDirectory( dirId );
         fileIdList2.add( updatedFileId );
 
         // 删除旧文件
-        ScmId deletedFileId = fileIdList1.remove( new Random(  ).nextInt( fileIdList1.size()-1 ) );
+        ScmId deletedFileId = fileIdList1
+                .remove( new Random().nextInt( fileIdList1.size() - 1 ) );
         ScmFactory.File.deleteInstance( ws, deletedFileId, true );
     }
 
@@ -151,18 +160,20 @@ public class FullText3014 extends TestScmBase {
         Assert.assertEquals( indexInfo.getMode(), ScmFulltextMode.async );
         Assert.assertEquals( indexInfo.getStatus(), ScmFulltextStatus.CREATED );
         ScmFulltextJobInfo jodInfo = indexInfo.getJobInfo();
-        while ( jodInfo.getProgress() != 100){
+        while ( jodInfo.getSuccessCount() != fileIdList1.size() * 2 ) {
             jodInfo = ScmFactory.Fulltext.getIndexInfo( ws ).getJobInfo();
         }
-       try {
-           Assert.assertEquals( jodInfo.getEstimateFileCount(), (fileIdList2.size()+fileIdList1.size())*2 );
-           Assert.assertEquals( jodInfo.getErrorCount(), fileIdList2.size()*2 );
-           Assert.assertEquals( jodInfo.getSuccessCount(), fileIdList1.size()*2 );
-           Assert.assertEquals( jodInfo.getProgress(), 100 );
-           Assert.assertNotNull( jodInfo.getSpeed() );
-       }catch ( AssertionError e ){
+        try {
+            Assert.assertEquals( jodInfo.getEstimateFileCount(), fileNum * 2 );
+            Assert.assertEquals( jodInfo.getErrorCount(),
+                    fileIdList2.size() * 2 );
+            Assert.assertEquals( jodInfo.getSuccessCount(),
+                    fileIdList1.size() * 2 );
+            Assert.assertEquals( jodInfo.getProgress(), 100 );
+            Assert.assertNotNull( jodInfo.getSpeed() );
+        } catch ( AssertionError e ) {
             throw new Exception( "jodInfo = " + jodInfo.toString(), e );
-       }
+        }
     }
 
     private void prepareFile( String fileNameBase, String dirId, int fileNum )
