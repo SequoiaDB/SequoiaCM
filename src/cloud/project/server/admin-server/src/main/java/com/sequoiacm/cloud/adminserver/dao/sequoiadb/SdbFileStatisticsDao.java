@@ -87,17 +87,22 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
         long totalTrafficSize = 0;
         MetaAccessor accessor = metasource.getFileStatisticsAccessor();
         MetaCursor cursor = accessor.query(matcher, null, null);
-        while (cursor.hasNext()) {
-            BSONObject record = cursor.getNext();
-            FileStatisticsData statisticsData = new FileStatisticsData(
-                    BsonUtils.getIntegerChecked(record, FIELD_REQ_COUNT),
-                    BsonUtils.getLongChecked(record, FIELD_AVG_TRAFFIC_SIZE),
-                    BsonUtils.getLongChecked(record, FIELD_AVG_RESP_TIME));
-            requestCount += statisticsData.getRequestCount();
-            totalRespTime += (statisticsData.getRequestCount()
-                    * statisticsData.getAvgResponseTime());
-            totalTrafficSize += (statisticsData.getRequestCount()
-                    * statisticsData.getAvgTrafficSize());
+        try {
+            while (cursor.hasNext()) {
+                BSONObject record = cursor.getNext();
+                FileStatisticsData statisticsData = new FileStatisticsData(
+                        BsonUtils.getIntegerChecked(record, FIELD_REQ_COUNT),
+                        BsonUtils.getLongChecked(record, FIELD_AVG_TRAFFIC_SIZE),
+                        BsonUtils.getLongChecked(record, FIELD_AVG_RESP_TIME));
+                requestCount += statisticsData.getRequestCount();
+                totalRespTime += (statisticsData.getRequestCount()
+                        * statisticsData.getAvgResponseTime());
+                totalTrafficSize += (statisticsData.getRequestCount()
+                        * statisticsData.getAvgTrafficSize());
+            }
+        }
+        finally {
+            cursor.close();
         }
         if (requestCount <= 0) {
             return new FileStatisticsData();
