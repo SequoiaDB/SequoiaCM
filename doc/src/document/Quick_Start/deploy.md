@@ -263,7 +263,7 @@
                         "resource":"test_ws",
                         "privilege":"ALL"
                     }
-                ],
+                ]
             }
         ],
         "oldUsers": [
