@@ -1,7 +1,10 @@
 package com.sequoiacm.s3.controller;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +43,7 @@ public class BucketController {
     ScmClientFactory clientFactory;
 
     @PutMapping(value = "/{bucketname:.+}", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<?> putBucket(@PathVariable("bucketname") String bucketName,
-            @RequestBody(required = false) CreateBucketConfiguration location, ScmSession session,
+    public ResponseEntity<?> putBucket(@PathVariable("bucketname") String bucketName, ScmSession session,
             HttpServletRequest httpServletRequest) throws S3ServerException {
         if (httpServletRequest.getParameterNames().hasMoreElements()) {
             throw new S3ServerException(S3Error.PARAMETER_NOT_SUPPORT,
@@ -53,13 +55,11 @@ public class BucketController {
             throw new S3ServerException(S3Error.BUCKET_INVALID_BUCKETNAME,
                     "Invalid bucket name. bucket name = " + bucketName);
         }
-        if (location == null) {
-            location = new CreateBucketConfiguration();
-        }
 
+        String location = getLocation(httpServletRequest);
         logger.debug("Create bucket. bucketName ={}, operator={}, location={} ", bucketName,
-                session.getUser().getUsername(), location.getLocationConstraint());
-        bucketService.createBucket(session, bucketName, location.getLocationConstraint());
+                session.getUser().getUsername(), location);
+        bucketService.createBucket(session, bucketName, location);
         return ResponseEntity.ok()
                 .header(RestParamDefine.LOCATION, RestParamDefine.REST_DELIMITER + bucketName)
                 .build();
@@ -133,5 +133,30 @@ public class BucketController {
             return false;
         }
         return ScmArgChecker.Directory.checkDirectoryName(bucketName);
+    }
+
+    private String getLocation(HttpServletRequest httpServletRequest) throws S3ServerException {
+        int ONCE_READ_BYTES = 1024;
+        try {
+            ServletInputStream inputStream = httpServletRequest.getInputStream();
+            StringBuilder stringBuilder = new StringBuilder();
+            byte[] b = new byte[ONCE_READ_BYTES];
+            int len = inputStream.readLine(b, 0, ONCE_READ_BYTES);
+            while (len > 0) {
+                stringBuilder.append(new String(b, 0, len));
+                len = inputStream.readLine(b, 0, ONCE_READ_BYTES);
+            }
+            String content = stringBuilder.toString();
+            if (content.length() > 0) {
+                ObjectMapper objectMapper = new XmlMapper();
+                return objectMapper.readValue(content, CreateBucketConfiguration.class).getLocationConstraint();
+            }
+            else {
+                return null;
+            }
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.MALFORMED_XML, "get location failed", e);
+        }
     }
 }

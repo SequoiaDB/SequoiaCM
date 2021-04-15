@@ -58,6 +58,12 @@ public class S3AuthorizationV4 extends S3Authorization {
 
     private String getReqToSign(HttpServletRequest req, AuthorizationInfo authorizationInfo) {
         String path = req.getRequestURI();
+        try {
+            path = URLDecoder.decode(path, "utf-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 decoding is not supported.", e);
+        }
         String forwardPrefix = getForwardPrefix(req);
         path = forwardPrefix + path;
         String queryParameters = "";
@@ -175,11 +181,12 @@ public class S3AuthorizationV4 extends S3Authorization {
             return "/";
         }
 
-        if (path.startsWith("/")) {
-            return path;
+        String encodedPath = urlEncode(path, true);
+        if (encodedPath.startsWith("/")) {
+            return encodedPath;
         }
         else {
-            return "/".concat(path);
+            return "/".concat(encodedPath);
         }
     }
 

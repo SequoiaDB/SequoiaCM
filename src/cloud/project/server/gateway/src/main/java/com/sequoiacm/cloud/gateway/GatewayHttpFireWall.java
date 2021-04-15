@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.RequestRejectedException;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
 import com.sequoiacm.infrastructure.security.auth.RestField;
 
-public class GatewayHttpFireWall extends StrictHttpFirewall {
+public class GatewayHttpFireWall extends DefaultHttpFirewall {
     private static final Logger logger = LoggerFactory.getLogger(GatewayHttpFireWall.class);
 
     @Override

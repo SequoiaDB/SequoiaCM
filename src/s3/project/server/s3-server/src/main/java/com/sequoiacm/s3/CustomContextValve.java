@@ -30,7 +30,13 @@ public class CustomContextValve extends S3ContextValveBase {
         if (request.getHeader(RestParamDefine.EXPECT) != null && request.getMethod().equals("PUT")
                 && request.getContentLength() > 512 * 1024) {
             try {
-                ObjectMeta meta = createObjectMeta(request);
+                ObjectMeta meta = null;
+                try {
+                    meta = createObjectMeta(request);
+                }
+                catch (Exception e) {
+                    //do nothing. 只对对象的put操作做检查，如果不是对象操作，不做下面的检查
+                }
                 if (meta != null) {
                     ScmSession session = (ScmSession) request
                             .getAttribute(ScmSession.class.getName());

@@ -11,9 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.sequoiacm.cloud.gateway.GatewayHttpFireWall;
 import com.sequoiacm.infrastructure.security.auth.EnableScmAuthentication;
 import com.sequoiacm.infrastructure.security.auth.ScmAuthenticationFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
 
 @EnableScmAuthentication
 @EnableWebSecurity
@@ -22,6 +22,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private ScmAuthenticationFilter scmAuthenticationFilter;
 
+    @Autowired
+    private HttpFirewall httpFirewall;
+
     @Bean
     AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) {
         return auth.getOrBuild();
@@ -29,7 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.httpFirewall(new GatewayHttpFireWall());
+        web.httpFirewall(httpFirewall);
         super.configure(web);
     }
 
