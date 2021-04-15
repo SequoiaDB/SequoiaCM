@@ -54,6 +54,8 @@ import com.sequoiacm.testcommon.WsWrapper;
  * Created by fanyu on 2018/11/30.
  */
 public class ConfUtil extends TestScmBase {
+    public static final String GATEWAY_SERVICE_NAME = "gateway";
+    public static final String ADMINSERVER_SERVICE_NAME = "admin-server";
     private static RestTemplate rest = null;
 
     static {
@@ -99,7 +101,7 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
-    public static void updateConf( String serviceName,
+    public static ScmUpdateConfResultSet updateConf( String serviceName,
             Map< String, String > confMap ) throws ScmException {
         ScmSession session = null;
         try {
@@ -110,6 +112,7 @@ public class ConfUtil extends TestScmBase {
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             System.out.println( "update results = " + actResults.toString() );
+            return actResults;
         } finally {
             if ( session != null ) {
                 session.close();
@@ -143,8 +146,48 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
-    public static void deleteConf( ScmSession session, String serviceName,
-            Set< String > keySet ) throws ScmException {
+    /**
+     * 删除网关统计相关配置
+     * 
+     * @throws ScmException
+     */
+    public static void deleteGateWayStatisticalConf() throws Exception {
+        SiteWrapper site = ScmInfo.getSite();
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            Set< String > confSet = new HashSet<>();
+            confSet.add( "scm.statistics.types" );
+            confSet.add(
+                    "scm.statistics.types.file_download.conditions.workspaces" );
+            confSet.add( "scm.statistics.rawDataCacheSize" );
+            confSet.add( "scm.statistics.rawDataReportPeriod" );
+            confSet.add(
+                    "scm.statistics.types.file_upload.conditions.workspaces" );
+            confSet.add(
+                    "scm.statistics.types.file_download.conditions.workspaceRegex" );
+            confSet.add(
+                    "scm.statistics.types.file_upload.conditions.workspaceRegex" );
+            deleteConf( session, ConfUtil.GATEWAY_SERVICE_NAME, confSet );
+            // 动态刷新是懒加载，写文件时才会加载新配置对象，销毁旧配置对象
+            WsWrapper wsp = ScmInfo.getWs();
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( "deleteGateWayStaticConf_" + UUID.randomUUID() );
+            ScmId fileId = file.save();
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+            // 清理统计表
+            StatisticsUtils.clearStatisticalInfo();
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    public static ScmUpdateConfResultSet deleteConf( ScmSession session,
+            String serviceName, Set< String > keySet ) throws ScmException {
         List keyList = new ArrayList< String >();
         keyList.addAll( keySet );
         if ( !keySet.isEmpty() ) {
@@ -153,7 +196,9 @@ public class ConfUtil extends TestScmBase {
             ScmUpdateConfResultSet deleteResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             System.out.println( "delete result = " + deleteResult.toString() );
+            return deleteResult;
         }
+        return null;
     }
 
     public static void checkNotTakeEffect( String serviceName )
