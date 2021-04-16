@@ -1,12 +1,8 @@
 package com.sequoiacm.cloud.gateway.statistics.config;
 
-import org.springframework.cloud.context.config.annotation.RefreshScope;
-
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RefreshScope
 class ScmStatisticsFileConfig {
     private List<String> workspaces;
     private String workspaceRegex;

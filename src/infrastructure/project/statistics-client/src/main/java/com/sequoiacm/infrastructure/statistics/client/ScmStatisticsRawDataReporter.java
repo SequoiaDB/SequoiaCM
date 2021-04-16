@@ -72,7 +72,10 @@ public class ScmStatisticsRawDataReporter {
             wakeupReporterJob();
         }
         if (cache.size() > cacheSizeLimit) {
-            cache.poll();
+            ScmStatisticsRawData ret = cache.poll();
+            if (ret != null) {
+                logger.debug("cache queue is full, discard oldest raw data: {}", ret);
+            }
         }
     }
 

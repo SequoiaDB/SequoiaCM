@@ -22,6 +22,8 @@ public class ScmStatisticsDeciderGroup {
     @Autowired
     public ScmStatisticsDeciderGroup(ScmStatisticsConfig statisticsConfig,
             List<IDecider> allDeciders) {
+        logger.info("init ScmStatisticsDeciderGroup: config={}, allDeciders={}", statisticsConfig,
+                allDeciders);
         deciders = new ArrayList<>();
         if (statisticsConfig.getTypes() == null || statisticsConfig.getTypes().size() <= 0) {
             return;
