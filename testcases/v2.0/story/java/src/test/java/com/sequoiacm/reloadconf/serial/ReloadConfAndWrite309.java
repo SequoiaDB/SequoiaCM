@@ -1,6 +1,7 @@
 package com.sequoiacm.reloadconf.serial;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,22 +47,26 @@ public class ReloadConfAndWrite309 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
+        wsp = ScmInfo.getWs();
+        ScmSession session = null;
         try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
-            rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
-            wsp = ScmInfo.getWs();
-
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+            session = TestScmTools.createSession( rootSite );
+            ScmSystem.Configuration.reloadBizConf( ServerScope.ALL_SITE,
+                    ScmInfo.getBranchSite().getSiteId(), session );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 
@@ -89,8 +94,6 @@ public class ReloadConfAndWrite309 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
@@ -112,9 +115,6 @@ public class ReloadConfAndWrite309 extends TestScmBase {
                     file.setFileName( fileName + "_" + UUID.randomUUID() );
                     fileIdList.add( file.save() );
                 }
-            } catch ( ScmException e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( session != null ) {
                     session.close();
@@ -138,9 +138,6 @@ public class ReloadConfAndWrite309 extends TestScmBase {
                         .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
                 ScmSystem.Configuration.reloadBizConf( ServerScope.ALL_SITE,
                         ScmInfo.getRootSite().getSiteId(), session );
-            } catch ( ScmException e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( session != null ) {
                     session.close();

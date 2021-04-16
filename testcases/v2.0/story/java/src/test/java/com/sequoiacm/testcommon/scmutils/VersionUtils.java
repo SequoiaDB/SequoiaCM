@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -99,6 +100,7 @@ public class VersionUtils extends TestScmBase {
         file.setAuthor( authorName );
         file.setTitle( "sequoiacm" );
         file.setMimeType( fileName + ".txt" );
+        file.setCreateTime( new Date( new Date().getTime() - 1000 * 60 * 60 ) );
         ScmId fileId = file.save();
         return fileId;
     }
