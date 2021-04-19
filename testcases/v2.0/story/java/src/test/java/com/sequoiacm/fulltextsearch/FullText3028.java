@@ -77,7 +77,13 @@ public class FullText3028 extends TestScmBase {
                 new BasicBSONObject(), ScmFulltextMode.async ) );
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
         ScmFactory.Fulltext.dropIndex( ws );
-        ScmFactory.Fulltext.dropIndex( ws );
+        try {
+            ScmFactory.Fulltext.dropIndex( ws );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.FULL_TEXT_INDEX_DISABLE ) {
+                throw e;
+            }
+        }
         // 获取工作区索引状态
         ScmFulltexInfo info = ScmFactory.Fulltext.getIndexInfo( ws );
         Assert.assertNull( info.getMode() );
