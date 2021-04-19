@@ -17,9 +17,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -92,7 +92,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
                 String fileId2 = upload( filePath, wsList.get( 1 ),
                         desc.toString(), rest2 );
                 fileIdList2.add( new ScmId( fileId2 ) );
-                descs.put( desc );
+                descs.add( desc );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -137,23 +137,23 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         }
     }
 
-    private void transferAndCheck() throws JSONException {
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", author ) );
+    private void transferAndCheck() {
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject().put( "author", author ) );
         String response1 = rest2.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.POST )
                 .setParameter( "task_type", "1" )
                 .setParameter( "workspace_name", wsList.get( 1 ).getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        taskId1 = new JSONObject( response1 ).getJSONObject( "task" )
+        taskId1 = JSON.parseObject( response1 ).getJSONObject( "task" )
                 .getString( "id" );
         waitTaskStop( taskId1, rest1 );
     }
 
-    private void cleanAnCheck() throws JSONException {
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", author ) );
+    private void cleanAnCheck(){
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject().put( "author", author ) );
         try {
             String response1 = rest2.setApi( "tasks" )
                     .setRequestMethod( HttpMethod.PUT )
@@ -162,7 +162,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
                     .setParameter( "options", options.toString() )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
-            taskId2 = new JSONObject( response1 ).getJSONObject( "task" )
+            taskId2 = JSON.parseObject(  response1 ).getJSONObject( "task" )
                     .getString( "id" );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
@@ -174,25 +174,23 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         check( taskInfo, wsList.get( 0 ), fileIdList1, expSites );
     }
 
-    private void waitTaskStop( String taskId, RestWrapper rest )
-            throws JSONException {
-        String stopTime = "null";
+    private void waitTaskStop( String taskId, RestWrapper rest ) {
+        String stopTime = null;
         JSONObject taskInfo = null;
-        while ( stopTime.equals( "null" ) ) {
+        while ( stopTime == null ) {
             taskInfo = getTaskInfo( taskId, rest );
             stopTime = taskInfo.getJSONObject( "task" )
                     .getString( "stop_time" );
         }
     }
 
-    private JSONObject getTaskInfo( String taskId, RestWrapper rest )
-            throws JSONException {
+    private JSONObject getTaskInfo( String taskId, RestWrapper rest ) {
         JSONObject taskInfo = null;
         try {
             String response = rest.reset().setApi( "tasks/" + taskId )
                     .setRequestMethod( HttpMethod.GET ).exec().getBody()
                     .toString();
-            taskInfo = new JSONObject( response );
+            taskInfo =JSON.parseObject( response );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -201,8 +199,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     private void check( JSONObject taskInfo, WsWrapper ws,
-            List< ScmId > fileIdList, SiteWrapper[] expSiteList )
-            throws JSONException {
+            List< ScmId > fileIdList, SiteWrapper[] expSiteList ) {
         // check site
         try {
             ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList,
@@ -220,8 +217,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException, JSONException,
-            FileNotFoundException {
+            RestWrapper rest ) throws HttpClientErrorException,FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -231,7 +227,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

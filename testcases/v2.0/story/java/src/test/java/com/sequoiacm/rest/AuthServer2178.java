@@ -6,9 +6,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -51,7 +52,7 @@ public class AuthServer2178 extends TestScmBase {
                 .setApi( "/roles/" + username )
                 .setParameter( "description", username )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String roleId = new JSONObject( response3 ).getString( "role_id" );
+        String roleId = JSON.parseObject( response3 ).getString( "role_id" );
 
         // grant role
         rest.setServerType( "content-server" )
@@ -72,9 +73,9 @@ public class AuthServer2178 extends TestScmBase {
         String response = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.GET ).setApi( "/privileges" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject privileges = new JSONObject( response );
-        Assert.assertEquals( privileges.getInt( "version" ) > 1, true,
-                privileges.getInt( "version" ) + "" );
+        JSONObject privileges = JSON.parseObject( response );
+        Assert.assertEquals( privileges.getIntValue( "version" ) > 1, true,
+                privileges.getIntValue( "version" ) + "" );
 
         // list relations
         String response1 = rest.setServerType( "auth-server" )
@@ -84,11 +85,11 @@ public class AuthServer2178 extends TestScmBase {
                 .setParameter( "resource_type", "workspace" )
                 .setParameter( "resource", wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray relations = new JSONArray( response1 );
-        Assert.assertEquals( relations.length() > 1, true,
+        JSONArray relations = JSON.parseArray( response1 );
+        Assert.assertEquals( relations.size() > 1, true,
                 relations.toString() );
         String privilegeId = null;
-        for ( int i = 0; i < relations.length(); i++ ) {
+        for ( int i = 0; i < relations.size(); i++ ) {
             String roleId1 = relations.getJSONObject( i )
                     .getString( "role_id" );
             if ( roleId1.equals( roleId ) ) {
@@ -102,7 +103,7 @@ public class AuthServer2178 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/relations/" + privilegeId )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject privilegeInfo = new JSONObject( response2 );
+        JSONObject privilegeInfo = JSON.parseObject( response2 );
         Assert.assertEquals( privilegeInfo.getString( "role_id" ), roleId,
                 privilegeInfo.toString() );
         Assert.assertEquals( privilegeInfo.getString( "privilege" ), "ALL",
@@ -112,12 +113,11 @@ public class AuthServer2178 extends TestScmBase {
         String response4 = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.GET ).setApi( "/resources" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        System.out.println( "response4 = " + response4 );
-        JSONArray resources = new JSONArray( response4 );
-        Assert.assertEquals( resources.length() >= 1, true,
+        JSONArray resources = JSON.parseArray(  response4 );
+        Assert.assertEquals( resources.size() >= 1, true,
                 resources.toString() );
         String resourcesId = null;
-        for ( int i = 0; i < resources.length(); i++ ) {
+        for ( int i = 0; i < resources.size(); i++ ) {
             String type = resources.getJSONObject( i ).getString( "type" );
             if ( type.equals( "workspace" ) ) {
                 resourcesId = resources.getJSONObject( i ).getString( "id" );
@@ -130,7 +130,7 @@ public class AuthServer2178 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/resources/" + resourcesId )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject resourcesInfo = new JSONObject( response5 );
+        JSONObject resourcesInfo = JSON.parseObject( response5 );
         Assert.assertEquals( resourcesInfo.getString( "type" ), "workspace",
                 resourcesInfo.toString() );
         Assert.assertEquals( resourcesInfo.getString( "id" ), resourcesId,

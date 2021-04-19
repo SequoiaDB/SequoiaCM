@@ -6,7 +6,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -36,18 +37,17 @@ public class GetOneConfProps1216 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "conf-properties/scm.rootsite.meta.url" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        System.out.println( "---" + response );
-        JSONObject conf = new JSONObject( response );
-        Assert.assertEquals( 1, conf.length() );
+        JSONObject conf = JSON.parseObject( response );
+        Assert.assertEquals( 1, conf.size() );
         Assert.assertNotEquals( "null",
                 conf.getString( "scm.rootsite.meta.url" ) );
 
         response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "conf-properties/ke" ).setResponseType( String.class )
                 .exec().getBody().toString();
-        conf = new JSONObject( response );
-        Assert.assertEquals( 1, conf.length() );
-        Assert.assertEquals( "null", conf.getString( "ke" ) );
+        conf = JSON.parseObject( response );
+        Assert.assertEquals( 1, conf.size() );
+        Assert.assertEquals( null, conf.getString( "ke" ) );
     }
 
     @AfterClass(alwaysRun = true)

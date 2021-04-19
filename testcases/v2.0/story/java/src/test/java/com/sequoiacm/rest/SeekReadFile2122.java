@@ -23,8 +23,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.exception.ScmException;
@@ -57,7 +57,7 @@ public class SeekReadFile2122 extends TestScmBase {
     private List< SiteWrapper > branSites = null;
 
     @BeforeClass()
-    private void setUp() throws IOException, JSONException, ScmException {
+    private void setUp() throws IOException,ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -106,7 +106,7 @@ public class SeekReadFile2122 extends TestScmBase {
         }
     }
 
-    private void writeFile( RestWrapper rest ) throws JSONException,
+    private void writeFile( RestWrapper rest ) throws
             UnsupportedEncodingException, FileNotFoundException {
         // write
         JSONObject desc = new JSONObject();
@@ -124,7 +124,7 @@ public class SeekReadFile2122 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
     }
 

@@ -6,7 +6,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -37,12 +38,12 @@ public class GetConfProps1215 extends TestScmBase {
                 .setApi( "conf-properties?keys=scm.rootsite.meta.url,scm"
                         + ".rootsite.meta.user,an.inexistent.key" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject conf = new JSONObject( response ).getJSONObject( "conf" );
+        JSONObject conf = JSON.parseObject( response ).getJSONObject( "conf" );
         Assert.assertNotEquals( "null",
                 conf.getString( "scm.rootsite.meta.url" ) );
         Assert.assertNotEquals( "null",
                 conf.getString( "scm.rootsite.meta.user" ) );
-        Assert.assertEquals( "null", conf.getString( "an.inexistent.key" ) );
+        Assert.assertEquals( null, conf.getString( "an.inexistent.key" ) );
     }
 
     @AfterClass(alwaysRun = true)

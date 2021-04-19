@@ -15,9 +15,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -79,7 +78,7 @@ public class OprBatch1329 extends TestScmBase {
                 .setUriVariables( new Object[] { "{\"name\":\"" + testcaseName
                         + "\", \"tags\":[\"old_value\"]}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String batchId = new JSONObject( response ).getJSONObject( "batch" )
+        String batchId = JSON.parseObject( response ).getJSONObject( "batch" )
                 .getString( "id" );
 
         // SCM-1330: list batch
@@ -89,7 +88,7 @@ public class OprBatch1329 extends TestScmBase {
                 .setUriVariables(
                         new Object[] { "{\"name\":\"" + testcaseName + "\"}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject batchInfo = new JSONArray( response ).getJSONObject( 0 );
+        JSONObject batchInfo = JSON.parseArray( response ).getJSONObject( 0 );
         Assert.assertEquals( batchInfo.getString( "name" ), testcaseName );
 
         // SCM-1332: update batch
@@ -111,7 +110,7 @@ public class OprBatch1329 extends TestScmBase {
                 .setParameter( "file_id", fileId )
                 .setResponseType( String.class ).exec();
         batchInfo = getBatchInfo( batchId );
-        Assert.assertEquals( batchInfo.getJSONArray( "files" ).length(), 1 );
+        Assert.assertEquals( batchInfo.getJSONArray( "files" ).size(), 1 );
 
         // SCM-1335: detach file
         rest.setRequestMethod( HttpMethod.POST )
@@ -120,7 +119,7 @@ public class OprBatch1329 extends TestScmBase {
                 .setParameter( "file_id", fileId )
                 .setResponseType( String.class ).exec();
         batchInfo = getBatchInfo( batchId );
-        Assert.assertEquals( batchInfo.getJSONArray( "files" ).length(), 0 );
+        Assert.assertEquals( batchInfo.getJSONArray( "files" ).size(), 0 );
 
         // SCM-1335: delete batch
         rest.setRequestMethod( HttpMethod.DELETE ).setApi(
@@ -170,8 +169,7 @@ public class OprBatch1329 extends TestScmBase {
     }
 
     private String upload( String filePath, WsWrapper ws, String desc )
-            throws HttpClientErrorException, JSONException,
-            FileNotFoundException {
+            throws HttpClientErrorException,FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -181,20 +179,20 @@ public class OprBatch1329 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }
 
     private JSONObject getBatchInfo( String batchId )
-            throws JSONException, UnsupportedEncodingException {
+            throws UnsupportedEncodingException {
         // SCM-1331: get batch
         String response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "batches/" + batchId + "?workspace_name="
                         + ws.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         response = URLDecoder.decode( response, "UTF-8" );
-        JSONObject batchInfo = new JSONObject( response )
+        JSONObject batchInfo = JSON.parseObject( response )
                 .getJSONObject( "batch" );
         return batchInfo;
     }

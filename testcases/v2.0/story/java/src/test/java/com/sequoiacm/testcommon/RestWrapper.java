@@ -15,8 +15,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import com.amazonaws.util.json.JSONException;
 import com.sequoiacm.client.element.ScmServiceInstance;
 
 public class RestWrapper {
@@ -76,8 +74,7 @@ public class RestWrapper {
         return this;
     }
 
-    public void connect( String addr, String user, String passwd )
-            throws JSONException {
+    public void connect( String addr, String user, String passwd ) {
         this.addr = addr;
         Map< String, String > response = this.setApi( "login" )
                 .setRequestMethod( HttpMethod.POST )

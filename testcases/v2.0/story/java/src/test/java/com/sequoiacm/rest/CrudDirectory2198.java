@@ -10,8 +10,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -54,7 +55,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setParameter( "name", "CrudDirectory2198_A" )
                 .setParameter( "path", fullPath1 )
                 .setResponseType( String.class ).exec().getBody().toString();
-        id1 = new JSONObject( response ).getString( "id" );
+        id1 = JSON.parseObject( response ).getString( "id" );
 
         // create directory by parentId + name
         String response1 = rest.setRequestMethod( HttpMethod.POST )
@@ -63,7 +64,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setParameter( "name", "CrudDirectory2198_B" )
                 .setParameter( "parent_directory_id", rootId )
                 .setResponseType( String.class ).exec().getBody().toString();
-        id2 = new JSONObject( response1 ).getString( "id" );
+        id2 = JSON.parseObject( response1 ).getString( "id" );
 
         // get directory by Id
         String response2 = rest.setRequestMethod( HttpMethod.HEAD )
@@ -72,7 +73,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setResponseType( String.class ).exec().getHeaders()
                 .getFirst( "directory" );
         response2 = URLDecoder.decode( response2, "UTF-8" );
-        JSONObject dirInfo1 = new JSONObject( response2 );
+        JSONObject dirInfo1 = JSON.parseObject( response2 );
         Assert.assertEquals( dirInfo1.getString( "name" ),
                 "CrudDirectory2198_A" );
         Assert.assertEquals( dirInfo1.getString( "id" ), id1 );
@@ -86,7 +87,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setResponseType( String.class ).exec().getHeaders()
                 .getFirst( "directory" );
         response3 = URLDecoder.decode( response3, "UTF-8" );
-        JSONObject dirInfo2 = new JSONObject( response3 );
+        JSONObject dirInfo2 = JSON.parseObject( response3 );
         Assert.assertEquals( dirInfo2.getString( "name" ),
                 "CrudDirectory2198_B" );
         Assert.assertEquals( dirInfo2.getString( "id" ), id2 );
@@ -98,7 +99,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setApi( "/directories/id/" + id1 + "/path?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject dirInfo3 = new JSONObject( response4 );
+        JSONObject dirInfo3 = JSON.parseObject( response4 );
         Assert.assertEquals( dirInfo3.getString( "path" ), fullPath1 + "/" );
 
         // list directory
@@ -109,7 +110,7 @@ public class CrudDirectory2198 extends TestScmBase {
                         + "&filter={uri}" )
                 .setUriVariables( new Object[] { desc1.toString() } ).exec()
                 .getBody().toString();
-        JSONArray dirInfo4 = new JSONArray( response5 );
+        JSONArray dirInfo4 = JSON.parseArray( response5 );
         System.out.println( "dirInfo3 = " + dirInfo4 );
 
         // rename directory by id
@@ -118,7 +119,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setApi( "/directories/id/" + id1 + "/rename" )
                 .setParameter( "workspace_name", wsp.getName() )
                 .setParameter( "name", newName ).exec().getBody().toString();
-        JSONObject dirInfo5 = new JSONObject( response6 );
+        JSONObject dirInfo5 = JSON.parseObject( response6 );
         Assert.assertNotNull( dirInfo5 );
 
         // rename directory by path
@@ -128,7 +129,7 @@ public class CrudDirectory2198 extends TestScmBase {
                         + "/rename" )
                 .setParameter( "workspace_name", wsp.getName() )
                 .setParameter( "name", newName1 ).exec().getBody().toString();
-        JSONObject dirInfo6 = new JSONObject( response7 );
+        JSONObject dirInfo6 = JSON.parseObject( response7 );
         Assert.assertNotNull( dirInfo6 );
 
         // move directory by id
@@ -138,7 +139,7 @@ public class CrudDirectory2198 extends TestScmBase {
                         "/CrudDirectory2198_B_New" )
                 .setParameter( "workspace_name", wsp.getName() ).exec()
                 .getBody().toString();
-        JSONObject dirInfo7 = new JSONObject( response8 );
+        JSONObject dirInfo7 = JSON.parseObject( response8 );
         Assert.assertNotNull( dirInfo7 );
 
         // move directory by path
@@ -149,7 +150,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 .setParameter( "parent_directory_path", "/" )
                 .setParameter( "workspace_name", wsp.getName() ).exec()
                 .getBody().toString();
-        JSONObject dirInfo8 = new JSONObject( response9 );
+        JSONObject dirInfo8 = JSON.parseObject( response9 );
         Assert.assertNotNull( dirInfo8 );
 
         // delete directory by path

@@ -22,8 +22,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -96,8 +96,8 @@ public class WRDBigFile1107 extends TestScmBase {
         }
     }
 
-    private void writeAndCheck() throws JSONException,
-            UnsupportedEncodingException, FileNotFoundException {
+    private void writeAndCheck()
+            throws UnsupportedEncodingException, FileNotFoundException {
         JSONObject desc = null;
         // write
         try {
@@ -117,36 +117,30 @@ public class WRDBigFile1107 extends TestScmBase {
                     .setInputStream( new FileInputStream( file ) )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
-            fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+            fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                     .getString( "id" );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         }
         // check
-        String fileInfo;
-        try {
-            fileInfo = rest.reset()
-                    .setApi( "files/id/" + fileId + "?workspace_name="
-                            + ws.getName() )
-                    .setRequestMethod( HttpMethod.HEAD ).exec().getHeaders()
-                    .get( "file" ).toString();
-            fileInfo = URLDecoder.decode( fileInfo, "UTF-8" );
-            JSONObject fileInfo2JSON = new JSONObject(
-                    fileInfo.substring( 1, fileInfo.length() - 1 ) );
-            Assert.assertEquals( fileInfo2JSON.getString( "name" ),
-                    desc.getString( "name" ) );
-            Assert.assertEquals( fileInfo2JSON.getString( "author" ),
-                    desc.getString( "author" ) );
-            Assert.assertEquals( fileInfo2JSON.getString( "title" ),
-                    desc.getString( "title" ) );
-            Assert.assertEquals( fileInfo2JSON.getString( "mime_type" ),
-                    desc.getString( "mime_type" ) );
-            Assert.assertEquals( fileInfo2JSON.getInt( "size" ), fileSize );
-        } catch ( JSONException | HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        String fileInfo = rest.reset()
+                .setApi( "files/id/" + fileId + "?workspace_name="
+                        + ws.getName() )
+                .setRequestMethod( HttpMethod.HEAD ).exec().getHeaders()
+                .get( "file" ).toString();
+        fileInfo = URLDecoder.decode( fileInfo, "UTF-8" );
+        JSONObject fileInfo2JSON = JSON
+                .parseObject( fileInfo.substring( 1, fileInfo.length() - 1 ) );
+        Assert.assertEquals( fileInfo2JSON.getString( "name" ),
+                desc.getString( "name" ) );
+        Assert.assertEquals( fileInfo2JSON.getString( "author" ),
+                desc.getString( "author" ) );
+        Assert.assertEquals( fileInfo2JSON.getString( "title" ),
+                desc.getString( "title" ) );
+        Assert.assertEquals( fileInfo2JSON.getString( "mime_type" ),
+                desc.getString( "mime_type" ) );
+        Assert.assertEquals( fileInfo2JSON.getIntValue( "size" ), fileSize );
     }
 
     private void readAndCheck() throws IOException {

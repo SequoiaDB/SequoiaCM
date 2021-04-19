@@ -12,7 +12,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONException;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -111,10 +110,10 @@ public class CreateWorkspace2179 extends TestScmBase {
      * @param siteNum
      * @return
      * @throws ScmInvalidArgumentException
-     * @throws JSONException
+     * @throws
      */
     private BSONObject dataJson( int siteNum )
-            throws ScmInvalidArgumentException, JSONException {
+            throws ScmInvalidArgumentException {
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
         List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();

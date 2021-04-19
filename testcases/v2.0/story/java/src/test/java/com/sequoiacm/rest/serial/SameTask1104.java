@@ -16,9 +16,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -80,7 +80,7 @@ public class SameTask1104 extends TestScmBase {
                 String fileId = upload( filePath, ws, desc.toString(), rest1 );
                 download( fileId, rest2 );
                 fileIdList.add( new ScmId( fileId ) );
-                descs.put( desc );
+                descs.add( desc );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -90,8 +90,8 @@ public class SameTask1104 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject().put( "author", author ) );
         try {
             String response1 = rest1.setApi( "tasks" )
                     .setRequestMethod( HttpMethod.POST )
@@ -100,14 +100,14 @@ public class SameTask1104 extends TestScmBase {
                     .setParameter( "options", options.toString() )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
-            taskId1 = new JSONObject( response1 ).getJSONObject( "task" )
+            taskId1 = JSON.parseObject( response1 ).getJSONObject( "task" )
                     .getString( "id" );
             String response2 = rest2.setRequestMethod( HttpMethod.PUT )
                     .setParameter( "workspace_name", ws.getName() )
                     .setParameter( "options", options.toString() )
                     .setParameter( "task_type", "2" ).exec().getBody()
                     .toString();
-            taskId2 = new JSONObject( response2 ).getJSONObject( "task" )
+            taskId2 = JSON.parseObject( response2 ).getJSONObject( "task" )
                     .getString( "id" );
             Assert.fail(
                     "start double task is success when task is duplicate in "
@@ -153,8 +153,7 @@ public class SameTask1104 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException, JSONException,
-            FileNotFoundException {
+            RestWrapper rest ) throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -164,7 +163,7 @@ public class SameTask1104 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

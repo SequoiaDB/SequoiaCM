@@ -6,15 +6,14 @@ package com.sequoiacm.rest;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.HttpClientErrorException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -34,16 +33,11 @@ public class GetWorkSpace1099 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
-        try {
-            ws = ScmInfo.getWs();
-            site = ScmInfo.getRootSite();
-            rest = new RestWrapper();
-            rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
-                    TestScmBase.scmPassword );
-        } catch ( HttpClientErrorException | JSONException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        ws = ScmInfo.getWs();
+        site = ScmInfo.getRootSite();
+        rest = new RestWrapper();
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -53,10 +47,10 @@ public class GetWorkSpace1099 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setParameter( "filter", "{ name: { $exist: 1 } }" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray wsListInfo = new JSONArray( response1 );
+        JSONArray wsListInfo = JSON.parseArray( response1 );
         List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
         // just check num
-        Assert.assertTrue( wsList.size() <= wsListInfo.length(),
+        Assert.assertTrue( wsList.size() <= wsListInfo.size(),
                 "wsListByRest = " + wsListInfo.toString() + ",wsListByDb = "
                         + wsList.toString() );
 
@@ -66,16 +60,16 @@ public class GetWorkSpace1099 extends TestScmBase {
                 .setUriVariables( new Object[] {
                         "{\"name\":\"inexistent_ws_name1099\"}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        wsListInfo = new JSONArray( response1 );
+        wsListInfo = JSON.parseArray( response1 );
         // just check num
-        Assert.assertEquals( 0, wsListInfo.length(),
+        Assert.assertEquals( 0, wsListInfo.size(),
                 "no ws should be returned" );
 
         // check getws
         String response2 = rest.reset().setApi( "workspaces/" + ws.getName() )
                 .setRequestMethod( HttpMethod.GET )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject wsInfo = new JSONObject( response2 )
+        JSONObject wsInfo = JSON.parseObject( response2 )
                 .getJSONObject( "workspace" );
         // check
         Assert.assertEquals( wsInfo.get( "name" ), ws.getName(),

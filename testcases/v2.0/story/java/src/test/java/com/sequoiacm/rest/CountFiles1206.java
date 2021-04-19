@@ -15,7 +15,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -116,7 +117,7 @@ public class CountFiles1206 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

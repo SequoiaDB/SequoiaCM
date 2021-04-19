@@ -15,9 +15,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -71,7 +71,7 @@ public class GetFiles1105 extends TestScmBase {
                 desc.put( "mime_type", "text/plain" );
                 String fileId = upload( filePath, ws, desc.toString() );
                 fileIdList.add( fileId );
-                descs.put( desc );
+                descs.add( desc );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -88,11 +88,11 @@ public class GetFiles1105 extends TestScmBase {
                 .setUriVariables(
                         new Object[] { "{\"author\":\"" + author + "\"}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray fileArr = new JSONArray( fileMetaList );
+        JSONArray fileArr = JSON.parseArray( fileMetaList );
         Assert.assertEquals(
-                fileArr.length() > fileNum || fileArr.length() == fileNum, true,
+                fileArr.size() > fileNum || fileArr.size() == fileNum, true,
                 "fileListInfo.getJSONArray('files').length = "
-                        + fileArr.length() + ",fileNum = " + fileNum );
+                        + fileArr.size() + ",fileNum = " + fileNum );
 
         int index = fileNum - 1;
         String fileMeta = rest
@@ -103,7 +103,7 @@ public class GetFiles1105 extends TestScmBase {
                 .setResponseType( String.class ).exec().getHeaders()
                 .get( "file" ).toString();
         fileMeta = URLDecoder.decode( fileMeta, "UTF-8" );
-        JSONObject fileInfo = new JSONObject(
+        JSONObject fileInfo = JSON.parseObject(
                 fileMeta.substring( 1, fileMeta.length() - 1 ) );
         JSONObject desc1 = ( JSONObject ) descs.get( index );
         Assert.assertEquals( fileInfo.getString( "name" ),
@@ -112,7 +112,7 @@ public class GetFiles1105 extends TestScmBase {
                 desc1.getString( "author" ) );
         Assert.assertEquals( fileInfo.getString( "title" ),
                 desc1.getString( "title" ) );
-        Assert.assertEquals( fileInfo.getInt( "size" ), fileSize );
+        Assert.assertEquals( fileInfo.getIntValue( "size" ), fileSize );
         runSuccess = true;
     }
 
@@ -137,8 +137,7 @@ public class GetFiles1105 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc )
-            throws HttpClientErrorException, JSONException,
-            FileNotFoundException {
+            throws HttpClientErrorException,FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -148,7 +147,7 @@ public class GetFiles1105 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

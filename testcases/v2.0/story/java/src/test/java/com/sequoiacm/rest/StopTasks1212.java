@@ -14,7 +14,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -115,7 +116,7 @@ public class StopTasks1212 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }
@@ -129,14 +130,14 @@ public class StopTasks1212 extends TestScmBase {
 
     private String transferFiles( RestWrapper rest, WsWrapper ws )
             throws Exception {
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", authorName ) );
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject().put( "author", authorName ) );
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String taskId = new JSONObject( response ).getJSONObject( "task" )
+        String taskId = JSON.parseObject( response ).getJSONObject( "task" )
                 .getString( "id" );
         return taskId;
     }

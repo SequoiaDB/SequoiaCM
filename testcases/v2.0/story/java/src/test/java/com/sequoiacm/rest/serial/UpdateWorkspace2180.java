@@ -12,7 +12,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONException;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -43,7 +42,6 @@ public class UpdateWorkspace2180 extends TestScmBase {
     private static SiteWrapper branchSite2 = null;
     private ScmSession session = null;
     private String wsName = "ws2180";
-    private ScmWorkspace ws = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
@@ -59,7 +57,7 @@ public class UpdateWorkspace2180 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         int siteNum = ScmInfo.getSiteNum();
-        ws = ScmWorkspaceUtil.createWS( session, wsName, siteNum );
+        ScmWorkspaceUtil.createWS( session, wsName, siteNum );
         wsRemoveSite();
         wsAddAndRemoveSite();
         wsAddSite();
@@ -79,14 +77,12 @@ public class UpdateWorkspace2180 extends TestScmBase {
     }
 
     /**
-     * @param siteNum
+     * @param site
      * @return
      * @throws ScmInvalidArgumentException
-     * @throws JSONException
      */
     private BSONObject siteBson( SiteWrapper site )
-            throws ScmInvalidArgumentException, JSONException {
-
+            throws ScmInvalidArgumentException{
         String siteName = site.getSiteName();
         String dataType = site.getDataType().toString();
         switch ( dataType ) {
@@ -245,8 +241,6 @@ public class UpdateWorkspace2180 extends TestScmBase {
             for ( int j = 0; j < dataList.size(); j++ ) {
 
                 if ( !nameList.contains( branchSite2.getSiteName() ) ) {
-                    System.out.println( "------------------------------------"
-                            + ws.getDataLocations().size() );
                     Assert.assertEquals( updateWs.getDataLocations().size(),
                             ScmInfo.getSiteNum() - 1, obj.toString() );
                     return;

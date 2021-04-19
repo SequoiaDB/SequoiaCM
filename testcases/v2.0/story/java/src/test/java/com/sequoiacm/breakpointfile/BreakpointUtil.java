@@ -15,7 +15,6 @@ import java.util.Random;
 import org.testng.Assert;
 import org.testng.SkipException;
 
-import com.amazonaws.util.json.JSONException;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
@@ -72,13 +71,12 @@ public class BreakpointUtil extends TestScmBase {
      * @param fileName
      * @param partFileSize
      * @param adler32
-     * @throws JSONException
      * @throws ScmException
      * @throws IOException
      */
     public static void createBreakpointFile( ScmWorkspace ws, String filePath,
             String fileName, int partFileSize, ScmChecksumType adler32 )
-            throws JSONException, ScmException, IOException {
+            throws ScmException, IOException {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, adler32 );
         InputStream inputStream = new BreakpointStream( filePath,

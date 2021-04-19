@@ -8,9 +8,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.RestWrapper;
@@ -48,7 +49,7 @@ public class AuthServer1487 extends TestScmBase {
                 .setApi( "/users/" + username )
                 .setParameter( "password", password )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject userInfo = new JSONObject( response );
+        JSONObject userInfo = JSON.parseObject( response );
         Assert.assertEquals( userInfo.getString( "username" ), username );
         Assert.assertEquals( userInfo.getString( "password_type" ),
                 ScmUserPasswordType.LOCAL.name() );
@@ -58,7 +59,7 @@ public class AuthServer1487 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/users/" + username ).setResponseType( String.class )
                 .exec().getBody().toString();
-        JSONObject userInfo1 = new JSONObject( response1 );
+        JSONObject userInfo1 =  JSON.parseObject( response1 );
         Assert.assertEquals( userInfo1.getString( "username" ), username );
         Assert.assertEquals( userInfo1.getString( "password_type" ),
                 ScmUserPasswordType.LOCAL.name() );
@@ -68,8 +69,8 @@ public class AuthServer1487 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/users?password_type=" + ScmUserPasswordType.LOCAL )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray userInfo2 = new JSONArray( response2 );
-        Assert.assertEquals( userInfo2.length() >= 1, true,
+        JSONArray userInfo2 = JSON.parseArray( response2 );
+        Assert.assertEquals( userInfo2.size() >= 1, true,
                 userInfo2.toString() );
 
         // create role
@@ -78,7 +79,7 @@ public class AuthServer1487 extends TestScmBase {
                 .setApi( "/roles/" + username )
                 .setParameter( "description", username )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject roleInfo1 = new JSONObject( response3 );
+        JSONObject roleInfo1 = JSON.parseObject( response3 );
         Assert.assertEquals( roleInfo1.getString( "role_name" ),
                 "ROLE_" + username );
 
@@ -87,7 +88,7 @@ public class AuthServer1487 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/roles/" + username ).setResponseType( String.class )
                 .exec().getBody().toString();
-        JSONObject roleInfo2 = new JSONObject( response4 );
+        JSONObject roleInfo2 = JSON.parseObject( response4 );
         Assert.assertEquals( roleInfo2.getString( "role_name" ),
                 "ROLE_" + username );
         Assert.assertEquals( roleInfo2.getString( "description" ), username );
@@ -96,8 +97,8 @@ public class AuthServer1487 extends TestScmBase {
         String response5 = rest.setServerType( "auth-server" )
                 .setRequestMethod( HttpMethod.GET ).setApi( "/roles" )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray roles = new JSONArray( response5 );
-        Assert.assertEquals( roles.length() >= 1, true, roles.toString() );
+        JSONArray roles = JSON.parseArray( response5 );
+        Assert.assertEquals( roles.size() >= 1, true, roles.toString() );
 
         // user attach role
         String response6 = rest.setServerType( "auth-server" )
@@ -105,8 +106,8 @@ public class AuthServer1487 extends TestScmBase {
                 .setApi( "/users/" + username )
                 .setParameter( "add_roles", username )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject userInfo3 = new JSONObject( response6 );
-        Assert.assertEquals( userInfo3.getJSONArray( "roles" ).length(), 1 );
+        JSONObject userInfo3 = JSON.parseObject( response6 );
+        Assert.assertEquals( userInfo3.getJSONArray( "roles" ).size(), 1 );
 
         // login
         rest1.connect( site.getSiteServiceName(), username, password );
@@ -116,8 +117,8 @@ public class AuthServer1487 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/sessions?username=" + username )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray sessions = new JSONArray( response7 );
-        Assert.assertEquals( sessions.length(), 1, sessions.toString() );
+        JSONArray sessions = JSON.parseArray( response7 );
+        Assert.assertEquals( sessions.size(), 1, sessions.toString() );
         String sessionId = sessions.getJSONObject( 0 )
                 .getString( "session_id" );
 
@@ -126,7 +127,7 @@ public class AuthServer1487 extends TestScmBase {
                 .setRequestMethod( HttpMethod.GET )
                 .setApi( "/sessions/" + sessionId + "?user_details=" + true )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject sessionInfo = new JSONObject( response8 );
+        JSONObject sessionInfo = JSON.parseObject( response8 );
         Assert.assertEquals( sessionInfo.getString( "username" ), username );
 
         // delete session

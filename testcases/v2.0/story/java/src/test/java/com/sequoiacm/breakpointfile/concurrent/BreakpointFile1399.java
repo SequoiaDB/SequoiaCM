@@ -12,7 +12,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONException;
 import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
@@ -68,9 +67,8 @@ public class BreakpointFile1399 extends TestScmBase {
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test() throws JSONException, ScmException,
-            InterruptedException, IOException {
-
+    private void test() throws ScmException, InterruptedException,
+            IOException {
         CreateBreakpointFileThread createThread = new CreateBreakpointFileThread();
         createThread.start();
 

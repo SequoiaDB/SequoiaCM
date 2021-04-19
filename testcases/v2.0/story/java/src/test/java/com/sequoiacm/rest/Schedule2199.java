@@ -9,9 +9,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.exception.ScmError;
@@ -35,7 +35,7 @@ public class Schedule2199 extends TestScmBase {
     private WsWrapper wsp = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() throws JSONException {
+    private void setUp() {
         site = ScmInfo.getBranchSite();
         site1 = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -64,7 +64,7 @@ public class Schedule2199 extends TestScmBase {
                 .setParameter( "description", desc.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response = " + response );
-        JSONObject schduleInfo = new JSONObject( response );
+        JSONObject schduleInfo = JSON.parseObject( response );
         String schduleId = schduleInfo.getString( "id" );
 
         // get schedule
@@ -73,7 +73,7 @@ public class Schedule2199 extends TestScmBase {
                 .setApi( "/schedules/" + schduleId )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response = " + response1 );
-        JSONObject schduleInfo1 = new JSONObject( response1 );
+        JSONObject schduleInfo1 = JSON.parseObject( response1 );
         Assert.assertEquals( schduleInfo1.getString( "id" ), schduleId );
         Assert.assertEquals( schduleInfo1.getString( "desc" ), name );
         Assert.assertEquals( schduleInfo1.getString( "type" ),
@@ -90,7 +90,7 @@ public class Schedule2199 extends TestScmBase {
                 .setApi( "/schedules/" + schduleId )
                 .setParameter( "description", desc1.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject schduleInfo2 = new JSONObject( response2 );
+        JSONObject schduleInfo2 = JSON.parseObject( response2 );
         Assert.assertEquals( schduleInfo2.getString( "id" ), schduleId );
         Assert.assertEquals( schduleInfo2.getString( "desc" ),
                 name + "_update" );
@@ -103,7 +103,7 @@ public class Schedule2199 extends TestScmBase {
                 .setApi( "/schedules/" + schduleId )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response = " + response3 );
-        JSONObject schduleInfo3 = new JSONObject( response3 );
+        JSONObject schduleInfo3 = JSON.parseObject( response3 );
         Assert.assertEquals( schduleInfo3.getString( "id" ), schduleId );
         Assert.assertEquals( schduleInfo3.getString( "desc" ),
                 name + "_update" );
@@ -120,8 +120,8 @@ public class Schedule2199 extends TestScmBase {
                 .setParameter( "filter", desc1.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
         System.out.println( "response = " + response4 );
-        JSONArray schedules = new JSONArray( response4 );
-        Assert.assertEquals( schedules.length() >= 1, true,
+        JSONArray schedules =JSON.parseArray( response4 );
+        Assert.assertEquals( schedules.size() >= 1, true,
                 schedules.toString() );
 
         // delete schedule

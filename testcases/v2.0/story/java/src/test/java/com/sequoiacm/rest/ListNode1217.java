@@ -6,12 +6,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
+
+;
 
 /**
  * @FileName SCM-1217: 获取节点信息列表
@@ -40,16 +43,16 @@ public class ListNode1217 extends TestScmBase {
                 .setUriVariables(
                         new Object[] { "{\"site_id\":" + siteId + "}" } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray results = new JSONArray( response );
-        if ( results.length() <= 0 ) {
+        JSONArray results = JSON.parseArray(  response );
+        if ( results.size() <= 0 ) {
             Assert.fail( "no node of site_id[" + siteId + "]" );
         }
-        for ( int i = 0; i < results.length(); ++i ) {
+        for ( int i = 0; i < results.size(); ++i ) {
             JSONObject obj = results.getJSONObject( i );
-            Assert.assertTrue( obj.has( "name" ) );
-            Assert.assertTrue( obj.has( "id" ) );
-            Assert.assertTrue( obj.has( "type" ) );
-            Assert.assertTrue( obj.has( "site_id" ) );
+            Assert.assertTrue( obj.containsKey( "name" ) );
+            Assert.assertTrue( obj.containsKey( "id" ) );
+            Assert.assertTrue( obj.containsKey( "type" ) );
+            Assert.assertTrue( obj.containsKey( "site_id" ) );
         }
 
         response = rest.setRequestMethod( HttpMethod.GET )

@@ -7,8 +7,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -38,14 +38,14 @@ public class GetTaskDetail1210 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
 
-        JSONObject options = new JSONObject(
-                "{ 'filter': { 'author': 'inexistent_author1210' } }" );
+        JSONObject options = JSON.parseObject((
+                "{ 'filter': { 'author': 'inexistent_author1210' } }" ));
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        taskId = new JSONObject( response ).getJSONObject( "task" )
+        taskId = JSON.parseObject( response ).getJSONObject( "task" )
                 .getString( "id" );
     }
 
@@ -54,7 +54,7 @@ public class GetTaskDetail1210 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.HEAD )
                 .setApi( "tasks/" + taskId ).setResponseType( String.class )
                 .exec().getHeaders().get( "task" ).toString();
-        JSONObject obj = new JSONArray( response ).getJSONObject( 0 );
+        JSONObject obj = JSON.parseArray( response ).getJSONObject( 0 );
         Assert.assertEquals( taskId, obj.getString( "id" ) );
 
         try {

@@ -6,9 +6,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -51,7 +52,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setParameter( "workspace_name", wsp.getName() )
                 .setParameter( "description", desc1.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        classId = new JSONObject( response ).getString( "id" );
+        classId = JSON.parseObject( response ).getString( "id" );
 
         // list class
         JSONObject desc2 = new JSONObject();
@@ -61,15 +62,15 @@ public class CrudDefindMeta2177 extends TestScmBase {
                         + "&filter={uri}" )
                 .setUriVariables( new Object[] { desc2.toString() } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray infoArr = new JSONArray( response1 );
-        Assert.assertEquals( infoArr.length(), 1 );
+        JSONArray infoArr = JSON.parseArray( response1 );
+        Assert.assertEquals( infoArr.size(), 1 );
 
         // get class
         String response2 = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "/metadatas/classes/" + classId + "?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject classInfo = new JSONObject( response2 );
+        JSONObject classInfo = JSON.parseObject( response2 );
         Assert.assertEquals( classInfo.getString( "name" ), name );
         Assert.assertEquals( classInfo.getString( "description" ), name );
 
@@ -87,7 +88,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setApi( "/metadatas/classes/" + classId + "?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject classInfo1 = new JSONObject( response4 );
+        JSONObject classInfo1 = JSON.parseObject(  response4 );
         Assert.assertEquals( classInfo.getString( "name" ), name );
         Assert.assertEquals( classInfo1.getString( "description" ),
                 name + "_update" );
@@ -104,7 +105,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setParameter( "workspace_name", wsp.getName() )
                 .setParameter( "description", desc4.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        attrId = new JSONObject( response3 ).getString( "id" );
+        attrId = JSON.parseObject(  response3 ).getString( "id" );
         // System.out.println("classId = " + classId);
 
         // list attr
@@ -115,15 +116,15 @@ public class CrudDefindMeta2177 extends TestScmBase {
                         + "&filter={uri}" )
                 .setUriVariables( new Object[] { desc5.toString() } )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONArray infoArr1 = new JSONArray( response5 );
-        Assert.assertEquals( infoArr1.length(), 1 );
+        JSONArray infoArr1 = JSON.parseArray(  response5 );
+        Assert.assertEquals( infoArr1.size(), 1 );
 
         // get Attr
         String response6 = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "/metadatas/attrs/" + attrId + "?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject attrInfo = new JSONObject( response6 );
+        JSONObject attrInfo = JSON.parseObject( response6 );
         Assert.assertEquals( attrInfo.getString( "name" ), name );
         Assert.assertEquals( attrInfo.getString( "description" ), name );
 
@@ -148,7 +149,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setResponseType( String.class ).exec();
         JSONObject classInfo2 = getClassInfo();
         Assert.assertEquals(
-                new JSONArray( classInfo2.getString( "attrs" ) ).length(), 1 );
+                JSON.parseArray( ( classInfo2.getString( "attrs" ) )).size(), 1 );
 
         // class detach attr
         rest.setRequestMethod( HttpMethod.PUT )
@@ -157,7 +158,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setResponseType( String.class ).exec();
         JSONObject classInfo3 = getClassInfo();
         Assert.assertEquals(
-                new JSONArray( classInfo3.getString( "attrs" ) ).length(), 0 );
+                JSON.parseArray( classInfo3.getString( "attrs" ) ).size(), 0 );
 
         // delete class
         rest.setRequestMethod( HttpMethod.DELETE )
@@ -184,7 +185,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setApi( "/metadatas/classes/" + classId + "?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject classInfo = new JSONObject( response2 );
+        JSONObject classInfo = JSON.parseObject( response2 );
         return classInfo;
     }
 
@@ -193,7 +194,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 .setApi( "/metadatas/attrs/" + attrId + "?workspace_name="
                         + wsp.getName() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        JSONObject attrInfo = new JSONObject( response6 );
+        JSONObject attrInfo = JSON.parseObject( response6 );
         return attrInfo;
     }
 }

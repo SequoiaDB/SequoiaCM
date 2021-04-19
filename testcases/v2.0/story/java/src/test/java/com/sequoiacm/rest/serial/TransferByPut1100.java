@@ -14,9 +14,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -70,7 +70,7 @@ public class TransferByPut1100 extends TestScmBase {
                 desc.put( "mime_type", "text/plain" );
                 String fileId = upload( filePath, ws, desc.toString(), rest );
                 fileIdList.add( new ScmId( fileId ) );
-                descs.put( desc );
+                descs.add( desc );
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -80,15 +80,15 @@ public class TransferByPut1100 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", author ) );
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject().put( "author", author ) );
         String response1 = rest.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.PUT )
                 .setParameter( "task_type", "1" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        taskId = new JSONObject( response1 ).getJSONObject( "task" )
+        taskId = JSON.parseObject( response1 ).getJSONObject( "task" )
                 .getString( "id" );
 
         waitTaskStop( taskId, rest );
@@ -119,25 +119,23 @@ public class TransferByPut1100 extends TestScmBase {
         }
     }
 
-    private void waitTaskStop( String taskId, RestWrapper rest )
-            throws JSONException {
-        String stopTime = "null";
+    private void waitTaskStop( String taskId, RestWrapper rest ){
+        String stopTime = null;
         JSONObject taskInfo = null;
-        while ( stopTime.equals( "null" ) ) {
+        while ( stopTime == null ) {
             taskInfo = getTaskInfo( taskId, rest );
             stopTime = taskInfo.getJSONObject( "task" )
                     .getString( "stop_time" );
         }
     }
 
-    private JSONObject getTaskInfo( String taskId, RestWrapper rest )
-            throws JSONException {
+    private JSONObject getTaskInfo( String taskId, RestWrapper rest ) {
         JSONObject taskInfo = null;
         try {
             String response = rest.reset().setApi( "tasks/" + taskId )
                     .setRequestMethod( HttpMethod.GET ).exec().getBody()
                     .toString();
-            taskInfo = new JSONObject( response );
+            taskInfo = JSON.parseObject(  response );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -145,7 +143,7 @@ public class TransferByPut1100 extends TestScmBase {
         return taskInfo;
     }
 
-    private void check( JSONObject taskInfo ) throws JSONException {
+    private void check( JSONObject taskInfo ) {
         // checktaskInfo
         JSONObject taskDetail = taskInfo.getJSONObject( "task" );
         Assert.assertEquals( taskDetail.getString( "id" ), taskId );
@@ -155,8 +153,7 @@ public class TransferByPut1100 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException, JSONException,
-            FileNotFoundException {
+            RestWrapper rest ) throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -166,7 +163,7 @@ public class TransferByPut1100 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId = new JSONObject( wResponse ).getJSONObject( "file" )
+        String fileId =JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

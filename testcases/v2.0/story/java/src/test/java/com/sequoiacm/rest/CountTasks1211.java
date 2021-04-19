@@ -5,7 +5,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.util.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -35,14 +36,15 @@ public class CountTasks1211 extends TestScmBase {
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
 
-        JSONObject options = new JSONObject().put( "filter",
-                new JSONObject().put( "author", "inexistent_author1211" ) );
+        JSONObject options = new JSONObject();
+        options.put( "filter", new JSONObject()
+                .put( "author", "inexistent_author1211" ) );
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
-        taskId = new JSONObject( response ).getJSONObject( "task" )
+        taskId = JSON.parseObject( response ).getJSONObject( "task" )
                 .getString( "id" );
     }
 
