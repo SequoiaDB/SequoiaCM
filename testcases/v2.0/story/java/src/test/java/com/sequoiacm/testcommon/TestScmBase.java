@@ -45,6 +45,9 @@ public class TestScmBase {
     protected static String scmUserName;
     protected static String scmPassword;
     protected static String scmPasswordPath;
+    protected static String s3AccessKeyID;
+    protected static String s3SecretKey;
+    protected static String s3ClientUrl;
 
     protected static String ldapUserName;
     protected static String ldapPassword;
@@ -52,15 +55,17 @@ public class TestScmBase {
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
             "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-            "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH" })
+             "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH",
+            "S3ACCESSKEYID","S3SECRETKEY"})
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String LDAPUSER,
-            String LDAPPASSWD, String SCMPASSWDPATH )
+            String SCMUSER, String SCMPASSWD,
+            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH,
+            String S3ACCESSKEYID, String S3SECRETKEY)
             throws Exception {
 
         forceClear = FORCECLEAR;
@@ -81,6 +86,9 @@ public class TestScmBase {
         scmUserName = SCMUSER;
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
+        s3AccessKeyID = S3ACCESSKEYID;
+        s3SecretKey = S3SECRETKEY;
+        s3ClientUrl =  "http://" + gateWayList.get( 0 ) + "/s3";
 
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
