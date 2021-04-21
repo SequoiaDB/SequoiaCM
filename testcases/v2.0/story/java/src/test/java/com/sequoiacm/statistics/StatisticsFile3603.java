@@ -68,7 +68,8 @@ public class StatisticsFile3603 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        // 配置项为空串
+        // 配置项为空串 跟开发确认，配置为空串会有问题，该问题没有办法修改
+        // 因此暂时注释掉相关测试点
         Map< String, String > confMap1 = new HashMap<>();
         // confMap1.put( "scm.statistics.types", "file_upload" );
         // confMap1.put(

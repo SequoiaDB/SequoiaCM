@@ -1,13 +1,14 @@
 package com.sequoiacm.statistics;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bson.BSONObject;
@@ -29,7 +30,6 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -49,24 +49,15 @@ public class StatisticsFile3596 extends TestScmBase {
     private ScmSession session = null;
     private String fileNameBase = "file3596";
     private List< ScmId > fileIdList = new ArrayList<>();
-    private int fileSize = 0;
-    private int fileNum = 10;
+    private int[] fileSizes = { 0, 10 * 1024 * 1023, 11 * 1024 * 1024 };
+    private int fileNum = fileSizes.length;
     private int totalDownloadTime = 0;
     private Date endDate = null;
     private Date beginDate = null;
     private Calendar calendar = Calendar.getInstance();
-    private File localPath = null;
-    private String filePath = null;
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator
-                + TestTools.getClassName() );
-        TestTools.LocalFile.removeFile( localPath );
-        TestTools.LocalFile.createDir( localPath.toString() );
-        filePath = localPath + File.separator + "localFile_" + fileSize
-                + ".txt";
-        TestTools.LocalFile.createFile( filePath, fileSize );
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
@@ -92,10 +83,14 @@ public class StatisticsFile3596 extends TestScmBase {
                 .workspace( wsp.getName() ).beginDate( beginDate )
                 .endDate( endDate ).download().get();
         // 检查结果
+        long totalSize = 0;
+        for ( int i = 0; i < fileSizes.length; i++ ) {
+            totalSize += fileSizes[ i ];
+        }
         ScmFileStatisticInfo expDownloadInfo = new ScmFileStatisticInfo(
                 ScmFileStatisticsType.FILE_DOWNLOAD, beginDate, endDate,
-                TestScmBase.scmUserName, wsp.getName(), null, fileNum, 0,
-                totalDownloadTime / fileNum );
+                TestScmBase.scmUserName, wsp.getName(), null, fileNum,
+                totalSize / fileNum, totalDownloadTime / fileNum );
         StatisticsUtils.checkScmFileStatisticInfo( downloadInfo,
                 expDownloadInfo );
         runSuccess = true;
@@ -106,7 +101,6 @@ public class StatisticsFile3596 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 StatisticsUtils.clearStatisticalInfo();
-                TestTools.LocalFile.removeFile( localPath );
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
@@ -147,7 +141,9 @@ public class StatisticsFile3596 extends TestScmBase {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileNameBase + "_" + UUID.randomUUID() );
             file.setAuthor( fileNameBase );
-            file.setContent( filePath );
+            byte[] bytes = new byte[ fileSizes[ i ] ];
+            new Random().nextBytes( bytes );
+            file.setContent( new ByteArrayInputStream( bytes ) );
             fileIdList.add( file.save() );
         }
     }
