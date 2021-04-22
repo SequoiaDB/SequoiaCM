@@ -19,9 +19,7 @@
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-   <parameter name="S3ACCESSKEYID" value="3D2B4V0C5K9AUJPIWCGL" />
-   <parameter name="S3SECRETKEY" value="lovdzuohDTu6JIS0jcJzDsPQj7HfKOo2rspFW7Lb" />
-   
+
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
    <listeners> 
@@ -42,32 +40,37 @@
       <!-- network test -->
       <packages>
          <!--version-->
-         <package name="com.sequoiacm.net.version" />
-         <package name="com.sequoiacm.net.version.concurrent" />
+         <package name="com.sequoiacm.net.version"/>
+         <package name="com.sequoiacm.net.version.concurrent"/>
          <!--readcachefile-->
-         <package name="com.sequoiacm.net.readcachefile" />
-         <package name="com.sequoiacm.net.readcachefile.concurrent" />
+         <package name="com.sequoiacm.net.readcachefile"/>
+         <package name="com.sequoiacm.net.readcachefile.concurrent"/>
          <!-- directory -->
-   		<package name="com.sequoiacm.directory"/>
+         <package name="com.sequoiacm.directory"/>
          <package name="com.sequoiacm.directory.concurrent"/>
          <!-- batch -->
          <package name="com.sequoiacm.batch"/>
          <package name="com.sequoiacm.batch.concurrent"/>
-         
+
          <!-- auth -->
-         <package name="com.sequoiacm.auth" />
-         <package name="com.sequoiacm.auth.concurrent" />
-         <!-- definemeta -->  
-   		<package name="com.sequoiacm.definemeta"/> 
-		   <package name="com.sequoiacm.definemeta.concurrent"/>
-		   <!-- scmfile -->
-         <package name="com.sequoiacm.scmfile" />
-         <package name="com.sequoiacm.scmfile.concurrent" />
+         <package name="com.sequoiacm.auth"/>
+         <package name="com.sequoiacm.auth.concurrent"/>
+         <!-- definemeta -->
+         <package name="com.sequoiacm.definemeta"/>
+         <package name="com.sequoiacm.definemeta.concurrent"/>
+         <!-- scmfile -->
+         <package name="com.sequoiacm.scmfile"/>
+         <package name="com.sequoiacm.scmfile.concurrent"/>
          <!-- session -->
-         <package name="com.sequoiacm.session" />
-         <package name="com.sequoiacm.session.concurrent" />
-          <!-- workspace -->
-         <package name="com.sequoiacm.workspace" />
+         <package name="com.sequoiacm.session"/>
+         <package name="com.sequoiacm.session.concurrent"/>
+         <!-- workspace -->
+         <package name="com.sequoiacm.workspace"/>
+         <!-- s3 -->
+         <package name="com.sequoiacm.s3.bucket"/>
+         <package name="com.sequoiacm.s3.bucket.concurrent"/>
+         <package name="com.sequoiacm.s3.object"/>
+         <package name="com.sequoiacm.s3.object.concurrent"/>
       </packages>
    </test>
 

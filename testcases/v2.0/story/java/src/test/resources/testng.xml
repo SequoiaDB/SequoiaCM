@@ -19,9 +19,7 @@
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-   <parameter name="S3ACCESSKEYID" value="3D2B4V0C5K9AUJPIWCGL" />
-   <parameter name="S3SECRETKEY" value="lovdzuohDTu6JIS0jcJzDsPQj7HfKOo2rspFW7Lb" />
-   
+
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
    <listeners> 
@@ -41,48 +39,53 @@
       
       <packages>
          <!-- asynctask -->
-         <package name="com.sequoiacm.asynctask" />
-         <package name="com.sequoiacm.asynctask.concurrent" />
+         <package name="com.sequoiacm.asynctask"/>
+         <package name="com.sequoiacm.asynctask.concurrent"/>
          <!-- drivernetpool -->
          <package name="com.sequoiacm.drivernetpool"/>
          <package name="com.sequoiacm.drivernetpool.concurrent"/>
          <!-- multiDs -->
-         <package name="com.sequoiacm.multids" />
-         <package name="com.sequoiacm.multids.concurrent" />
+         <package name="com.sequoiacm.multids"/>
+         <package name="com.sequoiacm.multids.concurrent"/>
          <!-- query -->
-         <package name="com.sequoiacm.querybuilder" />
+         <package name="com.sequoiacm.querybuilder"/>
          <!-- readcachefile -->
-         <package name="com.sequoiacm.readcachefile" />
-         <package name="com.sequoiacm.readcachefile.concurrent" />
+         <package name="com.sequoiacm.readcachefile"/>
+         <package name="com.sequoiacm.readcachefile.concurrent"/>
          <!-- scmfile -->
-         <package name="com.sequoiacm.scmfile" />
-         <package name="com.sequoiacm.scmfile.concurrent" />
+         <package name="com.sequoiacm.scmfile"/>
+         <package name="com.sequoiacm.scmfile.concurrent"/>
          <!-- session -->
-         <package name="com.sequoiacm.session" />
-         <package name="com.sequoiacm.session.concurrent" />
+         <package name="com.sequoiacm.session"/>
+         <package name="com.sequoiacm.session.concurrent"/>
          <!-- site -->
-         <package name="com.sequoiacm.site" />
+         <package name="com.sequoiacm.site"/>
          <!-- workspace -->
-         <package name="com.sequoiacm.workspace" />
-   	   	 <!-- rest -->
-   		 <package name="com.sequoiacm.rest" />
-   		 <!-- directory -->
-   		 <package name="com.sequoiacm.directory"/>
+         <package name="com.sequoiacm.workspace"/>
+         <!-- rest -->
+         <package name="com.sequoiacm.rest"/>
+         <!-- directory -->
+         <package name="com.sequoiacm.directory"/>
          <package name="com.sequoiacm.directory.concurrent"/>
          <!-- batch -->
          <package name="com.sequoiacm.batch"/>
          <package name="com.sequoiacm.batch.concurrent"/>
          <!-- auth -->
-   	   	 <package name="com.sequoiacm.auth" />
-   	   	 <package name="com.sequoiacm.auth.concurrent" />   	
-   		 <!-- breakpoint file -->  
-   		 <package name="com.sequoiacm.breakpointfile" /> 
-   		 <package name="com.sequoiacm.breakpointfile.concurrent" />	
-   		 <!-- file version -->  
-   		 <package name="com.sequoiacm.version" />  
-   		 <!-- definemeta -->  
-   		 <package name="com.sequoiacm.definemeta"/> 
-		 <package name="com.sequoiacm.definemeta.concurrent"/>
+         <package name="com.sequoiacm.auth"/>
+         <package name="com.sequoiacm.auth.concurrent"/>
+         <!-- breakpoint file -->
+         <package name="com.sequoiacm.breakpointfile"/>
+         <package name="com.sequoiacm.breakpointfile.concurrent"/>
+         <!-- file version -->
+         <package name="com.sequoiacm.version"/>
+         <!-- definemeta -->
+         <package name="com.sequoiacm.definemeta"/>
+         <package name="com.sequoiacm.definemeta.concurrent"/>
+         <!-- s3 -->
+         <package name="com.sequoiacm.s3.bucket"/>
+         <package name="com.sequoiacm.s3.bucket.concurrent"/>
+         <package name="com.sequoiacm.s3.object"/>
+         <package name="com.sequoiacm.s3.object.concurrent"/>
       </packages>
    </test>
 

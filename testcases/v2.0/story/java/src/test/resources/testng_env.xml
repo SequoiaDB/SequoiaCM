@@ -19,8 +19,6 @@
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-   <parameter name="S3ACCESSKEYID" value="3D2B4V0C5K9AUJPIWCGL" />
-   <parameter name="S3SECRETKEY" value="lovdzuohDTu6JIS0jcJzDsPQj7HfKOo2rspFW7Lb" />
    
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />

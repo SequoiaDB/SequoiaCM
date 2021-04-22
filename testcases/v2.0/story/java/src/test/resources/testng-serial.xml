@@ -19,8 +19,6 @@
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-    <parameter name="S3ACCESSKEYID" value="3D2B4V0C5K9AUJPIWCGL" />
-    <parameter name="S3SECRETKEY" value="lovdzuohDTu6JIS0jcJzDsPQj7HfKOo2rspFW7Lb" />
    
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
@@ -39,48 +37,50 @@
             </script>
          </method-selector>
       </method-selectors>
-      
-      <packages>
-			<package name="com.sequoiacm.autocreatelobcs.serial" />
-			<package name="com.sequoiacm.reloadconf.serial" />
-			<package name="com.sequoiacm.scmfile.serial" />
-			
-			<!--only one task is allowed under a ws -->
-			<!--task-->
- 			<package name="com.sequoiacm.task" />
-			<package name="com.sequoiacm.task.concurrent" />
- 			<package name="com.sequoiacm.scheduletask" />
-			<package name="com.sequoiacm.scheduletask.concurrent" />
-			<!--version-->
-         	<package name="com.sequoiacm.version.serial" />
-			<!--session-->
- 			<package name="com.sequoiacm.session.serial" />
-			<!--drivernetpool-->
-			<package name="com.sequoiacm.drivernetpool.serial" />
-			<!--rest-->
-			<package name="com.sequoiacm.rest.serial" />
-			<!--batch-->
-            <package name="com.sequoiacm.batch.serial" />
-			<!--auth-->
-           	<package name="com.sequoiacm.auth.serial" />
-         	<!--ws-->
-         	<package name="com.sequoiacm.workspace.serial" />
-			<!--monitor-->
-			<package name="com.sequoiacm.monitor" />
-			<!--config-->
-			<package name="com.sequoiacm.config"/>
-            <package name="com.sequoiacm.config.concurrent"/>
-			<!--audit-->
-			<package name="com.sequoiacm.audit"/>
-			 <!--big file-->
-            <package name="com.sequoiacm.bigfile"/>
-            <!--directory -->
-            <package name="com.sequoiacm.directory.serial"/>
-            <!--fulltext-->
-            <package name="com.sequoiacm.fulltextsearch"/>
-            <package name="com.sequoiacm.fulltextsearch.concurrent"/>
-            <package name="com.sequoiacm.fulltextsearch.serial"/>
-      </packages>
+
+       <packages>
+           <package name="com.sequoiacm.autocreatelobcs.serial"/>
+           <package name="com.sequoiacm.reloadconf.serial"/>
+           <package name="com.sequoiacm.scmfile.serial"/>
+
+           <!--only one task is allowed under a ws -->
+           <!--task-->
+           <package name="com.sequoiacm.task"/>
+           <package name="com.sequoiacm.task.concurrent"/>
+           <package name="com.sequoiacm.scheduletask"/>
+           <package name="com.sequoiacm.scheduletask.concurrent"/>
+           <!--version-->
+           <package name="com.sequoiacm.version.serial"/>
+           <!--session-->
+           <package name="com.sequoiacm.session.serial"/>
+           <!--drivernetpool-->
+           <package name="com.sequoiacm.drivernetpool.serial"/>
+           <!--rest-->
+           <package name="com.sequoiacm.rest.serial"/>
+           <!--batch-->
+           <package name="com.sequoiacm.batch.serial"/>
+           <!--auth-->
+           <package name="com.sequoiacm.auth.serial"/>
+           <!--ws-->
+           <package name="com.sequoiacm.workspace.serial"/>
+           <!--monitor-->
+           <package name="com.sequoiacm.monitor"/>
+           <!--config-->
+           <package name="com.sequoiacm.config"/>
+           <package name="com.sequoiacm.config.concurrent"/>
+           <!--audit-->
+           <package name="com.sequoiacm.audit"/>
+           <!--big file-->
+           <package name="com.sequoiacm.bigfile"/>
+           <!--directory -->
+           <package name="com.sequoiacm.directory.serial"/>
+           <!--fulltext-->
+           <package name="com.sequoiacm.fulltextsearch"/>
+           <package name="com.sequoiacm.fulltextsearch.concurrent"/>
+           <package name="com.sequoiacm.fulltextsearch.serial"/>
+           <!--s3-->
+           <package name="com.sequoiacm.s3.bucket.serial"/>
+       </packages>
    </test>
 
 </suite>

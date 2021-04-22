@@ -15,15 +15,18 @@ import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
+    protected static final String S3_SERVICE_NAME = "s3";
     protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
     private static final int WS_NUM_PER_POOL = 1;
 
@@ -48,25 +51,23 @@ public class TestScmBase {
     protected static String s3AccessKeyID;
     protected static String s3SecretKey;
     protected static String s3ClientUrl;
+    protected static List< String > serviceList;
 
     protected static String ldapUserName;
     protected static String ldapPassword;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-             "LDAPUSER", "LDAPPASSWD", "SCMPASSWDPATH",
-            "S3ACCESSKEYID","S3SECRETKEY"})
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
+            "LDAPPASSWD", "SCMPASSWDPATH" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD,
-            String LDAPUSER, String LDAPPASSWD, String SCMPASSWDPATH,
-            String S3ACCESSKEYID, String S3SECRETKEY)
-            throws Exception {
+            String SCMUSER, String SCMPASSWD, String LDAPUSER,
+            String LDAPPASSWD, String SCMPASSWDPATH ) throws Exception {
 
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
@@ -86,9 +87,7 @@ public class TestScmBase {
         scmUserName = SCMUSER;
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
-        s3AccessKeyID = S3ACCESSKEYID;
-        s3SecretKey = S3SECRETKEY;
-        s3ClientUrl =  "http://" + gateWayList.get( 0 ) + "/s3";
+        s3ClientUrl = "http://" + gateWayList.get( 0 ) + "/s3";
 
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
@@ -113,8 +112,11 @@ public class TestScmBase {
             session = ScmFactory.Session
                     .createSession( SessionType.AUTH_SESSION, scOpt );
             ScmInfo.refresh( session );
+            serviceList = ScmSystem.ServiceCenter.getServiceList( session );
+            generateAccessKeys( session );
+
             List< String > wsNames = prepareWs( session );
-            List<WsWrapper> wsps = ScmInfo.getWsList( session );
+            List< WsWrapper > wsps = ScmInfo.getWsList( session );
             for ( WsWrapper wsp : wsps ) {
                 wsNames.add( wsp.getName() );
             }
@@ -129,10 +131,44 @@ public class TestScmBase {
     @AfterSuite(alwaysRun = true)
     public static void finiSuite() throws Exception {
         WsPool.destroy();
+        deleteUser();
+    }
+
+    private static void deleteUser()
+            throws ScmException, UnknownHostException, InterruptedException {
+        if ( serviceList.contains( S3_SERVICE_NAME ) ) {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( ScmInfo.getSite() );
+                ScmFactory.User.deleteUser( session, InetAddress.getLocalHost()
+                        .getHostName().replace( "-", "_" ) );
+                Thread.sleep( 10 * 1000 );
+            } catch ( ScmException e ) {
+                System.out.println( "msg = " + e.getMessage() );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private static void generateAccessKeys( ScmSession session )
+            throws Exception {
+        if ( serviceList.contains( S3_SERVICE_NAME ) ) {
+            String username = InetAddress.getLocalHost().getHostName()
+                    .replace( "-", "_" );
+            ScmAuthUtils.createAdminUser( session, ScmInfo.getWs().getName(),
+                    username, username );
+            String[] accessKeys = ScmAuthUtils.refreshAccessKey( session,
+                    username, username, null );
+            s3AccessKeyID = accessKeys[ 0 ];
+            s3SecretKey = accessKeys[ 1 ];
+        }
     }
 
     private static List< String > parseInfo( String infos ) {
-        List< String > infoList = new ArrayList< String >();
+        List< String > infoList = new ArrayList<>();
         if ( infos.contains( "," ) ) {
             String[] infoArr = infos.split( "," );
             for ( String info : infoArr ) {
@@ -185,7 +221,7 @@ public class TestScmBase {
         }
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( int i = 0; i < WS_NUM_PER_POOL; i++ ) {
-            String wsName =  wsNamePrefix + "_test_" + i;
+            String wsName = wsNamePrefix + "_test_" + i;
             threadExec.addWorker(
                     new TestScmBase().new CreateWS( session, wsName ) );
             wsNames.add( wsName );
