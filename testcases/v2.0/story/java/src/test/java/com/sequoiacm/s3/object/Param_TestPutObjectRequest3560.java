@@ -73,6 +73,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );
     }
 
+    // SEQUOIACM-648
     @Test(dataProvider = "legalKeyNameProvider", enabled = false)
     public void testLegalKeyName( String keyName ) throws Exception {
         TestTools.LocalFile.removeFile( localPath );
@@ -88,7 +89,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
         actSuccessTests.getAndIncrement();
     }
 
-    @Test
+    @Test(enabled = false) // SEQUOIACM-648
     public void testIllegalKeyName() throws Exception {
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );

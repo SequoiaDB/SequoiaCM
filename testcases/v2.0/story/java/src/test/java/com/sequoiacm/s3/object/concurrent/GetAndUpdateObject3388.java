@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
@@ -114,6 +115,11 @@ public class GetAndUpdateObject3388 extends TestScmBase {
                             Md5Utils.md5AsBase64( s3Object.getObjectContent() ),
                             Md5Utils.md5AsBase64( content.getBytes() ) );
                 }
+            } catch ( AmazonS3Exception e ) {
+                if ( e.getStatusCode() != 403 && e.getStatusCode() != 404 ) {
+                    throw e;
+                }
+
             } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
@@ -138,6 +144,10 @@ public class GetAndUpdateObject3388 extends TestScmBase {
                         keyName, newContent );
                 Assert.assertEquals( s3Object.getContentMd5(),
                         Md5Utils.md5AsBase64( newContent.getBytes() ) );
+            } catch ( AmazonS3Exception e ) {
+                if ( e.getStatusCode() != 404 ) {
+                    throw e;
+                }
             } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();

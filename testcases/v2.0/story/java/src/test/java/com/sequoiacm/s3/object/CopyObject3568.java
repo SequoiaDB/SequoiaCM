@@ -136,6 +136,7 @@ public class CopyObject3568 extends TestScmBase {
             if ( runSuccessNum == expRunSuccessNum ) {
                 s3Client.deleteObject( bucketName, keyNameA );
                 s3Client.deleteObject( bucketName, keyNameB );
+                s3Client.deleteBucket( bucketName );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {

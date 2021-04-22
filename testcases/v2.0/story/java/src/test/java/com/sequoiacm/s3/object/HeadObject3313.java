@@ -82,6 +82,7 @@ public class HeadObject3313 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 s3Client.deleteObject( bucketName, key );
+                s3Client.deleteBucket( bucketName );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {

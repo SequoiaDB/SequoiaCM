@@ -76,6 +76,7 @@ public class DeleteObject3376To3379 extends TestScmBase {
     @AfterClass
     private void tearDown() {
         try {
+            s3Client.deleteBucket( bucketName );
             TestTools.LocalFile.removeFile( localPath );
         } finally {
             if ( s3Client != null ) {

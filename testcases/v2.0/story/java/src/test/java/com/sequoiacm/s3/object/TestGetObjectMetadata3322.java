@@ -74,6 +74,7 @@ public class TestGetObjectMetadata3322 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 S3Utils.deleteObjectAllVersions( s3Client, bucketName, key );
+                s3Client.deleteBucket( bucketName );
             }
         } finally {
             if ( s3Client != null ) {

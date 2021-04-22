@@ -62,6 +62,7 @@ public class CreateObject3289 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 s3Client.deleteObject( bucketName, keyName );
+                s3Client.deleteBucket( bucketName );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
