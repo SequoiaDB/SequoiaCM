@@ -15,7 +15,6 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3385:并发增加和删除相同对象
- *
  * @author wangkexin
  * @Date 2019.01.03
  * @version 1.00
@@ -33,21 +32,22 @@ public class CreateAndDeleteObject3385 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
-        s3Client.putObject( bucketName,keyNameBase + 0,content );
+        s3Client.putObject( bucketName, keyNameBase + 0, content );
     }
 
     @Test
     public void testCreateAndDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
-        for(int i = 1; i < objectNum; i++){
+        for ( int i = 1; i < objectNum; i++ ) {
             threadExec.addWorker( new CreateObject( keyNameBase + i ) );
         }
         threadExec.addWorker( new DeleteObject( keyNameBase + 0 ) );
         threadExec.run();
 
         // check result
-        for (int i = 1; i < objectNum; i++) {
-            S3Object s3Object = s3Client.getObject( bucketName, keyNameBase + i );
+        for ( int i = 1; i < objectNum; i++ ) {
+            S3Object s3Object = s3Client.getObject( bucketName,
+                    keyNameBase + i );
             Assert.assertEquals( s3Object.getKey(), keyNameBase + i );
             Assert.assertEquals(
                     Md5Utils.md5AsBase64( s3Object.getObjectContent() ),
@@ -87,7 +87,7 @@ public class CreateAndDeleteObject3385 extends TestScmBase {
             try {
                 s3Client = S3Utils.buildS3Client();
                 s3Client.putObject( bucketName, keyName, content );
-            }finally {
+            } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
                 }

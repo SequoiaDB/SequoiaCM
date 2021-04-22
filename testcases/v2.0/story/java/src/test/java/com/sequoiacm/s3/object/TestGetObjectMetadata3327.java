@@ -51,7 +51,7 @@ public class TestGetObjectMetadata3327 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2020 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );

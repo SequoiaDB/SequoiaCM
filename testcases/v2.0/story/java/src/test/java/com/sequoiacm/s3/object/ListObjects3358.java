@@ -16,10 +16,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3358: To get a list by listObjectV2 within a
- *              bucket.specify prefix does not match the object.
- *              To get a list by listObjectV1 within a bucket.specify prefix does
- *              not match the object.
+ * @Description SCM-3358:带前缀prefix查询对象元数据列表，匹配不到对象数据
  * @author wuyan
  * @Date 2018.11.19
  * @version 1.00

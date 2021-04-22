@@ -46,22 +46,25 @@ public class TestGetObjectMetadata3316 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         // 正确的eTag
-        GetObjectMetadataRequest request1 =  new GetObjectMetadataRequest( bucketName,keyName );
-        request1.putCustomRequestHeader( "if-Match",eTag2 );
+        GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
+                bucketName, keyName );
+        request1.putCustomRequestHeader( "if-Match", eTag2 );
         ObjectMetadata objectMeta1 = s3Client.getObjectMetadata( request1 );
         Assert.assertEquals( objectMeta1.getETag(), eTag2 );
-        Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>(  ));
-        Assert.assertEquals( objectMeta1.getContentLength(),(content + "v2").length() );
+        Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>() );
+        Assert.assertEquals( objectMeta1.getContentLength(),
+                ( content + "v2" ).length() );
         Assert.assertNotNull( objectMeta1.getLastModified() );
 
         // 不正确的eTag
-        GetObjectMetadataRequest request2 =  new GetObjectMetadataRequest( bucketName,keyName );
-        request2.putCustomRequestHeader( "if-Match",eTag1 );
+        GetObjectMetadataRequest request2 = new GetObjectMetadataRequest(
+                bucketName, keyName );
+        request2.putCustomRequestHeader( "if-Match", eTag1 );
         try {
             s3Client.getObjectMetadata( request2 );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if( e.getStatusCode() != 412){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 412 ) {
                 throw e;
             }
         }

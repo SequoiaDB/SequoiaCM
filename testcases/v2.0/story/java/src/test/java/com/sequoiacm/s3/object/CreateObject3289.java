@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3289:seqDB-3289: create object
+ * @Description SCM-3289:增加对象内容较大
  * @author wuyan
  * @Date 2018.11.6
  * @version 1.00
@@ -50,8 +50,8 @@ public class CreateObject3289 extends TestScmBase {
     @Test
     public void testCreateObject() throws Exception {
         Date beforeDate = new Date();
-        PutObjectResult result = s3Client.putObject( bucketName,
-                keyName, new File( filePath ) );
+        PutObjectResult result = s3Client.putObject( bucketName, keyName,
+                new File( filePath ) );
         checkObjectAttributeInfo( result, beforeDate, keyName );
         checkPutObjectResult( bucketName, keyName );
         runSuccess = true;
@@ -69,7 +69,8 @@ public class CreateObject3289 extends TestScmBase {
         }
     }
 
-    private void checkPutObjectResult( String bucketName, String keyName) throws Exception {
+    private void checkPutObjectResult( String bucketName, String keyName )
+            throws Exception {
         // down file
         String downfileMd5 = S3Utils.getMd5OfObject( s3Client, localPath,
                 bucketName, keyName );
@@ -77,7 +78,7 @@ public class CreateObject3289 extends TestScmBase {
     }
 
     private void checkObjectAttributeInfo( PutObjectResult objAttrInfo,
-            Date beforeDate,String keyName ) throws IOException {
+            Date beforeDate, String keyName ) throws IOException {
         String expMd5 = TestTools.getMD5( filePath );
         Assert.assertEquals( objAttrInfo.getETag(), expMd5 );
 

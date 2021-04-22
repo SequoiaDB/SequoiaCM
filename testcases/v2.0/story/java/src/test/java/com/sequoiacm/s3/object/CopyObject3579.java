@@ -50,7 +50,7 @@ public class CopyObject3579 extends TestScmBase {
         TestTools.LocalFile.createFile( hisVersionFilePath, fileSize1 );
         TestTools.LocalFile.createFile( curVersionFilePath, fileSize2 );
 
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, srcKeyName,
                 new File( hisVersionFilePath ) );

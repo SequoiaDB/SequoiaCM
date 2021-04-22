@@ -21,9 +21,8 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
- * @Description SCM-3389:concurrent create and get the same object
+ * @Description SCM-3389:并发增加和获取对象列表
  * @author wuyan
  * @Date 2019.1.8
  * @version 1.00
@@ -136,7 +135,7 @@ public class CreateAndListObject3389 extends TestScmBase {
         }
     }
 
-    private class ListObjectThread  {
+    private class ListObjectThread {
         @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
@@ -156,7 +155,7 @@ public class CreateAndListObject3389 extends TestScmBase {
         }
     }
 
-    private class ListObjectV1Thread{
+    private class ListObjectV1Thread {
         @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();

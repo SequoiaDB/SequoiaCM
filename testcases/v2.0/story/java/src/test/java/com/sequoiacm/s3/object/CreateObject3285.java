@@ -17,8 +17,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3285:create object,the key name of the same name already
- *              exists
+ * @Description SCM-3285:增加同名对象
  * @author wuyan
  * @Date 2018.11.12
  * @version 1.00
@@ -48,14 +47,13 @@ public class CreateObject3285 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, updateSize );
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
     }
 
     @Test
     public void testCreateObject() throws Exception {
-        s3Client.putObject( bucketName, keyName,
-                new File( filePath ) );
+        s3Client.putObject( bucketName, keyName, new File( filePath ) );
         updateObjectWithSameContent( bucketName );
         updateObjectWithDiffContent( bucketName );
         runSuccess = true;
@@ -98,7 +96,8 @@ public class CreateObject3285 extends TestScmBase {
         String downfileMd5 = S3Utils.getMd5OfObject( s3Client, localPath,
                 bucketName, keyName );
         Assert.assertEquals( downfileMd5, TestTools.getMD5( filePath ) );
-        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),downfileMd5 );
+        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),
+                downfileMd5 );
     }
 
     private void updateObjectWithDiffContent( String bucketName )
@@ -114,6 +113,7 @@ public class CreateObject3285 extends TestScmBase {
                 bucketName, keyName );
         S3Object updateObject = s3Client.getObject( bucketName, keyName );
         Assert.assertEquals( downfileMd5, TestTools.getMD5( updatePath ) );
-        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),downfileMd5 );
+        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),
+                downfileMd5 );
     }
 }

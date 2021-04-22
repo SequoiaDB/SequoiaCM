@@ -20,7 +20,6 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
  * @Description: SCM-3387:并发增加和删除相同对象
  * @author wangkexin
@@ -89,14 +88,16 @@ public class GetAndDeleteObject3387 extends TestScmBase {
                 S3Object s3Object = s3Client.getObject( bucketName, keyName );
                 ObjectMetadata metadata = s3Object.getObjectMetadata();
                 String etag = metadata.getETag();
-                Assert.assertEquals( etag, TestTools.getMD5( content.getBytes() ) );
-                Assert.assertEquals( Md5Utils.md5AsBase64( s3Object.getObjectContent() ),
+                Assert.assertEquals( etag,
+                        TestTools.getMD5( content.getBytes() ) );
+                Assert.assertEquals(
+                        Md5Utils.md5AsBase64( s3Object.getObjectContent() ),
                         Md5Utils.md5AsBase64( content.getBytes() ) );
-            }catch ( AmazonS3Exception e ){
+            } catch ( AmazonS3Exception e ) {
                 if ( e.getStatusCode() != 404 ) {
                     throw e;
                 }
-            }finally {
+            } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
                 }

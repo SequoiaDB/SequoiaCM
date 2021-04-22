@@ -17,8 +17,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3375: To get a list by listObjectV1.specify
- *              prefix/delimiter.no matching prefix.
+ * @Description SCM-3375:带前缀prefix+delimiter查询对象元数据列表,不匹配prefix
  * @author wuyan
  * @Date 2019.06.20
  * @version 1.00

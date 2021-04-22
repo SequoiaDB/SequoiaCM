@@ -17,9 +17,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3364: To get a list by listObjectV1.specify
- *              marker/prefix. test match marker not match prefix and match
- *              prefix not match marker.
+ * @Description SCM-3364:带prefix和marker查询对象元数据列表，匹配部分条件
  * @author wuyan
  * @Date 2019.06.17
  * @version 1.00

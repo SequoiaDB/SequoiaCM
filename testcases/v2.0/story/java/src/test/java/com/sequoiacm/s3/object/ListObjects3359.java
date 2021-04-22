@@ -20,8 +20,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3359: listObjectV2 with mathcing delimiter.
- *                        listObjectV1 with mathcing delimiter.
+ * @Description SCM-3359:带分隔符delimiter查询对象元数据列表
  * @author wuyan
  * @Date 2018.11.19
  * @version 1.00

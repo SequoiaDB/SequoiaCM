@@ -39,9 +39,10 @@ public class TestGetObjectMetadata3330 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
-        PutObjectResult result1 =  s3Client.putObject( bucketName, keyName, content + "v1" );
+        PutObjectResult result1 = s3Client.putObject( bucketName, keyName,
+                content + "v1" );
         historyETag = result1.getETag();
         PutObjectResult result2 = s3Client.putObject( bucketName, keyName,
                 content + "v2" );
@@ -51,7 +52,7 @@ public class TestGetObjectMetadata3330 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
@@ -77,7 +78,7 @@ public class TestGetObjectMetadata3330 extends TestScmBase {
                 s3Client.deleteObject( bucketName, keyName );
                 s3Client.deleteBucket( bucketName );
             }
-        }finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }

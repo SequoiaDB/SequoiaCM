@@ -18,8 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3373: To get a list by listObjectV1.specify matching
- *              maxKeys list query mulitiple times.
+ * @Description SCM-3373:不带delimiter查询列表元数据，匹配多次查询
  * @author wuyan
  * @Date 2019.06.21
  * @version 1.00

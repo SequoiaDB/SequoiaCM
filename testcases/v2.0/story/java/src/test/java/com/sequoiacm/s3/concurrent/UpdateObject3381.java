@@ -15,10 +15,8 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
  * @Description: SCM-3381:对象已存在，并发更新相同对象
- *
  * @author wangkexin
  * @Date 2018.12.18
  * @version 1.00
@@ -41,7 +39,7 @@ public class UpdateObject3381 extends TestScmBase {
     @Test
     public void testUpdateObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
-        for(int i = 0; i < 50; i++){
+        for ( int i = 0; i < 50; i++ ) {
             threadExec.addWorker( new UpdateObject() );
         }
         threadExec.run();
@@ -53,7 +51,7 @@ public class UpdateObject3381 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                s3Client.deleteObject( bucketName,keyName );
+                s3Client.deleteObject( bucketName, keyName );
                 s3Client.deleteBucket( bucketName );
             }
         } finally {
@@ -88,8 +86,8 @@ public class UpdateObject3381 extends TestScmBase {
             AmazonS3 s3Client = null;
             try {
                 s3Client = S3Utils.buildS3Client();
-                s3Client.putObject( bucketName, keyName, newContent);
-            }finally {
+                s3Client.putObject( bucketName, keyName, newContent );
+            } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
                 }

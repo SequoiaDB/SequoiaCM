@@ -18,9 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3368: To get a list by listObjectV1.specify matching
- *              delimiter and maxkeys. test a: maxkeys is less than the matching
- *              records test b: maxkeys is greater than the matching records
+ * @Description SCM-3368:带分隔符delimiter和maxkeys查询
  * @author wuyan
  * @Date 2019.06.20
  * @version 1.00

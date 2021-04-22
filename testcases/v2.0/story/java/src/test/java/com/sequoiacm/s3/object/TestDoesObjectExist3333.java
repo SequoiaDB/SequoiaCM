@@ -36,7 +36,7 @@ public class TestDoesObjectExist3333 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         validValues.add( getRandomString( 3 ) );
         validValues.add( getRandomString( 63 ) );
         S3Utils.clearBucket( s3Client, bucketName );
@@ -127,10 +127,12 @@ public class TestDoesObjectExist3333 extends TestScmBase {
         try {
             if ( runSuccess ) {
 
-                for(String bucketName : validValues){
-                    ObjectListing objectList = s3Client.listObjects(  bucketName );
-                    List<S3ObjectSummary> sum = objectList.getObjectSummaries();
-                    for(S3ObjectSummary summary : sum){
+                for ( String bucketName : validValues ) {
+                    ObjectListing objectList = s3Client
+                            .listObjects( bucketName );
+                    List< S3ObjectSummary > sum = objectList
+                            .getObjectSummaries();
+                    for ( S3ObjectSummary summary : sum ) {
                         s3Client.deleteObject( bucketName, summary.getKey() );
                     }
                     s3Client.deleteBucket( bucketName );

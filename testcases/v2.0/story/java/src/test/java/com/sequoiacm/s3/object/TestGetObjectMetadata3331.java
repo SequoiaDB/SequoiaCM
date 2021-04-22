@@ -37,7 +37,7 @@ public class TestGetObjectMetadata3331 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, keyName, content + "v1" );
         PutObjectResult result2 = s3Client.putObject( bucketName, keyName,
@@ -48,7 +48,7 @@ public class TestGetObjectMetadata3331 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
@@ -65,8 +65,8 @@ public class TestGetObjectMetadata3331 extends TestScmBase {
         try {
             s3Client.getObjectMetadata( request1 );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 304 ){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 304 ) {
                 throw e;
             }
         }
@@ -80,7 +80,7 @@ public class TestGetObjectMetadata3331 extends TestScmBase {
                 s3Client.deleteObject( bucketName, keyName );
                 s3Client.deleteBucket( bucketName );
             }
-        }finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }

@@ -18,9 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3362:: To get a list by listObjectV1.specify matching
- *              marker.seqDB-18566: To get a list by listObjectV1.specify no
- *              matching marker.
+ * @Description SCM-3362:带Marker查询对象元数据列表 SCM-3363:带Marker查询对象元数据列表，匹配不到记录
  * @author wuyan
  * @Date 2019.06.19
  * @version 1.00

@@ -40,8 +40,8 @@ public class GetSameObject3383 extends TestScmBase {
     @Test
     public void testGetObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
-        for(int i = 0; i < 30; i++){
-            threadExec.addWorker(new GetObject() );
+        for ( int i = 0; i < 30; i++ ) {
+            threadExec.addWorker( new GetObject() );
         }
         threadExec.run();
         runSuccess = true;
@@ -51,10 +51,10 @@ public class GetSameObject3383 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                s3Client.deleteObject( bucketName,keyName );
+                s3Client.deleteObject( bucketName, keyName );
                 s3Client.deleteBucket( bucketName );
             }
-        }finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }

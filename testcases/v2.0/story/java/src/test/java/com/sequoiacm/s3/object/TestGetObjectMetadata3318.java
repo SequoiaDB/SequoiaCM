@@ -39,7 +39,7 @@ public class TestGetObjectMetadata3318 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, keyName, content + "v1" );
         PutObjectResult result = s3Client.putObject( bucketName, keyName,
@@ -50,30 +50,32 @@ public class TestGetObjectMetadata3318 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
         String modifiedDate1 = sdf.format( date1 );
 
         // 指定ifModifiedSince条件查询对象 ，指定时间后该对象未修改
-        GetObjectMetadataRequest request1 =  new GetObjectMetadataRequest( bucketName,keyName );
-        System.out.println("modifiedDate1 = " + modifiedDate1);
+        GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
+                bucketName, keyName );
+        System.out.println( "modifiedDate1 = " + modifiedDate1 );
         request1.putCustomRequestHeader( "If-Modified-Since", modifiedDate1 );
         try {
             s3Client.getObjectMetadata( request1 );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 304){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 304 ) {
                 throw e;
             }
         }
 
         // 指定ifModifiedSince条件查询对象 ，指定时间后该对象已更新
         cal.set( Calendar.YEAR, 2020 );
-        Date date2 =  cal.getTime();
+        Date date2 = cal.getTime();
         String modifiedDate2 = sdf.format( date2 );
-        GetObjectMetadataRequest request2 =  new GetObjectMetadataRequest( bucketName,keyName );
+        GetObjectMetadataRequest request2 = new GetObjectMetadataRequest(
+                bucketName, keyName );
         request2.putCustomRequestHeader( "If-Modified-Since", modifiedDate2 );
         ObjectMetadata objectMeta2 = s3Client.getObjectMetadata( request2 );
         Assert.assertEquals( objectMeta2.getETag(), expEtag );

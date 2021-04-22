@@ -10,7 +10,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description: SCM-3312：doesObjectExist查询指定桶不存在 
+ * @Description: SCM-3312：doesObjectExist查询指定桶不存在
  * @author wangkexin
  * @Date 2018.12.07
  * @version 1.00
@@ -47,7 +47,7 @@ public class TestDoesObjectExist3312 extends TestScmBase {
                 s3Client.deleteObject( bucketName, keyName );
                 s3Client.deleteBucket( bucketName );
             }
-        }  finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }

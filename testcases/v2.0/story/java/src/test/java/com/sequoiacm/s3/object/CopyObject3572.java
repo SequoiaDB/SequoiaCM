@@ -68,7 +68,7 @@ public class CopyObject3572 extends TestScmBase {
     // init keyNameB after copy
     @AfterMethod
     private void afterMethod() {
-        s3Client.deleteObject( bucketName, dstKeyName);
+        s3Client.deleteObject( bucketName, dstKeyName );
     }
 
     // a.versionId is history version, but appoint eTag is current version eTag
@@ -134,8 +134,8 @@ public class CopyObject3572 extends TestScmBase {
         Assert.assertEquals( downfileMd5, TestTools.getMD5( filePath ) );
     }
 
-    private void checkObjectAttribute( String keyName,
-            String expETag ) throws IOException {
+    private void checkObjectAttribute( String keyName, String expETag )
+            throws IOException {
         GetObjectMetadataRequest request = new GetObjectMetadataRequest(
                 bucketName, keyName );
         ObjectMetadata objMetadata = s3Client.getObjectMetadata( request );

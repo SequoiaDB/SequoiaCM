@@ -11,7 +11,6 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
  * @Description: SCM-3384:并发删除同一对象
  *
@@ -36,8 +35,8 @@ public class DeleteSameObject3384 extends TestScmBase {
     @Test
     public void testDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
-        for(int i = 0; i < 50; i++){
-            threadExec.addWorker(  new DeleteObjectThread() );
+        for ( int i = 0; i < 50; i++ ) {
+            threadExec.addWorker( new DeleteObjectThread() );
         }
         threadExec.run();
         Assert.assertFalse( s3Client.doesObjectExist( bucketName, keyName ) );
@@ -50,7 +49,7 @@ public class DeleteSameObject3384 extends TestScmBase {
             if ( runSuccess ) {
                 s3Client.deleteBucket( bucketName );
             }
-        }finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }

@@ -15,15 +15,15 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3376: create object
+ * @Description SCM-3376:删除对象 SCM-3377:重复删除对象 SCM-3379:桶不存在，删除对象
  * @author wuyan
  * @Date 2018.11.6
  * @version 1.00
  */
 public class DeleteObject3376To3379 extends TestScmBase {
     private String bucketName = "bucket3376";
-    private String[] keyNames = {"aa/maa/bb/object3376","aa/maa/cc/object3376",
-            "bb/object3376","cc/object3376" };
+    private String[] keyNames = { "aa/maa/bb/object3376",
+            "aa/maa/cc/object3376", "bb/object3376", "cc/object3376" };
     private AmazonS3 s3Client = null;
     private int fileSize = 1024 * 200;
     private File localPath = null;
@@ -41,9 +41,9 @@ public class DeleteObject3376To3379 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
-        s3Client.createBucket( bucketName);
+        s3Client.createBucket( bucketName );
         for ( String keyName : keyNames ) {
-           s3Client.putObject( bucketName, keyName, new File( filePath ) );
+            s3Client.putObject( bucketName, keyName, new File( filePath ) );
         }
     }
 
@@ -55,18 +55,19 @@ public class DeleteObject3376To3379 extends TestScmBase {
 
         // 检查结果
         for ( String keyName : keyNames ) {
-            Assert.assertFalse( s3Client.doesObjectExist( bucketName, keyName ) );
+            Assert.assertFalse(
+                    s3Client.doesObjectExist( bucketName, keyName ) );
         }
 
         // 重复删除对象
-        s3Client.deleteObject( bucketName,keyNames[0] );
+        s3Client.deleteObject( bucketName, keyNames[ 0 ] );
 
         // 桶不存在，删除对象
         try {
             s3Client.deleteObject( bucketName + "10", keyNames[ 0 ] );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 404){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 404 ) {
                 throw e;
             }
         }

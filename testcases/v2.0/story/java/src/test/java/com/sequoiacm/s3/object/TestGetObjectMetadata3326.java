@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description: SCM-3326：指定ifMatch和ifUnModifiedSince条件查询对象 
+ * @Description: SCM-3326：指定ifMatch和ifUnModifiedSince条件查询对象
  *
  * @author wangkexin
  * @Date 2018.12.11
@@ -51,7 +51,7 @@ public class TestGetObjectMetadata3326 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );

@@ -61,14 +61,15 @@ public class TestGetObjectMetadata3324 extends TestScmBase {
         // 指定ifModifiedSince时间小于actDate, ifUnModifiedSince时间大于actDate
         GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
                 bucketName, keyName );
-        request1.putCustomRequestHeader( "If-Unmodified-Since", unModifiedDate );
+        request1.putCustomRequestHeader( "If-Unmodified-Since",
+                unModifiedDate );
         request1.putCustomRequestHeader( "If-Modified-Since", modifiedDate );
         ObjectMetadata objectMeta1 = s3Client.getObjectMetadata( request1 );
 
         Assert.assertEquals( objectMeta1.getETag(), eTag );
         Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>() );
         Assert.assertEquals( objectMeta1.getContentLength(),
-                (content + "v3").length() );
+                ( content + "v3" ).length() );
         runSuccess = true;
     }
 

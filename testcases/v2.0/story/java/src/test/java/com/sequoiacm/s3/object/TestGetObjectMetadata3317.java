@@ -34,7 +34,7 @@ public class TestGetObjectMetadata3317 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        s3Client = S3Utils.buildS3Client( );
+        s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, keyName, content + "v1" );
         PutObjectResult resultV2 = s3Client.putObject( bucketName, keyName,
@@ -48,23 +48,26 @@ public class TestGetObjectMetadata3317 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         // 不正确的eTag
-        GetObjectMetadataRequest request1 =  new GetObjectMetadataRequest( bucketName,keyName );
-        System.out.println("eTag3 = " + eTag3);
-        request1.putCustomRequestHeader( "If-None-Match",eTag2 );
+        GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
+                bucketName, keyName );
+        System.out.println( "eTag3 = " + eTag3 );
+        request1.putCustomRequestHeader( "If-None-Match", eTag2 );
         ObjectMetadata objectMeta1 = s3Client.getObjectMetadata( request1 );
         Assert.assertEquals( objectMeta1.getETag(), eTag3 );
-        Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>(  ));
-        Assert.assertEquals( objectMeta1.getContentLength(),(content + "v2").length() );
+        Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>() );
+        Assert.assertEquals( objectMeta1.getContentLength(),
+                ( content + "v2" ).length() );
         Assert.assertNotNull( objectMeta1.getLastModified() );
 
         // 正确的eTag
-        GetObjectMetadataRequest request2 =  new GetObjectMetadataRequest( bucketName,keyName );
-        request2.putCustomRequestHeader( "If-None-Match",eTag3 );
+        GetObjectMetadataRequest request2 = new GetObjectMetadataRequest(
+                bucketName, keyName );
+        request2.putCustomRequestHeader( "If-None-Match", eTag3 );
         try {
             s3Client.getObjectMetadata( request2 );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 304){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 304 ) {
                 throw e;
             }
         }

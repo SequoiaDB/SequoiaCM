@@ -66,15 +66,16 @@ public class CreateObject3286 extends TestScmBase {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType( content_type );
         objectMetadata.setContentEncoding( content_encoding );
-        Map<String,String> hashMap = new HashMap<>(  );
-        hashMap.put( "myparameter",x_amz_meta_x );
+        Map< String, String > hashMap = new HashMap<>();
+        hashMap.put( "myparameter", x_amz_meta_x );
         objectMetadata.setUserMetadata( hashMap );
         objectMetadata.setExpirationTime( date );
         objectMetadata.setHttpExpiresDate( x_amz_date );
         objectMetadata.setCacheControl( cache_control );
         objectMetadata.setContentDisposition( content_disposition );
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, keyName,
-                new ByteArrayInputStream( content.getBytes() ),objectMetadata);
+        PutObjectRequest putObjectRequest = new PutObjectRequest( bucketName,
+                keyName, new ByteArrayInputStream( content.getBytes() ),
+                objectMetadata );
 
         s3Client.putObject( putObjectRequest );
 
@@ -96,8 +97,8 @@ public class CreateObject3286 extends TestScmBase {
                 object.getObjectMetadata().getUserMetadata()
                         .get( "myparameter" ),
                 x_amz_meta_x, "x-amz-meta-* is wrong" );
-        String actMd5 = S3Utils.getMd5OfObject( s3Client, localPath,
-                bucketName, keyName );
+        String actMd5 = S3Utils.getMd5OfObject( s3Client, localPath, bucketName,
+                keyName );
         Assert.assertEquals( actMd5, TestTools.getMD5( content.getBytes() ) );
         runSuccess = true;
     }

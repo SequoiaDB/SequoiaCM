@@ -18,9 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3370: To get a list by listObjectV1.specify matching
- *              prefix/marker/delimiter.set nextMarker matching conditions
- *              inconsistent.
+ * @Description SCM-3370:带prefix、marker、delimiter在设置nextMarker前后匹配条件不一致
  * @author wuyan
  * @Date 2019.06.20
  * @version 1.00
@@ -33,7 +31,7 @@ public class ListObjects3370 extends TestScmBase {
             "dir1/a/test3_3370", "dir1/dir2/aa/test4_3370",
             "dir1/dir3/aa/test4_3370", "dir1/dir4/aa/test4_3370",
             "dir1/dir2/aa/cc/test5_3370", "dir1/dir2/aa/dd/test6_3370",
-            "dir1/a3370","dir3/a3370","dir4a3370"};
+            "dir1/a3370", "dir3/a3370", "dir4a3370" };
     private AmazonS3 s3Client = null;
     private boolean runSuccess = false;
 
@@ -98,7 +96,7 @@ public class ListObjects3370 extends TestScmBase {
         }
         // check the key of contents
         List< String > matchContentsList1 = new ArrayList<>();
-        matchContentsList1.add(  "dir1/a3370" );
+        matchContentsList1.add( "dir1/a3370" );
         Assert.assertEquals( actContentsList1, matchContentsList1 );
         Assert.assertTrue( result.isTruncated() );
 

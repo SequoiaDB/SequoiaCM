@@ -18,8 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3369: To get a list by listObjectV1.specify
- *              marker/prefix/delimiter/maxkeys.
+ * @Description SCM-3369:带prefix、delimiter、marker和maxkeys匹配查询对象元数据列表
  * @author wuyan
  * @Date 2019.06.20
  * @version 1.00
@@ -30,7 +29,7 @@ public class ListObjects3369 extends TestScmBase {
     private String prefix = "dir1/";
     private String delimiter = "/";
     private String[] keyNames = { "a/test0_3369", "a/test1_3369",
-            "dir1/atest2_3369.png","dir1/dir2/aa/dd/test3_3369",
+            "dir1/atest2_3369.png", "dir1/dir2/aa/dd/test3_3369",
             "dir1/dir2/dir3/test/4_3369", "dir1/dir2/xx/test5_3369",
             "dir1/test6_3369", "dir1/test/7_3369", "dir1/test/8_3369",
             "dir1/test/aa9_3369", "fdir1/test10/_3369",

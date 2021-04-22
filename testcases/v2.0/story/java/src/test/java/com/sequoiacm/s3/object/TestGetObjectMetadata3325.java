@@ -55,13 +55,14 @@ public class TestGetObjectMetadata3325 extends TestScmBase {
         // 指定ifModifiedSince时间小于actDate, ifUnModifiedSince时间小于actDate
         GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
                 bucketName, keyName );
-        request1.putCustomRequestHeader( "If-Unmodified-Since", unModifiedDate );
+        request1.putCustomRequestHeader( "If-Unmodified-Since",
+                unModifiedDate );
         request1.putCustomRequestHeader( "If-Modified-Since", modifiedDate );
         try {
             s3Client.getObjectMetadata( request1 );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 412 ){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 412 ) {
                 throw e;
             }
         }

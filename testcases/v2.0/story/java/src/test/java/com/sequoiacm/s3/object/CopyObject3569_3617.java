@@ -11,7 +11,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3569:复制对象，源对象不存在 ; seqDB-19326:指定桶不存在
+ * @Description SCM-3569:复制对象，源对象不存在 ; SCM-3617:指定桶不存在
  * @author wuyan
  * @Date 2019.09.18
  * @version 1.00
@@ -43,7 +43,7 @@ public class CopyObject3569_3617 extends TestScmBase {
                     e.getStatusCode() + e.getErrorMessage() );
         }
 
-        // testcase 19326: copy object with no srcBucket
+        // testcase 3617: copy object with no srcBucket
         try {
             String srcBucketName = "test19326";
             s3Client.copyObject( srcBucketName, srcKeyName, bucketName,
@@ -54,7 +54,7 @@ public class CopyObject3569_3617 extends TestScmBase {
                     e.getStatusCode() + e.getErrorMessage() );
         }
 
-        // testcase 19326: copy object with no destBucket
+        // testcase 3617: copy object with no destBucket
         try {
             String destBucketName = "test19326";
             s3Client.copyObject( bucketName, srcKeyName, destBucketName,

@@ -101,7 +101,8 @@ public class CopyObject3573 extends TestScmBase {
         CopyObjectResult result = s3Client.copyObject( objRequest );
         // check results
         Assert.assertEquals( result, null );
-        Assert.assertFalse( s3Client.doesObjectExist( dstBucketName, dstKeyName ) );
+        Assert.assertFalse(
+                s3Client.doesObjectExist( dstBucketName, dstKeyName ) );
         runSuccessNum++;
     }
 

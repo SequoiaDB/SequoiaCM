@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3284:create object
+ * @Description SCM-3284:增加对象，未携带参数
  * @author wuyan
  * @Date 2018.11.6
  * @version 1.00
@@ -26,7 +26,8 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 public class CreateObject3284 extends TestScmBase {
     private boolean runSuccess = false;
     private String bucketName = "bucket3284";
-    private String[] keyNames = {"aa/maa/bb/object3284","aa/maa/cc/object3284","bb/object3284","cc/object3284" };
+    private String[] keyNames = { "aa/maa/bb/object3284",
+            "aa/maa/cc/object3284", "bb/object3284", "cc/object3284" };
     private AmazonS3 s3Client = null;
     private int fileSize = 1024 * 1024;
     private File localPath = null;
@@ -43,7 +44,7 @@ public class CreateObject3284 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
     }
 
@@ -51,8 +52,8 @@ public class CreateObject3284 extends TestScmBase {
     public void testCreateObject() throws Exception {
         for ( String keyName : keyNames ) {
             Date beforeDate = new Date();
-            PutObjectResult result = s3Client
-                    .putObject( bucketName, keyName, new File( filePath ) );
+            PutObjectResult result = s3Client.putObject( bucketName, keyName,
+                    new File( filePath ) );
 
             checkObjectAttributeInfo( result, beforeDate, keyName );
             checkPutObjectResult( bucketName, keyName );
@@ -64,7 +65,7 @@ public class CreateObject3284 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                for(String keyName : keyNames) {
+                for ( String keyName : keyNames ) {
                     s3Client.deleteObject( bucketName, keyName );
                 }
                 TestTools.LocalFile.removeFile( localPath );
@@ -74,7 +75,8 @@ public class CreateObject3284 extends TestScmBase {
         }
     }
 
-    private void checkPutObjectResult( String bucketName, String keyName) throws Exception {
+    private void checkPutObjectResult( String bucketName, String keyName )
+            throws Exception {
         // down file
         String downfileMd5 = S3Utils.getMd5OfObject( s3Client, localPath,
                 bucketName, keyName );
@@ -82,7 +84,7 @@ public class CreateObject3284 extends TestScmBase {
     }
 
     private void checkObjectAttributeInfo( PutObjectResult objAttrInfo,
-            Date beforeDate,String keyName ) throws IOException {
+            Date beforeDate, String keyName ) throws IOException {
         String expMd5 = TestTools.getMD5( filePath );
         Assert.assertEquals( objAttrInfo.getETag(), expMd5 );
 

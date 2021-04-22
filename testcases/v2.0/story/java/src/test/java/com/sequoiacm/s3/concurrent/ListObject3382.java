@@ -20,7 +20,6 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
  * @Description: SCM-3382:并发不同条件查询对象列表,覆盖listObjectV1和listObjectV2
  *
@@ -43,14 +42,13 @@ public class ListObject3382 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );
 
         // put multiple objects
         for ( int i = 0; i < objectTotalNum; i++ ) {
             String currentKeyName = keyName + i + "/3382";
-            s3Client.putObject( bucketName, currentKeyName,
-                    "object_file3382" );
+            s3Client.putObject( bucketName, currentKeyName, "object_file3382" );
             expresultList1.add( currentKeyName );
             expresultList2.add( currentKeyName );
         }
@@ -84,7 +82,7 @@ public class ListObject3382 extends TestScmBase {
             if ( runSuccess ) {
                 deleteObjectsAndBucket();
             }
-        }  finally {
+        } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
@@ -98,8 +96,8 @@ public class ListObject3382 extends TestScmBase {
         s3Client.deleteBucket( bucketName );
     }
 
-    private class ListObject  {
-        @ExecuteOrder( step = 1)
+    private class ListObject {
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
@@ -126,8 +124,8 @@ public class ListObject3382 extends TestScmBase {
         }
     }
 
-    private class ListObjectV1{
-        @ExecuteOrder( step = 1)
+    private class ListObjectV1 {
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
@@ -154,7 +152,7 @@ public class ListObject3382 extends TestScmBase {
     }
 
     private class ListObjectWithPerfix {
-        @ExecuteOrder( step = 1)
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
@@ -181,7 +179,7 @@ public class ListObject3382 extends TestScmBase {
     }
 
     private class ListObjectWithPerfixAndDelimiter {
-        @ExecuteOrder( step = 1)
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
@@ -210,9 +208,9 @@ public class ListObject3382 extends TestScmBase {
     }
 
     private class ListObjectV1WithPerfixAndDelimiter {
-        @ExecuteOrder( step = 1)
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
-            AmazonS3 s3Client = S3Utils.buildS3Client( );
+            AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
                 List< String > commprefixesResult = new ArrayList<>();
                 ListObjectsRequest req = new ListObjectsRequest()

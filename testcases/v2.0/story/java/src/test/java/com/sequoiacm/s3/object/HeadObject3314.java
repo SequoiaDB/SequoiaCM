@@ -14,7 +14,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3314: head object and specify the bucket does not exist.
+ * @Description SCM-3314:headObject请求查询指定桶不存在
  * @author wuyan
  * @Date 2018.12.17
  * @version 1.00

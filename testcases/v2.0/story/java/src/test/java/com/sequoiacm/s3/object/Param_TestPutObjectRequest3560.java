@@ -20,7 +20,6 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.exception.BaseException;
 
-
 /**
  * @Description: SCM-3560:PutObjectRequest接口参数校验
  *
@@ -38,7 +37,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
 
     @DataProvider(name = "legalKeyNameProvider")
     public Object[][] generateKeyName() {
-            String ascii = new String();
+        String ascii = new String();
         for ( int i = 1; i < 32; i++ ) {
             ascii += ( char ) i;
         }
@@ -57,7 +56,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
                 new Object[] {
                         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" },
                 // test e : 包含需要特殊处理的字符
-                new Object[] { "&@,$=+;"},
+                new Object[] { "&@,$=+;" },
                 // test f : 包含不建议使用的字符
                 new Object[] { "^`{}][#%~" },
                 // test g : 包含中文字符
@@ -75,7 +74,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );
     }
 
-    @Test(dataProvider = "legalKeyNameProvider",enabled = false)
+    @Test(dataProvider = "legalKeyNameProvider", enabled = false)
     public void testLegalKeyName( String keyName ) throws Exception {
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -96,47 +95,52 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         // test a : 对象名为空串，null，901个字节
-//        try {
-//            s3Client.putObject( new PutObjectRequest( bucketName, "",
-//                    new File( filePath ) ) );
-//            Assert.fail( "when key name is '',it should fail" );
-//        } catch ( AmazonS3Exception e ) {
-//            e.printStackTrace();
-//            Assert.assertEquals( e.getErrorCode(), "MalformedXML" );
-//        }
+        // try {
+        // s3Client.putObject( new PutObjectRequest( bucketName, "",
+        // new File( filePath ) ) );
+        // Assert.fail( "when key name is '',it should fail" );
+        // } catch ( AmazonS3Exception e ) {
+        // e.printStackTrace();
+        // Assert.assertEquals( e.getErrorCode(), "MalformedXML" );
+        // }
 
         // 对象名中包含不支持的参数
-        String[] chars = {/*"aa/bb/object18558_8符*ezT2xd",*/"\\"/*, ":","*","?","\"",">","<","|"*/};
-        for(String str : chars) {
+        String[] chars = {
+                /* "aa/bb/object18558_8符*ezT2xd", */"\\"/*
+                                                         * ,
+                                                         * ":","*","?","\"",">",
+                                                         * "<","|"
+                                                         */ };
+        for ( String str : chars ) {
             try {
-                s3Client.putObject( new PutObjectRequest( bucketName, str, new File( filePath ) ) );
+                s3Client.putObject( new PutObjectRequest( bucketName, str,
+                        new File( filePath ) ) );
                 Assert.fail( "when key name is null,it should fail" );
             } catch ( Exception e ) {
-                System.out.println("-------str = " + str);
+                System.out.println( "-------str = " + str );
                 e.printStackTrace();
-                Assert.assertEquals( e.getMessage(),
-                        " Invalid Key" );
+                Assert.assertEquals( e.getMessage(), " Invalid Key" );
             }
         }
 
         // 对象名以/开头
         try {
-            s3Client.putObject( new PutObjectRequest( bucketName, "/a", new File( filePath ) ) );
+            s3Client.putObject( new PutObjectRequest( bucketName, "/a",
+                    new File( filePath ) ) );
             Assert.fail( "when key name is null,it should fail" );
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.assertEquals( e.getMessage(),
-                    " Invalid Key" );
+            Assert.assertEquals( e.getMessage(), " Invalid Key" );
         }
 
         // 对象名以/结尾
         try {
-            s3Client.putObject( new PutObjectRequest( bucketName, "ac/", new File( filePath ) ) );
+            s3Client.putObject( new PutObjectRequest( bucketName, "ac/",
+                    new File( filePath ) ) );
             Assert.fail( "when key name is null,it should fail" );
         } catch ( Exception e ) {
             e.printStackTrace();
-            Assert.assertEquals( e.getMessage(),
-                    " Invalid Key" );
+            Assert.assertEquals( e.getMessage(), " Invalid Key" );
         }
 
         try {
@@ -150,8 +154,7 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
 
         try {
             s3Client.putObject( new PutObjectRequest( bucketName,
-                    TestTools.getRandomString( 901 ),
-                    new File( filePath ) ) );
+                    TestTools.getRandomString( 901 ), new File( filePath ) ) );
             Assert.fail( "when key name is 901 characters,it should fail" );
         } catch ( AmazonS3Exception e ) {
             Assert.assertEquals( e.getErrorMessage(), "Your key is too long." );

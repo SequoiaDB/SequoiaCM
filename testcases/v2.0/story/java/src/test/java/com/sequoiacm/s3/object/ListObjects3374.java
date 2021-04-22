@@ -16,8 +16,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3374: To get a list by listObjectV1.Multiple query
- *              results match the same record in commprefix.
+ * @Description SCM-3374:多次查询结果在commprefix中有相同记录
  * @author wuyan
  * @Date 2019.06.21
  * @version 1.00

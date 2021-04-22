@@ -18,10 +18,8 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
-
 /**
- * @Description: SCM-3380:并发增加相同对象
- *
+ * @Description: SCM-3380:并发增加对象
  * @author wangkexin
  * @Date 2018.12.18
  * @version 1.00
@@ -30,7 +28,7 @@ public class CreateObject3380 extends TestScmBase {
     private boolean runSuccess = false;
     private String bucketName = "bucket3380";
     private String keyNameBase = "key3380";
-    private List<String> keyNameList = new ArrayList<>(  );
+    private List< String > keyNameList = new ArrayList<>();
     private int fileSize = 1024 * 200;
     private File localPath = null;
     private String filePath = null;
@@ -53,14 +51,16 @@ public class CreateObject3380 extends TestScmBase {
     public void testCreateObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         // 前缀相同
-        for(int i = 0; i < 30; i++){
-            threadExec.addWorker( new CreateObject("aa/bb/cc" + keyNameBase + i) );
+        for ( int i = 0; i < 30; i++ ) {
+            threadExec.addWorker(
+                    new CreateObject( "aa/bb/cc" + keyNameBase + i ) );
             keyNameList.add( "aa/bb/cc" + keyNameBase + i );
         }
 
         // 前缀不同
-        for(int i = 0; i < 10; i++){
-            threadExec.addWorker( new CreateObject("aa" + i + "/" + keyNameBase + i) );
+        for ( int i = 0; i < 10; i++ ) {
+            threadExec.addWorker(
+                    new CreateObject( "aa" + i + "/" + keyNameBase + i ) );
             keyNameList.add( "aa" + i + "/" + keyNameBase + i );
         }
         threadExec.run();
@@ -74,7 +74,7 @@ public class CreateObject3380 extends TestScmBase {
             if ( runSuccess ) {
                 TestTools.LocalFile.removeFile( localPath );
                 for ( String keyName : keyNameList ) {
-                    s3Client.deleteObject( bucketName,keyName );
+                    s3Client.deleteObject( bucketName, keyName );
                 }
                 s3Client.deleteBucket( bucketName );
             }
@@ -108,7 +108,7 @@ public class CreateObject3380 extends TestScmBase {
             try {
                 s3Client = S3Utils.buildS3Client();
                 s3Client.putObject( bucketName, keyName, new File( filePath ) );
-            }finally {
+            } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
                 }

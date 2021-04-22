@@ -76,7 +76,8 @@ public class CopyObject3577 extends TestScmBase {
         CopyObjectRequest request = new CopyObjectRequest( srcBucketName,
                 keyName, dstBucketName, keyName );
         request.withNonmatchingETagConstraint( srcObjHisVerETag );
-        request.withUnmodifiedSinceConstraint( new Date(srcObjHisLastModDate.getTime() + 1000 * 600) );
+        request.withUnmodifiedSinceConstraint(
+                new Date( srcObjHisLastModDate.getTime() + 1000 * 600 ) );
         s3Client.copyObject( request );
 
         // check results
@@ -89,7 +90,7 @@ public class CopyObject3577 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                S3Utils.clearBucket( s3Client,srcBucketName );
+                S3Utils.clearBucket( s3Client, srcBucketName );
                 S3Utils.clearBucket( s3Client, dstBucketName );
                 TestTools.LocalFile.removeFile( localPath );
             }
@@ -104,8 +105,7 @@ public class CopyObject3577 extends TestScmBase {
         Assert.assertEquals( downfileMd5, TestTools.getMD5( filePath ) );
     }
 
-    private void checkObjectAttribute( String filePath )
-            throws IOException {
+    private void checkObjectAttribute( String filePath ) throws IOException {
         GetObjectMetadataRequest request = new GetObjectMetadataRequest(
                 srcBucketName, keyName );
         ObjectMetadata objMetadata = s3Client.getObjectMetadata( request );

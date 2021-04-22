@@ -19,8 +19,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3356:To get a listObjectV2 within a bucket.
- *  To get a listObjectV1 within a bucket.
+ * @Description SCM-3356:查询桶中对象元数据列表
  * @author wuyan
  * @Date 2018.11.15
  * @version 1.00

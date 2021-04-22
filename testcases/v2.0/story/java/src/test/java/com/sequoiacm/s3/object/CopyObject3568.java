@@ -51,7 +51,7 @@ public class CopyObject3568 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
 
         // put object A, and set user-defined metadata

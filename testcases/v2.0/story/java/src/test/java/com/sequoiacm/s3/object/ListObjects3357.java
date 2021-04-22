@@ -20,9 +20,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3357: To get a list by listObjectV2 within a
- *              bucket.specify matching prefix. seqDB-18560: To get a list by
- *              listObjectV1 within a bucket.specify matching prefix
+ * @Description SCM-3357:带前缀prefix查询对象元数据列表
  * @author wuyan
  * @Date 2018.11.19
  * @version 1.00

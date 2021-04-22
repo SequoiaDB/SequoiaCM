@@ -17,10 +17,8 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3366: To get a list by listObjectV1.specify
- *              marker/prefix/delimiter. match delimiter and marker, no match
- *              prefix; seqDB-18570: To get a list by listObjectV1.specify match
- *              marker/prefix/delimiter.
+ * @Description SCM-3366:带prefix、delimiter和marker查询对象元数据列表，不匹配prefix
+ *              SCM-3367:带prefix、delimiter和marker查询对象元数据列表，不匹配delimiter
  * @author wuyan
  * @Date 2019.06.20
  * @version 1.00
@@ -100,8 +98,8 @@ public class ListObjects3366_3367 extends TestScmBase {
         try {
             s3Client.listObjects( request );
             Assert.fail( "exp failed but act success!!!" );
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 400){
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 400 ) {
                 throw e;
             }
         }

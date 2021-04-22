@@ -38,7 +38,7 @@ public class CopyObject3567 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, srcKeyName, new File( filePath ) );
     }

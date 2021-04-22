@@ -49,7 +49,7 @@ public class TestGetObjectMetadata3323 extends TestScmBase {
     @Test
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
@@ -57,14 +57,14 @@ public class TestGetObjectMetadata3323 extends TestScmBase {
 
         // ifUnModifiedSince指定为时间A，时间A后该对象未修改；ifNoneMatch指定为该对象当前版本的Etag值（匹配不到对象）
         GetObjectMetadataRequest request1 = new GetObjectMetadataRequest(
-               bucketName, keyName );
+                bucketName, keyName );
         request1.putCustomRequestHeader( "If-Unmodified-Since", modifiedDate1 );
         request1.putCustomRequestHeader( "If-None-Match", eTag );
         try {
             s3Client.getObjectMetadata( request1 );
-            Assert.fail("exp failed but act success!!!");
-        }catch ( AmazonS3Exception e ){
-            if(e.getStatusCode() != 304){
+            Assert.fail( "exp failed but act success!!!" );
+        } catch ( AmazonS3Exception e ) {
+            if ( e.getStatusCode() != 304 ) {
                 throw e;
             }
         }

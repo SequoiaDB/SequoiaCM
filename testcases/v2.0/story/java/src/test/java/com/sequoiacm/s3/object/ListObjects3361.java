@@ -18,8 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3361: To get a list by listObjectV1.specify matching
- *              maxKeys.
+ * @Description SCM-3361:带maxkeys查询对象元数据列表
  * @author wuyan
  * @Date 2019.06.19
  * @version 1.00

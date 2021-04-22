@@ -39,21 +39,19 @@ public class TestGetObjectMetadata3322 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client,bucketName );
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
-        PutObjectResult resultV1 = s3Client.putObject(
-                bucketName, key, "testobject3322v100" );
+        PutObjectResult resultV1 = s3Client.putObject( bucketName, key,
+                "testobject3322v100" );
         eTag1 = resultV1.getETag();
-        s3Client.putObject( bucketName, key,
-                "testobject3322v2" );
-        s3Client.putObject(  bucketName, key,
-                "testobject3322v3" );
+        s3Client.putObject( bucketName, key, "testobject3322v2" );
+        s3Client.putObject( bucketName, key, "testobject3322v3" );
     }
 
     @Test
     private void testHeadObject() throws Exception {
         cal.set( Calendar.YEAR, 2037 );
-        Date date1 =  cal.getTime();
+        Date date1 = cal.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );
         sdf.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
@@ -64,7 +62,8 @@ public class TestGetObjectMetadata3322 extends TestScmBase {
         request1.putCustomRequestHeader( "If-Unmodified-Since", modifiedDate1 );
         request1.putCustomRequestHeader( "If-None-Match", eTag1 );
         ObjectMetadata objectMeta1 = s3Client.getObjectMetadata( request1 );
-        Assert.assertEquals( objectMeta1.getETag(), TestTools.getMD5(  "testobject3322v3".getBytes() ) );
+        Assert.assertEquals( objectMeta1.getETag(),
+                TestTools.getMD5( "testobject3322v3".getBytes() ) );
         Assert.assertEquals( objectMeta1.getUserMetadata(), new HashMap<>() );
         Assert.assertEquals( objectMeta1.getContentLength(),
                 "testobject3322v3".length() );
@@ -75,8 +74,7 @@ public class TestGetObjectMetadata3322 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                S3Utils.deleteObjectAllVersions( s3Client,
-                        bucketName, key );
+                S3Utils.deleteObjectAllVersions( s3Client, bucketName, key );
             }
         } finally {
             if ( s3Client != null ) {

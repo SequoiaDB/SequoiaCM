@@ -15,7 +15,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description: SCM-3320：指定ifMatch和ifNoneMatch条件查询对象 
+ * @Description: SCM-3320：指定ifMatch和ifNoneMatch条件查询对象
  *
  * @author wangkexin
  * @Date 2018.12.17

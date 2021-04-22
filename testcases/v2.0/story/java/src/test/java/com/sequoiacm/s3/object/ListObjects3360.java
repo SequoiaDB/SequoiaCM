@@ -18,8 +18,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3360: listObjectV1 with mathcing delimiter. list result
- *              does not match delimiter.
+ * @Description SCM-3360:带分隔符delimiter查询对象元数据列表，对象不匹配分隔符
  * @author wuyan
  * @Date 2019.06.19
  * @version 1.00
