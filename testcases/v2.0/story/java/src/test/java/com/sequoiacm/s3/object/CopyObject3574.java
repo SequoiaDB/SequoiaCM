@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3574:复制对象指定ifModifiedSince条件
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.19
  * @version 1.00
  */

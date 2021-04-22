@@ -21,9 +21,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
- * @Description SCM-3322：head object with match conditions: ifNoneMatch and
- *              ifUnModifiedSince
- * @author wuyan
+ * @Description SCM-3322:指定ifNoneMatch和ifUnModifiedSince条件查询对象
+ * @author fanyu
  * @Date 2018.12.18
  * @version 1.00
  */

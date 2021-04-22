@@ -21,8 +21,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3288:增加对象，携带md5值
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.11.13
  * @version 1.00
  */

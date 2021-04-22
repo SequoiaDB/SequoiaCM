@@ -20,8 +20,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3323：指定ifNoneMatch和ifUnModifiedSince条件查询对象，不匹配ifNoneMatch
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.10
  * @version 1.00
  */

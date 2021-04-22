@@ -13,8 +13,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3384:并发删除同一对象
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2019.01.03
  * @version 1.00
  */

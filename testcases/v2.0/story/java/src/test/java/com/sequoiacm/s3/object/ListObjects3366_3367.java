@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 /**
  * @Description SCM-3366:带prefix、delimiter和marker查询对象元数据列表，不匹配prefix
  *              SCM-3367:带prefix、delimiter和marker查询对象元数据列表，不匹配delimiter
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.20
  * @version 1.00
  */

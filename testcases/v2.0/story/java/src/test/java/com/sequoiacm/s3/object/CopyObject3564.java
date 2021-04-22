@@ -22,7 +22,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3564:不同桶复制对象，自定义目标对象元数据信息
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.18
  * @version 1.00
  */

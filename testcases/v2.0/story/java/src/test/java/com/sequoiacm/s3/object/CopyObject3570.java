@@ -17,7 +17,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3570:复制对象指定源对象内容为空
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.18
  * @version 1.00
  */

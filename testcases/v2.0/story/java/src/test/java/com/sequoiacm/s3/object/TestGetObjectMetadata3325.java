@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3325：指定ifUnModifiedSince和ifModifiedSince条件查询对象，不匹配ifUnModifiedSince
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.11
  * @version 1.00
  */

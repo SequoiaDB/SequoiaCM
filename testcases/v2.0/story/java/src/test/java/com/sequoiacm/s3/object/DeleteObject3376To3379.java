@@ -16,7 +16,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3376:删除对象 SCM-3377:重复删除对象 SCM-3379:桶不存在，删除对象
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.6
  * @version 1.00
  */

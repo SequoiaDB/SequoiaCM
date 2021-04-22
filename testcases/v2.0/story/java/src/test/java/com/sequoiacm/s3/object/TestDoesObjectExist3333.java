@@ -20,8 +20,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3333：head查询对象接口参数校验
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.07
  * @version 1.00
  */

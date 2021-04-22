@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 /**
  * @Description SCM-3580:指定ifUnModifiedSince和ifModifiedSince条件复制对象，
  *              源对象不匹配ifUnModifiedSince
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.19
  * @version 1.00
  */

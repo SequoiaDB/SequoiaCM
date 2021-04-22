@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3285:增加同名对象
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.12
  * @version 1.00
  */

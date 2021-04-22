@@ -22,7 +22,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3387:并发增加和删除相同对象
- * @author wangkexin
+ * @author fanyu
  * @Date 2019.01.03
  * @version 1.00
  */

@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3586:指定ifNoneMatch和ifModifiedSince条件获取对象，不匹配ifNoneMatch
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.19
  * @version 1.00
  */

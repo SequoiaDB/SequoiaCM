@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 /**
  * @Description SCM-3585:指定ifNoneMatch和ifModifiedSince条件复制对象，
  *              源对象不匹配ifModifiedSince
- * @Author huangxiaoni
+ * @author fanyu
  * @Date 2019.09.17
  */
 public class CopyObject3585 extends TestScmBase {

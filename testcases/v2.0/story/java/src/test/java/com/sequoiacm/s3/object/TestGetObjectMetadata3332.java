@@ -21,8 +21,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3332：指定ifNoneMatch和ifModifiedSince条件查询对象
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.11
  * @version 1.00
  */

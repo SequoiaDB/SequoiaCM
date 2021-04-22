@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3359:带分隔符delimiter查询对象元数据列表
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.19
  * @version 1.00
  */

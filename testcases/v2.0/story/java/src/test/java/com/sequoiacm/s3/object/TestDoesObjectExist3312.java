@@ -11,7 +11,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3312：doesObjectExist查询指定桶不存在
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.07
  * @version 1.00
  */

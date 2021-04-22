@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3372:指定nextMarker匹配记录被删除，查询列表元数据
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.20
  * @version 1.00
  */

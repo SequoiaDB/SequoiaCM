@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 /**
  * @Description SCM-3587:
  *              指定ifNoneMatch/ifMatch/ifModifiedSince/ifNoneModifiedSince条件获取对象
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.20
  * @version 1.00
  */

@@ -17,8 +17,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3317：指定ifNoneMatch条件，不带versionId查询对象
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.10
  * @version 1.00
  */

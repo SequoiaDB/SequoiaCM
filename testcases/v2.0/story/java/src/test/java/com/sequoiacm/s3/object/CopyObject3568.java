@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3568:桶内复制对象，携带x-amz-metadata-directive
- * @Author huangxiaoni
+ * @author fanyu
  * @Date 2019.09.17
  */
 public class CopyObject3568 extends TestScmBase {

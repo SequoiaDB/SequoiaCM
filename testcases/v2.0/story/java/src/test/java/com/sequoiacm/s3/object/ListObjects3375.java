@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3375:带前缀prefix+delimiter查询对象元数据列表,不匹配prefix
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.20
  * @version 1.00
  */

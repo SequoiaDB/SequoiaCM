@@ -22,7 +22,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3572:复制对象指定ifNoneMatch条件
- * @Author huangxiaoni
+ * @author fanyu
  * @Date 2019.09.17
  */
 public class CopyObject3572 extends TestScmBase {

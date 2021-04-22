@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3361:带maxkeys查询对象元数据列表
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.19
  * @version 1.00
  */

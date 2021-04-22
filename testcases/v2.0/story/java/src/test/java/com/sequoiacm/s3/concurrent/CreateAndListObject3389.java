@@ -23,7 +23,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description SCM-3389:并发增加和获取对象列表
- * @author wuyan
+ * @author fanyu
  * @Date 2019.1.8
  * @version 1.00
  */

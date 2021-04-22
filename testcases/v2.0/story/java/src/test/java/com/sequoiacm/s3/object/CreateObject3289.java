@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3289:增加对象内容较大
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.6
  * @version 1.00
  */

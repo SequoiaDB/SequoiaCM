@@ -17,7 +17,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3358:带前缀prefix查询对象元数据列表，匹配不到对象数据
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.19
  * @version 1.00
  */

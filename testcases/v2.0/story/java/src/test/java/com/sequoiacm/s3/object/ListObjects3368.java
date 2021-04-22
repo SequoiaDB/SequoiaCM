@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3368:带分隔符delimiter和maxkeys查询
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.20
  * @version 1.00
  */

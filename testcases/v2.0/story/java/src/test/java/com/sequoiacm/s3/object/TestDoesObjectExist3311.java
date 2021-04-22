@@ -11,8 +11,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3311：doesObjectExist查询对象
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.07
  * @version 1.00
  */

@@ -22,8 +22,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3382:并发不同条件查询对象列表,覆盖listObjectV1和listObjectV2
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2019.01.03
  * @version 1.00
  */

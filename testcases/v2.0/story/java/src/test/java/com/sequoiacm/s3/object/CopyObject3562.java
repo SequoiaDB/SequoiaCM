@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3562:不同桶复制对象
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.17
  * @version 1.00
  */

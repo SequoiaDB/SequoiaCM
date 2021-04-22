@@ -20,7 +20,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3380:并发增加对象
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.18
  * @version 1.00
  */

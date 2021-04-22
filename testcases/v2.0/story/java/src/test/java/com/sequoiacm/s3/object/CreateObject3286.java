@@ -26,8 +26,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3286: 开启版本控制，增加对象，指定headers请求参数
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.11.12
  * @version 1.00
  */

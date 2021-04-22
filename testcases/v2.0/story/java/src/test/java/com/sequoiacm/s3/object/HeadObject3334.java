@@ -21,7 +21,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3334:headObject请求指定response属性
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.25
  * @version 1.00
  */

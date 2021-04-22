@@ -22,7 +22,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3566:桶内复制对象，源对象名和目标对象名相同
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.18
  * @version 1.00
  */

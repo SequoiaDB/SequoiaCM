@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3365:带prefix和marker查询对象元数据列表
- * @author wuyan
+ * @author fanyu
  * @Date 2019.06.20
  * @version 1.00
  */

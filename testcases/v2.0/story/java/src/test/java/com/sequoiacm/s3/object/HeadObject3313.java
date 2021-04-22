@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3313:headObject请求查询对象
- * @author wuyan
+ * @author fanyu
  * @Date 2018.12.17
  * @version 1.00
  */

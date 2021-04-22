@@ -15,7 +15,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3314:headObject请求查询指定桶不存在
- * @author wuyan
+ * @author fanyu
  * @Date 2018.12.17
  * @version 1.00
  */

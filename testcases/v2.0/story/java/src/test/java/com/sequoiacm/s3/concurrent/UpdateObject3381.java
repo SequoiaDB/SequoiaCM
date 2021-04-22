@@ -17,7 +17,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 /**
  * @Description: SCM-3381:对象已存在，并发更新相同对象
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.18
  * @version 1.00
  */

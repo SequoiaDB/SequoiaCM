@@ -14,8 +14,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3287:指定桶不存在
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.11.13
  * @version 1.00
  */

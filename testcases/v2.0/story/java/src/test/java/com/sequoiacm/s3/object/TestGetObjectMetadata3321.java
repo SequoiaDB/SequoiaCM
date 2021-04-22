@@ -16,8 +16,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description: SCM-3321：指定ifMatch和ifNoneMatch条件查询对象
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2018.12.17
  * @version 1.00
  */

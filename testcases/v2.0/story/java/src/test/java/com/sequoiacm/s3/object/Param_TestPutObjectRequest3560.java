@@ -22,8 +22,7 @@ import com.sequoiadb.exception.BaseException;
 
 /**
  * @Description: SCM-3560:PutObjectRequest接口参数校验
- *
- * @author wangkexin
+ * @author fanyu
  * @Date 2019.01.07
  * @version 1.00
  */

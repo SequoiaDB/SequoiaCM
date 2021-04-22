@@ -15,7 +15,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3565:不同桶复制对象，指定目标桶不开启版本控制，且指定目标对象已存在
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.18
  * @version 1.00
  */

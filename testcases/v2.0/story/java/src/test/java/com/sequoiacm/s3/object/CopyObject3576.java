@@ -14,7 +14,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3576:指定ifMatch和ifNoneMatch条件复制对象，指定源对象不匹配ifMatch
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.19
  * @version 1.00
  */

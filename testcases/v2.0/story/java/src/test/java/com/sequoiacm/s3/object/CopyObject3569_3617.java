@@ -12,7 +12,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3569:复制对象，源对象不存在 ; SCM-3617:指定桶不存在
- * @author wuyan
+ * @author fanyu
  * @Date 2019.09.18
  * @version 1.00
  */

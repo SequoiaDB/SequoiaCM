@@ -19,7 +19,7 @@ import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @Description SCM-3284:增加对象，未携带参数
- * @author wuyan
+ * @author fanyu
  * @Date 2018.11.6
  * @version 1.00
  */
