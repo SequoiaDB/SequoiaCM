@@ -1,4 +1,4 @@
-package com.sequoiacm.s3.concurrent;
+package com.sequoiacm.s3.object.concurrent;
 
 import java.io.File;
 import java.io.IOException;
