@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sequoiacm.testcommon.scmutils;
 
 import java.io.ByteArrayInputStream;
@@ -8,9 +5,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.StatisticsType;
 import com.sequoiacm.client.common.TrafficType;
@@ -24,9 +24,16 @@ import com.sequoiacm.client.core.ScmStatisticsFileDelta;
 import com.sequoiacm.client.core.ScmStatisticsTraffic;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.TestTools;
 
 /**
  * @Description tatisticsUtils.java
@@ -34,6 +41,10 @@ import com.sequoiacm.testcommon.TestScmBase;
  * @date 2018.9.13
  */
 public class StatisticsUtils extends TestScmBase {
+    public static final String STATISTICAL_CS = "SCMSYSTEM";
+    public static final String STATISTICAL_CL = "STATISTICS_DATA";
+    public final static int TIMEOUT = 1000 * 120;
+    public final static int INTERVAL = 200;
 
     // get the timestamp of the Day,eg "2018-09-12" is 1536681600000
     public static long getTimestampOfTheDay() {
@@ -144,5 +155,158 @@ public class StatisticsUtils extends TestScmBase {
 
         ScmId fileId = file.save();
         return fileId;
+    }
+
+    /**
+     * 获取工作区统计信息记录数
+     *
+     * @param wsName
+     * @return
+     * @throws Exception
+     */
+    public static long countWsStatisticalInfo( String wsName )
+            throws Exception {
+        SiteWrapper site = ScmInfo.getRootSite();
+        BSONObject condition = new BasicBSONObject( "workspace", wsName );
+        return TestSdbTools.count( site.getMetaDsUrl(), site.getMetaUser(),
+                site.getMetaPasswd(), STATISTICAL_CS, STATISTICAL_CL,
+                condition );
+    }
+
+    /**
+     * 清理统计信息表
+     *
+     * @throws Exception
+     */
+    public static void clearStatisticalInfo() throws Exception {
+        SiteWrapper site = ScmInfo.getRootSite();
+        TestSdbTools.delete( site.getMetaDsUrl(), site.getMetaUser(),
+                site.getMetaPasswd(), STATISTICAL_CS, STATISTICAL_CL,
+                new BasicBSONObject() );
+    }
+
+    /**
+     * 限时等待统计记录达到预期值
+     *
+     * @param count
+     * @throws Exception
+     */
+    public static void waitStatisticalInfoCount( long count ) throws Exception {
+        waitStatisticalInfoCount( count, TIMEOUT, INTERVAL );
+    }
+
+    /**
+     * 限时等待统计记录达到预期值
+     *
+     * @param count
+     * @param timeout
+     * @param interval
+     * @throws Exception
+     */
+    public static void waitStatisticalInfoCount( long count, int timeout,
+            int interval ) throws Exception {
+        int tryNum = timeout / interval;
+        long actCount = 0;
+        while ( tryNum-- > 0 ) {
+            SiteWrapper site = ScmInfo.getRootSite();
+            List< BSONObject > info = TestSdbTools.query( site.getMetaDsUrl(),
+                    site.getMetaUser(), site.getMetaPasswd(), STATISTICAL_CS,
+                    STATISTICAL_CL, new BasicBSONObject() );
+            for ( BSONObject bson : info ) {
+                BasicBSONObject basicBSONObject = ( BasicBSONObject ) bson;
+                actCount += basicBSONObject.getLong( "request_count" );
+            }
+            if ( actCount == count ) {
+                return;
+            }
+            Thread.sleep( interval );
+            if ( tryNum >= 1 ) {
+                actCount = 0;
+            }
+        }
+        throw new Exception(
+                "time out,actCount = " + actCount + ",expCount = " + count );
+    }
+
+    /**
+     * 设置网关本地时间
+     *
+     * @param time
+     * @throws Exception
+     */
+    public static void setGateWaySystemTime( long time ) throws Exception {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( ScmInfo.getSite() );
+            List< ScmServiceInstance > instanceList = ScmSystem.ServiceCenter
+                    .getServiceInstanceList( session,
+                            ConfUtil.GATEWAY_SERVICE_NAME );
+            for ( ScmServiceInstance instance : instanceList ) {
+                TestTools.setSystemTime( instance.getIp(), time );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    /**
+     * 恢复网关本地时间
+     *
+     * @throws Exception
+     */
+    public static void restoreGateWaySystemTime() throws Exception {
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( ScmInfo.getSite() );
+            List< ScmServiceInstance > instanceList = ScmSystem.ServiceCenter
+                    .getServiceInstanceList( session,
+                            ConfUtil.GATEWAY_SERVICE_NAME );
+            for ( ScmServiceInstance instance : instanceList ) {
+                TestTools.restoreSystemTime( instance.getIp() );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    /**
+     * 检查统计信息
+     *
+     * @param actInfo
+     * @param expInfo
+     * @throws Exception
+     */
+    public static void checkScmFileStatisticInfo( ScmFileStatisticInfo actInfo,
+            ScmFileStatisticInfo expInfo ) throws Exception {
+        try {
+            Assert.assertEquals( actInfo.getType(), expInfo.getType() );
+            Assert.assertEquals( actInfo.getBeginDate(),
+                    expInfo.getBeginDate() );
+            Assert.assertEquals( actInfo.getEndDate(), expInfo.getEndDate() );
+            Assert.assertEquals( actInfo.getUser(), expInfo.getUser() );
+            Assert.assertEquals( actInfo.getWorkspace(),
+                    expInfo.getWorkspace() );
+            Assert.assertEquals( actInfo.getTimeAccuracy(),
+                    expInfo.getTimeAccuracy() );
+            Assert.assertEquals( actInfo.getRequestCount(),
+                    expInfo.getRequestCount() );
+            Assert.assertEquals( Math
+                    .abs( expInfo.getAvgTrafficSize()
+                            - actInfo.getAvgTrafficSize() ) >= 0
+                    && Math.abs( expInfo.getAvgTrafficSize()
+                            - actInfo.getAvgTrafficSize() ) <= expInfo
+                                    .getRequestCount(),
+                    true );
+            Assert.assertEquals( actInfo.getAvgResponseTime() >= 0 && actInfo
+                    .getAvgResponseTime() <= expInfo.getAvgResponseTime(),
+                    true );
+        } catch ( AssertionError e ) {
+            throw new Exception( "act = " + actInfo.toString() + "\n,exp = "
+                    + expInfo.toString(), e );
+        }
     }
 }
