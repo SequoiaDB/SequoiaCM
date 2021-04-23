@@ -15,6 +15,7 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.MimeType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
@@ -23,6 +24,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.TestTools.LocalFile.FileType;
 import com.sequoiacm.testcommon.WsPool;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
@@ -64,7 +66,7 @@ public class CreateFile3002 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        String filePath = TestTools.LocalFile.getRandomFile();
+        String filePath = TestTools.LocalFile.getFileByType( FileType.XLSX );
         ThreadExecutor threadExec = new ThreadExecutor();
         CreateFileThread updatefileNoIndex = new CreateFileThread( oldMatchCond,
                 filePath );
@@ -137,6 +139,7 @@ public class CreateFile3002 extends TestScmBase {
                         session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 file.updateContent( filePath );
+                file.setMimeType( MimeType.XLSX );
                 file.setTitle( title );
             } catch ( ScmException e ) {
                 saveResult( e.getErrorCode(), e );
@@ -150,12 +153,13 @@ public class CreateFile3002 extends TestScmBase {
 
     private ScmId createFile( ScmWorkspace ws, String fileName, String title )
             throws Exception {
-        String filePath = TestTools.LocalFile.getRandomFile();
+        String filePath = TestTools.LocalFile.getFileByType( FileType.XLSX );
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileName );
         file.setAuthor( fileName );
         file.setTitle( title );
         file.setContent( filePath );
+        file.setMimeType( MimeType.XLSX );
         ScmId fileId = file.save();
         return fileId;
     }

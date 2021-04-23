@@ -13,6 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.WsPool;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -53,6 +54,9 @@ public class WsIndex3039 extends TestScmBase {
         try {
             ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
         } finally {
+            if ( wsName != null ) {
+                WsPool.release( wsName );
+            }
             if ( session != null ) {
                 session.close();
             }

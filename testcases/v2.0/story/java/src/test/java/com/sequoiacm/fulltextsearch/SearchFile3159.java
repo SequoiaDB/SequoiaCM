@@ -45,6 +45,7 @@ public class SearchFile3159 extends TestScmBase {
     private ScmId fileId = null;
     private String fileName = "file3159";
     private String wsName = null;
+    private String filePath;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -62,7 +63,7 @@ public class SearchFile3159 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        String filePath = TestTools.LocalFile.getRandomFile();
+        filePath = TestTools.LocalFile.getFileByType( FileType.DOCX );
         fileId = ScmFileUtils.create( ws, fileName, filePath );
         updateFileContent();
         FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED, 2 );
@@ -85,13 +86,27 @@ public class SearchFile3159 extends TestScmBase {
         }
 
         // 指定内容检索文件
-        String matchContent = "SequoiaDB";
+        String matchContent = "SequoiaDBTEST";
         ScmCursor< ScmFulltextSearchResult > result1 = ScmFactory.Fulltext
                 .simpleSeracher( ws ).fileCondition( new BasicBSONObject() )
-                .scope( ScmType.ScopeType.SCOPE_ALL ).fileCondition( matcher )
-                .notMatch( matchContent ).search();
+                .match( matchContent ).scope( ScmType.ScopeType.SCOPE_ALL )
+                .search();
 
         Assert.assertFalse( result1.hasNext() );
+
+        // 指定内容检索文件,可匹配文件，匹配历史版本没有的属性author
+        String matchContent2 = "SequoiaDB";
+        try {
+            ScmCursor< ScmFulltextSearchResult > result2 = ScmFactory.Fulltext
+                    .simpleSeracher( ws ).fileCondition( matcher )
+                    .match( matchContent2 ).scope( ScmType.ScopeType.SCOPE_ALL )
+                    .search();
+            result2.close();
+            Assert.fail( " seracher should be failed!" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.INVALID_ARGUMENT,
+                    e.getMessage() );
+        }
         runSuccess = true;
     }
 
@@ -115,7 +130,6 @@ public class SearchFile3159 extends TestScmBase {
     }
 
     private void updateFileContent() throws Exception {
-        String filePath = TestTools.LocalFile.getFileByType( FileType.DOCX );
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.updateContent( filePath );
         file.setMimeType( MimeType.DOCX );

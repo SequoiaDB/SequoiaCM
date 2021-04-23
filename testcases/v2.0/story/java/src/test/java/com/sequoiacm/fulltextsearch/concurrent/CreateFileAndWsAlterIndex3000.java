@@ -72,7 +72,7 @@ public class CreateFileAndWsAlterIndex3000 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        ThreadExecutor threadExec = new ThreadExecutor();
+        ThreadExecutor threadExec = new ThreadExecutor( 300000 );
         WsAlterIndexThread wsAlterIndex = new WsAlterIndexThread();
         CreateFileThread createfileCreateIndex = new CreateFileThread(
                 oldMatchCond, oldMatchCond );
