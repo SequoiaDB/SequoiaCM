@@ -56,17 +56,23 @@
        </properties>   
 
        <dependencies>      
-              <!-- sequoiacm dependency -->      
-
-
+              <!-- sequoiacm dependency -->
               <dependency>         
                      <groupId>com.sequoiadb</groupId>         
                      <artifactId>sequoiacm-driver</artifactId>         
                      <version>${scmdriver.version}</version>         
                      <scope>system</scope>         
                      <systemPath>${basedir}/../../testcase-base/lib/sequoiacm-driver-${scmdriver.version}.jar</systemPath>         
-              </dependency>      
-       
+              </dependency>
+
+             <dependency>
+                    <groupId>com.sequoiadb</groupId>
+                    <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+                    <version>${scmdriver.version}</version>
+                    <scope>system</scope>
+                    <systemPath>${basedir}/../../testcase-base/lib/sequoiacm-infrastructure-crypto.jar</systemPath>
+             </dependency>
+
               <!--dependency> <groupId>com.sequoiadb</groupId> <artifactId>sequoiacm-common</artifactId> 
             <version>${scmcommon.version}</version> <scope>system</scope> <systemPath>${basedir}/../../testcase-base/lib/sequoiacm-common-${scmcommon.version}.jar</systemPath> 
             </dependency -->      
