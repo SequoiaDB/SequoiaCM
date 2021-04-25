@@ -114,7 +114,7 @@ public class AccesskeyController {
                     throw new BadRequestException("please specify signature");
                 }
 
-                String serverSideSignatrue = SignUtil.sign(signatureInfo.getAlgothm(),
+                String serverSideSignatrue = SignUtil.sign(signatureInfo.getAlgorithm(),
                         signatureInfo.getSecretKeyPrefix() + targetUser.getSecretkey(),
                         signatureInfo.getStringToSign(), signatureInfo.getSignatureEncoder());
                 if (!serverSideSignatrue.equals(signatureInfo.getSignature())) {
