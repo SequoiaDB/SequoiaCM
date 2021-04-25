@@ -64,26 +64,6 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     }
 
     private void initUpload() throws CephS3Exception {
-        // NOTE:can not prevent multiple threads create the same object
-        S3Object obj = null;
-        try {
-            obj = dataService.getObject(new GetObjectRequest(bucketName, key));
-            throw new CephS3Exception(CephS3Exception.ERR_CODE_OBJECT_EXIST,
-                    "file data exist:bucketName=" + bucketName + ",key=" + key);
-        }
-        catch (CephS3Exception e) {
-            if (e.getS3StatusCode() != CephS3Exception.STATUS_NOT_FOUND) {
-                throw e;
-            }
-            if (!e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
-                    && !e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_KEY)) {
-                throw e;
-            }
-        }
-        finally {
-            dataService.closeObject(obj);
-        }
-
         try {
             InitiateMultipartUploadResult initResp = dataService
                     .initiateMultipartUpload(new InitiateMultipartUploadRequest(bucketName, key));
@@ -91,7 +71,9 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
         }
         catch (CephS3Exception e) {
             if (e.getS3StatusCode() == CephS3Exception.STATUS_NOT_FOUND
-                    && e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)) {
+                    && (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
+                            // nautilus ceph s3 会抛出这个异常表示 bucket 不存在
+                            || e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_KEY))) {
                 dataService.createBucket(bucketName);
                 initUpload();
             }
