@@ -17,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -75,7 +76,14 @@ public class StatisticsFile3593 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        site = ScmInfo.getSite();
+        List<SiteWrapper> siteList = ScmInfo.getAllSites();
+        for ( SiteWrapper siteWrapper : siteList ) {
+            if ( siteWrapper.getDataType()
+                    .equals( ScmType.DatasourceType.SEQUOIADB ) ) {
+                site = siteWrapper;
+                break;
+            }
+        }
         session = TestScmTools.createSession( site );
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
