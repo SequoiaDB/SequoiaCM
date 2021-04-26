@@ -38,6 +38,7 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
  * @Description: SCM-3589:指定时间段内有统计信息，用户查询单个工作区上传/下载接口的统计信息
+ *               SCM-3639:循环查询文件统计信息，查看链接是否泄漏
  * @author fanyu
  * @Date:2021/03/30
  * @version:1.0
@@ -86,33 +87,38 @@ public class StatisticsFile3589 extends TestScmBase {
         try {
             session = TestScmTools.createSession( site );
             // 查询上传接口统计信息
-            ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
-                    .fileStatistician( session ).user( TestScmBase.scmUserName )
-                    .beginDate( beginDate ).endDate( endDate )
-                    .timeAccuracy( ScmTimeAccuracy.HOUR )
-                    .workspace( wsp.getName() ).upload().get();
-            // 检查结果
-            ScmFileStatisticInfo expUploadInfo = new ScmFileStatisticInfo(
-                    ScmFileStatisticsType.FILE_UPLOAD, beginDate, endDate,
-                    TestScmBase.scmUserName, wsp.getName(),
-                    ScmTimeAccuracy.HOUR, fileNum, fileSize,
-                    totalUploadTime / fileNum );
-            StatisticsUtils.checkScmFileStatisticInfo( uploadInfo,
-                    expUploadInfo );
+            for ( int i = 0; i < 260; i++ ) {
+                ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
+                        .fileStatistician( session )
+                        .user( TestScmBase.scmUserName ).beginDate( beginDate )
+                        .endDate( endDate ).timeAccuracy( ScmTimeAccuracy.HOUR )
+                        .workspace( wsp.getName() ).upload().get();
+                // 检查结果
+                ScmFileStatisticInfo expUploadInfo = new ScmFileStatisticInfo(
+                        ScmFileStatisticsType.FILE_UPLOAD, beginDate, endDate,
+                        TestScmBase.scmUserName, wsp.getName(),
+                        ScmTimeAccuracy.HOUR, fileNum, fileSize,
+                        totalUploadTime / fileNum );
+                StatisticsUtils.checkScmFileStatisticInfo( uploadInfo,
+                        expUploadInfo );
+            }
 
             // 查询下载接口统计信息
-            ScmFileStatisticInfo downloadInfo = ScmSystem.Statistics
-                    .fileStatistician( session ).user( TestScmBase.scmUserName )
-                    .timeAccuracy( ScmTimeAccuracy.HOUR ).beginDate( beginDate )
-                    .endDate( endDate ).workspace( wsp.getName() ).download()
-                    .get();
-            ScmFileStatisticInfo expDownloadInfo = new ScmFileStatisticInfo(
-                    ScmFileStatisticsType.FILE_DOWNLOAD, beginDate, endDate,
-                    TestScmBase.scmUserName, wsp.getName(),
-                    ScmTimeAccuracy.HOUR, fileNum, fileSize,
-                    totalDownloadTime / fileNum );
-            StatisticsUtils.checkScmFileStatisticInfo( downloadInfo,
-                    expDownloadInfo );
+            for ( int i = 0; i < 260; i++ ) {
+                ScmFileStatisticInfo downloadInfo = ScmSystem.Statistics
+                        .fileStatistician( session )
+                        .user( TestScmBase.scmUserName )
+                        .timeAccuracy( ScmTimeAccuracy.HOUR )
+                        .beginDate( beginDate ).endDate( endDate )
+                        .workspace( wsp.getName() ).download().get();
+                ScmFileStatisticInfo expDownloadInfo = new ScmFileStatisticInfo(
+                        ScmFileStatisticsType.FILE_DOWNLOAD, beginDate, endDate,
+                        TestScmBase.scmUserName, wsp.getName(),
+                        ScmTimeAccuracy.HOUR, fileNum, fileSize,
+                        totalDownloadTime / fileNum );
+                StatisticsUtils.checkScmFileStatisticInfo( downloadInfo,
+                        expDownloadInfo );
+            }
         } finally {
             if ( session != null ) {
                 session.close();

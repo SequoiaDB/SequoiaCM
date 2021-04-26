@@ -74,7 +74,7 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
     }
 
     private void signatureCheck(ScmUser user, SignatureInfo signatureInfo) {
-        String signatrueFromServerKey = SignUtil.sign(signatureInfo.getAlgothm(),
+        String signatrueFromServerKey = SignUtil.sign(signatureInfo.getAlgorithm(),
                 signatureInfo.getSecretKeyPrefix() + user.getSecretkey(),
                 signatureInfo.getStringToSign(), signatureInfo.getSignatureEncoder());
         if (!signatrueFromServerKey.equals(signatureInfo.getSignature())) {

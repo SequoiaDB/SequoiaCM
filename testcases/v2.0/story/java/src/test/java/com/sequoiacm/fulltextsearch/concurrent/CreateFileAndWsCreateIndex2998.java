@@ -69,7 +69,7 @@ public class CreateFileAndWsCreateIndex2998 extends TestScmBase {
         BSONObject matcher = new BasicBSONObject();
         matcher.put( "title", matchTitle );
 
-        ThreadExecutor threadExec = new ThreadExecutor();
+        ThreadExecutor threadExec = new ThreadExecutor(300000);
         WsCreateIndexThread wsCreateIndex = new WsCreateIndexThread( matcher );
         CreateFileThread createfileCreateIndex = new CreateFileThread(
                 matchTitle, matchTitle );
