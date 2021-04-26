@@ -52,7 +52,7 @@ public class QueryBucket3273 extends TestScmBase {
             s3Client.headBucket( request );
             Assert.fail( "expect fail but success" );
         } catch ( AmazonS3Exception e ) {
-            Assert.assertEquals( e.getErrorCode(), "404 " );
+            Assert.assertEquals( e.getErrorCode(), "404 Not Found" );
         }
 
         // 再次创建查询
