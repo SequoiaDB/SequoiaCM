@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bson.BSONObject;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -69,13 +70,6 @@ public class StatisticsFile3593 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator
-                + TestTools.getClassName() );
-        TestTools.LocalFile.removeFile( localPath );
-        TestTools.LocalFile.createDir( localPath.toString() );
-        filePath = localPath + File.separator + "localFile_" + fileSize
-                + ".txt";
-        TestTools.LocalFile.createFile( filePath, fileSize );
         List<SiteWrapper> siteList = ScmInfo.getAllSites();
         for ( SiteWrapper siteWrapper : siteList ) {
             if ( siteWrapper.getDataType()
@@ -84,6 +78,17 @@ public class StatisticsFile3593 extends TestScmBase {
                 break;
             }
         }
+        if ( site == null ) {
+            throw new SkipException( "需要db数据源，跳过此用例！！！" );
+        }
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        TestTools.LocalFile.createFile( filePath, fileSize );
+
         session = TestScmTools.createSession( site );
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
