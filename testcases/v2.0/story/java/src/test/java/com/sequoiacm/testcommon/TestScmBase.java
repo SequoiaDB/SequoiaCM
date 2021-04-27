@@ -25,7 +25,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
-    protected static final String S3_SERVICE_NAME = "s3";
+    protected static final String FULLTEXT_SERVICE_NAME = "fulltext-server";
     protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
     private static final int WS_NUM_PER_POOL = 1;
 
@@ -114,12 +114,14 @@ public class TestScmBase {
                     .createSession( SessionType.AUTH_SESSION, scOpt );
             ScmInfo.refresh( session );
             serviceList = ScmSystem.ServiceCenter.getServiceList( session );
-            List< String > wsNames = prepareWs( session );
-            List< WsWrapper > wsps = ScmInfo.getWsList( session );
-            for ( WsWrapper wsp : wsps ) {
-                wsNames.add( wsp.getName() );
+            if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
+                List< String > wsNames = prepareWs( session );
+                List< WsWrapper > wsps = ScmInfo.getWsList( session );
+                for ( WsWrapper wsp : wsps ) {
+                    wsNames.add( wsp.getName() );
+                }
+                WsPool.init( wsNames );
             }
-            WsPool.init( wsNames );
         } finally {
             if ( null != session ) {
                 session.close();
@@ -129,7 +131,9 @@ public class TestScmBase {
 
     @AfterSuite(alwaysRun = true)
     public static void finiSuite() throws Exception {
-        WsPool.destroy();
+        if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
+            WsPool.destroy();
+        }
     }
 
     private static List< String > parseInfo( String infos ) {
