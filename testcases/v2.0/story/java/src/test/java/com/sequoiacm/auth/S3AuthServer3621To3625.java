@@ -110,8 +110,7 @@ public class S3AuthServer3621To3625 extends TestScmBase {
         }
     }
 
-    // SEQUOIACM-659
-    @Test(enabled = false)
+    @Test
     private void test3625() throws Exception {
         // 同时指定username、password、signature_info，进行登录
         // (1)username、password、signature_info都正确
@@ -125,21 +124,22 @@ public class S3AuthServer3621To3625 extends TestScmBase {
         ScmAuthUtils.logout( sessionId );
 
         // (2)signature_info不正确，username、password正确
+        signInfo.put( "string_to_sign",
+                new String[] { "1", "21", "3", "41", "5" } );
+        String sessionId1 = ScmAuthUtils.login( username, password, signInfo );
+        ScmAuthUtils.getRootDir( sessionId1, wsp.getName() );
+        ScmAuthUtils.logout( sessionId1 );
+
+        // (3)username、signature_info正确,password不正确
         signInfo.put( "string_to_sign", stringData );
         try {
-            ScmAuthUtils.login( null, null, signInfo );
+            ScmAuthUtils.login( username, password + "test", signInfo );
             Assert.fail( "exp failed but act success!!!" );
         } catch ( HttpClientErrorException e ) {
             if ( e.getStatusCode() != HttpStatus.UNAUTHORIZED ) {
                 throw e;
             }
         }
-
-        // (3)username、signature_info正确,password不正确
-        signInfo.put( "string_to_sign", stringData );
-        String sessionId1 = ScmAuthUtils.login( username, password, signInfo );
-        ScmAuthUtils.getRootDir( sessionId1, wsp.getName() );
-        ScmAuthUtils.logout( sessionId1 );
     }
 
     @AfterClass(alwaysRun = true)

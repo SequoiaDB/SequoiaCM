@@ -228,7 +228,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 登录接口，当username != null时，用户名和密码登录；否则使用签名进行登录
+     * 登录接口，先检测用户名和密码，如果正确则登录成功；没有用户名和密码时，使用签名进行登录
      * 
      * @param username
      * @param password
@@ -238,10 +238,9 @@ public class ScmAuthUtils extends TestScmBase {
     public static String login( String username, String password,
             BSONObject signatureInfo ) {
         MultiValueMap< Object, Object > body = new LinkedMultiValueMap<>();
-        if ( username != null ) {
-            body.add( "username", username );
-            body.add( "password", password );
-        } else {
+        body.add( "username", username );
+        body.add( "password", password );
+        if ( signatureInfo != null ) {
             body.add( "signature_info", signatureInfo );
         }
         HttpEntity< MultiValueMap< Object, Object > > entity = new HttpEntity<>(

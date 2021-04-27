@@ -51,8 +51,7 @@ public class Param_S3AuthServer3627 extends TestScmBase {
         signatureClient = signatureClient();
     }
 
-    // SEQUOIACM-659
-    @Test(enabled = false)
+    @Test
     private void test1() throws Exception {
         // （1）指定Algorithm为null
         BSONObject signInfo = new BasicBSONObject();

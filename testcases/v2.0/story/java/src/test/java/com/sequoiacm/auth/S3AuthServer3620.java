@@ -53,8 +53,7 @@ public class S3AuthServer3620 extends TestScmBase {
                 { "HmacSHA384" }, { "HmacSHA512" } };
     }
 
-    // SEQUOIACM-659
-    @Test(dataProvider = "dataProvider", enabled = false)
+    @Test(dataProvider = "dataProvider")
     private void test( String algorithm ) throws Exception {
         // 计算签名
         String prefix = "prefix";
