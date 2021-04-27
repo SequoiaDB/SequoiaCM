@@ -35,6 +35,8 @@ HOSTPWDINFOS = {}
 TEST_CASE_DIR =''
 SCMCLOUD_GATEWAYS = ''
 SCM_DEPLOY_NET = ''
+S3_ACCESSKEY = ''
+S3_SECRETKEY = ''
    
 def printHelp():
     print ('        --COMMON_SCM_HOSTINFO: all host of scm cluster(host:user:passwd,host2:user:passwd) ,require')
@@ -45,6 +47,8 @@ def printHelp():
     print ('        --COMMON_SCM_PORT: scm server\'s port')
     print ('        --COMMON_SDB_COORD_PORT: sdb\'s coord port')
     print ('        --COMMON_SCRIPT_CONF_PATH: the test_py.conf for this script')
+    print ('        --COMMON_S3_ACCESSKEY: s3 accesskey')
+    print ('        --COMMON_S3_SECRETKEY: s3 secretkey')
     print ('        --COMMON_CI_CONTROL_HOSTINFO: control hostname, username and passwd(host:user:passwd)')
     print ('        --TEST_EXEC_MODE: p(parralel execute testcase in different host),default parallel in one host')
     print ('        --TEST_IS_EXEC: true(compile and execute testcase),false(compile testcase)')
@@ -102,13 +106,13 @@ def parseConfFile( scriptConfPath ):
     
 def parseParameter( ):
     try:
-        options,args = getopt.getopt(sys.argv[1:],"h",["help","COMMON_SCM_HOSTINFO=","COMMON_SDB_INSTALL_DIR=","COMMON_SCM_INSTALL_DIR=","COMMON_SCM_DEPLOY_MODE=","TEST_EXEC_MODE=","TEST_IS_EXEC=","COMMON_MAIN_SITE_HOST=", "COMMON_SCM_PORT=", "COMMON_SDB_COORD_PORT=", "COMMON_SCRIPT_CONF_PATH=", "TEST_CASE_DIR=", "TEST_CASE_TYPE=", "COMMON_CI_CONTROL_HOSTINFO=", "SCMCLOUD_GATEWAYS=","SCM_DEPLOY_NET="])
+        options,args = getopt.getopt(sys.argv[1:],"h",["help","COMMON_SCM_HOSTINFO=","COMMON_SDB_INSTALL_DIR=","COMMON_SCM_INSTALL_DIR=","COMMON_SCM_DEPLOY_MODE=","TEST_EXEC_MODE=","TEST_IS_EXEC=","COMMON_MAIN_SITE_HOST=", "COMMON_SCM_PORT=", "COMMON_SDB_COORD_PORT=", "COMMON_SCRIPT_CONF_PATH=", "TEST_CASE_DIR=", "TEST_CASE_TYPE=", "COMMON_CI_CONTROL_HOSTINFO=", "SCMCLOUD_GATEWAYS=","SCM_DEPLOY_NET=","COMMON_S3_ACCESSKEY=","COMMON_S3_SECRETKEY="])
     except getopt.GetoptError,e:
         print "Error:",e
         sys.exit(1)
     global SCM_HOSTINFO, DB_INSTALL_DIR, SCM_INSTALL_DIR, HOSTLIST, SCM_DEPLOY_MODE, SCRIPT_CONF_PATH, TESTCASETYPELIST  
     global EXEC_MODE, HOSTINFOS, HOSTUSERINFOS, HOSTPWDINFOS, TEST_IS_EXEC, MAIN_SITE_HOST, SCM_PORT, SDB_COORD_PORT
-    global CONTROL_HOSTNAME, CONTROL_HOST_USER, CONTROL_HOST_PASSWD, SCMCLOUD_GATEWAYS, SCM_DEPLOY_NET
+    global CONTROL_HOSTNAME, CONTROL_HOST_USER, CONTROL_HOST_PASSWD, SCMCLOUD_GATEWAYS, SCM_DEPLOY_NET, S3_ACCESSKEY, S3_SECRETKEY
     for name, value in options:
         if name=='--COMMON_SCRIPT_CONF_PATH':
             SCRIPT_CONF_PATH = value
@@ -155,6 +159,10 @@ def parseParameter( ):
             SCMCLOUD_GATEWAYS = value
         elif name=='--SCM_DEPLOY_NET':
             SCM_DEPLOY_NET=value
+        elif name=='--COMMON_S3_ACCESSKEY':
+            S3_ACCESSKEY=value
+        elif name=='--COMMON_S3_SECRETKEY':
+            S3_SECRETKEY=value
             
 def parseHostInfo( arrhostinfo ):
     for i in range(len(arrhostinfo)):
@@ -211,6 +219,8 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         replaceTestngStr(xmlDir+"/proxy.xml", "XXXX", destgroup)
         replaceTestngStr(xmlDir+"/proxy.xml", "mainSiteHostName", mainsitehost)
         replaceTestngStr(xmlDir+"/proxy.xml", "GATEWAYURLS", gatewayurls)
+        replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
+        replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+controlhost+".xml")
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+mainsitehost+".xml")
         replaceTestngStr(xmlDir+"/testng_"+controlhost+".xml", "localhost", controlhost)
@@ -226,7 +236,8 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "localhost", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "mainSiteHostName", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
-            
+            replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
+            replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
             replaceTestngStr(xmlDir+"/proxy_env.xml", "XXXX", destgroup)
