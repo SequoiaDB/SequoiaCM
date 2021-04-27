@@ -207,11 +207,12 @@ public class StatisticsUtils extends TestScmBase {
             int interval ) throws Exception {
         int tryNum = timeout / interval;
         long actCount = 0;
+        List< BSONObject > info = null;
         while ( tryNum-- > 0 ) {
             SiteWrapper site = ScmInfo.getRootSite();
-            List< BSONObject > info = TestSdbTools.query( site.getMetaDsUrl(),
-                    site.getMetaUser(), site.getMetaPasswd(), STATISTICAL_CS,
-                    STATISTICAL_CL, new BasicBSONObject() );
+            info = TestSdbTools.query( site.getMetaDsUrl(), site.getMetaUser(),
+                    site.getMetaPasswd(), STATISTICAL_CS, STATISTICAL_CL,
+                    new BasicBSONObject() );
             for ( BSONObject bson : info ) {
                 BasicBSONObject basicBSONObject = ( BasicBSONObject ) bson;
                 actCount += basicBSONObject.getLong( "request_count" );
@@ -224,8 +225,8 @@ public class StatisticsUtils extends TestScmBase {
                 actCount = 0;
             }
         }
-        throw new Exception(
-                "time out,actCount = " + actCount + ",expCount = " + count );
+        throw new Exception( "time out,actCount = " + actCount + ",expCount = "
+                + count + ",\n info = " + info.toString() );
     }
 
     /**

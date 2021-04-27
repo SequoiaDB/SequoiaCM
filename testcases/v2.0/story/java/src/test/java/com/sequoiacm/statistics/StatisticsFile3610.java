@@ -79,7 +79,11 @@ public class StatisticsFile3610 extends TestScmBase {
         // 上传文件
         fileIdList.add( createFile( ws ) );
         StatisticsUtils.waitStatisticalInfoCount( 1 );
-        queryStatisticInfoAndCheck( 1, ScmTimeAccuracy.DAY );
+        ScmFileStatisticInfo scmFileStatisticInfo1 = queryStatisticInfo(
+                ScmTimeAccuracy.DAY );
+        // 检查结果
+        Assert.assertEquals( scmFileStatisticInfo1.getRequestCount(), 1 );
+        Assert.assertEquals( scmFileStatisticInfo1.getAvgTrafficSize(), 0 );
 
         // 更新admin-server配置timeGranularity为HOUR
         confMap.put( "scm.statistics.timeGranularity", "HOUR" );
@@ -87,7 +91,15 @@ public class StatisticsFile3610 extends TestScmBase {
         // 上传文件
         fileIdList.add( createFile( ws ) );
         StatisticsUtils.waitStatisticalInfoCount( 2 );
-        queryStatisticInfoAndCheck( 1, ScmTimeAccuracy.HOUR );
+        ScmFileStatisticInfo scmFileStatisticInfo2 = queryStatisticInfo(
+                ScmTimeAccuracy.DAY );
+        // 检查结果
+        Assert.assertEquals(
+                scmFileStatisticInfo2.getRequestCount() == 1
+                        || scmFileStatisticInfo2.getRequestCount() == 2,
+                true, scmFileStatisticInfo2.toString() );
+        Assert.assertEquals( scmFileStatisticInfo2.getAvgTrafficSize(), 0 );
+
         runSuccess = true;
     }
 
@@ -108,7 +120,7 @@ public class StatisticsFile3610 extends TestScmBase {
         }
     }
 
-    private void queryStatisticInfoAndCheck( long requestCount,
+    private ScmFileStatisticInfo queryStatisticInfo(
             ScmTimeAccuracy scmTimeAccuracy ) throws ScmException {
         // 查询上传接口统计信息
         Date now = new Date();
@@ -117,9 +129,7 @@ public class StatisticsFile3610 extends TestScmBase {
                 .beginDate( new Date( now.getTime() - 1000 * 60 * 60 * 5 ) )
                 .endDate( new Date( now.getTime() + 1000 * 60 * 60 * 24 * 3 ) )
                 .timeAccuracy( scmTimeAccuracy ).upload().get();
-        // 检查结果
-        Assert.assertEquals( statisticInfo.getRequestCount(), requestCount );
-        Assert.assertEquals( statisticInfo.getAvgTrafficSize(), 0 );
+        return statisticInfo;
     }
 
     private ScmId createFile( ScmWorkspace ws ) throws ScmException {
