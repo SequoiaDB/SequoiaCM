@@ -119,11 +119,10 @@ public class StatisticsFile3604 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                StatisticsUtils.clearStatisticalInfo();
                 for ( ScmId fileId : fileIdList1 ) {
                     ScmFactory.File.deleteInstance( ws1, fileId, true );
                 }

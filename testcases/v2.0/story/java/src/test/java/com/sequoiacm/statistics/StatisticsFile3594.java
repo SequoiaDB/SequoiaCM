@@ -6,15 +6,18 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmCursor;
@@ -65,6 +68,17 @@ public class StatisticsFile3594 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
+        List<SiteWrapper> siteList = ScmInfo.getAllSites();
+        for ( SiteWrapper siteWrapper : siteList ) {
+            if ( siteWrapper.getDataType()
+                    .equals( ScmType.DatasourceType.SEQUOIADB ) ) {
+                site = siteWrapper;
+                break;
+            }
+        }
+        if ( site == null ) {
+            throw new SkipException( "需要db数据源，跳过此用例！！！" );
+        }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
@@ -72,7 +86,6 @@ public class StatisticsFile3594 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -110,15 +123,15 @@ public class StatisticsFile3594 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
-                StatisticsUtils.clearStatisticalInfo();
             }
         } finally {
+            ConfUtil.deleteGateWayStatisticalConf();
             if ( session != null ) {
                 session.close();
             }

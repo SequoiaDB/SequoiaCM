@@ -17,8 +17,10 @@ import org.testng.Assert;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmAuditInfo;
+import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -169,21 +171,35 @@ public class ConfUtil extends TestScmBase {
             confSet.add(
                     "scm.statistics.types.file_upload.conditions.workspaceRegex" );
             deleteConf( session, ConfUtil.GATEWAY_SERVICE_NAME, confSet );
-            // 动态刷新是懒加载，写文件时才会加载新配置对象，销毁旧配置对象
-            WsWrapper wsp = ScmInfo.getWs();
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
-                    session );
-            ScmFile file = ScmFactory.File.createInstance( ws );
-            file.setFileName( "deleteGateWayStaticConf_" + UUID.randomUUID() );
-            ScmId fileId = file.save();
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            // 清理统计表
-            StatisticsUtils.clearStatisticalInfo();
         } finally {
             if ( session != null ) {
                 session.close();
             }
         }
+
+        // 动态刷新是懒加载，写文件时才会加载新配置对象，销毁旧配置对象
+        WsWrapper wsp = ScmInfo.getWs();
+        for ( String gateway : TestScmBase.gateWayList ) {
+            ScmSession session1 = null;
+            try {
+                ScmConfigOption scOpt = new ScmConfigOption( gateway + "/" + site.getSiteServiceName(),
+                        TestScmBase.scmUserName, TestScmBase.scmPassword );
+                session1 = ScmFactory.Session.createSession( ScmType.SessionType.AUTH_SESSION, scOpt );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session1 );
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setFileName( "deleteGateWayStaticConf_" + UUID.randomUUID() );
+                ScmId fileId = file.save();
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }finally {
+                if(session1 != null){
+                    session1.close();
+                }
+
+            }
+        }
+        // 清理统计表
+        StatisticsUtils.clearStatisticalInfo();
     }
 
     public static ScmUpdateConfResultSet deleteConf( ScmSession session,

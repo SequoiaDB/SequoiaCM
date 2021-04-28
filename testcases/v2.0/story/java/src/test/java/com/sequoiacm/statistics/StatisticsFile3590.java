@@ -117,7 +117,6 @@ public class StatisticsFile3590 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                StatisticsUtils.clearStatisticalInfo();
                 TestTools.LocalFile.removeFile( localPath );
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -125,6 +124,7 @@ public class StatisticsFile3590 extends TestScmBase {
             }
         } finally {
             StatisticsUtils.restoreGateWaySystemTime();
+            ConfUtil.deleteGateWayStatisticalConf();
             if ( session != null ) {
                 session.close();
             }

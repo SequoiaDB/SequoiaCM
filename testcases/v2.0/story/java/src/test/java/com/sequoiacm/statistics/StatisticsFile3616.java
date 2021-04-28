@@ -153,7 +153,6 @@ public class StatisticsFile3616 extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFactory.Role.deleteRole( session, rolename );
                 ScmFactory.User.deleteUser( session, username );
-                StatisticsUtils.clearStatisticalInfo();
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }

@@ -47,7 +47,8 @@ public class CreateObject3289 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test
+    // SEQUOIACM-664
+    @Test(enabled = false)
     public void testCreateObject() throws Exception {
         Date beforeDate = new Date();
         PutObjectResult result = s3Client.putObject( bucketName, keyName,

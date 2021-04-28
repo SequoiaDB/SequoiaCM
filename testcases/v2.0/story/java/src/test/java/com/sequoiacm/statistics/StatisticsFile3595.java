@@ -100,12 +100,11 @@ public class StatisticsFile3595 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
-                StatisticsUtils.clearStatisticalInfo();
             }
         } finally {
             ConfUtil.deleteGateWayStatisticalConf();

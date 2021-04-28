@@ -104,14 +104,14 @@ public class StatisticsFile3602 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                StatisticsUtils.clearStatisticalInfo();
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         } finally {
+            ConfUtil.deleteGateWayStatisticalConf();
             if ( session != null ) {
                 session.close();
             }

@@ -85,18 +85,10 @@ public class StatisticsFile3598 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
-        try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                StatisticsUtils.clearStatisticalInfo();
-            }
-        } finally {
-            ConfUtil.deleteGateWayStatisticalConf();
-            if ( session != null ) {
-                session.close();
-            }
-        }
+        ConfUtil.deleteGateWayStatisticalConf();
+        session.close();
     }
 
     private void prepareEnv() throws Exception {

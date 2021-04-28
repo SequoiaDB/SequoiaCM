@@ -154,7 +154,6 @@ public class StatisticsFile3592 extends TestScmBase {
                 sessionA = TestScmTools.createSession( site );
                 ScmWorkspace wsA = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
-                StatisticsUtils.clearStatisticalInfo();
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFactory.Role.deleteRole( sessionA, rolename );
                 ScmFactory.User.deleteUser( sessionA, username );
@@ -164,6 +163,7 @@ public class StatisticsFile3592 extends TestScmBase {
             }
         } finally {
             StatisticsUtils.restoreGateWaySystemTime();
+            ConfUtil.deleteGateWayStatisticalConf();
             if ( sessionA != null ) {
                 sessionA.close();
             }
