@@ -143,9 +143,11 @@ public class CreateWorkspaceIdxWorker extends WorkspaceIdxWorkerBase {
         }
         waitMsgBeConsumed(lastMsgId);
 
-        // latestMsgId 已经被消费，所有监听小于该ID的监听器都做过期处理
-        producerClient.triggerListenerTimeout(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
-                FulltextCommonDefine.FULLTEXT_GROUP_NAME, lastMsgId);
+        // latestMsgId 已经被消费，所有监听小于该ID的回调都做过期处理
+        // 但由于消息队列的消息反馈是异步的，即某条消息被确认消费后，反馈可能还未到达生成者，
+        // 所以对这些回调过期处理前，生产者额外再至多等 60s ，确保上述反馈可以正常收取到
+        producerClient.triggerCallbackTimeout(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                FulltextCommonDefine.FULLTEXT_GROUP_NAME, lastMsgId, 60000);
     }
 
     private long sendMsg(FulltextIdxSchJobData data, List<ScmFileInfo> filesInOneMsg)

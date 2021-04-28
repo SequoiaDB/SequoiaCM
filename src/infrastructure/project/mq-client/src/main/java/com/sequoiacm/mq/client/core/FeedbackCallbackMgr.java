@@ -111,7 +111,10 @@ public class FeedbackCallbackMgr {
         }
     }
 
-    public void triggerTimeout(String topic, String group, long lessThanOrEqualsMsgId) {
+    // 若存在指定消息ID之前的 callback
+    // 这些 callback 最多再等 waitTime 毫秒，若还未收到反馈，过期处理
+    public void triggerTimeout(String topic, String group, long lessThanOrEqualsMsgId,
+            long waitTime) throws InterruptedException {
         Lock rLock = rwLock.readLock();
         rLock.lock();
         HashSet<FeedbackCallbackWrapper<?>> callbackCopy;
@@ -121,10 +124,32 @@ public class FeedbackCallbackMgr {
         finally {
             rLock.unlock();
         }
+        logger.debug(
+                "trigger callback timeout: topic={}, group={}, lessThanOrEqualsMsgId={}, waitTime={}",
+                topic, group, lessThanOrEqualsMsgId, waitTime);
+        long remainWaitTime = waitTime;
         for (FeedbackCallbackWrapper<?> c : callbackCopy) {
             if (c.getTopic().equals(topic) && c.getGroupName().equals(group)
                     && c.getMsgId() <= lessThanOrEqualsMsgId) {
-                c.innerOnTimeout();
+                if (remainWaitTime <= 0) {
+                    // 时间已经耗尽，不用等待，直接超时处理
+                    c.innerOnTimeout();
+                    continue;
+                }
+
+                // 等待时间未用完， 使用剩余时间等待 callback 的触发
+                long start = System.currentTimeMillis();
+                if (!c.waitBeTriggered(remainWaitTime)) {
+                    // 等待过后，callback 仍未被触发，剩余时间耗尽归零，回调做超时处理
+                    remainWaitTime = 0;
+                    c.innerOnTimeout();
+                    continue;
+                }
+
+                // 回调已被触发，重新计算剩余时间
+                long newRemainWaitTime = remainWaitTime - (System.currentTimeMillis() - start);
+                // 时间向过去跳变时 newRemainWaitTime 会比 remainWaitTime 大，使用原值规避这种情况
+                remainWaitTime = Math.min(newRemainWaitTime, remainWaitTime);
             }
         }
     }

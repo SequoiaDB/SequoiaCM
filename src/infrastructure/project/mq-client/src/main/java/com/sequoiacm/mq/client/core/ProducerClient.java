@@ -55,8 +55,9 @@ public class ProducerClient {
         return putMsg(topic, key, m, Long.MAX_VALUE, callbacks);
     }
 
-    public void triggerListenerTimeout(String topic, String group, long lessThanOrEqualsMsgId) {
-        feedbackCallbackMgr.triggerTimeout(topic, group, lessThanOrEqualsMsgId);
+    public void triggerCallbackTimeout(String topic, String group, long lessThanOrEqualsMsgId, long waitTime)
+            throws InterruptedException {
+        feedbackCallbackMgr.triggerTimeout(topic, group, lessThanOrEqualsMsgId, waitTime);
     }
 
 }

@@ -57,6 +57,7 @@ public class FeedbackCallbackWrapper<F> {
         }
         finally {
             removeFromCallbackMgr();
+            this.notify();
         }
     }
 
@@ -66,16 +67,27 @@ public class FeedbackCallbackWrapper<F> {
                     callback.getListenWhichGrp(), key, msgId);
             return;
         }
+        logger.debug("feedback onTimeout:topic={}, group={}, key={}, msgId={}", topic,
+                callback.getListenWhichGrp(), key, msgId);
         hasTriggerCallback = true;
         try {
             callback.onTimeout(topic, key, msgId);
         }
         finally {
             removeFromCallbackMgr();
+            this.notify();
         }
     }
 
     void removeFromCallbackMgr() {
         feedbackCallbackMgr.removeCallback(topic, callback.getListenWhichGrp(), msgId);
+    }
+
+    public synchronized boolean waitBeTriggered(long timeout) throws InterruptedException {
+        if (hasTriggerCallback) {
+            return true;
+        }
+        this.wait(timeout);
+        return hasTriggerCallback;
     }
 }
