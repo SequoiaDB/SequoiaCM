@@ -236,19 +236,23 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "localhost", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "mainSiteHostName", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
-            replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
-            replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
+            replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3USER", S3_ACCESSKEY)
+            replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3PASSWORD", S3_SECRETKEY)
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
             replaceTestngStr(xmlDir+"/proxy_env.xml", "XXXX", destgroup)
             replaceTestngStr(xmlDir+"/proxy_env.xml", "localhost", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy_env.xml", "mainSiteHostName", mainsitehost)
             replaceTestngStr(xmlDir+"/proxy_env.xml", "GATEWAYURLS", gatewayurls)
+            replaceTestngStr(xmlDir+"/proxy_env.xml", "S3USER", S3_ACCESSKEY)
+            replaceTestngStr(xmlDir+"/proxy_env.xml", "S3PASSWORD", S3_SECRETKEY)
         if os.path.exists(xmlDir+"/testng_env_before.xml"):
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "localhost", mainsitehost)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "mainSiteHostName", mainsitehost)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "XXXX", destgroup)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "GATEWAYURLS", gatewayurls)
+            replaceTestngStr(xmlDir+"/testng_env_before.xml", "S3USER", S3_ACCESSKEY)
+            replaceTestngStr(xmlDir+"/testng_env_before.xml", "S3PASSWORD", S3_SECRETKEY)
            
         
         #standalone or control site is main site ,then don't need to divide testng.xml,1 represent standalone
