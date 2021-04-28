@@ -68,16 +68,15 @@ public class CreateFile3002 extends TestScmBase {
     private void test() throws Exception {
         String filePath = TestTools.LocalFile.getFileByType( FileType.XLSX );
         ThreadExecutor threadExec = new ThreadExecutor();
-        CreateFileThread updatefileNoIndex = new CreateFileThread( oldMatchCond,
+        CreateFileThread updatefileNoIndex = new CreateFileThread( newMatchCond,
                 filePath );
         CreateFileThread updatefileCreateIndex = new CreateFileThread(
-                newMatchCond, filePath );
+                oldMatchCond, filePath );
         threadExec.addWorker( updatefileNoIndex );
         threadExec.addWorker( updatefileCreateIndex );
         threadExec.run();
 
         if ( updatefileNoIndex.getRetCode() == 0 ) {
-
             Assert.assertEquals( updatefileCreateIndex.getRetCode(),
                     ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
                     "update file(" + fileId + ") with createIndex fail:"
