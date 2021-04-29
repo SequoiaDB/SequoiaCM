@@ -62,25 +62,23 @@ public class ScmSdbDataLocation extends ScmDataLocation {
                     + FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN + ", obj=" + obj);
         }
         BSONObject sharding = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
-        if (sharding == null) {
-            return;
-        }
-        String clShardingStr = (String) sharding.get(FieldName.FIELD_CLWORKSPACE_DATA_CL);
-        if (clShardingStr != null) {
-            ScmShardingType clSharding = ScmShardingType.getShardingType(clShardingStr);
-            if (clSharding == null) {
-                throw new ScmInvalidArgumentException("unknown cl sharding type:" + obj);
+        if (sharding != null) {
+            String clShardingStr = (String) sharding.get(FieldName.FIELD_CLWORKSPACE_DATA_CL);
+            if (clShardingStr != null) {
+                ScmShardingType clSharding = ScmShardingType.getShardingType(clShardingStr);
+                if (clSharding == null) {
+                    throw new ScmInvalidArgumentException("unknown cl sharding type:" + obj);
+                }
+                setClShardingType(clSharding);
             }
-            setClShardingType(clSharding);
-        }
-
-        String csShardingStr = (String) sharding.get(FieldName.FIELD_CLWORKSPACE_DATA_CS);
-        if (csShardingStr != null) {
-            ScmShardingType csSharding = ScmShardingType.getShardingType(csShardingStr);
-            if (csSharding == null) {
-                throw new ScmInvalidArgumentException("unknown cs sharding type:" + obj);
+            String csShardingStr = (String) sharding.get(FieldName.FIELD_CLWORKSPACE_DATA_CS);
+            if (csShardingStr != null) {
+                ScmShardingType csSharding = ScmShardingType.getShardingType(csShardingStr);
+                if (csSharding == null) {
+                    throw new ScmInvalidArgumentException("unknown cs sharding type:" + obj);
+                }
+                setCsShardingType(csSharding);
             }
-            setCsShardingType(csSharding);
         }
 
         BSONObject dataOptions = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS);
