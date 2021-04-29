@@ -5,6 +5,7 @@ import com.sequoiacm.mq.core.exception.MqException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,9 +30,9 @@ public class ProducerClient {
     }
 
     public long putMsg(String topic, String key, SerializableMessage m,
-            long registerCallbackTimeout, FeedbackCallback<?>... callbacks)
+            long registerCallbackTimeout, List<FeedbackCallback<?>> callbacks)
             throws MqException, InterruptedException {
-        if (callbacks.length <= 0) {
+        if (callbacks == null || callbacks.isEmpty()) {
             return putMsg(topic, key, m);
         }
 
@@ -41,7 +42,7 @@ public class ProducerClient {
         lock.lock();
         try {
             long msgId = client.putMsg(topic, key, m.serialize().toString(), producerAddr);
-            feedbackCallbackMgr.registerCallback(topic, key, msgId, Arrays.asList(callbacks),
+            feedbackCallbackMgr.registerCallback(topic, key, msgId, callbacks,
                     registerCallbackTimeout);
             return msgId;
         }
@@ -51,13 +52,28 @@ public class ProducerClient {
     }
 
     public long putMsg(String topic, String key, SerializableMessage m,
-            FeedbackCallback<?>... callbacks) throws MqException, InterruptedException {
+            List<FeedbackCallback<?>> callbacks) throws MqException, InterruptedException {
         return putMsg(topic, key, m, Long.MAX_VALUE, callbacks);
     }
 
-    public void triggerCallbackTimeout(String topic, String group, long lessThanOrEqualsMsgId, long waitTime)
-            throws InterruptedException {
+    public void triggerCallbackTimeout(String topic, String group, long lessThanOrEqualsMsgId,
+            long waitTime) throws InterruptedException {
         feedbackCallbackMgr.triggerTimeout(topic, group, lessThanOrEqualsMsgId, waitTime);
     }
 
+    public long putMsg(String topic, String key, SerializableMessage m,
+            long registerCallbackTimeout, FeedbackCallback<?> callback)
+            throws MqException, InterruptedException {
+        if (callback == null) {
+            return putMsg(topic, key, m);
+        }
+        List<FeedbackCallback<?>> list = new ArrayList<>(1);
+        list.add(callback);
+        return putMsg(topic, key, m, registerCallbackTimeout, list);
+    }
+
+    public long putMsg(String topic, String key, SerializableMessage m,
+            FeedbackCallback<?> callback) throws MqException, InterruptedException {
+        return putMsg(topic, key, m, Long.MAX_VALUE, callback);
+    }
 }
