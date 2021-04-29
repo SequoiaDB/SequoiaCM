@@ -22,7 +22,7 @@ import com.sequoiadb.base.Sequoiadb;
 public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
-    private static final int fileNum = 2;
+    private static final int fileNum = 500;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
