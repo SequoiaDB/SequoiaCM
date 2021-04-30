@@ -79,7 +79,7 @@ public class S3AuthServer3623 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( runSuccess = true ) {
+            if ( runSuccess ) {
                 ScmFactory.User.deleteUser( session, username );
             }
         } finally {

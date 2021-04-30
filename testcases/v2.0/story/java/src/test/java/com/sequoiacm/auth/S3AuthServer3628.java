@@ -101,7 +101,7 @@ public class S3AuthServer3628 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( runSuccess = true ) {
+            if ( runSuccess ) {
                 ScmFactory.User.deleteUser( sessionAdmin, username );
                 ScmFactory.User.deleteUser( sessionAdmin, username1 );
                 ScmFactory.User.deleteUser( sessionAdmin, username2 );

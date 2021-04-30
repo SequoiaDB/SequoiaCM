@@ -21,6 +21,7 @@
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
    <parameter name="S3ACCESSKEYID" value="S3USER" />
    <parameter name="S3SECRETKEY" value="S3PASSWORD" />
+   <parameter name="S3WOKERSPACES" value="ws_default"/>
    
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
