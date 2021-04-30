@@ -79,7 +79,11 @@ public class StatisticsFile3610 extends TestScmBase {
         // 上传文件
         fileIdList.add( createFile( ws ) );
         StatisticsUtils.waitStatisticalInfoCount( 1 );
-        queryStatisticInfoAndCheck( 1, ScmTimeAccuracy.DAY );
+        ScmFileStatisticInfo statisticInfo1 = queryStatisticInfo(
+                ScmTimeAccuracy.DAY );
+        // 检查结果
+        Assert.assertEquals( statisticInfo1.getRequestCount(), 1 );
+        Assert.assertEquals( statisticInfo1.getAvgTrafficSize(), 0 );
 
         // 更新admin-server配置timeGranularity为HOUR
         confMap.put( "scm.statistics.timeGranularity", "HOUR" );
@@ -87,14 +91,21 @@ public class StatisticsFile3610 extends TestScmBase {
         // 上传文件
         fileIdList.add( createFile( ws ) );
         StatisticsUtils.waitStatisticalInfoCount( 2 );
-        queryStatisticInfoAndCheck( 1, ScmTimeAccuracy.HOUR );
+        ScmFileStatisticInfo statisticInfo2 = queryStatisticInfo(
+                ScmTimeAccuracy.HOUR );
+        Assert.assertTrue(
+                statisticInfo2.getRequestCount() == 2
+                        || statisticInfo2.getRequestCount() == 1,
+                "" + statisticInfo2.getRequestCount() );
+        Assert.assertEquals( statisticInfo2.getAvgTrafficSize(), 0 );
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
+                StatisticsUtils.clearStatisticalInfo();
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
@@ -107,8 +118,7 @@ public class StatisticsFile3610 extends TestScmBase {
         }
     }
 
-    private void queryStatisticInfoAndCheck( long requestCount,
-            ScmTimeAccuracy scmTimeAccuracy ) throws ScmException {
+    private ScmFileStatisticInfo queryStatisticInfo( ScmTimeAccuracy scmTimeAccuracy ) throws ScmException {
         // 查询上传接口统计信息
         Date now = new Date();
         ScmFileStatisticInfo statisticInfo = ScmSystem.Statistics
@@ -116,9 +126,7 @@ public class StatisticsFile3610 extends TestScmBase {
                 .beginDate( new Date( now.getTime() - 1000 * 60 * 60 * 5 ) )
                 .endDate( new Date( now.getTime() + 1000 * 60 * 60 * 24 * 3 ) )
                 .timeAccuracy( scmTimeAccuracy ).upload().get();
-        // 检查结果
-        Assert.assertEquals( statisticInfo.getRequestCount(), requestCount );
-        Assert.assertEquals( statisticInfo.getAvgTrafficSize(), 0 );
+        return statisticInfo;
     }
 
     private ScmId createFile( ScmWorkspace ws ) throws ScmException {

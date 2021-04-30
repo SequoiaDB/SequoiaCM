@@ -171,6 +171,10 @@ public class ConfUtil extends TestScmBase {
             confSet.add(
                     "scm.statistics.types.file_upload.conditions.workspaceRegex" );
             deleteConf( session, ConfUtil.GATEWAY_SERVICE_NAME, confSet );
+
+            Set< String > confSet1 = new HashSet<>();
+            confSet1.add( "scm.statistics.timeGranularity" );
+            deleteConf( session, ConfUtil.ADMINSERVER_SERVICE_NAME, confSet1 );
         } finally {
             if ( session != null ) {
                 session.close();

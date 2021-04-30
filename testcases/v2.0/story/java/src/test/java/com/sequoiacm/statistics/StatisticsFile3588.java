@@ -226,6 +226,7 @@ public class StatisticsFile3588 extends TestScmBase {
                 wsp1.getName() + "," + wsp2.getName() );
         confMap1.put( "scm.statistics.types.file_upload.conditions.workspaces",
                 wsp1.getName() + "," + wsp2.getName() );
+        confMap1.put( "scm.statistics.rawDataReportPeriod", "1" );
         ConfUtil.updateConf( ConfUtil.GATEWAY_SERVICE_NAME, confMap1 );
 
         // 更新admin-server配置

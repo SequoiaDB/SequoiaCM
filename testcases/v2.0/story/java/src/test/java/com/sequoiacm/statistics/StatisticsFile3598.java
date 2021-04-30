@@ -39,7 +39,6 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
  * @version:1.0
  */
 public class StatisticsFile3598 extends TestScmBase {
-    private boolean runSuccess = false;
     private SiteWrapper site = null;
     private WsWrapper wsp = null;
     private ScmSession session = null;
@@ -82,7 +81,6 @@ public class StatisticsFile3598 extends TestScmBase {
                 0, 0 );
         StatisticsUtils.checkScmFileStatisticInfo( downloadInfo,
                 expDownloadInfo );
-        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)

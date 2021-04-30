@@ -90,6 +90,7 @@ public class StatisticsFile3603 extends TestScmBase {
         confMap1.put( "scm.statistics.types", "file_upload" );
         confMap1.put( "scm.statistics.types.file_upload.conditions.workspaces",
                 wsp.getName() );
+        confMap1.put( "scm.statistics.rawDataReportPeriod", "1" );
         ScmUpdateConfResultSet result3 = ConfUtil
                 .updateConf( ConfUtil.GATEWAY_SERVICE_NAME, confMap1 );
         Assert.assertEquals( result3.getSuccesses().size() > 0, true );
