@@ -62,7 +62,7 @@ public class UpdateFile2989 extends TestScmBase {
                 new ScmFulltextOption( matcher, ScmFulltextMode.sync ) );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
         String filePath = TestTools.LocalFile.getRandomFile();
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
@@ -82,7 +82,6 @@ public class UpdateFile2989 extends TestScmBase {
         FullTextUtils.searchAndCheckResults( wsA, ScopeType.SCOPE_ALL, matcherA,
                 new BasicBSONObject() );
         runSuccess = true;
-
     }
 
     @AfterClass

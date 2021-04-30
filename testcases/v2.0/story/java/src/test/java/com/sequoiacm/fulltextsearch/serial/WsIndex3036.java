@@ -3,6 +3,8 @@ package com.sequoiacm.fulltextsearch.serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
@@ -10,10 +12,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
@@ -38,7 +36,7 @@ public class WsIndex3036 extends TestScmBase {
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
     private String wsName = "ws3036";
-    private List< ScmId > fileIdList = new ArrayList< >();
+    private List< ScmId > fileIdList = new ArrayList<>();
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -72,7 +70,7 @@ public class WsIndex3036 extends TestScmBase {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         }
-
+        ScmFactory.Fulltext.inspectIndex( ws );
         FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED, 5 );
 
         // 全文检索
@@ -105,7 +103,7 @@ public class WsIndex3036 extends TestScmBase {
 
     private List< ScmId > createFiles( String fileNamePrefix, String author,
             int fileNum ) throws Exception {
-        List< ScmId > fileIdList = new ArrayList< >();
+        List< ScmId > fileIdList = new ArrayList<>();
         for ( int i = 0; i < fileNum; i++ ) {
             String filePath = TestTools.LocalFile.getRandomFile();
             ScmFile file = ScmFactory.File.createInstance( ws );

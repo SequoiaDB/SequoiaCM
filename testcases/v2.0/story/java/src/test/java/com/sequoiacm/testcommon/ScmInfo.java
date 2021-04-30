@@ -110,7 +110,7 @@ public class ScmInfo {
         int maxBranchSiteNum = allBranchSites.size();
         if ( num > maxBranchSiteNum ) {
             throw new IllegalArgumentException(
-                    "error, num > maxBranchSiteNum" );
+                    "error, num > maxBranchSiteNum num:"+num+" maxBranchSiteNum:"+maxBranchSiteNum );
         }
 
         List< SiteWrapper > branchSites = new ArrayList<>();

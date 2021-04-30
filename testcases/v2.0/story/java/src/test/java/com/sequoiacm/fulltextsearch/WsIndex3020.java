@@ -43,8 +43,8 @@ public class WsIndex3020 extends TestScmBase {
     private ScmWorkspace ws = null;
     private String author = "author3020";
     private String newAuthor = "author3020_NEW";
-    private List< ScmId > fileIdListA = new ArrayList< >();
-    private List< ScmId > fileIdListB = new ArrayList< >();
+    private List< ScmId > fileIdListA = new ArrayList<>();
+    private List< ScmId > fileIdListB = new ArrayList<>();
     private String wsName = null;
 
     @BeforeClass
@@ -100,7 +100,7 @@ public class WsIndex3020 extends TestScmBase {
             FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
                     fileId );
         }
-
+        ScmFactory.Fulltext.inspectIndex( ws );
         FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED,
                 fileNumB + 5 );
 
@@ -144,7 +144,7 @@ public class WsIndex3020 extends TestScmBase {
     private List< ScmId > createFiles( String fileNamePrefix, String author,
             int fileNum ) throws Exception {
 
-        List< ScmId > fileIdList = new ArrayList< >();
+        List< ScmId > fileIdList = new ArrayList<>();
         for ( int i = 0; i < fileNum; i++ ) {
             String filePath = TestTools.LocalFile.getRandomFile();
             ScmFile file = ScmFactory.File.createInstance( ws );
