@@ -82,6 +82,7 @@ public class CreateFile3002 extends TestScmBase {
                     "update file(" + fileId + ") with createIndex fail:"
                             + updatefileCreateIndex.getThrowable()
                                     .getMessage() );
+            ScmFactory.Fulltext.inspectIndex(ws);
             FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.NONE,
                     fileId );
         } else {
@@ -90,6 +91,7 @@ public class CreateFile3002 extends TestScmBase {
                     ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
                     "update file(" + fileId + ") fail:"
                             + updatefileNoIndex.getThrowable().getMessage() );
+            ScmFactory.Fulltext.inspectIndex(ws);
             FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
                     fileId );
             BSONObject matcher = new BasicBSONObject();
