@@ -62,7 +62,7 @@ public class ScmFeignClient {
         private Encoder encoder;
         private Options options;
         private ScmFeignExceptionConverter exceptionCoverter;
-        private Logger.Level loggerLevel = Logger.Level.FULL;
+        private Logger.Level loggerLevel = Logger.Level.BASIC;
 
         // Spring sleuth will provide a Feign.Builer instance (prototype), this
         // builder can create a feign client that can be traced
