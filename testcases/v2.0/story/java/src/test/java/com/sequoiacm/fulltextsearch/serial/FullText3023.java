@@ -87,6 +87,7 @@ public class FullText3023 extends TestScmBase {
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
+        ScmWorkspaceUtil.deleteWs( wsName, session );
         if ( session != null ) {
             session.close();
         }
