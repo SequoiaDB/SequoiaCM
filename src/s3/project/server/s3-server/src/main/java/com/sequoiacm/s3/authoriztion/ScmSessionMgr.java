@@ -84,7 +84,18 @@ public class ScmSessionMgr {
     }
 
     private ScmSession createSession(S3Authorization authorization) throws S3ServerException {
-        String sessionId;
+        String sessionId, secretKey = null;
+        try {
+            secretKey = signClient.getSecretKey(authorization.getAccesskey());
+        }
+        catch (ScmFeignException e) {
+            if (e.getStatus() == HttpStatus.NOT_FOUND.value()) {
+                throw new S3ServerException(S3Error.INVALID_ACCESSKEYID,
+                        "accesskey not found:" + authorization.getAccesskey(), e);
+            }
+            throw new S3ServerException(S3Error.SCM_AUTH_FAILED,
+                    "failed to get session detail from auth server", e);
+        }
         try {
             sessionId = signClient.loginWithSignature(
                     new SignatureInfo(authorization.getAlgorithm(), authorization.getAccesskey(),
@@ -92,10 +103,6 @@ public class ScmSessionMgr {
                             authorization.getSignatureEncoder(), authorization.getStringToSign()));
         }
         catch (ScmFeignException e) {
-            if (e.getStatus() == HttpStatus.NOT_FOUND.value()) {
-                throw new S3ServerException(S3Error.INVALID_ACCESSKEYID,
-                        "accesskey not found:" + authorization.getAccesskey(), e);
-            }
             if (e.getStatus() == HttpStatus.UNAUTHORIZED.value()) {
                 throw new S3ServerException(S3Error.SIGNATURE_NOT_MATCH, "singnature not match", e);
             }
@@ -103,8 +110,7 @@ public class ScmSessionMgr {
         }
         try {
             ScmUserWrapper userDetail = signClient.getUserDetail(sessionId);
-            String secretkey = signClient.getSecretKey(authorization.getAccesskey());
-            return new ScmSession(secretkey, sessionId, userDetail);
+            return new ScmSession(secretKey, sessionId, userDetail);
         }
         catch (ScmFeignException e) {
             throw new S3ServerException(S3Error.SCM_AUTH_FAILED,
