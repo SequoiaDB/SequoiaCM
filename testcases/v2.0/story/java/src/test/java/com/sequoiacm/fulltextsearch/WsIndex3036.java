@@ -72,7 +72,7 @@ public class WsIndex3036 extends TestScmBase {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
         }
-
+        ScmFactory.Fulltext.inspectIndex( ws );
         FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED, 5 );
 
         // 全文检索

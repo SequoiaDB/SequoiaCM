@@ -38,14 +38,22 @@ public class WsIndex3039 extends TestScmBase {
     @Test
     private void test() throws Exception {
         ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
-        try {
-            ScmFactory.Fulltext.inspectIndex( ws );
-            Assert.fail( "inspectIndex should be failed!" );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
-                Assert.fail( e.getMessage() + ";e=" + e.getErrorCode() );
+        int time = 0;
+        ScmException exception = null;
+        do {
+            try {
+                ScmFactory.Fulltext.inspectIndex( ws );
+                Assert.fail( "inspectIndex should be failed!" );
+            } catch ( ScmException e ) {
+                exception = e;
             }
-        }
+            Thread.sleep( 1000 );
+            time++;
+            if ( time > 20 ) {
+                Assert.fail( "---time out" + exception.getMessage() );
+            }
+        } while ( exception.getError() == ScmError.WORKSPACE_NOT_EXIST );
+
     }
 
     @AfterClass
