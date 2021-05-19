@@ -94,7 +94,7 @@ public class ScmSessionMgr {
                         "accesskey not found:" + authorization.getAccesskey(), e);
             }
             throw new S3ServerException(S3Error.SCM_AUTH_FAILED,
-                    "failed to get secretKey from auth server", e);
+                    "failed to get secretKey from auth server, accesskey:" +authorization.getAccesskey(), e);
         }
         try {
             sessionId = signClient.loginWithSignature(
