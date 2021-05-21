@@ -47,4 +47,10 @@ public class ScmUpdateConfPropsResult {
         this.errorMessage = message;
     }
 
+    @Override
+    public String toString() {
+        return "ScmUpdateConfPropsResult{" + "serviceName='" + serviceName + '\''
+                + ", instanceUrl='" + instanceUrl + '\'' + ", errorMessage='" + errorMessage + '\''
+                + '}';
+    }
 }

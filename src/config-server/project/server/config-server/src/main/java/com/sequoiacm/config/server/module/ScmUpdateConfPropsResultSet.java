@@ -43,4 +43,10 @@ public class ScmUpdateConfPropsResultSet {
     public void setFailes(List<ScmUpdateConfPropsResult> failes) {
         this.failes = failes;
     }
+
+    @Override
+    public String toString() {
+        return "ScmUpdateConfPropsResultSet{" + "successes=" + successes + ", failes=" + failes
+                + '}';
+    }
 }

@@ -1,10 +1,7 @@
 package com.sequoiacm.config.server.service;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
 
@@ -37,11 +34,18 @@ public class ScmConfPropsServiceImpl implements ScmConfPropsService {
     public ScmUpdateConfPropsResultSet updateConfProps(ScmTargetType type, List<String> targets,
             Map<String, String> updateProps, List<String> deleteProps, boolean acceptUnknownProps)
             throws ScmConfigException {
+        logger.info(
+                "update conf props: type={}, targets={}, updateProps={}, deleteProps={}, acceptUnknownProps={}",
+                type, targets, updateProps, deleteProps, acceptUnknownProps);
         ScmLock lock = ScmLockManager.getInstance()
                 .acquiresLock(ScmLockPathFactory.createGlobalConfigPropLockPath());
         try {
             // serviceName map instances
             Map<String, List<ServiceInstance>> instancesMap = getInstancesByType(type, targets);
+            for (Map.Entry<String, List<ServiceInstance>> e : instancesMap.entrySet()) {
+                logger.info("service instances: serviceName={}, instance={}", e.getKey(),
+                        instanceToString(e.getValue()));
+            }
 
             // serviceName map instances exec result future
             Map<String, Future<List<ScmUpdateConfPropsResult>>> futures = new HashMap<>();
@@ -49,8 +53,8 @@ public class ScmConfPropsServiceImpl implements ScmConfPropsService {
             // concurrently refresh conf in every services.
             for (Entry<String, List<ServiceInstance>> entry : instancesMap.entrySet()) {
                 // serially refresh conf the instances of the same service.
-                Future<List<ScmUpdateConfPropsResult>> future = asyncExecutor
-                        .updateConfProp(entry.getValue(), updateProps, deleteProps, acceptUnknownProps);
+                Future<List<ScmUpdateConfPropsResult>> future = asyncExecutor.updateConfProp(
+                        entry.getValue(), updateProps, deleteProps, acceptUnknownProps);
                 futures.put(entry.getKey(), future);
             }
 
@@ -76,11 +80,23 @@ public class ScmConfPropsServiceImpl implements ScmConfPropsService {
                     logger.warn("failed to get execution result", e);
                 }
             }
+            logger.info("update conf result:{}", resultSet);
             return resultSet;
         }
         finally {
             lock.unlock();
         }
+    }
+
+    private String instanceToString(List<ServiceInstance> value) {
+        StringBuilder sb = new StringBuilder();
+        for (ServiceInstance i : value) {
+            sb.append(i.getHost()).append(":").append(i.getPort()).append(",");
+        }
+        if (sb.length() > 0) {
+            return sb.substring(0, sb.length() - 1);
+        }
+        return "";
     }
 
     private Map<String, List<ServiceInstance>> getInstancesByType(ScmTargetType type,

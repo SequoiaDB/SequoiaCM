@@ -3,6 +3,8 @@ package com.sequoiacm.infrastructure.config.client.service;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
 @Service
 public class ScmConfigPropServiceImpl implements ScmConfigPropService {
-
+    private static final Logger logger = LoggerFactory.getLogger(ScmConfigPropServiceImpl.class);
     @Autowired
     private ScmConfPropVerifiersMgr verfierMgr;
 
@@ -27,6 +29,8 @@ public class ScmConfigPropServiceImpl implements ScmConfigPropService {
     @Override
     public void updateConfigProps(Map<String, String> updateProps, List<String> deleteProps,
             boolean acceptUnknownProps) throws ScmConfigException {
+        logger.info("update node config: newProps={}, deleteProps={}, acceptUnknownProps={}",
+                updateProps, deleteProps, acceptUnknownProps);
         verfierMgr.checkProps(updateProps, deleteProps, acceptUnknownProps);
 
         ScmConfigPropsDao dao = daoFactory.createConfigPropsDao();
