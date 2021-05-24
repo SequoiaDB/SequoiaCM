@@ -58,12 +58,14 @@ public class CommandManager {
                     tool.process(toolsArgs);
                     System.exit(ScmExitCode.SUCCESS);
                 }
-                catch (Exception e) {
-                    logger.error("process failed,subcommand:" + args[0], e);
-                    System.err.println("process failed,subcommand:" + args[0] + "\nerror message:" + e.getMessage());
-                    if (e instanceof ScmToolsException) {
-                        System.exit(((ScmToolsException)e).getExitCode());
+                catch (ScmToolsException e) {
+                    if (e.getExitCode() != ScmExitCode.SUCCESS && e.getExitCode() != ScmExitCode.EMPTY_OUT) {
+                        logAndPrintErr(args[0], e);
                     }
+                    System.exit(e.getExitCode());
+                }
+                catch (Exception e) {
+                    logAndPrintErr(args[0], e);
                     System.exit(ScmExitCode.SYSTEM_ERROR);
                 }
             }
@@ -98,6 +100,11 @@ public class CommandManager {
         }
         System.out.println(this.getHelpMsg());
         System.exit(ScmExitCode.INVALID_ARG);
+    }
+
+    private void logAndPrintErr(String arg, Exception e) {
+        logger.error("process failed,subcommand:" + arg, e);
+        System.err.println("process failed,subcommand:" + arg + "\nerror message:" + e.getMessage());
     }
 
     public void checkHelpArgs(String[] args) throws ScmToolsException {
