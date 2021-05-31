@@ -47,7 +47,6 @@ public class ScmListSiteToolImpl extends ScmTool {
         ScmMetaMgr mg = new ScmMetaMgr(mainSiteSdb.getSdbUrl(), mainSiteSdb.getSdbUser(),
                 mainSiteSdb.getSdbPasswd());
 
-        int rc = ScmExitCode.SUCCESS;
         List<ScmSiteInfo> list = new ArrayList<>();
         try {
             if (name != null) {
@@ -55,15 +54,9 @@ public class ScmListSiteToolImpl extends ScmTool {
                 if (siteInfo != null) {
                     list.add(siteInfo);
                 }
-                else {
-                    rc = ScmExitCode.EMPTY_OUT;
-                }
             }
             else {
                 list.addAll(mg.getSiteList());
-                if (list.size() == 0) {
-                    rc = ScmExitCode.EMPTY_OUT;
-                }
             }
         }
         finally {
@@ -72,7 +65,9 @@ public class ScmListSiteToolImpl extends ScmTool {
 
         SiteInfoPrinter printer = new SiteInfoPrinter(list);
         printer.print();
-        throw new ScmToolsException(rc);
+        if (list.size() == 0) {
+            throw new ScmToolsException(ScmExitCode.EMPTY_OUT);
+        }
     }
 
     @Override

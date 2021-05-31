@@ -62,7 +62,6 @@ public class ScmListUserImpl extends ScmTool {
     private void listUser(String gatewayUrl, ScmUserInfo adminUserInfo) throws ScmToolsException {
         ListTable t = new ListTable();
         ScmSession ss = null;
-        int rc = ScmExitCode.SUCCESS;
         try {
             ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
                     new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
@@ -91,17 +90,15 @@ public class ScmListUserImpl extends ScmTool {
                 t.addLine(l);
             }
 
-            if (t.size() == 0) {
-                rc = ScmExitCode.EMPTY_OUT;
-            }
-
             List<String> header = new ArrayList<>();
             header.add("Name");
             header.add("Id");
             header.add("Roles");
             ScmCommonPrintor.print(header, t);
 
-            throw new ScmToolsException(rc);
+            if (t.size() == 0) {
+                throw new ScmToolsException(ScmExitCode.EMPTY_OUT);
+            }
         }
         catch (ScmToolsException e) {
             throw e;

@@ -59,7 +59,7 @@ public class CommandManager {
                     System.exit(ScmExitCode.SUCCESS);
                 }
                 catch (ScmToolsException e) {
-                    if (e.getExitCode() != ScmExitCode.SUCCESS && e.getExitCode() != ScmExitCode.EMPTY_OUT) {
+                    if (e.getExitCode() != ScmExitCode.EMPTY_OUT) {
                         logAndPrintErr(args[0], e);
                     }
                     System.exit(e.getExitCode());
