@@ -219,6 +219,8 @@ public class ScmWorkspaceUtil extends TestScmBase {
                 ScmFactory.File.listInstance(
                         ScmFactory.Workspace.getWorkspace( wsName, session ),
                         ScopeType.SCOPE_ALL, new BasicBSONObject() );
+                ScmFactory.Fulltext.getIndexInfo(
+                        ScmFactory.Workspace.getWorkspace( wsName, session ) );
                 return;
             } catch ( ScmException e ) {
                 Assert.assertEquals( e.getError(),
