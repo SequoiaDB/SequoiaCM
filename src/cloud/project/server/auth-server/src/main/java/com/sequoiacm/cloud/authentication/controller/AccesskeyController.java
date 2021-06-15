@@ -109,7 +109,7 @@ public class AccesskeyController {
                         "Accesskey is not found: " + signatureInfo.getAccessKey());
             }
             if (!currentUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)
-                    || targetUser.getAccesskey().equals(signatureInfo.getAccessKey())) {
+                    || currentUser.getUsername().equals(targetUser.getUsername())) {
                 if (signatureInfo.getSignature() == null) {
                     throw new BadRequestException("please specify signature");
                 }
