@@ -47,16 +47,15 @@ public class S3AuthServer3629 extends TestScmBase {
                 password1 );
         String cryptPassword = ScmPasswordMgr.getInstance()
                 .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, password1 );
-        // 因问题单SEQUOIACM-658暂时屏蔽
-        // // 账户密码刷新生成accesskeys
-        // accessKeys = ScmAuthUtils.refreshAccessKey( session, username1,
-        // cryptPassword, null );
-        // // 使用accessKeys刷新
-        // BSONObject signInfo = new BasicBSONObject();
-        // signInfo.put( "accesskey", accessKeys[ 0 ] );
-        // accessKeys = ScmAuthUtils.refreshAccessKey( session, null, null,
-        // signInfo );
-        // checkSign();
+        // 账户密码刷新生成accesskeys
+        accessKeys = ScmAuthUtils.refreshAccessKey( session, username1,
+                cryptPassword, null );
+        // 使用accessKeys刷新
+        BSONObject signInfo = new BasicBSONObject();
+        signInfo.put( "accesskey", accessKeys[ 0 ] );
+        accessKeys = ScmAuthUtils.refreshAccessKey( session, null, null,
+                signInfo );
+        checkSign();
 
         // 创建普通用户
         ScmAuthUtils.createNormalUser( session, wsp.getName(), username2,
@@ -76,7 +75,7 @@ public class S3AuthServer3629 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( runSuccess  ) {
+            if ( runSuccess ) {
                 ScmFactory.User.deleteUser( session, username1 );
                 ScmFactory.User.deleteUser( session, username2 );
                 ScmFactory.Role.deleteRole( session, roleName );
