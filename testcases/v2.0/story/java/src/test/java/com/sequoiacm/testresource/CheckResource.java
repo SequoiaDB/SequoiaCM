@@ -23,6 +23,7 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
     private static final int fileNum = 500;
+    private boolean s3SessionExist = false;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -31,7 +32,11 @@ public class CheckResource extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testRemainSession() throws Exception {
         List< String > sessionList = this.isRemainScmSession();
-        if ( sessionList.size() > 0 ) {
+        int session_num = 0;
+        if ( s3SessionExist ) {
+            session_num = 1;
+        }
+        if ( sessionList.size() > session_num ) {
             throw new Exception( "remain session \n" + sessionList );
         }
     }
@@ -62,14 +67,38 @@ public class CheckResource extends TestScmBase {
                 cursor = cl.query();
                 while ( cursor.hasNext() ) {
                     BSONObject ssInfo = cursor.getNext();
+                    logger.error( "remain session \nremainNum = " + cnt
+                            + ", session = " + sessionList );
                     String ssId = ssInfo.get( "_id" ).toString();
                     String ssCreateTime = ssInfo.get( "creationTime" )
                             .toString();
-                    sessionList.add( "[_id:" + ssId + ", createTime:"
-                            + ssCreateTime + "]" );
+
+                    BSONObject attributes = ( BSONObject ) ssInfo
+                            .get( "attributes" );
+                    BSONObject spring_security_context = ( BSONObject ) attributes
+                            .get( "SPRING_SECURITY_CONTEXT" );
+                    BSONObject authentication = ( BSONObject ) spring_security_context
+                            .get( "authentication" );
+                    BSONObject details = ( BSONObject ) authentication
+                            .get( "details" );
+                    BSONObject signatureInfo = ( BSONObject ) details
+                            .get( "signatureInfo" );
+                    if ( signatureInfo != null ) {
+                        String accessKey = ( String ) signatureInfo
+                                .get( "accessKey" );
+                        if ( accessKey.equals( TestScmBase.s3AccessKeyID ) ) {
+                            s3SessionExist = true;
+                            sessionList.add( "[_id:" + ssId + ", createTime:"
+                                    + ssCreateTime + ", s3]" );
+                        } else {
+                            sessionList.add( "[_id:" + ssId + ", createTime:"
+                                    + ssCreateTime + "]" );
+                        }
+                    } else {
+                        sessionList.add( "[_id:" + ssId + ", createTime:"
+                                + ssCreateTime + "]" );
+                    }
                 }
-                logger.error( "remain session \nremainNum = " + cnt
-                        + ", session = " + sessionList );
             }
         } finally {
             if ( null != cursor ) {
