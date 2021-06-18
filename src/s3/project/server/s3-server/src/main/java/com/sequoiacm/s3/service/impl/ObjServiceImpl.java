@@ -309,14 +309,13 @@ public class ObjServiceImpl implements ObjectService {
                 throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
                         "metadata headers exceed the maximum. xMeta:" + sourceMeta.getMetaList());
             }
-            // retain basic metaData attributes beside metaList and metaListLength
-            sourceMeta.setMetaList(dest.getMetaList());
-            sourceMeta.setMetaListlength(dest.getMetaListlength());
+            dest.setEtag(sourceMeta.geteTag());
         }
-
-        sourceMeta.setBucketName(dest.getBucketName());
-        sourceMeta.setKey(dest.getKey());
-        dest = sourceMeta;
+        else {
+            sourceMeta.setBucketName(dest.getBucketName());
+            sourceMeta.setKey(dest.getKey());
+            dest = sourceMeta;
+        }
 
         ScmContentServerClient client = clientFactory.getContentServerClient(session,
                 bucket.getWorkspace());
