@@ -82,7 +82,7 @@ public class CopyObject3564 extends TestScmBase {
         httpExpiresDate = new Date( timestamp );
     }
 
-    @Test(enabled = false) // SEQUOIACM-650
+    @Test
     public void testCopyObject() throws Exception {
         // put user-defined metadata
         Map< String, String > destObjectMeta = setUserDefinedMetaData();
