@@ -1,17 +1,17 @@
 package com.sequoiacm.client.core;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.sequoiacm.client.dispatcher.BsonReader;
+import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.util.BsonConverter;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 import com.sequoiacm.client.common.RestDefine;
 import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleBasicInfo;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
-import com.sequoiacm.client.element.ScmScheduleContent;
-import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 
@@ -207,6 +207,56 @@ class ScmScheduleImpl implements ScmSchedule {
     @Override
     public boolean isEnable() {
         return basicInfo.isEnable();
+    }
+
+    @Override
+    public ScmTask getLatestTask() throws ScmException {
+        List<ScmTask> tasks = getLatestTasks(1);
+        if (tasks.size() >= 1) {
+            return tasks.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ScmTask> getLatestTasks(int count) throws ScmException {
+        BSONObject orderby = new BasicBSONObject();
+        orderby.put(ScmAttributeName.Task.START_TIME, -1);
+        return getTasks(null, orderby, 0, count);
+    }
+
+    @Override
+    public List<ScmTask> getTasks(BSONObject extraCondition, BSONObject orderby, long skip, long limit)
+            throws ScmException {
+        ScmQueryBuilder builder = new ScmQueryBuilder();
+
+        BSONObject condition = new BasicBSONObject();
+        condition.put(ScmAttributeName.Task.SCHEDULE_ID, basicInfo.getId().get());
+        builder.and(condition);
+
+        if (null != extraCondition) {
+            builder.and(extraCondition);
+        }
+
+        BsonReader reader = ss.getDispatcher().getTaskList(builder.get(), orderby, null, skip, limit);
+        ScmBsonCursor<ScmTask> cursor = new ScmBsonCursor<ScmTask>(reader,
+                new BsonConverter<ScmTask>() {
+                    @Override
+                    public ScmTask convert(BSONObject obj) throws ScmException {
+                        return new ScmTask(obj);
+                    }
+                });
+
+        try {
+            List<ScmTask> tasks = new ArrayList<ScmTask>();
+            while (cursor.hasNext()) {
+                tasks.add(cursor.getNext());
+            }
+            return tasks;
+        }
+        finally {
+            cursor.close();
+        }
     }
 
     @Override

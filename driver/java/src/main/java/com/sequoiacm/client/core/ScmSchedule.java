@@ -1,11 +1,14 @@
 package com.sequoiacm.client.core;
 
 import java.util.Date;
+import java.util.List;
 
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmScheduleContent;
+import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
+import org.bson.BSONObject;
 
 /**
  * Scm Schedule.
@@ -157,4 +160,49 @@ public interface ScmSchedule {
      * @return true or false.
      */
     public boolean isEnable();
+
+    /**
+     * Acquires the latest ScmTask
+     *
+     * @return task
+     * @throws ScmException
+     *             if error happens.
+     */
+    public ScmTask getLatestTask() throws ScmException;
+
+    /**
+     * Acquires the latest ScmTask list which matches between the specified count.
+     *
+     * @param count
+     *            return the specified amount of tasks, never skip if this
+     *            parameter is 0.
+     * @return the list of task
+     * @throws ScmException
+     *             if error happens.
+     */
+    public List<ScmTask> getLatestTasks(int count) throws ScmException;
+
+    /**
+     * Acquires ScmTask list which matches between the specified query condition.
+     *
+     * @param extraCondition
+     *            the condition of query tasks
+     * @param orderby
+     *            the condition for sort, include: key is a property of
+     *            {@link ScmAttributeName.Task}, value is -1(descending) or
+     *            1(ascending)
+     * @param skip
+     *            skip the the specified amount of tasks, never skip if this
+     *            parameter is 0.
+     * @param limit
+     *            return the specified amount of tasks, when limit is -1,
+     *            return all the tasks.
+     * @return the list of task
+     * @throws ScmException
+     *             if error happens.
+     * @since 3.1
+     */
+    public List<ScmTask> getTasks(BSONObject extraCondition, BSONObject orderby, long skip, long limit)
+            throws ScmException;
+
 }

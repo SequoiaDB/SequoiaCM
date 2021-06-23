@@ -60,24 +60,31 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public MetaCursor getTaskList(BSONObject condition)
-            throws ScmServerException {
+    public MetaCursor getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
+            long skip, long limit) throws ScmServerException {
         MetaTaskAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource()
                 .getTaskAccessor();
+
         try {
-            BSONObject selector = new BasicBSONObject();
-            selector.put(FieldName.Task.FIELD_TYPE, null);
-            selector.put(FieldName.Task.FIELD_ID, null);
-            selector.put(FieldName.Task.FIELD_SCHEDULE_ID, null);
-            selector.put(FieldName.Task.FIELD_WORKSPACE, null);
-            selector.put(FieldName.Task.FIELD_TARGET_SITE, null);
-            selector.put(FieldName.Task.FIELD_START_TIME, null);
-            selector.put(FieldName.Task.FIELD_RUNNING_FLAG, null);
-            return accessor.query(condition, selector, null);
+            if (null == selector) {
+                selector = new BasicBSONObject();
+                selector.put(FieldName.Task.FIELD_TYPE, null);
+                selector.put(FieldName.Task.FIELD_ID, null);
+                selector.put(FieldName.Task.FIELD_SCHEDULE_ID, null);
+                selector.put(FieldName.Task.FIELD_WORKSPACE, null);
+                selector.put(FieldName.Task.FIELD_TARGET_SITE, null);
+                selector.put(FieldName.Task.FIELD_START_TIME, null);
+                selector.put(FieldName.Task.FIELD_RUNNING_FLAG, null);
+            }
+            return accessor.query(condition, selector, orderby, skip, limit);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
-                    "Failed to get task list, condition=" + condition, e);
+                    "Failed to get task list, condition=" + condition
+                    + ", orderby=" + orderby
+                    + ", selector=" + selector
+                    + ", skip=" + skip
+                    + ", limit="+ limit, e);
         }
     }
 

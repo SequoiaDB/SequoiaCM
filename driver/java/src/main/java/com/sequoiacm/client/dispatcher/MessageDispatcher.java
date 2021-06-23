@@ -104,6 +104,9 @@ public interface MessageDispatcher extends Closeable {
 
     BsonReader getTaskList(BSONObject condition) throws ScmException;
 
+    BsonReader getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
+            long skip, long limit) throws ScmException;
+
     ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
             long maxExecTime, String targetSite) throws ScmException;
 

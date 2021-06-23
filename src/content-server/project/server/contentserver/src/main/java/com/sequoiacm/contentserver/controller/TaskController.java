@@ -69,10 +69,15 @@ public class TaskController {
     }
 
     @GetMapping("/api/v1/tasks")
-    public void taskList(@RequestParam(value = "filter", required = false) BSONObject filter,
+    public void taskList(
+            @RequestParam(value = "filter", required = false) BSONObject filter,
+            @RequestParam(value = "orderby", required = false) BSONObject orderby,
+            @RequestParam(value = "selector", required = false) BSONObject selector,
+            @RequestParam(value = "skip", required = false, defaultValue = "0") long skip,
+            @RequestParam(value = "limit", required = false, defaultValue = "-1") long limit,
             HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
-        MetaCursor cursor = taskService.getTaskList(filter);
+        MetaCursor cursor = taskService.getTaskList(filter, orderby, selector, skip, limit);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 

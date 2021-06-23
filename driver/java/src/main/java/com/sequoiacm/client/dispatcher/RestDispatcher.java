@@ -783,8 +783,21 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BsonReader getTaskList(BSONObject condition) throws ScmException {
-        String s = encodeCondition(condition);
-        String uri = URL_PREFIX + url + API_VERSION + TASK + "?filter=" + s;
+        return getTaskList(condition, null, null, 0, -1);
+    }
+
+    @Override
+    public BsonReader getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
+            long skip, long limit) throws ScmException {
+        String conditionStr = encodeCondition(condition);
+        String orderbyStr = encodeCondition(orderby);
+        String selectorStr = encodeCondition(selector);
+        String uri = URL_PREFIX + url + API_VERSION + TASK
+                + "?filter=" + conditionStr
+                + "&orderby=" + orderbyStr
+                + "&selector=" + selectorStr
+                + "&skip=" + skip
+                + "&limit=" + limit;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }

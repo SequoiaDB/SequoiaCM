@@ -11,7 +11,8 @@ public interface ITaskService {
     BSONObject getTaskDetail(String taskId) throws ScmServerException;
 
     /*void getTaskList(PrintWriter writer, BSONObject condition) throws ScmServerException;*/
-    MetaCursor getTaskList(BSONObject condition) throws ScmServerException;
+    MetaCursor getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
+            long skip, long limit) throws ScmServerException;
 
     String startTask(String serssionId, String userDetail, String wsName, int taskType, int serverId, 
             String targetSite, BSONObject options) throws ScmServerException;

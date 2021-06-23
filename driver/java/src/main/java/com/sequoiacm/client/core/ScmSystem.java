@@ -219,6 +219,53 @@ public class ScmSystem {
         }
 
         /**
+         * List tasks which matches between the specified query condition.
+         *
+         * @param ss
+         *            session for request.
+         * @param condition
+         *            the condition of query tasks
+         * @param orderby
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Task}, value is -1(descending) or
+         *            1(ascending)
+         * @param skip
+         *            skip the the specified amount of tasks, never skip if this
+         *            parameter is 0.
+         * @param limit
+         *            return the specified amount of tasks, when limit is -1,
+         *            return all the files.
+         * @return task cursor for traverse
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.1
+         */
+        public static ScmCursor<ScmTaskBasicInfo> listTask(ScmSession ss, BSONObject condition, BSONObject orderby,
+                long skip, long limit) throws ScmException {
+            if (null == ss) {
+                throw new ScmInvalidArgumentException("session is null");
+            }
+
+            if (null == condition) {
+                throw new ScmInvalidArgumentException("condition is null");
+            }
+
+            if (null == orderby) {
+                throw new ScmInvalidArgumentException("orderby is null");
+            }
+
+            BsonReader reader = ss.getDispatcher().getTaskList(condition, orderby, null, skip, limit);
+            ScmCursor<ScmTaskBasicInfo> cursor = new ScmBsonCursor<ScmTaskBasicInfo>(reader,
+                    new BsonConverter<ScmTaskBasicInfo>() {
+                        @Override
+                        public ScmTaskBasicInfo convert(BSONObject obj) throws ScmException {
+                            return new ScmTaskBasicInfo(obj);
+                        }
+                    });
+            return cursor;
+        }
+
+        /**
          * Start transfer file task, when the star strategy is in use.
          *
          * @param ws
