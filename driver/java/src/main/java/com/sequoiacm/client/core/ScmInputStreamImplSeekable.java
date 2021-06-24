@@ -18,14 +18,16 @@ class ScmInputStreamImplSeekable implements ScmInputStream, Closeable {
     private ScmSession session;
     private boolean isClosed;
     private long currentOffset;
+    private int readFlag;
 
-    public ScmInputStreamImplSeekable(ScmFile scmFile) throws ScmException {
+    public ScmInputStreamImplSeekable(ScmFile scmFile, int readFlag) throws ScmException {
         if (scmFile == null) {
             throw new ScmInvalidArgumentException("scmFile is null");
         }
         if (!scmFile.isExist()) {
             throw new ScmInvalidArgumentException("file is non-existing");
         }
+        this.readFlag = readFlag;
         isClosed = false;
         currentOffset = 0;
         this.scmFile = scmFile;
@@ -77,8 +79,7 @@ class ScmInputStreamImplSeekable implements ScmInputStream, Closeable {
         try {
             fileDataEntity = session.getDispatcher().downloadFile(scmFile.getWorkspaceName(),
                     scmFile.getFileId().get(), scmFile.getMajorVersion(), scmFile.getMinorVersion(),
-                    CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK, currentOffset,
-                    CommonDefine.File.UNTIL_END_OF_FILE);
+                    readFlag, currentOffset, CommonDefine.File.UNTIL_END_OF_FILE);
             long fileDataLength = fileDataEntity.getLength();
             long totalReadLen = 0;
             byte[] buf = new byte[ClientDefine.File.TRANSMISSION_LEN];
@@ -146,7 +147,7 @@ class ScmInputStreamImplSeekable implements ScmInputStream, Closeable {
         try {
             fileDataEntity = session.getDispatcher().downloadFile(scmFile.getWorkspaceName(),
                     scmFile.getFileId().get(), scmFile.getMajorVersion(), scmFile.getMinorVersion(),
-                    CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK, currentOffset, expectLen);
+                    readFlag, currentOffset, expectLen);
             long fileDataLength = fileDataEntity.getLength();
             if (fileDataLength <= -1) {
                 return -1;

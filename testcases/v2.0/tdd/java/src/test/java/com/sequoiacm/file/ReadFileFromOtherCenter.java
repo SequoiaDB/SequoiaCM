@@ -86,7 +86,7 @@ public class ReadFileFromOtherCenter extends ScmTestMultiCenterBase {
             String destDir = workingDir + File.separator + ScmTestTools.getMethodName();
             String destFile = destDir + File.separator + "out1.txt";
             ScmTestTools.createDir(destDir);
-            ScmTestTools.readAndCheckFile(ws2, fileId, srcFile, destFile);
+            ScmTestTools.readAndCheckFile(ws2, fileId, srcFile, destFile, 0);
 
             scmFile = ScmFactory.File.getInstance(ws2, fileId);
 

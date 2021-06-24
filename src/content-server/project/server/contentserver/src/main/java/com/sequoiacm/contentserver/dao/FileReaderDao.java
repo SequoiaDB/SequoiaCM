@@ -102,6 +102,10 @@ public class FileReaderDao {
         }
 
         // read from remote
+        if (siteIdList.size() != 0 && isNeedSeek && isForceNoCache(flag)) {
+            throw new ScmServerException(ScmError.INVALID_ARGUMENT,
+                    "failed to create seekable remote reader which without cache local");
+        }
         while (siteIdList.size() != 0) {
             SiteInfo siteInfo = ScmStrategyMgr.getInstance().getNearestSite(wsInfo, siteIdList,
                     localSiteId, fileId);
@@ -177,7 +181,7 @@ public class FileReaderDao {
                         dataInfo, flag);
             }
             else {
-                if (dontCacheLocal) {
+                if (dontCacheLocal || isForceNoCache(flag)) {
                     remoteReader = new ScmRemoteFileReader(sessionId, userDetail, targetSiteId,
                             wsInfo, fileId, majorVersion, minorVersion, flag);
                 }
@@ -228,6 +232,10 @@ public class FileReaderDao {
                     + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                     + localSiteId, e);
         }
+    }
+
+    private boolean isForceNoCache(int flag) {
+        return (flag & CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE) > 0;
     }
 
     private boolean isNeedSeek(int flag) {

@@ -372,7 +372,7 @@ class ScmFileImpl extends ScmFile {
         this.updateTime = updateTime;
     }
 
-    public void getContent(String outputPath, int flag) throws ScmException {
+    public void internalGetContent(String outputPath, int flag) throws ScmException {
         if (outputPath == null) {
             throw new ScmInvalidArgumentException("outputPath is null");
         }
@@ -407,7 +407,7 @@ class ScmFileImpl extends ScmFile {
 
         try {
             os = new FileOutputStream(file);
-            getContent(os, flag);
+            internalGetContent(os, flag);
         }
         catch (SecurityException se) {
             ScmHelper.closeStream(os);
@@ -435,7 +435,7 @@ class ScmFileImpl extends ScmFile {
         }
     }
 
-    private void getContent(OutputStream os, int flag) throws ScmException {
+    private void internalGetContent(OutputStream os, int flag) throws ScmException {
         if (null == os) {
             throw new ScmInvalidArgumentException("outputStream is null");
         }
@@ -464,23 +464,33 @@ class ScmFileImpl extends ScmFile {
 
     @Override
     public void getContent(String outputPath) throws ScmException {
-        getContent(outputPath, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA);
+        internalGetContent(outputPath, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA);
     }
 
     @Override
     public void getContent(OutputStream os) throws ScmException {
-        getContent(os, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA);
+        internalGetContent(os, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA);
+    }
+
+    @Override
+    public void getContent(OutputStream os, int readFlag) throws ScmException {
+        if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+                | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE)) > 0) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "the first and third bits of readFlag"
+                    + " do not support writing");
+        }
+        internalGetContent(os, readFlag);
     }
 
     @Override
     public void getContentFromLocalSite(String outputPath) throws ScmException {
-        getContent(outputPath, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+        internalGetContent(outputPath, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                 | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE);
     }
 
     @Override
     public void getContentFromLocalSite(OutputStream os) throws ScmException {
-        getContent(os, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+        internalGetContent(os, CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                 | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE);
     }
 

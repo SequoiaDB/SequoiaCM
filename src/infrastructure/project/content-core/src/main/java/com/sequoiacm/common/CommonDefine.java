@@ -117,6 +117,9 @@ public class CommonDefine {
 
         // if read local site only
         public static final int SCM_READ_FILE_LOCALSITE = 0x00000004;
+
+        // do not cache local when reading across sites
+        public static final int SCM_READ_FILE_FORCE_NO_CACHE = 0x00000008;
     }
 
     public static class NodeScope {

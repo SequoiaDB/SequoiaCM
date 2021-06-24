@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -532,12 +533,40 @@ public class ScmFactory {
                 throw new ScmException(ScmError.INVALID_ARGUMENT, "type is null");
             }
             if (InputStreamType.SEEKABLE == type) {
-                return new ScmInputStreamImplSeekable(scmFile);
+                return createInputStream(scmFile, CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK);
             }
             else if (InputStreamType.UNSEEKABLE == type) {
-                return new ScmInputStreamImplUnseekable(scmFile);
+                return createInputStream(scmFile, 0);
             }
             throw new ScmException(ScmError.INVALID_ARGUMENT, "unknown type:" + type);
+        }
+
+        /**
+         * create a instance of the subclassable ScmInputStream class.
+         *
+         * @param scmFile
+         *            the file to be opened for reading
+         * @param readFlag
+         *            you can specify the file reading process
+         * @return ScmInputStream
+         * @throws ScmException
+         *            if error happens
+         * @see InputStreamType
+         * @since 3.1.2
+         */
+        public static ScmInputStream createInputStream(ScmFile scmFile, int readFlag)
+                throws ScmException {
+            if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+                    | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE)) > 0) {
+                throw new ScmException(ScmError.INVALID_ARGUMENT, "the first and third bits of readFlag"
+                        + " do not support writing");
+            }
+            if ((readFlag & CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK) > 0) {
+                return new ScmInputStreamImplSeekable(scmFile, readFlag);
+            }
+            else {
+                return new ScmInputStreamImplUnseekable(scmFile, readFlag);
+            }
         }
 
         /**

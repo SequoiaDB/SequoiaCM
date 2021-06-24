@@ -20,22 +20,24 @@ class ScmInputStreamImplUnseekable implements ScmInputStream, Closeable {
     private CloseableFileDataEntity fileDataEntity;
     private boolean isClosed;
     private int totalLen;
+    private int readFlag;
 
     private static final Logger logger = LoggerFactory.getLogger(ScmInputStreamImplUnseekable.class);
 
-    public ScmInputStreamImplUnseekable(ScmFile scmFile) throws ScmException {
+    public ScmInputStreamImplUnseekable(ScmFile scmFile, int readFlag) throws ScmException {
         if (scmFile == null) {
             throw new ScmInvalidArgumentException("scmFile is null");
         }
         if (!scmFile.isExist()) {
             throw new ScmInvalidArgumentException("file is non-existing");
         }
+        this.readFlag = readFlag;
         isClosed = false;
         this.scmFile = scmFile;
         session = scmFile.getSession();
 
         fileDataEntity = session.getDispatcher().downloadFile(scmFile.getWorkspaceName(),
-                scmFile.getFileId().get(), scmFile.getMajorVersion(), scmFile.getMinorVersion(), 0);
+                scmFile.getFileId().get(), scmFile.getMajorVersion(), scmFile.getMinorVersion(), readFlag);
     }
 
     @Override

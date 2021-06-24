@@ -349,6 +349,19 @@ public abstract class ScmFile {
     public abstract void getContent(OutputStream os) throws ScmException;
 
     /**
+     * Obtains file content and saves into output stream.
+     *
+     * @param os
+     *            An output stream to storage file content. It should  be valid.
+     * @param readFlag
+     *            you can specify the file reading process
+     * @throws ScmException
+     *            If error happens
+     * @since 3.1.2
+     */
+    public abstract void getContent(OutputStream os, int readFlag) throws ScmException;
+
+    /**
      * Loads file content from input path.
      *
      * @param inputPath

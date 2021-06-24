@@ -1,17 +1,11 @@
 package com.sequoiacm.testcommon;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.client.util.ScmHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
@@ -443,10 +437,17 @@ public class ScmTestTools {
     }
 
     public static void readAndCheckFile(ScmWorkspace ws, ScmId fileId, String srcFile,
-            String destFile) throws ScmException, IOException {
-        ScmFile file = ScmFactory.File.getInstance(ws, fileId);
-        file.getContent(destFile);
-
+            String destFile, int readFlag) throws ScmException, IOException {
+        OutputStream os = null;
+        try {
+            ScmFile file = ScmFactory.File.getInstance(ws, fileId);
+            os = new FileOutputStream(new File(destFile));
+            file.getContent(os, readFlag);
+        }
+        finally {
+            ScmHelper.closeStream(os);
+            os = null;
+        }
         String srcMd5 = getMD5(srcFile);
         String destMd5 = getMD5(destFile);
         if (srcMd5 != destMd5) {
@@ -590,6 +591,27 @@ public class ScmTestTools {
         finally {
             db.disconnect();
         }
+    }
+
+    public static boolean isLocalSiteDataExist(String scmUrl, String user, String passwd,
+            String wsName, ScmId fileId) throws ScmException {
+        ScmSession ss = null;
+        try {
+            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
+                 scmUrl, user, passwd));
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, ss);
+            ScmFactory.File.getInstance(ws, fileId).getContentFromLocalSite(new ByteArrayOutputStream());
+        }
+        catch (ScmException e) {
+            if (e.getError().equals(ScmError.DATA_NOT_EXIST)) {
+                return false;
+            }
+            throw e;
+        }
+        finally {
+            releaseSession(ss);
+        }
+        return true;
     }
 
     public static String randomString(int length) {
