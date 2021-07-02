@@ -99,17 +99,7 @@ public class FullText3006 extends TestScmBase {
                 .start( "external_data.fulltext_status" ).is( "NONE" ).get();
         long actCount = ScmFactory.File.countInstance( ws,
                 ScmType.ScopeType.SCOPE_ALL, condition );
-        if ( actCount != fileNum ) {
-            System.out.println(
-                    "actCount = " + actCount + ",fileNum = " + fileNum );
-            ScmFactory.Fulltext.createIndex( ws, new ScmFulltextOption(
-                    new BasicBSONObject(), ScmFulltextMode.sync ) );
-            FullTextUtils.waitWorkSpaceIndexStatus( ws,
-                    ScmFulltextStatus.CREATED );
-            FullTextUtils.searchAndCheckResults( ws,
-                    ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject(),
-                    new BasicBSONObject() );
-        }
+        //SCM-667 已屏蔽该测试点
         runSuccess = true;
     }
 
