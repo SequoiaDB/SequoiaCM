@@ -3,6 +3,7 @@ package com.sequoiacm.deploy.deployer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -165,14 +166,27 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
 
     // service center info, custom node props
     protected BSONObject genBaseDeployJson(NodeInfo node) {
+        List<String> zones = confMgr.getZones();
+        // availableZone indicates that service-center is deployed in the zone
+        List<String> availableZones = new ArrayList<>();
+        for (String zone : zones) {
+            List<String> zoneUrls = confMgr.getServiceCenterUrlByZone(zone);
+            if (zoneUrls != null && zoneUrls.size() > 0) {
+                if (zone.equals(node.getZone())) {
+                    availableZones.add(0, zone);
+                }
+                else {
+                    availableZones.add(zone);
+                }
+            }
+        }
         BasicBSONObject basicBSON = new BasicBSONObject();
         basicBSON.put(DeployJsonDefine.AVAILABILITY_ZONES_PREFIX + commonConfig.getRegionName(),
-                CommonUtils.toString(confMgr.getZones(), ","));
+                CommonUtils.toString(availableZones, ","));
         basicBSON.put(DeployJsonDefine.HOSTNAME, node.getHostName());
         basicBSON.put(DeployJsonDefine.REGION, commonConfig.getRegionName());
         basicBSON.put(DeployJsonDefine.SERVER_PORT, node.getPort() + "");
         basicBSON.put(DeployJsonDefine.ZONE, node.getZone());
-        List<String> zones = confMgr.getZones();
         for (String zone : zones) {
             List<String> url = confMgr.getServiceCenterUrlByZone(zone);
             basicBSON.put(DeployJsonDefine.ZONE_URL_PREFIX + zone, CommonUtils.toString(url, ","));
