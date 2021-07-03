@@ -475,9 +475,11 @@ class ScmFileImpl extends ScmFile {
     @Override
     public void getContent(OutputStream os, int readFlag) throws ScmException {
         if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
-                | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE)) > 0) {
-            throw new ScmException(ScmError.INVALID_ARGUMENT, "the first and third bits of readFlag"
-                    + " do not support writing");
+                | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE
+                | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK)) > 0) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "readFlag cannot contain the following: "
+                    + "SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE, "
+                    + "readFlag=" + readFlag);
         }
         internalGetContent(os, readFlag);
     }

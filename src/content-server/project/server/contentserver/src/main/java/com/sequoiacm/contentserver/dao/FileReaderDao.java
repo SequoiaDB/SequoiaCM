@@ -104,7 +104,7 @@ public class FileReaderDao {
         // read from remote
         if (siteIdList.size() != 0 && isNeedSeek && isForceNoCache(flag)) {
             throw new ScmServerException(ScmError.INVALID_ARGUMENT,
-                    "failed to create seekable remote reader which without cache local");
+                    "unsupported create seekable remote reader, if dont cache local");
         }
         while (siteIdList.size() != 0) {
             SiteInfo siteInfo = ScmStrategyMgr.getInstance().getNearestSite(wsInfo, siteIdList,

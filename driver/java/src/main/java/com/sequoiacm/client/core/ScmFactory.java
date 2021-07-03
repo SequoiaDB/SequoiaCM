@@ -547,19 +547,25 @@ public class ScmFactory {
          * @param scmFile
          *            the file to be opened for reading
          * @param readFlag
-         *            you can specify the file reading process
+         *            the read flags. Please see the description of follow flags for more detail,
+         *            and can also specify 0 to not configure.
+         *            <dl>
+         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK
+         *            :create a seekable instance of ScmInputStream
+         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
+         *            :do not cache when reading file across sites
+         *            </dl>
          * @return ScmInputStream
          * @throws ScmException
          *            if error happens
-         * @see InputStreamType
          * @since 3.1.2
          */
         public static ScmInputStream createInputStream(ScmFile scmFile, int readFlag)
                 throws ScmException {
             if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                     | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE)) > 0) {
-                throw new ScmException(ScmError.INVALID_ARGUMENT, "the first and third bits of readFlag"
-                        + " do not support writing");
+                throw new ScmException(ScmError.INVALID_ARGUMENT, "readFlag cannot contain SCM_READ_FILE_WITHDATA or"
+                        + " SCM_READ_FILE_LOCALSITE, readFlag=" + readFlag);
             }
             if ((readFlag & CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK) > 0) {
                 return new ScmInputStreamImplSeekable(scmFile, readFlag);

@@ -354,7 +354,12 @@ public abstract class ScmFile {
      * @param os
      *            An output stream to storage file content. It should  be valid.
      * @param readFlag
-     *            you can specify the file reading process
+     *            the read flags. Please see the description of follow flags for more detail,
+     *            and can also specify 0 to not configure.
+     *            <dl>
+     *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
+     *            :do not cache when reading file across sites
+     *            </dl>
      * @throws ScmException
      *            If error happens
      * @since 3.1.2
