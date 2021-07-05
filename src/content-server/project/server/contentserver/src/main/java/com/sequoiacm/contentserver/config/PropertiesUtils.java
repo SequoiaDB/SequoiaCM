@@ -44,6 +44,7 @@ public class PropertiesUtils {
     private static ScmAuditConfig auditConfig;
     private static ConfVersionConfig versionConfig;
     private static DirCacheConfig dirCacheConfig;
+    private static CephS3DatasourceConfig cephS3Config;
 
     @Autowired
     public void setRootSiteMetaConfig(RootSiteMetaConfig rootSiteMetaConfig) {
@@ -83,6 +84,11 @@ public class PropertiesUtils {
     @Autowired
     public void setConfVersionConfig(ConfVersionConfig versionConfig) {
         PropertiesUtils.versionConfig = versionConfig;
+    }
+
+    @Autowired
+    public void setCephS3Config(CephS3DatasourceConfig conf) {
+        PropertiesUtils.cephS3Config = conf;
     }
 
     public static void loadSysConfig() throws ScmServerException {
@@ -398,9 +404,13 @@ public class PropertiesUtils {
     public static long getNodeVersionHeartbeat() {
         return versionConfig.getNodeHeartbeat();
     }
-    
+
     public static ServerConfig getServerConfig() {
         return serverConfig;
+    }
+
+    public static CephS3DatasourceConfig getCephS3Config() {
+        return cephS3Config;
     }
 
 }

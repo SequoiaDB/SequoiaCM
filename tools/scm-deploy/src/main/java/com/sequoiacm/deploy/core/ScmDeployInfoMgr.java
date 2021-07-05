@@ -14,20 +14,7 @@ import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.ConfFileDefine;
 import com.sequoiacm.deploy.common.SdbTools;
 import com.sequoiacm.deploy.config.CommonConfig;
-import com.sequoiacm.deploy.module.AuditSourceInfo;
-import com.sequoiacm.deploy.module.DataSourceInfo;
-import com.sequoiacm.deploy.module.HostInfo;
-import com.sequoiacm.deploy.module.InstallConfig;
-import com.sequoiacm.deploy.module.InstallPackType;
-import com.sequoiacm.deploy.module.JavaVersion;
-import com.sequoiacm.deploy.module.MetaSourceInfo;
-import com.sequoiacm.deploy.module.NodeInfo;
-import com.sequoiacm.deploy.module.ServiceType;
-import com.sequoiacm.deploy.module.SiteInfo;
-import com.sequoiacm.deploy.module.SiteNodeInfo;
-import com.sequoiacm.deploy.module.SiteStrategyInfo;
-import com.sequoiacm.deploy.module.ZkNodeInfo;
-import com.sequoiacm.deploy.module.ZoneInfo;
+import com.sequoiacm.deploy.module.*;
 import com.sequoiacm.deploy.parser.ScmDeployConfParser;
 import com.sequoiacm.deploy.ssh.Ssh;
 import com.sequoiacm.deploy.ssh.SshExecRes;
@@ -404,6 +391,17 @@ public class ScmDeployInfoMgr {
         List<DataSourceInfo> datasources = parser
                 .getSeactionWithCheck(ConfFileDefine.SEACTION_DATASOURCE, DataSourceInfo.CONVERTER);
         for (DataSourceInfo datasource : datasources) {
+            DataSourceInfo sameNameDatasource = datasouceMap.get(datasource.getName());
+            if (sameNameDatasource != null) {
+                if (sameNameDatasource.getType() != DatasourceType.CEPH_S3
+                        && datasource.getType() != DatasourceType.CEPH_S3) {
+                    throw new IllegalArgumentException(
+                            "conflict datasource: name=" + datasource.getName());
+                }
+                datasource.resetName(datasource.getName() + "-standby");
+                sameNameDatasource.setStandbyDatasource(datasource);
+                continue;
+            }
             datasouceMap.put(datasource.getName(), datasource);
         }
     }

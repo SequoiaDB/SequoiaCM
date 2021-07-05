@@ -1,5 +1,7 @@
 package com.sequoiacm.deploy.module;
 
+import java.util.Objects;
+
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -17,6 +19,7 @@ public class DataSourceInfo {
     private DatasourceType type;
     private BSONObject connectionConf;
     private String name;
+    private DataSourceInfo standbyDatasource;
 
     public static final ConfCoverter<DataSourceInfo> CONVERTER = new ConfCoverter<DataSourceInfo>() {
         @Override
@@ -44,6 +47,10 @@ public class DataSourceInfo {
             connectionConf = new BasicBSONObject();
         }
         name = BsonUtils.getStringChecked(bson, ConfFileDefine.DATASOURCE_NAME);
+    }
+
+    public void setStandbyDatasource(DataSourceInfo standbyDatasource) {
+        this.standbyDatasource = standbyDatasource;
     }
 
     public String getName() {
@@ -74,46 +81,40 @@ public class DataSourceInfo {
         return connectionConf;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result + ((url == null) ? 0 : url.hashCode());
-        result = prime * result + ((user == null) ? 0 : user.hashCode());
-        return result;
+    public void resetName(String name) {
+        this.name = name;
+    }
+
+    public DataSourceInfo getStandbyDatasource() {
+        return standbyDatasource;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
-        if (obj == null)
+        if (o == null || getClass() != o.getClass())
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        DataSourceInfo other = (DataSourceInfo) obj;
-        if (type != other.type)
-            return false;
-        if (url == null) {
-            if (other.url != null)
-                return false;
-        }
-        else if (!url.equals(other.url))
-            return false;
-        if (user == null) {
-            if (other.user != null)
-                return false;
-        }
-        else if (!user.equals(other.user))
-            return false;
-        return true;
+        DataSourceInfo that = (DataSourceInfo) o;
+        return Objects.equals(url, that.url) && Objects.equals(user, that.user)
+                && Objects.equals(passwordFile, that.passwordFile)
+                && Objects.equals(password, that.password) && type == that.type
+                && Objects.equals(connectionConf, that.connectionConf)
+                && Objects.equals(name, that.name)
+                && Objects.equals(standbyDatasource, that.standbyDatasource);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url, user, passwordFile, password, type, connectionConf, name,
+                standbyDatasource);
     }
 
     @Override
     public String toString() {
-        return "DataSourceInfo [url=" + url + ", user=" + user + ", passwordFile=" + passwordFile
-                + ", password=" + password + ", type=" + type + ", connectionConf=" + connectionConf
-                + ", name=" + name + "]";
+        return "DataSourceInfo{" + "url='" + url + '\'' + ", user='" + user + '\''
+                + ", passwordFile='" + passwordFile + '\'' + ", password='" + password + '\''
+                + ", type=" + type + ", connectionConf=" + connectionConf + ", name='" + name + '\''
+                + ", standbyDatasource=" + standbyDatasource + ", conConf=" + getConConf() + '}';
     }
 }

@@ -7,12 +7,14 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.cephs3.dataservice.CephS3ConnWrapper;
 import com.sequoiacm.cephs3.dataservice.CephS3DataService;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataservice.ScmService;
 
 public class CephS3DataReaderImpl implements ScmDataReader {
 
+    private CephS3ConnWrapper conn;
     private String key;
     private String bucketName;
     private CephS3DataService dataService;
@@ -25,51 +27,51 @@ public class CephS3DataReaderImpl implements ScmDataReader {
 
     public CephS3DataReaderImpl(String bucketName, String key, ScmService service)
             throws CephS3Exception {
+        this.dataService = (CephS3DataService) service;
+        conn = dataService.getConn();
+        if (conn == null) {
+            throw new CephS3Exception(
+                    "construct CephS3DataReaderImpl failed, cephs3 is down:bucketName=" + bucketName
+                            + ",key=" + key);
+        }
+
+        this.bucketName = bucketName;
+        this.key = key;
+        GetObjectRequest getObjReq = new GetObjectRequest(bucketName, key);
         try {
-            this.bucketName = bucketName;
-            this.key = key;
-            this.dataService = (CephS3DataService)service;
-            this.obj = dataService.getObject(new GetObjectRequest(bucketName, key));
+            this.obj = conn.getObject(getObjReq);
+        }
+        catch (Exception e) {
+            conn = dataService.releaseAndTryGetAnotherConn(conn);
+            if (conn == null) {
+                throw e;
+            }
+            logger.warn(
+                    "construct CephS3DataReaderImpl failed, get another ceph conn to try again:bucketName="
+                            + bucketName + ",key=" + key,
+                    e);
+            this.obj = conn.getObject(getObjReq);
+        }
+
+        try {
+            if (obj == null) {
+                throw new CephS3Exception(CephS3Exception.STATUS_NOT_FOUND,
+                        CephS3Exception.ERR_CODE_NO_SUCH_KEY,
+                        "object not exist: bucket=" + bucketName + ", key=" + key);
+            }
             this.size = obj.getObjectMetadata().getContentLength();
             this.objIs = obj.getObjectContent();
         }
-        catch (CephS3Exception e) {
-            logger.error("construct CephS3DataReaderImpl failed:bucketName=" + bucketName + ",key="
-                    + key);
+        catch (Exception e) {
             close();
             throw e;
-        }
-        catch (Exception e) {
-            logger.error("construct CephS3DataReaderImpl failed:bucketName=" + bucketName + ",key="
-                    + key);
-            close();
-            throw new CephS3Exception(
-                    "construct CephS3DataReaderImpl failed:bucketName=" + bucketName + ",key="
-                            + key, e);
         }
     }
 
     @Override
     public void close() {
-        // failure to close this stream can cause the request pool to become
-        // blocked
-        try {
-            if (objIs != null) {
-                objIs.close();
-            }
-        }
-        catch (Exception e) {
-            logger.warn("close data reader failed:bucketNmae=" + bucketName + ",key=" + key, e);
-        }
-
-        try {
-            if (obj != null) {
-                obj.close();
-            }
-        }
-        catch (Exception e) {
-            logger.warn("close data reader failed:bucketNmae=" + bucketName + ",key=" + key, e);
-        }
+        conn.closeObj(obj);
+        dataService.releaseConn(conn);
     }
 
     @Override
@@ -91,16 +93,14 @@ public class CephS3DataReaderImpl implements ScmDataReader {
 
     @Override
     public void seek(long size) throws CephS3Exception {
+        if (size < currentPosition) {
+            throw new CephS3Exception("can not seek back,currentPosition=" + currentPosition
+                    + ",seekSize=" + size + ",bucketName=" + bucketName + ",key=" + key);
+        }
+        else if (size == currentPosition) {
+            return;
+        }
         try {
-            if (size < currentPosition) {
-                throw new CephS3Exception(
-                        "can not seek back,currentPosition=" + currentPosition + ",seekSize="
-                                + size + ",bucketName=" + bucketName + ",key=" + key);
-            }
-            else if (size == currentPosition) {
-                return;
-            }
-
             long actualSize = objIs.skip(size - currentPosition);
 
             if (actualSize == size - currentPosition) {
@@ -115,10 +115,9 @@ public class CephS3DataReaderImpl implements ScmDataReader {
                 seek(size);
             }
             else {
-                throw new CephS3Exception(
-                        "seek failed,expect skip " + (size - currentPosition)
-                        + " bytes,actual skip " + actualSize + " bytes,bucketName="
-                        + bucketName + ",key=" + key);
+                throw new CephS3Exception("seek failed,expect skip " + (size - currentPosition)
+                        + " bytes,actual skip " + actualSize + " bytes,bucketName=" + bucketName
+                        + ",key=" + key);
             }
         }
         catch (CephS3Exception e) {
@@ -127,8 +126,8 @@ public class CephS3DataReaderImpl implements ScmDataReader {
         }
         catch (Exception e) {
             logger.error("seek data failed:bucketName=" + bucketName + ",key=" + key);
-            throw new CephS3Exception(
-                    "seek data failed:bucketName=" + bucketName + ",key=" + key, e);
+            throw new CephS3Exception("seek data failed:bucketName=" + bucketName + ",key=" + key,
+                    e);
         }
     }
 

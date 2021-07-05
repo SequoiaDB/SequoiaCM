@@ -1,31 +1,24 @@
 package com.sequoiacm.cephs3.dataoperation;
 
+import com.amazonaws.services.s3.model.*;
+import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.cephs3.dataservice.CephS3ConnWrapper;
+import com.sequoiacm.cephs3.dataservice.CephS3DataService;
+import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataservice.ScmService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.UploadPartRequest;
-import com.amazonaws.services.s3.model.UploadPartResult;
-import com.sequoiacm.cephs3.CephS3Exception;
-import com.sequoiacm.cephs3.dataservice.CephS3DataService;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
-import com.sequoiacm.datasource.dataservice.ScmService;
-
 public class CephS3DataWriterImpl extends ScmDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataWriterImpl.class);
-    private String bucketName;
-    private String key;
-    private CephS3DataService dataService;
+    private CephS3ConnWrapper conn;
+    private final String bucketName;
+    private final String key;
+    private final CephS3DataService dataService;
     private String uploadID;
 
     // NOTE:CephS3Client.uploadPart() require part size must gte 5M
@@ -37,35 +30,38 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     private int fileSize;
     private int partNum = 1;
 
-    private List<PartETag> tags = new ArrayList<PartETag>();
+    private List<PartETag> tags = new ArrayList<>();
 
-    public CephS3DataWriterImpl(String bucketName, String key, ScmService service) throws CephS3Exception {
-        try {
-            this.bucketName = bucketName;
-            this.key = key;
-            this.dataService = (CephS3DataService)service;
-            initUpload();
+    public CephS3DataWriterImpl(String bucketName, String key, ScmService service)
+            throws CephS3Exception {
+        this.bucketName = bucketName;
+        this.key = key;
+        this.dataService = (CephS3DataService) service;
+        this.conn = dataService.getConn();
+        if (conn == null) {
+            throw new CephS3Exception(
+                    "construct CephS3DataWriterImpl failed, cephs3 is down:bucketName=" + bucketName
+                            + ",key=" + key);
         }
-        catch (CephS3Exception e) {
-            logger.error("construct CephS3DataWriterImpl failed:bucketName=" + bucketName + ",key="
-                    + key);
-            releaseResource();
-            throw e;
+        try {
+            initUpload(conn);
         }
         catch (Exception e) {
-            logger.error("construct CephS3DataWriterImpl failed:bucketName=" + bucketName + ",key="
-                    + key);
-            releaseResource();
-            throw new CephS3Exception(
-                    "construct CephS3DataWriterImpl failed:bucketName=" + bucketName + ",key="
-                            + key,
-                            e);
+            conn = dataService.releaseAndTryGetAnotherConn(conn);
+            if (conn == null) {
+                releaseResource();
+                throw e;
+            }
+            logger.warn(
+                    "construct CephS3DataWriterImpl failed, get another ceph conn to try again: bucketName={}, key={}",
+                    bucketName, key, e);
+            initUpload(conn);
         }
     }
 
-    private void initUpload() throws CephS3Exception {
+    private void initUpload(CephS3ConnWrapper cephS3ConnWrapper) throws CephS3Exception {
         try {
-            InitiateMultipartUploadResult initResp = dataService
+            InitiateMultipartUploadResult initResp = cephS3ConnWrapper
                     .initiateMultipartUpload(new InitiateMultipartUploadRequest(bucketName, key));
             this.uploadID = initResp.getUploadId();
         }
@@ -74,8 +70,8 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
                     && (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
                             // nautilus ceph s3 会抛出这个异常表示 bucket 不存在
                             || e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_KEY))) {
-                dataService.createBucket(bucketName);
-                initUpload();
+                cephS3ConnWrapper.createBucket(bucketName);
+                initUpload(cephS3ConnWrapper);
             }
             else {
                 throw e;
@@ -110,14 +106,14 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
         }
         catch (Exception e) {
             logger.error("write data failed:bucketName=" + bucketName + ",key=" + key);
-            throw new CephS3Exception(
-                    "write data failed:bucketName=" + bucketName + ",key=" + key, e);
+            throw new CephS3Exception("write data failed:bucketName=" + bucketName + ",key=" + key,
+                    e);
         }
     }
 
     private void sendAndClearBuffer() throws CephS3Exception {
         try {
-            UploadPartResult resp = dataService.uploadPart(new UploadPartRequest()
+            UploadPartResult resp = conn.uploadPart(new UploadPartRequest()
                     .withBucketName(bucketName).withInputStream(new ByteArrayInputStream(buffer))
                     .withKey(key).withPartNumber(partNum).withPartSize(PART_SIZE)
                     .withUploadId(uploadID));
@@ -135,8 +131,7 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     @Override
     public void cancel() {
         try {
-            dataService.abortMultipartUpload(
-                    new AbortMultipartUploadRequest(bucketName, key, uploadID));
+            conn.abortMultipartUpload(new AbortMultipartUploadRequest(bucketName, key, uploadID));
         }
         catch (Exception e) {
             logger.warn("cancel writer failed:bucketName=" + bucketName + ",key=" + key, e);
@@ -147,32 +142,32 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     private void releaseResource() {
         buffer = null;
         tags = null;
+        if (conn != null) {
+            dataService.releaseConn(conn);
+        }
     }
 
     @Override
     public void close() throws CephS3Exception {
         try {
-            if (bufferOff > 0 || tags.size() <=0) {
-                UploadPartResult resp = dataService
-                        .uploadPart(
-                                new UploadPartRequest().withBucketName(bucketName).withKey(key)
-                                .withInputStream(
-                                        new ByteArrayInputStream(buffer, 0, bufferOff))
-                                .withPartSize(bufferOff).withPartNumber(partNum).withUploadId(uploadID));
+            if (bufferOff > 0 || tags.size() <= 0) {
+                UploadPartResult resp = conn.uploadPart(new UploadPartRequest()
+                        .withBucketName(bucketName).withKey(key)
+                        .withInputStream(new ByteArrayInputStream(buffer, 0, bufferOff))
+                        .withPartSize(bufferOff).withPartNumber(partNum).withUploadId(uploadID));
                 tags.add(resp.getPartETag());
             }
 
-            dataService.completeMultipartUpload(
+            conn.completeMultipartUpload(
                     new CompleteMultipartUploadRequest(bucketName, key, uploadID, tags));
-        }
-        catch (CephS3Exception e) {
-            throw e;
         }
         catch (Exception e) {
             logger.error("close data writer failed:bucketName" + bucketName + ",key=" + key);
-            releaseResource();
             throw new CephS3Exception(
                     "close data writer failed:bucketName" + bucketName + ",key=" + key, e);
+        }
+        finally {
+            dataService.releaseConn(conn);
         }
     }
 
@@ -183,7 +178,7 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
 
     @Override
     public String getCreatedTableName() {
-        //TODO:no record now!
+        // TODO:no record now!
         return null;
     }
 

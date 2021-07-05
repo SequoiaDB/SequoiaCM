@@ -15,12 +15,13 @@ import com.sequoiacm.common.mapping.ScmSiteObj;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.HadoopSiteUrl;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
+import com.sequoiacm.datasource.metadata.ScmSiteUrlWithConf;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.net.ConfigOptions;
 
@@ -55,7 +56,7 @@ public class ScmSite {
             //            }
 
             if (siteObj.isRootSite()) {
-                //TODO:
+                // TODO:
                 if (siteObj.getMetaType().equals(ScmDataSourceType.SEQUOIADB.getName())) {
                     this.metaUrl = createSdbSiteUrl(siteObj, true);
                 }
@@ -77,11 +78,13 @@ public class ScmSite {
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR:
                 return createSdbSiteUrl(siteObj, false);
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR:
-                return new HadoopSiteUrl(siteObj.getDataType(), siteObj.getDataUrlList(),
-                        siteObj.getDataUser(), siteObj.getDataPasswd(), siteObj.getDataConf());
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR:
                 return new HadoopSiteUrl(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd(), siteObj.getDataConf());
+            case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR:
+                return new ScmSiteUrlWithConf(siteObj.getDataType(), siteObj.getDataUrlList(),
+                        siteObj.getDataUser(), siteObj.getDataPasswd(),
+                        PropertiesUtils.getCephS3Config().getCephs3NotNull());
             default:
                 return new ScmSiteUrl(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd());

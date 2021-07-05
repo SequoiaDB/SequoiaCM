@@ -12,6 +12,8 @@ public class CephS3Exception extends ScmDatasourceException {
     public static final String ERR_CODE_NO_SUCH_KEY = "NoSuchKey";
     public static final String ERR_CODE_OBJECT_EXIST = "ObjectExist";
     public static final String ERR_CODE_OPERATION_UNSUPPORTED = "OperationUnsupported";
+    public static final String ERR_CODE_BUCKET_EXIST = "BucketAlreadyOwnedByYou";
+    public static final String ERR_CODE_NO_SUCH_UPLOAD = "NoSuchUpload";
 
     private static final long serialVersionUID = -2886008261335449132L;
 

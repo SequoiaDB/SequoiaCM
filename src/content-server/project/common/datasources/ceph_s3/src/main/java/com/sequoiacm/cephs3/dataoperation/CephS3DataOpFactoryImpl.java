@@ -8,13 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.cephs3.CephS3Exception;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
-import com.sequoiacm.datasource.dataoperation.ScmDataReader;
-import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.cephs3.CephS3DataLocation;

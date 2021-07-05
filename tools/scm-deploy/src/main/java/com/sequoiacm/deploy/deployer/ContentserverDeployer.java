@@ -12,12 +12,7 @@ import com.sequoiacm.deploy.common.DeployJsonDefine;
 import com.sequoiacm.deploy.config.CommonConfig;
 import com.sequoiacm.deploy.core.ScmPasswordFileSender;
 import com.sequoiacm.deploy.core.SiteBuilder;
-import com.sequoiacm.deploy.module.DataSourceInfo;
-import com.sequoiacm.deploy.module.HostInfo;
-import com.sequoiacm.deploy.module.NodeInfo;
-import com.sequoiacm.deploy.module.ServiceType;
-import com.sequoiacm.deploy.module.SiteInfo;
-import com.sequoiacm.deploy.module.SiteNodeInfo;
+import com.sequoiacm.deploy.module.*;
 import com.sequoiacm.deploy.ssh.Ssh;
 
 @Deployer
@@ -44,7 +39,9 @@ public class ContentserverDeployer extends ServiceDeployerBase {
         DataSourceInfo dataSourceInfo = super.getDeployInfoMgr()
                 .getDatasouceInfo(siteInfo.getDatasourceName());
         pwdFileSender.sendDsPasswdFile(hostInfo, dataSourceInfo);
-
+        if (dataSourceInfo.getStandbyDatasource() != null) {
+            pwdFileSender.sendDsPasswdFile(hostInfo, dataSourceInfo.getStandbyDatasource());
+        }
         siteBuilder.buidAllSite();
     }
 
@@ -103,8 +100,8 @@ public class ContentserverDeployer extends ServiceDeployerBase {
         LinkedHashMap<String, String> env = new LinkedHashMap<>();
         env.put("JAVA_HOME", hostInfo.getJavaHome());
         env.put("PATH", "$JAVA_HOME/bin:$PATH");
-        String deploy = "python " + serviceRemoteInstallPath
-                + "/deploy.py --createnode  -c " + deployJsonFileRemotePath;
+        String deploy = "python " + serviceRemoteInstallPath + "/deploy.py --createnode  -c "
+                + deployJsonFileRemotePath;
         ssh.sudoSuExec(super.getDeployInfoMgr().getInstallConfig().getInstallUser(), deploy, env);
     }
 

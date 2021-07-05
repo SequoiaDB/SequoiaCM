@@ -1,11 +1,13 @@
 package com.sequoiacm.deploy.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -46,18 +48,19 @@ public class SiteBuilder {
     private void buidSite(SiteInfo site) throws Exception {
         DataSourceInfo ds = deployInfoMgr.getDatasouceInfo(site.getDatasourceName());
 
+        List<String> datasourceUrls = getUrlFromDs(ds);
+
         ScmSiteConfig siteConf = null;
         if (!site.isRoot()) {
             siteConf = ScmSiteConfig.start(site.getName()).isRootSite(false)
-                    .SetDataSourceType(ds.getType())
-                    .setDataSource(Arrays.asList(ds.getUrl().split(",")), ds.getUser(),
+                    .SetDataSourceType(ds.getType()).setDataSource(datasourceUrls, ds.getUser(),
                             pwdFileSender.getDsPasswdFilePath(ds), ds.getConConf().toMap())
                     .build();
         }
         else {
             siteConf = ScmSiteConfig.start(site.getName()).isRootSite(true)
                     .SetDataSourceType(ds.getType())
-                    .setDataSource(Arrays.asList(ds.getUrl().split(",")), ds.getUser(),
+                    .setDataSource(datasourceUrls, ds.getUser(),
                             pwdFileSender.getDsPasswdFilePath(ds), ds.getConConf().toMap())
                     .setMetaSource(
                             Arrays.asList(deployInfoMgr.getMetasourceInfo().getUrl().split(",")),
@@ -76,6 +79,19 @@ public class SiteBuilder {
         finally {
             ss.close();
         }
+    }
+
+    private List<String> getUrlFromDs(DataSourceInfo ds) {
+        if (ds.getType() == ScmType.DatasourceType.CEPH_S3 && ds.getStandbyDatasource() != null) {
+            List<String> ret = new ArrayList<>();
+            ret.add(ds.getUrl());
+            DataSourceInfo standbyDatasource = ds.getStandbyDatasource();
+            ret.add(standbyDatasource.getUser() + ":"
+                    + pwdFileSender.getDsPasswdFilePath(standbyDatasource) + "@"
+                    + standbyDatasource.getUrl());
+            return ret;
+        }
+        return Arrays.asList(ds.getUrl().split(","));
     }
 
     public void buidAllSite() throws Exception {
