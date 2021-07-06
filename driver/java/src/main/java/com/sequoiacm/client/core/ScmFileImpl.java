@@ -1071,6 +1071,10 @@ class ScmFileImpl extends ScmFile {
     public void updateContent(InputStream is, ScmUpdateContentOption option) throws ScmException {
         checkArgNotNull("is", is);
         checkArgNotNull("option", option);
+        if (!isExist()) {
+            throw new ScmException(ScmError.OPERATION_UNSUPPORTED,
+                    "please save file before calling update");
+        }
         BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
                 getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(), is,
                 option.toBson());
@@ -1082,6 +1086,10 @@ class ScmFileImpl extends ScmFile {
             throws ScmException {
         checkArgNotNull("breakpointFile", breakpointFile);
         checkArgNotNull("option", option);
+        if (!isExist()) {
+            throw new ScmException(ScmError.OPERATION_UNSUPPORTED,
+                    "please save file before calling update");
+        }
         BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
                 getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(),
                 breakpointFile.getFileName(), option.toBson());
