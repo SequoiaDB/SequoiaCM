@@ -99,7 +99,7 @@ sessionCursor.close();
 ```
 
 
-* 业务统计
+* 工作区级别文件业务统计
 
 ```lang-javascript
 // 手动刷新 test_ws 工作区文件访问量
@@ -131,11 +131,12 @@ while (fileDeltaCursor.hasNext()) {
             + ", recordTime=" + fileDelta.getRecordTime());
 }
 fileDeltaCursor.close();
+
+
+
 ```
 
 >  **Note:**
->
->  * 内存单位 Byte（字节）
 >
 >  * StatisticsType 统计类型 TRAFFIC（访问量）、FILE_DELTA（文件增量）
 >
@@ -147,6 +148,25 @@ fileDeltaCursor.close();
 >
 >  * refresh 接口 手动刷新此次周期开始到刷新时的统计记录
 
+* 用户级别文件业务统计
+
+```lang-javascript
+ScmFileStatistician s = ScmSystem.Statistics.fileStatistician(session);
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+Date begin = sdf.parse("2021-01-01");
+Date end = sdf.parse("2021-01-03");
+
+// 查询 user1 在 2021-01-01 至 2021-01-03 （不包含 2021-01-03）时间段内工作区 workspace1 下的文件上传统计信息
+ScmFileStatisticInfo data = s.upload().beginDate(begin).endDate(end).user("user1")
+        .workspace("wokspace1").timeAccuracy(ScmTimeAccuracy.DAY).get();
+```
+
+>  **Note:**
+>
+>  * 监控服务默认不进行用户级别的文件统计，需要手动配置后才能获得上述指标，具体介绍见[监控服务功能章节][admin_server]
+
+
 
 [java_api]:api/java/html/index.html
 [monitoring_service]:Maintainance/Node_Config/cloud.md
+[admin_server]:Architecture/Microservice/admin_service.md

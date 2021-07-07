@@ -25,6 +25,14 @@ SequoiaCM 配置
 |scm.uploadForward.connectTimeout|num|文件转发连接池中的连接建连超时，默认值：5000，单位：毫秒|
 |scm.uploadForward.connectionRequestTimeout|num|从文件转发连接池中获取连接的超时时间，默认值：-1（表示不超时），单位：毫秒|
 |scm.uploadForward.socketTimeout|num|文件转发连接池中的连接读超时，默认值：30000，单位：毫秒|
+|scm.statistics.types|str|需要进行统计的请求类型，可选值：file_upload（文件上传）、file_download（文件下载），需要统计多项时用逗号分开，默认不进行任何统计|
+|scm.statistics.types.file_upload.conditions.workspaces|str|统计文件上传请求的工作区过滤条件，填写工作区名字，多个工作区用逗号分开，未指定任何工作过滤条件时默认统计所有工作区的文件上传|
+|scm.statistics.types.file_upload.conditions.workspacesRegex|str|统计文件上传请求的工作区过滤条件，填写工作区名字正则表达式，未指定任何工作过滤条件时默认统计所有工作区的文件上传|
+|scm.statistics.types.file_download.conditions.workspaces|str|统计文件下载请求的工作区过滤条件，填写工作区名字，多个工作区用逗号分开，未指定任何工作过滤条件时默认统计所有工作区的文件下载|
+|scm.statistics.types.file_download.conditions.workspacesRegex|str|统计文件下载请求的工作区过滤条件，填写工作区名字正则表达式，未指定任何工作过滤条件时默认统计所有工作区的文件下载|
+|scm.statistics.rawDataCacheSize|num|网关用于缓存统计原始数据的队列大小，默认5000条原始数据|
+|scm.statistics. rawDataReportPeriod|num|网关每隔多长时间将统计原始数据上报给监控服务，默认值：10000，单位：毫秒|
+
 
 ##注册中心##
 
@@ -114,6 +122,7 @@ SequoiaCM 配置
 |scm.statistics.job.firstTime|str|监控服务节点启动后，首次执行统计任务的时间。默认值：00:00:00，格式：HH:mm:ss|
 |scm.statistics.job.period|str|执行统计任务的间隔时间。默认值：1d（一天，只支持按天统计）|
 |scm.server.listInstanceCheckInterval|num|监控服务节点在处理list请求时，每列取多少个对象检查一次与客户端的连接状态（检查状态的同时，会对该连接执行 flush ），默认值：2000|
+|scm.statistics.timeGranularity|str|监控服务对网关上报的统计数据的处理粒度，可选值：DAY、HOUR，默认值：DAY，该粒度体现在用户按时间段检索统计数据时，时间段所允许的最大精度|
 
 ##服务跟踪##
 
