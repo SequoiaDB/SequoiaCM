@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sequoiacm.client.dispatcher.InputStreamWrapper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -511,7 +512,7 @@ class ScmFileImpl extends ScmFile {
 
     @Override
     public void setContent(InputStream inputStream) {
-        this.inputStream = inputStream;
+        this.inputStream = new InputStreamWrapper(inputStream);
         this.inputPath = null;
         this.breakpointFile = null;
     }
@@ -594,7 +595,7 @@ class ScmFileImpl extends ScmFile {
         }
 
         if (null != inputPath) {
-            is = getInputStream(inputPath);
+            is = new InputStreamWrapper(getInputStream(inputPath));
         }
 
         try {
@@ -1075,6 +1076,7 @@ class ScmFileImpl extends ScmFile {
             throw new ScmException(ScmError.OPERATION_UNSUPPORTED,
                     "please save file before calling update");
         }
+        is = new InputStreamWrapper(is);
         BSONObject newFileInfo = ws.getSession().getDispatcher().updateFileContent(
                 getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion(), is,
                 option.toBson());
