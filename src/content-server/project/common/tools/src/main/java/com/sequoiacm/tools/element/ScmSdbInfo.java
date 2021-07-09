@@ -3,6 +3,7 @@ package com.sequoiacm.tools.element;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +13,13 @@ public class ScmSdbInfo {
 
     private String sdbUrl;
     private String sdbUser;
-    private String sdbPasswd;
+    private String sdbPasswdFile;
 
     public ScmSdbInfo() {
     }
 
-    public ScmSdbInfo(String sdbUrl, String sdbUser, String sdbPassed) throws ScmToolsException {
-        this.sdbPasswd = sdbPassed;
+    public ScmSdbInfo(String sdbUrl, String sdbUser, String sdbPasswdFile) throws ScmToolsException {
+        this.sdbPasswdFile = sdbPasswdFile;
         this.sdbUrl = sdbUrl;
         this.sdbUser = sdbUser;
     }
@@ -48,12 +49,16 @@ public class ScmSdbInfo {
         this.sdbUser = sdbUser;
     }
 
-    public String getSdbPasswd() {
-        return sdbPasswd;
+    public String getSdbPasswdFile() {
+        return sdbPasswdFile;
     }
 
-    public void setSdbPasswd(String sdbPasswd) {
-        this.sdbPasswd = sdbPasswd;
+    public String getPlainSdbPasswd() {
+        return ScmFilePasswordParser.parserFile(sdbPasswdFile).getPassword();
+    }
+
+    public void setSdbPasswdFile(String sdbPasswdFile) {
+        this.sdbPasswdFile = sdbPasswdFile;
     }
 
     @Override
@@ -66,7 +71,7 @@ public class ScmSdbInfo {
         }
 
         ScmSdbInfo tmp = (ScmSdbInfo) obj;
-        if (tmp.getSdbPasswd().equals(sdbPasswd) && tmp.getSdbUrl().equals(sdbUrl)
+        if (tmp.getSdbPasswdFile().equals(sdbPasswdFile) && tmp.getSdbUrl().equals(sdbUrl)
                 && tmp.getSdbUser().equals(sdbUser)) {
             return true;
         }
@@ -75,7 +80,7 @@ public class ScmSdbInfo {
 
     @Override
     public String toString() {
-        return "ScmSdbInfo [sdbUrl=" + sdbUrl + ", sdbUser=" + sdbUser + ", sdbPasswd=" + sdbPasswd
+        return "ScmSdbInfo [sdbUrl=" + sdbUrl + ", sdbUser=" + sdbUser + ", sdbPasswd=" + sdbPasswdFile
                 + "]";
     }
 

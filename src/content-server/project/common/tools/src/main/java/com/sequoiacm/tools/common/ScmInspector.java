@@ -43,7 +43,7 @@ public class ScmInspector {
     public ScmInspector(String siteName, String wsName, ScmSdbInfo mainSiteSdbInfo)
             throws ScmToolsException {
         mainSiteSdb = SdbHelper.connectUrls(mainSiteSdbInfo.getSdbUrl(),
-                mainSiteSdbInfo.getSdbUser(), mainSiteSdbInfo.getSdbPasswd());
+                mainSiteSdbInfo.getSdbUser(), mainSiteSdbInfo.getPlainSdbPasswd());
         try {
             ScmMetaMgr mg = new ScmMetaMgr(mainSiteSdb);
             ScmSiteInfo site = mg.getSiteInfoByName(siteName);

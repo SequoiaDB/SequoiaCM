@@ -172,8 +172,8 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         }
         else {
             auditUrl = mainSdb.getSdbUrl();
-            if (!Strings.isEmpty(mainSdb.getSdbPasswd())) {
-                auditPassword = mainSdb.getSdbPasswd();
+            if (!Strings.isEmpty(mainSdb.getSdbPasswdFile())) {
+                auditPassword = mainSdb.getSdbPasswdFile();
             }
             if (!Strings.isEmpty(mainSdb.getSdbUser())) {
                 auditUser = mainSdb.getSdbUser();
@@ -187,9 +187,8 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         Sequoiadb db = null;
         ScmSession ss = null;
         try {
-            AuthInfo auth = ScmFilePasswordParser.parserFile(mainSdb.getSdbPasswd());
             db = SdbHelper.connectUrls(mainSdb.getSdbUrl(), mainSdb.getSdbUser(),
-                    auth.getPassword());
+                    mainSdb.getPlainSdbPasswd());
             ScmMetaMgr mg = new ScmMetaMgr(db);
             mySiteInfo = mg.getSiteInfoByName(mySiteName);
             if (mySiteInfo == null) {
@@ -296,7 +295,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         modifier.put(PropertiesDefine.PROPERTY_SERVER_PORT, port + "");
         modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_URL, mainSite.getSdbUrl());
         modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_USER, mainSite.getSdbUser());
-        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD, mainSite.getSdbPasswd());
+        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD, mainSite.getSdbPasswdFile());
         modifier.put(PropertiesDefine.PROPERTY_SCM_SPRING_APP_NAME, mySiteInfo.getName());
         modifier.put(PropertiesDefine.PROPERTY_SCM_EUREKA_METADATA_IS_ROOTSITE,
                 mySiteInfo.isRootSite() + "");

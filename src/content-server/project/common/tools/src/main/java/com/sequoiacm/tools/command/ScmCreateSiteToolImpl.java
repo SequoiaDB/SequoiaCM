@@ -151,16 +151,16 @@ public class ScmCreateSiteToolImpl extends ScmTool {
             if (metaDsInfo == null) {
                 siteConf = ScmSiteConfig.start(siteName).isRootSite(isRootSite)
                         .SetDataSourceType(dataType).setDataSource(dataDsInfo.getSdbUrlList(),
-                                dataDsInfo.getSdbUser(), dataDsInfo.getSdbPasswd(), dataConf)
+                                dataDsInfo.getSdbUser(), dataDsInfo.getSdbPasswdFile(), dataConf)
                         .build();
             }
             else {
                 siteConf = ScmSiteConfig.start(siteName).isRootSite(isRootSite)
                         .SetDataSourceType(dataType)
                         .setDataSource(dataDsInfo.getSdbUrlList(), dataDsInfo.getSdbUser(),
-                                dataDsInfo.getSdbPasswd(), dataConf)
+                                dataDsInfo.getSdbPasswdFile(), dataConf)
                         .setMetaSource(metaDsInfo.getSdbUrlList(), metaDsInfo.getSdbUser(),
-                                metaDsInfo.getSdbPasswd())
+                                metaDsInfo.getSdbPasswdFile())
                         .build();
             }
             // TODO；config server check dbUrl
@@ -259,12 +259,12 @@ public class ScmCreateSiteToolImpl extends ScmTool {
             info.setSdbUrl(
                     cl.getOptionValue(urlOpName) == null ? "" : cl.getOptionValue(urlOpName));
             if (cl.hasOption(passwdOpName) && cl.hasOption(userOpName)) {
-                info.setSdbPasswd(cl.getOptionValue(passwdOpName));
+                info.setSdbPasswdFile(cl.getOptionValue(passwdOpName));
                 info.setSdbUser(cl.getOptionValue(userOpName));
             }
             else if (!cl.hasOption(userOpName) && !cl.hasOption(passwdOpName)) {
                 info.setSdbUser("");
-                info.setSdbPasswd("");
+                info.setSdbPasswdFile("");
             }
             else {
                 throw new ScmToolsException(

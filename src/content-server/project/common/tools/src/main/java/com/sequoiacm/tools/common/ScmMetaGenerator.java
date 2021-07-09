@@ -52,7 +52,7 @@ public class ScmMetaGenerator {
     public ScmMetaGenerator(String wsName, String lobCsName, String lobClName, ScmSdbInfo mainSdb)
             throws ScmToolsException {
         db = SdbHelper.connectUrls(mainSdb.getSdbUrl(), mainSdb.getSdbUser(),
-                mainSdb.getSdbPasswd());
+                mainSdb.getPlainSdbPasswd());
         mg = new ScmMetaMgr(db);
         try {
             wsInfo = mg.getWorkspaceInfoByName(wsName);

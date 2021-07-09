@@ -160,7 +160,7 @@ public class ScmContentCommandUtil {
                         ScmExitCode.INVALID_ARG);
             }
             info.setSdbUrl(localSdbInfo.getSdbUrl());
-            info.setSdbPasswd(localSdbInfo.getSdbPasswd());
+            info.setSdbPasswdFile(localSdbInfo.getSdbPasswdFile());
             info.setSdbUser(localSdbInfo.getSdbUser());
         }
 
@@ -173,11 +173,11 @@ public class ScmContentCommandUtil {
         info.setSdbUrl(doption);
         if (commandLine.hasOption(userOp) && commandLine.hasOption(passwdOp)) {
             info.setSdbUser(commandLine.getOptionValue(userOp));
-            info.setSdbPasswd(commandLine.getOptionValue(passwdOp));
+            info.setSdbPasswdFile(commandLine.getOptionValue(passwdOp));
         }
         else if (!commandLine.hasOption(userOp) && !commandLine.hasOption(passwdOp)) {
             info.setSdbUser("");
-            info.setSdbPasswd("");
+            info.setSdbPasswdFile("");
         }
         else {
             logger.error("Please set --" + userOp + " and --" + passwdOp + " at the same time");

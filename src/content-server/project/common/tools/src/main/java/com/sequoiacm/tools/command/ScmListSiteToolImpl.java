@@ -45,7 +45,7 @@ public class ScmListSiteToolImpl extends ScmTool {
         ScmSdbInfo mainSiteSdb = ScmContentCommandUtil.parseDsOption(cl);
 
         ScmMetaMgr mg = new ScmMetaMgr(mainSiteSdb.getSdbUrl(), mainSiteSdb.getSdbUser(),
-                mainSiteSdb.getSdbPasswd());
+                mainSiteSdb.getPlainSdbPasswd());
 
         List<ScmSiteInfo> list = new ArrayList<>();
         try {
