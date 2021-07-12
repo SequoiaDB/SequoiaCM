@@ -51,21 +51,20 @@ public class ScmArgChecker {
             return true;
         }
 
-        public static void checkHistoryFileMatcher(BSONObject fileMatcher)
-                throws InvalidArgumentException {
-            if (fileMatcher == null) {
+        public static void checkHistoryFileFields(BSONObject fields) throws InvalidArgumentException {
+            if (fields == null) {
                 return;
             }
-            if (fileMatcher instanceof BasicBSONList) {
-                BasicBSONList list = (BasicBSONList) fileMatcher;
+            if (fields instanceof BasicBSONList) {
+                BasicBSONList list = (BasicBSONList) fields;
                 for (Object ele : list) {
                     if (ele instanceof BSONObject) {
-                        checkHistoryFileMatcher((BSONObject) ele);
+                        checkHistoryFileFields((BSONObject) ele);
                     }
                 }
             }
             else {
-                for (String key : fileMatcher.keySet()) {
+                for (String key : fields.keySet()) {
                     if (!HISTORY_MATCHER_VALID_KEY.contains(key) && !key.startsWith("$")) {
                         if (isExternalData(key)) {
                             continue;
@@ -74,11 +73,11 @@ public class ScmArgChecker {
                             continue;
                         }
                         throw new InvalidArgumentException(
-                                "query in history table, matcher contains invalid key:key=" + key);
+                                "invalid key:key=" + key);
                     }
-                    Object value = fileMatcher.get(key);
+                    Object value = fields.get(key);
                     if (value instanceof BSONObject) {
-                        checkHistoryFileMatcher((BSONObject) value);
+                        checkHistoryFileFields((BSONObject) value);
                     }
                 }
             }
@@ -141,6 +140,26 @@ public class ScmArgChecker {
             catch (InvalidArgumentException e) {
                 logger.debug("HistoryFileBson contain invlid key", e);
                 return false;
+            }
+        }
+
+        public static void checkHistoryFileOrderby(BSONObject orderby)
+                throws InvalidArgumentException {
+            try {
+                checkHistoryFileFields(orderby);
+            }
+            catch (InvalidArgumentException e) {
+                throw new InvalidArgumentException("the orderby parameter contains an invalid key: " + e.getMessage(), e);
+            }
+        }
+
+        public static void checkHistoryFileMatcher(BSONObject fileMatcher)
+                throws InvalidArgumentException {
+            try {
+                checkHistoryFileFields(fileMatcher);
+            }
+            catch (InvalidArgumentException e) {
+                throw new InvalidArgumentException("the matcher parameter contains an invalid key: " + e.getMessage(), e);
             }
         }
     }

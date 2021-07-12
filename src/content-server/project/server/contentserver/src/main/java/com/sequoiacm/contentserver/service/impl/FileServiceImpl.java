@@ -160,6 +160,7 @@ public class FileServiceImpl implements IFileService {
             else {
                 ScmArgChecker.File.checkHistoryFileMatcher(condition);
                 if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
+                    ScmArgChecker.File.checkHistoryFileOrderby(orderby);
                     return contentServer.getMetaService().queryHistoryFile(ws.getMetaLocation(),
                             workspaceName, condition, selector, orderby, skip, limit);
                 }
