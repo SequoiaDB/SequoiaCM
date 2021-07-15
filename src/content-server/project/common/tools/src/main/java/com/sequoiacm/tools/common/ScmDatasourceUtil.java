@@ -1,28 +1,25 @@
 package com.sequoiacm.tools.common;
 
+import com.sequoiacm.common.CommonDefine.DataSourceType;
+import com.sequoiacm.datasource.DatasourcePlugin;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.metadata.HadoopSiteUrl;
+import com.sequoiacm.datasource.metadata.ScmSiteUrl;
+import com.sequoiacm.datasource.metadata.ScmSiteUrlWithConf;
+import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.tools.element.ScmSiteInfo;
+import com.sequoiacm.tools.exception.ScmExitCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.common.CommonDefine.DataSourceType;
-import com.sequoiacm.datasource.DatasourcePlugin;
-import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.metadata.HadoopSiteUrl;
-import com.sequoiacm.datasource.metadata.ScmSiteUrl;
-import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
-import com.sequoiacm.tools.element.ScmSiteInfo;
-import com.sequoiacm.tools.exception.ScmExitCode;
+import java.util.*;
 
 public class ScmDatasourceUtil {
     private static Logger logger = LoggerFactory.getLogger(ScmDatasourceUtil.class);
@@ -112,8 +109,9 @@ public class ScmDatasourceUtil {
             case DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR:
                 return new SdbSiteUrl(siteInfo.getDataType(), siteInfo.getDataUrl(),
                         siteInfo.getDataUser(), siteInfo.getDataPasswd(), null, null);
-
             case DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR:
+                return new ScmSiteUrlWithConf(siteInfo.getDataType(), siteInfo.getDataUrl(),
+                        siteInfo.getDataUser(), siteInfo.getDataPasswd(), Collections.EMPTY_MAP);
             case DataSourceType.SCM_DATASOURCE_TYPE_CEPHSWIFT_STR:
                 return new ScmSiteUrl(siteInfo.getDataType(), siteInfo.getDataUrl(),
                         siteInfo.getDataUser(), siteInfo.getDataPasswd());
