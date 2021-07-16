@@ -101,7 +101,6 @@
     >  **Note：**
     > 
     >  * 本段配置 zookeeper 集群的安装
-       
 
 	4). 元数据服务配置段:
 
@@ -115,8 +114,8 @@
 
     >  **Note：**
     > 
-    >  * 本段配置元数据服务的连接信息，指定元数据存储的 Domain
-       
+    >  * 本段配置元数据服务的连接信息，指定元数据存储的 Domain ，该 Domain 需要用户预先手工创建
+   
 	5). 数据服务配置段:
 
     ```
@@ -128,7 +127,7 @@
     >  **Note：**
     > 
     >  * 本段配置数据服务的连接信息，数据服务为站点提供存储支持
-    
+   
 	6). 站点配置段:
 
     ```
@@ -140,7 +139,7 @@
     >  **Note：**
     > 
     >  * 本段配置一个站点，指定其数据服务，并作为主站点
-    
+   
     7). zone配置段:
 
     ```
@@ -152,7 +151,7 @@
     >  **Note：**
     > 
     >  * 本段配置用于规划多机房集群，为了简易起见，此处设置一个机房，命名为zone1
-    
+   
     8). 内容服务节点配置段:
 
     ```
@@ -164,7 +163,7 @@
     >  **Note：**
     > 
     >  * 本段配置用于描述站点下的内容服务节点数量及配置
-    
+   
     9). 基础服务节点配置段:
 
     ```
@@ -184,14 +183,13 @@
     > 
     >  * 本段配置用于描述各个微服务的节点配置
     >  * 全文检索服务配置项 scm.fulltext.es.urls 表示 Elasticsearch 地址，scm.fulltext.textualParser.pic.tessdataDir 表示 Teesract 引擎训练数据所在目录
-    
-
+   
 4. 执行部署
 
 	```
 	$ /opt/data/sequoiacm/scm.py cluster --deploy --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/deploy.cfg
 	```
-    
+
 ###配置业务###
 1. 检查节点
 
@@ -231,15 +229,13 @@
     > **Note:**
     >
     > * url 填写网关的地址，其中 rootsite 为主站点的服务名，在 url 中为全小写
-    >
-    > * userName 和 password 分别为系统默认的管理员用户密码
-    > 
+    >* userName 和 password 分别为系统默认的管理员用户密码
     > * enable_directory 为是否开启目录功能，默认为 true
-    > 
-    > * batch_sharding_type 为批次分区类型，默认为 none
-    > 
+    >* batch_sharding_type 为批次分区类型，默认为 none
     > * batch_file_name_unique 为批次内文件名是否唯一，默认 false
-
+    >* meta 配置工作区元数据参数，其中 site 目前仅支持填写主站点，domain 填写元数据服务中的域，用于存储工作区元数据，该域需要用户预先手工创建
+    > * data 配置可供工作区存储文件内容数据的站点列表，目前需要强制包含主站点，domain 填写站点数据服务中的域，该域需要用户预先手工创建
+    
 3. 创建工作区
 
 	```
@@ -286,6 +282,30 @@
 ###安装部署完毕###
 
 至此 SequoiaCM 系统已经安装完毕，可以使用 java 驱动连接 SequoiaCM 进行数据操作，操作示例详见[Java 开发基础][driver_operation]。
+
+###卸载 SequoiaCM ###
+
+1. 需卸载 SequoiaCM 的情况
+
+   - 已不再需要使用 SequoiaCM
+   - 需要重新部署 SequoiaCM 集群
+
+2. 清理工作区
+
+   ```
+   $ /opt/data/sequoiacm/scm.py workspace --clean --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
+   ```
+
+3. 卸载 SequoiaCM 集群
+
+   ```
+   $ /opt/data/sequoiacm/scm.py cluster --clean --conf /opt/data/sequoiacm/sequoiacm-deploy/conf/deploy.cfg
+   ```
+
+   > **Note：**
+   >
+   > * 卸载 SequoiaCM 时，一定要先清理工作区，否则会导致 SequoiaDB 中残留存放工作区信息的集合空间，将会影响集群的下一次部署
+   > * 卸载成功之后，SequoiaDB 中存放工作区元数据和内容数据的集合空间、所有服务节点目录都将会被删除，并且所有服务节点都将被关闭
 
 [install_requirement]:Quick_Start/install_requirement.md
 [driver_operation]:Development/Java_Driver/Readme.md
