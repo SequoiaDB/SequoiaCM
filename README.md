@@ -42,21 +42,20 @@ SequoiaCM 是一个基于 Spring Cloud 微服务架构的企业分布式内容�
 
 ### 2.2 clone项目
 
-```shell
-# 克隆 SequoiaCM 源码
-git clone http://gitlab.sequoiadb.com/sequoiadb/sequoiacm.git
-```
-
 如果是在 Windows 下操作，在 clone 项目之前还需要设置 ：
 
 ```shell
 # 设置禁止 git 自动转换换行符
 git config --global core.autocrlf false
-git config --global core.filemode false
 git config --global core.safecrlf true
 ```
 
 > 注：若是不设置禁用，git 换行符在 Windows 和 Linux 上将会不一致，这会导致 Windows 上编译的 jar 无法在 Linux 上使用。
+
+```shell
+# 克隆 SequoiaCM 源码
+git clone http://gitlab.sequoiadb.com/sequoiadb/sequoiacm.git
+```
 
 ### 2.3 检查环境
 
