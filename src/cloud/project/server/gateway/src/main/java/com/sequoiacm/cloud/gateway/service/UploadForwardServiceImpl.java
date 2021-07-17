@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Header;
@@ -65,6 +64,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
     @Autowired
     private ScmStatisticsRawDataReporter statisticsRawDataReporter;
+    
+    private UploadForwardConfig config;
 
     private PoolingHttpClientConnectionManager connectionManager;
     private ScmTimer connectionManagerTimer;
@@ -90,7 +91,7 @@ public class UploadForwardServiceImpl implements UploadForwardService {
                 .disableCookieManagement().useSystemProperties()
                 .setDefaultRequestConfig(defaultRequestConfig)
                 .setConnectionManager(connectionManager).build();
-        InputStremEntityWithLargeBuffer.resetBufferSize(config.getBufferSize());
+        this.config = config;
     }
 
     @PreDestroy
@@ -248,8 +249,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         }
 
         // add client request body.
-        InputStreamEntity isEntity = new InputStremEntityWithLargeBuffer(clientBody,
-                clientReq.getContentLengthLong());
+        InputStreamEntity isEntity = new ScmInputStremEntity(clientBody,
+                clientReq.getContentLengthLong(), config.getBufferSize());
         if (contentType == null) {
             isEntity.setContentType("binary/octet-stream");
         }
@@ -370,16 +371,14 @@ class UploadForwardConnectionCleaner extends ScmTimerTask {
 
 }
 
-class InputStremEntityWithLargeBuffer extends InputStreamEntity {
-    private static int bufferSize = 1024 * 1024;
+class ScmInputStremEntity extends InputStreamEntity {
+    private int bufferSize;
 
-    public InputStremEntityWithLargeBuffer(InputStream instream, long len) {
+    public ScmInputStremEntity(InputStream instream, long len, int bufferSize) {
         super(instream, len);
+        this.bufferSize = bufferSize;
     }
 
-    public static void resetBufferSize(int bufferSize) {
-        InputStremEntityWithLargeBuffer.bufferSize = bufferSize;
-    }
 
     @Override
     public void writeTo(OutputStream outstream) throws IOException {

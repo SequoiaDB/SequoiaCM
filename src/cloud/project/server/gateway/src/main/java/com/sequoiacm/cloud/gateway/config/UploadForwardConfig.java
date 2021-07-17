@@ -20,7 +20,7 @@ public class UploadForwardConfig {
     // socket read timeout
     private int socketTimeout = 1800000;
 
-    private int bufferSize = 1 * 1024 * 1024;
+    private int bufferSize = 1024 * 4;
 
     public long getConnectionTimeToLive() {
         return connectionTimeToLive;
