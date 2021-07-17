@@ -12,7 +12,6 @@ import com.sequoiacm.cephs3.CephS3Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class CephS3Conn {
     private static final Logger logger = LoggerFactory.getLogger(CephS3Conn.class);
     private final int siteId;
@@ -55,6 +54,10 @@ public class CephS3Conn {
             throw new CephS3Exception("failed to init cephs3 connection:site=" + siteId + ", url="
                     + url + ", accesskey:" + accessKey, e);
         }
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public int getSiteId() {

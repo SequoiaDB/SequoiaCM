@@ -53,8 +53,8 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
                 throw e;
             }
             logger.warn(
-                    "construct CephS3DataWriterImpl failed, get another ceph conn to try again: bucketName={}, key={}",
-                    bucketName, key, e);
+                    "write data failed, get another ceph conn to try again: bucketName={}, key={}, conn={}",
+                    bucketName, key, conn.getUrl(), e);
             initUpload(conn);
         }
     }

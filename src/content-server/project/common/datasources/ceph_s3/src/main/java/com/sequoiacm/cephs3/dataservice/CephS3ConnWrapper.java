@@ -21,6 +21,10 @@ public class CephS3ConnWrapper {
         this.id = id;
     }
 
+    public String getUrl() {
+        return conn.getUrl();
+    }
+
     public int getId() {
         return id;
     }

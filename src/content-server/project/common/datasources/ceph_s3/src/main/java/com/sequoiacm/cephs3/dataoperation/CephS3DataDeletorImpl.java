@@ -49,8 +49,9 @@ public class CephS3DataDeletorImpl implements ScmDataDeletor {
             if (conn == null) {
                 throw e;
             }
-            logger.warn("delete data failed, get another ceph conn to try again: bucketName="
-                    + bucketName + ",key=" + key, e);
+            logger.warn(
+                    "delete data failed, get another ceph conn to try again: bucketName={}, key={}, conn={}",
+                    bucketName, key, conn.getUrl(), e);
             conn.deleteObject(req);
         }
         finally {
