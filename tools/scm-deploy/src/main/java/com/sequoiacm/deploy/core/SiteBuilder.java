@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.sequoiacm.tools.common.ScmSiteHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,17 +69,8 @@ public class SiteBuilder {
                             pwdFileSender.getMetasourcePasswdFilePath())
                     .build();
         }
-
         String gatewayUrl = deployInfoMgr.getFirstGatewayUrl();
-
-        ScmSession ss = ScmFactory.Session
-                .createSession(new ScmConfigOption(gatewayUrl, "admin", "admin"));
-        try {
-            RestDispatcher.getInstance().createSite(ss, siteConf);
-        }
-        finally {
-            ss.close();
-        }
+        ScmSiteHelper.createSite(siteConf, gatewayUrl, "admin", "admin", false);
     }
 
     private List<String> getUrlFromDs(DataSourceInfo ds) {

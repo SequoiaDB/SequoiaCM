@@ -3,6 +3,7 @@ package com.sequoiacm.tools.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.tools.common.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -22,10 +23,6 @@ import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.RestDispatcher;
-import com.sequoiacm.tools.common.ScmContentCommandUtil;
-import com.sequoiacm.tools.common.ScmContentCommon;
-import com.sequoiacm.tools.common.ScmDatasourceUtil;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ScmSiteConfig;
 import com.sequoiacm.tools.element.ScmSiteInfo;
@@ -163,28 +160,13 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                                 metaDsInfo.getSdbPasswdFile())
                         .build();
             }
-            // TODO；config server check dbUrl
-            // check data url is connectable
-            if (!cl.hasOption(OPT_LONG_NO_CHECK_DS)) {
-                // ScmSiteConf transform ScmSiteInfo
-                ScmSiteInfo siteInfo = transformSiteInfo(siteConf);
-                // id is not practical meaning
-                siteInfo.setId(1);
-                ScmDatasourceUtil.vlidateDatasourceUrl(siteInfo);
-            }
-
-            String urls = cl.getOptionValue(OPT_LONG_GATEWAY);
             ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_AMDIN_USER,
                     OPT_LONG_AMDIN_PASSWORD, OPT_LONG_AMDIN_PASSWORD_FILE);
-            ss = ScmFactory.Session
-                    .createSession(new ScmConfigOption(ScmContentCommandUtil.parseListUrls(urls),
-                            adminUser.getUsername(), adminUser.getPassword()));
-            RestDispatcher.getInstance().createSite(ss, siteConf);
+            String urls = cl.getOptionValue(OPT_LONG_GATEWAY);
+            ScmSiteHelper.createSite(siteConf, ScmContentCommandUtil.parseListUrls(urls),
+                    adminUser.getUsername(), adminUser.getPassword(),
+                    !cl.hasOption(OPT_LONG_NO_CHECK_DS));
             System.out.println("create site success:siteName=" + siteName);
-        }
-        catch (ScmException e) {
-            logger.error("create site failed:siteName={}, error=", siteName, e.getError(), e);
-            ScmCommon.throwToolException("create site failed", e);
         }
         finally {
             ScmContentCommon.closeResource(ss);
