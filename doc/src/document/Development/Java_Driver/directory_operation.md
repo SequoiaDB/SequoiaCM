@@ -22,9 +22,9 @@ ScmDirectory directory = ScmFactory.Directory.createInstance(workspace, "/a");
 ```lang-javascript
 // 根据路径获取目录： /a
 ScmDirectory directory = ScmFactory.Directory.getInstance(workspace, "/a");
-// 查询该目下的文件（不会递归子目录查询）
-ScmCursor<ScmDirectory> dirCursor = directory.listDirectories(null);
 // 查询该目录下的子目录（不会递归子目录查询）
+ScmCursor<ScmDirectory> dirCursor = directory.listDirectories(null);
+// 查询该目录下的文件（不会递归子目录查询）
 ScmCursor<ScmFileBasicInfo> fileCursor = directory.listFiles(null);
 ```
 
