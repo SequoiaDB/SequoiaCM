@@ -62,7 +62,7 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
 
     @Test
     public void test() throws ScmException {
-        String valid[] = { "Id", "data_id", "data_type", "major_version",
+        String valid[] = { "id", "data_id", "data_type", "major_version",
                 "minor_version", "size", "create_month", "data_create_time" };
         String invalid[] = { "name", "test", "111" };
         // 随机取1个有效值1个无效值
