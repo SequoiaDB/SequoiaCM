@@ -104,7 +104,10 @@ public class CommandManager {
 
     private void logAndPrintErr(String arg, Exception e) {
         logger.error("process failed,subcommand:" + arg, e);
-        System.err.println("process failed,subcommand:" + arg + "\nerror message:" + e.getMessage());
+        System.err.println("process failed,subcommand:" + arg);
+        if (e.getMessage() != null) {
+            System.err.println("error message:" + e.getMessage());
+        }
     }
 
     public void checkHelpArgs(String[] args) throws ScmToolsException {
