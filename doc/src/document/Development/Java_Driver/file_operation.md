@@ -48,6 +48,28 @@ while (cursor.hasNext()) {
 > 
 >  * ScopeType.SCOPE_HISTRORY 在历史版本中查询文件 
 
+*	下载文件，跨站点读时不做缓存
+
+```lang-javascript 
+// 通过 fileID 获取文件实例
+ScmFile file = ScmFactory.File.getInstance(workspace, scmId);
+OutputStream os = null;
+try {
+    os = new FileOutputStream("E:\\test\\download_file_force_no_cache.txt");
+    // 下载文件内容，指定跨站点读时不做缓存
+    file.getContent(os, CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE);
+}
+finally {
+    if (os != null) {
+        os.close();
+    }
+}
+```
+
+> **Note:**
+>
+> * 假设文件存储于站点 A，驱动请求站点 B 下载此文件，站点 B 不缓存文件内容。若站点网络模型为星型，且 A、B 均为分站点，则需要主站点作为中继站点完成内容转发，此时主站点、分站点 B 都不会缓存文件内容。
+
 *	文件输入流下载文件
 
 ```lang-javascript
