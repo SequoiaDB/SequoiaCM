@@ -1,10 +1,7 @@
 package com.sequoiacm.deploy.core;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +40,8 @@ public class ScmDeployInfoMgr {
     private SiteInfo rootSite;
     private List<SiteInfo> siteInfos;
     private Map<String, SiteInfo> siteNameToSiteInfos = new HashMap<>();
+    private Set<String> usedDatasourceSet = new HashSet<>();
+    private Set<String> usedUrlSet = new HashSet<>();
 
     private Map<String, DataSourceInfo> datasouceMap = new HashMap<>();
 
@@ -402,6 +401,14 @@ public class ScmDeployInfoMgr {
                 sameNameDatasource.setStandbyDatasource(datasource);
                 continue;
             }
+            String[] urls = datasource.getUrl().split(",");
+            for (String url : urls) {
+                if (usedUrlSet.contains(url)){
+                    throw new IllegalArgumentException(
+                            "url use twice: url=" + url);
+                }
+                usedUrlSet.add(url);
+            }
             datasouceMap.put(datasource.getName(), datasource);
         }
     }
@@ -430,6 +437,12 @@ public class ScmDeployInfoMgr {
                 SiteInfo.CONVERTER);
         for (SiteInfo siteInfo : siteInfos) {
             String siteName = siteInfo.getName();
+            String datasourceName = siteInfo.getDatasourceName();
+            if (usedDatasourceSet.contains(datasourceName)){
+                throw new IllegalArgumentException("one datasource can't use in two sites:"
+                        + siteInfo.getName() + ", " + siteInfo.getDatasourceName());
+            }
+            usedDatasourceSet.add(datasourceName);
             siteNameToSiteInfos.put(siteName, siteInfo);
             if (siteInfo.isRoot()) {
                 if (rootSite != null) {

@@ -1,5 +1,8 @@
 package com.sequoiacm.config.framework.site.dao;
 
+import com.sequoiacm.config.framework.site.tool.ScmSiteTool;
+import com.sequoiacm.infrastructure.config.core.msg.Config;
+import com.sequoiacm.infrastructure.config.core.msg.site.SiteFilter;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -27,6 +30,8 @@ import com.sequoiacm.infrastructure.config.core.msg.site.SiteConfig;
 import com.sequoiacm.infrastructure.config.core.msg.site.SiteNotifyOption;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
+import java.util.List;
+
 @Component
 public class CreateSiteDao {
     private static final Logger logger = LoggerFactory.getLogger(CreateSiteDao.class);
@@ -40,6 +45,9 @@ public class CreateSiteDao {
     @Autowired
     private DefaultVersionDao versionDao;
 
+    @Autowired
+    private GetSiteDao getSiteDao;
+
     public ScmConfOperateResult create(SiteConfig config) throws ScmConfigException {
         logger.info("start to create site:{}", config.getName());
         SiteConfig siteRespConfig = createSite(config);
@@ -49,6 +57,9 @@ public class CreateSiteDao {
     }
 
     private SiteConfig createSite(SiteConfig config) throws ScmConfigException {
+        List<Config> allSiteConfigs = getSiteDao.get(new SiteFilter());
+        ScmSiteTool.checkSiteConfigValid(allSiteConfigs, config);
+
         Transaction transaction = null;
         ScmLock lock = ScmLockManager.getInstance()
                 .acquiresLock(ScmLockPathFactory.createSiteConfOpLockPath());
@@ -65,6 +76,7 @@ public class CreateSiteDao {
                             "root site already exist, isRootSite =" + config.isRootSite());
                 }
             }
+
             // generate site id
             int siteId = sysSiteTabledao.generateId();
             config.setId(siteId);

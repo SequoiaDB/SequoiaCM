@@ -1,5 +1,7 @@
 package com.sequoiacm.cephs3.dataservice;
 
+import com.sequoiacm.common.CephS3UrlInfo;
+
 public class CephS3ConnContext {
     private volatile CephS3Conn conn;
     private final CephS3UrlInfo urlInfo;

@@ -33,6 +33,7 @@ public enum ScmConfError {
     // site related
     SITE_EXIST(-700, "site exist"),
     SITE_NOT_EXIST(-701, "site not exist"),
+    DATASOURCE_EXIST_OTHER_SITE(-702, "datasource exist in other site"),
 
     // node related
     NODE_EXIST(-800, "node exist"),

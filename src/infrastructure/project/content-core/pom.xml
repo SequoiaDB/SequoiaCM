@@ -19,5 +19,9 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiadb-driver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+        </dependency>
     </dependencies>
 </project>

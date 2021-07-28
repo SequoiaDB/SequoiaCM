@@ -1,6 +1,7 @@
 package com.sequoiacm.cephs3.dataservice;
 
 import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.common.CephS3UrlInfo;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
