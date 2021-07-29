@@ -31,6 +31,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 public class WsPool {
     private static final int timeout = 2;
     private static final int newWsNum = 1;
+    private static final int getWsMaxTimesCount = 10;
     private static ArrayBlockingQueue< String > resources;
     private static AtomicInteger count = new AtomicInteger( 0 );
     private static List< String > wsList = new CopyOnWriteArrayList<>();
@@ -42,6 +43,7 @@ public class WsPool {
     }
 
     public static String get() throws Exception {
+        int TimesCount = 0;
         while ( true ) {
             String resource = resources.poll( timeout, TimeUnit.SECONDS );
             if ( resource != null ) {
@@ -54,6 +56,13 @@ public class WsPool {
                         ScmFulltextStatus.CREATED ) && isWsEmpty( resource ) ) {
                     dropIndex( resource );
                     return resource;
+                }
+                resources.offer( resource, timeout, TimeUnit.SECONDS );
+                TimesCount++;
+                if ( TimesCount > getWsMaxTimesCount ) {
+                    throw new Exception(
+                            "get a workspaces times count should not exceed"
+                                    + getWsMaxTimesCount );
                 }
             } else {
                 // create new resource
@@ -165,19 +174,20 @@ public class WsPool {
 
     private static String createNewWs()
             throws ScmException, UnknownHostException, InterruptedException {
-        String wsName = TestScmBase.FULLTEXT_WS_PREFIX + InetAddress.getLocalHost().getHostName().replace( "-",
-                "_" ) + "_new_" + count.get();
-         ScmSession session = null;
+        String wsName = TestScmBase.FULLTEXT_WS_PREFIX
+                + InetAddress.getLocalHost().getHostName().replace( "-", "_" )
+                + "_new_" + count.get();
+        ScmSession session = null;
         try {
-             session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = TestScmTools.createSession( ScmInfo.getSite() );
             ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( session, wsName );
             wsList.add( wsName );
             return wsName;
         } finally {
-             if ( session != null ) {
-                 session.close();
-             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 }
