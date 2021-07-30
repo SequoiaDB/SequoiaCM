@@ -46,7 +46,7 @@ public class ScmSiteHelper {
                 ScmSiteInfo siteInfo = transformSiteInfo(siteConf);
                 // id is not practical meaning
                 siteInfo.setId(1);
-                ScmDatasourceUtil.vlidateDatasourceUrl(siteInfo);
+                ScmDatasourceUtil.validateDatasourceUrl(siteInfo);
             }
             ss = ScmFactory.Session
                     .createSession(new ScmConfigOption(gatewayUrls, username, password));

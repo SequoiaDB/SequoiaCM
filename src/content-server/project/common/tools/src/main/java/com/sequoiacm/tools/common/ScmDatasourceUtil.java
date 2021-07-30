@@ -37,7 +37,7 @@ public class ScmDatasourceUtil {
                 "com.sequoiacm.hdfs.HdfsPlugin");
     }
 
-    public static void vlidateDatasourceUrl(ScmSiteInfo siteInfo) throws ScmToolsException {
+    public static void validateDatasourceUrl(ScmSiteInfo siteInfo) throws ScmToolsException {
         DatasourcePlugin plugin = newPluginInstanceByType(siteInfo.getDataType());
         try {
             plugin.createService(siteInfo.getId(), createSiteUrl(siteInfo));
