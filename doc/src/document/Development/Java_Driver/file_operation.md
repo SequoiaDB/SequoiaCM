@@ -52,7 +52,7 @@ while (cursor.hasNext()) {
 
 ```lang-javascript 
 // 通过 fileID 获取文件实例
-ScmFile file = ScmFactory.File.getInstance(workspace, scmId);
+ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
 OutputStream os = null;
 try {
     os = new FileOutputStream("E:\\test\\download_file_force_no_cache.txt");
