@@ -137,39 +137,44 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                String user = TestScmBase.sdbUserName;
-                String passwdPath = TestScmBase.scmPasswordPath;
                 ScmConfigOption scOpt = new ScmConfigOption(
                         TestScmBase.gateWayList.get( 0 ) + "/"
                                 + rootSite.getSiteServiceName(),
                         TestScmBase.scmUserName, TestScmBase.scmPassword );
                 session = ScmFactory.Session
                         .createSession( SessionType.NOT_AUTH_SESSION, scOpt );
-                if ( rootSite.getDataType()
-                        .equals( DatasourceType.SEQUOIADB ) ) {
-                    ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ), 1,
-                            rootSite.getDataDsUrl(), user, passwdPath );
-                } else if ( rootSite.getDataType()
-                        .equals( DatasourceType.HBASE ) ) {
-                    ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ), 2,
-                            rootSite.getDataDsUrl(), user, passwdPath );
-                } else if ( rootSite.getDataType()
-                        .equals( DatasourceType.CEPH_S3 ) ) {
-                    ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ), 3,
-                            rootSite.getDataDsUrl(), user, passwdPath );
-                } else if ( rootSite.getDataType()
-                        .equals( DatasourceType.CEPH_SWIFT ) ) {
-                    ScmSiteUtils.createSite( session, newSiteName,
-                            TestScmBase.gateWayList.get( 0 ), 4,
-                            rootSite.getDataDsUrl(), user, passwdPath );
-                } else {
-                    throw new Exception(
-                            "DatasourceType is not exist,please check"
-                                    + rootSite.getDataType() );
-                }
+                // TODO 暂时将创建新站点使用的数据源写死为192.168.28.104（mysql的数据源集群），待ci资源扩充后修改
+                String dsUrl = "192.168.28.104:11810";
+                String user = "sdbadmin";
+                String passwdPath = "sdbadmin";
+                ScmSiteUtils.createSite( session, newSiteName,
+                        TestScmBase.gateWayList.get( 0 ), 1, dsUrl, user,
+                        passwdPath );
+                // if ( rootSite.getDataType()
+                // .equals( DatasourceType.SEQUOIADB ) ) {
+                // ScmSiteUtils.createSite( session, newSiteName,
+                // TestScmBase.gateWayList.get( 0 ), 1,
+                // rootSite.getDataDsUrl(), user, passwdPath );
+                // } else if ( rootSite.getDataType()
+                // .equals( DatasourceType.HBASE ) ) {
+                // ScmSiteUtils.createSite( session, newSiteName,
+                // TestScmBase.gateWayList.get( 0 ), 2,
+                // rootSite.getDataDsUrl(), user, passwdPath );
+                // } else if ( rootSite.getDataType()
+                // .equals( DatasourceType.CEPH_S3 ) ) {
+                // ScmSiteUtils.createSite( session, newSiteName,
+                // TestScmBase.gateWayList.get( 0 ), 3,
+                // rootSite.getDataDsUrl(), user, passwdPath );
+                // } else if ( rootSite.getDataType()
+                // .equals( DatasourceType.CEPH_SWIFT ) ) {
+                // ScmSiteUtils.createSite( session, newSiteName,
+                // TestScmBase.gateWayList.get( 0 ), 4,
+                // rootSite.getDataDsUrl(), user, passwdPath );
+                // } else {
+                // throw new Exception(
+                // "DatasourceType is not exist,please check"
+                // + rootSite.getDataType() );
+                // }
                 ScmSiteUtils.deleteSite( session, newSiteName );
             } catch ( ScmException e ) {
                 e.printStackTrace();
