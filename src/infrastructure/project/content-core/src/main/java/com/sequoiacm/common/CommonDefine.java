@@ -30,12 +30,12 @@ public class CommonDefine {
         public static final boolean SDB_USE_SSL = connConf.getUseSSL();
 
         private static final DatasourceOptions dsConf = new DatasourceOptions();
-        public static final int SDB_KEEP_ALIVE_TIME = dsConf.getKeepAliveTimeout();
+        public static final int SDB_KEEP_ALIVE_TIME = 60 * 1000;
         public static final int SDB_MAX_CONN_NUM = dsConf.getMaxCount();
         public static final boolean SDB_VALIDATE_CONN = true;
         public static final int SDB_DELTA_INC_COUNT = dsConf.getDeltaIncCount();
         public static final int SDB_MAX_IDLE_NUM = dsConf.getMaxIdleCount();
-        public static final int SDB_RECHECK_CYCL_PERIOD = dsConf.getCheckInterval();
+        public static final int SDB_RECHECK_CYCL_PERIOD = 30 * 1000;
 
         // *********************** SERVER ******************************
         public static final int PORT = 0;

@@ -42,6 +42,7 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
     private String deltaincCount;
     private String maxIdleNum;
     private String keepAliveTime;
+    private String recheckCyclePeriod;
     private String validateConnection;
     private SequoiadbDatasource dataSource;
     private Date lastTime = new Date();
@@ -255,6 +256,7 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
         datasourceConf.setDeltaIncCount(Integer.parseInt(deltaincCount));
         datasourceConf.setMaxIdleCount(Integer.parseInt(maxIdleNum));
         datasourceConf.setKeepAliveTimeout(Integer.parseInt(keepAliveTime));
+        datasourceConf.setCheckInterval(Integer.parseInt(recheckCyclePeriod));
         datasourceConf.setValidateConnection(Boolean.parseBoolean(validateConnection));
         return datasourceConf;
     }
@@ -388,6 +390,14 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
 
     public void setValidateConnection(String validateConnection) {
         this.validateConnection = validateConnection;
+    }
+
+    public String getRecheckCyclePeriod() {
+        return recheckCyclePeriod;
+    }
+
+    public void setRecheckCyclePeriod(String recheckCyclePeriod) {
+        this.recheckCyclePeriod = recheckCyclePeriod;
     }
 
     public static void main(String[] args) {

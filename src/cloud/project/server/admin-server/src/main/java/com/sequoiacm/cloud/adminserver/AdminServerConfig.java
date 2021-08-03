@@ -28,12 +28,12 @@ class SdbConfig {
     private long maxAutoConnectRetryTime = connConf.getMaxAutoConnectRetryTime();
     private boolean useNagle = connConf.getUseNagle();
     private boolean useSSL = connConf.getUseSSL();
-    private int keepAliveTime = dsConf.getKeepAliveTimeout();
+    private int keepAliveTime = 60 * 1000;
     private int maxConnectionNum = dsConf.getMaxCount();
     private boolean validateConnection = true;
     private int deltaIncCount = dsConf.getDeltaIncCount();
     private int maxIdleNum = dsConf.getMaxIdleCount();
-    private int recheckCyclePeriod = dsConf.getCheckInterval();
+    private int recheckCyclePeriod = 30 * 1000;
 
 
     public String getUrls() {

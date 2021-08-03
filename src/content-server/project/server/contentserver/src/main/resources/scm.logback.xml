@@ -70,7 +70,8 @@
         <maxConnectionNum>20</maxConnectionNum>
         <deltaincCount>10</deltaincCount>
         <maxIdleNum>10</maxIdleNum>
-        <keepAliveTime>0</keepAliveTime>
+        <keepAliveTime>60000</keepAliveTime>
+        <recheckCyclePeriod>30000</recheckCyclePeriod>
         <validateConnection>true</validateConnection>        
     </appender>
     <!-- set audit log to audit.log file -->

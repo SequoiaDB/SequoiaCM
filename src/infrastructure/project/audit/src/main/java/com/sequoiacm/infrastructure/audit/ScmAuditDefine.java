@@ -33,6 +33,7 @@ public class ScmAuditDefine {
         public static final String DELTAINCCOUNT                = "deltaIncCount";
         public static final String MAXIDLENUM                   = "maxIdleNum";
         public static final String KEEPALIVETIME                = "keepAliveTime";
+        public static final String RECHECKCYCLEPERIOD           = "recheckCyclePeriod";
         public static final String VALIDATECONNECTION           = "validateConnection";
     }
     
