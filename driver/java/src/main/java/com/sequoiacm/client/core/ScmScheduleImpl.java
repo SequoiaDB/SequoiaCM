@@ -7,6 +7,7 @@ import java.util.List;
 import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.util.BsonConverter;
+import com.sequoiacm.common.FieldName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -238,7 +239,8 @@ class ScmScheduleImpl implements ScmSchedule {
             builder.and(extraCondition);
         }
 
-        BsonReader reader = ss.getDispatcher().getTaskList(builder.get(), orderby, null, skip, limit);
+        BsonReader reader = ss.getDispatcher().getTaskList(builder.get(), orderby,
+                        new BasicBSONObject(), skip, limit);
         ScmBsonCursor<ScmTask> cursor = new ScmBsonCursor<ScmTask>(reader,
                 new BsonConverter<ScmTask>() {
                     @Override
