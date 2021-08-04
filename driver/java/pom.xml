@@ -103,6 +103,7 @@
                                 <include>com.sequoiadb:sequoiacm-infrastructure-fulltext-core</include>
                                 <include>com.sequoiadb:sequoiacm-infrastructure-content-core</include>
                                 <include>com.sequoiadb:sequoiacm-infrastructure-statistics-common</include>
+                                <include>com.sequoiadb:sequoiacm-infrastructure-crypto</include>
                                 <include>org.apache.httpcomponents:httpmime</include>
                                 <include>org.apache.httpcomponents:httpclient</include>
                                 <include>org.apache.httpcomponents:httpcore</include>

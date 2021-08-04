@@ -21,6 +21,7 @@
                 <exclude>com.sequoiadb:sequoiacm-infrastructure-content-core</exclude>
                 <exclude>com.sequoiadb:sequoiacm-infrastructure-fulltext-core</exclude>
                 <exclude>com.sequoiadb:sequoiacm-infrastructure-statistics-common</exclude>
+                <exclude>com.sequoiadb:sequoiacm-infrastructure-crypto</exclude>
                 <exclude>org.apache.httpcomponents:httpclient</exclude>
                 <exclude>org.apache.httpcomponents:httpcore</exclude>
                 <exclude>com.alibaba:fastjson</exclude>
