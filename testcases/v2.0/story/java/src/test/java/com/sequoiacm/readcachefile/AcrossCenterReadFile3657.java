@@ -91,11 +91,12 @@ public class AcrossCenterReadFile3657 extends TestScmBase {
                 CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                         | CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE,
                 false );
+        runSuccess = true;
     }
 
     @AfterClass
     public void tearDown() throws ScmException {
-        if ( runSuccess ) {
+        if ( runSuccess || TestScmBase.forceClear ) {
             try {
                 ScmFactory.File.deleteInstance( branchSite1Ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );

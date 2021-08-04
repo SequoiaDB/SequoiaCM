@@ -12,8 +12,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Testcase: SCM-3645:指定跨站点读不缓存 SCM-3647:指定跨站点不缓存读取文件，文件为空
@@ -33,8 +35,8 @@ public class AcrossCenterReadFile3645_3647 extends TestScmBase {
     private ScmWorkspace branchSite2Ws;
     private SiteWrapper branchSite1;
     private SiteWrapper branchSite2;
-    private ScmId fileId = null;
-    private boolean runSuccess = false;
+    private List< ScmId > fileIdList = new ArrayList<>();
+    private AtomicInteger runSuccessCount = new AtomicInteger( 0 );
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -68,8 +70,9 @@ public class AcrossCenterReadFile3645_3647 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         SiteWrapper[] expSites = { branchSite1 };
         // branchSite1创建文件
-        fileId = ScmFileUtils.create( branchSite1Ws,
+        ScmId fileId = ScmFileUtils.create( branchSite1Ws,
                 fileName + "_" + UUID.randomUUID(), filePath );
+        fileIdList.add( fileId );
 
         // branchSite2跨站点读不缓存，检查文件缓存
         String contentReadFile = AcrossCenterReadFileUtils.getContentReadFile(
@@ -86,14 +89,18 @@ public class AcrossCenterReadFile3645_3647 extends TestScmBase {
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( inputStreamReadFile ) );
         ScmFileUtils.checkMeta( branchSite2Ws, fileId, expSites );
-        runSuccess = true;
+        runSuccessCount.incrementAndGet();
     }
 
     @AfterClass
     public void tearDown() throws Exception {
-        if ( runSuccess ) {
+        if ( runSuccessCount.get() == FileSize().length
+                || TestScmBase.forceClear ) {
             try {
-                ScmFactory.File.deleteInstance( branchSite1Ws, fileId, true );
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( branchSite1Ws, fileId,
+                            true );
+                }
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 branchSite1session.close();

@@ -14,8 +14,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Testcase: SCM-3648:指定偏移读取 SCM-3649:文件为空，指定偏移读取
@@ -35,8 +37,8 @@ public class AcrossCenterReadFile3648_3649 extends TestScmBase {
     private ScmWorkspace branchSite2Ws;
     private SiteWrapper branchSite1;
     private SiteWrapper branchSite2;
-    private ScmId fileId = null;
-    private boolean runSuccess = false;
+    private List< ScmId > fileIdList = new ArrayList<>();
+    private AtomicInteger runSuccessCount = new AtomicInteger( 0 );
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -69,8 +71,9 @@ public class AcrossCenterReadFile3648_3649 extends TestScmBase {
     public void test( int fileSize ) throws Exception {
         TestTools.LocalFile.createFile( filePath, fileSize );
         // 上传文件
-        fileId = ScmFileUtils.create( branchSite1Ws,
+        ScmId fileId = ScmFileUtils.create( branchSite1Ws,
                 fileName + "_" + UUID.randomUUID(), filePath );
+        fileIdList.add( fileId );
 
         // 执行seek偏移量<文件长度读取
         String inputStreamSeekFile = AcrossCenterReadFileUtils
@@ -95,13 +98,18 @@ public class AcrossCenterReadFile3648_3649 extends TestScmBase {
                 throw e;
             }
         }
+        runSuccessCount.incrementAndGet();
     }
 
     @AfterClass
     public void tearDown() throws ScmException {
-        if ( runSuccess ) {
+        if ( runSuccessCount.get() == FileSize().length
+                || TestScmBase.forceClear ) {
             try {
-                ScmFactory.File.deleteInstance( branchSite1Ws, fileId, true );
+                for ( ScmId fileId : fileIdList ) {
+                    ScmFactory.File.deleteInstance( branchSite1Ws, fileId,
+                            true );
+                }
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 branchSite1session.close();

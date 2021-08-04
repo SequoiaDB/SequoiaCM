@@ -103,7 +103,7 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
 
     @AfterClass
     public void tearDown() throws Exception {
-        if ( runSuccess ) {
+        if ( runSuccess || TestScmBase.forceClear ) {
             try {
                 ScmFactory.File.deleteInstance( branchSite1Ws, fileIdA, true );
                 ScmFactory.File.deleteInstance( branchSite1Ws, fileIdB, true );

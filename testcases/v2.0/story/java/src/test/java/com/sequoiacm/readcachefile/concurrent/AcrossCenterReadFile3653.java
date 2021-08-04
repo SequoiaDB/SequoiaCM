@@ -62,7 +62,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
                 branchSite2session );
     }
 
-    //SEQUOIACM-695 暂时屏蔽
+    // SEQUOIACM-695 暂时屏蔽
     @Test(groups = { "fourSite" }, enabled = false)
     public void test() throws Exception {
         // branchSite1创建文件
@@ -88,7 +88,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
 
     @AfterClass
     public void tearDown() throws Exception {
-        if ( runSuccess ) {
+        if ( runSuccess || TestScmBase.forceClear ) {
             try {
                 ScmFactory.File.deleteInstance( branchSite1Ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
