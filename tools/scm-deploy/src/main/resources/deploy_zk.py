@@ -55,20 +55,28 @@ def hostAdaptor(hostname):
         return True
     else:
         return False
-    
+
+def create_zoo_cfg(myid):
+    sample_cfg = ZK_CONF_PATH + "zoo_sample.cfg"
+    copy_cfg = ""
+    if os.path.exists(ZK_CONF_PATH + "zoo.cfg"):
+        copy_cfg = ZK_CONF_PATH + "zoo" + str(myid) + ".cfg"
+    else:
+        copy_cfg = ZK_CONF_PATH + "zoo.cfg"
+    execCMD("cp %s %s" % (sample_cfg, copy_cfg))
+    return copy_cfg
+
 def modify_config(myid, config, zk_cfg):
     server = config["server"]
     servers["server.%d" % myid] = convert_localhost(server)
-    hostname = server.split(":")[0];
+    hostname = server.split(":")[0]
     if hostAdaptor(hostname) == False:
         return False
-        
+
     if config["deploy"] == False:
         return False
-        
-    sample_cfg = ZK_CONF_PATH + "zoo_sample.cfg"
-    copy_cfg = ZK_CONF_PATH + "zoo" + str(myid) + ".cfg"
-    execCMD("cp %s %s" % (sample_cfg, copy_cfg))
+
+    copy_cfg = create_zoo_cfg(myid)
     zk_cfg.append(copy_cfg)
     for key in config:
         update_param(key, config[key], copy_cfg)
@@ -82,6 +90,9 @@ def modify_config(myid, config, zk_cfg):
     #datalog_dir = ZK_DATALOG_PATH + os.sep + config['clientPort']
     #execCMD("mkdir %s" % datalog_dir)
     #update_param("dataLogDir", data_dir, "zoo%d.cfg" % myid)
+
+    execCMD("echo autopurge.snapRetainCount=10 >> " + copy_cfg)
+    execCMD("echo autopurge.purgeInterval=24 >> " + copy_cfg)
     return True
 
 def deploy_zk(config):
@@ -102,6 +113,11 @@ def deploy_zk(config):
         print("no node was created!")
         sys.exit(-2)
 
+def get_zoo_cfg(myid):
+    if os.path.exists(ZK_CONF_PATH + "zoo" + str(myid) + ".cfg"):
+        return ZK_CONF_PATH + "zoo" + str(myid) + ".cfg"
+    return ZK_CONF_PATH + "zoo.cfg"
+
 def start_zk(config):
     display_info("Begin to start zookeeper...")
     if 'zookeeper-server' in config:
@@ -111,7 +127,7 @@ def start_zk(config):
             server = item["server"]
             hostname = server.split(":")[0]
             if item["deploy"] and hostAdaptor(hostname):
-                zk_cfg.append(ZK_CONF_PATH + "zoo" + str(myid) + ".cfg")
+                zk_cfg.append(get_zoo_cfg(myid))
         for cfg in zk_cfg:
             execCMD("%s start %s" % (ZK_SERVER_SHELL, cfg))
 

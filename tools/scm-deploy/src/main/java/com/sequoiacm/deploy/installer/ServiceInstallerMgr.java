@@ -1,9 +1,13 @@
 package com.sequoiacm.deploy.installer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.deploy.common.RefUtil;
 import com.sequoiacm.deploy.core.ScmDeployInfoMgr;
+import com.sequoiacm.deploy.deployer.Deployer;
+import com.sequoiacm.deploy.deployer.ServiceDeployer;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallPackType;
 import com.sequoiacm.deploy.ssh.SshMgr;
@@ -28,12 +32,18 @@ public class ServiceInstallerMgr {
     }
 
     private ServiceInstallerMgr() {
-        SshMgr sshFactory = SshMgr.getInstance();
-        ScmDeployInfoMgr deployInfoMgr = ScmDeployInfoMgr.getInstance();
-        ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
+        // 优先注册 @Installer 注解修饰的 ServiceInstaller 实现类
+        List<ServiceInstaller> installers = RefUtil.initInstancesAnnotatedWith(Installer.class);
+        for (ServiceInstaller installer : installers) {
+
+            installersMap.put(installer.getType(), installer);
+        }
+
+        // 缺省使用 ServiceInstallerBase 实例
         for (InstallPackType installType : InstallPackType.values()) {
-            installersMap.put(installType, new ServiceInstallerBase(installType, sshFactory,
-                    packManager, deployInfoMgr.getInstallConfig()));
+            if (installersMap.get(installType) == null) {
+                installersMap.put(installType, new ServiceInstallerBase(installType));
+            }
         }
     }
 

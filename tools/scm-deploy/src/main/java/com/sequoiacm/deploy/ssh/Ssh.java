@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
@@ -147,7 +148,7 @@ public class Ssh implements Closeable {
         }
     }
 
-    public int sudoSuExec(String suToUser, String command, LinkedHashMap<String, String> env,
+    public int sudoSuExec(String suToUser, String command, Map<String, String> env,
             Integer... expectExitCode) throws IOException {
         StringBuilder envCmdBuilder = new StringBuilder();
         if (env != null) {

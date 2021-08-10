@@ -1,11 +1,8 @@
 package com.sequoiacm.deploy.ssh;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Queue;
 
 import com.sequoiacm.deploy.config.SshConfig;
 import com.sequoiacm.deploy.module.HostInfo;

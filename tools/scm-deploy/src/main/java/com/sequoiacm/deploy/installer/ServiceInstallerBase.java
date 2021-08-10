@@ -2,6 +2,7 @@ package com.sequoiacm.deploy.installer;
 
 import java.io.File;
 
+import com.sequoiacm.deploy.core.ScmDeployInfoMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,20 +14,16 @@ import com.sequoiacm.deploy.ssh.SshMgr;
 
 public class ServiceInstallerBase implements ServiceInstaller {
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstallerBase.class);
-    private SshMgr sshFactory;
+    protected SshMgr sshFactory = SshMgr.getInstance();
 
-    private ServicesInstallPackManager packManager;
+    protected ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
 
-    private InstallPackType type;
+    protected InstallPackType type;
 
-    private InstallConfig installConfig;
+    protected InstallConfig installConfig =  ScmDeployInfoMgr.getInstance().getInstallConfig();
 
-    public ServiceInstallerBase(InstallPackType type, SshMgr sshFactory,
-            ServicesInstallPackManager packManager, InstallConfig installConfig) {
+    public ServiceInstallerBase(InstallPackType type) {
         this.type = type;
-        this.sshFactory = sshFactory;
-        this.packManager = packManager;
-        this.installConfig = installConfig;
     }
 
     @Override

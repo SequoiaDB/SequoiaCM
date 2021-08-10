@@ -12,17 +12,17 @@ public class RefUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> initInstancesAnnotatedWith(
-            final Class<? extends Annotation> annotation) throws Exception {
+            final Class<? extends Annotation> annotation) throws RuntimeException {
         ArrayList<T> ret = new ArrayList<>();
         try {
             Reflections reflections = new Reflections("com.sequoiacm.deploy");
             Set<Class<?>> classes = reflections.getTypesAnnotatedWith(annotation);
             for (Class<?> c : classes) {
                 if (Modifier.isAbstract(c.getModifiers())) {
-                    throw new Exception("class is abstract:" + c.getName());
+                    throw new RuntimeException("class is abstract:" + c.getName());
                 }
                 if (c.isInterface()) {
-                    throw new Exception("class is interface:" + c.getName());
+                    throw new RuntimeException("class is interface:" + c.getName());
                 }
                 Object obj = c.newInstance();
                 ret.add((T) obj);
@@ -30,7 +30,7 @@ public class RefUtil {
             return ret;
         }
         catch (Exception e) {
-            throw new Exception(
+            throw new RuntimeException(
                     "failed instance the class with annotattion:" + annotation.getName(), e);
         }
     }

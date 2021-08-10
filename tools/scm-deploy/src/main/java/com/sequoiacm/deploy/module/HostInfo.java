@@ -21,6 +21,14 @@ public class HostInfo {
         }
     };
 
+    public HostInfo(String userName, int port, String password, String hostName, String javaHome) {
+        this.userName = userName;
+        this.port = port;
+        this.password = password;
+        this.hostName = hostName;
+        this.javaHome = javaHome;
+    }
+
     public HostInfo(BSONObject bson) {
         userName = BsonUtils.getStringChecked(bson, ConfFileDefine.HOST_USER);
         password = BsonUtils.getStringOrElse(bson, ConfFileDefine.HOST_PASSWORD, "");
