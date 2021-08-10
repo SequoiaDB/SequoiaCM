@@ -14,12 +14,33 @@ public class ScheduleJobInfo {
     private String type;
     private String workspace;
     private String cron;
+    private String preferredRegion;
+    private String preferredZone;
 
-    public ScheduleJobInfo(String id, String type, String workspace, String cron) {
+    public ScheduleJobInfo(String id, String type, String workspace, String cron,
+            String preferredRegion, String preferredZone) {
         this.id = id;
         this.type = type;
         this.workspace = workspace;
         this.cron = cron;
+        this.preferredRegion = preferredRegion;
+        this.preferredZone = preferredZone;
+    }
+
+    public String getPreferredZone() {
+        return preferredZone;
+    }
+
+    public String getPreferredRegion() {
+        return preferredRegion;
+    }
+
+    public void setPreferredZone(String preferredZone) {
+        this.preferredZone = preferredZone;
+    }
+
+    public void setPreferredRegion(String preferredRegion) {
+        this.preferredRegion = preferredRegion;
     }
 
     public String getId() {
@@ -64,12 +85,12 @@ public class ScheduleJobInfo {
         }
     }
 
-    void checkCondition(int scope, BSONObject condition) throws ScheduleException{
-        if(scope == ScheduleDefine.ScopeType.CURRENT) {
-            //no check for current scope
+    void checkCondition(int scope, BSONObject condition) throws ScheduleException {
+        if (scope == ScheduleDefine.ScopeType.CURRENT) {
+            // no check for current scope
             return;
         }
-        if(scope != ScheduleDefine.ScopeType.HISTORY && scope != ScheduleDefine.ScopeType.ALL) {
+        if (scope != ScheduleDefine.ScopeType.HISTORY && scope != ScheduleDefine.ScopeType.ALL) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
                     "unknown scope:scope=" + scope);
         }

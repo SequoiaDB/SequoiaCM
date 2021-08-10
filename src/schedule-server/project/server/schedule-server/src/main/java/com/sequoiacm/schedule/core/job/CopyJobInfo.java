@@ -26,17 +26,17 @@ public class CopyJobInfo extends ScheduleJobInfo {
 
     private long maxExecTime;
 
-    public CopyJobInfo(String id, String type, String workspace, BSONObject content, String cron)
-            throws ScheduleException {
-        super(id, type, workspace, cron);
+    public CopyJobInfo(String id, String type, String workspace, BSONObject content, String cron,
+            String preferredRegion, String preferredZone) throws ScheduleException {
+        super(id, type, workspace, cron, preferredRegion, preferredZone);
         checkAndParse(ScheduleServer.getInstance(), id, type, workspace, content, cron);
     }
 
     public CopyJobInfo(String id, String type, String workspace, int sourceSiteId,
             String sourceSiteName, int targetSiteId, String targetSiteName, int days,
-            BSONObject extraCondition, String cron, int scope, long maxExecTime)
-            throws ScheduleException {
-        super(id, type, workspace, cron);
+            BSONObject extraCondition, String cron, int scope, long maxExecTime,
+            String preferredRegion, String preferredZone) throws ScheduleException {
+        super(id, type, workspace, cron, preferredRegion, preferredZone);
 
         this.sourceSiteId = sourceSiteId;
         this.sourceSiteName = sourceSiteName;
@@ -87,23 +87,23 @@ public class CopyJobInfo extends ScheduleJobInfo {
         if (null == sourceSiteEntity) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.SITE_NOT_EXISTS,
                     "source site is not exist in workspace:workspace=" + wsInfo.getName()
-                    + ",site_name=" + sourceSiteName);
+                            + ",site_name=" + sourceSiteName);
         }
         sourceSiteId = sourceSiteEntity.getId();
-        
+
         targetSiteName = ScheduleCommonTools.getStringValue(content,
                 FieldName.Schedule.FIELD_COPY_TARGET_SITE);
         SiteEntity targetSiteEntity = wsInfo.getSite(targetSiteName);
         if (null == targetSiteEntity) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.SITE_NOT_EXISTS,
                     "target site is not exist in workspace:workspace=" + wsInfo.getName()
-                    + ",site_name=" + targetSiteName);
+                            + ",site_name=" + targetSiteName);
         }
         targetSiteId = targetSiteEntity.getId();
 
         // check site
         ScheduleStrategyMgr.getInstance().checkTransferSite(wsInfo, sourceSiteId, targetSiteId);
-        
+
         String maxStayTime = ScheduleCommonTools.getStringValue(content,
                 FieldName.Schedule.FIELD_MAX_STAY_TIME);
         days = parseMaxStayTime(maxStayTime);
@@ -113,11 +113,12 @@ public class CopyJobInfo extends ScheduleJobInfo {
         if (null == extraCondition) {
             extraCondition = new BasicBSONObject();
         }
-        
-        if(content.containsField(FieldName.Schedule.FIELD_SCOPE)){
+
+        if (content.containsField(FieldName.Schedule.FIELD_SCOPE)) {
             scope = (int) content.get(FieldName.Schedule.FIELD_SCOPE);
             checkCondition(scope, extraCondition);
-        }else {
+        }
+        else {
             scope = ScheduleDefine.ScopeType.CURRENT;
         }
 
@@ -139,12 +140,11 @@ public class CopyJobInfo extends ScheduleJobInfo {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("id:").append(getId()).append(",").append("type:").append(getType()).append(",")
-        .append("workspace:").append(getWorkspace()).append(",").append("cron:")
-        .append(getCron()).append(",").append("sourceSiteName:")
-        .append(getSourceSiteName()).append(",").append("SourceSiteId:")
-        .append(getSourceSiteId()).append(",").append("targetSiteName:")
-        .append(getTargetSiteName()).append(",").append("targetSiteId:")
-        .append(getTargetSiteId());
+                .append("workspace:").append(getWorkspace()).append(",").append("cron:")
+                .append(getCron()).append(",").append("sourceSiteName:").append(getSourceSiteName())
+                .append(",").append("SourceSiteId:").append(getSourceSiteId()).append(",")
+                .append("targetSiteName:").append(getTargetSiteName()).append(",")
+                .append("targetSiteId:").append(getTargetSiteId());
 
         return sb.toString();
     }

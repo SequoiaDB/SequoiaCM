@@ -1,19 +1,7 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
-import java.net.ConnectException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.bson.BasicBSONObject;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
@@ -22,8 +10,16 @@ import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.dao.ScheduleDao;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 import com.sequoiacm.schedule.remote.WorkerClient;
-
 import feign.RetryableException;
+import org.bson.BasicBSONObject;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.ConnectException;
+import java.util.List;
 
 public class QuartzInternalSchJob extends QuartzScheduleJob {
     private static final Logger logger = LoggerFactory.getLogger(QuartzInternalSchJob.class);
@@ -33,7 +29,7 @@ public class QuartzInternalSchJob extends QuartzScheduleJob {
             throws ScheduleException, JobExecutionException {
         JobDataMap datamap = context.getJobDetail().getJobDataMap();
         InternalScheduleInfo internalSchInfo = (InternalScheduleInfo) info;
-        DiscoveryClient discoverClient = (DiscoveryClient) datamap
+        ScmServiceDiscoveryClient discoverClient = (ScmServiceDiscoveryClient) datamap
                 .get(FieldName.Schedule.FIELD_DISCOVER_CLIENT);
         ScheduleClientFactory feignClientFactory = (ScheduleClientFactory) datamap
                 .get(FieldName.Schedule.FIELD_FEIGN_CLIENT_FACTORY);
@@ -90,7 +86,7 @@ public class QuartzInternalSchJob extends QuartzScheduleJob {
     }
 
     private void startJobInSync(InternalScheduleInfo internalSchInfo,
-            DiscoveryClient discoverClient, ScheduleClientFactory feignClientFactory,
+            ScmServiceDiscoveryClient discoverClient, ScheduleClientFactory feignClientFactory,
             ScheduleDao scheduleDao, String exceptNode) throws Exception {
         synchronized (internalSchInfo) {
             if (internalSchInfo.isStop()) {
@@ -101,62 +97,38 @@ public class QuartzInternalSchJob extends QuartzScheduleJob {
     }
 
     // TODO：对于类似参数错误的调度任务需要能检测出来，不能一直跑
-    private void startJob(InternalScheduleInfo internalSchInfo, DiscoveryClient discoverClient,
-            ScheduleClientFactory feignClientFactory, ScheduleDao scheduleDao, String exceptNode)
-            throws Exception {
-        List<ServiceInstance> nodes = discoverClient
-                .getInstances(internalSchInfo.getWorkerService());
-        if (nodes == null || nodes.size() <= 0) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
-                    "no instance for service:" + internalSchInfo.getWorkerService());
-        }
+    private void startJob(InternalScheduleInfo internalSchInfo,
+            ScmServiceDiscoveryClient discoverClient, ScheduleClientFactory feignClientFactory,
+            ScheduleDao scheduleDao, String exceptNode) throws Exception {
 
-        String preferRegion = internalSchInfo.getWorkerPreferRegion();
-        if (preferRegion == null) {
-            preferRegion = "";
-        }
-        String preferZone = internalSchInfo.getWorkerPreferZone();
-        if (preferZone == null) {
-            preferZone = "";
-        }
-
-        List<ServiceInstance> sameRegionIntances = new ArrayList<>();
-        List<ServiceInstance> sameZoneIntances = new ArrayList<>();
-        List<ServiceInstance> ortherIntances = new ArrayList<>();
-
-        for (ServiceInstance node : nodes) {
-            if (exceptNode != null && exceptNode.equals(node.getHost() + ":" + node.getPort())) {
-                continue;
-            }
-            Map<String, String> meta = node.getMetadata();
-            if (preferRegion.equals(meta.get("region"))) {
-                if (preferZone.equals(meta.get("zone"))) {
-                    sameZoneIntances.add(node);
-                }
-                else {
-                    sameRegionIntances.add(node);
-                }
-            }
-            else {
-                ortherIntances.add(node);
-            }
-        }
-        boolean isSuccess = false;
-        if (!sameZoneIntances.isEmpty()) {
-            isSuccess = startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao,
-                    sameZoneIntances);
-        }
-        else if (!sameRegionIntances.isEmpty()) {
-            isSuccess = startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao,
-                    sameRegionIntances);
-        }
-        else {
-            isSuccess = startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao,
-                    ortherIntances);
-        }
-        if (isSuccess) {
+        List<ScmServiceInstance> sameZoneInstances = discoverClient.getInstances(
+                internalSchInfo.getPreferredRegion(), internalSchInfo.getPreferredZone(),
+                internalSchInfo.getWorkerService());
+        if (startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao,
+                sameZoneInstances, exceptNode)) {
             return;
         }
+
+        List<ScmServiceInstance> sameRegionInstances = discoverClient.getInstances(
+                internalSchInfo.getPreferredRegion(), internalSchInfo.getWorkerService());
+        sameRegionInstances.removeAll(sameZoneInstances);
+        if (startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao,
+                sameRegionInstances, exceptNode)) {
+            return;
+        }
+
+        List<ScmServiceInstance> allInstance = discoverClient
+                .getInstances(internalSchInfo.getWorkerService());
+        allInstance.removeAll(sameRegionInstances);
+        if (startJobInSpecifyNodes(internalSchInfo, feignClientFactory, scheduleDao, allInstance,
+                exceptNode)) {
+            return;
+        }
+
+        logger.warn(
+                "no instance for start a job: schId={}, name={}, workerService={}, exceptWorkerInstance={}",
+                internalSchInfo.getId(), internalSchInfo.getName(),
+                internalSchInfo.getWorkerService(), exceptNode);
         updateWorker(scheduleDao, internalSchInfo.getId(), null, 0);
         internalSchInfo.setWorkerNode(null);
         internalSchInfo.setWorkerNodeStartTime(0);
@@ -164,9 +136,12 @@ public class QuartzInternalSchJob extends QuartzScheduleJob {
 
     private boolean startJobInSpecifyNodes(InternalScheduleInfo internalSchInfo,
             ScheduleClientFactory feignClientFactory, ScheduleDao scheduleDao,
-            List<ServiceInstance> nodes) throws Exception {
-        for (ServiceInstance node : nodes) {
+            List<ScmServiceInstance> nodes, String exceptNode) throws Exception {
+        for (ScmServiceInstance node : nodes) {
             String worker = node.getHost() + ":" + node.getPort();
+            if (worker.equals(exceptNode)) {
+                continue;
+            }
             long startTime = System.currentTimeMillis();
             updateWorker(scheduleDao, internalSchInfo.getId(), worker, startTime);
 

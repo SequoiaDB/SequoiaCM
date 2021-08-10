@@ -9,8 +9,6 @@ public class InternalScheduleInfo extends ScheduleJobInfo {
     private String jobType;
     private String workerService;
     private String workerNode;
-    private String workerPreferRegion;
-    private String workerPreferZone;
     private BSONObject jobData;
     private long workerNodeStartTime;
     private String name;
@@ -18,8 +16,8 @@ public class InternalScheduleInfo extends ScheduleJobInfo {
     private boolean stop;
 
     public InternalScheduleInfo(String id, String name, String type, String workspace,
-            BSONObject content, String cron) {
-        super(id, type, workspace, cron);
+            BSONObject content, String cron, String preferredRegion, String preferredZone) {
+        super(id, type, workspace, cron, preferredRegion, preferredZone);
         this.name = name;
         jobType = BsonUtils.getStringChecked(content, FieldName.Schedule.FIELD_INTERNAL_JOB_TYPE);
         workerService = BsonUtils.getStringChecked(content,
@@ -29,11 +27,16 @@ public class InternalScheduleInfo extends ScheduleJobInfo {
                 .getNumberOrElse(content, FieldName.Schedule.FIELD_INTERNAL_WORKER_START_TIME, 0)
                 .longValue();
         jobData = BsonUtils.getBSONChecked(content, FieldName.Schedule.FIELD_INTERNAL_JOB_DATA);
-        workerPreferRegion = BsonUtils.getString(content,
+        String workerPreferRegion = BsonUtils.getString(content,
                 FieldName.Schedule.FIELD_INTERNAL_WORKER_PREFER_REGION);
-        workerPreferZone = BsonUtils.getString(content,
+        if (getPreferredRegion() == null || getPreferredRegion().trim().length() == 0) {
+            setPreferredRegion(workerPreferRegion);
+        }
+        String workerPreferZone = BsonUtils.getString(content,
                 FieldName.Schedule.FIELD_INTERNAL_WORKER_PREFER_ZONE);
-
+        if (getPreferredZone() == null || getPreferredZone().trim().length() == 0) {
+            setPreferredZone(workerPreferZone);
+        }
     }
 
     public String getName() {
@@ -46,22 +49,6 @@ public class InternalScheduleInfo extends ScheduleJobInfo {
 
     public void setStop(boolean stop) {
         this.stop = stop;
-    }
-
-    public String getWorkerPreferRegion() {
-        return workerPreferRegion;
-    }
-
-    public String getWorkerPreferZone() {
-        return workerPreferZone;
-    }
-
-    public void setWorkerPreferRegion(String workerPreferRegion) {
-        this.workerPreferRegion = workerPreferRegion;
-    }
-
-    public void setWorkerPreferZone(String workerPreferZone) {
-        this.workerPreferZone = workerPreferZone;
     }
 
     public long getWorkerNodeStartTime() {
@@ -107,8 +94,8 @@ public class InternalScheduleInfo extends ScheduleJobInfo {
     @Override
     public String toString() {
         return "InternalScheduleInfo [jobType=" + jobType + ", workerService=" + workerService
-                + ", workerNode=" + workerNode + ", workerPreferRegion=" + workerPreferRegion
-                + ", workerPreferZone=" + workerPreferZone + ", jobData=" + jobData + ", getId()="
+                + ", workerNode=" + workerNode + ", workerPreferRegion=" + getPreferredRegion()
+                + ", workerPreferZone=" + getPreferredZone() + ", jobData=" + jobData + ", getId()="
                 + getId() + ", getType()=" + getType() + ", getWorkspace()=" + getWorkspace()
                 + ", getCron()=" + getCron() + "]";
     }

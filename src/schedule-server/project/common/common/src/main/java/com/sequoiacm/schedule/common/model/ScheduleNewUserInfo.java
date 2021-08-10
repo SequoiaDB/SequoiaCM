@@ -10,6 +10,8 @@ public class ScheduleNewUserInfo {
     protected BSONObject content;
     protected String cron;
     protected Boolean enable;
+    protected String preferredRegion;
+    protected String preferredZone;
 
     public String getName() {
         return name;
@@ -65,5 +67,21 @@ public class ScheduleNewUserInfo {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public String getPreferredZone() {
+        return preferredZone;
+    }
+
+    public void setPreferredZone(String preferredZone) {
+        this.preferredZone = preferredZone;
+    }
+
+    public String getPreferredRegion() {
+        return preferredRegion;
+    }
+
+    public void setPreferredRegion(String preferredRegion) {
+        this.preferredRegion = preferredRegion;
     }
 }

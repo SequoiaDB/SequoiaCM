@@ -1,29 +1,13 @@
 package com.sequoiacm.schedule;
 
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.Banner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.client.serviceregistry.Registration;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
-
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
+import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
@@ -36,20 +20,30 @@ import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
-import com.sequoiacm.schedule.dao.FileServerDao;
-import com.sequoiacm.schedule.dao.ScheduleDao;
-import com.sequoiacm.schedule.dao.SiteDao;
-import com.sequoiacm.schedule.dao.StrategyDao;
-import com.sequoiacm.schedule.dao.TaskDao;
-import com.sequoiacm.schedule.dao.WorkspaceDao;
+import com.sequoiacm.schedule.dao.*;
 import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.context.annotation.ComponentScan;
+
+import java.util.List;
 
 @SpringBootApplication
 @EnableScmPrivClient
 @EnableScmMonitorServer
 @EnableFeignClients("com.sequoiacm.cloud.security.privilege.impl")
-@EnableDiscoveryClient
+@EnableScmServiceDiscoveryClient
 @EnableAudit
 @EnableConfClient
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
@@ -91,7 +85,7 @@ public class ScheduleApplication implements ApplicationRunner {
     private Registration localInstance;
 
     @Autowired
-    private DiscoveryClient discoveryClient;
+    private ScmServiceDiscoveryClient discoveryClient;
 
     @Value("${server.port}")
     private int serverPort;
@@ -134,7 +128,7 @@ public class ScheduleApplication implements ApplicationRunner {
                 config.getSreverNodeHeartbeat()));
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
-                strategyDao);
+                strategyDao, discoveryClient);
         ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory, config, discoveryClient);
         ScheduleElector.getInstance().init(config.getZookeeperUrl(),
                 ScheduleDefine.SCHEDULE_ELETOR_PATH,

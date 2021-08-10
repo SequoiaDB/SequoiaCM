@@ -11,6 +11,8 @@ public class RestDefine {
         public static final String CONTENT = "content";
         public static final String CRON = "cron";
         public static final String CREATE_USER = "create_user";
+        public static final String PREFERRED_REGION = "preferred_region";
+        public static final String PREFERRED_ZONE = "preferred_zone";
         // long (ms)
         public static final String CREATE_TIME = "create_time";
         public static final String ENABLE = "enable";

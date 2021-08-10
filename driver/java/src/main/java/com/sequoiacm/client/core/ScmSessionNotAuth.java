@@ -4,8 +4,9 @@ import com.sequoiacm.client.exception.ScmException;
 
 class ScmSessionNotAuth extends ScmRestSession {
 
-    ScmSessionNotAuth(String url, ScmRequestConfig requestConfig) throws ScmException {
-        super(url, requestConfig);
+    ScmSessionNotAuth(String url, ScmRequestConfig requestConfig, String preferredRegion,
+            String preferredZone) throws ScmException {
+        super(url, requestConfig, preferredRegion, preferredZone);
     }
 
     @Override

@@ -9,6 +9,8 @@ import com.sequoiacm.client.exception.ScmException;
 
 abstract class ScmRestSession extends ScmSession {
     private static final Logger logger = LoggerFactory.getLogger(ScmRestSession.class);
+    private final String preferredRegion;
+    private final String preferredZone;
 
     protected MessageDispatcher dispatcher;
     private String url;
@@ -22,11 +24,13 @@ abstract class ScmRestSession extends ScmSession {
      *             if the user or the passwd is incorrect
      *
      */
-    ScmRestSession(String url, ScmRequestConfig requestConfig) throws ScmException {
+    ScmRestSession(String url, ScmRequestConfig requestConfig, String preferredRegion,
+            String preferredZone) throws ScmException {
         this.url = url;
-
         this.dispatcher = new RestDispatcher(url, requestConfig);
         this.closed = false;
+        this.preferredRegion = preferredRegion;
+        this.preferredZone = preferredZone;
     }
 
     @Override
@@ -73,5 +77,15 @@ abstract class ScmRestSession extends ScmSession {
     @Override
     public void resetSiteName(String siteName) {
         dispatcher.resetRemainUrl(siteName);
+    }
+
+    @Override
+    public String getPreferredRegion() {
+        return preferredRegion;
+    }
+
+    @Override
+    public String getPreferredZone() {
+        return preferredZone;
     }
 }

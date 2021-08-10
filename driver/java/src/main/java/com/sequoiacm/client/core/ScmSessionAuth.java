@@ -23,9 +23,9 @@ class ScmSessionAuth extends ScmRestSession {
      *             if the user or the passwd is incorrect
      *
      */
-    public ScmSessionAuth(String url, String user, String passwd, ScmRequestConfig requestConfig)
-            throws ScmException {
-        super(url, requestConfig);
+    public ScmSessionAuth(String url, String user, String passwd, ScmRequestConfig requestConfig,
+            String preferredRegion, String preferredZone) throws ScmException {
+        super(url, requestConfig, preferredRegion, preferredZone);
         if (user == null) {
             throw new ScmInvalidArgumentException("user is null");
         }

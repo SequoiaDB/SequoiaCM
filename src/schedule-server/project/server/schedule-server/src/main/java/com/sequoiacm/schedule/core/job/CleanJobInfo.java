@@ -21,16 +21,16 @@ public class CleanJobInfo extends ScheduleJobInfo {
     private int scope;
     private long maxExecTime;
 
-    public CleanJobInfo(String id, String type, String workspace, BSONObject content, String cron)
-            throws ScheduleException {
-        super(id, type, workspace, cron);
+    public CleanJobInfo(String id, String type, String workspace, BSONObject content, String cron,
+            String preferredRegion, String preferredZone) throws ScheduleException {
+        super(id, type, workspace, cron, preferredRegion, preferredZone);
         checkAndParse(ScheduleServer.getInstance(), id, type, workspace, content, cron);
     }
 
     public CleanJobInfo(String id, String type, String workspace, int siteId, String siteName,
-            int days, BSONObject extraCondition, String cron, int scope, long maxExecTime)
-            throws ScheduleException {
-        super(id, type, workspace, cron);
+            int days, BSONObject extraCondition, String cron, int scope, long maxExecTime,
+            String preferredRegion, String preferredZone) throws ScheduleException {
+        super(id, type, workspace, cron, preferredRegion, preferredZone);
         this.days = days;
         this.siteId = siteId;
         this.siteName = siteName;
@@ -67,7 +67,7 @@ public class CleanJobInfo extends ScheduleJobInfo {
                             + siteName);
         }
         siteId = siteEntity.getId();
-        
+
         // check site
         ScheduleStrategyMgr.getInstance().checkCleanSite(wsInfo, siteId);
 
@@ -81,11 +81,12 @@ public class CleanJobInfo extends ScheduleJobInfo {
         if (null == extraCondition) {
             extraCondition = new BasicBSONObject();
         }
-        
-        if(content.containsField(FieldName.Schedule.FIELD_SCOPE)){
+
+        if (content.containsField(FieldName.Schedule.FIELD_SCOPE)) {
             scope = (int) content.get(FieldName.Schedule.FIELD_SCOPE);
             checkCondition(scope, extraCondition);
-        }else {
+        }
+        else {
             scope = ScheduleDefine.ScopeType.CURRENT;
         }
 
@@ -111,9 +112,9 @@ public class CleanJobInfo extends ScheduleJobInfo {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("id:").append(getId()).append(",").append("type:").append(getType()).append(",")
-        .append("workspace:").append(getWorkspace()).append(",").append("cron:")
-        .append(getCron()).append(",").append("siteName:").append(getSiteName())
-        .append(",").append("siteId:").append(getSiteId());
+                .append("workspace:").append(getWorkspace()).append(",").append("cron:")
+                .append(getCron()).append(",").append("siteName:").append(getSiteName()).append(",")
+                .append("siteId:").append(getSiteId());
 
         return sb.toString();
     }

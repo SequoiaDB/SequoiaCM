@@ -81,6 +81,9 @@ public class FieldName {
         // bson
         public static final String FIELD_EXTRA_CONDITION = "extra_condition";
 
+        public static final String FIELD_PREFERRED_REGION = "preferred_region";
+        public static final String FIELD_PREFERRED_ZONE = "preferred_zone";
+
         // ***************** clean job *****************
         public static final String FIELD_CLEAN_SITE = "site";
         // for inner use

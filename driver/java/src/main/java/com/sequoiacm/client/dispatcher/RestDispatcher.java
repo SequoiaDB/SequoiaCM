@@ -1317,7 +1317,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
-            BSONObject content, String cron, boolean enable) throws ScmException {
+            BSONObject content, String cron, boolean enable, String preferredRegion, String preferredZone) throws ScmException {
         String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE;
         HttpPost request = new HttpPost(uri);
 
@@ -1329,6 +1329,8 @@ public class RestDispatcher implements MessageDispatcher {
         obj.put(RestDefine.RestKey.CONTENT, content);
         obj.put(RestDefine.RestKey.CRON, cron);
         obj.put(RestDefine.RestKey.ENABLE, enable);
+        obj.put(RestDefine.RestKey.PREFERRED_REGION, preferredRegion);
+        obj.put(RestDefine.RestKey.PREFERRED_ZONE, preferredZone);
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(RestDefine.RestKey.DESCRIPTION, obj.toString()));

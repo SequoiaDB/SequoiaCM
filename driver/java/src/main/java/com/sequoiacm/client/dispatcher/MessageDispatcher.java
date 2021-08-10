@@ -187,7 +187,7 @@ public interface MessageDispatcher extends Closeable {
     String getPath(String workspaceName, String dirId) throws ScmException;
 
     BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
-            BSONObject content, String cron, boolean enable) throws ScmException;
+            BSONObject content, String cron, boolean enable, String preferredRegion, String preferredZone) throws ScmException;
 
     BsonReader getScheduleList(BSONObject condition) throws ScmException;
 

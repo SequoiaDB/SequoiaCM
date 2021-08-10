@@ -1,26 +1,11 @@
 package com.sequoiacm.client.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
 import com.sequoiacm.client.dispatcher.BsonReader;
-import com.sequoiacm.client.element.ScmConfigProperties;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmProcessInfo;
-import com.sequoiacm.client.element.ScmScheduleBasicInfo;
-import com.sequoiacm.client.element.ScmScheduleContent;
-import com.sequoiacm.client.element.ScmServiceInstance;
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
-import com.sequoiacm.client.element.ScmUpdateConfResultSet;
+import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.BsonConverter;
@@ -29,6 +14,12 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.common.ScmArgChecker;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provide ScmSystem operations.
@@ -66,12 +57,12 @@ public class ScmSystem {
          * Reload business configuration
          *
          * @param scope
-         *            the scope as below ScmType.ServerScope.NODE :reload
-         *            specify id of node ScmType.ServerScope.CENTER:reload
-         *            specify id of site ScmType.ServerScope.ALL:reload all node
+         *            the scope as below ScmType.ServerScope.NODE :reload specify id of
+         *            node ScmType.ServerScope.CENTER:reload specify id of site
+         *            ScmType.ServerScope.ALL:reload all node
          * @param id
-         *            specify the id of node,if the scope is
-         *            ScmType.ServerScope.ALL,id is useless
+         *            specify the id of node,if the scope is ScmType.ServerScope.ALL,id
+         *            is useless
          * @param session
          *            session for request.
          *
@@ -233,15 +224,15 @@ public class ScmSystem {
          *            skip the the specified amount of tasks, never skip if this
          *            parameter is 0.
          * @param limit
-         *            return the specified amount of tasks, when limit is -1,
-         *            return all the files.
+         *            return the specified amount of tasks, when limit is -1, return all
+         *            the files.
          * @return task cursor for traverse
          * @throws ScmException
          *             If error happens.
          * @since 3.1
          */
-        public static ScmCursor<ScmTaskBasicInfo> listTask(ScmSession ss, BSONObject condition, BSONObject orderby,
-                long skip, long limit) throws ScmException {
+        public static ScmCursor<ScmTaskBasicInfo> listTask(ScmSession ss, BSONObject condition,
+                BSONObject orderby, long skip, long limit) throws ScmException {
             if (null == ss) {
                 throw new ScmInvalidArgumentException("session is null");
             }
@@ -254,7 +245,8 @@ public class ScmSystem {
                 throw new ScmInvalidArgumentException("orderby is null");
             }
 
-            BsonReader reader = ss.getDispatcher().getTaskList(condition, orderby, null, skip, limit);
+            BsonReader reader = ss.getDispatcher().getTaskList(condition, orderby, null, skip,
+                    limit);
             ScmCursor<ScmTaskBasicInfo> cursor = new ScmBsonCursor<ScmTaskBasicInfo>(reader,
                     new BsonConverter<ScmTaskBasicInfo>() {
                         @Override
@@ -523,34 +515,6 @@ public class ScmSystem {
             super();
         }
 
-        private static void checkCreateParam(ScmSession ss, String workspace, ScheduleType type,
-                String name, String desc, ScmScheduleContent content, String cron)
-                throws ScmException {
-            if (null == ss) {
-                throw new ScmInvalidArgumentException("session is null");
-            }
-
-            if (null == workspace) {
-                throw new ScmInvalidArgumentException("workspace is null");
-            }
-
-            if (null == type) {
-                throw new ScmInvalidArgumentException("type is null");
-            }
-
-            if (null == name) {
-                throw new ScmInvalidArgumentException("name is null");
-            }
-
-            if (null == content) {
-                throw new ScmInvalidArgumentException("content is null");
-            }
-
-            if (null == cron) {
-                throw new ScmInvalidArgumentException("cron is null");
-            }
-        }
-
         /**
          * Create a schedule with specified args.
          *
@@ -604,12 +568,20 @@ public class ScmSystem {
         public static ScmSchedule create(ScmSession ss, String workspace, ScheduleType type,
                 String name, String desc, ScmScheduleContent content, String cron, boolean enable)
                 throws ScmException {
-            checkCreateParam(ss, workspace, type, name, desc, content, cron);
+            return new ScmScheduleBuilder(ss).workspace(workspace).name(name).content(content)
+                    .cron(cron).description(desc).type(type).enable(enable).build();
+        }
 
-            BSONObject contentObj = content.toBSONObject();
-            BSONObject scheduleInfo = ss.getDispatcher().createSchedule(workspace, type, name, desc,
-                    contentObj, cron, enable);
-            return new ScmScheduleImpl(ss, scheduleInfo);
+        /**
+         * Create a schedule builder instance.
+         * 
+         * @param ss session.
+         * @return schedule builder instance for create a schedule.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmScheduleBuilder scheduleBuilder(ScmSession ss) throws ScmException {
+            return new ScmScheduleBuilder(ss);
         }
 
         private static void checkListParam(ScmSession ss, BSONObject condition)

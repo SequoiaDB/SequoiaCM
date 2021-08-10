@@ -49,10 +49,10 @@ public class ScheduleServiceClient {
         sch.setName(schName);
         sch.setType(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE);
         sch.setWorkspace(jobData.getWs());
+        sch.setPreferredZone(localZone);
+        sch.setPreferredRegion(localRegion);
         BSONObject content = new BasicBSONObject();
         content.put(FieldName.Schedule.FIELD_INTERNAL_JOB_TYPE, jobTyp.name());
-        content.put(FieldName.Schedule.FIELD_INTERNAL_WORKER_PREFER_REGION, localRegion);
-        content.put(FieldName.Schedule.FIELD_INTERNAL_WORKER_PREFER_ZONE, localZone);
         content.put(FieldName.Schedule.FIELD_INTERNAL_WORKER_SERVICE, "fulltext-server");
         content.put(FieldName.Schedule.FIELD_INTERNAL_JOB_DATA, jobData.toBSON());
         sch.setContent(content);

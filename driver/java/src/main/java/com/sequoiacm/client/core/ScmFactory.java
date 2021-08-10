@@ -1246,7 +1246,7 @@ public class ScmFactory {
             List<String> urls = urlConfig.getUrl(region, zone);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config);
+                    return randomAccess(type, urls, config, region, zone);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1264,7 +1264,7 @@ public class ScmFactory {
             urls = urlConfig.getUrlsIncludeRegionExcludeZone(region, zone);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config);
+                    return randomAccess(type, urls, config, region, zone);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1282,7 +1282,7 @@ public class ScmFactory {
             urls = urlConfig.getUrlExclude(region);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config);
+                    return randomAccess(type, urls, config, region, zone);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1303,7 +1303,8 @@ public class ScmFactory {
         }
 
         private static ScmSession randomAccess(SessionType type, List<String> urls,
-                ScmConfigOption config) throws ScmException {
+                ScmConfigOption config, String preferredRegion, String preferredZone)
+                throws ScmException {
             List<String> urlsTmp = urls;
             boolean isNeedReplace = true;
             ScmException lastException = null;
@@ -1312,10 +1313,12 @@ public class ScmFactory {
                 try {
                     if (type == SessionType.AUTH_SESSION) {
                         return new ScmSessionAuth(urlsTmp.get(index), config.getUser(),
-                                config.getPasswd(), config.getRequestConfig());
+                                config.getPasswd(), config.getRequestConfig(), preferredRegion,
+                                preferredZone);
                     }
                     else {
-                        return new ScmSessionNotAuth(urlsTmp.get(index), config.getRequestConfig());
+                        return new ScmSessionNotAuth(urlsTmp.get(index), config.getRequestConfig(),
+                                preferredRegion, preferredZone);
                     }
                 }
                 catch (ScmException e) {

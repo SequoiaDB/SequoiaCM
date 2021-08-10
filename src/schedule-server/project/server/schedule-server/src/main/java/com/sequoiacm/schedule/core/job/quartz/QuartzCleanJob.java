@@ -1,15 +1,5 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
-import java.util.Date;
-import java.util.concurrent.locks.Lock;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.quartz.JobExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
@@ -25,6 +15,15 @@ import com.sequoiacm.schedule.entity.FileServerEntity;
 import com.sequoiacm.schedule.entity.TaskEntity;
 import com.sequoiacm.schedule.remote.ScheduleClient;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.quartz.JobExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.concurrent.locks.Lock;
 
 public class QuartzCleanJob extends QuartzScheduleJob {
     private static final Logger logger = LoggerFactory.getLogger(QuartzCleanJob.class);
@@ -38,7 +37,8 @@ public class QuartzCleanJob extends QuartzScheduleJob {
                 cInfo.getSiteName(), cInfo.getSiteId(), cInfo.getExtraCondtion(), cInfo.getCron(),
                 cInfo.getScope(), cInfo.getMaxExecTime());
 
-        FileServerEntity s = ScheduleServer.getInstance().getRandomServer(cInfo.getSiteId());
+        FileServerEntity s = ScheduleServer.getInstance().getRandomServer(cInfo.getSiteId(), info.getPreferredRegion(), info.getPreferredZone());
+
         if (null == s) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
                     "server is not exist in site:site=" + cInfo.getSiteName() + ",site_id="

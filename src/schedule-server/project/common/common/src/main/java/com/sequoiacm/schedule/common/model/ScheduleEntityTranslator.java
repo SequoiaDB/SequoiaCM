@@ -1,32 +1,32 @@
 package com.sequoiacm.schedule.common.model;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class ScheduleEntityTranslator {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleEntityTranslator.class);
 
     public static void main(String[] args) {
-        BSONObject content = new BasicBSONObject();
-        content.put("job_type", "fulltext_index");
-        content.put("worker", "fulltext-server");
-        content.put("job_data", "full text file matcher");
-
-        ScheduleFullEntity info = new ScheduleFullEntity("id", "name", "desc", "schType", "ws1",
-                content, "", true, "", System.currentTimeMillis());
-        BSONObject b = FullInfo.toBSONObject(info);
-        System.out.println(b);
+        // BSONObject content = new BasicBSONObject();
+        // content.put("job_type", "fulltext_index");
+        // content.put("worker", "fulltext-server");
+        // content.put("job_data", "full text file matcher");
+        //
+        // ScheduleFullEntity info = new ScheduleFullEntity("id", "name", "desc",
+        // "schType", "ws1",
+        // content, "", true, "", System.currentTimeMillis());
+        // BSONObject b = FullInfo.toBSONObject(info);
+        // System.out.println(b);
     }
 
     public static class Status {
@@ -56,12 +56,10 @@ public class ScheduleEntityTranslator {
     public static class FullInfo {
         public static ScheduleFullEntity fromUserInfo(ScheduleUserEntity userInfo, String id,
                 String user, long createTime) {
-            ScheduleFullEntity fullInfo = new ScheduleFullEntity(id, userInfo.getName(),
-                    userInfo.getDesc(), userInfo.getType(), userInfo.getWorkspace(),
-                    userInfo.getContent(), userInfo.getCron(), userInfo.isEnable(), user,
-                    createTime);
-
-            return fullInfo;
+            return new ScheduleFullEntity(id, userInfo.getName(), userInfo.getDesc(),
+                    userInfo.getType(), userInfo.getWorkspace(), userInfo.getContent(),
+                    userInfo.getCron(), userInfo.isEnable(), user, createTime,
+                    userInfo.getPreferredRegion(), userInfo.getPreferredZone());
         }
 
         public static BSONObject toBSONObject(ScheduleFullEntity info) {
@@ -76,6 +74,8 @@ public class ScheduleEntityTranslator {
             obj.put(FieldName.Schedule.FIELD_CREATE_USER, info.getCreate_user());
             obj.put(FieldName.Schedule.FIELD_CREATE_TIME, info.getCreate_time());
             obj.put(FieldName.Schedule.FIELD_ENABLE, info.isEnable());
+            obj.put(FieldName.Schedule.FIELD_PREFERRED_REGION, info.getPreferredRegion());
+            obj.put(FieldName.Schedule.FIELD_PREFERRED_ZONE, info.getPreferredZone());
             return obj;
         }
 
@@ -95,6 +95,10 @@ public class ScheduleEntityTranslator {
                 if (enable != null) {
                     info.setEnable((boolean) enable);
                 }
+                info.setPreferredZone(
+                        BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
+                info.setPreferredRegion(
+                        BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
             }
             catch (Exception e) {
                 logger.error("translate BSONObject to ScheduleFullInfo failed:obj={}", obj);
@@ -118,6 +122,8 @@ public class ScheduleEntityTranslator {
             info.setType((String) obj.get(FieldName.Schedule.FIELD_TYPE));
             info.setWorkspace((String) obj.get(FieldName.Schedule.FIELD_WORKSPACE));
             info.setEnable((Boolean) obj.get(FieldName.Schedule.FIELD_ENABLE));
+            info.setPreferredRegion(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
+            info.setPreferredZone(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
             return info;
         }
     }
@@ -152,6 +158,11 @@ public class ScheduleEntityTranslator {
                 if (enable != null) {
                     info.setEnable((boolean) enable);
                 }
+
+                info.setPreferredRegion(
+                        BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
+                info.setPreferredZone(
+                        BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
             }
             catch (Exception e) {
                 logger.error("translate BSONObject to ScheduleUserEntity failed:obj={}", obj);

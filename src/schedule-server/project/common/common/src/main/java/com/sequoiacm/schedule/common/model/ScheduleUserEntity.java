@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.common.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BSONObject;
 
 import com.sequoiacm.schedule.common.FieldName;
@@ -13,12 +14,17 @@ public class ScheduleUserEntity {
     protected BSONObject content;
     protected String cron;
     protected boolean enable = true;
+    @JsonProperty(Schedule.FIELD_PREFERRED_REGION)
+    protected String preferredRegion;
+    @JsonProperty(Schedule.FIELD_PREFERRED_ZONE)
+    protected String preferredZone;
 
     public ScheduleUserEntity() {
     }
 
     public ScheduleUserEntity(String name, String desc, String type, String workspace,
-            BSONObject content, String cron, boolean enable) {
+            BSONObject content, String cron, boolean enable, String preferredRegion,
+            String preferredZone) {
         this.name = name;
         this.desc = desc;
         this.type = type;
@@ -26,6 +32,8 @@ public class ScheduleUserEntity {
         this.content = content;
         this.cron = cron;
         this.enable = enable;
+        this.preferredRegion = preferredRegion;
+        this.preferredZone = preferredZone;
     }
 
     public String getName() {
@@ -84,6 +92,22 @@ public class ScheduleUserEntity {
         this.enable = enable;
     }
 
+    public String getPreferredRegion() {
+        return preferredRegion;
+    }
+
+    public void setPreferredRegion(String preferredRegion) {
+        this.preferredRegion = preferredRegion;
+    }
+
+    public String getPreferredZone() {
+        return preferredZone;
+    }
+
+    public void setPreferredZone(String preferredZone) {
+        this.preferredZone = preferredZone;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -93,7 +117,9 @@ public class ScheduleUserEntity {
                 .append(FieldName.Schedule.FIELD_WORKSPACE).append(":").append(workspace)
                 .append(",").append(FieldName.Schedule.FIELD_CONTENT).append(":").append(content)
                 .append(",").append(FieldName.Schedule.FIELD_CRON).append(":").append(cron)
-                .append(",").append(FieldName.Schedule.FIELD_ENABLE).append(":").append(enable);
+                .append(",").append(FieldName.Schedule.FIELD_ENABLE).append(":").append(enable)
+                .append(",").append(Schedule.FIELD_PREFERRED_REGION).append(":").append(preferredRegion)
+                .append(",").append(Schedule.FIELD_PREFERRED_ZONE).append(":").append(preferredZone);
 
         return sb.toString();
     }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -17,7 +18,6 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
@@ -42,12 +42,12 @@ public class QuartzScheduleMgr implements ScheduleMgr {
 
     private ScheduleClientFactory feignClientFactory;
 
-    private DiscoveryClient discoveryClient;
+    private ScmServiceDiscoveryClient discoveryClient;
 
     private ScheduleDao scheduleDao;
 
     public QuartzScheduleMgr(ScheduleApplicationConfig config, ScheduleClientFactory clientFactory,
-            DiscoveryClient discoveryClient, ScheduleDao scheduleDao) throws Exception {
+            ScmServiceDiscoveryClient discoveryClient, ScheduleDao scheduleDao) throws Exception {
         sch = StdSchedulerFactory.getDefaultScheduler();
         this.config = config;
         this.discoveryClient = discoveryClient;

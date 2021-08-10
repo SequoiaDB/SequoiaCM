@@ -4,8 +4,7 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.schedule.common.FieldName;
 
-public class ScheduleFullEntity {
-    private ScheduleUserEntity userInfo = new ScheduleUserEntity();
+public class ScheduleFullEntity extends ScheduleUserEntity {
     private String id;
     private String create_user;
     private long create_time;
@@ -15,73 +14,11 @@ public class ScheduleFullEntity {
 
     public ScheduleFullEntity(String scheduleId, String name, String desc, String type,
             String workspace, BSONObject content, String cron, boolean enable, String createUser,
-            long createTime) {
+            long createTime, String preferredRegion, String preferredZone) {
+        super(name, desc, type, workspace, content, cron, enable, preferredRegion, preferredZone);
         this.id = scheduleId;
-        setName(name);
-        setDesc(desc);
-        setType(type);
-        setWorkspace(workspace);
-        setContent(content);
-        setCron(cron);
-        setEnable(enable);
         this.create_user = createUser;
         this.create_time = createTime;
-    }
-
-    public void setEnable(boolean enable) {
-        this.userInfo.setEnable(enable);
-    }
-
-    public boolean isEnable() {
-        return this.userInfo.isEnable();
-    }
-
-    public String getName() {
-        return this.userInfo.getName();
-    }
-
-    public void setName(String name) {
-        this.userInfo.setName(name);
-    }
-
-    public String getDesc() {
-        return this.userInfo.getDesc();
-    }
-
-    public void setDesc(String desc) {
-        this.userInfo.setDesc(desc);
-    }
-
-    public String getType() {
-        return this.userInfo.getType();
-    }
-
-    public void setType(String type) {
-        this.userInfo.setType(type);
-    }
-
-    public String getWorkspace() {
-        return this.userInfo.getWorkspace();
-    }
-
-    public void setWorkspace(String workspace) {
-        this.userInfo.setWorkspace(workspace);
-    }
-
-    public BSONObject getContent() {
-        return this.userInfo.getContent();
-    }
-
-    public void setContent(BSONObject content) {
-        this.userInfo.setContent(content);
-    }
-
-    public String getCron() {
-        return this.userInfo.getCron();
-    }
-
-    public void setCron(String cron) {
-        this.userInfo.setCron(cron);
     }
 
     public String getCreate_user() {
@@ -111,7 +48,6 @@ public class ScheduleFullEntity {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
         sb.append(FieldName.Schedule.FIELD_ID).append(":").append(getId()).append(",")
                 .append(FieldName.Schedule.FIELD_NAME).append(":").append(getName()).append(",")
                 .append(FieldName.Schedule.FIELD_DESC).append(":").append(getDesc()).append(",")
@@ -122,8 +58,11 @@ public class ScheduleFullEntity {
                 .append(getCron()).append(",").append(FieldName.Schedule.FIELD_CREATE_USER)
                 .append(":").append(getCreate_user()).append(",")
                 .append(FieldName.Schedule.FIELD_CREATE_TIME).append(":").append(getCreate_time())
-                .append(",").append(FieldName.Schedule.FIELD_ENABLE).append(":").append(isEnable());
-
+                .append(",").append(FieldName.Schedule.FIELD_ENABLE).append(":").append(isEnable())
+                .append(",").append(FieldName.Schedule.FIELD_PREFERRED_REGION).append(":")
+                .append(getPreferredRegion()).append(",")
+                .append(FieldName.Schedule.FIELD_PREFERRED_ZONE).append(":")
+                .append(getPreferredZone());
         return sb.toString();
     }
 
@@ -140,6 +79,8 @@ public class ScheduleFullEntity {
         newInfo.setType(this.getType());
         newInfo.setWorkspace(this.getWorkspace());
         newInfo.setEnable(this.isEnable());
+        newInfo.setPreferredRegion(this.preferredRegion);
+        newInfo.setPreferredZone(this.preferredZone);
         return newInfo;
 
     }

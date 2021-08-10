@@ -1,5 +1,6 @@
 package com.sequoiacm.client.element;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.RestDefine;
@@ -18,6 +19,8 @@ public class ScmScheduleBasicInfo {
     private String cron;
     private ScheduleType type;
     private boolean enable = true;
+    private String preferredRegion;
+    private String preferredZone;
 
     /**
      * Create a instance of ScmScheduleBasicInfo.
@@ -63,6 +66,9 @@ public class ScmScheduleBasicInfo {
         if (null != temp) {
             setEnable((Boolean) temp);
         }
+
+        setPreferredRegion(BsonUtils.getString(info, RestDefine.RestKey.PREFERRED_REGION));
+        setPreferredZone(BsonUtils.getString(info, RestDefine.RestKey.PREFERRED_ZONE));
     }
 
     /**
@@ -198,6 +204,44 @@ public class ScmScheduleBasicInfo {
         this.enable = enable;
     }
 
+    /**
+     * Sets preferred region, for internal use.
+     * 
+     * @param preferredRegion
+     *            region name.
+     */
+    public void setPreferredRegion(String preferredRegion) {
+        this.preferredRegion = preferredRegion;
+    }
+
+    /**
+     * Gets preferred region.
+     * 
+     * @return region name.
+     */
+    public String getPreferredRegion() {
+        return preferredRegion;
+    }
+
+    /**
+     * Sets preferred zone, for internal use.
+     * 
+     * @param preferredZone
+     *            zone name.
+     */
+    public void setPreferredZone(String preferredZone) {
+        this.preferredZone = preferredZone;
+    }
+
+    /**
+     * Gets preferred zone.
+     * 
+     * @return zone name.
+     */
+    public String getPreferredZone() {
+        return preferredZone;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -206,7 +250,10 @@ public class ScmScheduleBasicInfo {
                 .append(ScmAttributeName.Schedule.TYPE).append(":").append(type).append(",")
                 .append(ScmAttributeName.Schedule.DESC).append(":").append(desc).append(",")
                 .append(ScmAttributeName.Schedule.DESC).append(":").append(cron).append(",")
-                .append(ScmAttributeName.Schedule.ENABLE).append(":").append(enable);
+                .append(ScmAttributeName.Schedule.ENABLE).append(":").append(enable)
+                .append(ScmAttributeName.Schedule.PREFERRED_REGION).append(":")
+                .append(preferredRegion).append(ScmAttributeName.Schedule.PREFERRED_ZONE)
+                .append(":").append(preferredZone);
         return sb.toString();
     }
 }

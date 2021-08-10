@@ -1,37 +1,27 @@
 package com.sequoiacm.schedule.core;
 
-import java.util.Date;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.model.ScheduleEntityTranslator;
-import com.sequoiacm.schedule.common.model.ScheduleException;
-import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
-import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
-import com.sequoiacm.schedule.common.model.ScheduleUserEntity;
+import com.sequoiacm.schedule.common.model.*;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
-import com.sequoiacm.schedule.core.job.CleanJobInfo;
-import com.sequoiacm.schedule.core.job.CopyJobInfo;
-import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
-import com.sequoiacm.schedule.core.job.SchJobCreateContext;
-import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
-import com.sequoiacm.schedule.core.job.ScheduleMgr;
+import com.sequoiacm.schedule.core.job.*;
 import com.sequoiacm.schedule.core.job.quartz.QuartzScheduleMgr;
 import com.sequoiacm.schedule.dao.ScheduleDao;
 import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ScheduleMgrWrapper {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleMgrWrapper.class);
@@ -48,7 +38,7 @@ public class ScheduleMgrWrapper {
 
     private ScheduleApplicationConfig config;
 
-    private DiscoveryClient discoveryClient;
+    private ScmServiceDiscoveryClient discoveryClient;
 
     private ScheduleMgrWrapper() {
     }
@@ -58,7 +48,7 @@ public class ScheduleMgrWrapper {
     }
 
     public void init(ScheduleDao scheduleDao, ScheduleClientFactory clientFactory,
-            ScheduleApplicationConfig config, DiscoveryClient discoveryClient) {
+            ScheduleApplicationConfig config, ScmServiceDiscoveryClient discoveryClient) {
         this.scheduleDao = scheduleDao;
         this.clientFactory = clientFactory;
         this.config = config;
@@ -102,15 +92,18 @@ public class ScheduleMgrWrapper {
         ScheduleJobInfo jobInfo = null;
         if (info.getType().equals(ScheduleDefine.ScheduleType.CLEAN_FILE)) {
             jobInfo = new CleanJobInfo(info.getId(), info.getType(), info.getWorkspace(),
-                    info.getContent(), info.getCron());
+                    info.getContent(), info.getCron(), info.getPreferredRegion(),
+                    info.getPreferredZone());
         }
         else if (info.getType().equals(ScheduleDefine.ScheduleType.COPY_FILE)) {
             jobInfo = new CopyJobInfo(info.getId(), info.getType(), info.getWorkspace(),
-                    info.getContent(), info.getCron());
+                    info.getContent(), info.getCron(), info.getPreferredRegion(),
+                    info.getPreferredZone());
         }
         else if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
             jobInfo = new InternalScheduleInfo(info.getId(), info.getName(), info.getType(),
-                    info.getWorkspace(), info.getContent(), info.getCron());
+                    info.getWorkspace(), info.getContent(), info.getCron(),
+                    info.getPreferredRegion(), info.getPreferredZone());
         }
         else {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
@@ -135,14 +128,14 @@ public class ScheduleMgrWrapper {
                 throw new Exception("mgr is null");
             }
 
-            SchJobCreateContext contex = mgr.prepareCreateJob(jobInfo);
+            SchJobCreateContext context = mgr.prepareCreateJob(jobInfo);
 
             // 先入库，防止任务跑起来找不到记录
             scheduleDao.insert(info);
 
             if (info.isEnable()) {
                 try {
-                    mgr.createJob(contex);
+                    mgr.createJob(context);
                 }
                 catch (Exception e) {
                     logger.error("failed to create schedule job, revote now:{}", jobInfo, e);
@@ -371,6 +364,17 @@ public class ScheduleMgrWrapper {
             newFullInfo.setEnable(newInfo.isEnable());
             newValue.put(FieldName.Schedule.FIELD_ENABLE, newInfo.isEnable());
         }
+
+        if (null != newInfo.getPreferredRegion()) {
+            newFullInfo.setPreferredRegion(newInfo.getPreferredRegion());
+            newValue.put(FieldName.Schedule.FIELD_PREFERRED_REGION, newInfo.getPreferredRegion());
+        }
+
+        if (null != newInfo.getPreferredZone()) {
+            newFullInfo.setPreferredZone(newInfo.getPreferredZone());
+            newValue.put(FieldName.Schedule.FIELD_PREFERRED_ZONE, newInfo.getPreferredZone());
+        }
+
         return newFullInfo;
     }
 

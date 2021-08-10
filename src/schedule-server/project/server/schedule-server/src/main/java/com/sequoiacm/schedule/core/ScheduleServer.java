@@ -1,33 +1,21 @@
 package com.sequoiacm.schedule.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import com.sequoiacm.infrastructure.common.NetUtil;
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
+import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.core.meta.*;
+import com.sequoiacm.schedule.dao.*;
+import com.sequoiacm.schedule.entity.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.schedule.common.FieldName;
-import com.sequoiacm.schedule.core.meta.NodeMgr;
-import com.sequoiacm.schedule.core.meta.SiteInfo;
-import com.sequoiacm.schedule.core.meta.SiteMgr;
-import com.sequoiacm.schedule.core.meta.WorkspaceInfo;
-import com.sequoiacm.schedule.core.meta.WorkspaceMgr;
-import com.sequoiacm.schedule.dao.FileServerDao;
-import com.sequoiacm.schedule.dao.SiteDao;
-import com.sequoiacm.schedule.dao.StrategyDao;
-import com.sequoiacm.schedule.dao.TaskDao;
-import com.sequoiacm.schedule.dao.WorkspaceDao;
-import com.sequoiacm.schedule.entity.ConfigEntityTranslator;
-import com.sequoiacm.schedule.entity.FileServerEntity;
-import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
-import com.sequoiacm.schedule.entity.SiteEntity;
-import com.sequoiacm.schedule.entity.TaskEntity;
-import com.sequoiacm.schedule.entity.WorkspaceEntity;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ScheduleServer {
     private static Logger logger = LoggerFactory.getLogger(ScheduleServer.class);
@@ -42,6 +30,7 @@ public class ScheduleServer {
     private WorkspaceMgr workspaceMgr = new WorkspaceMgr();
     private SiteMgr siteMgr = new SiteMgr();
     private NodeMgr nodeMgr = new NodeMgr();
+    private ScmServiceDiscoveryClient discoveryClient;
 
     private ScheduleServer() {
     }
@@ -51,12 +40,14 @@ public class ScheduleServer {
     }
 
     public void init(SiteDao siteDao, WorkspaceDao workspaceDao, FileServerDao fileServerDao,
-            TaskDao taskDao, StrategyDao strategyDao) throws Exception {
+            TaskDao taskDao, StrategyDao strategyDao, ScmServiceDiscoveryClient discoveryClient)
+            throws Exception {
         this.workspaceDao = workspaceDao;
         this.fileServerDao = fileServerDao;
         this.siteDao = siteDao;
         this.taskDao = taskDao;
         this.strategyDao = strategyDao;
+        this.discoveryClient = discoveryClient;
         initSiteMgr();
         initWorkspaceMgr();
         initServerNodeMgr();
@@ -153,20 +144,38 @@ public class ScheduleServer {
         return workspaceMgr.getWsInfo(wsName);
     }
 
-    public FileServerEntity getRandomServer(int siteId) {
+    public FileServerEntity getRandomServer(int siteId, String preferredRegion,
+            String preferredZone) {
         SiteInfo siteInfo = siteMgr.getSite(siteId);
         if (null == siteInfo) {
+            logger.warn("site not found: siteId={}", siteId);
             return null;
         }
 
-        List<FileServerEntity> serverList = siteInfo.getServers();
-        if (null == serverList || serverList.size() == 0) {
+        ScmServiceInstance node = discoveryClient.choseInstance(preferredRegion, preferredZone,
+                siteInfo.getName());
+        if (node == null) {
+            logger.warn("contentserver not found in service center: site={}", siteInfo.getName());
             return null;
         }
+        for (FileServerEntity server : siteInfo.getServers()) {
+            if (node.getPort() != server.getPort()) {
+                continue;
+            }
+            try {
+                if (NetUtil.isSameHost(server.getHostName(), node.getHost())) {
+                    return server;
+                }
+            }
+            catch (Exception e) {
+                logger.warn("failed to compare server address: {} , {}", server.getHostName(),
+                        node.getHost(), e);
+            }
+        }
+        logger.warn("contentserver not found: site={}, host={}, port={}", siteInfo.getName(),
+                node.getHost(), node.getPort());
 
-        Random r = new Random();
-        int idx = r.nextInt(serverList.size());
-        return serverList.get(idx);
+        return null;
     }
 
     public void insertTask(TaskEntity info) throws Exception {

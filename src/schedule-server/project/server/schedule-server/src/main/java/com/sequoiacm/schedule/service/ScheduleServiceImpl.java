@@ -1,26 +1,21 @@
 package com.sequoiacm.schedule.service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
+import com.sequoiacm.infrastructure.common.NetUtil;
+import com.sequoiacm.schedule.common.RestCommonDefine;
+import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.*;
+import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
+import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
+import com.sequoiacm.schedule.dao.InternalSchStatusDao;
+import com.sequoiacm.schedule.dao.ScheduleDao;
+import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sequoiacm.schedule.common.RestCommonDefine;
-import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.model.InternalSchStatus;
-import com.sequoiacm.schedule.common.model.ScheduleException;
-import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
-import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
-import com.sequoiacm.schedule.common.model.ScheduleUserEntity;
-import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
-import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
-import com.sequoiacm.schedule.dao.InternalSchStatusDao;
-import com.sequoiacm.schedule.dao.ScheduleDao;
-import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
+import java.net.UnknownHostException;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -79,7 +74,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                     "this schedule is not internal_schedule:" + sch);
         }
         InternalScheduleInfo jobInfo = new InternalScheduleInfo(sch.getId(), sch.getName(),
-                sch.getType(), sch.getWorkspace(), sch.getContent(), sch.getCron());
+                sch.getType(), sch.getWorkspace(), sch.getContent(), sch.getCron(),
+                sch.getPreferredRegion(), sch.getPreferredZone());
         if (!workerNoderEquals(jobInfo.getWorkerNode(), status.getWorkerNode())
                 || jobInfo.getWorkerNodeStartTime() != status.getStartTime()) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.WORKER_SHOULD_STOP,
@@ -101,15 +97,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
 
             if (splitjobInfoWorkerNode[1].equals(splitstatusWorkerNode[1])) {
-
-                InetAddress statusInetAddress = InetAddress.getByName(splitstatusWorkerNode[0]);
-                String statusHostIp = statusInetAddress.getHostAddress();
-
-                InetAddress jobInfoInetAddress = InetAddress.getByName(splitjobInfoWorkerNode[0]);
-                String jobInfoHostIp = jobInfoInetAddress.getHostAddress();
-                if (jobInfoHostIp.equals(statusHostIp)) {
-                    return true;
-                }
+                return NetUtil.isSameHost(splitstatusWorkerNode[0], splitjobInfoWorkerNode[0]);
             }
             return false;
         }

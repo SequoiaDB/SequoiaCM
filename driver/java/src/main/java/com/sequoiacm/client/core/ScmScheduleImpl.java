@@ -1,20 +1,19 @@
 package com.sequoiacm.client.core;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.sequoiacm.client.common.RestDefine;
+import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.common.FieldName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.client.common.RestDefine;
-import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.client.exception.ScmInvalidArgumentException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 class ScmScheduleImpl implements ScmSchedule {
     private ScmSession ss;
@@ -227,8 +226,8 @@ class ScmScheduleImpl implements ScmSchedule {
     }
 
     @Override
-    public List<ScmTask> getTasks(BSONObject extraCondition, BSONObject orderby, long skip, long limit)
-            throws ScmException {
+    public List<ScmTask> getTasks(BSONObject extraCondition, BSONObject orderby, long skip,
+            long limit) throws ScmException {
         ScmQueryBuilder builder = new ScmQueryBuilder();
 
         BSONObject condition = new BasicBSONObject();
@@ -240,7 +239,7 @@ class ScmScheduleImpl implements ScmSchedule {
         }
 
         BsonReader reader = ss.getDispatcher().getTaskList(builder.get(), orderby,
-                        new BasicBSONObject(), skip, limit);
+                new BasicBSONObject(), skip, limit);
         ScmBsonCursor<ScmTask> cursor = new ScmBsonCursor<ScmTask>(reader,
                 new BsonConverter<ScmTask>() {
                     @Override
@@ -259,6 +258,38 @@ class ScmScheduleImpl implements ScmSchedule {
         finally {
             cursor.close();
         }
+    }
+
+    @Override
+    public String getPreferredRegion() {
+        return basicInfo.getPreferredRegion();
+    }
+
+    @Override
+    public String getPreferredZone() {
+        return basicInfo.getPreferredZone();
+    }
+
+    @Override
+    public void updatePreferredRegion(String region) throws ScmException {
+        if (null == region) {
+            throw new ScmInvalidArgumentException("region can't be null");
+        }
+        BSONObject newValue = new BasicBSONObject();
+        newValue.put(ScmAttributeName.Schedule.PREFERRED_REGION, region);
+        ss.getDispatcher().updateSchedule(getId().get(), newValue);
+        basicInfo.setPreferredRegion(region);
+    }
+
+    @Override
+    public void updatePreferredZone(String zone) throws ScmException {
+        if (null == zone) {
+            throw new ScmInvalidArgumentException("zone can't be null");
+        }
+        BSONObject newValue = new BasicBSONObject();
+        newValue.put(ScmAttributeName.Schedule.PREFERRED_ZONE, zone);
+        ss.getDispatcher().updateSchedule(getId().get(), newValue);
+        basicInfo.setPreferredZone(zone);
     }
 
     @Override

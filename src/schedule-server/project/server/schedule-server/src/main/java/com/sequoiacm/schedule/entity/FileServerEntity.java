@@ -53,4 +53,16 @@ public class FileServerEntity {
     public int getRestPort() {
         return restPort;
     }
+
+    @Override
+    public String toString() {
+        return "FileServerEntity{" +
+                "siteId=" + siteId +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", hostName='" + hostName + '\'' +
+                ", port=" + port +
+                ", restPort=" + restPort +
+                '}';
+    }
 }

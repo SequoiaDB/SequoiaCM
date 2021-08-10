@@ -10,24 +10,38 @@ ScmSession session = ScmFactory.Session.createSession(
         new ScmConfigOption("scmserver:8080/rootsite", "test_user", "scmPassword"));
 
 // 创建迁移调度
-// 文件查询条件
+// 文件迁移条件
 BSONObject copyCondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR)
         .is("zhangsan").get();
-// 迁移调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、一次调度任务最大超时时间 (ms)
+// 迁移调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
 ScmScheduleContent copyContent = new ScmScheduleCopyFileContent("branchSite1", "rootSite",
         "0d", copyCondition, ScopeType.SCOPE_CURRENT, 36000000);
-// 创建调度：session、调度 workspace 、调度类型、调度名称、调度描述、 cron 表达式
-ScmSchedule copySchedule = ScmSystem.Schedule.create(session, "test_ws", 
-        ScheduleType.COPY_FILE, "迁移文件", "一个迁移的调度", copyContent, "0 0 0 12,24 * ?");
+ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
+ScmSchedule copySchedule = scheduleBuilder
+        // 调度任务的工作区、名字及描述
+        .workspace("test_ws").name("迁移文件").description("一个迁移的调度")
+        // 调度类型，及内容
+        .type(ScheduleType.COPY_FILE).content(copyContent)
+        // 触发周期，cron 表达式
+        .cron("0 0 0 12,24 * ?")
+        // 触发时，优先在哪个 region、zone 下的内容服务节点执行
+        .preferredRegion("DefaultRegion").preferredZone("zone1").build();
+
 
 // 创建清理调度
+// 文件清理条件
 BSONObject cleancondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is("lisi")
         .get();
-// 清理调度内容：清理站点、文件内容最大停留时间、调度文件查询条件、范围、一次调度任务最大超时时间 (ms)
+// 清理调度内容：清理站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
 ScmScheduleContent cleanContent = new ScmScheduleCleanFileContent("branchSite1", "3d",
         cleancondition, ScopeType.SCOPE_CURRENT, 36000000);
-ScmSchedule cleanSchedule = ScmSystem.Schedule.create(session, "test_ws",
-        ScheduleType.CLEAN_FILE, "清理文件", "一个清理的调度", cleanContent, "0 0 0 25 * ?");
+ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
+ScmSchedule cleanSchedule = scheduleBuilder
+        .workspace("test_ws").name("清理文件").description("一个清理的调度")
+        .type(ScheduleType.CLEAN_FILE).content(cleanContent)
+        .cron("0 0 0 12,24 * ?")
+        .preferredRegion("DefaultRegion").preferredZone("zone1").build();
+
 ```
 >  **Note:**
 >
@@ -46,6 +60,8 @@ ScmSchedule cleanSchedule = ScmSystem.Schedule.create(session, "test_ws",
 >  * cron 表达式 "0 0 0 12,24 * ?" 表示每个月 12 和 24 日的 00:00:00 进行迁移任务调度，具体请查看下方描述
 >
 >  * 一次调度任务最大超时时间 单位 ms，参数不写默认为 0，如果该参数 <=0 ,则表示不设超时时间；该参数表示每一次执行调度的最大执行时间，如果超出该时间此次调度停止
+>
+>  * preferredRegion、preferredZone 表示调度任务触发时优先在哪个机房上执行，目前版本 SequoiaCM 只有一个 Region 即 DefaultRegion，而 Zone 是用户部署集群时自由规划的，业务可以根据实际情况填写某一个 Zone
 
 * 调度列表
 

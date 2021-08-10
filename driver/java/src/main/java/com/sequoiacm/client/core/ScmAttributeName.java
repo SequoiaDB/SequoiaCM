@@ -469,6 +469,16 @@ public class ScmAttributeName {
          */
         public static final String ENABLE = "enable";
 
+        /**
+         * preferred region.
+         */
+        public static final String PREFERRED_REGION = "preferred_region";
+
+        /**
+         * preferred zone.
+         */
+        public static final String PREFERRED_ZONE = "preferred_zone";
+
         // ***************** clean job *****************
         /**
          * Clean site.

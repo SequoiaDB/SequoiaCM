@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;

@@ -43,4 +43,8 @@ public abstract class ScmSession implements Closeable {
     public abstract void resetSiteName(String siteName);
 
     abstract MessageDispatcher getDispatcher();
+
+    public abstract String getPreferredRegion();
+
+    public abstract String getPreferredZone();
 }
