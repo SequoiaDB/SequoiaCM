@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltextsearch.concurrent;
 
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -82,7 +83,7 @@ public class CreateFile3002 extends TestScmBase {
                     "update file(" + fileId + ") with createIndex fail:"
                             + updatefileCreateIndex.getThrowable()
                                     .getMessage() );
-            ScmFactory.Fulltext.inspectIndex(ws);
+            inspectIndex();
             FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.NONE,
                     fileId );
         } else {
@@ -91,7 +92,7 @@ public class CreateFile3002 extends TestScmBase {
                     ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
                     "update file(" + fileId + ") fail:"
                             + updatefileNoIndex.getThrowable().getMessage() );
-            ScmFactory.Fulltext.inspectIndex(ws);
+            inspectIndex();
             FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
                     fileId );
             BSONObject matcher = new BasicBSONObject();
@@ -163,5 +164,21 @@ public class CreateFile3002 extends TestScmBase {
         file.setMimeType( MimeType.XLSX );
         ScmId fileId = file.save();
         return fileId;
+    }
+
+    private void inspectIndex() throws Exception {
+        int times = 0;
+        while ( true ) {
+            ScmFulltexInfo wsIndexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
+            if ( !(wsIndexInfo.getStatus().equals(ScmFulltextStatus.CREATED.toString())) ) {
+                break;
+            }
+            Thread.sleep( 100 );
+            times++;
+            if ( times * 100 > 10000 ) {
+                throw new Exception( "Create fulltext index time out" );
+            }
+        }
+        ScmFactory.Fulltext.inspectIndex( ws );
     }
 }
