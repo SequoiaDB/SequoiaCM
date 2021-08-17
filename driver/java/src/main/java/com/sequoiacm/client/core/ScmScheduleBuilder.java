@@ -57,7 +57,7 @@ public class ScmScheduleBuilder {
     }
 
     /**
-     * Set schedule cron.
+     * Sets schedule cron.
      * 
      * @param cron
      *            schedule cron.
@@ -152,6 +152,7 @@ public class ScmScheduleBuilder {
         assertNotNull(type, "type is null");
         assertNotNull(name, "name is null");
         assertNotNull(content, "content is null");
+        assertNotNull(cron, "cron is null");
         BSONObject ret = ss.getDispatcher().createSchedule(ws, type, name, description,
                 content.toBSONObject(), cron, enable, preferredRegion, preferredZone);
         return new ScmScheduleImpl(ss, ret);
