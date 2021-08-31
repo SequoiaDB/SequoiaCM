@@ -170,12 +170,13 @@ public class CreateFile3002 extends TestScmBase {
         int times = 0;
         while ( true ) {
             ScmFulltexInfo wsIndexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
-            if ( !(wsIndexInfo.getStatus().equals(ScmFulltextStatus.CREATED.toString())) ) {
+            if ( !( wsIndexInfo.getStatus()
+                    .equals( ScmFulltextStatus.CREATING ) ) ) {
                 break;
             }
             Thread.sleep( 100 );
             times++;
-            if ( times * 100 > 10000 ) {
+            if ( times * 100 > 30000 ) {
                 throw new Exception( "Create fulltext index time out" );
             }
         }
