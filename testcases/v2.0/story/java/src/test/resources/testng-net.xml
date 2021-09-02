@@ -6,14 +6,14 @@
    <parameter name="DATADIR" value="/tmp/ci_cm" />
    <parameter name="NTPSERVER" value="192.168.20.200" />
    <parameter name="LOCALHOSTNAME" value="localhost" />
-   
+
    <parameter name="SSHUSER" value="root" />
    <parameter name="SSHPASSWD" value="jenkins" />
-   
+
    <parameter name="MAINSDBURL" value="mainSiteHostName:11810" />
    <parameter name="SDBUSER" value="sdbadmin" />
    <parameter name="SDBPASSWD" value="sequoiadb" />
-   
+
    <parameter name="GATEWAYS" value="GATEWAYURLS"/>
    <parameter name="ROOTSITESVCNAME" value="rootsite"/>
    <parameter name="SCMUSER" value="admin" />
@@ -25,7 +25,7 @@
 
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
-   <listeners> 
+   <listeners>
           <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
    </listeners>
 
@@ -39,7 +39,7 @@
             </script>
          </method-selector>
       </method-selectors>
-      
+
       <!-- network test -->
       <packages>
          <!--version-->
@@ -74,6 +74,9 @@
          <package name="com.sequoiacm.s3.bucket.concurrent"/>
          <package name="com.sequoiacm.s3.object"/>
          <package name="com.sequoiacm.s3.object.concurrent"/>
+
+         <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2  -->
+         <!-- <package name="com.sequoiacm.schedulePreferredZone"/>-->
       </packages>
    </test>
 

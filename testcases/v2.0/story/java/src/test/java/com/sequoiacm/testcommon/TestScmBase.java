@@ -56,6 +56,10 @@ public class TestScmBase {
     protected static String ldapUserName;
     protected static String ldapPassword;
 
+    protected static String zone1;
+    protected static String zone2;
+    protected static String defaultRegion;
+
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
             "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
@@ -95,6 +99,11 @@ public class TestScmBase {
         s3WorkSpaces = S3WOKERSPACES;
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
+
+        // TODO schedulePreferredZone特性需要，暂时写死，后续替换为xml传参形式
+        zone1 = "zone1";
+        zone2 = "zone2";
+        defaultRegion = "DefaultRegion";
 
         // initialize scmInfo
         ScmSession session = null;
