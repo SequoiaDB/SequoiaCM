@@ -2,28 +2,22 @@ package com.sequoiacm.testcommon.scmutils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.*;
+import com.sequoiacm.testcommon.*;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.Sequoiadb;
 import org.apache.log4j.Logger;
+
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestSdbTools;
 
 public class ScmScheduleUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmTaskUtils.class );
@@ -235,8 +229,9 @@ public class ScmScheduleUtils extends TestScmBase {
                 logger.info( "file info \n" + file.toString()
                         + "\nfileCreateTime: " + fileCreateTime );
                 throw new Exception(
-                        "the time difference between the schedule host and the scm host is more than "
-                                + maxDiffTime + "." );
+                        "the time difference between the schedule host and "
+                                + "the scm host is more than " + maxDiffTime
+                                + "." );
             } else if ( timeDiff < 0 ) {
                 throw new Exception( "task is normal." );
             }
@@ -250,5 +245,272 @@ public class ScmScheduleUtils extends TestScmBase {
                 "yyyy-MM-dd" );
         Date date = simpleDateFormat.parse( dateStr );
         return date;
+    }
+
+    /**
+     * @Descrip 获取根据id排序后的所有分站点
+     * @return
+     * @throws Exception
+     */
+    public static List< SiteWrapper > getSortBranchSites() throws Exception {
+        List< SiteWrapper > branchSites = ScmInfo.getBranchSites();
+        if ( branchSites.size() < 1 ) {
+            throw new Exception(
+                    "the number of branchSites must greater than 2 " );
+        }
+        Collections.sort( branchSites, new Comparator< SiteWrapper >() {
+            @Override
+            public int compare( SiteWrapper o1, SiteWrapper o2 ) {
+                return o1.getSiteId() - o2.getSiteId();
+            }
+        } );
+        return branchSites;
+    }
+
+    /**
+     * @Descrip 创建迁移任务
+     * @param session
+     * @param sourceSite
+     * @param targetSite
+     * @param wsp
+     * @param cond
+     * @param region
+     * @param zone
+     * @return
+     * @throws ScmException
+     */
+    public static ScmSchedule createCopySchedule( ScmSession session,
+            SiteWrapper sourceSite, SiteWrapper targetSite, WsWrapper wsp,
+            BSONObject cond, String region, String zone ) throws ScmException {
+        UUID uuid = UUID.randomUUID();
+        String maxStayTime = "0d";
+        String scheduleName = "testCopy" + uuid;
+        String description = "copy " + uuid;
+        ScmScheduleBuilder schBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleCopyFileContent copyContent = new ScmScheduleCopyFileContent(
+                sourceSite.getSiteName(), targetSite.getSiteName(), maxStayTime,
+                cond );
+        schBuilder.type( ScheduleType.COPY_FILE ).workspace( wsp.getName() )
+                .name( scheduleName ).description( description )
+                .content( copyContent ).cron( "* * * * * ?" ).enable( true )
+                .preferredRegion( region ).preferredZone( zone );
+        return schBuilder.build();
+    }
+
+    /**
+     * @Descrip 创建清理任务
+     * @param session
+     * @param targetSite
+     * @param wsp
+     * @param cond
+     * @param region
+     * @param zone
+     * @return
+     * @throws ScmException
+     */
+    public static ScmSchedule createCleanSchedule( ScmSession session,
+            SiteWrapper targetSite, WsWrapper wsp, BSONObject cond,
+            String region, String zone ) throws ScmException {
+        UUID uuid = UUID.randomUUID();
+        String maxStayTime = "0d";
+        String scheduleName = "testClean" + uuid;
+        String description = "copy " + uuid;
+        ScmScheduleBuilder schBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent(
+                targetSite.getSiteName(), maxStayTime, cond );
+        schBuilder.type( ScheduleType.CLEAN_FILE ).workspace( wsp.getName() )
+                .name( scheduleName ).description( description )
+                .content( cleanContent ).cron( "* * * * * ?" ).enable( true )
+                .preferredRegion( region ).preferredZone( zone );
+        return schBuilder.build();
+    }
+
+    /**
+     * 创建清理调度任务更新为迁移任务
+     * 
+     * @param session
+     * @param sourceSite
+     * @param targetSite
+     * @param cleanSite
+     * @param wsp
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public static ScmSchedule createSchedule( ScmSession session,
+            SiteWrapper sourceSite, SiteWrapper targetSite,
+            SiteWrapper cleanSite, WsWrapper wsp, String fileName )
+            throws Exception {
+        String maxStayTime = "0d";
+        BSONObject queryCond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmScheduleBuilder scmScheduleBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent(
+                cleanSite.getSiteName(), maxStayTime, queryCond );
+        scmScheduleBuilder.type( ScheduleType.CLEAN_FILE )
+                .workspace( wsp.getName() ).name( "clean file " + fileName )
+                .content( cleanContent ).cron( "* * * * * ? " ).enable( true );
+        ScmSchedule schedule = scmScheduleBuilder.build();
+        waitForTask( schedule, 10 );
+        ScmScheduleCopyFileContent copyContent = new ScmScheduleCopyFileContent(
+                sourceSite.getSiteName(), targetSite.getSiteName(), maxStayTime,
+                queryCond );
+        schedule.updateSchedule( ScheduleType.COPY_FILE, copyContent );
+        waitForTask( schedule, 20 );
+        schedule.disable();
+        return schedule;
+    }
+
+    /**
+     * @Descrip 等待调度任务执行
+     * @param schedule
+     * @param minTaskNum
+     *            调度任务执行次数
+     * @throws Exception
+     */
+    public static void waitForTask( ScmSchedule schedule, int minTaskNum )
+            throws Exception {
+        int time = 0;
+        while ( true ) {
+            List< ScmTask > tasks = schedule.getTasks( new BasicBSONObject(),
+                    new BasicBSONObject(), 0, -1 );
+            if ( tasks.size() > minTaskNum ) {
+                break;
+            }
+            time++;
+            if ( time > 120 ) {
+                throw new Exception( "waiting for task timeout" );
+            }
+            Thread.sleep( 1000 );
+        }
+    }
+
+    /**
+     * @Descrip 校验节点所在region
+     * @param tasks
+     * @param session
+     * @param region
+     * @throws Exception
+     */
+    public static void checkNodeRegion( List< ScmTask > tasks,
+            ScmSession session, String region ) throws Exception {
+        List< String > runNodeNames = findRunNodeName( tasks );
+        for ( String runNodeName : runNodeNames ) {
+            checkRegion( runNodeName, session, region );
+        }
+    }
+
+    /**
+     * @Descrip 校验节点所在region和zone
+     * @param tasks
+     * @param session
+     * @param region
+     * @param zone
+     * @throws Exception
+     */
+    public static void checkNodeRegionAndZone( List< ScmTask > tasks,
+            ScmSession session, String region, String zone ) throws Exception {
+        List< String > runNodeNames = findRunNodeName( tasks );
+        for ( String runNodeName : runNodeNames ) {
+            checkRegionAndZone( runNodeName, session, region, zone );
+        }
+    }
+
+    /**
+     * @Descrip 获取执行调度任务的节点
+     * @param tasks
+     * @return
+     */
+    public static List< String > findRunNodeName( List< ScmTask > tasks ) {
+        final String SCMSYSTEM = "SCMSYSTEM";
+        final String CONTENTSERVER = "CONTENTSERVER";
+        final String id = "id";
+        final String name = "name";
+        List< BSONObject > nodes = new ArrayList<>();
+        Sequoiadb db = new Sequoiadb( TestScmBase.mainSdbUrl, "", "" );
+        try {
+            DBCollection contentServerCl = db.getCollectionSpace( SCMSYSTEM )
+                    .getCollection( CONTENTSERVER );
+            DBCursor query = contentServerCl.query();
+            while ( query.hasNext() ) {
+                BSONObject node = query.getNext();
+                nodes.add( node );
+            }
+        } finally {
+            db.close();
+        }
+        List< String > runNodeNames = new ArrayList<>();
+        for ( ScmTask task : tasks ) {
+            for ( BSONObject node : nodes ) {
+                Integer node_id = ( Integer ) node.get( id );
+                if ( node_id.equals( task.getServerId() ) ) {
+                    runNodeNames.add( ( String ) node.get( name ) );
+                }
+            }
+        }
+        return runNodeNames;
+    }
+
+    private static void checkRegionAndZone( String runNodeName,
+            ScmSession session, String region, String zone ) throws Exception {
+        if ( runNodeName == null ) {
+            throw new Exception( "The node info to serviceId cannot be found" );
+        }
+        List< ScmServiceInstance > contentServerInstanceList = ScmSystem.ServiceCenter
+                .getContentServerInstanceList( session );
+        for ( ScmServiceInstance contentServer : contentServerInstanceList ) {
+            String nodeIpPort = contentServer.getIp() + "_"
+                    + contentServer.getPort();
+            if ( nodeIpPort.equals( runNodeName ) ) {
+                if ( !( contentServer.getRegion().equals( region )
+                        && contentServer.getZone().equals( zone ) ) ) {
+                    throw new Exception( "except region zone is " + region + " "
+                            + zone + "; but actually region zone is "
+                            + contentServer.getRegion() + " "
+                            + contentServer.getZone() );
+                }
+            }
+        }
+    }
+
+    private static void checkRegion( String runNodeName, ScmSession session,
+            String region ) throws Exception {
+        if ( runNodeName == null ) {
+            throw new Exception( "The node info to serviceId cannot be found" );
+        }
+        List< ScmServiceInstance > contentServerInstanceList = ScmSystem.ServiceCenter
+                .getContentServerInstanceList( session );
+        for ( ScmServiceInstance contentServer : contentServerInstanceList ) {
+            String nodeIpPort = contentServer.getIp() + "_"
+                    + contentServer.getPort();
+            if ( ( nodeIpPort.equals( runNodeName ) ) ) {
+                if ( !( contentServer.getRegion().equals( region ) ) ) {
+                    throw new Exception( "except region is " + region
+                            + "; but actually region is "
+                            + contentServer.getRegion() );
+                }
+            }
+        }
+    }
+
+    /**
+     * @Descrip 获取success_count值大于1的任务
+     * @param schedule
+     * @return
+     * @throws ScmException
+     */
+    public static List< ScmTask > getSuccessTasks( ScmSchedule schedule )
+            throws ScmException {
+        BSONObject orderBy = ScmQueryBuilder
+                .start( ScmAttributeName.Task.STOP_TIME ).is( -1 ).get();
+        List< ScmTask > tasks = schedule
+                .getTasks(
+                        new BasicBSONObject( "success_count",
+                                new BasicBSONObject( "$gt", 0 ) ),
+                        orderBy, 0, -1 );
+        return tasks;
     }
 }

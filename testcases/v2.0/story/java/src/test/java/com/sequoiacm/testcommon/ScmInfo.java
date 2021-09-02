@@ -110,7 +110,8 @@ public class ScmInfo {
         int maxBranchSiteNum = allBranchSites.size();
         if ( num > maxBranchSiteNum ) {
             throw new IllegalArgumentException(
-                    "error, num > maxBranchSiteNum num:"+num+" maxBranchSiteNum:"+maxBranchSiteNum );
+                    "error, num > maxBranchSiteNum num:" + num
+                            + " maxBranchSiteNum:" + maxBranchSiteNum );
         }
 
         List< SiteWrapper > branchSites = new ArrayList<>();
@@ -133,7 +134,7 @@ public class ScmInfo {
         return branchSites;
     }
 
-    private static List< SiteWrapper > getBranchSites() {
+    public static List< SiteWrapper > getBranchSites() {
         List< SiteWrapper > branchSites = new ArrayList<>();
         for ( int i = 1; i < siteList.size(); i++ ) { // i=0 is rootSite
             branchSites.add( siteList.get( i ) );
@@ -263,17 +264,17 @@ public class ScmInfo {
     }
 
     /**
-             *排除全文索引工作区
-     * get all workspace if there is a new ws to use this function, otherwise,
-     * recommended to use getAllWorkspaces()
+     * 排除全文索引工作区 get all workspace if there is a new ws to use this function,
+     * otherwise, recommended to use getAllWorkspaces()
      */
     public static List< WsWrapper > getWsList( ScmSession session )
             throws ScmException {
-        return  getWsList( session, TestScmBase.FULLTEXT_WS_PREFIX );
+        return getWsList( session, TestScmBase.FULLTEXT_WS_PREFIX );
     }
-    
+
     /**
-              *  排除某些ws，获取ws列表
+     * 排除某些ws，获取ws列表
+     * 
      * @param session
      * @param excludePrefix
      * @return
