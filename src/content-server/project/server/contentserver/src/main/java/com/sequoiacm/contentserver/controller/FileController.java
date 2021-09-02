@@ -533,6 +533,7 @@ public class FileController {
     @RequestMapping("/files/{file_id}/async-transfer")
     public ResponseEntity<String> asyncTransferFile(@PathVariable("file_id") String fileId,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_ASYNC_TRANSFER_TARGET_SITE, required = false) String targetSite,
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             Authentication auth) throws ScmServerException {
@@ -541,7 +542,7 @@ public class FileController {
                 fileService, fileId, version.getMajorVersion(), version.getMinorVersion(),
                 dirService, ScmPrivilegeDefine.UPDATE, "async transfer file");
         fileService.asyncTransferFile(workspaceName, fileId, version.getMajorVersion(),
-                version.getMinorVersion());
+                version.getMinorVersion(), targetSite);
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
                 "async transfer file by file id=" + fileId);
         return ResponseEntity.ok("");

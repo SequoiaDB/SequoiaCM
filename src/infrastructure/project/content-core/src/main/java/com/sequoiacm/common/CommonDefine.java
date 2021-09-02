@@ -296,6 +296,7 @@ public class CommonDefine {
         public static final String DATASOURCE_DATA_HEADER = "data";
         public static final String DATASOURCE_DATA_SIZE = "size";
         public static final String DATASOURCE_DATA_TABLE_NAMES = "table_names";
+        public static final String DATASOURCE_SITE_NAME = "site_name";
 
         public static final String FILE_ID = "id";
         public static final String FILE_READ_FLAG = "read_flag";
@@ -315,6 +316,7 @@ public class CommonDefine {
         public static final String FILE_LIMIT = "limit";
         public static final String FILE_ORDERBY = "orderby";
         public static final String FILE_SELECTOR = "selector";
+        public static final String FILE_ASYNC_TRANSFER_TARGET_SITE = "target_site";
 
         public static final String FILE_EXTERNAL_DATA = "externald_data";
 

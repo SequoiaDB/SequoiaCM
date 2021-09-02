@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.contentserver.site.ScmSite;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -40,7 +41,6 @@ import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
-import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -518,7 +518,7 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public void asyncTransferFile(String workspaceName, String fileId, int majorVersion,
-            int minorVersion) throws ScmServerException {
+            int minorVersion, String userTargetSite) throws ScmServerException {
         ScmContentServer contentserver = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfoChecked(workspaceName);
         int localSiteId = contentserver.getLocalSite();
@@ -535,8 +535,21 @@ public class FileServiceImpl implements IFileService {
         List<ScmFileLocation> siteList = new ArrayList<>();
         CommonHelper.getFileLocationList(sites, siteList);
 
-        // 2. get remote site && check local site can transfer or not
-        int remoteSite = ScmStrategyMgr.getInstance().getTargetSite(wsInfo, localSiteId);
+        // 2. get transfer target site
+        int transferTargetSiteId;
+        if (null != userTargetSite){
+            // get target site id
+            ScmSite siteInfo = contentserver.getSiteInfo(userTargetSite);
+            if (null == siteInfo) {
+                throw new ScmServerException(ScmError.SITE_NOT_EXIST,
+                        "target site not exist in workspace:workspace=" + workspaceName
+                                + ",targetSite=" + userTargetSite);
+            }
+            transferTargetSiteId = siteInfo.getId();
+        }else {
+            transferTargetSiteId = ScmStrategyMgr.getInstance().getDefaultAsyncTransferTargetSite(wsInfo, localSiteId);
+        }
+        ScmStrategyMgr.getInstance().checkTransferSite(wsInfo, localSiteId, transferTargetSiteId);
 
         // 3.check local
         if (!CommonHelper.isSiteExist(localSiteId, siteList)) {
@@ -548,14 +561,14 @@ public class FileServiceImpl implements IFileService {
         }
 
         // 4. check remote
-        if (CommonHelper.isSiteExist(remoteSite, siteList)) {
+        if (CommonHelper.isSiteExist(transferTargetSiteId, siteList)) {
             // remote site is exist. just response and return
             return;
         }
 
         String dataId = (String) file.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         ScmJobTransferFile job = new ScmJobTransferFile(wsInfo, fileId, majorVersion, minorVersion,
-                dataId, remoteSite);
+                dataId, transferTargetSiteId);
         ScmJobManager.getInstance().schedule(job, 0);
     }
 

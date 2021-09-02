@@ -28,15 +28,15 @@ public class StarStrategy implements ConnectivityStrategy {
             int targetSiteId) throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, sourceSiteId);
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, targetSiteId);
-        if (sourceSiteId == mainSiteId) {
+
+        if (sourceSiteId == mainSiteId && targetSiteId == mainSiteId) {
             throw new StrategyException(
-                    "Under the star strategy, transfer task's source site cannot be main site"
+                    "Under the star strategy, if the source site is main site, must specify a branch site as the target site"
                             + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
         }
-
-        if (targetSiteId != mainSiteId) {
+        if (sourceSiteId != mainSiteId && targetSiteId != mainSiteId) {
             throw new StrategyException(
-                    "Under the star strategy, transfer task's target site must be main site"
+                    "Under the star strategy, cannot transfer file from branch site to branch site"
                             + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
         }
     }
@@ -45,22 +45,23 @@ public class StarStrategy implements ConnectivityStrategy {
     public void checkCleanSite(List<Integer> wsLocationSiteIds, int localSiteId)
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
-        if (localSiteId == mainSiteId) {
-            throw new StrategyException(
-                    "Under the star strategy, the site that performing the clean task cannot be main site"
-                            + ":siteId=" + localSiteId);
-        }
+        /*
+         * if (localSiteId == mainSiteId) { throw new StrategyException(
+         * "Under the star strategy, the site that performing the clean task cannot be main site"
+         * + ":siteId=" + localSiteId); }
+         */
     }
 
     @Override
     public void checkCacheSite(List<Integer> wsLocationSiteIds, int localSiteId)
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
-        if (localSiteId == mainSiteId) {
-            throw new StrategyException(
-                    "Under the star strategy, the site that performing the cache task cannot be main site"
-                            + ":siteId=" + localSiteId);
-        }
+        // unlimited
+        /*
+         * if (localSiteId == mainSiteId) { throw new StrategyException(
+         * "Under the star strategy, the site that performing the cache task cannot be main site"
+         * + ":siteId=" + localSiteId); }
+         */
     }
 
     @Override
@@ -69,8 +70,10 @@ public class StarStrategy implements ConnectivityStrategy {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
         checkFileLocationSiteNotEmpty(fileLocationSites);
         List<Integer> sites = new ArrayList<>();
-        if (localSiteId != mainSiteId && fileLocationSites.contains(mainSiteId)) {
-            sites.add(mainSiteId);
+        for (Integer siteId : wsLocationSiteIds) {
+            if (siteId != localSiteId && fileLocationSites.contains(siteId)) {
+                sites.add(siteId);
+            }
         }
         /*
          * if (sites.size() == 0) { throw new
@@ -106,11 +109,6 @@ public class StarStrategy implements ConnectivityStrategy {
     public int getAsyncTransferTargetSite(List<Integer> wsLocationSiteIds, int sourceSiteId)
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, sourceSiteId);
-        if (sourceSiteId == mainSiteId) {
-            throw new StrategyException("Under the star strategy,"
-                    + "transfer single file's source site cannot be main site:siteId="
-                    + sourceSiteId);
-        }
         return mainSiteId;
     }
 

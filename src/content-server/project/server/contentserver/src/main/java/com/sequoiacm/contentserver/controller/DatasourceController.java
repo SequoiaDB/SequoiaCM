@@ -2,13 +2,20 @@ package com.sequoiacm.contentserver.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.contentserver.dao.FileCommonOperator;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmSite;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,13 +76,36 @@ public class DatasourceController {
 
     // TODO:数据不存在：404
     @RequestMapping(value = "/datasource/{data_id}", method = RequestMethod.HEAD)
-    public void headDataInfo(@PathVariable("data_id") String dataId,
+    public void headDataInfo(
+            @PathVariable("data_id") String dataId,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_NAME, required = false) String siteName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
             HttpServletResponse response) throws ScmServerException {
-        BSONObject dataInfo = datasourceService.getDataInfo(wsName, dataId, type, createTime);
-        response.setHeader(CommonDefine.RestArg.DATASOURCE_DATA_HEADER, dataInfo.toString());
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        int localSiteId = contentServer.getLocalSite();
+        int dataLocationSiteId = localSiteId;
+        if (siteName != null) {
+            ScmSite siteInfo = contentServer.getSiteInfo(siteName);
+            if (null == siteInfo) {
+                throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
+                        "site is not exist:siteName=" + siteName);
+            }
+            dataLocationSiteId = siteInfo.getId();
+        }
+        if (localSiteId == dataLocationSiteId) {
+            BSONObject dataInfo = datasourceService.getDataInfo(wsName, dataId, type, createTime);
+            response.setHeader(CommonDefine.RestArg.DATASOURCE_DATA_HEADER, dataInfo.toString());
+        }
+        else {
+            ScmDataInfo scmDataInfo = new ScmDataInfo(type, dataId, new Date(createTime));
+            long size = FileCommonOperator.getSize(siteName, wsName, scmDataInfo);
+            BSONObject retInfo = new BasicBSONObject();
+            retInfo.put(CommonDefine.RestArg.DATASOURCE_DATA_SIZE, size);
+            response.setHeader(CommonDefine.RestArg.DATASOURCE_DATA_HEADER,
+                    retInfo.toString());
+        }
     }
 
     @PostMapping(value = "/datasource/{data_id}")

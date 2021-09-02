@@ -1,5 +1,8 @@
 package com.sequoiacm.transfertask;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.element.ScmSiteInfo;
+import com.sequoiacm.testcommon.ScmTestTools;
 import org.apache.log4j.Logger;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -18,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmTestMultiCenterBase;
 
 /**
- * 通过主中心执行迁移任务，预期返回失败
+ * 通过主中心执行迁移任务
  *
  * @author linyoubin
  *
@@ -36,19 +39,12 @@ public class CreateTaskInMainSite extends ScmTestMultiCenterBase {
     }
 
     @Test
-    public void createTaskInMainSite() {
-        try {
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(getWorkspaceName(), mainSiteSession);
-            ScmSystem.Task.startTransferTask(ws, new BasicBSONObject());
-        }
-        catch (ScmException e) {
-            Assert.assertEquals(e.getErrorCode(),
-                    ScmError.OPERATION_UNSUPPORTED.getErrorCode(), e.toString());
-            return;
-        }
+    public void createTaskInMainSite() throws ScmException {
+        ScmSiteInfo site2 = ScmTestTools.getSiteInfo(mainSiteSession, getSiteId2());
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(getWorkspaceName(), mainSiteSession);
+        ScmSystem.Task.startTransferTask(ws, new BasicBSONObject(), ScmType.ScopeType.SCOPE_ALL,
+                site2.getName());
 
-
-        Assert.fail("can't start task in main site");
     }
 
     @AfterClass

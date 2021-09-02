@@ -48,11 +48,13 @@ public class NetworkStrategy implements ConnectivityStrategy {
     public void checkCleanSite(List<Integer> wsLocationSiteIds, int localSiteId) 
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
+        /*
         if (StrategyTools.isLastSiteInList(wsLocationSiteIds, localSiteId)) {
-            throw new StrategyException("Under the network strategy," 
+            throw new StrategyException("Under the network strategy,"
                     + "the site that performing the clean task cannot be the last site in the workspace"
                     + ":siteId=" + localSiteId);
         }
+        */
     }
     
     @Override
@@ -66,15 +68,10 @@ public class NetworkStrategy implements ConnectivityStrategy {
             List<Integer> fileLocationSites, int localSiteId) throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
         checkFileLocationSiteNotNull(fileLocationSites);
-        
         List<Integer> siteList = new ArrayList<>();
-        int index = wsLocationSiteIds.indexOf(localSiteId);
-        if (index != -1) {
-            for (int i=index+1,len=wsLocationSiteIds.size(); i < len; i++) {
-                Integer tmpId = wsLocationSiteIds.get(i);
-                if (fileLocationSites.contains(tmpId)) {
-                    siteList.add(tmpId);
-                }
+        for (Integer siteId : wsLocationSiteIds) {
+            if (siteId != localSiteId && fileLocationSites.contains(siteId)) {
+                siteList.add(siteId);
             }
         }
         /*
@@ -107,7 +104,7 @@ public class NetworkStrategy implements ConnectivityStrategy {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
         if (StrategyTools.isLastSiteInList(wsLocationSiteIds, localSiteId)) {
             throw new StrategyException("Under the network strategy,"
-                    + "transfer single file's source site cannot be the last site in the workspace:siteId=" 
+                    + "if do not specify a target site, transfer single file's source site cannot be the last site in the workspace:siteId="
                     + localSiteId);
         }
         List<Integer> failSiteList = new ArrayList<>();

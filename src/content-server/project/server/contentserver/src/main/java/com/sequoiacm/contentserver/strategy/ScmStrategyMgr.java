@@ -145,7 +145,7 @@ public class ScmStrategyMgr {
         return siteInfo.getId();
     }
     
-    public int getTargetSite(ScmWorkspaceInfo wsInfo, int localSiteId) throws ScmServerException {
+    public int getDefaultAsyncTransferTargetSite(ScmWorkspaceInfo wsInfo, int localSiteId) throws ScmServerException {
         List<Integer> wsLocationSiteIds = getWsLocationSites(wsInfo);
         try {
             return this.strategy.getAsyncTransferTargetSite(wsLocationSiteIds, localSiteId);

@@ -2,6 +2,8 @@ package com.sequoiacm.contentserver.dao;
 
 import java.util.Date;
 
+import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +50,19 @@ public class FileCommonOperator {
         return false;
     }
 
-    private static long getSize(String remoteSiteName, String wsName, ScmDataInfo dataInfo)
+    public static long getSize(String remoteSiteName, String wsName, ScmDataInfo dataInfo)
             throws ScmServerException {
-        ContentServerClient client = ContentServerClientFactory
-                .getFeignClientByServiceName(remoteSiteName);
-        DataInfo headDataInfo = client.headDataInfo(wsName, dataInfo.getId(), dataInfo.getType(),
-                dataInfo.getCreateTime().getTime());
+        ContentServerClient client = null;
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR && !contentServer.isInMainSite()) {
+            String mainSiteName = ScmContentServer.getInstance().getMainSiteName();
+            client = ContentServerClientFactory.getFeignClientByServiceName(mainSiteName);
+        }
+        else {
+            client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);
+        }
+        DataInfo headDataInfo = client.headDataInfo(remoteSiteName, wsName, dataInfo.getId(),
+                dataInfo.getType(), dataInfo.getCreateTime().getTime());
         return headDataInfo.getSize();
     }
 

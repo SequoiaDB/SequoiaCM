@@ -117,8 +117,8 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject MsgGetTask(ScmId taskId) throws ScmException;
 
-    void asyncTransferFile(String workspaceName, ScmId fileId, int majorVersion, int minorVersion)
-            throws ScmException;
+    void asyncTransferFile(String workspaceName, ScmId fileId, int majorVersion, int minorVersion,
+            String targetSite) throws ScmException;
 
     void asyncCacheFile(String workspaceName, ScmId fileId, int majorVersion, int minorVersion)
             throws ScmException;

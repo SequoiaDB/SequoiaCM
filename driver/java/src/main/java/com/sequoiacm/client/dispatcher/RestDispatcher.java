@@ -867,11 +867,15 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public void asyncTransferFile(String workspaceName, ScmId fileId, int majorVersion,
-            int minorVersion) throws ScmException {
+            int minorVersion, String targetSite) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + fileId.get() + "/async-transfer";
         String args = String.format("?%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
                 encode(workspaceName), CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
                 CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion);
+        if (targetSite != null) {
+            args = args + "&" + CommonDefine.RestArg.FILE_ASYNC_TRANSFER_TARGET_SITE + "="
+                    + encode(targetSite);
+        }
         HttpPost request = new HttpPost(uri + args);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }

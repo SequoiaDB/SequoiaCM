@@ -57,8 +57,8 @@ public interface IFileService {
             String newBreakpointFileContent, int majorVersion, int minorVersion,
             ScmUpdateContentOption option) throws ScmServerException;
 
-    void asyncTransferFile(String workspaceName, String fileId, int majorVersion, int minorVersion)
-            throws ScmServerException;
+    void asyncTransferFile(String workspaceName, String fileId, int majorVersion, int minorVersion,
+            String targetSite) throws ScmServerException;
 
     void asyncCacheFile(String workspaceName, String fileId, int majorVersion, int minorVersion)
             throws ScmServerException;

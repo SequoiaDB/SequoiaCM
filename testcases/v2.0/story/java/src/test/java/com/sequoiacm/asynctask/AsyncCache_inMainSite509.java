@@ -125,8 +125,8 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
     private void AsyncCacheFromMainCenter() throws ScmException {
         try {
             ScmFactory.File.asyncCache( wsM, fileId );
-            Assert.assertFalse( true,
-                    "expect result is fail but actual is success." );
+            Assert.assertFalse( false,
+                    "expect result is success but actual is fail." );
         } catch ( ScmException e ) {
             if ( ScmError.OPERATION_UNSUPPORTED != e.getError() ) {
                 e.printStackTrace();
@@ -137,7 +137,7 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
 
     private void checkResult() {
         try {
-            SiteWrapper[] expSiteIdList = { branceSite };
+            SiteWrapper[] expSiteIdList = { branceSite, rootSite };
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
                     expSiteIdList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList,
