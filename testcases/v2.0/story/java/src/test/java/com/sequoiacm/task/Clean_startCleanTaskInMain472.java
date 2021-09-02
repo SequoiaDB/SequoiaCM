@@ -1,9 +1,13 @@
 package com.sequoiacm.task;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -34,7 +38,10 @@ import com.sequoiadb.exception.BaseException;
  * @FileName SCM-472: 清理主中心文件
  * @Author fanyu
  * @Date 2017-06-28
- * @Version 1.00
+ * @updateUser YiPan
+ * @updateDate 2021.9.2
+ * @updateRemark 星状主站点不允许创建清理任务约束已取消，适配用例
+ * @version 1.1
  */
 
 /*
@@ -42,113 +49,77 @@ import com.sequoiadb.exception.BaseException;
  */
 public class Clean_startCleanTaskInMain472 extends TestScmBase {
     private boolean runSuccess = false;
-    private ScmId fileId = null;
     private ScmId taskId = null;
+    private List< ScmId > fileIds = new ArrayList<>();
     private int fileSize = new Random().nextInt( 1024 ) + 1024;
     private File localPath = null;
     private String filePath = null;
+    private String tmpPath = null;
     private String authorName = "StartCleanTaskInMain472";
     private ScmSession sessionM = null;
+    private ScmSession sessionB = null;
     private ScmWorkspace wsM = null;
-
-    private SiteWrapper rootSite = null;
-    private WsWrapper ws_T = null;
+    private ScmWorkspace wsB = null;
+    private SiteWrapper rootSite;
+    private SiteWrapper branchSite;
+    private WsWrapper wsp = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        tmpPath = localPath + File.separator + "tmpFile_" + fileSize + ".txt";
 
-            rootSite = ScmInfo.getRootSite();
-            ws_T = ScmInfo.getWs();
+        // ready file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        rootSite = ScmInfo.getRootSite();
+        wsp = ScmInfo.getWs();
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        // login in
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        ScmId fileID = ScmFileUtils.create( wsM, authorName, filePath );
+        fileIds.add( fileID );
 
-            // login in
-            sessionM = TestScmTools.createSession( rootSite );
-            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-            writeFileFromMainCenter();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // 缓存至分站点
+        branchSite = ScmInfo.getBranchSite();
+        sessionB = TestScmTools.createSession( branchSite );
+        wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
+        ScmFile instance = ScmFactory.File.getInstance( wsB, fileID );
+        instance.getContent( tmpPath );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            startCleanTaskFromMainCenter();
-            checkResult();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        taskId = ScmSystem.Task.startCleanTask( wsM, cond );
+
+        SiteWrapper[] expSiteIdList = { branchSite };
+        ScmScheduleUtils.checkScmFile( wsM, fileIds, expSiteIdList );
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                for ( ScmId id : fileIds ) {
+                    ScmFactory.File.deleteInstance( wsM, id, true );
+                }
                 TestSdbTools.Task.deleteMeta( taskId );
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
-            if ( sessionM != null ) {
-                sessionM.close();
-            }
-
-        }
-    }
-
-    private void writeFileFromMainCenter() {
-        try {
-            ScmFile scmfile = ScmFactory.File.createInstance( wsM );
-            scmfile.setContent( filePath );
-            scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
-            scmfile.setAuthor( authorName );
-            fileId = scmfile.save();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
-    }
-
-    private void startCleanTaskFromMainCenter() throws ScmException {
-        try {
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            taskId = ScmSystem.Task.startCleanTask( wsM, cond );
-            Assert.assertFalse( true,
-                    "expect result is fail but actual is success." );
-        } catch ( ScmException e ) {
-            if ( ScmError.OPERATION_UNSUPPORTED != e.getError() ) {
-                e.printStackTrace();
-                throw e;
-            }
-        }
-    }
-
-    private void checkResult() {
-        // check meta data
-        try {
-            SiteWrapper[] expSiteIdList = { rootSite };
-            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteIdList,
-                    localPath, filePath );
-        } catch ( Exception e ) {
+            sessionM.close();
+            sessionB.close();
         }
     }
 }
