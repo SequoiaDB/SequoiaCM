@@ -27,7 +27,6 @@ SequoiaCM 配置
 |scm.store.sequoiadb.recheckCyclePeriod     |num    |配置服务节点的sdb连接池定时清除连接的周期，默认值：60000，单位：毫秒|
 |scm.store.sequoiadb.validateConnection     |boolean|配置服务节点的sdb连接池是否开启出池检查，默认值：true|
 |scm.zookeeper.urls|str|配置服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
-|scm.zookeeper.clientNum|num|配置服务节点与zookeeper的client数量，默认值：10|
 |scm.zookeeper.cleanJobPeriod|num|配置服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
 |scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
 

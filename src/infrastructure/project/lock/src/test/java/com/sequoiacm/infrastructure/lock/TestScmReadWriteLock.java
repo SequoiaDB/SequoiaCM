@@ -32,7 +32,7 @@ public class TestScmReadWriteLock {
     public static void setUp() throws Exception {
         resultList = new ArrayList<Integer>();
         try {
-            lockFactoryImpl = new CuratorLockFactory(zkConnStr, 5);
+            lockFactoryImpl = new CuratorLockFactory(zkConnStr);
         }
         catch (Exception e) {
             e.printStackTrace();

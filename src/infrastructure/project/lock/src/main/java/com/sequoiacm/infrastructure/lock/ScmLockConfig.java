@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ScmLockConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmLockConfig.class);
     private String urls;
-    private int clientNum = 10;
     private long cleanJobPeriod = 120L * 1000L;
     private long cleanJobResidualTime = 180L * 1000L;
     private int clenaJobChildThreshold = 1000;
@@ -20,19 +19,6 @@ public class ScmLockConfig {
 
     public void setUrls(String urls) {
         this.urls = urls;
-    }
-
-    public int getClientNum() {
-        return clientNum;
-    }
-
-    public void setClientNum(int clientNum) {
-        if (clientNum <= 0) {
-            logger.warn("Invalid client num value: " + clientNum + ", set to default value: "
-                    + this.clientNum);
-            return;
-        }
-        this.clientNum = clientNum;
     }
 
     public long getCleanJobPeriod() {
@@ -68,7 +54,7 @@ public class ScmLockConfig {
     }
 
     public void setClenaJobChildThreshold(int clenaJobChildThreshold) {
-        if (clenaJobChildThreshold < 10 && clenaJobChildThreshold > 10000) {
+        if (clenaJobChildThreshold < 10 || clenaJobChildThreshold > 10000) {
             logger.warn("Invalid clenaJobChildThreshold value: " + clenaJobChildThreshold
                     + ", set to default value: " + this.clenaJobChildThreshold);
             return;

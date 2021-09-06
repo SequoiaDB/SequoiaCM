@@ -42,7 +42,6 @@ public class CommonDefine {
 
         // *********************** zoo keeper ******************************
         public static final String ZK_URL = "";
-        public static final int ZK_CLIENTNUM = 10;
         public static final int ZK_LOCK_TIMEOUT = 120 * 1000; // (ms)
         public static final int ZK_CLIENT_TIMEOUT = 120 * 1000; // (ms)
         public static final long ZK_CLEANJOB_PERIOD = 120L * 1000L; // (ms)

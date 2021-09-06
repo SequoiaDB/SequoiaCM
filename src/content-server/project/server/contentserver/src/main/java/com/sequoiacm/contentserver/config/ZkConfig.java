@@ -13,7 +13,6 @@ public class ZkConfig {
     private static final Logger logger = LoggerFactory.getLogger(ZkConfig.class);
 
     private String urls = CommonDefine.DefaultValue.ZK_URL;
-    private int clientNum = CommonDefine.DefaultValue.ZK_CLIENTNUM;
     private int lockTimeout = CommonDefine.DefaultValue.ZK_LOCK_TIMEOUT;
     private int clientTimeout = CommonDefine.DefaultValue.ZK_CLIENT_TIMEOUT;
     private long cleanJobPeriod = CommonDefine.DefaultValue.ZK_CLEANJOB_PERIOD;
@@ -68,19 +67,6 @@ public class ZkConfig {
 
     public void setUrls(String urls) {
         this.urls = urls;
-    }
-
-    public int getClientNum() {
-        return clientNum;
-    }
-
-    public void setClientNum(int clientNum) {
-        if (clientNum <= 0) {
-            logger.warn("Invalid client num value: " + clientNum + ", set to default value: "
-                    + this.clientNum);
-            return;
-        }
-        this.clientNum = clientNum;
     }
 
     public int getLockTimeout() {

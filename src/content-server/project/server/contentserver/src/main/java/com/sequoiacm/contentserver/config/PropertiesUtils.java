@@ -142,7 +142,6 @@ public class PropertiesUtils {
 
         // zk
         appProperties.add(PropertiesDefine.PROPERTY_ZK_URL);
-        appProperties.add(PropertiesDefine.PROPERTY_ZK_CLIENTNUM);
         appProperties.add(PropertiesDefine.PROPERTY_ZK_LOCKTIMEOUT);
         appProperties.add(PropertiesDefine.PROPERTI_ZK_CLIENT_TIMEOUT);
 
@@ -211,8 +210,6 @@ public class PropertiesUtils {
             // zk
             case PropertiesDefine.PROPERTY_ZK_URL:
                 return getZKConnUrl();
-            case PropertiesDefine.PROPERTY_ZK_CLIENTNUM:
-                return String.valueOf(getZkClientNum());
             case PropertiesDefine.PROPERTY_ZK_LOCKTIMEOUT:
                 return String.valueOf(getZkLockTimeout());
             case PropertiesDefine.PROPERTI_ZK_CLIENT_TIMEOUT:
@@ -314,10 +311,6 @@ public class PropertiesUtils {
     // *********************** zoo keeper ******************************
     public static String getZKConnUrl() {
         return zkConfig.getUrls();
-    }
-
-    public static int getZkClientNum() {
-        return zkConfig.getClientNum();
     }
 
     public static int getZkLockTimeout() {

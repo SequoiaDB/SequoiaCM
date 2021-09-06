@@ -34,8 +34,7 @@ public class ScmLockManager {
         try {
             synchronized (ScmLockManager.class) {
                 if (innerFactory == null) {
-                    innerFactory = new CuratorLockFactory(lockConfig.getUrls(),
-                            lockConfig.getClientNum());
+                    innerFactory = new CuratorLockFactory(lockConfig.getUrls());
                     innerFactory.startCleanJob(lockConfig.getCleanJobPeriod(),
                             lockConfig.getCleanJobResidualTime(),
                             lockConfig.getClenaJobChildThreshold(),

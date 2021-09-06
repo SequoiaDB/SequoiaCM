@@ -31,7 +31,6 @@ public class PropertiesDefine {
 
     // *********************** zoo keeper ******************************
     public static final String PROPERTY_ZK_URL = "scm.zk.url";
-    public static final String PROPERTY_ZK_CLIENTNUM = "scm.zk.clientNum";
     public static final String PROPERTY_ZK_LOCKTIMEOUT = "scm.zk.lockTimeout";
     public static final String PROPERTI_ZK_CLIENT_TIMEOUT = "scm.zk.clientTimeout";
 

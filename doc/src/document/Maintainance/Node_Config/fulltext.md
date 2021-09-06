@@ -13,7 +13,6 @@ SequoiaCM 配置
 |scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|
 |scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|
 |scm.zookeeper.urls|str|zookeeper服务地址(ip1:port1,ip2:port2)|
-|scm.zookeeper.clientNum|num|配置服务节点与zookeeper的client数量，默认值：10|
 |scm.zookeeper.cleanJobPeriod|num|配置服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
 |scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
 |scm.fulltext.es.urls|str|elasticsearch 服务地址（http://ip1:port1,http://ip2:port2）|

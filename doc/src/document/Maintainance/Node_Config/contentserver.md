@@ -38,7 +38,6 @@ SequoiaCM 配置
 |scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：60000，单位：毫秒|
 |scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
-|scm.zookeeper.clientNum|num|内容服务节点zookeeper的client数量，默认值：10|
 |scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper残留节点的任务周期，默认值：120000 (2min)，单位：毫秒|
 |scm.zookeeper.cleanJobResidualTime|num|内容服务节点将存在超过多久的zookeeper节点作为残留节点，默认值：180000 (3min)，单位：毫秒|
 |scm.zookeeper.clenaJobChildThreshold|num|内容服务节点zookeeper节点的子节点阈值，子节点数量超过阈值，清理残留子节点，默认值：1000|

@@ -17,25 +17,22 @@ import com.sequoiacm.infrastructure.lock.ZKCompaticify;
 
 public class CuratorLockFactory implements LockFactory {
     private static final Logger logger = LoggerFactory.getLogger(CuratorLockFromReadWrite.class);
-    private Random ran = new Random();
-    private List<CuratorFramework> clientList = new ArrayList<>();
+    private CuratorFramework client = null;
     private boolean enableContainer;
     private ScmTimer t;
 
-    public CuratorLockFactory(String zkUrl, int zkClientNum) throws Exception {
+    public CuratorLockFactory(String zkUrl) throws Exception {
         // SEQUOIACM-485:enableContainer is false, zk server version below 3.5
         enableContainer = ZKCompaticify.enableContainer(zkUrl);
         try {
-            logger.info("start init zookeeper client: zkUrl={}, zkClientNum={}, enableContainer={}",
-                    zkUrl, zkClientNum, enableContainer);
-            for (int i = 0; i < zkClientNum; i++) {
-                this.clientList.add(CuratorLockTools.createClient(zkUrl, enableContainer));
-            }
+            logger.info("start init zookeeper client: zkUrl={}, enableContainer={}",
+                    zkUrl, enableContainer);
+            this.client = CuratorLockTools.createClient(zkUrl, enableContainer);
         }
         catch (Exception e) {
             logger.error(
-                    "Fail to init curator client:zkConnStr={}, zkClientNum={}, enableContainer",
-                    zkUrl, zkClientNum, enableContainer);
+                    "Fail to init curator client:zkConnStr={}, enableContainer={}",
+                    zkUrl, enableContainer);
             close();
             throw e;
         }
@@ -54,25 +51,12 @@ public class CuratorLockFactory implements LockFactory {
     }
 
     public CuratorFramework getCuratorClient() {
-        int idx = ran.nextInt(clientList.size());
-        CuratorFramework client = clientList.get(idx);
-        if (!client.getZookeeperClient().isConnected()) {
-            // reselect client
-            idx = ran.nextInt(clientList.size());
-            client = clientList.get(idx);
-        }
         return client;
     }
 
     @Override
     public void close() {
-        for (int i = 0; i < this.clientList.size(); i++) {
-            if (this.clientList.get(i) != null) {
-                closeClient(clientList.get(i));
-            }
-        }
-
-        clientList.clear();
+        closeClient(client);
     }
 
     private void closeClient(CuratorFramework client) {
@@ -86,9 +70,6 @@ public class CuratorLockFactory implements LockFactory {
         }
     }
 
-    public List<CuratorFramework> getClientList() {
-        return clientList;
-    }
 
     @Override
     public void startCleanJob(long period, long maxResidualTime, int maxChildNum, int cleanCount) {

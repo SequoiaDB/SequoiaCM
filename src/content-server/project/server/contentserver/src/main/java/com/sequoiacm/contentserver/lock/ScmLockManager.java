@@ -33,8 +33,7 @@ public class ScmLockManager {
         try {
             synchronized (ScmLockManager.class) {
                 if (innerFactory == null) {
-                    innerFactory = new CuratorLockFactory(PropertiesUtils.getZKConnUrl(),
-                            PropertiesUtils.getZkClientNum());
+                    innerFactory = new CuratorLockFactory(PropertiesUtils.getZKConnUrl());
                     innerFactory.startCleanJob(PropertiesUtils.getZKCleanJobPeriod(),
                             PropertiesUtils.getZKCleanJobResidual(),
                             PropertiesUtils.getClenaJobChildThreshold(),
