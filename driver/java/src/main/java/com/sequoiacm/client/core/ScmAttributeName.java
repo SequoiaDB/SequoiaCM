@@ -385,6 +385,40 @@ public class ScmAttributeName {
          */
         public static final String SCHEDULE_ID = FieldName.Task.FIELD_SCHEDULE_ID;
 
+        /**
+         * Estimate count.
+         */
+        public static final String ESTIMATE_COUNT = FieldName.Task.FIELD_ESTIMATE_COUNT;
+
+        /**
+         * Actual count.
+         */
+        public static final String ACTUAL_COUNT = FieldName.Task.FIELD_ACTUAL_COUNT;
+
+        /**
+         * Success count.
+         */
+        public static final String SUCCESS_COUNT = FieldName.Task.FIELD_SUCCESS_COUNT;
+
+        /**
+         * Fail count.
+         */
+        public static final String FAIL_COUNT = FieldName.Task.FIELD_FAIL_COUNT;
+
+        /**
+         * Target site.
+         */
+        public static final String TARGET_SITE = FieldName.Task.FIELD_TARGET_SITE;
+
+        /**
+         * Scope.
+         */
+        public static final String SCOPE = FieldName.Task.FIELD_SCOPE;
+
+        /**
+         * Max exec time.
+         */
+        public static final String MAX_EXEC_TIME = FieldName.Task.FIELD_MAX_EXEC_TIME;
     }
 
     /**
