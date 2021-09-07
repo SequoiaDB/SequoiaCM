@@ -6,6 +6,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,5 +54,13 @@ public class SiteController {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = siteService.getSiteList(filter);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+    }
+
+    @GetMapping(value = "/sites", params = "action=" + CommonDefine.RestArg.ACTION_GET_SITE_STRATEGY)
+    public ResponseEntity siteStrategy() {
+        StrategyType strategyType = ScmStrategyMgr.getInstance().strategyType();
+        Map<String, Object> result = new HashMap<>(1);
+        result.put(CommonDefine.RestArg.SITE_STRATEGY, strategyType.getName());
+        return ResponseEntity.ok(result);
     }
 }

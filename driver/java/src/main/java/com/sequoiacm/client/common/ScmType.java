@@ -308,4 +308,49 @@ public class ScmType {
         }
     }
 
+    /**
+     * Provides a set of constants to specify the type of site strategy.
+     */
+    public enum SiteStrategyType {
+        /**
+         * A constant representing star strategy.
+         *
+         * @since 3.1
+         */
+        Star(CommonDefine.SiteStrategy.SITE_STRATEGY_STAR),
+
+        /**
+         * A constant representing network strategy.
+         *
+         * @since 3.1
+         */
+        Network(CommonDefine.SiteStrategy.SITE_STRATEGY_NETWORK),
+
+        /**
+         * A constants representing the type of unknown strategy.
+         *
+         * @since 3.1
+         */
+        UNKNOWN("unknown");
+
+        private String strategy;
+
+        private SiteStrategyType(String strategy) {
+            this.strategy = strategy;
+        }
+
+        public String getStrategy() {
+            return strategy;
+        }
+
+        public static SiteStrategyType getStrategyType(String strategy) {
+            for (SiteStrategyType value : SiteStrategyType.values()) {
+                if (value.getStrategy().equals(strategy)) {
+                    return value;
+                }
+            }
+            return UNKNOWN;
+        }
+    }
+
 }

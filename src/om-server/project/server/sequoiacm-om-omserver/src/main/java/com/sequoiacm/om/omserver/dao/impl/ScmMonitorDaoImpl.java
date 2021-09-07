@@ -22,12 +22,12 @@ import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmServiceInstanceInfo;
 import com.sequoiacm.om.omserver.module.OmStatisticsInfo;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 
 public class ScmMonitorDaoImpl implements ScmMonitorDao {
     private ScmSession connection;
 
-    public ScmMonitorDaoImpl(ScmOmSessionImpl session) {
+    public ScmMonitorDaoImpl(ScmOmSession session) {
         this.connection = session.getConnection();
     }
 

@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.core.ScmCursor;
@@ -16,13 +17,12 @@ import com.sequoiacm.om.omserver.dao.ScmUserDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmUserInfo;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
 
 public class ScmUserDaoImpl implements ScmUserDao {
 
-    private ScmOmSessionImpl session;
+    private ScmOmSession session;
 
-    public ScmUserDaoImpl(ScmOmSessionImpl session) {
+    public ScmUserDaoImpl(ScmOmSession session) {
         this.session = session;
     }
 

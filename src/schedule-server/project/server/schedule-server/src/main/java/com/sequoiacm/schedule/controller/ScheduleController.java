@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -171,6 +172,20 @@ public class ScheduleController {
                     "delete schedule, scheduleId=" + scheduleId);
         }
     }
+    
+    @RequestMapping(value = "/schedules", method = RequestMethod.HEAD)
+    public ResponseEntity<String> countSchedule(
+            @RequestParam(value = RestCommonDefine.RestParam.KEY_QUERY_FILTER, required = false) BSONObject condition,
+            HttpServletResponse response, Authentication auth) throws Exception {
+        String message = "count schedule";
+        if (null != condition) {
+            message += " by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0, message);
+        long count = service.countSchedule(condition);
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+        return ResponseEntity.ok("");
+    }
 
     @GetMapping("/schedules/{schedule_id}")
     public ScheduleFullEntity getSchedule(@PathVariable("schedule_id") String scheduleId,
@@ -190,15 +205,23 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public void listSchedules(HttpServletRequest request, HttpServletResponse response,
+    public void listSchedules(
+            @RequestParam(value = RestCommonDefine.RestParam.KEY_QUERY_FILTER, required = false) String filter,
+            @RequestParam(value = RestCommonDefine.RestParam.KEY_QUERY_ORDERBY, required = false) String orderBy,
+            @RequestParam(value = RestCommonDefine.RestParam.KEY_QUERY_SKIP, required = false, defaultValue = "0") long skip,
+            @RequestParam(value = RestCommonDefine.RestParam.KEY_QUERY_LIMIT, required = false, defaultValue = "-1") long limit,
+            HttpServletResponse response,
             Authentication auth) throws Exception {
-        String filter = request.getParameter(RestCommonDefine.RestParam.KEY_QUERY_FILTER);
         BSONObject userCondition = null;
+        BSONObject orderByCondition = null;
         if (null != filter) {
             userCondition = (BSONObject) JSON.parse(filter);
         }
         else {
             userCondition = new BasicBSONObject();
+        }
+        if (null != orderBy) {
+            orderByCondition = (BSONObject) JSON.parse(orderBy);
         }
 
         BasicBSONList andArr = new BasicBSONList();
@@ -209,7 +232,7 @@ public class ScheduleController {
 
         ScmBSONObjectCursor cursor = null;
         try {
-            cursor = service.listSchedule(condition);
+            cursor = service.listSchedule(condition, orderByCondition, skip, limit);
 
             audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0,
                     "get schedule list,userCondition=" + userCondition.toString());

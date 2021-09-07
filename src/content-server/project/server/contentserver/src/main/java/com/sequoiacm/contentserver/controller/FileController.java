@@ -526,7 +526,7 @@ public class FileController {
         }
         audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0, message);
         long count = fileService.countFiles(workspaceName, scope, condition);
-        response.setHeader("X-SCM-Count", String.valueOf(count));
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
     }
 

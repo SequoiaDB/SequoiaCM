@@ -25,4 +25,6 @@ public interface IWorkspaceService {
 
     BSONObject updateWorkspace(String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException;
+
+    long countWorkspace(BSONObject condition) throws ScmServerException;
 }

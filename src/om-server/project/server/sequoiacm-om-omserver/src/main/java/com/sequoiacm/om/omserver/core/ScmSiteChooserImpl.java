@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.om.omserver.factory.ScmMonitorDaoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
 
     private ScmOmServerConfig omserverConfig;
 
+    private ScmMonitorDaoFactory scmMonitorDaoFactory;
+
     // cache
     private List<OmServiceInstanceInfo> contentserverInstances;
     private PreferSites preferedSites;
@@ -48,10 +51,12 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
     private boolean isInitialized;
 
     @Autowired
-    ScmSiteChooserImpl(ScmOmSessionFactory sessionFactory, ScmOmServerConfig omserverConfig)
+    ScmSiteChooserImpl(ScmOmSessionFactory sessionFactory, ScmOmServerConfig omserverConfig,
+            ScmMonitorDaoFactory scmMonitorDaoFactory)
             throws ScmInternalException, ScmOmServerException {
         this.sessionFactory = sessionFactory;
         this.omserverConfig = omserverConfig;
+        this.scmMonitorDaoFactory = scmMonitorDaoFactory;
         refreshContentServerInstanceInfo();
         int period = omserverConfig.getCacheRefreshIntreval() * 1000;
         this.timer = ScmTimerFactory.createScmTimer();
@@ -77,7 +82,8 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
 
         ScmOmSession session = sessionFactory.createSession();
         try {
-            contentserverInstances = session.getMonitorDao().getContentServerInstance();
+            contentserverInstances = scmMonitorDaoFactory.createMonitorDao(session)
+                    .getContentServerInstance();
         }
         finally {
             session.close();

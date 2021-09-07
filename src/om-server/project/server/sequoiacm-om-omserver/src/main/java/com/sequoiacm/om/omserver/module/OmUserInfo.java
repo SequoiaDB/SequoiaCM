@@ -56,4 +56,15 @@ public class OmUserInfo {
         this.userId = userId;
     }
 
+    public boolean hasRole(String roleName) {
+        if (null == roles || roles.size() <= 0) {
+            return false;
+        }
+        for (OmRoleBasicInfo role : roles) {
+            if (role.getRoleName().equals(roleName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

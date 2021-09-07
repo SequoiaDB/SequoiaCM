@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -30,15 +31,14 @@ import com.sequoiacm.om.omserver.module.OmFileBasic;
 import com.sequoiacm.om.omserver.module.OmFileContent;
 import com.sequoiacm.om.omserver.module.OmFileDataSiteInfo;
 import com.sequoiacm.om.omserver.module.OmFileDetail;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
 
 public class ScmFileDaoImpl implements ScmFileDao {
     // private static Logger logger =
     // LoggerFactory.getLogger(ScmFileDaoImpl.class);
 
-    private ScmOmSessionImpl session;
+    private ScmOmSession session;
 
-    public ScmFileDaoImpl(ScmOmSessionImpl session) {
+    public ScmFileDaoImpl(ScmOmSession session) {
         this.session = session;
     }
 

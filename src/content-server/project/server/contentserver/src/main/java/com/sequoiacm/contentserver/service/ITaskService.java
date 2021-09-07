@@ -20,4 +20,6 @@ public interface ITaskService {
     void stopTask(String sessionId, String userDetail, String taskId) throws ScmServerException;
 
     void notifyTask(String taskId, int notifyType) throws ScmServerException;
+
+    long countTask(BSONObject condition) throws ScmServerException;
 }

@@ -131,6 +131,35 @@ public interface ScmSchedule {
     public void updateSchedule(ScheduleType type, ScmScheduleContent content) throws ScmException;
 
     /**
+     * Updates schedule.
+     * 
+     * @param name
+     *            update to new name if not null.
+     * @param cron
+     *            update to new cron if not null.
+     * @param workspace
+     *            update to new workspace if not null.
+     * @param dec
+     *            update to new description if not null.
+     * @param type
+     *            update to new type if not null.
+     * @param enable
+     *            update to new status if not null.
+     * @param preferredRegion
+     *            update to new preferredRegion if not null.
+     * @param preferredZone
+     *            update to new preferredZone if not null.
+     * @param content
+     *            update to new content if not null.
+     * @throws ScmException
+     *             if error happens.
+     * @since 3.1
+     */
+    public void updateSchedule(String name, String cron, String workspace, String dec,
+            ScheduleType type, Boolean enable, String preferredRegion, String preferredZone,
+            ScmScheduleContent content) throws ScmException;
+
+    /**
      * Deletes current schedule.
      *
      * @throws ScmException

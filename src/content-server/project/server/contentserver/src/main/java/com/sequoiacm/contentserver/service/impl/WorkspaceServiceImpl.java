@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sequoiacm.common.InvalidArgumentException;
+import com.sequoiacm.common.ScmArgChecker;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -239,6 +241,20 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         WorkspaceConfig resp = ContenserverConfClient.getInstance()
                 .updateWorkspaceConf(confUpdator);
         return resp.toBSONObject();
+    }
+
+    @Override
+    public long countWorkspace(BSONObject condition) throws ScmServerException {
+        try {
+            ScmContentServer contentServer = ScmContentServer.getInstance();
+            MetaAccessor accessor = contentServer.getMetaService().getMetaSource()
+                    .getWorkspaceAccessor();
+            return accessor.count(condition);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "Failed to get workspace count, condition=" + condition, e);
+        }
     }
 
     private WorkspaceUpdator validateUpdator(String wsName, ClientWorkspaceUpdator updator)

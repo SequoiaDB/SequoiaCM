@@ -1,6 +1,7 @@
 package com.sequoiacm.om.omserver.module;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,6 +17,9 @@ public class OmWorkspaceBasicInfo {
 
     @JsonProperty("description")
     private String description;
+
+    @JsonProperty("site_list")
+    private List<String> siteList;
 
     public String getName() {
         return name;
@@ -47,6 +51,14 @@ public class OmWorkspaceBasicInfo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getSiteList() {
+        return siteList;
+    }
+
+    public void setSiteList(List<String> siteList) {
+        this.siteList = siteList;
     }
 
     @Override

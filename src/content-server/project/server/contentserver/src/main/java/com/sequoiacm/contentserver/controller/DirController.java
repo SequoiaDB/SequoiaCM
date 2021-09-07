@@ -375,6 +375,6 @@ public class DirController {
         }
         audit.info(ScmAuditType.DIR_DQL, auth, workspaceName, 0, message);
         long count = dirService.countDir(workspaceName, condition);
-        response.setHeader("X-SCM-Count", String.valueOf(count));
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
     }
 }

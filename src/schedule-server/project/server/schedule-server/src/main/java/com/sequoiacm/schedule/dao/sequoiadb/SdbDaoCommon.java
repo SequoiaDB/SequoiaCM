@@ -43,4 +43,25 @@ public class SdbDaoCommon {
             throw e;
         }
     }
+
+    public static ScmBSONObjectCursor query(SdbDataSourceWrapper datasource, String csName,
+            String clName, BSONObject matcher, BSONObject orderBy, long skip, long limit)
+            throws Exception {
+        Sequoiadb sdb = null;
+        DBCursor cursor = null;
+        try {
+            sdb = datasource.getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            cursor = cl.query(matcher, null, orderBy, null, skip, limit);
+            return new SdbBSONObjectCursor(datasource, sdb, cursor);
+        }
+        catch (Exception e) {
+            SdbDaoCommon.closeCursor(cursor);
+            datasource.releaseConnection(sdb);
+            logger.error("query schedule failed[cs={},cl={},orderBy={},skip={},limit={}]:info={}",
+                    csName, clName, orderBy, skip, limit, matcher);
+            throw e;
+        }
+    }
 }

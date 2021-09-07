@@ -370,6 +370,11 @@ public class CommonDefine {
         public static final String IS_ASYNC_NOTIFY = "is_async_notify";
 
         public static final String ACTION_CALC_MD5 = "calc_md5";
+        public static final String ACTION_GET_SITE_STRATEGY = "get_site_strategy";
+
+        public static final String SITE_STRATEGY = "strategy";
+
+        public static final String X_SCM_COUNT = "X-SCM-Count";
     }
 
     public static class Directory {
@@ -412,5 +417,10 @@ public class CommonDefine {
     public static class TrafficType {
         public static final String SCM_TRAFFIC_TYPE_FILEUPLOAD = "file_upload";
         public static final String SCM_TRAFFIC_TYPE_FILEDOWNLOAD = "file_download";
+    }
+
+    public static class SiteStrategy {
+        public static final String SITE_STRATEGY_STAR = "star";
+        public static final String SITE_STRATEGY_NETWORK = "network";
     }
 }

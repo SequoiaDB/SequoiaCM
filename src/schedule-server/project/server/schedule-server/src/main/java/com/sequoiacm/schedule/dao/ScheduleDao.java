@@ -9,6 +9,9 @@ public interface ScheduleDao {
     public void insert(ScheduleFullEntity info) throws Exception;
 
     public ScmBSONObjectCursor query(BSONObject matcher) throws Exception;
+    
+    public ScmBSONObjectCursor query(BSONObject matcher, BSONObject orderBy, long skip, long limit)
+            throws Exception;
 
     public ScheduleFullEntity queryOne(String scheduleId) throws Exception;
     
@@ -23,4 +26,6 @@ public interface ScheduleDao {
     public void update(BSONObject matcher, BSONObject updator) throws Exception;
     
     public void delete(BSONObject matcher) throws Exception;
+
+    long countSchedule(BSONObject condition) throws Exception;
 }

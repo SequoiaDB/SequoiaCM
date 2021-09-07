@@ -49,7 +49,7 @@ public class InternalFileController {
                 condition, scope);
         long count = fileService.countFiles(workspaceName, scope, condition);
         long sumSize = fileService.sumFileSizes(workspaceName, scope, condition);
-        response.setHeader("X-SCM-Count", String.valueOf(count));
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         response.setHeader("X-SCM-Sum", String.valueOf(sumSize));
         return ResponseEntity.ok("");
     }

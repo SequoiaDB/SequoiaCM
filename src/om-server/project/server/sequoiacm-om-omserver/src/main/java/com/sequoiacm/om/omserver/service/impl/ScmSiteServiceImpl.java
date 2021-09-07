@@ -1,9 +1,11 @@
 package com.sequoiacm.om.omserver.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.om.omserver.factory.ScmSiteDaoFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,11 @@ import com.sequoiacm.om.omserver.session.ScmOmSession;
 public class ScmSiteServiceImpl implements ScmSiteService {
 
     private Map<Integer, OmCacheWrapper<OmSiteInfo>> sitesCache = new HashMap<>();
+    private OmCacheWrapper<String> siteStrategyCache = null;
     private long siteCacheTTL;
+
+    @Autowired
+    private ScmSiteDaoFactory scmSiteDaoFactory;
 
     @Autowired
     public ScmSiteServiceImpl(ScmOmServerConfig config) {
@@ -43,10 +49,45 @@ public class ScmSiteServiceImpl implements ScmSiteService {
         return site.getName();
     }
 
+    @Override
+    public List<OmSiteInfo> getSiteList(ScmOmSession session)
+            throws ScmOmServerException, ScmInternalException {
+        for (Map.Entry<Integer, OmCacheWrapper<OmSiteInfo>> entry : sitesCache.entrySet()) {
+            if (!entry.getValue().isExpire(siteCacheTTL)) {
+                return getSiteListFromCacheMap(sitesCache);
+            }
+            break;
+        }
+        refreshCacheAndGet(session, -1);
+        return getSiteListFromCacheMap(sitesCache);
+    }
+
+    private List<OmSiteInfo> getSiteListFromCacheMap(
+            Map<Integer, OmCacheWrapper<OmSiteInfo>> sitesCache) {
+        List<OmSiteInfo> omSiteInfoList = new ArrayList<>();
+        if (sitesCache == null || sitesCache.size() <= 0) {
+            return omSiteInfoList;
+        }
+        for (OmCacheWrapper<OmSiteInfo> cache : sitesCache.values()) {
+            omSiteInfoList.add(cache.getCache());
+        }
+        return omSiteInfoList;
+    }
+
+    @Override
+    public String getSiteStrategy(ScmOmSession session) throws ScmInternalException {
+        if (siteStrategyCache != null && !siteStrategyCache.isExpire(siteCacheTTL)) {
+            return siteStrategyCache.getCache();
+        }
+        String siteStrategy = scmSiteDaoFactory.createSiteDao(session).getSiteStrategy();
+        siteStrategyCache = new OmCacheWrapper<>(siteStrategy);
+        return siteStrategy;
+    }
+
     private OmSiteInfo refreshCacheAndGet(ScmOmSession session, int siteId)
             throws ScmOmServerException, ScmInternalException {
         Map<Integer, OmCacheWrapper<OmSiteInfo>> sitesCache = new HashMap<>();
-        List<OmSiteInfo> sitesInfo = session.getSiteDao().listSite();
+        List<OmSiteInfo> sitesInfo = scmSiteDaoFactory.createSiteDao(session).listSite();
         OmSiteInfo ret = null;
         for (OmSiteInfo siteInfo : sitesInfo) {
             if (siteId == siteInfo.getId()) {

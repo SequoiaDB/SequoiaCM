@@ -8,4 +8,6 @@ import com.sequoiacm.om.omserver.module.OmSiteInfo;
 
 public interface ScmSiteDao {
     public List<OmSiteInfo> listSite() throws ScmOmServerException, ScmInternalException;
+
+    public String getSiteStrategy() throws ScmInternalException;
 }

@@ -54,6 +54,12 @@ public class SdbScheduleDao implements ScheduleDao {
     public ScmBSONObjectCursor query(BSONObject matcher) throws Exception {
         return SdbDaoCommon.query(datasource, csName, clName, matcher);
     }
+    
+    @Override
+    public ScmBSONObjectCursor query(BSONObject matcher, BSONObject orderBy, long skip, long limit)
+            throws Exception {
+        return SdbDaoCommon.query(datasource, csName, clName, matcher, orderBy, skip, limit);
+    }
 
     @Override
     public ScheduleFullEntity queryOne(String scheduleId) throws Exception {
@@ -123,6 +129,24 @@ public class SdbScheduleDao implements ScheduleDao {
         }
         catch (Exception e) {
             logger.error("delete schedule failed[cs={},cl={}]:matcher={}", csName, clName, matcher);
+            throw e;
+        }
+        finally {
+            datasource.releaseConnection(sdb);
+        }
+    }
+
+    @Override
+    public long countSchedule(BSONObject condition) throws Exception {
+        Sequoiadb sdb = null;
+        try {
+            sdb = datasource.getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            return cl.getCount(condition);
+        }
+        catch (Exception e) {
+            logger.error("get schedule count failed[cs={},cl={}]:condition={}", csName, clName, condition);
             throw e;
         }
         finally {

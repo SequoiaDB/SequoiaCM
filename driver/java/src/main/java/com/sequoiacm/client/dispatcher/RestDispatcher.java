@@ -1343,10 +1343,13 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BsonReader getScheduleList(BSONObject condition) throws ScmException {
-        String s = encodeCondition(condition);
-        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE + "?filter="
-                + s;
+    public BsonReader getScheduleList(BSONObject condition, BSONObject orderby, long skip,
+                                      long limit) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE
+                + "?filter=" + encodeCondition(condition)
+                + "&skip=" + skip
+                + "&limit=" + limit
+                + "&orderby=" + encodeCondition(orderby);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1958,5 +1961,44 @@ public class RestDispatcher implements MessageDispatcher {
                 + type + "?" + ScmStatisticsDefine.REST_PARAM_CONDITION + "=" + s;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long countWorkspace(BSONObject condition) throws ScmException {
+        String filter = encodeCondition(condition);
+        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + "?&filter=" + filter;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
+    public long countSchedule(BSONObject condition) throws ScmException {
+        String filter = encodeCondition(condition);
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE + "?&filter="
+                + filter;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
+    public BSONObject getSiteStrategy() throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + SITE + "?action="
+                + CommonDefine.RestArg.ACTION_GET_SITE_STRATEGY;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long countTask(BSONObject condition) throws ScmException {
+        String filter = encodeCondition(condition);
+        String uri = URL_PREFIX + url + API_VERSION + TASK + "?&filter=" + filter;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
     }
 }

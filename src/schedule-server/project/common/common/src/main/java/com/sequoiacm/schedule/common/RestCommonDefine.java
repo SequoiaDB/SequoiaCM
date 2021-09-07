@@ -55,6 +55,9 @@ public class RestCommonDefine {
         public static final String KEY_DESCRIPTION = "description";
         public static final String KEY_NOTIFY_TYPE = "notify_type";
         public static final String KEY_QUERY_FILTER = "filter";
+        public static final String KEY_QUERY_ORDERBY = "orderby";
+        public static final String KEY_QUERY_SKIP = "skip";
+        public static final String KEY_QUERY_LIMIT = "limit";
 
         public static final int VALUE_NOTIFY_TYPE_START = 1;
         public static final int VALUE_NOTIFY_TYPE_STOP = 2;

@@ -44,7 +44,7 @@ public class ScmOmServerDeployer extends ServiceDeployerBase {
             gatewayUrls.add(gateway.getHostName() + ":" + gateway.getPort());
         }
         decoratedBSON.put("scm.omserver.gateway", CommonUtils.toString(gatewayUrls, ","));
-
+        decoratedArrayBson.add(decoratedBSON);
         return new BasicBSONObject().append(DeployJsonDefine.OM_SERVER, decoratedArrayBson);
     }
 

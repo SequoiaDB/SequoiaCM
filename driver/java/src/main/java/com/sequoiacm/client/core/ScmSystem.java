@@ -505,6 +505,23 @@ public class ScmSystem {
             return new ScmTask(taskInfo);
         }
 
+        /**
+         * Acquires task count which matches the query condition.
+         *
+         * @param ss
+         *            session.
+         * @param condition
+         *            The condition of query task.
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         * @return
+         */
+        public static long count(ScmSession ss, BSONObject condition) throws ScmException {
+            checkArgNotNull("session",ss);
+            checkArgNotNull("condition",condition);
+            return ss.getDispatcher().countTask(condition);
+        }
     }
 
     /**
@@ -601,15 +618,44 @@ public class ScmSystem {
          * @param ss
          *            session.
          * @param condition
-         *            filter.
+         *            the condition of query schedule, include:
+         *            id,name,create_time,type,workspace,create_user,enable,cron,desc
          * @return cursor.
          * @throws ScmException
          *             if error happens.
          */
         public static ScmCursor<ScmScheduleBasicInfo> list(ScmSession ss, BSONObject condition)
                 throws ScmException {
-            checkListParam(ss, condition);
-            BsonReader reader = ss.getDispatcher().getScheduleList(condition);
+            return list(ss, condition, null, 0, -1);
+        }
+
+        /**
+         * List schedule.
+         *
+         * @param ss
+         *            session.
+         * @param condition
+         *            the condition of query schedule, include:
+         *            id,name,create_time,type,workspace,create_user,enable,cron,desc
+         * @param orderby
+         *            the condition for sort, include:
+         *            id,name,create_time,type,workspace,create_user,enable,cron,desc
+         * @param skip
+         *            skip the the specified amount of tasks, never skip if this
+         *            parameter is 0.
+         * @param limit
+         *            return the specified amount of tasks, when limit is -1, return all
+         *            the schedule.
+         * @return cursor.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmCursor<ScmScheduleBasicInfo> list(ScmSession ss, BSONObject condition,
+                BSONObject orderby, long skip, long limit) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("condition", condition);
+            checkSkipAndLimit(skip, limit);
+            BsonReader reader = ss.getDispatcher().getScheduleList(condition, orderby, skip, limit);
             ScmCursor<ScmScheduleBasicInfo> cursor = new ScmBsonCursor<ScmScheduleBasicInfo>(reader,
                     new BsonConverter<ScmScheduleBasicInfo>() {
                         @Override
@@ -618,6 +664,17 @@ public class ScmSystem {
                         }
                     });
             return cursor;
+        }
+
+        private static void checkSkipAndLimit(long skip, long limit) throws ScmInvalidArgumentException {
+            if (skip < 0) {
+                throw new ScmInvalidArgumentException(
+                        "skip must be greater than or equals to 0:skip=" + skip);
+            }
+            if (limit < -1) {
+                throw new ScmInvalidArgumentException(
+                        "limit must be greater than or equals to -1:limit=" + limit);
+            }
         }
 
         private static void checkDeleteParam(ScmSession ss, ScmId scheduleId) throws ScmException {
@@ -660,6 +717,23 @@ public class ScmSystem {
             checkDeleteParam(ss, scheduleId);
             BSONObject scheduleInfo = ss.getDispatcher().getSchedule(scheduleId.get());
             return new ScmScheduleImpl(ss, scheduleInfo);
+        }
+
+        /**
+         * Acquires schedule count which matches the query condition.
+         * @param ss
+         *          session
+         * @param condition
+         *          The condition of query schedule.
+         * @return long
+         * @throws ScmException
+         *          if error happens.
+         * @since 3.1
+         */
+        public static long count(ScmSession ss, BSONObject condition) throws ScmException {
+            checkArgNotNull("session",ss);
+            checkArgNotNull("condition",condition);
+            return ss.getDispatcher().countSchedule(condition);
         }
     }
 

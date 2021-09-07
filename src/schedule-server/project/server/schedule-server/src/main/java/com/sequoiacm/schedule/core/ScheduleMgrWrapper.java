@@ -247,7 +247,12 @@ public class ScheduleMgrWrapper {
     }
 
     public ScmBSONObjectCursor getSchedule(BSONObject condition) throws Exception {
-        return scheduleDao.query(condition);
+        return scheduleDao.query(condition, null, 0, -1);
+    }
+
+    public ScmBSONObjectCursor getSchedule(BSONObject condition, BSONObject orderBy, long skip,
+            long limit) throws Exception {
+        return scheduleDao.query(condition, orderBy, skip, limit);
     }
 
     public ScheduleFullEntity updateSchedule(String scheduleId, ScheduleNewUserInfo newInfo)

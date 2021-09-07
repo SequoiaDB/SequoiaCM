@@ -149,4 +149,12 @@ public class TaskController {
         taskService.notifyTask(taskId, notifyType);
     }
 
+    @RequestMapping(value = "/api/v1/tasks", method = RequestMethod.HEAD)
+    public void countTask(
+            @RequestParam(value = CommonDefine.RestArg.TASK_FILTER, required = false) BSONObject condition,
+            HttpServletResponse response) throws ScmServerException {
+        long count = taskService.countTask(condition);
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+    }
+
 }

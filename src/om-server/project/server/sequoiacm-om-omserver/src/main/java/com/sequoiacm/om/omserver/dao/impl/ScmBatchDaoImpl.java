@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -20,13 +21,12 @@ import com.sequoiacm.om.omserver.dao.ScmBatchDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.module.OmBatchBasic;
 import com.sequoiacm.om.omserver.module.OmBatchDetail;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
 
 public class ScmBatchDaoImpl implements ScmBatchDao {
 
-    private ScmOmSessionImpl session;
+    private ScmOmSession session;
 
-    public ScmBatchDaoImpl(ScmOmSessionImpl session) {
+    public ScmBatchDaoImpl(ScmOmSession session) {
         this.session = session;
     }
 

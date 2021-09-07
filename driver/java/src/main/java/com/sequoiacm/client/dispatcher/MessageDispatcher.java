@@ -189,7 +189,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
             BSONObject content, String cron, boolean enable, String preferredRegion, String preferredZone) throws ScmException;
 
-    BsonReader getScheduleList(BSONObject condition) throws ScmException;
+    BsonReader getScheduleList(BSONObject condition, BSONObject orderby, long skip, long limit)
+            throws ScmException;
 
     void deleteSchedule(String scheduleId) throws ScmException;
 
@@ -294,4 +295,12 @@ public interface MessageDispatcher extends Closeable {
     long countFileWithFileIdxStatus(String ws, String status) throws ScmException;
 
     BSONObject getStatisticsData(String type, BSONObject condition) throws ScmException;
+
+    long countWorkspace(BSONObject condition) throws ScmException;
+
+    long countSchedule(BSONObject condition) throws ScmException;
+
+    BSONObject getSiteStrategy() throws ScmException;
+
+    long countTask(BSONObject condition) throws ScmException;
 }

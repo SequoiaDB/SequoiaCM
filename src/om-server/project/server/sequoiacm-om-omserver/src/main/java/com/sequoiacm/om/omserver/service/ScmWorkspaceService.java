@@ -8,14 +8,19 @@ import com.sequoiacm.om.omserver.module.OmWorkspaceBasicInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfoWithStatistics;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.bson.BSONObject;
 
 public interface ScmWorkspaceService {
     public OmWorkspaceInfoWithStatistics getWorksapceDetailWithStatistics(ScmOmSession session,
             String workspaceName) throws ScmInternalException, ScmOmServerException;
 
-    public OmWorkspaceDetail getWorksapceDetail(ScmOmSession session, String workspaceName)
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName)
             throws ScmInternalException, ScmOmServerException;
 
-    public List<OmWorkspaceBasicInfo> getWorkspaceList(ScmOmSession session, long skip, int limit)
+    public List<OmWorkspaceBasicInfo> getUserRelatedWsList(ScmOmSession session, BSONObject filter,
+            BSONObject orderby, long skip, int limit)
+            throws ScmInternalException, ScmOmServerException;
+
+    public long getWorkspaceCount(ScmOmSession session, BSONObject condition)
             throws ScmInternalException, ScmOmServerException;
 }

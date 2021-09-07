@@ -2,6 +2,8 @@ package com.sequoiacm.om.omserver.service.impl;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.dao.ScmBatchDao;
+import com.sequoiacm.om.omserver.factory.ScmBatchDaoFactory;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,17 +27,18 @@ public class ScmBatchServiceImpl implements ScmBatchService {
     @Autowired
     private ScmWorkspaceService wsService;
 
+    @Autowired
+    private ScmBatchDaoFactory scmBatchDaoFactory;
+
     @Override
     public OmBatchDetail getBatch(ScmOmSession session, String wsName, String batchId)
             throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorksapceDetail(session, wsName);
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
-
+        ScmBatchDao scmBatchDao = scmBatchDaoFactory.createScmBatchDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(preferSite);
-                return session.getBatchDao().getBatchDetail(wsName, batchId);
-            }
+            session.resetServiceEndpoint(preferSite);
+            return scmBatchDao.getBatchDetail(wsName, batchId);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -46,13 +49,12 @@ public class ScmBatchServiceImpl implements ScmBatchService {
     @Override
     public List<OmBatchBasic> getBatchList(ScmOmSession session, String wsName, BSONObject filter,
             long skip, int limit) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorksapceDetail(session, wsName);
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmBatchDao scmBatchDao = scmBatchDaoFactory.createScmBatchDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(preferSite);
-                return session.getBatchDao().getBatchList(wsName, filter, skip, limit);
-            }
+            session.resetServiceEndpoint(preferSite);
+            return scmBatchDao.getBatchList(wsName, filter, skip, limit);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);

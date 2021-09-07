@@ -1,5 +1,6 @@
 package com.sequoiacm.om.omserver.dao.impl;
 
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BasicBSONObject;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -8,12 +9,11 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.om.omserver.dao.ScmDirDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
 
 public class ScmDirDaoImpl implements ScmDirDao {
-    private ScmOmSessionImpl session;
+    private ScmOmSession session;
 
-    public ScmDirDaoImpl(ScmOmSessionImpl session) {
+    public ScmDirDaoImpl(ScmOmSession session) {
         this.session = session;
     }
 

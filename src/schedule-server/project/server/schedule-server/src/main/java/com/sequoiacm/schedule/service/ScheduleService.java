@@ -18,10 +18,15 @@ public interface ScheduleService {
 
     public ScmBSONObjectCursor listSchedule(BSONObject condition) throws Exception;
 
+    public ScmBSONObjectCursor listSchedule(BSONObject condition, BSONObject orderBy, long skip,
+            long limit) throws Exception;
+
     public ScheduleFullEntity updateSchedule(String scheduleId, ScheduleNewUserInfo newInfo)
             throws Exception;
 
     public InternalSchStatus getInternalSchLatestStatusByName(String scheduleName) throws Exception;
 
     public void reportInternalSchStatus(InternalSchStatus status) throws Exception;
+
+    long countSchedule(BSONObject condition) throws Exception;
 }

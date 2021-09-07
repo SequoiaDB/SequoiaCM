@@ -2,6 +2,8 @@ package com.sequoiacm.om.omserver.service.impl;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.dao.ScmRoleDao;
+import com.sequoiacm.om.omserver.factory.ScmRoleDaoFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +21,25 @@ public class ScmRoleServiceImpl implements ScmRoleService {
     @Autowired
     private ScmSiteChooser siteChooser;
 
+    @Autowired
+    private ScmRoleDaoFactory scmRoleDaoFactory;
+
     @Override
     public OmRoleInfo getRole(ScmOmSession session, String rolename)
             throws ScmInternalException, ScmOmServerException {
-        return session.getRoleDao().getRole(rolename);
+        return scmRoleDaoFactory.createRoleDao(session).getRole(rolename);
     }
 
     @Override
     public void createRole(ScmOmSession session, String rolename, String description)
             throws ScmInternalException, ScmOmServerException {
-        session.getRoleDao().createRole(rolename, description);
+        scmRoleDaoFactory.createRoleDao(session).createRole(rolename, description);
     }
 
     @Override
     public void deleteRole(ScmOmSession session, String rolename)
             throws ScmInternalException, ScmOmServerException {
-        session.getRoleDao().deleteRole(rolename);
+        scmRoleDaoFactory.createRoleDao(session).deleteRole(rolename);
     }
 
     @Override
@@ -42,12 +47,10 @@ public class ScmRoleServiceImpl implements ScmRoleService {
             String resource, String privilegeType)
             throws ScmInternalException, ScmOmServerException {
         String site = siteChooser.chooseFromAllSite();
+        ScmRoleDao roleDao = scmRoleDaoFactory.createRoleDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(site);
-                session.getRoleDao().grantPrivilege(rolename, resourceType, resource,
-                        privilegeType);
-            }
+            session.resetServiceEndpoint(site);
+            roleDao.grantPrivilege(rolename, resourceType, resource, privilegeType);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -60,12 +63,10 @@ public class ScmRoleServiceImpl implements ScmRoleService {
             String resource, String privilegeType)
             throws ScmInternalException, ScmOmServerException {
         String site = siteChooser.chooseFromAllSite();
+        ScmRoleDao roleDao = scmRoleDaoFactory.createRoleDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(site);
-                session.getRoleDao().revokePrivilege(rolename, resourceType, resource,
-                        privilegeType);
-            }
+            session.resetServiceEndpoint(site);
+            roleDao.revokePrivilege(rolename, resourceType, resource, privilegeType);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -76,6 +77,6 @@ public class ScmRoleServiceImpl implements ScmRoleService {
     @Override
     public List<OmRoleBasicInfo> listRoles(ScmOmSession session, long skip, int limit)
             throws ScmInternalException, ScmOmServerException {
-        return session.getRoleDao().listRoles(skip, limit);
+        return scmRoleDaoFactory.createRoleDao(session).listRoles(skip, limit);
     }
 }

@@ -2,6 +2,8 @@ package com.sequoiacm.om.omserver.service.impl;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.dao.ScmFileDao;
+import com.sequoiacm.om.omserver.factory.ScmFileDaoFactory;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,22 +32,23 @@ public class ScmFileServiceImpl implements ScmFileService {
     @Autowired
     private ScmSiteService siteService;
 
+    @Autowired
+    private ScmFileDaoFactory scmFileDaoFactory;
+
     @Override
     public OmFileDetail getFileDetail(ScmOmSession session, String ws, String id, int majorVersion,
             int minorVersion) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorksapceDetail(session, ws);
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(preferSite);
-                OmFileDetail fileDetail = session.getFileDao().getFileDetail(ws, id, majorVersion,
-                        minorVersion);
-                // reset site list, replace site id to site name
-                for (OmFileDataSiteInfo site : fileDetail.getSites()) {
-                    site.setSiteName(siteService.getSiteById(session, site.getSiteId()));
-                }
-                return fileDetail;
+            session.resetServiceEndpoint(preferSite);
+            OmFileDetail fileDetail = fileDao.getFileDetail(ws, id, majorVersion, minorVersion);
+            // reset site list, replace site id to site name
+            for (OmFileDataSiteInfo site : fileDetail.getSites()) {
+                site.setSiteName(siteService.getSiteById(session, site.getSiteId()));
             }
+            return fileDetail;
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -56,13 +59,12 @@ public class ScmFileServiceImpl implements ScmFileService {
     @Override
     public List<OmFileBasic> getFileList(ScmOmSession session, String ws, BSONObject condition,
             long skip, long limit) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorksapceDetail(session, ws);
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(preferSite);
-                return session.getFileDao().getFileList(ws, condition, skip, limit);
-            }
+            session.resetServiceEndpoint(preferSite);
+            return fileDao.getFileList(ws, condition, skip, limit);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -73,13 +75,12 @@ public class ScmFileServiceImpl implements ScmFileService {
     @Override
     public OmFileContent downloadFile(ScmOmSession session, String ws, String id, int majorVersion,
             int minorVersion) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorksapceDetail(session, ws);
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
-            synchronized (session) {
-                session.resetServiceEndpoint(preferSite);
-                return session.getFileDao().downloadFile(ws, id, majorVersion, minorVersion);
-            }
+            session.resetServiceEndpoint(preferSite);
+            return fileDao.downloadFile(ws, id, majorVersion, minorVersion);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);

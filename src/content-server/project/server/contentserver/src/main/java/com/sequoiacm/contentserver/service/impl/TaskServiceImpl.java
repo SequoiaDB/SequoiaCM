@@ -316,6 +316,19 @@ public class TaskServiceImpl implements ITaskService {
         }
     }
 
+    @Override
+    public long countTask(BSONObject condition) throws ScmServerException {
+        MetaTaskAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource()
+                .getTaskAccessor();
+        try {
+            return accessor.count(condition);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "Failed to get task count, condition=" + condition, e);
+        }
+    }
+
     private void stopAndNotifyTask(String taskId) throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
         BSONObject taskInfo = ScmContentServer.getInstance().getTaskInfo(matcher);

@@ -49,6 +49,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ScmBSONObjectCursor listSchedule(BSONObject condition, BSONObject orderBy, long skip,
+            long limit) throws Exception {
+        return ScheduleMgrWrapper.getInstance().getSchedule(condition, orderBy, skip, limit);
+    }
+
+    @Override
     public ScheduleFullEntity updateSchedule(String scheduleId, ScheduleNewUserInfo newInfo)
             throws Exception {
         return ScheduleMgrWrapper.getInstance().updateSchedule(scheduleId, newInfo);
@@ -83,6 +89,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         status.setSchName(sch.getName());
         dao.upsertStatus(status);
+    }
+
+    @Override
+    public long countSchedule(BSONObject condition) throws Exception {
+        return schDao.countSchedule(condition);
     }
 
     public boolean workerNoderEquals(String jobInfoWorkNode, String statusWorkNode)

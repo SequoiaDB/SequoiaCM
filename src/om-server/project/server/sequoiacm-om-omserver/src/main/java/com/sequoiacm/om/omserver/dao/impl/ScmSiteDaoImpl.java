@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -12,12 +13,12 @@ import com.sequoiacm.om.omserver.dao.ScmSiteDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmSiteInfo;
-import com.sequoiacm.om.omserver.session.ScmOmSessionImpl;
+import com.sequoiacm.om.omserver.session.ScmOmSession;
 
 public class ScmSiteDaoImpl implements ScmSiteDao {
-    private ScmOmSessionImpl session;
+    private ScmOmSession session;
 
-    public ScmSiteDaoImpl(ScmOmSessionImpl session) {
+    public ScmSiteDaoImpl(ScmOmSession session) {
         this.session = session;
     }
 
@@ -37,7 +38,26 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
             throw new ScmInternalException(e.getError(), "failed to list site," + e.getMessage(),
                     e);
         }
+        finally {
+            if (null != cursor) {
+                cursor.close();
+            }
+        }
         return sites;
+    }
+
+    @Override
+    public String getSiteStrategy() throws ScmInternalException {
+        ScmSession conn = session.getConnection();
+        ScmType.SiteStrategyType strategy = null;
+        try {
+            strategy = ScmFactory.Site.getSiteStrategy(conn);
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to get site strategy," + e.getMessage(), e);
+        }
+        return strategy.getStrategy();
     }
 
     private OmSiteInfo transformToOmSite(ScmSiteInfo scmSite) {
@@ -45,6 +65,7 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
         omSite.setId(scmSite.getId());
         omSite.setName(scmSite.getName());
         omSite.setRootSite(scmSite.isRootSite());
+        omSite.setDataUrl(scmSite.getDataUrl());
         return omSite;
     }
 

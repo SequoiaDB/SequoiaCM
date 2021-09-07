@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -2144,7 +2145,7 @@ public class ScmFactory {
          * @since 2.2
          */
         public static ScmCursor<ScmWorkspaceInfo> listWorkspace(ScmSession ss) throws ScmException {
-            return listWorkspace(ss, null, 0, -1);
+            return listWorkspace(ss, new BasicBSONObject(), null, 0, -1);
         }
 
         /**
@@ -2168,12 +2169,41 @@ public class ScmFactory {
          */
         public static ScmCursor<ScmWorkspaceInfo> listWorkspace(ScmSession ss, BSONObject orderBy,
                 long skip, long limit) throws ScmException {
+            return listWorkspace(ss, new BasicBSONObject(), orderBy, skip, limit);
+        }
+
+        /**
+         * Acquires ScmWorkspaceInfo instance list.
+         *
+         * @param ss
+         *            session object
+         * @param condition
+         *            the condition of query workspace
+         * @param orderBy
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Workspace}, value is -1(descending) or
+         *            1(ascending)
+         * @param skip
+         *            skip to the first number Record
+         * @param limit
+         *            return the total records of query, when value is -1, return all
+         *            records
+         * @return A cursor to traverse
+         * @throws ScmException
+         *             if errors happens
+         * @since 3.1
+         */
+        public static ScmCursor<ScmWorkspaceInfo> listWorkspace(ScmSession ss, BSONObject condition,  BSONObject orderBy,
+                                                                long skip, long limit) throws ScmException {
             if (null == ss) {
                 throw new ScmInvalidArgumentException("session is null");
             }
+            if (null == condition) {
+                throw new ScmInvalidArgumentException("condition is null");
+            }
             checkSkip(skip);
             checkLimit(limit);
-            BsonReader reader = ss.getDispatcher().getWorkspaceList(new BasicBSONObject(), orderBy,
+            BsonReader reader = ss.getDispatcher().getWorkspaceList(condition, orderBy,
                     skip, limit);
             ScmCursor<ScmWorkspaceInfo> cusor = new ScmBsonCursor<ScmWorkspaceInfo>(reader,
                     new BsonConverter<ScmWorkspaceInfo>() {
@@ -2219,6 +2249,21 @@ public class ScmFactory {
             deleteWorkspace(ss, wsName, false);
         }
 
+        /**
+         * Acquires workspace count which matches the query condition.
+         * 
+         * @param ss
+         *            session.
+         * @param condition
+         *            The condition of query workspace.
+         * @since 3.1
+         * @return
+         */
+        public static long count(ScmSession ss, BSONObject condition) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("condition", condition);
+            return ss.getDispatcher().countWorkspace(condition);
+        }
     }
 
     /**
@@ -2255,6 +2300,24 @@ public class ScmFactory {
                         }
                     });
             return cusor;
+        }
+
+        /**
+         * Acquire site strategy
+         * 
+         * @param ss
+         *            session object.
+         * @return SiteStrategyType
+         * @see ScmType.SiteStrategyType
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.1
+         */
+        public static ScmType.SiteStrategyType getSiteStrategy(ScmSession ss) throws ScmException {
+            checkArgNotNull("session", ss);
+            BSONObject result = ss.getDispatcher().getSiteStrategy();
+            String strategy = String.valueOf(result.get(CommonDefine.RestArg.SITE_STRATEGY));
+            return ScmType.SiteStrategyType.getStrategyType(strategy);
         }
     }
 

@@ -231,6 +231,6 @@ public class BatchController {
         }
         audit.info(ScmAuditType.BATCH_DQL, auth, workspaceName, 0, message);
         long count = batchService.countBatch(workspaceName, condition);
-        response.setHeader("X-SCM-Count", String.valueOf(count));
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
     }
 }

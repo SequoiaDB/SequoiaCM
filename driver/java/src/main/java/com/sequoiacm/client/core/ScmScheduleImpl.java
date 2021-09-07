@@ -183,6 +183,57 @@ class ScmScheduleImpl implements ScmSchedule {
     }
 
     @Override
+    public void updateSchedule(String name, String cron, String workspace, String dec,
+            ScheduleType type, Boolean enable, String preferredRegion, String preferredZone,
+            ScmScheduleContent content) throws ScmException {
+        BSONObject newValue = new BasicBSONObject();
+        newValue.put(ScmAttributeName.Schedule.NAME, name);
+        newValue.put(ScmAttributeName.Schedule.CRON, cron);
+        newValue.put(ScmAttributeName.Schedule.WORKSPACE, workspace);
+        newValue.put(ScmAttributeName.Schedule.DESC, dec);
+        newValue.put(ScmAttributeName.Schedule.TYPE, type.getName());
+        newValue.put(ScmAttributeName.Schedule.ENABLE, enable);
+        newValue.put(ScmAttributeName.Schedule.PREFERRED_REGION, preferredRegion);
+        newValue.put(ScmAttributeName.Schedule.PREFERRED_ZONE, preferredZone);
+        BSONObject contentBson = content == null  ? null : content.toBSONObject();
+        newValue.put(ScmAttributeName.Schedule.CONTENT, contentBson);
+        ss.getDispatcher().updateSchedule(getId().get(), newValue);
+        if (name != null) {
+            basicInfo.setName(name);
+        }
+        if (cron != null) {
+            basicInfo.setCron(cron);
+        }
+        if (workspace != null) {
+            basicInfo.setWorkspace(workspace);
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        if (type != null) {
+            basicInfo.setType(type);
+        }
+        if (enable != null) {
+            basicInfo.setEnable(enable);
+        }
+        if (dec != null) {
+            basicInfo.setDesc(dec);
+        }
+        if (preferredRegion != null) {
+            basicInfo.setPreferredRegion(preferredRegion);
+        }
+        if (preferredZone != null) {
+            basicInfo.setPreferredZone(preferredZone);
+        }
+    }
+
+    private void checkArgNotNull(String name, Object obj) throws ScmInvalidArgumentException {
+        if (null == obj) {
+            throw new ScmInvalidArgumentException(name + " can't be null");
+        }
+    }
+
+    @Override
     public void delete() throws ScmException {
         ss.getDispatcher().deleteSchedule(getId().get());
     }

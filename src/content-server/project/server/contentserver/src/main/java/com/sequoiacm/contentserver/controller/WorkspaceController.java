@@ -13,16 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
@@ -153,6 +144,20 @@ public class WorkspaceController {
         audit.info(ScmAuditType.UPDATE_WS, auth, workspaceName, 0,
                 "update workspace:" + workspaceName + ", updator=" + updator);
         return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
+    }
+
+    @RequestMapping(value = "/workspaces", method = RequestMethod.HEAD)
+    public ResponseEntity<String> countWorkspace(
+            @RequestParam(value = CommonDefine.RestArg.WORKSPACE_FILTER, required = false) BSONObject condition,
+            HttpServletResponse response, Authentication auth) throws ScmServerException {
+        String message = "count workspace";
+        if (null != condition) {
+            message += " by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.WS_DQL, auth, null, 0, message);
+        long count = workspaceService.countWorkspace(condition);
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+        return ResponseEntity.ok("");
     }
 
     private BSONObject toClientWsBSON(BSONObject wsRec) {
