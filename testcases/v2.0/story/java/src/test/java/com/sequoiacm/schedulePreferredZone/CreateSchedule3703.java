@@ -1,4 +1,4 @@
-package com.sequoiacm.schedule;
+package com.sequoiacm.schedulePreferredZone;
 
 import java.io.File;
 import java.io.IOException;
