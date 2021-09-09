@@ -88,7 +88,7 @@ public class ListTask3724 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         ScmSchedule copySchedule = ScmScheduleUtils.createCopySchedule(
                 branchSiteSession, branchSite, rootSite, wsp, queryCond, region,

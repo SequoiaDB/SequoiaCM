@@ -92,7 +92,7 @@ public class GetLatesTask3719 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         ScmScheduleContent copyContent = new ScmScheduleCopyFileContent(
                 branchSite.getSiteName(), rootSite.getSiteName(), "0d",
