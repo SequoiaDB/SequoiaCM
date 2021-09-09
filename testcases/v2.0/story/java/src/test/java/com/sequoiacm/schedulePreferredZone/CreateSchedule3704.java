@@ -95,7 +95,7 @@ public class CreateSchedule3704 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         BSONObject copyCondition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( fileName ).get();

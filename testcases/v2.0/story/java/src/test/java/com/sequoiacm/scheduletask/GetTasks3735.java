@@ -85,7 +85,7 @@ public class GetTasks3735 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         ScmSchedule copySchedule = ScmScheduleUtils.createCopySchedule(
                 branchSiteSession, branchSite, rootSite, wsp, queryCond, region,

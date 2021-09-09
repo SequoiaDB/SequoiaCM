@@ -61,7 +61,7 @@ public class CreateSchedule3703 extends TestScmBase {
     private List< ScmTask > successTasks = new ArrayList<>();
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(groups = { "fourSite" })
     public void setUp() throws IOException, ScmException {
         zone = TestScmBase.zone1;
         region = TestScmBase.defaultRegion;
