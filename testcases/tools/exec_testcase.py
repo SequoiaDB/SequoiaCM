@@ -406,6 +406,7 @@ def execCMD(testhost, user, passwd, cmd):
     (status,output) = commands.getstatusoutput(dbSshCmd)
     if status!=0:
         displayError('exec cmd:'+dbSshCmd+'\r\nerrorMsg:'+output)
+        sys.exit(1)
         
 def execScpFile(desthost, destuser, destpasswd, srcpath, destpath):
     dbSshCmd = DB_INSTALL_DIR+'/bin/sdb -s \'ssh = new Ssh("'+desthost+'","'+destuser+'","'+destpasswd+'");ssh.push("'+srcpath+'","'+destpath+'",0755);print(ssh.getLastOut());println(ssh.getLastRet())\''
