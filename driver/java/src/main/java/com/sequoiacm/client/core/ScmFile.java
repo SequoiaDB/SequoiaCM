@@ -120,6 +120,11 @@ public abstract class ScmFile {
      *
      * @param name
      *            File name.
+     *            <dl>
+     *            <dt>name can't be null,empty string,or dot(.).
+     *                also,name can't contain special characters like / \\ % ; : * ? &quot; &lt; &gt; |
+     *            </dt>
+     *            </dl>
      * @throws ScmException
      *             If error happens If error happens.
      *

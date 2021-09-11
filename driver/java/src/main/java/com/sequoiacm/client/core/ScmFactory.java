@@ -694,6 +694,12 @@ public class ScmFactory {
          *            workspace.
          * @param path
          *            directory path.
+         *            <dl>
+         *            <dt>directory name can't be null,empty string,or dot(.).
+         *                also,directory name can't contain special characters
+         *                like / \\ % ; : * ? &quot; &lt; &gt; |
+         *            </dt>
+         *            </dl>
          * @return instance of directory.
          * @throws ScmException
          *             if error happens.

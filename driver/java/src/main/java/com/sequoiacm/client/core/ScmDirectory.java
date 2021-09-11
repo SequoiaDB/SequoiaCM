@@ -103,6 +103,12 @@ public abstract class ScmDirectory {
      *
      * @param newname
      *            new name.
+     *            <dl>
+     *            <dt>newname can't be null,empty string,or dot(.).
+     *                also,newname can't contain special characters
+     *                like / \\ % ; : * ? &quot; &lt; &gt; |
+     *            </dt>
+     *            </dl>
      * @throws ScmException
      *             if error happens.
      */
@@ -168,6 +174,12 @@ public abstract class ScmDirectory {
      *
      * @param name
      *            subdirectory name.
+     *            <dl>
+     *            <dt>name can't be null,empty string,or dot(.).
+     *                also, name can't contain special characters
+     *                like / \\ % ; : * ? &quot; &lt; &gt; |
+     *            </dt>
+     *            </dl>
      * @return subdirectory.
      * @throws ScmException
      *             if error happens.
