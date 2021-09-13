@@ -35,7 +35,7 @@
         <withJansi>true</withJansi>
         <encoder
             class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-               <pattern>%highlight([%-5level]) %msg %n %nopex</pattern>
+               <pattern>%highlight([%-5level]) %msg %n%nopex</pattern>
         </encoder>
         <filter class="com.sequoiacm.deploy.common.DeployConsoleLogFilter">
             <level>INFO</level>
