@@ -660,6 +660,7 @@ class ScmFileImpl extends ScmFile {
             conn = ws.getSession();
             conn.getDispatcher().deleteFile(ws.getName(), basicInfo.getFileId().get(),
                     basicInfo.getMajorVersion(), basicInfo.getMinorVersion(), isPhysical);
+            setIsDeleted(true);
         }
     }
 
