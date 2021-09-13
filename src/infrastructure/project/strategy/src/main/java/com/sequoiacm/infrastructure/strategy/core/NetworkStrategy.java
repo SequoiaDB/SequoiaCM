@@ -38,6 +38,10 @@ public class NetworkStrategy implements ConnectivityStrategy {
                     + "transfer task's source site cannot be last site in the workspace");
         }
         */
+        if (sourceSiteId == targetSiteId) {
+            throw new StrategyException("The source site and target site cannot be the same"
+                    + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
+        }
         if (!StrategyTools.isConnected(this.strategies, sourceSiteId, targetSiteId)) {
             throw new StrategyException("The source site cannot connect to the target site:sourceSite=" 
                     + sourceSiteId + ",targetSite=" + targetSiteId);

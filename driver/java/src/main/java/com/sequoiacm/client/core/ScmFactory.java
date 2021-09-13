@@ -411,7 +411,7 @@ public class ScmFactory {
          * @param fileId
          *            file id.
          * @param targetSite
-         *            target site.
+         *            target site name.
          * @throws ScmException
          *             if error happens.
          * @since 3.1
@@ -454,7 +454,7 @@ public class ScmFactory {
          * @throws ScmException
          *             if error happens.
          * @param targetSite
-         *            target site.
+         *            target site name.
          * @since 3.1
          */
         public static void asyncTransfer(ScmWorkspace ws, ScmId fileId, int majorVersion,

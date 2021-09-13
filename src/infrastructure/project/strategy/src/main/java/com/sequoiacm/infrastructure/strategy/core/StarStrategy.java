@@ -29,10 +29,9 @@ public class StarStrategy implements ConnectivityStrategy {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, sourceSiteId);
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, targetSiteId);
 
-        if (sourceSiteId == mainSiteId && targetSiteId == mainSiteId) {
-            throw new StrategyException(
-                    "Under the star strategy, if the source site is main site, must specify a branch site as the target site"
-                            + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
+        if (sourceSiteId == targetSiteId) {
+            throw new StrategyException("The source site and target site cannot be the same"
+                    + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
         }
         if (sourceSiteId != mainSiteId && targetSiteId != mainSiteId) {
             throw new StrategyException(
