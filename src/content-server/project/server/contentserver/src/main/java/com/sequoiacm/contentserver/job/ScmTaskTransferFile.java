@@ -1,6 +1,10 @@
 package com.sequoiacm.contentserver.job;
 
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +32,6 @@ public class ScmTaskTransferFile extends ScmTaskFile {
 
         ScmWorkspaceInfo ws = getWorkspaceInfo();
         FileTransferInterrupter interrupter = new TaskTransfileInterrupter(this);
-        remoteSiteId = (int) info.get(FieldName.Task.FIELD_TARGET_SITE);
         fileTrans = new FileTransferDao(ws, remoteSiteId, interrupter);
     }
 
@@ -103,6 +106,31 @@ public class ScmTaskTransferFile extends ScmTaskFile {
         }
         finally {
             fileContentLock.unlock();
+        }
+    }
+
+    @Override
+    protected BSONObject buildActualMatcher() throws ScmServerException {
+        remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
+        try {
+            BasicBSONList matcherList = new BasicBSONList();
+            BSONObject taskMatcher = getTaskContent();
+            BSONObject mySiteFileMatcher = ScmMetaSourceHelper
+                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
+            BSONObject targetSiteFileMatcher = ScmMetaSourceHelper
+                    .dollarSiteNotInList(remoteSiteId);
+            matcherList.add(taskMatcher);
+            matcherList.add(mySiteFileMatcher);
+            matcherList.add(targetSiteFileMatcher);
+
+            BSONObject needProcessMatcher = new BasicBSONObject();
+            needProcessMatcher.put(ScmMetaSourceHelper.SEQUOIADB_MATCHER_AND, matcherList);
+
+            return needProcessMatcher;
+        }
+        catch (Exception e) {
+            logger.error("build actual matcher failed", e);
+            throw new ScmSystemException("build actual matcher failed", e);
         }
     }
 }

@@ -38,6 +38,7 @@ enum DoFileRes {
 public abstract class ScmTaskFile extends ScmTaskBase {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskFile.class);
 
+    protected BSONObject taskInfo;
     private String taskId;
     private BSONObject taskMatcher;
     private int mainSiteId;
@@ -64,6 +65,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     public ScmTaskFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
         super(mgr);
         try {
+            taskInfo = info;
             taskId = (String) info.get(FieldName.Task.FIELD_ID);
             taskMatcher = (BSONObject) info.get(FieldName.Task.FIELD_CONTENT);
             String wsName = (String) info.get(FieldName.Task.FIELD_WORKSPACE);
@@ -77,7 +79,6 @@ public abstract class ScmTaskFile extends ScmTaskBase {
 
             actualMatcher = buildActualMatcher();
             initTaskFileCount();
-
             maxExecTime = BsonUtils.getLongOrElse(info, FieldName.Task.FIELD_MAX_EXEC_TIME,
                     maxExecTime);
         }
@@ -234,25 +235,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     protected abstract DoFileRes doFile(String fileId, int majorVersion, int minorVersion,
             String dataId) throws ScmServerException;
 
-    private BSONObject buildActualMatcher() throws ScmServerException {
-        try {
-            BasicBSONList matcherList = new BasicBSONList();
-            BSONObject taskMatcher = getTaskContent();
-            BSONObject mySiteFileMatcher = ScmMetaSourceHelper
-                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
-            matcherList.add(taskMatcher);
-            matcherList.add(mySiteFileMatcher);
-
-            BSONObject needProcesMatcher = new BasicBSONObject();
-            needProcesMatcher.put(ScmMetaSourceHelper.SEQUOIADB_MATCHER_AND, matcherList);
-
-            return needProcesMatcher;
-        }
-        catch (Exception e) {
-            logger.error("build actual matcher failed", e);
-            throw new ScmSystemException("build actual matcher failed", e);
-        }
-    }
+    protected abstract BSONObject buildActualMatcher() throws ScmServerException;
 
     @Override
     public final void _runTask() {

@@ -3,7 +3,10 @@ package com.sequoiacm.contentserver.job;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +131,27 @@ public class ScmTaskCleanFile extends ScmTaskFile {
         }
         finally {
             fileContentLock.unlock();
+        }
+    }
+
+    @Override
+    protected BSONObject buildActualMatcher() throws ScmServerException {
+        try {
+            BasicBSONList matcherList = new BasicBSONList();
+            BSONObject taskMatcher = getTaskContent();
+            BSONObject mySiteFileMatcher = ScmMetaSourceHelper
+                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
+            matcherList.add(taskMatcher);
+            matcherList.add(mySiteFileMatcher);
+
+            BSONObject needProcessMatcher = new BasicBSONObject();
+            needProcessMatcher.put(ScmMetaSourceHelper.SEQUOIADB_MATCHER_AND, matcherList);
+
+            return needProcessMatcher;
+        }
+        catch (Exception e) {
+            logger.error("build actual matcher failed", e);
+            throw new ScmSystemException("build actual matcher failed", e);
         }
     }
 
