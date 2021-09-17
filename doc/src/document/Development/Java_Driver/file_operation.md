@@ -76,12 +76,12 @@ finally {
 //获取 ScmFile 实例
 ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
 //创建 ScmInputStream 实例
-ScmInputStream is = ScmFactory.File.createInputStream(InputStreamType.SEEKABLE, file);
+ScmInputStream is = ScmFactory.File.createInputStream(InputStreamType.UNSEEKABLE, file);
 //从 ScmInputStream 中读取数据，写至本地文件
 OutputStream os = null;
 try {
     os = new FileOutputStream("E:\\test\\in_download_file.txt");
-    //if need seek
+    //如需使用seek，请在创建输入流时指定输入流类型为：InputStreamType.SEEKABLE
     //is.seek(SeekType.SCM_FILE_SEEK_SET, 1000);            
     is.read(os);
 }
@@ -96,7 +96,7 @@ finally {
 > 
 >  InputStreamType 支持如下两种类型：
 > 
->  * SEEKABLE:创建一个支持 seek 操作的实例，若读取的文件不在本地站点，创建实例后，第一次读取有效数据时，系统会将文件一次性全部缓存至本地站点
+>  * SEEKABLE:创建一个支持 seek 操作的实例，允许从特定的位置开始读取文件内容，若读取的文件不在本地站点，创建实例后，第一次读取有效数据时，系统会将文件一次性全部缓存至本地站点
 > 
 >  * UNSEEKABLE:创建一个不支持 seek 操作的实例，若读取的文件不在本地站点，客户端每次调用实例的 read 方法时会将这部分数据缓存至本地站点
 
