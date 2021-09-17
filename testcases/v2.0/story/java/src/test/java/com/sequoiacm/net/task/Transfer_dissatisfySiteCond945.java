@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sequoiacm.net.task;
 
 import java.io.File;
@@ -8,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -33,18 +30,21 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
- * @Description:SCM-945:迁移满足迁移条件但不满足站点条件的文件
- * @author fanyu
- * @Date:2017年10月30日
- * @version:1.0
+ * @Descreption SCM-945:迁移满足迁移条件但不满足站点条件的文件
+ * @Author fanyu
+ * @CreateDate 2017年10月30日
+ * @UpdateUser YiPan
+ * @UpdateDate 2021/9/14
+ * @UpdateRemark 优化用例
+ * @Version 1.0
  */
 public class Transfer_dissatisfySiteCond945 extends TestScmBase {
     private boolean runSuccess = false;
-    private List< SiteWrapper > siteList = null;
+    private SiteWrapper rootSite = null;
+    private List< SiteWrapper > branceSites = null;
     private WsWrapper ws_T = null;
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
@@ -52,9 +52,10 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
     private ScmWorkspace wsA = null;
     private ScmSession sessionB = null;
     private ScmWorkspace wsB = null;
+    private BSONObject cond;
 
     private ScmId taskId = null;
-    private String authorName = "Transfer945";
+    private final String authorName = "Transfer945";
     private int fileSize = 100;
     private int fileNum = 10;
     private List< ScmId > fileIdList1 = new ArrayList<>();
@@ -65,91 +66,75 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
     private String filePath = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready local file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready local file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            // get site and ws
-            ws_T = ScmInfo.getWs();
-            siteList = ScmNetUtils.getAllSite( ws_T );
+        // get site and ws
+        rootSite = ScmInfo.getRootSite();
+        branceSites = ScmInfo.getBranchSites( 2 );
+        ws_T = ScmInfo.getWs();
 
-            // clean scmFile
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        // clean scmFile
+        cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
 
-            // login
-            sessionM = TestScmTools.createSession( siteList.get( 2 ) );
-            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
+        // login
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
 
-            sessionA = TestScmTools.createSession( siteList.get( 0 ) );
-            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        sessionA = TestScmTools.createSession( branceSites.get( 0 ) );
+        wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            sessionB = TestScmTools.createSession( siteList.get( 1 ) );
-            wsB = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionB );
+        sessionB = TestScmTools.createSession( branceSites.get( 1 ) );
+        wsB = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionB );
 
-            // write scmFile
-            this.writeFile( wsM, fileIdList1 );
-            this.writeFile( wsA, fileIdList2 );
-            this.writeFile( wsB, fileIdList3 );
-            this.writeFile( wsA, fileIdList4 );
+        // write scmFile
+        writeFile( wsM, fileIdList1 );
+        writeFile( wsA, fileIdList2 );
+        writeFile( wsB, fileIdList3 );
+        writeFile( wsA, fileIdList4 );
 
-            // read scmFile
-            this.readScmFile( wsM, fileIdList4 );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // read scmFile
+        readScmFile( wsM, fileIdList4 );
     }
 
     @Test(groups = { "fourSite" })
-    private void test() {
-        try {
-            this.startTransferTask( sessionA, authorName );
+    private void test() throws Exception {
+        taskId = ScmSystem.Task.startTransferTask( wsA, cond,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
+        ScmTaskUtils.waitTaskFinish( sessionA, taskId );
 
-            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+        checkResults();
 
-            this.checkResults();
-
-            // check task info
-            ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-            int totalFileCount = fileIdList1.size() + fileIdList2.size()
-                    + fileIdList3.size() + fileIdList4.size();
-            int successFileCount = fileIdList2.size() + fileIdList4.size();
-            Assert.assertEquals( taskInfo.getProgress(), 100 );
-            Assert.assertEquals( taskInfo.getEstimateCount(), totalFileCount );
-            Assert.assertEquals( taskInfo.getActualCount(), successFileCount );
-            Assert.assertEquals( taskInfo.getFailCount(), 0 );
-            Assert.assertEquals( taskInfo.getSuccessCount(), successFileCount );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() + " taskId = " + taskId.get() );
-        }
+        // check task info
+        ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
+        int totalFileCount = fileIdList1.size() + fileIdList2.size()
+                + fileIdList3.size() + fileIdList4.size();
+        int successFileCount = fileIdList2.size();
+        Assert.assertEquals( taskInfo.getProgress(), 100 );
+        Assert.assertEquals( taskInfo.getEstimateCount(), totalFileCount );
+        Assert.assertEquals( taskInfo.getActualCount(), successFileCount );
+        Assert.assertEquals( taskInfo.getFailCount(), 0 );
+        Assert.assertEquals( taskInfo.getSuccessCount(), successFileCount );
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass()
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                BSONObject cond = ScmQueryBuilder
-                        .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                        .get();
                 ScmFileUtils.cleanFile( ws_T, cond );
-
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -187,30 +172,20 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
         }
     }
 
-    private void startTransferTask( ScmSession ss, String fileName )
-            throws Exception {
-        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
-                ss );
-        BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition,
-                ScopeType.SCOPE_CURRENT, siteList.get( 2 ).getSiteName() );
-    }
-
     private void checkResults() throws Exception {
-        SiteWrapper[] expSiteArr1 = { siteList.get( 2 ) };
+        SiteWrapper[] expSiteArr1 = { rootSite };
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList1, expSiteArr1,
                 localPath, filePath );
 
-        SiteWrapper[] expSiteArr2 = { siteList.get( 2 ), siteList.get( 0 ) };
+        SiteWrapper[] expSiteArr2 = { rootSite, branceSites.get( 0 ) };
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList2, expSiteArr2,
                 localPath, filePath );
 
-        SiteWrapper[] expSiteArr3 = { siteList.get( 1 ) };
+        SiteWrapper[] expSiteArr3 = { branceSites.get( 1 ) };
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList3, expSiteArr3,
                 localPath, filePath );
 
-        SiteWrapper[] expSiteArr4 = { siteList.get( 2 ), siteList.get( 0 ) };
+        SiteWrapper[] expSiteArr4 = { rootSite, branceSites.get( 0 ) };
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList4, expSiteArr4,
                 localPath, filePath );
     }
