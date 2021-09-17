@@ -24,6 +24,9 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
     private static final String FIELD_REQ_COUNT = "request_count";
     private static final String FIELD_AVG_RESP_TIME = "avg_response_time";
     private static final String FIELD_AVG_TRAFFIC_SIZE = "avg_traffic_size";
+    private static final String FIELD_MAX_RESP_TIME = "max_response_time";
+    private static final String FIELD_MIN_RESP_TIME = "min_response_time";
+    private static final String FIELD_FAIL_COUNT = "fail_count";
 
     private final SequoiadbMetaSource metasource;
 
@@ -44,9 +47,14 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
         if (res == null) {
             return null;
         }
+        // maxResponseTime,minResponseTime,failCount since v3.1.3 SEQUOIACM-713
+        long maxResponseTime = BsonUtils.getLongOrElse(res, FIELD_MAX_RESP_TIME, 0);
+        long minResponseTime = BsonUtils.getLongOrElse(res, FIELD_MIN_RESP_TIME, 0);
+        int failCount = BsonUtils.getIntegerOrElse(res, FIELD_FAIL_COUNT, 0);
         return new FileStatisticsData(BsonUtils.getIntegerChecked(res, FIELD_REQ_COUNT),
                 BsonUtils.getLongChecked(res, FIELD_AVG_TRAFFIC_SIZE),
-                BsonUtils.getLongChecked(res, FIELD_AVG_RESP_TIME));
+                BsonUtils.getLongChecked(res, FIELD_AVG_RESP_TIME), maxResponseTime,
+                minResponseTime, failCount);
     }
 
     @Override
@@ -58,6 +66,9 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
         record.putAll(keyBson);
         record.put(FIELD_AVG_TRAFFIC_SIZE, data.getAvgTrafficSize());
         record.put(FIELD_AVG_RESP_TIME, data.getAvgResponseTime());
+        record.put(FIELD_MAX_RESP_TIME, data.getMaxResponseTime());
+        record.put(FIELD_MIN_RESP_TIME, data.getMinResponseTime());
+        record.put(FIELD_FAIL_COUNT, data.getFailCount());
         record.put(FIELD_REQ_COUNT, data.getRequestCount());
         accessor.upsert(new BasicBSONObject("$set", record), keyBson);
     }
@@ -83,8 +94,11 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
         }
 
         int requestCount = 0;
+        int failCount = 0;
         long totalRespTime = 0;
         long totalTrafficSize = 0;
+        long maxResponseTime = Long.MIN_VALUE;
+        long minResponseTime = Long.MAX_VALUE;
         MetaAccessor accessor = metasource.getFileStatisticsAccessor();
         MetaCursor cursor = accessor.query(matcher, null, null);
         try {
@@ -94,11 +108,22 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
                         BsonUtils.getIntegerChecked(record, FIELD_REQ_COUNT),
                         BsonUtils.getLongChecked(record, FIELD_AVG_TRAFFIC_SIZE),
                         BsonUtils.getLongChecked(record, FIELD_AVG_RESP_TIME));
+                statisticsData
+                        .setFailCount(BsonUtils.getIntegerOrElse(record, FIELD_FAIL_COUNT, 0));
+                failCount += statisticsData.getFailCount();
                 requestCount += statisticsData.getRequestCount();
-                totalRespTime += (statisticsData.getRequestCount()
-                        * statisticsData.getAvgResponseTime());
-                totalTrafficSize += (statisticsData.getRequestCount()
-                        * statisticsData.getAvgTrafficSize());
+                long successCount = statisticsData.getRequestCount()
+                        - statisticsData.getFailCount();
+                if (successCount > 0) {
+                    totalRespTime += (successCount * statisticsData.getAvgResponseTime());
+                    totalTrafficSize += (successCount * statisticsData.getAvgTrafficSize());
+                    long maxResTime = BsonUtils.getLongOrElse(record, FIELD_MAX_RESP_TIME,
+                            Long.MIN_VALUE);
+                    maxResponseTime = Math.max(maxResponseTime, maxResTime);
+                    long minResTime = BsonUtils.getLongOrElse(record, FIELD_MIN_RESP_TIME,
+                            Long.MAX_VALUE);
+                    minResponseTime = Math.min(minResponseTime, minResTime);
+                }
             }
         }
         finally {
@@ -107,8 +132,21 @@ public class SdbFileStatisticsDao implements com.sequoiacm.cloud.adminserver.dao
         if (requestCount <= 0) {
             return new FileStatisticsData();
         }
-        return new FileStatisticsData(requestCount, totalTrafficSize / requestCount,
-                totalRespTime / requestCount);
+        int totalSuccessCount = requestCount - failCount;
+        if (maxResponseTime == Long.MIN_VALUE) {
+            maxResponseTime = 0;
+        }
+        if (minResponseTime == Long.MAX_VALUE) {
+            minResponseTime = 0;
+        }
+        long avgTrafficSize = 0;
+        long avgResponseTime = 0;
+        if (totalSuccessCount > 0) {
+            avgTrafficSize = totalTrafficSize / totalSuccessCount;
+            avgResponseTime = totalRespTime / totalSuccessCount;
+        }
+        return new FileStatisticsData(requestCount, avgTrafficSize, avgResponseTime,
+                maxResponseTime, minResponseTime, failCount);
     }
 
     private BSONObject keyToBson(FileStatisticsDataKey key) {

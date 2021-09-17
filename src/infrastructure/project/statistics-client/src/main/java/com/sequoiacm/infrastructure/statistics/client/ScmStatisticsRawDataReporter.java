@@ -59,9 +59,10 @@ public class ScmStatisticsRawDataReporter {
         }
     }
 
-    public void report(String type, String user, long timestamp, long responseTime, String extra) {
-        ScmStatisticsRawData rawData = ScmStatisticsRawDataFactory.createRawData(type, user,
-                timestamp, responseTime, extra);
+    public void report(boolean isSuccess, String type, String user, long timestamp,
+            long responseTime, String extra) {
+        ScmStatisticsRawData rawData = ScmStatisticsRawDataFactory.createRawData(isSuccess, type,
+                user, timestamp, responseTime, extra);
         logger.debug("add raw data to cache queue: {}", rawData);
         report(rawData);
     }

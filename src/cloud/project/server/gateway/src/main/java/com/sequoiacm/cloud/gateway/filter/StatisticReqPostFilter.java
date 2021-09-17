@@ -6,7 +6,7 @@ import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.infrastructure.monitor.ReqRecorder;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
@@ -48,16 +48,21 @@ public class StatisticReqPostFilter extends ZuulFilter {
         }
         long time = System.currentTimeMillis() - preTime;
         ReqRecorder.getInstance().addRecord(time);
-
+        String statisticsType = ctx.getZuulRequestHeaders()
+                .get(ScmStatisticsDefine.STATISTICS_HEADER);
+        if (statisticsType == null) {
+            return null;
+        }
+        String userName = (String) ctx.getRequest()
+                .getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
         if (ctx.getResponseStatusCode() >= 200 && ctx.getResponseStatusCode() < 300) {
-            String type = ctx.getZuulRequestHeaders().get(ScmStatisticsDefine.STATISTICS_HEADER);
-            if (type != null) {
-                String userName = (String) ctx.getRequest()
-                        .getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
-                String extraStatistics = (String) ctx.getRequest()
-                        .getAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
-                reporter.report(type, userName, preTime, time, extraStatistics);
-            }
+            String extraStatistics = (String) ctx.getRequest()
+                    .getAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
+            reporter.report(true, statisticsType, userName, preTime, time, extraStatistics);
+        }
+        else {
+            String defaultExtra = ScmStatisticsDefaultExtraGenerator.generate(statisticsType, req);
+            reporter.report(false, statisticsType, userName, preTime, time, defaultExtra);
         }
         return null;
     }

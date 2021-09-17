@@ -11,8 +11,11 @@ public class ScmStatisticsDefine {
 
     public static final String REST_PARAM_CONDITION = "condition";
     public static final String REST_FIELD_AVG_RESP_TIME = "avg_response_time";
+    public static final String REST_FIELD_MAX_RESP_TIME = "max_response_time";
+    public static final String REST_FIELD_MIN_RESP_TIME = "min_response_time";
     public static final String REST_FIELD_AVG_TRAFFIC_SIZE = "avg_traffic_size";
     public static final String REST_FIELD_REQ_COUNT = "request_count";
+    public static final String REST_FIELD_FAIL_COUNT = "fail_count";
     public static final String REST_FIELD_USER = "user";
     public static final String REST_FIELD_WORKSPACE = "workspace";
     public static final String REST_FIELD_BEGIN = "begin";

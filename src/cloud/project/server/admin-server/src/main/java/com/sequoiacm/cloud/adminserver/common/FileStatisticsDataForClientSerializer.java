@@ -25,6 +25,12 @@ public class FileStatisticsDataForClientSerializer
                 value.getStatisticsData().getAvgResponseTime());
         gen.writeNumberField(ScmStatisticsDefine.REST_FIELD_REQ_COUNT,
                 value.getStatisticsData().getRequestCount());
+        gen.writeNumberField(ScmStatisticsDefine.REST_FIELD_FAIL_COUNT,
+                value.getStatisticsData().getFailCount());
+        gen.writeNumberField(ScmStatisticsDefine.REST_FIELD_MAX_RESP_TIME,
+                value.getStatisticsData().getMaxResponseTime());
+        gen.writeNumberField(ScmStatisticsDefine.REST_FIELD_MIN_RESP_TIME,
+                value.getStatisticsData().getMinResponseTime());
         gen.writeStringField(ScmStatisticsDefine.REST_FIELD_BEGIN, value.getCondition().getBegin());
         gen.writeStringField(ScmStatisticsDefine.REST_FIELD_END, value.getCondition().getEnd());
         if (value.getCondition().getTimeAccuracy() != null) {

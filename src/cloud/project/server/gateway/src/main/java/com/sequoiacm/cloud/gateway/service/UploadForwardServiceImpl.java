@@ -4,12 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
@@ -18,6 +14,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
@@ -64,7 +61,7 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
     @Autowired
     private ScmStatisticsRawDataReporter statisticsRawDataReporter;
-    
+
     private UploadForwardConfig config;
 
     private PoolingHttpClientConnectionManager connectionManager;
@@ -160,12 +157,18 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             EntityUtils.consume(forwardResp.getEntity());
 
             long duration = System.currentTimeMillis() - requestStartTime;
+            String userName = (String) clientReq.getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
             if (statisticsDecideResult.isNeedStatistics() && isSuccessResponse) {
-                String userName = (String) clientReq.getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
                 Header extraHeader = forwardResp
                         .getFirstHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
-                statisticsRawDataReporter.report(statisticsDecideResult.getStatisticsType(),
+                statisticsRawDataReporter.report(true, statisticsDecideResult.getStatisticsType(),
                         userName, requestStartTime, duration, extraHeader.getValue());
+            }
+            else if (statisticsDecideResult.isNeedStatistics()) {
+                String defaultExtra = ScmStatisticsDefaultExtraGenerator
+                        .generate(statisticsDecideResult.getStatisticsType(), clientReq);
+                statisticsRawDataReporter.report(false, statisticsDecideResult.getStatisticsType(),
+                        userName, requestStartTime, duration, defaultExtra);
             }
         }
         catch (Exception e) {

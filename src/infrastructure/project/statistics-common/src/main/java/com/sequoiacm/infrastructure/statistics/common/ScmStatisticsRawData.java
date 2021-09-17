@@ -4,8 +4,10 @@ import org.bson.BSONObject;
 
 import java.util.Date;
 
-
 public class ScmStatisticsRawData {
+
+    // 本次请求是否成功
+    private boolean isSuccess = true;
     private String type;
     private String user;
 
@@ -18,7 +20,9 @@ public class ScmStatisticsRawData {
     public ScmStatisticsRawData() {
     }
 
-    public ScmStatisticsRawData(String type, String user, long timestamp, long responseTime) {
+    public ScmStatisticsRawData(boolean isSuccess, String type, String user, long timestamp,
+            long responseTime) {
+        this.isSuccess = isSuccess;
         this.type = type;
         this.user = user;
         this.timestamp = timestamp;
@@ -57,9 +61,18 @@ public class ScmStatisticsRawData {
         this.type = type;
     }
 
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
+    public void setSuccess(boolean success) {
+        isSuccess = success;
+    }
+
     @Override
     public String toString() {
-        return "ScmStatisticsRawData{" + "type='" + type + '\'' + ", user='" + user + '\''
-                + ", timestamp=" + timestamp + ", responseTime=" + responseTime + '}';
+        return "ScmStatisticsRawData{" + "isSuccess=" + isSuccess + ", type='" + type + '\''
+                + ", user='" + user + '\'' + ", timestamp=" + timestamp + ", responseTime="
+                + responseTime + '}';
     }
 }

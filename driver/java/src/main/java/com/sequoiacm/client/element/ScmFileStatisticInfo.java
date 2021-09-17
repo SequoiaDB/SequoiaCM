@@ -18,6 +18,9 @@ public class ScmFileStatisticInfo {
     private int requestCount;
     private long avgTrafficSize;
     private long avgResponseTime;
+    private long maxResponseTime;
+    private long minResponseTime;
+    private int failCount;
 
     public ScmFileStatisticInfo(ScmFileStatisticsType type, Date begin, Date end, String user,
             String workspace, ScmTimeAccuracy timeAccuracy, int requestCount, long avgTrafficSize,
@@ -31,6 +34,23 @@ public class ScmFileStatisticInfo {
         this.requestCount = requestCount;
         this.avgTrafficSize = avgTrafficSize;
         this.avgResponseTime = avgResponseTime;
+    }
+
+    public ScmFileStatisticInfo(ScmFileStatisticsType type, Date begin, Date end, String user,
+            String workspace, ScmTimeAccuracy timeAccuracy, int requestCount, long avgTrafficSize,
+            long avgResponseTime, long maxResponseTime, long minResponseTime, int failCount) {
+        this.type = type;
+        this.begin = begin;
+        this.end = end;
+        this.user = user;
+        this.workspace = workspace;
+        this.timeAccuracy = timeAccuracy;
+        this.requestCount = requestCount;
+        this.avgTrafficSize = avgTrafficSize;
+        this.avgResponseTime = avgResponseTime;
+        this.maxResponseTime = maxResponseTime;
+        this.minResponseTime = minResponseTime;
+        this.failCount = failCount;
     }
 
     /**
@@ -114,11 +134,53 @@ public class ScmFileStatisticInfo {
         return avgResponseTime;
     }
 
+    /**
+     * Returns the maximum response time.
+     * 
+     * @since 3.1.3
+     * @return maximum response time.
+     */
+    public long getMaxResponseTime() {
+        return maxResponseTime;
+    }
+
+    /**
+     * Returns the minimum response time.
+     * 
+     * @since 3.1.3
+     * @return minimum response time.
+     */
+    public long getMinResponseTime() {
+        return minResponseTime;
+    }
+
+    /**
+     * Returns the failed request count.
+     * 
+     * @since 3.1.3
+     * @return failed request count.
+     */
+    public int getFailCount() {
+        return failCount;
+    }
+
+    /**
+     * Returns the success request count.
+     * 
+     * @since 3.1.3
+     * @return success request count.
+     */
+    public int getSuccessCount() {
+        return requestCount - failCount;
+    }
+
     @Override
     public String toString() {
-        return "ScmFileStatisticInfo{" + "type='" + type + '\'' + ", begin=" + begin + ", end="
-                + end + ", user='" + user + '\'' + ", workspace='" + workspace + '\''
-                + ", timeAccuracy=" + timeAccuracy + ", requestCount=" + requestCount
-                + ", avgTrafficSize=" + avgTrafficSize + ", avgResponseTime=" + avgResponseTime + '}';
+        return "ScmFileStatisticInfo{" + "type=" + type + ", begin=" + begin + ", end=" + end
+                + ", user='" + user + '\'' + ", workspace='" + workspace + '\'' + ", timeAccuracy="
+                + timeAccuracy + ", requestCount=" + requestCount + ", avgTrafficSize="
+                + avgTrafficSize + ", avgResponseTime=" + avgResponseTime + ", maxResponseTime="
+                + maxResponseTime + ", minResponseTime=" + minResponseTime + ", failCount="
+                + failCount + ", successCount=" + getSuccessCount() + '}';
     }
 }

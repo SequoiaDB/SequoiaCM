@@ -42,16 +42,35 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
                     fileRawData.getFileMeta().getWorkspace(), fileRawData.getType());
             FileStatisticsRawDataSum data = sumMap.get(key);
             if (data == null) {
-                data = new FileStatisticsRawDataSum(key, 1,
-                        fileRawData.getFileMeta().getTrafficSize(), fileRawData.getResponseTime());
+                if (fileRawData.isSuccess()) {
+                    data = new FileStatisticsRawDataSum(key, 1, 0,
+                            fileRawData.getFileMeta().getTrafficSize(),
+                            fileRawData.getResponseTime(), fileRawData.getResponseTime(),
+                            fileRawData.getResponseTime());
+                }
+                else {
+                    data = new FileStatisticsRawDataSum(key, 1, 1, 0, 0, Long.MIN_VALUE,
+                            Long.MAX_VALUE);
+                }
                 sumMap.put(key, data);
             }
             else {
                 data.setRequestCount(data.getRequestCount() + 1);
-                data.setTotalTrafficSize(
-                        data.getTotalTrafficSize() + fileRawData.getFileMeta().getTrafficSize());
-                data.setTotalResponseTime(
-                        data.getTotalResponseTime() + fileRawData.getResponseTime());
+                // 失败的请求不参与文件流量大小、响应时间的统计
+                if (fileRawData.isSuccess()) {
+                    data.setTotalTrafficSize(data.getTotalTrafficSize()
+                            + fileRawData.getFileMeta().getTrafficSize());
+                    data.setTotalResponseTime(
+                            data.getTotalResponseTime() + fileRawData.getResponseTime());
+                    data.setMaxResponseTime(
+                            Math.max(fileRawData.getResponseTime(), data.getMaxResponseTime()));
+                    data.setMinResponseTime(
+                            Math.min(fileRawData.getResponseTime(), data.getMinResponseTime()));
+                }
+                else {
+                    data.setFailCount(data.getFailCount() + 1);
+                }
+
             }
         }
 
@@ -89,24 +108,62 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
                                 sumRawData.getFileStatisticsData());
                         continue;
                     }
-                    long newAvgTrafficSize = (statisticsData.getAvgTrafficSize()
-                            * statisticsData.getRequestCount() + sumRawData.getTotalTrafficSize())
-                            / (statisticsData.getRequestCount() + sumRawData.getRequestCount());
-                    long newAvgRespTime = (statisticsData.getAvgResponseTime()
-                            * statisticsData.getRequestCount() + sumRawData.getTotalResponseTime())
-                            / (statisticsData.getRequestCount() + sumRawData.getRequestCount());
-                    int newReqCount = statisticsData.getRequestCount()
-                            + sumRawData.getRequestCount();
-                    statisticsData.setAvgTrafficSize(newAvgTrafficSize);
-                    statisticsData.setAvgResponseTime(newAvgRespTime);
-                    statisticsData.setRequestCount(newReqCount);
-                    dao.saveFileStatisticData(sumRawData.getKey(), statisticsData);
+                    dao.saveFileStatisticData(sumRawData.getKey(),
+                            calFileStatisticData(statisticsData, sumRawData));
                 }
             }
             finally {
                 lock.unlock();
             }
         }
+    }
+
+    private FileStatisticsData calFileStatisticData(FileStatisticsData statisticsData,
+            FileStatisticsRawDataSum sumRawData) {
+
+        int statisticsSuccessCount = statisticsData.getRequestCount()
+                - statisticsData.getFailCount();
+        int rawDataSuccessCount = sumRawData.getRequestCount() - sumRawData.getFailCount();
+        long newAvgTrafficSize = 0;
+        if ((statisticsSuccessCount + rawDataSuccessCount) > 0) {
+            newAvgTrafficSize = (statisticsData.getAvgTrafficSize() * statisticsSuccessCount
+                    + sumRawData.getTotalTrafficSize())
+                    / (rawDataSuccessCount + statisticsSuccessCount);
+        }
+        long newAvgRespTime = 0;
+        if ((statisticsSuccessCount + rawDataSuccessCount) > 0) {
+            newAvgRespTime = (statisticsData.getAvgResponseTime() * statisticsSuccessCount
+                    + sumRawData.getTotalResponseTime())
+                    / (statisticsSuccessCount + rawDataSuccessCount);
+        }
+        int newReqCount = statisticsData.getRequestCount() + sumRawData.getRequestCount();
+        int newFailCount = statisticsData.getFailCount() + sumRawData.getFailCount();
+
+        long newMinResponseTime = 0;
+        long newMaxResponseTime = 0;
+        if (statisticsSuccessCount <= 0) {
+            newMinResponseTime = sumRawData.getMinResponseTime();
+            newMaxResponseTime = sumRawData.getMaxResponseTime();
+        }
+        else if (rawDataSuccessCount <= 0) {
+            newMinResponseTime = statisticsData.getMinResponseTime();
+            newMaxResponseTime = statisticsData.getMaxResponseTime();
+        }
+        else {
+            newMinResponseTime = Math.min(statisticsData.getMinResponseTime(),
+                    sumRawData.getMinResponseTime());
+            newMaxResponseTime = Math.max(statisticsData.getMaxResponseTime(),
+                    sumRawData.getMaxResponseTime());
+        }
+
+        FileStatisticsData newStatisticsData = new FileStatisticsData();
+        newStatisticsData.setAvgTrafficSize(newAvgTrafficSize);
+        newStatisticsData.setAvgResponseTime(newAvgRespTime);
+        newStatisticsData.setRequestCount(newReqCount);
+        newStatisticsData.setMinResponseTime(newMinResponseTime);
+        newStatisticsData.setMaxResponseTime(newMaxResponseTime);
+        newStatisticsData.setFailCount(newFailCount);
+        return newStatisticsData;
     }
 
 }

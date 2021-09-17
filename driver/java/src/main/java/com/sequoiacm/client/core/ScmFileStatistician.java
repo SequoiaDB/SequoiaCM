@@ -147,6 +147,12 @@ public class ScmFileStatistician {
                 BsonUtils.getNumberChecked(statisticsBson,
                         ScmStatisticsDefine.REST_FIELD_AVG_TRAFFIC_SIZE).longValue(),
                 BsonUtils.getNumberChecked(statisticsBson,
-                        ScmStatisticsDefine.REST_FIELD_AVG_RESP_TIME).longValue());
+                        ScmStatisticsDefine.REST_FIELD_AVG_RESP_TIME).longValue(),
+                BsonUtils.getNumberOrElse(statisticsBson,
+                        ScmStatisticsDefine.REST_FIELD_MAX_RESP_TIME, 0).longValue(),
+                BsonUtils.getNumberOrElse(statisticsBson,
+                        ScmStatisticsDefine.REST_FIELD_MIN_RESP_TIME, 0).longValue(),
+                BsonUtils.getNumberOrElse(statisticsBson,
+                        ScmStatisticsDefine.REST_FIELD_FAIL_COUNT, 0).intValue());
     }
 }
