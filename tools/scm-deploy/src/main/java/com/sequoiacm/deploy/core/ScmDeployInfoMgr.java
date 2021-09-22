@@ -179,11 +179,18 @@ public class ScmDeployInfoMgr {
             }
 
             try {
-                ssh.sudoExec("echo user_is_sudoer > /dev/null");
-            }
-            catch (Exception e) {
-                throw new IllegalArgumentException("this user may not be sudoer:username="
-                        + host.getUserName() + ", host=" + host.getHostName(), e);
+                try {
+                    ssh.sudoExec("echo user_is_sudoer > /dev/null");
+                }
+                catch (Exception e) {
+                    throw new IllegalArgumentException("this user may not be sudoer:username="
+                            + host.getUserName() + ", host=" + host.getHostName(), e);
+                }
+
+                if (!ssh.isSftpAvailable()) {
+                    throw new IllegalArgumentException(
+                            "sftp service may not be available, host=" + host.getHostName());
+                }
             }
             finally {
                 CommonUtils.closeResource(ssh);
@@ -403,9 +410,8 @@ public class ScmDeployInfoMgr {
             }
             String[] urls = datasource.getUrl().split(",");
             for (String url : urls) {
-                if (usedUrlSet.contains(url)){
-                    throw new IllegalArgumentException(
-                            "url use twice: url=" + url);
+                if (usedUrlSet.contains(url)) {
+                    throw new IllegalArgumentException("url use twice: url=" + url);
                 }
                 usedUrlSet.add(url);
             }
@@ -438,7 +444,7 @@ public class ScmDeployInfoMgr {
         for (SiteInfo siteInfo : siteInfos) {
             String siteName = siteInfo.getName();
             String datasourceName = siteInfo.getDatasourceName();
-            if (usedDatasourceSet.contains(datasourceName)){
+            if (usedDatasourceSet.contains(datasourceName)) {
                 throw new IllegalArgumentException("one datasource can't use in two sites:"
                         + siteInfo.getName() + ", " + siteInfo.getDatasourceName());
             }

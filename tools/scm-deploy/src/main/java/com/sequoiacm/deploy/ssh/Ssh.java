@@ -73,15 +73,32 @@ public class Ssh implements Closeable {
         if (password != null && password.length() != 0) {
             session = jsch.getSession(username, host, port);
             session.setPassword(password);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.connect(sshConfig.getConnectTimeout());
         }
         else {
             jsch.addIdentity(sshConfig.getPriKeyPath());
             session = jsch.getSession(username, host, port);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.connect(sshConfig.getConnectTimeout());
         }
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect(sshConfig.getConnectTimeout());
+    }
+
+    public boolean isSftpAvailable() {
+        ChannelSftp channel = null;
+        try {
+            channel = (ChannelSftp) session.openChannel("sftp");
+            channel.connect(sshConfig.getConnectTimeout());
+        }
+        catch (JSchException e) {
+            logger.debug("failed to connect to sftp service, host={}", host, e);
+            return false;
+        }
+        finally {
+            if (channel != null) {
+                channel.disconnect();
+            }
+        }
+
+        return true;
     }
 
     public String searchEnv(String key) throws IOException {
@@ -138,8 +155,8 @@ public class Ssh implements Closeable {
             channel.put(localPath, remotePath);
         }
         catch (Exception e) {
-            throw new IOException("failed to scp:remoteHost=" + host + ":" + port + ", localFile="
-                    + localPath + ", remotePath=" + remotePath, e);
+            throw new IOException("failed to copy file to remote by sftp: remoteHost=" + host + ":"
+                    + port + ", localFile=" + localPath + ", remotePath=" + remotePath, e);
         }
         finally {
             if (channel != null) {
