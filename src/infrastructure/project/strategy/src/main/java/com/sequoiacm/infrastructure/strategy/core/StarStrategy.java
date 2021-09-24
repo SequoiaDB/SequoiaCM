@@ -1,6 +1,5 @@
 package com.sequoiacm.infrastructure.strategy.core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.infrastructure.strategy.common.StrategyDefine;
@@ -61,24 +60,6 @@ public class StarStrategy implements ConnectivityStrategy {
          * "Under the star strategy, the site that performing the cache task cannot be main site"
          * + ":siteId=" + localSiteId); }
          */
-    }
-
-    @Override
-    public List<Integer> getCleanTaskVerifySites(List<Integer> wsLocationSiteIds,
-            List<Integer> fileLocationSites, int localSiteId) throws StrategyException {
-        checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
-        checkFileLocationSiteNotEmpty(fileLocationSites);
-        List<Integer> sites = new ArrayList<>();
-        for (Integer siteId : wsLocationSiteIds) {
-            if (siteId != localSiteId && fileLocationSites.contains(siteId)) {
-                sites.add(siteId);
-            }
-        }
-        /*
-         * if (sites.size() == 0) { throw new
-         * StrategyException("file is not exist in the main site"); }
-         */
-        return sites;
     }
 
     @Override

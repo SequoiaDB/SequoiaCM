@@ -1,10 +1,14 @@
 package com.sequoiacm.transfertask;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.sequoiacm.client.common.ScmType.SessionType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.ScmTestMultiCenterBase;
+import com.sequoiacm.testcommon.ScmTestTools;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -12,23 +16,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.ScmFileLocation;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmTestMultiCenterBase;
-import com.sequoiacm.testcommon.ScmTestTools;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 通过A中心执行迁移任务, 通过B中心执行同一个ws下的任务
@@ -74,7 +64,7 @@ public class TaskConflict extends ScmTestMultiCenterBase {
     }
 
     @Test
-    public void conflictTask() throws ScmException, InterruptedException, IOException {
+    public void conflictTask() throws Exception {
 
         List<String> idList = new ArrayList<>();
         for(ScmId fileId : fileList) {
@@ -84,33 +74,12 @@ public class TaskConflict extends ScmTestMultiCenterBase {
         BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.FILE_ID).in(idList).get();
         logger.info("condition=" + condition.toString());
 
-        Thread.sleep(500);
         //start first task
         ScmId taskId = ScmSystem.Task.startTransferTask(ws, condition);
+        ScmId task2Id = ScmSystem.Task.startTransferTask(ws, ScmQueryBuilder.start().get());
 
-        try {
-            //start a second conflict task
-            ScmSystem.Task.startTransferTask(ws, ScmQueryBuilder.start().get());
-            Assert.fail("expect throw exception before");
-        }
-        catch (ScmException e) {
-            Assert.assertEquals(e.getErrorCode(),
-                    ScmError.TASK_DUPLICATE.getErrorCode(), e.toString());
-        }
-
-        //first task is not affected
-        while (true) {
-            ScmTask taskInfo = ScmSystem.Task.getTask(site2Session, taskId);
-            logger.info(taskInfo);
-            if (taskInfo.getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH
-                    || taskInfo.getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL) {
-                if (taskInfo.getStopTime() != null) {
-                    break;
-                }
-            }
-
-            Thread.sleep(500);
-        }
+        ScmTestTools.waitTask(site2Session, taskId, 100000, CommonDefine.TaskRunningFlag.SCM_TASK_FINISH);
+        ScmTestTools.waitTask(site2Session, task2Id, 100000, CommonDefine.TaskRunningFlag.SCM_TASK_FINISH);
 
         int index = 0;
         long tid = Thread.currentThread().getId();

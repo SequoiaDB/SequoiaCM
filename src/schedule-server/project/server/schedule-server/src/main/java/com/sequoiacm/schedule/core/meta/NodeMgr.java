@@ -1,19 +1,14 @@
 package com.sequoiacm.schedule.core.meta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
+import com.sequoiacm.schedule.core.ScheduleServer;
+import com.sequoiacm.schedule.entity.FileServerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.schedule.core.ScheduleServer;
-import com.sequoiacm.schedule.entity.FileServerEntity;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class NodeMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleServer.class);
@@ -37,6 +32,22 @@ public class NodeMgr {
                 contentServers.addAll(tmpServerMap.values());
             }
             return contentServers;
+        }
+        finally {
+            rLock.unlock();
+        }
+    }
+
+    public FileServerEntity getServersById(int id) {
+        Lock rLock = nodeReadWriterLock.readLock();
+        rLock.lock();
+        try {
+            for (FileServerEntity s : serverMapByName.values()) {
+                if (s.getId() == id) {
+                    return s;
+                }
+            }
+            return null;
         }
         finally {
             rLock.unlock();

@@ -56,12 +56,17 @@ public class SdbTaskDao implements TaskDao {
     @Override
     public TaskEntity queryOne(String taskId) throws Exception {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+        return queryOne(matcher, null);
+    }
+
+    @Override
+    public TaskEntity queryOne(BSONObject matcher, BSONObject orderBy) throws Exception {
         Sequoiadb sdb = null;
         try {
             sdb = datasource.getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(csName);
             DBCollection cl = cs.getCollection(clName);
-            BSONObject result = cl.queryOne(matcher, null, null, null, 0);
+            BSONObject result = cl.queryOne(matcher, null, orderBy, null, 0);
             if (null == result) {
                 return null;
             }
@@ -69,7 +74,8 @@ public class SdbTaskDao implements TaskDao {
             return TaskEntityTranslator.fromBSONObject(result);
         }
         catch (Exception e) {
-            logger.error("query task failed[cs={},cl={}]:matcher={}", csName, clName, matcher);
+            logger.error("query task failed[cs={},cl={}]:matcher={}, orderby={}", csName, clName,
+                    matcher, orderBy);
             throw e;
         }
         finally {

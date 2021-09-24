@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.entity;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class TaskEntityTranslator {
         if (null != scheduleId) {
             obj.put(FieldName.Task.FIELD_SCHEDULE_ID, scheduleId);
         }
-        
+
         Integer targetSite = info.getTargetSite();
         if (null != targetSite) {
             obj.put(FieldName.Task.FIELD_TARGET_SITE, targetSite.intValue());
@@ -52,7 +53,8 @@ public class TaskEntityTranslator {
             info.setProgress((int) obj.get(FieldName.Task.FIELD_PROGRESS));
             info.setRunningFlag((int) obj.get(FieldName.Task.FIELD_RUNNING_FLAG));
             info.setStartTime((long) obj.get(FieldName.Task.FIELD_START_TIME));
-            info.setStopTime((long) obj.get(FieldName.Task.FIELD_STOP_TIME));
+            info.setStopTime(
+                    BsonUtils.getNumberOrElse(obj, FieldName.Task.FIELD_STOP_TIME, -1).longValue());
             info.setEstimateCount((long) obj.get(FieldName.Task.FIELD_ESTIMATE_COUNT));
             info.setActualCount((long) obj.get(FieldName.Task.FIELD_ACTUAL_COUNT));
             info.setSuccessCount((long) obj.get(FieldName.Task.FIELD_SUCCESS_COUNT));

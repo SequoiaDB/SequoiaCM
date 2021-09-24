@@ -19,6 +19,8 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmTestMultiCenterBase;
 import com.sequoiacm.testcommon.ScmTestTools;
 
+import java.util.UUID;
+
 public class TestListSchedule extends ScmTestMultiCenterBase {
     private final static Logger logger = Logger.getLogger(TestListSchedule.class);
 
@@ -41,7 +43,7 @@ public class TestListSchedule extends ScmTestMultiCenterBase {
             Assert.assertFalse(cursor.hasNext());
             cursor.close();
 
-            String name = "s1";
+            String name = UUID.randomUUID().toString();
             ScmSiteInfo rootsite = ScmTestTools.getSiteInfo(ss, getSiteId1());
             ScmSiteInfo site2 = ScmTestTools.getSiteInfo(ss, getSiteId2());
             ScmScheduleContent content = new ScmScheduleCopyFileContent(site2.getName(),

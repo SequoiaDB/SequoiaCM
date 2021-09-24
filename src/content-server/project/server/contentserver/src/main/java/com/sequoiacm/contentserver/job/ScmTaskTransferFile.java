@@ -24,14 +24,14 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 public class ScmTaskTransferFile extends ScmTaskFile {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskTransferFile.class);
 
-    private FileTransferDao fileTrans;
-    private int remoteSiteId;
+    private final FileTransferDao fileTrans;
 
     public ScmTaskTransferFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
         super(mgr, info);
 
         ScmWorkspaceInfo ws = getWorkspaceInfo();
         FileTransferInterrupter interrupter = new TaskTransfileInterrupter(this);
+        int remoteSiteId = (int) info.get(FieldName.Task.FIELD_TARGET_SITE);
         fileTrans = new FileTransferDao(ws, remoteSiteId, interrupter);
     }
 
@@ -46,35 +46,37 @@ public class ScmTaskTransferFile extends ScmTaskFile {
     }
 
     @Override
-    protected DoFileRes doFile(String fileId, int majorVersion, int minorVersion, String dataId)
-            throws ScmServerException {
+    protected DoFileRes doFile(BSONObject fileInfoNotInLock) throws ScmServerException {
+        String fileId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_ID);
+        String dataId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        int majorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
+        int minorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
+
+        int remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
         ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
                 getWorkspaceInfo().getName(),
                 ScmContentServer.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
 
-        ScmLock fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(
-                fileContentLockPath);
+        ScmLock fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(fileContentLockPath);
         if (fileContentLock == null) {
-            logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}",
-                    fileId, majorVersion, minorVersion, dataId);
+            logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}", fileId,
+                    majorVersion, minorVersion, dataId);
             return DoFileRes.SKIP;
         }
 
-        BSONObject file = null;
+        BSONObject file;
         try {
             ScmWorkspaceInfo ws = getWorkspaceInfo();
-            file = ScmContentServer
-                    .getInstance()
-                    .getMetaService()
-                    .getFileInfo(ws.getMetaLocation(), ws.getName(), fileId, majorVersion, minorVersion);
+            file = ScmContentServer.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
+                    ws.getName(), fileId, majorVersion, minorVersion);
             if (file == null) {
-                logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}", fileId,
-                        majorVersion, minorVersion, dataId);
+                logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}",
+                        fileId, majorVersion, minorVersion, dataId);
                 fileContentLock.unlock();
                 return DoFileRes.SKIP;
             }
         }
-        catch(Exception e) {
+        catch (Exception e) {
             fileContentLock.unlock();
             throw e;
         }
@@ -93,10 +95,9 @@ public class ScmTaskTransferFile extends ScmTaskFile {
                 return DoFileRes.SKIP;
             }
             // failed exception
-            if (e.getError() == ScmError.DATA_UNAVAILABLE
-                    || e.getError() == ScmError.DATA_CORRUPTED
-                    // if data exist,it means main site data is exist but check
-                    // size failed
+            if (e.getError() == ScmError.DATA_UNAVAILABLE || e.getError() == ScmError.DATA_CORRUPTED
+            // if data exist,it means main site data is exist but check
+            // size failed
                     || e.getError() == ScmError.DATA_EXIST) {
                 logger.warn("transfer file failed", e);
                 return DoFileRes.FAIL;
@@ -111,7 +112,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
 
     @Override
     protected BSONObject buildActualMatcher() throws ScmServerException {
-        remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
+        int remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
         try {
             BasicBSONList matcherList = new BasicBSONList();
             BSONObject taskMatcher = getTaskContent();

@@ -10,7 +10,9 @@ public interface TaskDao {
 
     public ScmBSONObjectCursor query(BSONObject matcher) throws Exception;
 
-    public TaskEntity queryOne(String scheduleId) throws Exception;
+    public TaskEntity queryOne(String taskId) throws Exception;
+
+    public TaskEntity queryOne(BSONObject matcher, BSONObject orderBy) throws Exception;
 
     public void delete(String taskId) throws Exception;
 }

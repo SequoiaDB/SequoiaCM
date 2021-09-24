@@ -1,11 +1,21 @@
 package com.sequoiacm.testcommon;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+import com.sequoiacm.client.common.ScmType.SessionType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmClassProperties;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmSiteInfo;
+import com.sequoiacm.client.element.ScmTask;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.ScmHelper;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.exception.BaseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
@@ -15,26 +25,9 @@ import org.bson.types.ObjectId;
 import org.bson.util.JSON;
 import org.testng.Assert;
 
-import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmClassProperties;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmSiteInfo;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.ScmFileLocation;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.DBCursor;
-import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.exception.BaseException;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class ScmTestTools {
     private final static Logger logger = Logger.getLogger(ScmTestTools.class);
@@ -94,6 +87,39 @@ public class ScmTestTools {
         return fileId;
     }
 
+    public static ScmFile createScmFile(ScmWorkspace ws, int size) {
+        try {
+            ScmFile file = ScmFactory.File.createInstance(ws);
+            file.setFileName(UUID.randomUUID().toString());
+            file.setContent(new ByteArrayInputStream(new byte[size]));
+            file.save();
+            return file;
+        }
+        catch (ScmException e) {
+            Assert.fail(e.getMessage());
+        }
+        return null;
+    }
+
+    public static void waitTask(ScmSession ss, ScmId taskId, long timeout, int... runningFlag)
+            throws Exception {
+        long startTime = System.currentTimeMillis();
+
+        while (true) {
+            ScmTask taskInfo = ScmSystem.Task.getTask(ss, taskId);
+            for (int f : runningFlag) {
+                if (taskInfo.getRunningFlag() == f) {
+                    return;
+                }
+            }
+            if (System.currentTimeMillis() - startTime > timeout) {
+                throw new TimeoutException("failed to wait task:taskInfo=" + taskInfo
+                        + ", expectRunningFlag=" + Arrays.toString(runningFlag));
+            }
+            Thread.sleep(500);
+        }
+    }
+
     public static ScmFile createScmFile(ScmWorkspace ws, String filePath, String fileName,
             String author, String FileTitle) throws ScmException {
 
@@ -107,9 +133,9 @@ public class ScmTestTools {
         return file;
     }
 
-    //上传文件基本 带自定义属性
+    // 上传文件基本 带自定义属性
     public static ScmFile createScmFile(ScmWorkspace ws, String filePath, String fileName,
-            String author, String FileTitle,ScmClassProperties properties) throws ScmException {
+            String author, String FileTitle, ScmClassProperties properties) throws ScmException {
 
         ScmFile file = ScmFactory.File.createInstance(ws);
         if (null != fileName) {
@@ -347,8 +373,7 @@ public class ScmTestTools {
             return infoList;
         }
         catch (Exception e) {
-            throw new ScmException(ScmError.SYSTEM_ERROR,
-                    "parse siteAccessInfo failed", e);
+            throw new ScmException(ScmError.SYSTEM_ERROR, "parse siteAccessInfo failed", e);
         }
     }
 
@@ -388,8 +413,8 @@ public class ScmTestTools {
         matcher.put(FieldName.FIELD_CLFILE_ID, fileId.get());
         DBCursor cursor = cl.query(matcher, null, null, null);
         if (!cursor.hasNext()) {
-            throw new ScmException(-1, "file is not exist:cs=" + csName + ",cl=" + clName
-                    + ",fileId=" + fileId.get());
+            throw new ScmException(-1,
+                    "file is not exist:cs=" + csName + ",cl=" + clName + ",fileId=" + fileId.get());
         }
 
         BSONObject file = cursor.getNext();
@@ -466,8 +491,8 @@ public class ScmTestTools {
         matcher.put(FieldName.FIELD_CLFILE_ID, fileId.get());
         DBCursor cursor = cl.query(matcher, null, null, null);
         if (!cursor.hasNext()) {
-            throw new ScmException(-1, "file is not exist:cs=" + csName + ",cl=" + clName
-                    + ",fileId=" + fileId.get());
+            throw new ScmException(-1,
+                    "file is not exist:cs=" + csName + ",cl=" + clName + ",fileId=" + fileId.get());
         }
 
         BSONObject file = cursor.getNext();
@@ -480,8 +505,8 @@ public class ScmTestTools {
         deleteFile(checkLobFile);
         ScmSession ss = null;
         try {
-            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
-                    scmUrl, user, passwd));
+            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                    new ScmConfigOption(scmUrl, user, passwd));
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, ss);
             ScmFile file = ScmFactory.File.getInstance(ws, fileId);
             file.getContentFromLocalSite(checkLobFile);
@@ -505,8 +530,8 @@ public class ScmTestTools {
             String workSpaceName, String fileId) {
         ScmSession ss = null;
         try {
-            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
-                    scmUrl, user, passwd));
+            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                    new ScmConfigOption(scmUrl, user, passwd));
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(workSpaceName, ss);
             ScmFactory.File.deleteInstance(ws, new ScmId(fileId), true);
         }
@@ -551,8 +576,8 @@ public class ScmTestTools {
         try {
             db.setSessionAttr(new BasicBSONObject("PreferedInstance", "m"));
             DBCollection metaCl = db.getCollectionSpace(csName).getCollection(clName);
-            BSONObject res = metaCl.queryOne((BSONObject) JSON.parse(queryMacher), null, null,
-                    null, 0);
+            BSONObject res = metaCl.queryOne((BSONObject) JSON.parse(queryMacher), null, null, null,
+                    0);
             if (res == null) {
                 return false;
             }
@@ -597,10 +622,11 @@ public class ScmTestTools {
             String wsName, ScmId fileId) throws ScmException {
         ScmSession ss = null;
         try {
-            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION, new ScmConfigOption(
-                 scmUrl, user, passwd));
+            ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                    new ScmConfigOption(scmUrl, user, passwd));
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, ss);
-            ScmFactory.File.getInstance(ws, fileId).getContentFromLocalSite(new ByteArrayOutputStream());
+            ScmFactory.File.getInstance(ws, fileId)
+                    .getContentFromLocalSite(new ByteArrayOutputStream());
         }
         catch (ScmException e) {
             if (e.getError().equals(ScmError.DATA_NOT_EXIST)) {
@@ -630,7 +656,7 @@ public class ScmTestTools {
         try {
             while (cursor.hasNext()) {
                 ScmSiteInfo info = cursor.getNext();
-                logger.info("ScmSiteInfo is --->>>:"+info.toString());
+                logger.info("ScmSiteInfo is --->>>:" + info.toString());
                 if (info.getId() == siteId) {
                     return info;
                 }
@@ -649,8 +675,9 @@ public class ScmTestTools {
         try {
             ScmFile f = ScmFactory.File.getInstanceByPath(ws, path);
             f.delete(true);
-        }catch(ScmException e) {
-            if(e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode()) {
+        }
+        catch (ScmException e) {
+            if (e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode()) {
                 throw e;
             }
         }
@@ -661,7 +688,7 @@ public class ScmTestTools {
             ScmFactory.File.deleteInstance(ws, id, true);
         }
         catch (ScmException e) {
-            if(e.getError() != ScmError.FILE_NOT_FOUND) {
+            if (e.getError() != ScmError.FILE_NOT_FOUND) {
                 throw e;
             }
         }
@@ -672,7 +699,7 @@ public class ScmTestTools {
             ScmFactory.Directory.deleteInstance(ws, path);
         }
         catch (ScmException e) {
-            if(e.getError() != ScmError.DIR_NOT_FOUND) {
+            if (e.getError() != ScmError.DIR_NOT_FOUND) {
                 throw e;
             }
         }
@@ -683,7 +710,7 @@ public class ScmTestTools {
             ScmFactory.Batch.deleteInstance(ws, id);
         }
         catch (ScmException e) {
-            if(e.getError() != ScmError.BATCH_NOT_FOUND) {
+            if (e.getError() != ScmError.BATCH_NOT_FOUND) {
                 throw e;
             }
         }
@@ -694,7 +721,7 @@ public class ScmTestTools {
             ScmFactory.Batch.deleteInstance(ws, id);
         }
         catch (ScmException e) {
-            if(e.getError() != ScmError.BATCH_NOT_FOUND) {
+            if (e.getError() != ScmError.BATCH_NOT_FOUND) {
                 throw e;
             }
         }

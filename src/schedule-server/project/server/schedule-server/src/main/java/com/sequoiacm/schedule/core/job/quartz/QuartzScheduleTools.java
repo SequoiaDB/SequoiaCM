@@ -1,6 +1,5 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
-import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleDefine;
@@ -11,21 +10,15 @@ import com.sequoiacm.schedule.core.job.CopyJobInfo;
 import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
 import com.sequoiacm.schedule.entity.TaskEntity;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 class QuartzScheduleTools {
     private static final Logger logger = LoggerFactory.getLogger(QuartzScheduleTools.class);
-
-    private static Lock checkDuplicateTaskLock = new ReentrantLock();
 
     public static JobDataMap createDataMap(CleanJobInfo info) {
         JobDataMap dataMap = new JobDataMap();
@@ -117,19 +110,6 @@ class QuartzScheduleTools {
         return task;
     }
 
-    public static BSONObject createDuplicateTaskMatcher(int type, String workspaceName) {
-        BSONObject flagList = new BasicBSONList();
-        flagList.put("0", ScheduleDefine.TaskRunningFlag.SCM_TASK_INIT);
-        flagList.put("1", ScheduleDefine.TaskRunningFlag.SCM_TASK_RUNNING);
-        BSONObject inFlag = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_IN, flagList);
-
-        BSONObject matcher = new BasicBSONObject();
-        matcher.put(FieldName.Task.FIELD_WORKSPACE, workspaceName);
-        matcher.put(FieldName.Task.FIELD_RUNNING_FLAG, inFlag);
-
-        return matcher;
-    }
-
     public static void closeSilence(Closeable handler) {
         if (null == handler) {
             return;
@@ -150,9 +130,5 @@ class QuartzScheduleTools {
         catch (Exception e) {
             logger.warn("delete task failed:taskId=" + taskId, e);
         }
-    }
-
-    public static Lock getDuplicateTaskLock() {
-        return checkDuplicateTaskLock;
     }
 }

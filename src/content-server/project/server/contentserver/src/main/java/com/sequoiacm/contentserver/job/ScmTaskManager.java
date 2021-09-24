@@ -1,19 +1,18 @@
 package com.sequoiacm.contentserver.job;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
-
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ScmTaskManager {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskManager.class);
@@ -41,7 +40,8 @@ public class ScmTaskManager {
     public ScmTaskBase createTask(BSONObject info) throws ScmServerException {
         ScmTaskBase task = null;
 
-        //task will be added to ScmTaskManager's map in constructor(ScmTaskTransferFile)
+        // task will be added to ScmTaskManager's map in
+        // constructor(ScmTaskTransferFile)
         int type = (int) info.get(FieldName.Task.FIELD_TYPE);
         switch (type) {
             case CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE:
@@ -53,8 +53,7 @@ public class ScmTaskManager {
                 break;
 
             default:
-                throw new ScmInvalidArgumentException(
-                        "unrecognized task type:type=" + type);
+                throw new ScmInvalidArgumentException("unrecognized task type:type=" + type);
         }
 
         return task;
@@ -84,6 +83,16 @@ public class ScmTaskManager {
         lock.lock();
         try {
             return taskMap.get(taskId);
+        }
+        finally {
+            lock.unlock();
+        }
+    }
+
+    public int getTaskCount() {
+        lock.lock();
+        try {
+            return taskMap.size();
         }
         finally {
             lock.unlock();

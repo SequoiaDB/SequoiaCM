@@ -3,95 +3,36 @@ package com.sequoiacm.schedule.core.job.quartz;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
-import com.sequoiacm.schedule.common.RestCommonDefine;
-import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.common.model.ScheduleException;
-import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.job.CleanJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.entity.FileServerEntity;
 import com.sequoiacm.schedule.entity.TaskEntity;
-import com.sequoiacm.schedule.remote.ScheduleClient;
-import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
-import org.quartz.JobExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.concurrent.locks.Lock;
 
-public class QuartzCleanJob extends QuartzScheduleJob {
-    private static final Logger logger = LoggerFactory.getLogger(QuartzCleanJob.class);
+public class QuartzCleanJob extends QuartzContentserverJob {
 
     @Override
-    public void execute(ScheduleJobInfo info, JobExecutionContext context) throws ScheduleException {
+    protected TaskEntity createTaskEntity(FileServerEntity runTaskServer, ScheduleJobInfo info) {
         CleanJobInfo cInfo = (CleanJobInfo) info;
-        logger.debug(
-                "id={},type={},workspace={},days={},site={},siteId={},extra={},cron={},scope={},maxExecTime={}",
-                cInfo.getId(), cInfo.getType(), cInfo.getWorkspace(), cInfo.getDays(),
-                cInfo.getSiteName(), cInfo.getSiteId(), cInfo.getExtraCondtion(), cInfo.getCron(),
-                cInfo.getScope(), cInfo.getMaxExecTime());
-
-        FileServerEntity s = ScheduleServer.getInstance().getRandomServer(cInfo.getSiteId(), info.getPreferredRegion(), info.getPreferredZone());
-
-        if (null == s) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
-                    "server is not exist in site:site=" + cInfo.getSiteName() + ",site_id="
-                            + cInfo.getSiteId());
-        }
-
-        BSONObject taskCondition = createTaskContent(cInfo);
-
         Date d = new Date();
         String taskId = ScmIdGenerator.TaskId.get();
+        BSONObject taskCondition = createTaskContent(cInfo);
+        return QuartzScheduleTools.createTask(ScheduleDefine.TaskType.SCM_TASK_CLEAN_FILE, taskId,
+                taskCondition, runTaskServer.getId(), null, d.getTime(), info.getWorkspace(),
+                info.getId(), cInfo.getScope(), cInfo.getMaxExecTime());
+    }
 
-        TaskEntity task = QuartzScheduleTools.createTask(
-                ScheduleDefine.TaskType.SCM_TASK_CLEAN_FILE, taskId, taskCondition, s.getId(), null,
-                d.getTime(), info.getWorkspace(), info.getId(), cInfo.getScope(),
-                cInfo.getMaxExecTime());
-
-        BSONObject condition = QuartzScheduleTools.createDuplicateTaskMatcher(
-                ScheduleDefine.TaskType.SCM_TASK_CLEAN_FILE, info.getWorkspace());
-        Lock lock = null;
-        try {
-            lock = QuartzScheduleTools.getDuplicateTaskLock();
-            lock.lock();
-            if (ScheduleServer.getInstance().isTaskExist(condition)) {
-                throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
-                        "task is conflicted:task=" + task);
-            }
-            ScheduleServer.getInstance().insertTask(task);
-        }
-        catch (ScheduleException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
-                    "insert task fialed:task=" + task, e);
-        }
-        finally {
-            if (null != lock) {
-                lock.unlock();
-            }
-        }
-
-        try {
-            String targetUrl = ScheduleCommonTools.createContentServerInternalUrl(s.getHostName(),
-                    s.getPort());
-            ScheduleClientFactory clientFactory = ScheduleMgrWrapper.getInstance()
-                    .getClientFactory();
-            ScheduleClient client = clientFactory.getFeignClientByNodeUrl(targetUrl);
-            client.notifyTask(taskId, RestCommonDefine.RestParam.VALUE_NOTIFY_TYPE_START);
-        }
-        catch (Exception e) {
-            logger.error("notify task failed", e);
-            QuartzScheduleTools.deleteTask(taskId);
-        }
+    @Override
+    protected FileServerEntity getRunTaskServer(ScheduleJobInfo info) {
+        CleanJobInfo cInfo = (CleanJobInfo) info;
+        return ScheduleServer.getInstance().getRandomServer(cInfo.getSiteId(),
+                info.getPreferredRegion(), info.getPreferredZone());
     }
 
     private BSONObject createTaskContent(CleanJobInfo cInfo) {
@@ -114,10 +55,7 @@ public class QuartzCleanJob extends QuartzScheduleJob {
         if (null != extraObj && !extraObj.isEmpty()) {
             array.put("1", cInfo.getExtraCondtion());
         }
-
-        BSONObject taskCondition = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
-
-        return taskCondition;
+        return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
     }
 
 }

@@ -1,18 +1,12 @@
 package com.sequoiacm.contentserver.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.bson.BSONObject;
-
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.strategy.common.StrategyDefine;
 import com.sequoiacm.infrastructure.strategy.core.ConnectivityStrategy;
 import com.sequoiacm.infrastructure.strategy.core.StrategyFactory;
@@ -21,6 +15,11 @@ import com.sequoiacm.infrastructure.strategy.element.StrategyInfo;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import com.sequoiacm.infrastructure.strategy.exception.StrategyException;
 import com.sequoiacm.infrastructure.strategy.exception.StrategyInvalidArgumentException;
+import org.bson.BSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class ScmStrategyMgr {
     
@@ -104,17 +103,6 @@ public class ScmStrategyMgr {
         }
         catch (StrategyException e) {
             throw new ScmOperationUnsupportedException(e.getMessage(), e);
-        }
-    }
-    
-    public List<Integer> getVerifySites(ScmWorkspaceInfo wsInfo, List<Integer> fileLocationSites,
-            int localSiteId) throws ScmServerException {
-        List<Integer> wsLocationSiteIds = getWsLocationSites(wsInfo);
-        try {
-            return this.strategy.getCleanTaskVerifySites(wsLocationSiteIds, fileLocationSites, localSiteId);
-        }
-        catch (StrategyException e) {
-            throw new ScmSystemException("invalid argument", e);
         }
     }
     

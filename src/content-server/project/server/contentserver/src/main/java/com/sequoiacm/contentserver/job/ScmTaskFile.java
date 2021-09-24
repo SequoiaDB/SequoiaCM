@@ -1,32 +1,29 @@
 package com.sequoiacm.contentserver.job;
 
-import java.util.Date;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
-import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.sequoiadb.dataopertion.SdbDataReaderImpl;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 enum DoFileRes {
     SUCCESS,
@@ -232,8 +229,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         }
     }
 
-    protected abstract DoFileRes doFile(String fileId, int majorVersion, int minorVersion,
-            String dataId) throws ScmServerException;
+    protected abstract DoFileRes doFile(BSONObject fileInfoNotInLock) throws ScmServerException;
 
     protected abstract BSONObject buildActualMatcher() throws ScmServerException;
 
@@ -268,17 +264,14 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             cursor = getCursor(sms);
 
             while (running && cursor.hasNext()) {
-                BSONObject file = cursor.getNext();
-                String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
-                String dataId = (String) file.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
-                int majorVersion = (int) file.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-                int minorVersion = (int) file.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
+                BSONObject fileInfoNotInLock = cursor.getNext();
+                String fileId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_ID);
                 ScmLockPath lockPath = ScmLockPathFactory
                         .createFileLockPath(getWorkspaceInfo().getName(), fileId);
                 DoFileRes res;
                 ScmLock fileReadLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
                 try {
-                    res = doFile(fileId, majorVersion, minorVersion, dataId);
+                    res = doFile(fileInfoNotInLock);
                 }
                 finally {
                     fileReadLock.unlock();

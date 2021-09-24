@@ -1,23 +1,19 @@
 package com.sequoiacm.common;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonHelper {
     private static SimpleDateFormat ymFullDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -59,6 +55,12 @@ public class CommonHelper {
         }
 
         return isExistNull;
+    }
+
+    public static List<Integer> getFileLocationIdList(BasicBSONList siteList) {
+        List<ScmFileLocation> locationList = new ArrayList<ScmFileLocation>();
+        getFileLocationList(siteList, locationList);
+        return getFileLocationIdList(locationList);
     }
 
     public static List<Integer> getFileLocationIdList(List<ScmFileLocation> locationList) {

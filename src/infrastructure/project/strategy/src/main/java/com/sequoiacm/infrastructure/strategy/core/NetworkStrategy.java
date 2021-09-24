@@ -1,8 +1,5 @@
 package com.sequoiacm.infrastructure.strategy.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sequoiacm.infrastructure.strategy.common.StrategyDefine;
 import com.sequoiacm.infrastructure.strategy.common.StrategyTools;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
@@ -10,6 +7,9 @@ import com.sequoiacm.infrastructure.strategy.element.StrategyInfo;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import com.sequoiacm.infrastructure.strategy.exception.StrategyException;
 import com.sequoiacm.infrastructure.strategy.exception.StrategyInvalidArgumentException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetworkStrategy implements ConnectivityStrategy {
 
@@ -65,25 +65,6 @@ public class NetworkStrategy implements ConnectivityStrategy {
     public void checkCacheSite(List<Integer> wsLocationSiteIds, int localSiteId) 
             throws StrategyException {
         // unlimited
-    }
-
-    @Override
-    public List<Integer> getCleanTaskVerifySites(List<Integer> wsLocationSiteIds, 
-            List<Integer> fileLocationSites, int localSiteId) throws StrategyException {
-        checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);
-        checkFileLocationSiteNotNull(fileLocationSites);
-        List<Integer> siteList = new ArrayList<>();
-        for (Integer siteId : wsLocationSiteIds) {
-            if (siteId != localSiteId && fileLocationSites.contains(siteId)) {
-                siteList.add(siteId);
-            }
-        }
-        /*
-        if (siteList.size() == 0) {
-            throw new StrategyException("the sites behind the local site does not contain this files");
-        }
-        */
-        return siteList;
     }
 
     @Override

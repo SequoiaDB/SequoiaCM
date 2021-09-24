@@ -1,21 +1,10 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.util.Date;
-import java.util.Set;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.job.ScmTaskBase;
 import com.sequoiacm.contentserver.job.ScmTaskManager;
@@ -30,11 +19,21 @@ import com.sequoiacm.contentserver.site.ScmContentServerInfo;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaTaskAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.Set;
 
 @Service
 public class TaskServiceImpl implements ITaskService {
@@ -151,13 +150,10 @@ public class TaskServiceImpl implements ITaskService {
         long maxExecTime = BsonUtils
                 .getNumberOrElse(options, CommonDefine.RestArg.TASK_MAX_EXEC_TIME, 0).longValue();
 
-        // check task duplicate
-        checkCreateBefore(taskType, wsInfo.getName());
         String taskId = ScmIdGenerator.TaskId.get();
         createTask(taskType, taskId, wsInfo.getName(), taskContent, serverId, targetSiteId,
                 taskScope, maxExecTime);
         try {
-            checkCreateAfter(taskType, wsInfo.getName());
             notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_CREATE);
             logger.info("start task success:taskId=" + taskId);
         }
@@ -198,17 +194,6 @@ public class TaskServiceImpl implements ITaskService {
         }
     }
 
-    private void checkCreateAfter(int taskType, String workspaceName) throws ScmServerException {
-        BSONObject matcher = getNotFinishTaskMatcher(taskType, workspaceName);
-
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        long count = contentServer.countTask(matcher);
-        if (count > 1) {
-            throw new ScmServerException(ScmError.TASK_DUPLICATE,
-                    "task is duplicate:matcher=" + matcher.toString() + ",exist_count=" + count);
-        }
-    }
-
     private BSONObject getNotFinishTaskMatcher(int taskType, String workspaceName)
             throws ScmServerException {
         BSONObject flagList = new BasicBSONList();
@@ -221,17 +206,6 @@ public class TaskServiceImpl implements ITaskService {
         matcher.put(FieldName.Task.FIELD_RUNNING_FLAG, inFlag);
 
         return matcher;
-    }
-
-    private void checkCreateBefore(int taskType, String workspaceName) throws ScmServerException {
-        BSONObject matcher = getNotFinishTaskMatcher(taskType, workspaceName);
-
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        long count = contentServer.countTask(matcher);
-        if (count > 0) {
-            throw new ScmServerException(ScmError.TASK_DUPLICATE,
-                    "task is duplicate:matcher=" + matcher.toString() + ",exist_count=" + count);
-        }
     }
 
     private void createTask(int type, String id, String workspaceName, BSONObject content,

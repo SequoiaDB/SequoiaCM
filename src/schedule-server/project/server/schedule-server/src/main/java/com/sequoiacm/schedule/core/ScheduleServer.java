@@ -186,6 +186,12 @@ public class ScheduleServer {
         taskDao.delete(taskId);
     }
 
+    public TaskEntity queryLatestTask(BSONObject condition) throws Exception {
+        BasicBSONObject orderBy = new BasicBSONObject();
+        orderBy.put(FieldName.Task.FIELD_START_TIME, -1);
+        return taskDao.queryOne(condition, orderBy);
+    }
+
     public boolean isTaskExist(BSONObject condition) throws Exception {
         ScmBSONObjectCursor cursor = null;
         try {
@@ -311,5 +317,9 @@ public class ScheduleServer {
 
     public void removeNodesBySiteId(int siteId) {
         nodeMgr.removeNodesBySiteId(siteId);
+    }
+
+    public FileServerEntity getServerById(int serverId) {
+        return nodeMgr.getServersById(serverId);
     }
 }

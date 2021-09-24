@@ -37,6 +37,7 @@ public enum ScmError {
 
     TASK_DUPLICATE(-220, "Task is duplicate"),
     TASK_NOT_EXIST(-221, "Task is not exist"),
+    EXCEED_MAX_CONCURRENT_TASK(-222, "Exceed max concurrent task"),
 
     DIR_EXIST(-240, "Directory already exists"),
     DIR_NOT_FOUND(-241, "Directory not found"),
