@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,18 +31,19 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @Description seqDB-3701:更新调度任务region和zone中存在符合条件节点
+ * @Description SCM-3701:更新调度任务region和zone中存在符合条件节点
+ *              SCM-3750:更新调度任务优先选择regin和zone，迁移相同文件
  * @Author zhangyanan
  * @Date 2021.8.28
  * @UpdataAuthor zhangyanan
  * @UpdateDate 2021.8.28
  * @version 1.00
  */
-public class CreateSchedule3701 extends TestScmBase {
+public class CreateSchedule3701_3750 extends TestScmBase {
     private int fileSize = 1024 * 100;
     private File localPath = null;
     private String filePath = null;
-    private String fileName = "file3701";
+    private String fileName = "file3701_3750";
     private String region;
     private String zone;
     private String updateZone;
@@ -126,6 +128,20 @@ public class CreateSchedule3701 extends TestScmBase {
         List< ScmTask > lastesSuccessTasks = successTasks.subList( 0, 1 );
         ScmScheduleUtils.checkNodeRegionAndZone( lastesSuccessTasks,
                 rootSiteSession, region, updateZone );
+
+        BSONObject orderBy = ScmQueryBuilder
+                .start( ScmAttributeName.Task.STOP_TIME ).is( -1 ).get();
+        List< ScmTask > actualTasks = copySchedule.getTasks( ScmQueryBuilder
+                .start( ScmAttributeName.Task.ACTUAL_COUNT ).is( 1 ).get(),
+                orderBy, 0, -1 );
+
+        Assert.assertEquals( actualTasks.size(), 2 );
+        // 校验更新后actual_count为1的taskd
+        ScmScheduleUtils.checkNodeRegionAndZone( actualTasks.subList( 0, 1 ),
+                rootSiteSession, region, updateZone );
+        // 校验更新前actual_count为1的task
+        ScmScheduleUtils.checkNodeRegionAndZone( actualTasks.subList( 1, 2 ),
+                rootSiteSession, region, zone );
         runSuccess = true;
     }
 
