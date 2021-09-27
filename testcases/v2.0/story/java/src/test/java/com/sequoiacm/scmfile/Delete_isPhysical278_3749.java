@@ -1,6 +1,7 @@
 package com.sequoiacm.scmfile;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -26,84 +27,75 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-278:文件物理删除
- * @author huangxiaoni init
- * @date 2017.5.23
+ * @description SCM-278:文件物理删除 SCM-3749:文件物理删除后调用isDeleted()方法
+ * @author huangxiaoni
+ * @createDate 2017.5.23
+ * @updateUser zhangyanan
+ * @updateDate 2021.9.17
+ * @updateRemark
+ * @version v1.0
  */
 
-public class Delete_isPhysical278 extends TestScmBase {
+public class Delete_isPhysical278_3749 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private boolean runSuccess = false;
     private ScmWorkspace ws = null;
-
-    private String fileName = "delete278";
+    private String fileName = "delete278_3749";
     private ScmId fileId = null;
     private int fileSize = 100;
     private File localPath = null;
     private String filePath = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            site = ScmInfo.getSite();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-
-            fileId = ScmFileUtils.create( ws, fileName, filePath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        site = ScmInfo.getSite();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( site );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            // delete
-            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            file.delete( true );
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        // 校验文件isDelete状态
+        Assert.assertFalse( file.isDeleted() );
+        file.delete( true );
+        // 校验文件isDelete状态
+        Assert.assertTrue( file.isDeleted() );
+        // check result
+        checkResults();
 
-            // check result
-            this.checkResults();
+        runSuccess = true;
+    }
 
-            runSuccess = true;
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
-        } finally {
-            if ( session != null ) {
+    @AfterClass(alwaysRun = true)
+    private void tearDown() {
+        if ( runSuccess || TestScmBase.forceClear ) {
+            try {
+                TestTools.LocalFile.removeFile( localPath );
+            } finally {
                 session.close();
             }
         }
     }
 
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
-        try {
-            if ( runSuccess || forceClear ) {
-                TestTools.LocalFile.removeFile( localPath );
-            }
-        } finally {
-
-        }
-    }
-
     private void checkResults() throws Exception {
+        BSONObject cond = new BasicBSONObject( "id", fileId.get() );
+        long cnt = ScmFactory.File.countInstance( ws, ScopeType.SCOPE_CURRENT,
+                cond );
+        Assert.assertEquals( cnt, 0 );
         try {
-            BSONObject cond = new BasicBSONObject( "id", fileId.get() );
-            long cnt = ScmFactory.File.countInstance( ws,
-                    ScopeType.SCOPE_CURRENT, cond );
-            Assert.assertEquals( cnt, 0 );
-
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );
             Assert.assertFalse( true,
                     "File is unExisted, except throw e, but success." );
