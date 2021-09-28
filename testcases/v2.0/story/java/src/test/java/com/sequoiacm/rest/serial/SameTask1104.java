@@ -3,16 +3,16 @@ package com.sequoiacm.rest.serial;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,8 +53,7 @@ public class SameTask1104 extends TestScmBase {
     private SiteWrapper branchSite = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
+    private void setUp() throws IOException, ScmException {
             localPath = new File( TestScmBase.dataDirectory + File.separator
                     + TestTools.getClassName() );
             filePath = localPath + File.separator + "localFile_" + fileSize
@@ -83,44 +82,14 @@ public class SameTask1104 extends TestScmBase {
                 fileIdList.add( new ScmId( fileId ) );
                 descs.add( desc );
             }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", author ) );
-
-        String response1 = rest1.setApi( "tasks" )
-                .setRequestMethod( HttpMethod.POST )
-                .setParameter( "task_type", "2" )
-                .setParameter( "workspace_name", ws.getName() )
-                .setParameter( "options", options.toString() )
-                .setResponseType( String.class ).exec().getBody().toString();
-        taskId1 = JSON.parseObject( response1 ).getJSONObject( "task" )
-                .getString( "id" );
-        try {
-            String response2 = rest2.setApi( "tasks" )
-                    .setRequestMethod( HttpMethod.PUT )
-                    .setParameter( "workspace_name", ws.getName() )
-                    .setParameter( "options", options.toString() )
-                    .setParameter( "task_type", "2" ).exec().getBody()
-                    .toString();
-            taskId2 = JSON.parseObject( response2 ).getJSONObject( "task" )
-                    .getString( "id" );
-            Assert.fail(
-                    "start double task is success when task is duplicate in "
-                            + "same ws" );
-        } catch ( HttpServerErrorException e ) {
-            HttpStatus status = e.getStatusCode();
-            if ( status != HttpStatus.INTERNAL_SERVER_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
-            }
-        }
+        ThreadExecutor t = new ThreadExecutor();
+        t.addWorker(new TestThread(taskId1,rest1));
+        t.addWorker(new TestThread(taskId2,rest2));
+        t.run();
         runSuccess = true;
     }
 
@@ -151,6 +120,31 @@ public class SameTask1104 extends TestScmBase {
             if ( rest2 != null ) {
                 rest2.disconnect();
             }
+        }
+    }
+
+    class TestThread{
+        private String taskId = null;
+        private RestWrapper rest = null;
+
+        public TestThread(String taskId, RestWrapper rest) {
+            this.taskId = taskId;
+            this.rest = rest;
+        }
+
+        @ExecuteOrder(step = 1)
+        private void run(){
+            JSONObject options = new JSONObject();
+            options.put( "filter", new JSONObject().put( "author", author ) );
+
+            String response1 = rest.setApi( "tasks" )
+                    .setRequestMethod( HttpMethod.POST )
+                    .setParameter( "task_type", "2" )
+                    .setParameter( "workspace_name", ws.getName() )
+                    .setParameter( "options", options.toString() )
+                    .setResponseType( String.class ).exec().getBody().toString();
+            taskId = JSON.parseObject( response1 ).getJSONObject( "task" )
+                    .getString( "id" );
         }
     }
 
