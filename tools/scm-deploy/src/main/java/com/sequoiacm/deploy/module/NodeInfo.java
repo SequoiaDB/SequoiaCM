@@ -24,6 +24,11 @@ public class NodeInfo {
     protected NodeInfo() {
     }
 
+    public NodeInfo(String hostName, ServiceType serviceType){
+        this.hostName = hostName;
+        this.serviceType = serviceType;
+    }
+
     public NodeInfo(BSONObject bson) {
         zone = BsonUtils.getStringChecked(bson, ConfFileDefine.NODE_ZONE);
         String serviceTypeStr = BsonUtils.getStringChecked(bson, ConfFileDefine.NODE_SERVICE_TYPE);

@@ -63,6 +63,15 @@ public class ScmCommon {
     public static final String SDBADMIN_USER_NAME = "sdbadmin";
     public static final String SCM_SAMPLE_SYS_CONF_NAME = "scm.application.properties";
     public static final String SCM_SAMPLE_LOG_CONF_NAME = "scm.logback.xml";
+
+    public static final String DAEMON_DIR_PATH = "." + File.separator + ".." + File.separator
+            + "daemon";
+    public static final String DAEMON_CONF_FILE_PATH = "." + File.separator + "conf"
+            + File.separator + ".scmd.properties";
+    public static final String DAEMON_LOCATION = "daemonHomePath";
+    public static final String BIN = "bin";
+    public static final String DAEMON_SCRIPT = "scmd.sh";
+
     private static final Logger logger = LoggerFactory.getLogger(ScmCommon.class);
 
     public static void printVersion() throws ScmToolsException {
@@ -306,9 +315,12 @@ public class ScmCommon {
         }
         try {
             if (!file.createNewFile()) {
-                logger.error("Faile to create file:" + file.getAbsolutePath());
-                throw new ScmToolsException("Faile to create file:" + file.getAbsolutePath(),
-                        ScmExitCode.COMMON_UNKNOWN_ERROR);
+                logger.error("Failed to create file:" + file.getAbsolutePath()
+                        + ",caused by file is already exist");
+                throw new ScmToolsException(
+                        "Failed to create file:" + file.getAbsolutePath()
+                                + ",caused by file is already exist",
+                        ScmExitCode.FILE_ALREADY_EXIST);
             }
             // setFileOwnerAndGroup(file.getPath());
         }

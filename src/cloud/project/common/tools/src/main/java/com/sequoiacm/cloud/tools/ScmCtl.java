@@ -7,6 +7,7 @@ import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmListToolImpl;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import com.sequoiacm.cloud.tools.command.ScmStartToolImplCloud;
@@ -17,11 +18,12 @@ public class ScmCtl {
         CommandManager cmd = new CommandManager("scmcloudctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "service-center", "sequoiacm-cloud-servicecenter-"));
-        nodeTypes.add(new ScmNodeType("2", "gateway", "sequoiacm-cloud-gateway-"));
-        nodeTypes.add(new ScmNodeType("3", "auth-server", "sequoiacm-cloud-authserver-", "auth-server"));
-        nodeTypes.add(new ScmNodeType("20", "service-trace", "sequoiacm-cloud-servicetrace-"));
-        nodeTypes.add(new ScmNodeType("21", "admin-server", "sequoiacm-cloud-adminserver-", "admin-server"));
+        nodeTypes.add(new ScmNodeType("1", "service-center", "sequoiacm-cloud-servicecenter-", ScmServerScriptEnum.SERVICECENTER));
+        nodeTypes.add(new ScmNodeType("2", "gateway", "sequoiacm-cloud-gateway-", ScmServerScriptEnum.GATEWAY));
+        nodeTypes.add(new ScmNodeType("3", "auth-server", "sequoiacm-cloud-authserver-", ScmServerScriptEnum.AUTHSERVER));
+        nodeTypes.add(new ScmNodeType("20", "service-trace", "sequoiacm-cloud-servicetrace-", ScmServerScriptEnum.SERVICETRACE));
+        nodeTypes.add(new ScmNodeType("21", "admin-server", "sequoiacm-cloud-adminserver-", ScmServerScriptEnum.ADMINSERVER));
+
         try {
             cmd.addTool(new ScmStartToolImplCloud(nodeTypes));
             cmd.addTool(new ScmStopToolImplCloud(nodeTypes));

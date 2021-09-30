@@ -5,16 +5,20 @@ public class ScmNodeType {
     private String name;
     private String jarNamePrefix;
     private String confTemplateNamePrefix = "spring-app";
+    // 该属性用于提醒用户，新添加一个工具时，要向 ScmServerScriptEnum 类中添加新工具的脚本信息
+    private ScmServerScriptEnum serverScriptEnum;
 
-    public ScmNodeType(String type, String name, String jarNamePrefix) {
+    public ScmNodeType(String type, String name, String jarNamePrefix,
+            ScmServerScriptEnum serverScriptEnum) {
         this.type = type;
         this.name = name;
         this.jarNamePrefix = jarNamePrefix;
+        this.serverScriptEnum = serverScriptEnum;
     }
 
     public ScmNodeType(String type, String name, String jarNamePrefix,
-            String confTemplateNamePrefix) {
-        this(type, name, jarNamePrefix);
+            ScmServerScriptEnum serverScriptEnum, String confTemplateNamePrefix) {
+        this(type, name, jarNamePrefix, serverScriptEnum);
         this.confTemplateNamePrefix = confTemplateNamePrefix;
     }
 

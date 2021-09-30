@@ -11,14 +11,15 @@ import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ConfAdmin {
     public static void main(String[] args) throws ScmToolsException {
-        CommandManager cmd = new CommandManager("ConfAdmin");
+        CommandManager cmd = new CommandManager("confadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-"));
+        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-", ScmServerScriptEnum.CONFIGSERVER));
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
                 .addCloudParam().addSdbParam().addZkParam().addServerPortParam(8190).get();
@@ -34,6 +35,7 @@ public class ConfAdmin {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }
+
         // admin 日志
         ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.ADMIN_LOG_CONF);
         cmd.execute(args);

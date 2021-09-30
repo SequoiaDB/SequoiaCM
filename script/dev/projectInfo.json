@@ -44,6 +44,10 @@
 		{
 			"name": "fulltext",
 			"modulePomPath": "../../src/fulltext/project/pom.xml"
+		},
+		{
+			"name": "daemon",
+			"modulePomPath": "../../src/monitor-daemon/project/pom.xml"
 		}]
 	},
 	"releasePackage": [{
@@ -87,6 +91,10 @@
 			{
 				"type": "copy",
 				"src": "../../src/fulltext/project/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../src/monitor-daemon/project/assembly/target/*-release.tar.gz"
 			}]
 		},
 		{

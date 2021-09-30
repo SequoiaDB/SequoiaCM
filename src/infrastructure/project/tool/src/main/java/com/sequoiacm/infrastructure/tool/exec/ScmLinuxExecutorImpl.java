@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -37,35 +38,12 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
                 + springConfigLocation + " --logging.config=" + loggingConfig + " > " + errorLogPath
                 + " 2>&1 &";
         logger.info("starting scm by exec cmd(/bin/sh -c \" " + cmd + "\")");
-        Process ps = exec(cmd);
-
         try {
-            int rc = ps.waitFor();
-            if (rc != 0) {
-                String errorMsg = getErrorMsg(ps);
-                logger.error("start node failed,exec cmd failed,cmd:/bin/sh -c \"" + cmd
-                        + "\",errorMsg:" + errorMsg);
-                throw new ScmToolsException("start node failed,error:" + errorMsg,
-                        ScmExitCode.SHELL_EXEC_ERROR);
-            }
+            execShell(cmd);
         }
-        catch (InterruptedException e) {
-            logger.error("wait cmd return occur error,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            throw new ScmToolsException("wait cmd return occur interrupted exception,cmd:" + cmd
-                    + ",error:" + e.getMessage(), ScmExitCode.INTERRUPT_ERROR);
-        }
-        catch (IOException e) {
-            logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            throw new ScmToolsException(
-                    "get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
-        }
-        catch (Exception e) {
-            logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            ScmCommon.throwToolException("get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
-        }
-        finally {
-            ps.destroy();
+        catch (ScmToolsException e) {
+            throw new ScmToolsException("start node failed, error:" + e.getMessage(),
+                    e.getExitCode(), e);
         }
     }
 
@@ -177,6 +155,39 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
 
         return psRes;
+    }
+
+    @Override
+    public void execShell(String cmd) throws ScmToolsException {
+        Process ps = exec(cmd);
+
+        try {
+            int rc = ps.waitFor();
+            if (rc != 0) {
+                String errorMsg = getErrorMsg(ps);
+                logger.error("exec cmd failed,cmd:/bin/sh -c \"" + cmd + "\",errorMsg:" + errorMsg);
+                throw new ScmToolsException("exec cmd failed,error:" + errorMsg,
+                        ScmExitCode.SHELL_EXEC_ERROR);
+            }
+        }
+        catch (InterruptedException e) {
+            logger.error("wait cmd return occur error,cmd:/bin/sh -c \"" + cmd + "\"", e);
+            throw new ScmToolsException("wait cmd return occur interrupted exception,cmd:" + cmd
+                    + ",error:" + e.getMessage(), ScmExitCode.INTERRUPT_ERROR);
+        }
+        catch (IOException e) {
+            logger.error("get cmd output failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
+            throw new ScmToolsException(
+                    "get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:" + e.getMessage(),
+                    ScmExitCode.IO_ERROR);
+        }
+        catch (Exception e) {
+            logger.error("get cmd output failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
+            ScmCommon.throwToolException("get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
+        }
+        finally {
+            ps.destroy();
+        }
     }
 
     public void _getNodeStatus(ScmNodeType nodeType, ScmNodeStatus res) throws ScmToolsException {

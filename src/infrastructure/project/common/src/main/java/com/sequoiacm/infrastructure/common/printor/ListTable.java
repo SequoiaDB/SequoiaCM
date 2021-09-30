@@ -1,10 +1,10 @@
-package com.sequoiacm.tools.common;
+package com.sequoiacm.infrastructure.common.printor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListTable {
-    List<ListLine> values = new ArrayList<>();
+    List<ListLine> values = new ArrayList<ListLine>();
 
     public void addLine(ListLine line) {
         values.add(line);

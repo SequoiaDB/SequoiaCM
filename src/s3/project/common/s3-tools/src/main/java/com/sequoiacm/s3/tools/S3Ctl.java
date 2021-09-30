@@ -10,6 +10,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmStartToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStopToolImpl;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,8 @@ public class S3Ctl {
         CommandManager cmd = new CommandManager("s3ctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-server-"));
+        nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-server-", ScmServerScriptEnum.S3SERVER));
+
         try {
             cmd.addTool(new ScmStartToolImpl(nodeTypes, "/health?action=actuator"));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));

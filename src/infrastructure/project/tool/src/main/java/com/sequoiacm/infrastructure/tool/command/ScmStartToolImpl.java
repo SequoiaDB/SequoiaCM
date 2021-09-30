@@ -28,7 +28,7 @@ public class ScmStartToolImpl extends ScmTool {
     private final String OPT_LONG_TIMEOUT = "timeout";
     // private final String OPT_LONG_OPTION = "option";
     private ScmExecutorWrapper executor;
-    private int success = 0;
+    private List<ScmNodeInfo> startSuccessList = new ArrayList<>();
     private static Logger logger = LoggerFactory.getLogger(ScmStartToolImpl.class);
     private ScmHelpGenerator hp;
     private Options options;
@@ -132,11 +132,13 @@ public class ScmStartToolImpl extends ScmTool {
 
         // check start res
         boolean startRes = isStartSuccess(checkList);
-        logger.info("Total:" + needStartMap.size() + ";Success:" + success + ";Failed:"
-                + (needStartMap.size() - success));
-        System.out.println("Total:" + needStartMap.size() + ";Success:" + success + ";Failed:"
-                + (needStartMap.size() - success));
-        if (!startRes || needStartMap.size() - success > 0) {
+        executor.addMonitorNodeList(startSuccessList);
+
+        logger.info("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
+                + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
+        System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
+                + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
+        if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
             throw new ScmToolsException(ScmExitCode.COMMON_UNKNOWN_ERROR);
         }
     }
@@ -159,7 +161,7 @@ public class ScmStartToolImpl extends ScmTool {
                         logger.info("Success:" + needStartMap.get(key).getNodeType().getUpperName()
                                 + "(" + needStartMap.get(key).getPort() + ")"
                                 + " is already started (" + pid + ")");
-                        success++;
+                        startSuccessList.add(needStartMap.get(key));
                     }
                     else {
                         System.out.println("Failed:"
@@ -202,7 +204,7 @@ public class ScmStartToolImpl extends ScmTool {
                             logger.info("Success:" + node.getNodeType().getUpperName() + "("
                                     + node.getPort() + ")" + " is successfully started (" + pid
                                     + ")");
-                            success++;
+                            startSuccessList.add(node);
                             it.remove();
                             port2Status.remove(node);
                         }
@@ -249,8 +251,8 @@ public class ScmStartToolImpl extends ScmTool {
     protected String getNodeRunningStatus(int port, RestTemplate restTemplate) {
         // return "OK";
         try {
-            Map<?, ?> resp = restTemplate.getForObject("http://localhost:" + port + "/" + healthEndpoint,
-                    Map.class);
+            Map<?, ?> resp = restTemplate
+                    .getForObject("http://localhost:" + port + "/" + healthEndpoint, Map.class);
             return resp.get("status").toString().trim();
         }
         catch (Exception e) {

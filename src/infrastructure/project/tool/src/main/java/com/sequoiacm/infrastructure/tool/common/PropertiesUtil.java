@@ -6,10 +6,9 @@ import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 public class PropertiesUtil {
@@ -56,5 +55,42 @@ public class PropertiesUtil {
         return loadProperties(toolLog4j);
     }
 
-
+    public static void writeProperties(Map<String, String> items, String propPath)
+            throws ScmToolsException {
+        File file = new File(propPath);
+        if (!file.exists()) {
+            ScmCommon.createFile(propPath);
+        }
+        Properties prop = new Properties();
+        for (String key : items.keySet()) {
+            prop.setProperty(key, items.get(key));
+        }
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(file);
+            prop.store(pw, "UTF-8");
+        }
+        catch (FileNotFoundException e) {
+            throw new ScmToolsException("Failed to write " + file.getName(),
+                    ScmExitCode.FILE_NOT_FIND, e);
+        }
+        catch (IOException e) {
+            throw new ScmToolsException("Failed to write " + file.getName(), ScmExitCode.IO_ERROR,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmToolsException("Failed to write " + file.getName(),
+                    ScmExitCode.COMMON_UNKNOWN_ERROR, e);
+        }
+        finally {
+            if (pw != null) {
+                try {
+                    pw.close();
+                }
+                catch (Exception e) {
+                    logger.warn("Failed to close resource:{}", pw, e);
+                }
+            }
+        }
+    }
 }

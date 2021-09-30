@@ -16,10 +16,12 @@ public enum ServiceType {
     GATEWAY("gateway", true, InstallPackType.CLOUD, 4),
     CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, 5),
     ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, 10),
-    //  TRACE_SERVER("service-trace", false, InstallPackType.CLOUD, 10),
+    // TRACE_SERVER("service-trace", false, InstallPackType.CLOUD, 10),
     OM_SERVER("om-server", false, InstallPackType.OM_SERVER, 10),
     FULLTEXT_SERVER("fulltext-server", false, InstallPackType.FULLTEXT_SERVER, 10),
-    S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, 10);
+    S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, 10),
+    // Daemon need to start last and clean first
+    DAEMON("daemon", false, InstallPackType.DAEMON, 200);
 
     private static List<ServiceType> typeSortByPriority;
     private static List<ServiceType> requiredServiceType;
@@ -38,7 +40,7 @@ public enum ServiceType {
             if (type.isRequire) {
                 requiredServiceType.add(type);
             }
-           
+
         }
     }
 

@@ -13,6 +13,7 @@ import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,8 @@ public class ScmListToolImpl extends ScmTool {
         options.addOption(hp.createOpt("p", "port", "node port", false, true, false));
         options.addOption(hp.createOpt("m", "mode", "list mode, 'run' or 'local', default:run.",
                 false, true, false));
+        options.addOption(hp.createOpt("l", "long", "show long style", false, false, true));
+
         executor = new ScmExecutorWrapper(this.nodeTypes);
     }
 
@@ -89,8 +92,19 @@ public class ScmListToolImpl extends ScmTool {
                 }
             }
         }
-        for (int i = 0; i < pidList.size(); i++) {
-            System.out.println(nodeList.get(i).getNodeType().getUpperName()+"(" + nodeList.get(i).getPort() + ")" + " (" + pidList.get(i) + ")");
+        if (commandLine.hasOption("l")) {
+            for (int i = 0; i < pidList.size(); i++) {
+                String propPath = nodeList.get(i).getConfPath() + File.separator + "application.properties";
+                System.out.println(nodeList.get(i).getNodeType().getUpperName() + "("
+                        + nodeList.get(i).getPort() + ")" + " (" + pidList.get(i) + ") "
+                        + propPath);
+            }
+        }
+        else {
+            for (int i = 0; i < pidList.size(); i++) {
+                System.out.println(nodeList.get(i).getNodeType().getUpperName() + "("
+                        + nodeList.get(i).getPort() + ")" + " (" + pidList.get(i) + ")");
+            }
         }
         System.out.println("Total:" + pidList.size());
         if (pidList.size() == 0) {

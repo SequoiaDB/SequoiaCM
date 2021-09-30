@@ -91,6 +91,8 @@ public class ScmStopToolImpl extends ScmTool {
             }
         }
 
+        executor.changeMonitorStatus(needStopMap.keySet(), "off");
+
         List<Integer> checkList = new ArrayList<>();
         stopNodes(needStopMap, checkList);
 
@@ -137,8 +139,8 @@ public class ScmStopToolImpl extends ScmTool {
                     int pid = executor.getNodePid(port);
                     if (pid == -1) {
                         logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
-                        System.out
-                                .println("Success:sequoiacm(" + port + ") is successfully stopped");
+                        System.out.println(
+                                "Success:sequoiacm(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -180,8 +182,8 @@ public class ScmStopToolImpl extends ScmTool {
                     int pid = executor.getNodePid(port);
                     if (pid == -1) {
                         logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
-                        System.out
-                                .println("Success:sequoiacm(" + port + ") is successfully stopped");
+                        System.out.println(
+                                "Success:sequoiacm(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -199,8 +201,8 @@ public class ScmStopToolImpl extends ScmTool {
         }
 
         for (int port : checkList) {
-            logger.error(
-                    "Failed:sequoiacm(" + port + ") failed to stop, timeout, node still running");
+            logger.error("Failed:sequoiacm(" + port
+                    + ") failed to stop, timeout, node still running");
             System.out.println("Failed:sequoiacm(" + port + ") failed to stop");
         }
         return false;

@@ -27,13 +27,13 @@ import com.sequoiacm.deploy.ssh.SshMgr;
 public abstract class ServiceDeployerBase implements ServiceDeployer {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDeployerBase.class);
 
-    private ScmDeployInfoMgr confMgr = ScmDeployInfoMgr.getInstance();
+    protected ScmDeployInfoMgr confMgr = ScmDeployInfoMgr.getInstance();
 
-    private CommonConfig commonConfig = CommonConfig.getInstance();
+    protected CommonConfig commonConfig = CommonConfig.getInstance();
 
-    private ServiceInstallerMgr serviceInstallerMgr = ServiceInstallerMgr.getInstance();
+    protected ServiceInstallerMgr serviceInstallerMgr = ServiceInstallerMgr.getInstance();
 
-    private SshMgr sshFactory = SshMgr.getInstance();
+    protected SshMgr sshFactory = SshMgr.getInstance();
 
     private ServiceType type;
     private String deployTemplateJsonFile;

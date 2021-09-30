@@ -38,8 +38,7 @@ public class ScmStopToolImpl extends ScmTool {
         options.addOption(
                 hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
 
-        ScmCommandUtil.addTypeOptionForStartOrStop(nodeTypes,
-                options, hp, false, true);
+        ScmCommandUtil.addTypeOptionForStartOrStop(nodeTypes, options, hp, false, true);
 
         options.addOption(hp.createOpt(OPT_SHORT_FORCE, OPT_LONG_FORCE, "force to stop node.",
                 false, false, false));
@@ -102,6 +101,8 @@ public class ScmStopToolImpl extends ScmTool {
                 return;
             }
         }
+
+        executor.changeMonitorStatus(needStopMap.keySet(), "off");
 
         List<ScmNodeInfo> checkList = new ArrayList<>();
         stopNodes(needStopMap, checkList);

@@ -1,5 +1,6 @@
 package com.sequoiacm.tools.command;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ScmListToolImpl extends ScmTool {
         options.addOption(hp.createOpt("p", "port", "node port", false, true, false));
         options.addOption(hp.createOpt("m", "mode", "list mode, 'run' or 'local', default:run.",
                 false, true, false));
+        options.addOption(hp.createOpt("l", "long", "show long style", false, false, true));
         executor = new ScmExecutorWrapper();
     }
 
@@ -50,6 +52,7 @@ public class ScmListToolImpl extends ScmTool {
 
         List<String> portList = new ArrayList<>();
         List<String> pidList = new ArrayList<>();
+        List<String> confList = new ArrayList<>();
 
         if (commandLine.hasOption("p")) {
             String portStr = commandLine.getOptionValue("p");
@@ -60,10 +63,12 @@ public class ScmListToolImpl extends ScmTool {
                 if (pidInteger != null) {
                     portList.add(port + "");
                     pidList.add(pidInteger.toString());
+                    confList.add(confPath);
                 }
                 else if (!printRunningOnly) {
                     portList.add(port + "");
                     pidList.add("-");
+                    confList.add(confPath);
                 }
             }
         }
@@ -75,15 +80,28 @@ public class ScmListToolImpl extends ScmTool {
                 if (pidInteger != null) {
                     portList.add(entry.getKey() + "");
                     pidList.add(pidInteger.toString());
+                    confList.add(entry.getValue());
                 }
                 else if (!printRunningOnly) {
                     portList.add(entry.getKey() + "");
                     pidList.add("-");
+                    confList.add(entry.getValue());
                 }
             }
         }
-        for (int i = 0; i < pidList.size(); i++) {
-            System.out.println("sequoiacm(" + portList.get(i) + ") (" + pidList.get(i) + ")");
+
+        if (commandLine.hasOption("l")) {
+            for (int i = 0; i < pidList.size(); i++) {
+                String propPath = confList.get(i) + File.separator + "application.properties";
+                System.out.println("sequoiacm(" + portList.get(i) + ") (" + pidList.get(i)
+                        + ") " + propPath);
+            }
+        }
+        else {
+            for (int i = 0; i < pidList.size(); i++) {
+                System.out.println(
+                        "sequoiacm(" + portList.get(i) + ") (" + pidList.get(i) + ")");
+            }
         }
         System.out.println("Total:" + pidList.size());
         if (pidList.size() == 0) {

@@ -261,6 +261,15 @@ public class ScmDeployInfoMgr {
             }
         }
 
+        List<NodeInfo> list = new ArrayList<>();
+        for (Map.Entry<HostInfo, List<InstallPackType>> entry : hostToInstallPack.entrySet()) {
+            HostInfo host = entry.getKey();
+            list.add(new NodeInfo(host.getHostName(), ServiceType.DAEMON));
+            List<InstallPackType> installList = entry.getValue();
+            installList.add(InstallPackType.DAEMON);
+        }
+        serviceToNodes.put(ServiceType.DAEMON, list);
+
         for (ServiceType service : ServiceType.values()) {
             if (service.isRequire()) {
                 List<NodeInfo> nodes = getNodesByServiceType(service);

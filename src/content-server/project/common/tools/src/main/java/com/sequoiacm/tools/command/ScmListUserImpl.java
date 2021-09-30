@@ -3,6 +3,9 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.printor.ListLine;
+import com.sequoiacm.infrastructure.common.printor.ListTable;
+import com.sequoiacm.infrastructure.common.printor.ScmCommonPrintor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -21,11 +24,8 @@ import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.tools.common.ListLine;
-import com.sequoiacm.tools.common.ListTable;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.printor.ScmCommonPrintor;
 
 public class ScmListUserImpl extends ScmTool {
     private static final Logger logger = LoggerFactory.getLogger(ScmListUserImpl.class);

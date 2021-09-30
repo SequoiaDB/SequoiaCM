@@ -9,6 +9,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmStartToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStopToolImpl;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,8 @@ public class OmCtl {
         CommandManager cmd = new CommandManager("omctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-"));
+        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-", ScmServerScriptEnum.OMSERVER));
+
         try {
             cmd.addTool(new ScmStartToolImpl(nodeTypes));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));

@@ -16,7 +16,8 @@ public enum InstallPackType {
         public String getUntarDirName(String packName) {
             return packName.replace(".tar.gz", "");
         }
-    };
+    },
+    DAEMON("^daemon-(.*)-release\\.tar\\.gz$","daemon");
 
     private String packNameRegexp;
     private String untarDirName;

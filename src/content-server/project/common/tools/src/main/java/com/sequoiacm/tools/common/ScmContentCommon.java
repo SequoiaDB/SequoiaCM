@@ -83,6 +83,15 @@ public class ScmContentCommon {
     public static final String SDBADMIN_USER_NAME = "sdbadmin";
     public static final String SCM_SAMPLE_SYS_CONF_NAME = "scm.application.properties";
     public static final String SCM_SAMPLE_LOG_CONF_NAME = "scm.logback.xml";
+
+    public static final String DAEMON_DIR_PATH = "." + File.separator + ".." + File.separator + ".."
+            + File.separator + "daemon";
+    public static final String DAEMON_CONF_FILE_PATH = "." + File.separator + ".."
+            + File.separator + "conf" + File.separator + ".scmd.properties";
+    public static final String DAEMON_LOCATION = "daemonHomePath";
+    public static final String BIN = "bin";
+    public static final String DAEMON_SCRIPT = "scmd.sh";
+
     private static final Logger logger = LoggerFactory.getLogger(ScmContentCommon.class);
 
     public static void printVersion() throws ScmToolsException {
@@ -292,8 +301,9 @@ public class ScmContentCommon {
                     LinkOption.NOFOLLOW_LINKS);
         }
         catch (IOException e) {
-            logger.error("Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
-                    + getContentServerJarName(), e);
+            logger.error("Failed to get group name of "
+                    + ScmContentCommon.getContenserverAbsolutePath() + getContentServerJarName(),
+                    e);
             throw new ScmToolsException(
                     "Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
                             + getContentServerJarName() + ",errorMsg" + e.getMessage(),
@@ -514,7 +524,8 @@ public class ScmContentCommon {
     public static String getContentServerJarName() throws ScmToolsException {
         String version;
         try {
-            version = ScmManifestParser.getManifestInfoFromJar(ScmContentCommon.class).getScmVersion();
+            version = ScmManifestParser.getManifestInfoFromJar(ScmContentCommon.class)
+                    .getScmVersion();
         }
         catch (IOException e) {
             throw new ScmToolsException("failed to load manifest", ScmExitCode.SYSTEM_ERROR);

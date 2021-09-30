@@ -1,15 +1,11 @@
-package com.sequoiacm.tools.printor;
+package com.sequoiacm.infrastructure.common.printor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.tools.common.ListLine;
-import com.sequoiacm.tools.common.ListTable;
-import com.sequoiacm.tools.common.ScmContentCommon;
-
 public class ScmCommonPrintor {
     private static List<Integer> getLengthList(List<String> header, ListTable t) {
-        List<Integer> lengthList = new ArrayList<>();
+        List<Integer> lengthList = new ArrayList<Integer>();
         for (String hName : header) {
             if (null != hName) {
                 lengthList.add(hName.length());
@@ -57,7 +53,7 @@ public class ScmCommonPrintor {
             }
 
             if (i != lengthList.size() - 1) {
-                ScmContentCommon.printSpace(extraSpace);
+                printSpace(extraSpace);
             }
         }
         System.out.println();
@@ -74,7 +70,7 @@ public class ScmCommonPrintor {
                 }
 
                 if (j != l.size() - 1) {
-                    ScmContentCommon.printSpace(extraSpace);
+                    printSpace(extraSpace);
                 }
             }
 
@@ -82,6 +78,12 @@ public class ScmCommonPrintor {
         }
 
         System.out.println("Total:" + t.size());
+    }
+
+    public static void printSpace(int count) {
+        for (int i = 0; i < count; i++) {
+            System.out.print(" ");
+        }
     }
 
     public static void main(String[] args) {
