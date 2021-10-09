@@ -16,7 +16,7 @@ BSONObject copyCondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR)
 // 迁移调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
 ScmScheduleContent copyContent = new ScmScheduleCopyFileContent("branchSite1", "rootSite",
         "0d", copyCondition, ScopeType.SCOPE_CURRENT, 36000000);
-ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
+ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(session);
 ScmSchedule copySchedule = scheduleBuilder
         // 调度任务的工作区、名字及描述
         .workspace("test_ws").name("迁移文件").description("一个迁移的调度")
