@@ -16,7 +16,7 @@
     </parent>
     <properties>
         <sequoiacm-infrastructure.version>${project.version}</sequoiacm-infrastructure.version>
-        <sequoiacm-daemon.version>3.1.3</sequoiacm-daemon.version>
+        <sequoiacm-daemon.version>${project.version}</sequoiacm-daemon.version>
         <fastjson.version>1.2.73</fastjson.version>
         <logger.version>1.5.14.RELEASE</logger.version>
         <commons.version>2.6</commons.version>
