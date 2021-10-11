@@ -126,10 +126,13 @@ public class ScmMonitorTableMgr {
     }
 
     public void addNodeInfo(ScmNodeInfo needAddNode, boolean isOverWrite) throws ScmToolsException {
+        boolean isAddSuccess = false;
+        String scmdPropertiesPath = null;
         File file = new File(tablePath);
         ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
         fileLock.lock();
         try {
+            scmdPropertiesPath = recordScmdLoc(needAddNode);
             List<ScmNodeInfo> nodeList = readTableWithBackUp(tablePath, backUpPath);
             ScmNodeInfo nodeInTable = null;
             for (ScmNodeInfo node : nodeList) {
@@ -152,28 +155,36 @@ public class ScmMonitorTableMgr {
                 }
             }
             nodeList.add(needAddNode);
-
             TableUtils.nodeListToJsonFile(nodeList, file);
-            recordScmdLoc(needAddNode);
+            isAddSuccess = true;
         }
         finally {
+            if (!isAddSuccess && scmdPropertiesPath != null) {
+                File propFile = new File(scmdPropertiesPath);
+                if (propFile.exists() && !propFile.delete()) {
+                    logger.error(
+                            "Failed to delete daemon properties,file:{},please delete the file before try the command again",
+                            scmdPropertiesPath);
+                }
+            }
             fileLock.unlock();
         }
     }
 
-    private void recordScmdLoc(ScmNodeInfo nodeInfo) throws ScmToolsException {
+    private String recordScmdLoc(ScmNodeInfo nodeInfo) throws ScmToolsException {
         String confPath = nodeInfo.getConfPath();
         String dirName = nodeInfo.getServerType().getDirName();
-        String servicePath = confPath.substring(0, confPath.indexOf(dirName) + dirName.length());
-        File serviceParentDir = new File(servicePath);
+        String serviceParentPath = confPath.substring(0, confPath.indexOf(dirName));
+        File serviceParentDir = new File(serviceParentPath);
 
         String daemonHomePath = System.getProperty(DaemonDefine.USER_DIR);
         File scmDir = new File(daemonHomePath).getParentFile();
 
         // 判断要监控的服务目录是否与守护进程工具目录在同一个父目录下，如果不在需要记录工具的绝对路径
         if (!serviceParentDir.getAbsolutePath().equals(scmDir.getAbsolutePath())) {
-            String propPath = servicePath + File.separator + DaemonDefine.CONF + File.separator
-                    + DaemonDefine.SCMD_PROPERTIES;
+            String conf = File.separator + DaemonDefine.CONF;
+            String propPath = confPath.substring(0, confPath.indexOf(conf) + conf.length())
+                    + File.separator + DaemonDefine.SCMD_PROPERTIES;
             Map<String, String> items = new HashMap<>();
             items.put(DaemonDefine.DAEMON_LOCATION, daemonHomePath);
             try {
@@ -183,15 +194,17 @@ public class ScmMonitorTableMgr {
                 File file = new File(propPath);
                 if (file.exists() && !file.delete()) {
                     logger.error(
-                            "Failed to delete daemon location properties,file:{},please delete the file before try the command again",
+                            "Failed to delete daemon properties,file:{},please delete the file before try the command again",
                             propPath);
                 }
                 throw new ScmToolsException(
-                        "Failed to record daemon location properties,properties:" + propPath,
+                        "Failed to write daemon properties,properties:" + propPath,
                         e.getExitCode(), e);
             }
-            logger.info("Record daemon location properties success,properties:{}", propPath);
+            logger.info("Write daemon properties success,properties:{}", propPath);
+            return propPath;
         }
+        return null;
     }
 
     public void removeNodeInfo(ScmNodeInfo nodeInfo) throws ScmToolsException {

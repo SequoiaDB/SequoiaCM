@@ -216,8 +216,11 @@ public class ScmExecutorWrapper {
             daemonHomePath = findDaemonHomePath();
         }
         catch (ScmToolsException e) {
-            logger.warn(e.getMessage(), e);
-            return;
+            if(e.getExitCode() == ScmExitCode.FILE_NOT_FIND) {
+                logger.warn(e.getMessage(), e);
+                return;
+            }
+            throw e;
         }
 
         String scmdScriptPath = daemonHomePath + File.separator + ScmCommon.BIN + File.separator
@@ -246,13 +249,20 @@ public class ScmExecutorWrapper {
             }
             catch (ScmToolsException e) {
                 throw new ScmToolsException(
-                        "Failed to load properties,properties:" + file.getAbsolutePath(),
+                        "Failed to load properties,properties:" + daemonLocationFilePath,
                         e.getExitCode(), e);
             }
-            if (daemonHomePath == null) {
+            if (daemonHomePath == null || daemonHomePath.length() == 0) {
                 throw new ScmToolsException(
                         "Invalid args:" + ScmCommon.DAEMON_LOCATION + " is null",
                         ScmExitCode.INVALID_ARG);
+            }
+            file = new File(daemonHomePath);
+            if (!file.exists()) {
+                throw new ScmToolsException(
+                        "Failed to find daemon home path, caused by daemon home dir not exist, dir:"
+                                + daemonHomePath,
+                        ScmExitCode.FILE_NOT_FIND);
             }
         }
         return daemonHomePath;
