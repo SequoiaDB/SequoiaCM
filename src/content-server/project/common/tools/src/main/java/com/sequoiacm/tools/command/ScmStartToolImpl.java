@@ -144,7 +144,7 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmExitCode.COMMON_UNKNOW_ERROR);
+            throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
         }
     }
 

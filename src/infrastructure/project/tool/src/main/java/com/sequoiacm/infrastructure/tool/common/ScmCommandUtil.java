@@ -13,7 +13,7 @@ import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmCommandUtil {
@@ -85,7 +85,7 @@ public class ScmCommandUtil {
         }
         catch (ParseException e) {
             logger.error("Invalid arg", e);
-            throw new ScmToolsException(e.getMessage(), ScmExitCode.INVALID_ARG);
+            throw new ScmToolsException(e.getMessage(), ScmBaseExitCode.INVALID_ARG);
         }
     }
 
@@ -129,7 +129,7 @@ public class ScmCommandUtil {
         String username = cl.getOptionValue(userOption);
         if (cl.hasOption(pwdOption) && cl.hasOption(pwdFileOption)) {
             throw new ScmToolsException("do not specify --" + pwdOption + " and " + "--"
-                    + pwdFileOption + " at the same time", ScmExitCode.INVALID_ARG);
+                    + pwdFileOption + " at the same time", ScmBaseExitCode.INVALID_ARG);
         }
 
         if (cl.hasOption(pwdOption)) {
@@ -150,7 +150,7 @@ public class ScmCommandUtil {
             if (pwdRequied) {
                 throw new ScmToolsException(
                         "please specify --" + pwdOption + " or " + "--" + pwdFileOption,
-                        ScmExitCode.INVALID_ARG);
+                        ScmBaseExitCode.INVALID_ARG);
             }
             return new ScmUserInfo(username, null);
         }
@@ -186,7 +186,7 @@ public class ScmCommandUtil {
         }
         if (!username.equals(auth.getUserName())) {
             throw new ScmToolsException("the specified username doesn't match with password file",
-                    ScmExitCode.PARSE_ERROR);
+                    ScmBaseExitCode.INVALID_ARG);
         }
         return auth.getPassword();
     }
@@ -196,7 +196,7 @@ public class ScmCommandUtil {
         System.out.print("retype " + optionName + " value: ");
         String password2 = readPasswdFromStdIn();
         if (!password1.equals(password2)) {
-            throw new ScmToolsException("passwords do not match", ScmExitCode.INVALID_ARG);
+            throw new ScmToolsException("passwords do not match", ScmBaseExitCode.INVALID_ARG);
         }
         return password1;
     }

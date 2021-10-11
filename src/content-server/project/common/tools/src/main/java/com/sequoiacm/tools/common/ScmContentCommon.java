@@ -156,7 +156,7 @@ public class ScmContentCommon {
         catch (Exception e) {
             logger.error("Can't convert " + str + " to integer", e);
             throw new ScmToolsException("Can't convert " + str + " to integer",
-                    ScmExitCode.CONVERT_ERROR);
+                    ScmExitCode.INVALID_ARG);
         }
     }
 
@@ -261,7 +261,7 @@ public class ScmContentCommon {
             throw new ScmToolsException(
                     "Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
                             + getContentServerJarName() + ",errorMsg:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         return owner;
     }
@@ -291,7 +291,7 @@ public class ScmContentCommon {
                     e);
             throw new ScmToolsException(
                     "Failed to set file's owner to " + owner.getName() + ",file:" + filePath,
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
 
         GroupPrincipal contentServerGroup = null;
@@ -307,7 +307,7 @@ public class ScmContentCommon {
             throw new ScmToolsException(
                     "Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
                             + getContentServerJarName() + ",errorMsg" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         try {
             Files.getFileAttributeView(path, PosixFileAttributeView.class)
@@ -317,7 +317,7 @@ public class ScmContentCommon {
             logger.error("Failed to set file's group to " + contentServerGroup.getName() + ",file:"
                     + filePath, e);
             throw new ScmToolsException("Failed to set file's group to "
-                    + contentServerGroup.getName() + ",file:" + filePath, ScmExitCode.IO_ERROR);
+                    + contentServerGroup.getName() + ",file:" + filePath, ScmExitCode.SYSTEM_ERROR);
         }
 
     }
@@ -328,7 +328,7 @@ public class ScmContentCommon {
             if (!file.exists() && file.mkdirs() != true) {
                 logger.error("Faile to create dir:" + file.toString());
                 throw new ScmToolsException("Faile to create dir:" + file.toString(),
-                        ScmExitCode.COMMON_UNKNOW_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
         }
         catch (SecurityException e) {
@@ -353,13 +353,13 @@ public class ScmContentCommon {
                 logger.error("Failed to create dir:" + file.getParent(), e);
                 throw new ScmToolsException(
                         "Failed to create dir:" + file.getParent() + ",io error:" + e.getMessage(),
-                        ScmExitCode.IO_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
             catch (Exception e) {
                 logger.error("Failed to create dir:" + file.getParentFile().toString(), e);
                 throw new ScmToolsException("Failed to create dir:"
                         + file.getParentFile().toString() + ",error:" + e.getMessage(),
-                        ScmExitCode.COMMON_UNKNOW_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
             // setFileOwnerAndGroup(file.getParent());
         }
@@ -367,19 +367,19 @@ public class ScmContentCommon {
             if (!file.createNewFile()) {
                 logger.error("Faile to create file:" + file.getAbsolutePath());
                 throw new ScmToolsException("Faile to create file:" + file.getAbsolutePath(),
-                        ScmExitCode.COMMON_UNKNOW_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
             // setFileOwnerAndGroup(file.getPath());
         }
         catch (IOException e) {
             logger.error("Faile to create file:" + filePath, e);
             throw new ScmToolsException("Failed to create file,io exception:" + filePath
-                    + ",errorMsg:" + e.getMessage(), ScmExitCode.IO_ERROR);
+                    + ",errorMsg:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
         }
         catch (SecurityException e) {
             logger.error("Faile to create file:" + filePath, e);
             throw new ScmToolsException("Failed to create file,permission error:" + filePath
-                    + ",errorMsg:" + e.getMessage(), ScmExitCode.IO_ERROR);
+                    + ",errorMsg:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -592,7 +592,7 @@ public class ScmContentCommon {
                 resource.close();
             }
             catch (IOException e) {
-                throw new ScmToolsException("close resouce failed", ScmExitCode.IO_ERROR, e);
+                throw new ScmToolsException("close resouce failed", ScmExitCode.SYSTEM_ERROR, e);
             }
         }
     }

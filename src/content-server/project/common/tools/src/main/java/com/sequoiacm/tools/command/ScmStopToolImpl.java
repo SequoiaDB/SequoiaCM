@@ -103,7 +103,7 @@ public class ScmStopToolImpl extends ScmTool {
         logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
                 + (needStopMap.size() - success));
         if (!stopRes || needStopMap.size() != success) {
-            throw new ScmToolsException(ScmExitCode.COMMON_UNKNOW_ERROR);
+            throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
         }
     }
 

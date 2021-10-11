@@ -4,7 +4,7 @@ import com.sequoiacm.infrastructure.tool.common.*;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import org.apache.commons.cli.CommandLine;
@@ -78,7 +78,7 @@ public class ScmStartToolImpl extends ScmTool {
                     + OPT_SHORT_PORT);
             throw new ScmToolsException(
                     "please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -" + OPT_SHORT_PORT,
-                    ScmExitCode.INVALID_ARG);
+                    ScmBaseExitCode.INVALID_ARG);
         }
 
         if (commandLine.hasOption(OPT_LONG_TIMEOUT)) {
@@ -139,7 +139,7 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmExitCode.COMMON_UNKNOWN_ERROR);
+            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 

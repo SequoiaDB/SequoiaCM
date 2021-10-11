@@ -1,7 +1,7 @@
 package com.sequoiacm.infrastructure.tool.command;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmHelpToolImpl extends ScmTool {
@@ -20,7 +20,7 @@ public class ScmHelpToolImpl extends ScmTool {
         }
         else {
             System.out.println(this.cmd.getHelpMsg());
-            System.exit(ScmExitCode.SUCCESS);
+            System.exit(ScmBaseExitCode.SUCCESS);
         }
     }
 

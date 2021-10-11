@@ -64,13 +64,13 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("Can't connect to sequoiadb,url:" + urls, e);
             throw new ScmToolsException("Can't connect to sequoiadb,url:" + urls + ",errorMsg:"
-                    + e.getMessage(), ScmExitCode.SDB_CONNECT_ERROR);
+                    + e.getMessage(), ScmExitCode.SDB_ERROR);
         }
 
         if (!isCoord(db)) {
             logger.error("This url is not coord,url:" + urls);
             throw new ScmToolsException("This url is not coord,url:" + urls,
-                    ScmExitCode.SCM_NOT_COORD);
+                    ScmExitCode.INVALID_ARG);
         }
 
         try {
@@ -81,7 +81,7 @@ public class SdbHelper {
             logger.error("Failed to set sdbconnection's attribute:{PreferedInstance:'M'}", e);
             throw new ScmToolsException(
                     "Failed to set sdbconnection's attribute:{PreferedInstance:'M'},errorMsg:"
-                            + processSdbErrorMsg(e), ScmExitCode.SDB_SET_DB_ATTR_ERROR);
+                            + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
 
         return db;
@@ -100,7 +100,7 @@ public class SdbHelper {
                 logger.error("Failed to check sdb connection's type by listDomains", e);
                 throw new ScmToolsException(
                         "Failed to check sdb connection's type by listDomains,unexcepted error:"
-                                + processSdbErrorMsg(e), ScmExitCode.SDB_LIST_DOMAINS_ERROR);
+                                + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
             }
 
         }
@@ -108,7 +108,7 @@ public class SdbHelper {
             logger.error("Failed to check sdb connection's type by listDomains", e);
             throw new ScmToolsException(
                     "Failed to check sdb connection's type by listDomains,unexcepted error:"
-                            + e.getMessage(), ScmExitCode.SDB_LIST_DOMAINS_ERROR);
+                            + e.getMessage(), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -121,7 +121,7 @@ public class SdbHelper {
         else {
             logger.error("collection not exist:" + cs.getName() + "." + clName);
             throw new ScmToolsException("collection not exist:" + cs.getName() + "." + clName,
-                    ScmExitCode.SCM_META_CS_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
     }
 
@@ -134,7 +134,7 @@ public class SdbHelper {
         else {
             logger.error("collectionspace not exist:" + csName);
             throw new ScmToolsException("collectionspace not exist:" + csName,
-                    ScmExitCode.SCM_META_CS_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
     }
 
@@ -150,7 +150,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("get " + csName + " collectionspace occur error", e);
             throw new ScmToolsException("get " + csName + " collectionspace occur error:"
-                    + processSdbErrorMsg(e), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
 
     }
@@ -164,7 +164,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("Failed to create collectionspace:" + csName, e);
             throw new ScmToolsException("Failed to create collectionspace:" + csName + ",errorMsg:"
-                    + processSdbErrorMsg(e), ScmExitCode.SDB_CREATE_CS_ERROR);
+                    + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -176,7 +176,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("Failed to create collectionspace:" + csName, e);
             throw new ScmToolsException("Failed to create collectionspace:" + csName + ",errorMsg:"
-                    + processSdbErrorMsg(e), ScmExitCode.SDB_CREATE_CS_ERROR);
+                    + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -192,7 +192,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("get " + clName + " collection occur error", e);
             throw new ScmToolsException("get " + clName + " collection occur error:"
-                    + processSdbErrorMsg(e), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -209,7 +209,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("failed to create collection:" + cs.getName() + "." + clName, e);
             throw new ScmToolsException("failed to create collection:" + cs.getName() + "."
-                    + clName + ",error:" + processSdbErrorMsg(e), ScmExitCode.SDB_CREATE_CL_ERROR);
+                    + clName + ",error:" + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -225,13 +225,13 @@ public class SdbHelper {
             logger.error("Failed to create " + idxName + " index on " + cl.getFullName(), e);
             throw new ScmToolsException("Failed to create " + idxName + " index on "
                     + cl.getFullName() + ",errorMsg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_CREATE_IDX_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
         catch (Exception e) {
             logger.error("Failed to create " + idxName + " index on " + cl.getFullName(), e);
             throw new ScmToolsException("Failed to create " + idxName + " index on "
                     + cl.getFullName() + ",errorMsg:" + e.getMessage(),
-                    ScmExitCode.SDB_CREATE_IDX_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -247,19 +247,19 @@ public class SdbHelper {
                         "Failed to insert record to collection,record already exists,record:"
                                 + bson.toString() + ",collection:" + cl.getFullName()
                                 + ",errormsg:" + SdbHelper.processSdbErrorMsg(e),
-                        ScmExitCode.SCM_DUPLICATE_ERROR);
+                        ScmExitCode.SCM_ALREADY_EXIST_ERROR);
 
             }
             throw new ScmToolsException("Failed to insert record to collection,record:"
                     + bson.toString() + ",collection:" + cl.getFullName() + ",errormsg:"
-                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_INSERT_ERROR);
+                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
         catch (Exception e) {
             logger.error("Failed to insert record to collection,record:" + bson.toString()
                     + ",collection:" + cl.getFullName(), e);
             throw new ScmToolsException("Failed to insert record to collection,record:"
                     + bson.toString() + ",collection:" + cl.getFullName() + ",errormsg:"
-                    + e.getMessage(), ScmExitCode.SDB_INSERT_ERROR);
+                    + e.getMessage(), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -273,7 +273,7 @@ public class SdbHelper {
                     "failed to query on " + cl.getFullName() + ",matcher:" + matcher.toString(), e);
             throw new ScmToolsException("failed to query on " + cl.getFullName() + ",matcher:"
                     + matcher.toString() + ",errorMsg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_QUERY_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -288,7 +288,7 @@ public class SdbHelper {
                             + ",modifer:" + modifier.toString(), e);
             throw new ScmToolsException("Failed to update on " + cl.getFullName() + ",matcher:"
                     + matcher.toString() + ",modifer:" + modifier.toString() + ",errorMsg:"
-                    + processSdbErrorMsg(e), ScmExitCode.SDB_UPDATE_ERROR);
+                    + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -298,7 +298,7 @@ public class SdbHelper {
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to list lobs,collection:" + cl.getFullName()
-                    + ",errorMsg:" + processSdbErrorMsg(e), ScmExitCode.SDB_QUERY_ERROR);
+                    + ",errorMsg:" + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -312,7 +312,7 @@ public class SdbHelper {
                     "Failed to query on " + cl.getFullName() + ",matcher:" + matcher.toString(), e);
             throw new ScmToolsException("Failed to query on " + cl.getFullName() + ",matcher:"
                     + matcher.toString() + ",errorMsg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_UPDATE_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
 
     }
@@ -326,7 +326,7 @@ public class SdbHelper {
                     + cl.getFullName(), e);
             throw new ScmToolsException("Failed to remove record,matcher:" + matcher.toString()
                     + "collection:" + cl.getFullName() + ",errorMsg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_DELETE_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -340,7 +340,7 @@ public class SdbHelper {
                 logger.error("data source url" + urlList.toString()
                         + " is invalid,errorMsg:is not coord url");
                 throw new ScmToolsException("data source url" + urlList.toString()
-                        + " is invalid,errorMsg:is not coord url", ScmExitCode.SCM_NOT_COORD);
+                        + " is invalid,errorMsg:is not coord url", ScmExitCode.INVALID_ARG);
             }
         }
         catch (ScmToolsException e) {
@@ -351,7 +351,7 @@ public class SdbHelper {
                     + processSdbErrorMsg(e), e);
             throw new ScmToolsException("data source url " + urlList.toString()
                     + " is invalid,errorMsg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_CONNECT_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
         finally {
             SdbHelper.closeCursorAndDb(db);
@@ -369,7 +369,7 @@ public class SdbHelper {
                 logger.error("Domain is not exist in sequoiadb=" + url + ",domainName="
                         + domainName);
                 throw new ScmToolsException("Domain is not exist in sequoiadb=" + url
-                        + ",domainName=" + domainName, ScmExitCode.SCM_DOMAIN_NOT_EXIST);
+                        + ",domainName=" + domainName, ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (ScmToolsException e) {
@@ -379,7 +379,7 @@ public class SdbHelper {
             logger.error("unable to determine if there is domain in sequoiadb=" + url, e);
             throw new ScmToolsException("unable to determine if there is domain in sequoiadb="
                     + url + ",erromsg:" + SdbHelper.processSdbErrorMsg(e),
-                    ScmExitCode.SDB_QUERY_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
         finally {
             SdbHelper.closeCursorAndDb(db);
@@ -435,7 +435,7 @@ public class SdbHelper {
         }
         logger.error("Failed to generate id,collection:" + cl.getFullName());
         throw new ScmToolsException("Failed to generate id,collection:" + cl.getFullName(),
-                ScmExitCode.COMMON_UNKNOW_ERROR);
+                ScmExitCode.SYSTEM_ERROR);
     }
 
     public static String processSdbErrorMsg(Exception e) {
@@ -476,7 +476,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("failed to list cl", e);
             throw new ScmToolsException("failed to list cs,error msg:" + processSdbErrorMsg(e),
-                    ScmExitCode.SDB_LIST_CS_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -488,7 +488,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("failed to get list,type:" + type + "query:" + query, e);
             throw new ScmToolsException("failed to get list,type:" + type + "query:" + query
-                    + "error msg:" + processSdbErrorMsg(e), ScmExitCode.SDB_GET_LIST);
+                    + "error msg:" + processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -503,7 +503,7 @@ public class SdbHelper {
                         e);
                 throw new ScmToolsException("attach cl failed:mainCL=" + cl.getFullName()
                         + ",subCL=" + fullName + ",errorMsg:" + processSdbErrorMsg(e),
-                        ScmExitCode.SDB_ATTACH_ERROR);
+                        ScmExitCode.SDB_ERROR);
             }
             else {
                 // not thing
@@ -514,7 +514,7 @@ public class SdbHelper {
         catch (Exception e) {
             logger.error("attach cl failed:mainCL=" + cl.getFullName() + ",subCL=" + fullName, e);
             throw new ScmToolsException("attach cl failed:mainCL=" + cl.getFullName() + ",subCL="
-                    + fullName + ",errorMsg:" + e.getMessage(), ScmExitCode.SDB_ATTACH_ERROR);
+                    + fullName + ",errorMsg:" + e.getMessage(), ScmExitCode.SDB_ERROR);
         }
     }
 

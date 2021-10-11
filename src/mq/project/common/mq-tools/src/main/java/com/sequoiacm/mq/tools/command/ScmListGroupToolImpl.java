@@ -61,7 +61,7 @@ public class ScmListGroupToolImpl extends MqToolBase {
         catch (MqException e) {
             if (e.getError() == MqError.CONSUMER_GROUP_NOT_EXIST) {
                 throw new ScmToolsException("group not exist:" + cl.getOptionValue(OPT_SHORT_NAME),
-                        ScmExitCode.GROUP_NOT_EXIST, e);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR, e);
             }
             throw new ScmToolsException("failed to list group, cause by:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR, e);

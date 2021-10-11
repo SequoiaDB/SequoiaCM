@@ -52,7 +52,7 @@ public class ScmCreateGroupToolImpl extends MqToolBase {
         }
         catch (MqException e) {
             if (e.getError() == MqError.CONSUMER_GROUP_EXIST) {
-                throw new ScmToolsException("group already exist:" + name, ScmExitCode.TOPIC_EXIST,
+                throw new ScmToolsException("group already exist:" + name, ScmExitCode.SCM_ALREADY_EXIST_ERROR,
                         e);
             }
             throw new ScmToolsException(

@@ -162,7 +162,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         ScmExecutorWrapper exe = new ScmExecutorWrapper();
         if (exe.getAllNode().containsKey(port)) {
             throw new ScmToolsException("The port is already occupied,port:" + port + ",conf path:"
-                    + exe.getNodeConfPath(port), ScmExitCode.SCM_PORT_OCCUPIED);
+                    + exe.getNodeConfPath(port), ScmExitCode.SCM_ALREADY_EXIST_ERROR);
         }
 
         if (cl.hasOption(OPT_LONG_AUDIT_URL)) {
@@ -194,7 +194,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             if (mySiteInfo == null) {
                 logger.error("site not exists:" + mySiteName);
                 throw new ScmToolsException("site not exists:" + mySiteName,
-                        ScmExitCode.SCM_SITE_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
             createConfFile(sysConfPath);
             isNeedRollBackSysConf = true;
@@ -351,7 +351,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             logger.error("write config to " + outputPath + " occur error", e);
             throw new ScmToolsException(
                     "write config to " + outputPath + " occur error:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         finally {
             close(bw);

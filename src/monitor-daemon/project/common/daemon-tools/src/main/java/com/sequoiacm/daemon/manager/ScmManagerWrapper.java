@@ -129,7 +129,7 @@ public class ScmManagerWrapper {
             throw new ScmToolsException(
                     "Failed to get daemon pid,caused by cutting linuxCron failed, linuxCron: "
                             + linuxCron,
-                    ScmExitCode.PARSE_ERROR, e);
+                    ScmExitCode.INVALID_ARG, e);
         }
     }
 
@@ -179,7 +179,7 @@ public class ScmManagerWrapper {
         }
         catch (InterruptedException e) {
             throw new ScmToolsException("Timer main thread is interrupted",
-                    ScmExitCode.INTERRUPT_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 

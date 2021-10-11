@@ -50,7 +50,7 @@ public class ScmInspector {
             if (site == null) {
                 logger.error("site not exists:" + siteName);
                 throw new ScmToolsException("site not exists:" + siteName,
-                        ScmExitCode.SCM_SITE_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
             if (!site.getDataType().equals("sequoiadb")) {
                 logger.error("unsupported datasource:" + site.getDataType());
@@ -62,7 +62,7 @@ public class ScmInspector {
             if (ws == null) {
                 logger.error("workspace not exists:" + wsName);
                 throw new ScmToolsException("workspace not exists:" + wsName,
-                        ScmExitCode.SCM_WORKSPACE_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
 
             boolean isWsContainSite = false;
@@ -146,7 +146,7 @@ public class ScmInspector {
             if (clFullName == null) {
                 logger.error("list cl occur exception,missing field 'Name',obj:" + obj);
                 throw new ScmToolsException("list cl occur exception,missing field 'Name',obj:"
-                        + obj, ScmExitCode.SDB_GET_LIST);
+                        + obj, ScmExitCode.SDB_ERROR);
             }
             retList.add(clFullName);
         }
@@ -189,7 +189,7 @@ public class ScmInspector {
         }
         catch (BaseException e) {
             throw new ScmToolsException("Failed to inspect:"
-                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_QUERY_ERROR);
+                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 

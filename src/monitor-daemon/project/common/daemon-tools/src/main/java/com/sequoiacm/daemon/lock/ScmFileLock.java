@@ -38,7 +38,7 @@ public class ScmFileLock {
                     ScmExitCode.FILE_NOT_FIND, e);
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to lock file", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Failed to lock file", ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 
@@ -53,7 +53,7 @@ public class ScmFileLock {
                     ScmExitCode.FILE_NOT_FIND, e);
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to lock file", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Failed to lock file", ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 
@@ -69,7 +69,7 @@ public class ScmFileLock {
                     ScmExitCode.FILE_NOT_FIND, e);
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to lock file", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Failed to lock file", ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 }

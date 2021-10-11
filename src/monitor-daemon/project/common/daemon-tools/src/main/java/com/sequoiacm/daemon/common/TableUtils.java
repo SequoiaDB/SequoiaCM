@@ -29,12 +29,12 @@ public class TableUtils {
         catch (IOException e) {
             throw new ScmToolsException(
                     "Failed to parse json file to list,filePath: " + file.getAbsolutePath(),
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException(
                     "Failed to parse json file to list,filePath: " + file.getAbsolutePath(),
-                    ScmExitCode.COMMON_UNKNOWN_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             CommonUtils.closeResource(is);
@@ -54,11 +54,11 @@ public class TableUtils {
         }
         catch (IOException e) {
             throw new ScmToolsException("Failed to parse nodeList to json file",
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to parse nodeList to json file",
-                    ScmExitCode.COMMON_UNKNOWN_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             CommonUtils.closeResource(writer);
@@ -82,11 +82,11 @@ public class TableUtils {
         }
         catch (IOException e) {
             throw new ScmToolsException("Failed to copy file,file:" + fromPath,
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to copy file,file:" + fromPath,
-                    ScmExitCode.COMMON_UNKNOWN_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 }

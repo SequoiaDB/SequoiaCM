@@ -62,7 +62,7 @@ public class ScmUnsubscribeImpl extends ScmTool {
         catch (ResourceAccessException e) {
             logger.error("failed to connect to config server:{}", configUrl, e);
             throw new ScmToolsException("failed to connect to config server:" + configUrl,
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (RestClientException e) {
             logger.error("config server failed to do unsubscribe", e);

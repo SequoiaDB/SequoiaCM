@@ -40,7 +40,7 @@ public class ScmCreateTopicToolImpl extends MqToolBase {
         }
         catch (MqException e) {
             if (e.getError() == MqError.TOPIC_EXIST) {
-                throw new ScmToolsException("topic already exist:" + name, ScmExitCode.TOPIC_EXIST,
+                throw new ScmToolsException("topic already exist:" + name, ScmExitCode.SCM_ALREADY_EXIST_ERROR,
                         e);
             }
             throw new ScmToolsException(

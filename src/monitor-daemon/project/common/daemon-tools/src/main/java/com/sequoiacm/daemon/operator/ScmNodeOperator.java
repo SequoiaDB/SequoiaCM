@@ -132,7 +132,7 @@ public class ScmNodeOperator implements NodeOperator {
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to parse nodeLine to nodeInfo,line:{" + line + "}",
-                    ScmExitCode.PARSE_ERROR, e);
+                    ScmExitCode.INVALID_ARG, e);
         }
         return scmNodeInfo;
     }

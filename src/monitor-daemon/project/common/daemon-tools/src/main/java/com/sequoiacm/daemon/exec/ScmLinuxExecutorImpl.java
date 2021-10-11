@@ -52,11 +52,11 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         catch (InterruptedException e) {
             throw new ScmToolsException(
                     "Wait cmd return occur error,cmd:/bin/sh -c \"" + killCmd + "\"",
-                    ScmExitCode.INTERRUPT_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (IOException e) {
             throw new ScmToolsException("Get cmd std failed,cmd:/bin/sh -c \"" + killCmd + "\"",
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Get cmd std failed,cmd:/bin/sh -c \"" + killCmd + "\"",
@@ -85,11 +85,11 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (InterruptedException e) {
             throw new ScmToolsException("Wait cmd return occur interrupted exception,cmd:" + cmd,
-                    ScmExitCode.INTERRUPT_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (IOException e) {
             throw new ScmToolsException("Get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\"",
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Exec cmd occur error,cmd:/bin/sh -c \"" + cmd + "\"",
@@ -115,7 +115,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (IOException e) {
             throw new ScmToolsException("Failed to access ps std out:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to access ps std out:" + e.getMessage(),
@@ -152,11 +152,11 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (IOException e) {
             throw new ScmToolsException("Failed to get cmd output,cmd:/bin/sh -c \"" + cmd + "\"",
-                    ScmExitCode.IO_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (InterruptedException e) {
             throw new ScmToolsException("Wait cmd return occur interrupted exception,cmd:" + cmd,
-                    ScmExitCode.INTERRUPT_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Exec cmd occur error,cmd:/bin/sh -c \"" + cmd + "\"",
@@ -207,10 +207,10 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             return ps;
         }
         catch (IOException e) {
-            throw new ScmToolsException("Exec cmd occur io error", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Exec cmd occur io error", ScmExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Exec cmd occur error", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Exec cmd occur error", ScmExitCode.SYSTEM_ERROR, e);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.sequoiacm.infrastructure.tool.element;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import java.util.ArrayList;
@@ -14,6 +14,6 @@ public class ScmNodeTypeList extends ArrayList<ScmNodeType> {
             }
         }
 
-        throw new ScmToolsException("unknown type:" + str, ScmExitCode.INVALID_ARG);
+        throw new ScmToolsException("unknown type:" + str, ScmBaseExitCode.INVALID_ARG);
     }
 }

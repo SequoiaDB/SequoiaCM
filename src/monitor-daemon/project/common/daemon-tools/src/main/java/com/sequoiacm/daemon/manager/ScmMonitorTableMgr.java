@@ -146,7 +146,7 @@ public class ScmMonitorTableMgr {
                     throw new ScmToolsException(
                             "Failed to add nodeInfo, caused by: nodeInfo exist, node:"
                                     + needAddNode.toString(),
-                            ScmExitCode.NODE_INFO_EXIST);
+                            ScmExitCode.SCM_ALREADY_EXIST_ERROR);
                 }
             }
             else {

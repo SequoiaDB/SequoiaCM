@@ -60,7 +60,7 @@ public class ScmMetaGenerator {
             if (wsInfo == null) {
                 logger.error("Workspace not exists:" + wsName);
                 throw new ScmToolsException("Workspace not exists:" + wsName,
-                        ScmExitCode.SCM_WORKSPACE_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
             csShardingType = wsInfo.getCsShardingType(rootSite.getId());
             logger.info("root site data cs sharding type:" + csShardingType);
@@ -244,7 +244,7 @@ public class ScmMetaGenerator {
         catch (BaseException e) {
             logger.error("list lob occur exception", e);
             throw new ScmToolsException("list lob occur exception:"
-                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_QUERY_ERROR);
+                    + SdbHelper.processSdbErrorMsg(e), ScmExitCode.SDB_ERROR);
         }
     }
 
@@ -266,7 +266,7 @@ public class ScmMetaGenerator {
         catch (ParseException e) {
             logger.error("failed to correct date,parse '" + retStr + "' error", e);
             throw new ScmToolsException("failed to correct date,parse '" + retStr + "' error:"
-                    + e.getMessage(), ScmExitCode.PARSE_ERROR);
+                    + e.getMessage(), ScmExitCode.INVALID_ARG);
         }
     }
 

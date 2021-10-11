@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import org.apache.commons.cli.CommandLine;
@@ -83,13 +81,13 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         catch (InterruptedException e) {
             logger.error("wait cmd return occur error,cmd:/bin/sh -c \"" + killCmd + "\"", e);
             throw new ScmToolsException("wait cmd return occur error,cmd:/bin/sh -c \"" + killCmd
-                    + "\",error:" + e.getMessage(), ScmExitCode.INTERRUPT_ERROR);
+                    + "\",error:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
         }
         catch (IOException e) {
             logger.error("get cmd output failed,cmd:/bin/sh -c \"" + killCmd + "\"", e);
             throw new ScmToolsException(
                     "get cmd std failed,cmd:/bin/sh -c \"" + killCmd + "\",error:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (Exception e) {
             logger.error("exec cmd occur error,cmd:/bin/sh -c \"" + killCmd + "\"", e);
@@ -173,7 +171,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             logger.error("exec cmd occur io error,cmd" + cmd2Str(psCmd), e);
             throw new ScmToolsException(
                     "Failed to exec:" + cmd2Str(psCmd) + ",error:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (InterruptedException e) {
             if (ps != null) {
@@ -182,7 +180,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             logger.error("wait cmd return occur error,cmd:" + cmd2Str(psCmd), e);
             throw new ScmToolsException(
                     "Failed to exec:" + cmd2Str(psCmd) + ",error:" + e.getMessage(),
-                    ScmExitCode.INTERRUPT_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (Exception e) {
             if (ps != null) {
@@ -208,7 +206,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         catch (IOException e) {
             logger.error("Failed to access ps std out", e);
             throw new ScmToolsException("Failed to access ps std out:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (Exception e) {
             logger.error("Failed to access ps std out", e);
@@ -233,7 +231,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
                 String errorMsg = getErrorMsg(ps);
                 logger.error("exec cmd failed,cmd:/bin/sh -c \"" + cmd + "\",errorMsg:" + errorMsg);
                 throw new ScmToolsException("exec cmd failed,error:" + errorMsg,
-                        com.sequoiacm.infrastructure.tool.exception.ScmExitCode.SHELL_EXEC_ERROR);
+                        ScmExitCode.SHELL_EXEC_ERROR);
             }
         }
         catch (InterruptedException e) {
@@ -241,13 +239,13 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             throw new ScmToolsException(
                     "wait cmd return occur interrupted exception,cmd:" + cmd + ",error:"
                             + e.getMessage(),
-                    com.sequoiacm.infrastructure.tool.exception.ScmExitCode.INTERRUPT_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (IOException e) {
             logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
             throw new ScmToolsException(
                     "get cmd std failed,cmd:/bin/sh -c \"" + cmd + "\",error:" + e.getMessage(),
-                    com.sequoiacm.infrastructure.tool.exception.ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (Exception e) {
             logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
@@ -327,12 +325,12 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         catch (IOException e) {
             logger.error("exec cmd occur io error,cmd" + cmd2Str(cmd), e);
             throw new ScmToolsException("exec cmd occur io error,cmd" + cmd2Str(cmd),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (Exception e) {
             logger.error("exec cmd occur error,cmd" + cmd2Str(cmd), e);
             throw new ScmToolsException("exec cmd occur error,cmd" + cmd2Str(cmd),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
 
     }

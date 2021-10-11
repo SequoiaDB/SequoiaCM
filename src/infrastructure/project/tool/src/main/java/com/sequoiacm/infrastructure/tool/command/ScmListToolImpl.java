@@ -5,9 +5,8 @@ import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeProcessInfo;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import org.apache.commons.cli.CommandLine;
@@ -52,7 +51,7 @@ public class ScmListToolImpl extends ScmTool {
             }
             else if (!commandLine.getOptionValue("m").equals("run")) {
                 throw new ScmToolsException("Unknow mode:" + commandLine.getOptionValue("m"),
-                        ScmExitCode.INVALID_ARG);
+                        ScmBaseExitCode.INVALID_ARG);
             }
         }
 
@@ -108,7 +107,7 @@ public class ScmListToolImpl extends ScmTool {
         }
         System.out.println("Total:" + pidList.size());
         if (pidList.size() == 0) {
-            throw new ScmToolsException(ScmExitCode.EMPTY_OUT);
+            throw new ScmToolsException(ScmBaseExitCode.EMPTY_OUT);
         }
     }
 

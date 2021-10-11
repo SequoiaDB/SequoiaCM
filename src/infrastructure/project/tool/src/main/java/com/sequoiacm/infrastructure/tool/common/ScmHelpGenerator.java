@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Option.Builder;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmHelpGenerator {
@@ -88,7 +88,7 @@ public class ScmHelpGenerator {
         else {
             throw new ScmToolsException(
                     "Inner Error,failed to generate help msg,longOpt is null,shortOpt is null",
-                    ScmExitCode.SYSTEM_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
 
         if (hasArgs) {

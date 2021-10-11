@@ -97,7 +97,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
             throw new ScmToolsException(
                     "Can't connetct to contentserver:\"" + contentserverHost + ":"
                             + contentserverPort + "\",errorMsg:" + e1.getMessage(),
-                    ScmExitCode.SCM_LOGIN_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
 
         try {
@@ -105,7 +105,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
         }
         catch (Exception e) {
             ss.close();
-            throw new ScmToolsException("loadRootSiteUrl", ScmExitCode.SCM_GETPROPERTY_FAILED, e);
+            throw new ScmToolsException("loadRootSiteUrl", ScmExitCode.SYSTEM_ERROR, e);
         }
 
         mg = new ScmMetaMgr(mainSiteUrl, mainSiteUser, mainSitePasswd);
@@ -149,7 +149,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
             throw new ScmToolsException(
                     "Failed to get root site url info from server:" + contentserverHost + ":"
                             + contentserverPort + ",error:" + e.getMessage(),
-                    ScmExitCode.SCM_GETPROPERTY_FAILED);
+                    ScmExitCode.SYSTEM_ERROR);
         }
 
         mainSiteUrl = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_URL);
@@ -157,7 +157,7 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
             throw new ScmToolsException(
                     "Get conf properties missing value of:"
                             + PropertiesDefine.PROPERTY_ROOTSITE_URL,
-                    ScmExitCode.SCM_GETPROPERTY_MISSING_MAIN_SITE);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         mainSiteUser = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_USER);
         if (mainSiteUser == null) {
@@ -198,16 +198,16 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
         catch (ScmException e) {
             if (scope == ServerScope.ALL_SITE) {
                 throw new ScmToolsException("Failed to reload all site:" + e.getMessage(),
-                        ScmExitCode.SCM_RELOADBIZCONF_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
             else if (scope == ServerScope.SITE) {
                 throw new ScmToolsException("Failed to reload " + name + " site:" + e.getMessage(),
-                        ScmExitCode.SCM_RELOADBIZCONF_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
             else {
                 throw new ScmToolsException(
                         "Failed to reload " + name + " server:" + e.getMessage(),
-                        ScmExitCode.SCM_RELOADBIZCONF_ERROR);
+                        ScmExitCode.SYSTEM_ERROR);
             }
         }
     }

@@ -85,7 +85,7 @@ public class RestDispatcher {
             logger.error("failed to create node: {}", nodeConf, e);
             throw new ScmToolsException(
                     "failed to create node:" + nodeConf + ", cause by:" + e.getMessage(),
-                    ScmExitCode.SCM_REQUEST_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             ScmContentCommon.closeResource(resp);
@@ -113,7 +113,7 @@ public class RestDispatcher {
         catch (Exception e) {
             logger.error("failed to delete node: {}:{}", hostName, port, e);
             throw new ScmToolsException("failed to  delete node: " + hostName + ":" + port
-                    + ", cause by:" + e.getMessage(), ScmExitCode.SCM_REQUEST_ERROR, e);
+                    + ", cause by:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             ScmContentCommon.closeResource(resp);
@@ -140,7 +140,7 @@ public class RestDispatcher {
             logger.error("failed to delete site:{}", siteName, e);
             throw new ScmToolsException(
                     "failed to delete site: " + siteName + ", cause by:" + e.getMessage(),
-                    ScmExitCode.SCM_REQUEST_ERROR, e);
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             ScmContentCommon.closeResource(resp);
@@ -166,7 +166,7 @@ public class RestDispatcher {
             logger.error("failed to create site:{}", siteConf.toBsonObject(), e);
             throw new ScmToolsException(
                     "failed to create site:" + siteConf.getName() + ", cause by:" + e.getMessage(),
-                    ScmExitCode.SCM_REQUEST_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         finally {
             ScmContentCommon.closeResource(resp);
@@ -223,7 +223,7 @@ public class RestDispatcher {
             return URLEncoder.encode(url, "utf-8");
         }
         catch (UnsupportedEncodingException e) {
-            throw new ScmToolsException("utf-8", ScmExitCode.PARSE_ERROR, e);
+            throw new ScmToolsException("utf-8", ScmExitCode.INVALID_ARG, e);
         }
     }
 

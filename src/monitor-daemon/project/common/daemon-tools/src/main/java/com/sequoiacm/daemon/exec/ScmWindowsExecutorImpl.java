@@ -8,16 +8,16 @@ public class ScmWindowsExecutorImpl implements ScmExecutor {
 
     @Override
     public ScmCmdResult execCmd(String cmd) throws ScmToolsException {
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 
     @Override
     public void killPid(int pid, boolean isForced) throws ScmToolsException {
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 
     @Override
     public int getPid(String match) throws ScmToolsException {
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 }

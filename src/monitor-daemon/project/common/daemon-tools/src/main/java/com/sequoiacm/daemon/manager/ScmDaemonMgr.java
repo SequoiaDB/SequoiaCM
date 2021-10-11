@@ -87,7 +87,7 @@ public class ScmDaemonMgr {
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to cut cron, cron: " + cron,
-                    ScmExitCode.PARSE_ERROR, e);
+                    ScmExitCode.INVALID_ARG, e);
         }
     }
 }

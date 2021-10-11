@@ -41,7 +41,7 @@ public class ScmMetaMgr {
             SdbHelper.closeCursorAndDb(db);
             logger.error("Can't find " + SdbHelper.CS_SYS + " on root site sdb");
             throw new ScmToolsException("Can't find " + SdbHelper.CS_SYS + " on root site sdb",
-                    ScmExitCode.SCM_META_CS_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         try {
             contentServerCL = getCLWhithCheck(sysCS, SdbHelper.CL_CONTENTSERVER);
@@ -78,14 +78,14 @@ public class ScmMetaMgr {
                 logger.error("Can't find contentserver id of " + name + " contentserver");
                 throw new ScmToolsException(
                         "Can't find contentserver id of " + name + " contentserver",
-                        ScmExitCode.SCM_SERVER_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (BaseException e) {
             logger.error("Failed to find contentserver id by name:" + name, e);
             throw new ScmToolsException("Failed to find contentserver id by name:" + name
                     + ",errorMsg:" + processSdbErrorMsg(e.getMessage()),
-                    ScmExitCode.SDB_QUERY_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -117,13 +117,13 @@ public class ScmMetaMgr {
                 logger.error("Can't find contentserver name of " + id + " contentserver");
                 throw new ScmToolsException(
                         "Can't find contentserver name of " + id + " contentserver",
-                        ScmExitCode.SCM_SERVER_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (BaseException e) {
             logger.error("Failed to find contentserver by id:" + id, e);
             throw new ScmToolsException("Failed to find contentserver by id:" + id + ",errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -137,7 +137,7 @@ public class ScmMetaMgr {
         if (info == null) {
             logger.error("Can't find site id of " + name + " site");
             throw new ScmToolsException("Can't find site id of " + name + " site",
-                    ScmExitCode.SCM_SITE_NOT_EXIST);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         else {
             return info.getId();
@@ -173,14 +173,14 @@ public class ScmMetaMgr {
                 logger.error("Can't find contentserver url of " + id + " contentserver");
                 throw new ScmToolsException(
                         "Can't find contentserver url of " + id + " contentserver",
-                        ScmExitCode.SCM_SERVER_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (BaseException e) {
             logger.error("Failed to find contentserver url by id:" + id, e);
             throw new ScmToolsException("Failed to find contentserver url by id:" + id
                     + ",errorMsg:" + processSdbErrorMsg(e.getMessage()),
-                    ScmExitCode.SDB_QUERY_ERROR);
+                    ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -194,7 +194,7 @@ public class ScmMetaMgr {
         if (site == null) {
             logger.error("Can't find site name of " + id + " site");
             throw new ScmToolsException("Can't find site name of " + id + " site",
-                    ScmExitCode.SCM_SITE_NOT_EXIST);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         return site.getName();
     }
@@ -226,13 +226,13 @@ public class ScmMetaMgr {
                 logger.error("Can't find contentserver siteId of " + id + " contentserver");
                 throw new ScmToolsException(
                         "Can't find contentserver siteId of " + id + " contentserver",
-                        ScmExitCode.SCM_SERVER_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (BaseException e) {
             logger.error("Failed to find contentserver by id:" + id, e);
             throw new ScmToolsException("Failed to find contentserver by id:" + id + ",errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -256,7 +256,7 @@ public class ScmMetaMgr {
         catch (BaseException e) {
             logger.error("Failed to find site  by id:" + id, e);
             throw new ScmToolsException("Failed to find site  by id:" + id + ",errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -280,7 +280,7 @@ public class ScmMetaMgr {
         catch (BaseException e) {
             logger.error("Failed to find site by name:" + name, e);
             throw new ScmToolsException("Failed to find site  by name:" + name + ",errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -303,7 +303,7 @@ public class ScmMetaMgr {
     public ScmSiteInfo getMainSiteChecked() throws ScmToolsException {
         ScmSiteInfo mainSite = getMainSite();
         if (mainSite == null) {
-            throw new ScmToolsException("root site not exists", ScmExitCode.SCM_SITE_NOT_EXIST);
+            throw new ScmToolsException("root site not exists", ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         return mainSite;
     }
@@ -323,7 +323,7 @@ public class ScmMetaMgr {
         catch (BaseException e) {
             logger.error("Query on site collection occur error", e);
             throw new ScmToolsException("Query on site collection occur error, errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -339,7 +339,7 @@ public class ScmMetaMgr {
         }
         logger.error("Can't find worksapce by name:" + name);
         throw new ScmToolsException("Can't find worksapce by name:" + name,
-                ScmExitCode.SCM_WORKSPACE_NOT_EXIST);
+                ScmExitCode.SCM_NOT_EXIST_ERROR);
     }
 
     public ScmWorkspaceInfo getWorkspaceInfoByName(String name) throws ScmToolsException {
@@ -357,7 +357,7 @@ public class ScmMetaMgr {
         catch (BaseException e) {
             logger.error("Failed to find worksapce  by name:" + name, e);
             throw new ScmToolsException("Failed to find worksapce  by name:" + name + ",errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -395,7 +395,7 @@ public class ScmMetaMgr {
         catch (BaseException e) {
             logger.error("Query on workspace collection occur error", e);
             throw new ScmToolsException("Query on workspace collection occur error, errorMsg:"
-                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_QUERY_ERROR);
+                    + processSdbErrorMsg(e.getMessage()), ScmExitCode.SDB_ERROR);
         }
         finally {
             if (cursor != null) {
@@ -424,7 +424,7 @@ public class ScmMetaMgr {
         if (cl == null) {
             logger.error("Can't find " + clName + " on root site sdb");
             throw new ScmToolsException("Can't find " + clName + " on root site sdb",
-                    ScmExitCode.SCM_META_CL_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         return cl;
     }

@@ -7,7 +7,7 @@ import com.sequoiacm.daemon.exec.ScmExecutor;
 import com.sequoiacm.infrastructure.tool.common.PropertiesUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class ZkNodeOperator implements NodeOperator {
         String dataDir = prop.getProperty(DaemonDefine.ZK_DATA_DIR);
         if (dataDir == null) {
             throw new ScmToolsException(DaemonDefine.ZK_DATA_DIR + " in zookeeper cfg is null",
-                    ScmExitCode.INVALID_ARG);
+                    ScmBaseExitCode.INVALID_ARG);
         }
         String pidFilePath = dataDir + File.separator + DaemonDefine.ZOO_PID_FILE;
         File pidFile = new File(pidFilePath);
@@ -66,7 +66,7 @@ public class ZkNodeOperator implements NodeOperator {
             return -1;
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to get zookeeper pid", ScmExitCode.IO_ERROR, e);
+            throw new ScmToolsException("Failed to get zookeeper pid", ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         finally {
             CommonUtils.closeResource(bfr);

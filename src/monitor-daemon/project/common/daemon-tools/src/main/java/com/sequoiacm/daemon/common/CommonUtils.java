@@ -76,7 +76,7 @@ public class CommonUtils {
             executor = new ScmLinuxExecutorImpl();
         }
         else {
-            throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+            throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
         }
         return executor;
     }

@@ -2,7 +2,7 @@ package com.sequoiacm.infrastructure.tool.element;
 
 import java.util.*;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmNodeRequiredParamGroup {
@@ -47,7 +47,7 @@ public class ScmNodeRequiredParamGroup {
             }
             throw new ScmToolsException(
                     "missing properties:key=" + sb.delete(sb.length() - 2, sb.length()).toString(),
-                    ScmExitCode.INVALID_ARG);
+                    ScmBaseExitCode.INVALID_ARG);
         }
     }
 

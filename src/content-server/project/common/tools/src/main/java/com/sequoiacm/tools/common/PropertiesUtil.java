@@ -42,7 +42,7 @@ public class PropertiesUtil {
             logger.error("failed to load file:" + file.getParent(), e);
             throw new ScmToolsException(
                     "failed to load file:" + file.getParent() + ",errormsg:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         finally {
             try {

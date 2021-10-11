@@ -2,7 +2,7 @@ package com.sequoiacm.infrastructure.tool.common;
 
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class ScmHelper {
             return type.getJarNamePrefix() + version + ".jar";
         }
         catch (Exception e) {
-            throw new ScmToolsException("failed to load manifest info:", ScmExitCode.SYSTEM_ERROR,
+            throw new ScmToolsException("failed to load manifest info:", ScmBaseExitCode.SYSTEM_ERROR,
                     e);
         }
     }
@@ -74,13 +74,13 @@ public class ScmHelper {
             if (!file.exists() && file.mkdirs() != true) {
                 logger.error("Faile to create dir:" + file.toString());
                 throw new ScmToolsException("Faile to create dir:" + file.toString(),
-                        ScmExitCode.COMMON_UNKNOWN_ERROR);
+                        ScmBaseExitCode.SYSTEM_ERROR);
             }
         }
         catch (SecurityException e) {
             logger.error("Failed to create dir:" + file.toString(), e);
             throw new ScmToolsException("Failed to create dir:" + file.toString()
-                    + ",permisson error:" + e.getMessage(), ScmExitCode.PERMISSION_ERROR);
+                    + ",permisson error:" + e.getMessage(), ScmBaseExitCode.PERMISSION_ERROR);
         }
     }
 }

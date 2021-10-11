@@ -1,13 +1,12 @@
 
 package com.sequoiacm.infrastructure.tool.common;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -25,7 +24,7 @@ public class PropertiesUtil {
         catch (FileNotFoundException e) {
             logger.error("file not found:" + file.getPath(), e);
             throw new ScmToolsException("file not found:" + file.getPath(),
-                    ScmExitCode.FILE_NOT_FIND);
+                    ScmBaseExitCode.FILE_NOT_FIND);
 
         }
         Properties prop = new Properties();
@@ -36,7 +35,7 @@ public class PropertiesUtil {
             logger.error("failed to load file:" + file.getParent(), e);
             throw new ScmToolsException(
                     "failed to load file:" + file.getParent() + ",errormsg:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
         finally {
             try {
@@ -72,15 +71,15 @@ public class PropertiesUtil {
         }
         catch (FileNotFoundException e) {
             throw new ScmToolsException("Failed to write " + file.getName(),
-                    ScmExitCode.FILE_NOT_FIND, e);
+                    ScmBaseExitCode.FILE_NOT_FIND, e);
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to write " + file.getName(), ScmExitCode.IO_ERROR,
+            throw new ScmToolsException("Failed to write " + file.getName(), ScmBaseExitCode.SYSTEM_ERROR,
                     e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed to write " + file.getName(),
-                    ScmExitCode.COMMON_UNKNOWN_ERROR, e);
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         finally {
             if (pw != null) {

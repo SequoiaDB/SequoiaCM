@@ -120,7 +120,7 @@ public class RefreshAccesskeyToolImpl extends ScmTool {
         catch (ResourceAccessException e) {
             logger.error("failed to connect to s3 server:{}", url, e);
             throw new ScmToolsException("failed to connect to s3 server:" + url,
-                    ScmExitCode.IO_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         catch (RestClientException e) {
             logger.error("s3 server failed to do refresh", e);

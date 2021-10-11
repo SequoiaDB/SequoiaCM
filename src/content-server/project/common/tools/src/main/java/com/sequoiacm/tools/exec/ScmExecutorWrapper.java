@@ -33,7 +33,7 @@ public class ScmExecutorWrapper {
             executor = new ScmLinuxExecutorImpl();
         }
         else {
-            throw new ScmToolsException("Unsupport platform", ScmExitCode.UNSUPORT_PLATFORM);
+            throw new ScmToolsException("Unsupport platform", ScmExitCode.SYSTEM_ERROR);
         }
     }
 

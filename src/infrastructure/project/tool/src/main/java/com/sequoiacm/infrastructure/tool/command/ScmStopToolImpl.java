@@ -4,7 +4,7 @@ import com.sequoiacm.infrastructure.tool.common.*;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import org.apache.commons.cli.CommandLine;
@@ -56,7 +56,7 @@ public class ScmStopToolImpl extends ScmTool {
                 || !commandLine.hasOption(OPT_SHORT_PORT)
                         && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
             logger.error("Invalid arg:please set -t or -p");
-            throw new ScmToolsException("please set -t or -p", ScmExitCode.INVALID_ARG);
+            throw new ScmToolsException("please set -t or -p", ScmBaseExitCode.INVALID_ARG);
         }
 
         Map<Integer, ScmNodeInfo> needStopMap = new HashMap<Integer, ScmNodeInfo>();
@@ -114,7 +114,7 @@ public class ScmStopToolImpl extends ScmTool {
         logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
                 + (needStopMap.size() - success));
         if (!stopRes || needStopMap.size() != success) {
-            throw new ScmToolsException(ScmExitCode.COMMON_UNKNOWN_ERROR);
+            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 

@@ -33,7 +33,7 @@ public class ScmSiteCreator {
                 logger.error("This sdb already have a root site,site name:" + mainSite.getName());
                 throw new ScmToolsException(
                         "This sdb already have a root site,site name:" + mainSite.getName(),
-                        ScmExitCode.SCM_DUPLICATE_SITE);
+                        ScmExitCode.SCM_ALREADY_EXIST_ERROR);
             }
         }
         else {

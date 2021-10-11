@@ -12,7 +12,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmHelpFullToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmHelpToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class CommandManager {
@@ -48,7 +48,7 @@ public class CommandManager {
                 if (e instanceof ScmToolsException) {
                     System.exit(((ScmToolsException)e).getExitCode());
                 }
-                System.exit(ScmExitCode.SYSTEM_ERROR);
+                System.exit(ScmBaseExitCode.SYSTEM_ERROR);
             }
 
             if (tool != null) {
@@ -56,24 +56,24 @@ public class CommandManager {
                 try {
                     this.checkHelpArgs(args);
                     tool.process(toolsArgs);
-                    System.exit(ScmExitCode.SUCCESS);
+                    System.exit(ScmBaseExitCode.SUCCESS);
                 }
                 catch (ScmToolsException e) {
-                    if (e.getExitCode() != ScmExitCode.EMPTY_OUT) {
+                    if (e.getExitCode() != ScmBaseExitCode.EMPTY_OUT) {
                         logAndPrintErr(args[0], e);
                     }
                     System.exit(e.getExitCode());
                 }
                 catch (Exception e) {
                     logAndPrintErr(args[0], e);
-                    System.exit(ScmExitCode.SYSTEM_ERROR);
+                    System.exit(ScmBaseExitCode.SYSTEM_ERROR);
                 }
             }
             else {
                 if (args.length == 1 && (args[0].equals("-v") || args[0].equals("--version"))) {
                     try {
                         ScmCommon.printVersion();
-                        System.exit(ScmExitCode.SUCCESS);
+                        System.exit(ScmBaseExitCode.SUCCESS);
                     }
                     catch (Exception e) {
                         logger.error("print version failed", e);
@@ -81,7 +81,7 @@ public class CommandManager {
                         if (e instanceof ScmToolsException) {
                             System.exit(((ScmToolsException)e).getExitCode());
                         }
-                        System.exit(ScmExitCode.SYSTEM_ERROR);
+                        System.exit(ScmBaseExitCode.SYSTEM_ERROR);
                     }
                 }
                 try {
@@ -93,13 +93,13 @@ public class CommandManager {
                     if (e instanceof ScmToolsException) {
                         System.exit(((ScmToolsException)e).getExitCode());
                     }
-                    System.exit(ScmExitCode.SYSTEM_ERROR);
+                    System.exit(ScmBaseExitCode.SYSTEM_ERROR);
                 }
                 System.out.println("No such subcommand");
             }
         }
         System.out.println(this.getHelpMsg());
-        System.exit(ScmExitCode.INVALID_ARG);
+        System.exit(ScmBaseExitCode.INVALID_ARG);
     }
 
     private void logAndPrintErr(String arg, Exception e) {
@@ -118,7 +118,7 @@ public class CommandManager {
                 }
                 else {
                     System.out.println(this.getHelpMsg());
-                    System.exit(ScmExitCode.SUCCESS);
+                    System.exit(ScmBaseExitCode.SUCCESS);
                 }
             }
         }
@@ -128,12 +128,12 @@ public class CommandManager {
         ScmTool tool = getInstanceByToolName(arg);
         if (tool != null) {
             tool.printHelp(isFullHelp);
-            System.exit(ScmExitCode.SUCCESS);
+            System.exit(ScmBaseExitCode.SUCCESS);
         }
         else {
             System.out.println("No such command");
             System.out.println(this.getHelpMsg());
-            System.exit(ScmExitCode.INVALID_ARG);
+            System.exit(ScmBaseExitCode.INVALID_ARG);
         }
     }
 

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -80,7 +80,7 @@ public class ScmCommon {
             info = ScmManifestParser.getManifestInfoFromJar(ScmCommon.class);
         }
         catch (IOException e) {
-            throw new ScmToolsException("failed to load manifest info:", ScmExitCode.SYSTEM_ERROR,
+            throw new ScmToolsException("failed to load manifest info:", ScmBaseExitCode.SYSTEM_ERROR,
                     e);
         }
         String revision = info.getGitCommitIdOrSvnRevision();
@@ -133,7 +133,7 @@ public class ScmCommon {
         catch (Exception e) {
             logger.error("Can't convert " + str + " to integer", e);
             throw new ScmToolsException("Can't convert " + str + " to integer",
-                    ScmExitCode.CONVERT_ERROR);
+                    ScmBaseExitCode.INVALID_ARG);
         }
     }
 
@@ -146,7 +146,7 @@ public class ScmCommon {
         catch (Exception e) {
             logger.error("Can't convert " + str + " to long", e);
             throw new ScmToolsException("Can't convert " + str + " to long",
-                    ScmExitCode.CONVERT_ERROR);
+                    ScmBaseExitCode.INVALID_ARG);
         }
     }
 
@@ -238,7 +238,7 @@ public class ScmCommon {
             throw new ScmToolsException(
                     "Current system user is not the owner of contentserver,please switch to "
                             + owner.getName(),
-                    ScmExitCode.PERMISSION_ERROR);
+                    ScmBaseExitCode.PERMISSION_ERROR);
         }
     }
 
@@ -254,7 +254,7 @@ public class ScmCommon {
             throw new ScmToolsException(
                     "Failed to get owner of " + ScmCommon.getContenserverAbsolutePath()
                             + ScmHelper.getJarNameByType(type) + ",errorMsg:" + e.getMessage(),
-                    ScmExitCode.IO_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
         return owner;
     }
@@ -278,13 +278,13 @@ public class ScmCommon {
             if (!file.exists() && file.mkdirs() != true) {
                 logger.error("Faile to create dir:" + file.toString());
                 throw new ScmToolsException("Faile to create dir:" + file.toString(),
-                        ScmExitCode.COMMON_UNKNOWN_ERROR);
+                        ScmBaseExitCode.SYSTEM_ERROR);
             }
         }
         catch (SecurityException e) {
             logger.error("Failed to create dir:" + file.toString(), e);
             throw new ScmToolsException("Failed to create dir:" + file.toString()
-                    + ",permisson error:" + e.getMessage(), ScmExitCode.PERMISSION_ERROR);
+                    + ",permisson error:" + e.getMessage(), ScmBaseExitCode.PERMISSION_ERROR);
         }
     }
 
@@ -297,19 +297,19 @@ public class ScmCommon {
             catch (SecurityException e) {
                 logger.error("Failed to create dir:" + file.getParent(), e);
                 throw new ScmToolsException("Failed to create dir:" + file.getParent()
-                        + ",permisson error:" + e.getMessage(), ScmExitCode.PERMISSION_ERROR);
+                        + ",permisson error:" + e.getMessage(), ScmBaseExitCode.PERMISSION_ERROR);
             }
             catch (IOException e) {
                 logger.error("Failed to create dir:" + file.getParent(), e);
                 throw new ScmToolsException(
                         "Failed to create dir:" + file.getParent() + ",io error:" + e.getMessage(),
-                        ScmExitCode.IO_ERROR);
+                        ScmBaseExitCode.SYSTEM_ERROR);
             }
             catch (Exception e) {
                 logger.error("Failed to create dir:" + file.getParentFile().toString(), e);
                 throw new ScmToolsException("Failed to create dir:"
                         + file.getParentFile().toString() + ",error:" + e.getMessage(),
-                        ScmExitCode.COMMON_UNKNOWN_ERROR);
+                        ScmBaseExitCode.SYSTEM_ERROR);
             }
             // setFileOwnerAndGroup(file.getParent());
         }
@@ -320,19 +320,19 @@ public class ScmCommon {
                 throw new ScmToolsException(
                         "Failed to create file:" + file.getAbsolutePath()
                                 + ",caused by file is already exist",
-                        ScmExitCode.FILE_ALREADY_EXIST);
+                        ScmBaseExitCode.FILE_ALREADY_EXIST);
             }
             // setFileOwnerAndGroup(file.getPath());
         }
         catch (IOException e) {
             logger.error("Faile to create file:" + filePath, e);
             throw new ScmToolsException("Failed to create file,io exception:" + filePath
-                    + ",errorMsg:" + e.getMessage(), ScmExitCode.IO_ERROR);
+                    + ",errorMsg:" + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR);
         }
         catch (SecurityException e) {
             logger.error("Faile to create file:" + filePath, e);
             throw new ScmToolsException("Failed to create file,permission error:" + filePath
-                    + ",errorMsg:" + e.getMessage(), ScmExitCode.IO_ERROR);
+                    + ",errorMsg:" + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -352,7 +352,7 @@ public class ScmCommon {
         catch (SecurityException e) {
             logger.error("Could not determine the existence of file:" + filePath, e);
             throw new ScmToolsException("Could not determine the existence of file:" + filePath,
-                    ScmExitCode.PERMISSION_ERROR);
+                    ScmBaseExitCode.PERMISSION_ERROR);
         }
     }
 
@@ -364,7 +364,7 @@ public class ScmCommon {
         }
         catch (Exception e) {
             logger.error("get local hostname failed", e);
-            throw new ScmToolsException("get local hostname failed", ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("get local hostname failed", ScmBaseExitCode.SYSTEM_ERROR);
         }
 
         String argHost = null;
@@ -375,7 +375,7 @@ public class ScmCommon {
         catch (Exception e) {
             logger.error("get hostname failed,address:" + address, e);
             throw new ScmToolsException("get hostname failed,address:" + address,
-                    ScmExitCode.SYSTEM_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
 
         if (localHost.equals(argHost)) {
@@ -457,7 +457,7 @@ public class ScmCommon {
         String dir = System.getProperty("userWorkingDirectory");
         if (dir == null) {
             throw new ScmToolsException("missing system property:userWorkingDirectory",
-                    ScmExitCode.SYSTEM_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
         return dir;
     }
@@ -466,6 +466,6 @@ public class ScmCommon {
         if (e instanceof ScmToolsException) {
             throw (ScmToolsException) e;
         }
-        throw new ScmToolsException(msg + ":error=" + e.getMessage(), ScmExitCode.SYSTEM_ERROR, e);
+        throw new ScmToolsException(msg + ":error=" + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR, e);
     }
 }

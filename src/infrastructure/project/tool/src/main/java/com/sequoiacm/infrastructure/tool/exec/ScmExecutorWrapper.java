@@ -5,15 +5,12 @@ import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.element.*;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public class ScmExecutorWrapper {
@@ -105,7 +102,7 @@ public class ScmExecutorWrapper {
         ScmNodeInfo node = node2Conf.get(port);
         if (node == null) {
             throw new ScmToolsException("Can't find conf path of " + port + " node",
-                    ScmExitCode.FILE_NOT_FIND);
+                    ScmBaseExitCode.FILE_NOT_FIND);
         }
         return node;
     }
@@ -255,7 +252,7 @@ public class ScmExecutorWrapper {
             if (daemonHomePath == null || daemonHomePath.length() == 0) {
                 throw new ScmToolsException(
                         "Invalid args:" + ScmCommon.DAEMON_LOCATION + " is null",
-                        ScmExitCode.INVALID_ARG);
+                        ScmBaseExitCode.INVALID_ARG);
             }
             file = new File(daemonHomePath);
             if (!file.exists()) {

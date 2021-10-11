@@ -90,7 +90,7 @@ public class TimeArgWrapper {
                 logger.error("parse year error,year:" + year, e);
                 throw new ScmToolsException(
                         "parse year error,year:" + year + ",error:" + e.getMessage(),
-                        ScmExitCode.PARSE_ERROR);
+                        ScmExitCode.INVALID_ARG);
             }
             calendar.setTime(date);
             switch (quarter) {
@@ -138,7 +138,7 @@ public class TimeArgWrapper {
                     logger.error("parse year error,year:" + upperTime, e);
                     throw new ScmToolsException(
                             "parse year error,year:" + upperTime + ",error:" + e.getMessage(),
-                            ScmExitCode.PARSE_ERROR);
+                            ScmExitCode.INVALID_ARG);
                 }
             }
             else {
@@ -160,7 +160,7 @@ public class TimeArgWrapper {
                     logger.error("parse year month error,year:" + upperTime, e);
                     throw new ScmToolsException(
                             "parse year month error,year:" + upperTime + ",error:" + e.getMessage(),
-                            ScmExitCode.PARSE_ERROR);
+                            ScmExitCode.INVALID_ARG);
                 }
                 calendar.setTime(lower);
                 calendar.add(Calendar.MONTH, 1);

@@ -12,25 +12,25 @@ public class ScmWindowsExecutorImpl implements ScmExecutor {
     public void startNode(String springConfigLocation, String loggingConfig, String errorLogPath,
             String options) throws ScmToolsException {
         // TODO Auto-generated method stub
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 
     @Override
     public void stopNode(int pid, boolean isForce) throws ScmToolsException {
         // TODO Auto-generated method stub
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 
     @Override
     public ScmNodeStatus getNodeStatus() throws ScmToolsException {
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
         // TODO Auto-generated method stub jps
 
     }
 
     @Override
     public void execShell(String cmd) throws ScmToolsException {
-        throw new ScmToolsException("Unsupported platform", ScmExitCode.UNSUPORT_PLATFORM);
+        throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
         // TODO Auto-generated method stub exec
     }
 }

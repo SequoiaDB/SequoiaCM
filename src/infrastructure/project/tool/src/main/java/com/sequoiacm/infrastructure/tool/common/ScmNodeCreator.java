@@ -2,7 +2,7 @@ package com.sequoiacm.infrastructure.tool.common;
 
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import org.slf4j.Logger;
@@ -41,18 +41,18 @@ public class ScmNodeCreator {
             } else {
                 throw new ScmToolsException(
                         "port is not specified:key=" + ScmToolsDefine.PROPERTIES.SERVER_PORT,
-                        ScmExitCode.INVALID_ARG);
+                        ScmBaseExitCode.INVALID_ARG);
             }
         }
         int port = convertStr2Port(portStr);
         if (port > 65535 || port < 0) {
-            throw new ScmToolsException("port out of range:" + port, ScmExitCode.INVALID_ARG);
+            throw new ScmToolsException("port out of range:" + port, ScmBaseExitCode.INVALID_ARG);
         }
 
         ScmExecutorWrapper exe = new ScmExecutorWrapper(this.nodeTypes);
         if (exe.getAllNode().containsKey(port)) {
             throw new ScmToolsException("The port is already occupied,port:" + port + ",conf path:"
-                    + exe.getNode(port).getConfPath(), ScmExitCode.SCM_PORT_OCCUPIED);
+                    + exe.getNode(port).getConfPath(), ScmBaseExitCode.SCM_ALREADY_EXIST_ERROR);
         }
         createNodeByType(type, port);
         System.out.println("Create node success: " + type.getUpperName() + "(" + port + ")");
@@ -64,7 +64,7 @@ public class ScmNodeCreator {
                 resourcefile);
         if (is == null) {
             throw new ScmToolsException("missing resource file:" + resourcefile,
-                    ScmExitCode.SYSTEM_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
         String port;
         try {
@@ -74,11 +74,11 @@ public class ScmNodeCreator {
         }
         catch (IOException e) {
             throw new ScmToolsException("load resource file failed:" + resourcefile,
-                    ScmExitCode.IO_ERROR, e);
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("load resource file failed:" + resourcefile,
-                    ScmExitCode.SYSTEM_ERROR, e);
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         finally {
             close(is);
@@ -120,7 +120,7 @@ public class ScmNodeCreator {
             return Integer.valueOf(portStr);
         }
         catch (NumberFormatException e) {
-            throw new ScmToolsException("invalid port:" + portStr, ScmExitCode.INVALID_ARG, e);
+            throw new ScmToolsException("invalid port:" + portStr, ScmBaseExitCode.INVALID_ARG, e);
         }
     }
 
@@ -130,7 +130,7 @@ public class ScmNodeCreator {
         if (is == null) {
             logger.error("missing resource file:" + sampleConf);
             throw new ScmToolsException("missing resource file:" + sampleConf,
-                    ScmExitCode.SYSTEM_ERROR);
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
         BufferedReader br = null;
         BufferedWriter bw = null;
@@ -148,7 +148,7 @@ public class ScmNodeCreator {
         catch (IOException e) {
             logger.error("write config to " + outputConfPath + " occur error", e);
             throw new ScmToolsException("write config to " + outputConfPath + " occur error:"
-                    + e.getMessage(), ScmExitCode.IO_ERROR);
+                    + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR);
         }
         finally {
             close(bw);

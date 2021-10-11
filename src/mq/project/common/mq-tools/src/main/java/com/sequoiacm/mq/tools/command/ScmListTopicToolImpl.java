@@ -46,7 +46,7 @@ public class ScmListTopicToolImpl extends MqToolBase {
         }
         catch (MqException e) {
             if (e.getError() == MqError.TOPIC_NOT_EXIST) {
-                throw new ScmToolsException("topic not exist:" + name, ScmExitCode.TOPIC_NOT_EXIST,
+                throw new ScmToolsException("topic not exist:" + name, ScmExitCode.SCM_NOT_EXIST_ERROR,
                         e);
             }
             throw new ScmToolsException(

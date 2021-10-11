@@ -74,7 +74,7 @@ public class ScmCronMgr {
         String user = CommonUtils.getUser();
         if (!scmCron.getUser().equals(user)) {
             throw new ScmToolsException("The user stop daemon is different from start, stop:" + user
-                    + ", start:" + scmCron.getUser(), ScmExitCode.DAEMON_DIFF_USER);
+                    + ", start:" + scmCron.getUser(), ScmExitCode.PERMISSION_ERROR);
         }
         String linuxCron = scmCron.getLinuxCron();
         if (linuxCron == null) {
@@ -109,7 +109,7 @@ public class ScmCronMgr {
             }
             else {
                 throw new ScmToolsException("Period too large,period:" + period,
-                        ScmExitCode.NOT_SUITABLE_PERIOD);
+                        ScmExitCode.INVALID_ARG);
             }
         }
         return cron;

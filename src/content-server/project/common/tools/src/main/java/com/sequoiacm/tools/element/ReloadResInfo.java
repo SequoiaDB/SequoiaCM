@@ -128,7 +128,7 @@ public class ReloadResInfo {
         Object robj = obj.get(key);
         if (robj == null) {
             throw new ScmToolsException("Failed to analyze reload response,missing key:" + key,
-                    ScmExitCode.COMMON_UNKNOW_ERROR);
+                    ScmExitCode.SYSTEM_ERROR);
         }
         return robj;
     }

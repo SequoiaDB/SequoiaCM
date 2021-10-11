@@ -46,7 +46,7 @@ public class ScmWorkspaceCreator {
             if (siteInfo == null) {
                 logger.error("Site is not exist,id:" + siteId);
                 throw new ScmToolsException("Site is not exist,id:" + siteId,
-                        ScmExitCode.SCM_SITE_NOT_EXIST);
+                        ScmExitCode.SCM_NOT_EXIST_ERROR);
             }
             siteInfo.validateDataLocation((BSONObject) location);
         }
@@ -55,7 +55,7 @@ public class ScmWorkspaceCreator {
             logger.error("Site is not exist,id:" + wsInfo.getMetaLocationSiteId());
             throw new ScmToolsException(
                     "Site is not exist,id:" + wsInfo.getMetaLocationSiteId(),
-                    ScmExitCode.SCM_SITE_NOT_EXIST);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         SdbHelper.checkSdbDomainExist(metaSiteInfo.getMetaUrlStr(), metaSiteInfo.getMetaUser(),
                 metaSiteInfo.getMetaDecryptPasswd(), wsInfo.getMetaLocationSiteDomain());
@@ -66,13 +66,13 @@ public class ScmWorkspaceCreator {
         if (sysCS == null) {
             logger.error("root site " + SdbHelper.CS_SYS + " cs not exist");
             throw new ScmToolsException("root site " + SdbHelper.CS_SYS + " cs not exist",
-                    ScmExitCode.SCM_META_CS_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
         DBCollection wsCL = SdbHelper.getCL(sysCS, SdbHelper.CL_WORKSPACE);
         if (wsCL == null) {
             logger.error("root site " + SdbHelper.CL_WORKSPACE + " cl not exist");
             throw new ScmToolsException("root site " + SdbHelper.CL_WORKSPACE + " cl not exist",
-                    ScmExitCode.SCM_META_CS_MISSING);
+                    ScmExitCode.SCM_NOT_EXIST_ERROR);
         }
 
         wsInfo.setId(SdbHelper.generateCLId(db, SdbHelper.CS_SYS, SdbHelper.CL_WORKSPACE));
