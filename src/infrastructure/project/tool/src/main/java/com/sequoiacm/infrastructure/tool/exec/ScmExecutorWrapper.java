@@ -213,7 +213,7 @@ public class ScmExecutorWrapper {
             daemonHomePath = findDaemonHomePath();
         }
         catch (ScmToolsException e) {
-            if(e.getExitCode() == ScmExitCode.FILE_NOT_FIND) {
+            if(e.getExitCode() == ScmBaseExitCode.FILE_NOT_FIND) {
                 logger.warn(e.getMessage(), e);
                 return;
             }
@@ -259,7 +259,7 @@ public class ScmExecutorWrapper {
                 throw new ScmToolsException(
                         "Failed to find daemon home path, caused by daemon home dir not exist, dir:"
                                 + daemonHomePath,
-                        ScmExitCode.FILE_NOT_FIND);
+                        ScmBaseExitCode.FILE_NOT_FIND);
             }
         }
         return daemonHomePath;
