@@ -16,6 +16,7 @@
     <properties>
         <vue.project.root>${basedir}/om-ui</vue.project.root>
         <vue.dist.dir>${basedir}/om-ui/dist</vue.dist.dir>
+        <vue.modules.dir>${basedir}/om-ui/node_modules</vue.modules.dir>
     </properties>
 
     <dependencies>
@@ -78,6 +79,9 @@
                         </fileset>
                         <fileset>
                             <directory>${vue.dist.dir}</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${vue.modules.dir}</directory>
                         </fileset>
                     </filesets>
                 </configuration>
