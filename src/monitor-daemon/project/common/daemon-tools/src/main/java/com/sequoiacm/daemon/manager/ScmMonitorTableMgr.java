@@ -277,23 +277,30 @@ public class ScmMonitorTableMgr {
     }
 
     public List<ScmNodeInfo> readTable() throws ScmToolsException {
-        List<ScmNodeInfo> nodeList = null;
         File tableFile = new File(tablePath);
         ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(tableFile);
         fileLock.readLock();
+        try {
+            return readTableNoLock();
+        }
+        finally {
+            fileLock.unlock();
+        }
+    }
+
+    public List<ScmNodeInfo> readTableNoLock() throws ScmToolsException{
+        File tableFile = new File(tablePath);
+        List<ScmNodeInfo> nodeList = null;
         try {
             nodeList = TableUtils.jsonFileToNodeList(tableFile);
         }
         catch (ScmToolsException e) {
             nodeList = recoverTable();
         }
-        finally {
-            fileLock.unlock();
-        }
         return nodeList == null ? new ArrayList<ScmNodeInfo>() : nodeList;
     }
 
-    private List<ScmNodeInfo> recoverTable() throws ScmToolsException {
+    public List<ScmNodeInfo> recoverTable() throws ScmToolsException {
         File tableFile = new File(tablePath);
         try {
             TableUtils.copyFile(backUpPath, tablePath);
@@ -350,5 +357,9 @@ public class ScmMonitorTableMgr {
 
     public void setMonitorPath(String daemonHomePath) {
         this.daemonHomePath = daemonHomePath;
+    }
+
+    public String getTablePath() {
+        return this.tablePath;
     }
 }

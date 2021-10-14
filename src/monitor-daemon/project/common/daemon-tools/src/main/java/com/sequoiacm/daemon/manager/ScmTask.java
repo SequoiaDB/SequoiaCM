@@ -1,7 +1,10 @@
 package com.sequoiacm.daemon.manager;
 
 import com.sequoiacm.daemon.common.DaemonDefine;
+import com.sequoiacm.daemon.common.TableUtils;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
+import com.sequoiacm.daemon.lock.ScmFileLock;
+import com.sequoiacm.daemon.lock.ScmFileLockFactory;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +45,26 @@ public class ScmTask {
                     // node(concurrency trouble)
                     // readTableOnce(on) => node stop(on->off) => tool found node failed,read
                     // again(off),continue
-                    List<ScmNodeInfo> newlyNodeList = tableMgr.readTable();
-
-                    ScmNodeInfo newlyNode = null;
-                    for (ScmNodeInfo info : newlyNodeList) {
-                        if (info.getPort() == node.getPort()) {
-                            newlyNode = info;
-                            break;
+                    File tableFile = new File(tableMgr.getTablePath());
+                    ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(tableFile);
+                    lock.readLock();
+                    try {
+                        List<ScmNodeInfo> newlyNodeList = tableMgr.readTableNoLock();
+                        ScmNodeInfo newlyNode = null;
+                        for (ScmNodeInfo info : newlyNodeList) {
+                            if (info.getPort() == node.getPort()) {
+                                newlyNode = info;
+                                break;
+                            }
+                        }
+                        if (newlyNode != null
+                                && newlyNode.getStatus().equals(DaemonDefine.NODE_STATUS_ON)) {
+                            nodeMgr.startNode(node);
+                            logger.info("Start node success,node:{}", node.toString());
                         }
                     }
-                    if (newlyNode != null
-                            && newlyNode.getStatus().equals(DaemonDefine.NODE_STATUS_ON)) {
-                        nodeMgr.startNode(node);
-                        logger.info("Start node success,node:{}", node.toString());
+                    finally {
+                        lock.unlock();
                     }
                 }
             }

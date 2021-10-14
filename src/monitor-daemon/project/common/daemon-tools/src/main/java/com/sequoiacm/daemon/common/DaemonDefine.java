@@ -3,7 +3,7 @@ package com.sequoiacm.daemon.common;
 public class DaemonDefine {
     public static final String MAIN_METHOD = "com.sequoiacm.daemon.Scmd";
 
-    public static final String CRON_PROPERTIES = "crontab.properties";
+    public static final String CRON_PROPERTIES = ".crontab.properties";
     public static final String SCMD_PROPERTIES = ".scmd.properties";
     public static final String MONITOR_TABLE = "monitor-table.json";
     public static final String MONITOR_BACKUP = "monitor-table.json.b";

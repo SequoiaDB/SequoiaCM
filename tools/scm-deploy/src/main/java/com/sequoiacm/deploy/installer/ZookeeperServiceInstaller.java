@@ -39,12 +39,10 @@ public class ZookeeperServiceInstaller extends ServiceInstallerBase {
             }
             CommonConfig commonConfig = CommonConfig.getInstance();
             String remoteZkBinPath = remoteInstallPath + "/bin";
-            String localZkScriptPath = commonConfig.getBasePath() + "sequoiacm-deploy"
-                    + File.separator + "bindata" + File.separator + "zk_shell" + File.separator
-                    + scmZkScript;
+            String localZkScriptPath = commonConfig.getBasePath() + "sequoiacm-deploy/bindata/zk_shell/" + scmZkScript;
             ssh.scp(localZkScriptPath, remoteZkBinPath);
-            String oldShell = remoteZkBinPath + File.separator + scmZkScript;
-            String newShell = remoteZkBinPath + File.separator + "zkServer.sh";
+            String oldShell = remoteZkBinPath + "/" + scmZkScript;
+            String newShell = remoteZkBinPath + "/zkServer.sh";
             ssh.sudoExec("mv -f " + oldShell + " " + newShell, 0);
             ssh.changeOwner(remoteZkBinPath, installConfig.getInstallUser(),
                     installConfig.getInstallUserGroup());

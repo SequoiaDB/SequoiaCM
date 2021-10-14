@@ -4,6 +4,8 @@ import com.sequoiacm.daemon.common.*;
 import com.sequoiacm.daemon.element.ScmCron;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
 import com.sequoiacm.daemon.exception.ScmExitCode;
+import com.sequoiacm.daemon.lock.ScmFileLock;
+import com.sequoiacm.daemon.lock.ScmFileLockFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -50,28 +52,33 @@ public class ScmManagerWrapper {
     }
 
     public void startDaemon(int period) throws ScmToolsException {
-        ScmCron scmCron = cronMgr.readCronProp();
-        if (scmCron != null) {
-            if (scmCron.getPeriod() != period) {
-                throw new ScmToolsException(
-                        "The period input is different from current, input:" + period + ",current:"
-                                + scmCron.getPeriod()
-                                + ", please stop first if you want to change period",
-                        ScmExitCode.INVALID_ARG);
-            }
-            if (getDaemonPid(scmCron) == -1) {
-                // 守护进程没有跑，清理环境
-                cronMgr.deleteCron(scmCron);
-            }
-            else {
-                // 守护进程已开启，不做处理
-                return;
-            }
-        }
+        File file = new File(tableMgr.getTablePath());
+        ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(file);
+        lock.lock();
 
         boolean isStartSuccess = false;
         String command = null;
         try {
+            ScmCron scmCron = cronMgr.readCronProp();
+            if (scmCron != null) {
+                if (scmCron.getPeriod() != period) {
+                    throw new ScmToolsException(
+                            "The period input is different from current, input:" + period + ",current:"
+                                    + scmCron.getPeriod()
+                                    + ", please stop first if you want to change period",
+                            ScmExitCode.INVALID_ARG);
+                }
+                if (getDaemonPid(scmCron) == -1) {
+                    // 守护进程没有跑，清理环境
+                    cronMgr.deleteCron(scmCron);
+                    cronMgr.deleteCronProp();
+                }
+                else {
+                    // 守护进程已开启，不做处理
+                    isStartSuccess = true;
+                    return;
+                }
+            }
             command = daemonMgr.startDaemon(period);
             cronMgr.createCron(period, command);
             isStartSuccess = true;
@@ -81,30 +88,40 @@ public class ScmManagerWrapper {
                 int pid = daemonMgr.getDaemonPid(command);
                 daemonMgr.stopDaemon(pid, true);
             }
+            lock.unlock();
         }
     }
 
     public void stopDaemon() throws ScmToolsException {
-        ScmCron scmCron = cronMgr.readCronProp();
-        if (scmCron != null) {
-            cronMgr.deleteCron(scmCron);
-            if (getDaemonPid(scmCron) == -1) {
-                logger.info("Daemon is already stopped");
-                return;
-            }
-            int pid = getDaemonPid(scmCron);
-            long begin = System.currentTimeMillis();
-            daemonMgr.stopDaemon(pid, false);
-            while (getDaemonPid(scmCron) != -1) {
-                ScmCommon.sleep(SLEEP_TIME);
-                if (System.currentTimeMillis() - begin > STOP_TIME) {
-                    daemonMgr.stopDaemon(pid, true);
-                    break;
+        File file = new File(tableMgr.getTablePath());
+        ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(file);
+        lock.lock();
+        try {
+            ScmCron scmCron = cronMgr.readCronProp();
+            if (scmCron != null) {
+                cronMgr.deleteCron(scmCron);
+                if (getDaemonPid(scmCron) == -1) {
+                    logger.info("Daemon is already stopped");
+                    return;
                 }
+                int pid = getDaemonPid(scmCron);
+                long begin = System.currentTimeMillis();
+                daemonMgr.stopDaemon(pid, false);
+                while (getDaemonPid(scmCron) != -1) {
+                    ScmCommon.sleep(SLEEP_TIME);
+                    if (System.currentTimeMillis() - begin > STOP_TIME) {
+                        daemonMgr.stopDaemon(pid, true);
+                        break;
+                    }
+                }
+                cronMgr.deleteCronProp();
+            }
+            else {
+                logger.info("Daemon is already stopped");
             }
         }
-        else {
-            logger.info("Daemon is already stopped");
+        finally {
+            lock.unlock();
         }
     }
 

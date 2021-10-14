@@ -49,7 +49,7 @@ public class ScmCronMgr {
         ScmCmdResult result = null;
         try {
             String linuxCron = cron + " " + startDaemonCommand;
-            String cmd = "(crontab -l | grep -v \"" + linuxCron + "\";echo \"" + linuxCron
+            String cmd = "(crontab -l | grep -v -F \"" + linuxCron + "\";echo \"" + linuxCron
                     + "\") | crontab -";
             logger.info("Creating linux crontab by exec cmd (/bin/sh -c \" " + cmd + "\")");
             result = executor.execCmd(cmd);
@@ -62,6 +62,7 @@ public class ScmCronMgr {
         catch (ScmToolsException e) {
             if (result != null && result.getRc() == 0) {
                 deleteCron(scmCron);
+                deleteCronProp();
             }
             throw new ScmToolsException("Failed to create linux crontab", e.getExitCode(), e);
         }
@@ -80,7 +81,7 @@ public class ScmCronMgr {
         if (linuxCron == null) {
             return;
         }
-        String cmd = "(crontab -l | grep -v \"" + linuxCron + "\") | crontab -";
+        String cmd = "(crontab -l | grep -v -F \"" + linuxCron + "\") | crontab -";
         try {
             logger.info("Deleting linux crontab by exec cmd (/bin/sh -c \" " + cmd + "\")");
             executor.execCmd(cmd);
@@ -90,7 +91,6 @@ public class ScmCronMgr {
             throw new ScmToolsException("Failed to delete linux crontab:" + linuxCron,
                     e.getExitCode(), e);
         }
-        deleteCronProp();
     }
 
     public String getLinuxCron(int period) throws ScmToolsException {
@@ -161,7 +161,7 @@ public class ScmCronMgr {
         }
     }
 
-    private void deleteCronProp() {
+    public void deleteCronProp() {
         File file = new File(cronPropPath);
         if (file.exists() && !file.delete()) {
             logger.error(
