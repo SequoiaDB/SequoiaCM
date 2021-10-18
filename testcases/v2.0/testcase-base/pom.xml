@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    
+<?xml version="1.0" encoding="utf-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <modelVersion>  4.0.0 </modelVersion>    
 
         <groupId>  com.sequoiadb </groupId>    
@@ -6,11 +6,13 @@
         <version>  2.3.0 </version>    
         <packaging>  pom </packaging>    
 
-        <properties>        
-                <!-- sequoiacm jars -->        
-                <scmdriver.version>   3.1.2  </scmdriver.version>        
-                <!--scmcommon.version>2.3.0</scmcommon.version -->        
-                <sdbdriver.version>   3.0.1  </sdbdriver.version>        
+        <properties>
+            <!-- sequoiacm jars -->
+            <scmdriver.version>3.1.2</scmdriver.version>
+            <scmdriver.path>${basedir}/../../testcase-base/lib/sequoiacm-driver-${scmdriver.version}.jar</scmdriver.path>
+            <!--scmcommon.version>2.3.0</scmcommon.version -->
+            <sdbdriver.version>3.0.1</sdbdriver.version>
+            <sdbdriver.path>${basedir}/../../testcase-base/lib/sequoiadb-driver-jdk6-${sdbdriver.version}.jar</sdbdriver.path>
 
                 <!-- jars properties -->        
                 <testng.version>   6.13.1  </testng.version>        
@@ -61,8 +63,8 @@
                         <groupId>    com.sequoiadb   </groupId>            
                         <artifactId>    sequoiacm-driver   </artifactId>            
                         <version>    ${scmdriver.version}   </version>            
-                        <scope>    system   </scope>            
-                        <systemPath>    ${basedir}/../../testcase-base/lib/sequoiacm-driver-${scmdriver.version}.jar   </systemPath>            
+                        <scope>    system   </scope>
+                    <systemPath>${scmdriver.path}</systemPath>
                 </dependency>  
 
                <dependency>   
@@ -80,8 +82,8 @@
                         <groupId>    com.sequoiadb   </groupId>            
                         <artifactId>    sequoiadb-driver   </artifactId>            
                         <version>    ${sdbdriver.version}   </version>            
-                        <scope>    system   </scope>            
-                        <systemPath>    ${basedir}/../../testcase-base/lib/sequoiadb-driver-jdk6-${sdbdriver.version}.jar   </systemPath>            
+                        <scope>    system   </scope>
+                    <systemPath>${sdbdriver.path}</systemPath>
                 </dependency>        
 
               <dependency>            
@@ -202,7 +204,36 @@
                                         <encoding>      ${file_encoding}     </encoding>                    
                                 </configuration>                
                         </plugin>            
-                </plugins>        
+                </plugins>
+            <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${basedir}/../../testcase-base/assembly.xml</descriptor>
+                            </descriptors>
+                            <outputDirectory>${outputDirectory}</outputDirectory>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.testng.TestNG</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assembly</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
         </build>    
 
 </project>

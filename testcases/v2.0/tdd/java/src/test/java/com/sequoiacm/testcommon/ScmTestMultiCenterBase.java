@@ -1,7 +1,14 @@
 package com.sequoiacm.testcommon;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmSiteInfo;
+import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.exception.ScmException;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
@@ -28,52 +35,94 @@ public class ScmTestMultiCenterBase {
     private static String srcFile;
 
     @Parameters({
-        "SITE1",
-        "SERVER1",
-        "SDB1",
+            "MAINSDBURL",
+            "SDBUSER",
+            "SDBPASSWD",
 
-        "SITE2",
-        "SERVER2",
-        "SDB2",
-
-        "SITE3",
-        "SERVER3",
-        "SDB3",
-
-        "USERNAME",
-        "PASSWORD",
-
-        "SDBUSERNAME",
-        "SDBPASSWORD",
-
-        "WORKSPACENAME",
-        "DATADIRECTORY"
+            "SCMUSER",
+            "SCMPASSWD",
+            "GATEWAYS",
+            "DATADIRECTORY"
     })
 
+
     @BeforeSuite
-    public void initSuite(String SITE1, String SERVER1, String SDB1,
-            String SITE2, String SERVER2, String SDB2,
-            String SITE3, String SERVER3, String SDB3,
-            String USERNAME, String PASSWORD,
-            String SDBUSERNAME, String SDBPASSWORD, String WORKSPACENAME, String DATADIRECTORY) {
+    public void initSuite(String MAINSDBURL, String SDBUSER, String SDBPASSWD, String SCMUSER,
+                          String SCMPASSWD, String GATEWAYS, String DATADIRECTORY) throws ScmException {
 
-        siteId1 = Integer.parseInt(SITE1);
-        siteId2 = Integer.parseInt(SITE2);
-        siteId3 = Integer.parseInt(SITE3);
+        // 解析配置参数
+        String sdbUrl = MAINSDBURL;
+        sdbUser = SDBUSER;
+        sdbPasswd = SDBPASSWD;
 
-        server1 = new ScmTestServerInfo(SERVER1);
-        server2 = new ScmTestServerInfo(SERVER2);
-        server3 = new ScmTestServerInfo(SERVER3);
-        scmUser = USERNAME;
-        scmPasswd = PASSWORD;
+        scmUser = SCMUSER;
+        scmPasswd = SCMPASSWD;
+        List<String> gatewayList = Arrays.asList(GATEWAYS.split(","));
 
-        sdb1 = new ScmTestServerInfo(SDB1);
-        sdb2 = new ScmTestServerInfo(SDB2);
-        sdb3 = new ScmTestServerInfo(SDB3);
-        sdbUser = SDBUSERNAME;
-        sdbPasswd = SDBPASSWORD;
+        ScmSession session = ScmFactory.Session
+                .createSession(new ScmConfigOption(gatewayList.get(0), scmUser, scmPasswd));
+        List<String> siteList = ScmSystem.ServiceCenter.getSiteList(session);
 
-        workspaceName = WORKSPACENAME;
+        session = ScmFactory.Session
+                .createSession(new ScmConfigOption(gatewayList.get(0) + "/" + siteList.get(0), scmUser, scmPasswd));
+        ScmCursor<ScmSiteInfo> siteCursor = ScmFactory.Site.listSite(session);
+
+        boolean hasRootSite = false;
+        int siteCount = 0;
+
+        ScmSiteInfo currentSite = null;
+        while ((currentSite = siteCursor.getNext()) != null) {
+            if (++siteCount > 3 && hasRootSite) {
+                break;
+            }
+            if (currentSite.isRootSite()) {
+                siteId1 = currentSite.getId();
+                server1 = new ScmTestServerInfo(gatewayList.get(0) + "/" + currentSite.getName());
+                sdb1 = new ScmTestServerInfo(currentSite.getDataUrl().get(0));
+                hasRootSite = true;
+            }
+            else {
+                if (server2 == null) {
+                    siteId2 = currentSite.getId();
+                    server2 = new ScmTestServerInfo(gatewayList.get(0) + "/" + currentSite.getName());
+                    sdb2 = new ScmTestServerInfo(currentSite.getDataUrl().get(0));
+                }
+                else {
+                    siteId3 = currentSite.getId();
+                    server3 = new ScmTestServerInfo(gatewayList.get(0) + "/" + currentSite.getName());
+                    sdb3 = new ScmTestServerInfo(currentSite.getDataUrl().get(0));
+                }
+            }
+            if (currentSite.getDataType() != ScmType.DatasourceType.SEQUOIADB) {
+                System.err.print("current environment is exist non-SDB data source.");
+                System.exit(-2);
+            }
+        }
+
+        if (!hasRootSite) {
+            System.err.print("current environment is no root site.");
+            System.exit(-1);
+        }
+
+        if (siteCount < 3) {
+            System.err.print("current environment is less than 3 sites.");
+            System.exit(-1);
+        }
+
+        // 获取当前已经创建的工作区，自动使用一个3站点以上组成的工作区作为测试工作区，若不存在则报错退出
+        ScmCursor<ScmWorkspaceInfo> scmWorkspaceInfoScmCursor = ScmFactory.Workspace.listWorkspace(session);
+        ScmWorkspaceInfo currentWorkSpace = null;
+        while ((currentWorkSpace = scmWorkspaceInfoScmCursor.getNext()) != null) {
+            if (currentWorkSpace.getDataLocation().size() >= 3) {
+                workspaceName = currentWorkSpace.getName();
+                break;
+            }
+        }
+        if (workspaceName == null) {
+            System.err.print("there is no workspace with more than 3 sites in the current environment.");
+            System.exit(-3);
+        }
+
         dataDirectory = DATADIRECTORY;
 
         srcFile = getDataDirectory() + File.separator + "test.txt";
@@ -144,4 +193,5 @@ public class ScmTestMultiCenterBase {
     public String getSrcFile() {
         return srcFile;
     }
+
 }

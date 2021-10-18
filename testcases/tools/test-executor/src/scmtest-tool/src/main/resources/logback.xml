@@ -1,0 +1,41 @@
+<configuration scan="true" scanPeriod="60" debug="false">
+
+    <appender name="FILE"
+              class="com.sequoiacm.test.config.RunTestLogFileAppender">
+        <rollingPolicy
+                class="com.sequoiacm.test.config.RunTestLogFileRollingPolicy">
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>100MB</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder
+                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}][%-5level][%c:%L][%thread]:%msg %n</pattern>
+        </encoder>
+
+    </appender>
+
+    <appender name="STDOUT"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder
+                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%highlight([%-5level]) %msg %n%nopex</pattern>
+        </encoder>
+        <filter class="com.sequoiacm.test.config.RunTestConsoleLogFilter">
+            <level>INFO</level>
+            <filterPackage>org.reflections</filterPackage>
+        </filter>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

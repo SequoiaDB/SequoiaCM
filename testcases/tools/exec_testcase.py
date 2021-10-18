@@ -420,14 +420,8 @@ def execTdd():
     displayInfo("Begin to exec tdd testcase.")
     testcaseDir = os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0"
     xmlDir = testcaseDir+"/tdd/java/src/test/resources"
-    arr = SCMCLOUD_GATEWAYS.split(',')
-    gatewayurls=arr[0];
-    replaceTestngStr(xmlDir+"/testng.xml", "server1ip:server1port",  gatewayurls+"/rootsite")
-    replaceTestngStr(xmlDir+"/testng.xml", "server2ip:server2port",  gatewayurls+"/branchsite1")
-    replaceTestngStr(xmlDir+"/testng.xml", "server3ip:server3port",  gatewayurls+"/branchsite2")
-    replaceTestngStr(xmlDir+"/testng.xml", "sdb1ip:sdb1port",  MAIN_SITE_HOST+":11810")
-    replaceTestngStr(xmlDir+"/testng.xml", "sdb2ip:sdb2port",  MAIN_SITE_HOST+":11810")
-    replaceTestngStr(xmlDir+"/testng.xml", "sdb3ip:sdb3port",  MAIN_SITE_HOST+":11810")
+    replaceTestngStr(xmlDir+"/testng.xml", "server1ip:server1port,server2ip:server2port", SCMCLOUD_GATEWAYS)
+    replaceTestngStr(xmlDir+"/testng.xml", "sdbip:sdbport",  MAIN_SITE_HOST+":11810")
     os.chdir(testcaseDir+"/tdd/java")
     cmd = "cd "+testcaseDir+"/tdd/java; rm -rf "+TEST_CASE_DIR+"/test_tdd_normal.log; mvn surefire-report:report -DreportDir="+testcaseDir+"/tdd/java/test-output-parallel -DxmlFileName="+testcaseDir+"/tdd/java/src/test/resources/testng.xml"
   
