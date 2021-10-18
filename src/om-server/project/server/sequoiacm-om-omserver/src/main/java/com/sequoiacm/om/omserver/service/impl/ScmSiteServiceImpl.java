@@ -30,7 +30,7 @@ public class ScmSiteServiceImpl implements ScmSiteService {
 
     @Autowired
     public ScmSiteServiceImpl(ScmOmServerConfig config) {
-        this.siteCacheTTL = config.getCacheRefreshIntreval() * 1000;
+        this.siteCacheTTL = config.getCacheRefreshInterval() * 1000;
     }
 
     @Override

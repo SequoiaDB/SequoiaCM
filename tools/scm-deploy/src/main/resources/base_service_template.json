@@ -151,7 +151,7 @@
             "scm.omserver.readTimeout": "5000",
             "scm.omserver.onlyConnectLocalRegionServer": "false",
             "scm.omserver.sessionKeepAliveTime": "900",
-            "scm.omserver.cacheRefreshIntreval": "180"
+            "scm.omserver.cacheRefreshInterval": "180"
         }
     ],
     "zookeeper-server": [

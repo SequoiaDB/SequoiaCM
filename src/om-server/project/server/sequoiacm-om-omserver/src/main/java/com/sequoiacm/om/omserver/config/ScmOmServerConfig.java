@@ -19,14 +19,14 @@ public class ScmOmServerConfig {
     private boolean onlyConnectLocalRegionServer = false;
     private int sessionKeepAliveTime = 900; // second
 
-    private int cacheRefreshIntreval = 120; // second
+    private int cacheRefreshInterval = 120; // second
 
-    public int getCacheRefreshIntreval() {
-        return cacheRefreshIntreval;
+    public int getCacheRefreshInterval() {
+        return cacheRefreshInterval;
     }
 
-    public void setCacheRefreshIntreval(int cacheRefreshIntreval) {
-        this.cacheRefreshIntreval = cacheRefreshIntreval;
+    public void setCacheRefreshInterval(int cacheRefreshInterval) {
+        this.cacheRefreshInterval = cacheRefreshInterval;
     }
 
     public List<String> getGateway() {

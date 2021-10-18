@@ -18,6 +18,7 @@ SequoiaCM 是基于 Spring Cloud 微服务框架开发的分布式企业内容�
 |全文检索服务|负责文件全文索引的管理，对外提供全文检索功能|
 |Elasticseatch|为全文检索服务提供底层存储、检索支持|
 |Zookeeper|为整个集群提供分布式锁服务，为调度服务提供选举支持|
+|OM管理服务|提供在web页面上管理SequoiaCM集群的能力|
 
 
 [all_arch]:SequoiaCM_Intro/overall_arch.png

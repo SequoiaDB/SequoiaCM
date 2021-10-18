@@ -18,6 +18,7 @@
 |监控服务|scmServer:8900|提供监控功能|
 |消息队列服务|scmServer:8710|提供集群内消息队列功能|
 |全文检索服务|scmServer:8610|提供文件的全文检索功能|
+|OM管理服务|scmServer:9000|提供SequoiaCM集群的可视化管理功能|
 
 >  **Note：**
 > 
@@ -176,6 +177,7 @@
     zone1,     schedule-server,   scmServer,      8910,
     zone1,     admin-server,      scmServer,      8900, 
     zone1,     mq-server,         scmServer,      8710, 
+    zone1,     om-server,         scmServer,      9000, 
     zone1,     fulltext-server,   scmServer,      8610, '{"scm.fulltext.es.urls": "http://esServer:9200", "scm.fulltext.textualParser.pic.tessdataDir": "/usr/share/tesseract-ocr/tessdata/"}'
     ```
 

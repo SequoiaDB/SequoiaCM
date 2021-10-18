@@ -58,7 +58,7 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
         this.omserverConfig = omserverConfig;
         this.scmMonitorDaoFactory = scmMonitorDaoFactory;
         refreshContentServerInstanceInfo();
-        int period = omserverConfig.getCacheRefreshIntreval() * 1000;
+        int period = omserverConfig.getCacheRefreshInterval() * 1000;
         this.timer = ScmTimerFactory.createScmTimer();
         this.timer.schedule(new ScmTimerTask() {
 

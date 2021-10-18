@@ -30,7 +30,7 @@ public class ServiceCenterServiceImpl implements ServiceCenterService {
 
     @Autowired
     public ServiceCenterServiceImpl(ScmOmServerConfig config) {
-        this.cacheTTL = config.getCacheRefreshIntreval() * 1000L;
+        this.cacheTTL = config.getCacheRefreshInterval() * 1000L;
     }
 
     @Override

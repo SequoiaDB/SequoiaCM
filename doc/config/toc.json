@@ -300,6 +300,54 @@
         }]
     },
     {
+        "id": 1632359209,
+        "dir": "Om",
+        "cn": "OM管理服务",
+        "en": "Om",
+        "contents": [{
+            "id": 1632359291,
+            "file": "overview",
+            "cn": "概述",
+            "en": "Overview"
+        },
+        {
+            "id": 1632359299,
+            "file": "operating_environment",
+            "cn": "运行环境",
+            "en": "Operating environment"
+        },
+        {
+            "id": 1632359307,
+            "file": "deploy",
+            "cn": "部署",
+            "en": "Deploy"
+        },
+        {
+            "id": 1632359313,
+            "dir": "Operation",
+            "cn": "主要操作",
+            "en": "Operation",
+            "contents": [{
+                "id": 1632359321,
+                "file": "login",
+                "cn": "用户登录",
+                "en": "Login"
+            },
+            {
+                "id": 1632359326,
+                "file": "workspace",
+                "cn": "工作区管理",
+                "en": "Workspace"
+            },
+            {
+                "id": 1632359337,
+                "file": "schedule",
+                "cn": "调度任务管理",
+                "en": "Schedule"
+            }]
+        }]
+    },
+    {
         "id": 1551230427,
         "dir": "Maintainance",
         "cn": "运维指南",
@@ -818,7 +866,61 @@
                 "file": "fulltext_deploy_script",
                 "cn": "全文检索服务部署工具",
                 "en": "Fulltext Deployment Script"
-            }]
+            },
+            {
+                "id": 1631934656,
+                "dir": "Omadmin",
+                "cn": "OM服务管理工具",
+                "en": "Omadmin",
+                "contents": [{
+                    "id": 1631934683,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1631934712,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                }]
+              },
+              {
+                  "id": 1631934728,
+                  "dir": "Omctl",
+                  "cn": "OM服务节点管理工具",
+                  "en": "Omctl",
+                  "contents": [{
+                      "id": 1631934809,
+                      "file": "Readme",
+                      "cn": "概述",
+                      "en": "Overview"
+                  },
+                  {
+                      "id": 1631934826,
+                      "file": "start",
+                      "cn": "start",
+                      "en": "start"
+                  },
+                  {
+                      "id": 1631934850,
+                      "file": "stop",
+                      "cn": "stop",
+                      "en": "stop"
+                  },
+                  {
+                      "id": 1631934875,
+                      "file": "list",
+                      "cn": "list",
+                      "en": "list"
+                  }]
+              },
+              {
+                  "id": 1631934885,
+                  "file": "om_deploy_script",
+                  "cn": "OM服务部署工具",
+                  "en": "Om Deployment Script"
+              }]
         },
         {
             "id": 1551230885,
@@ -884,6 +986,12 @@
                 "file": "message_queue",
                 "cn": "消息队列服务节点",
                 "en": "Message Queue"
+            },
+            {
+                "id": 1631935276,
+                "file": "om",
+                "cn": "OM管理服务",
+                "en": "Om Manager"
             }]
         },
         {

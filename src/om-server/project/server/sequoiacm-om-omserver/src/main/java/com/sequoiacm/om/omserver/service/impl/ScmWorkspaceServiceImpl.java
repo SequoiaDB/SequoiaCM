@@ -59,7 +59,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
 
     @Autowired
     public ScmWorkspaceServiceImpl(ScmOmServerConfig config) {
-        this.cacheTTL = config.getCacheRefreshIntreval() * 1000;
+        this.cacheTTL = config.getCacheRefreshInterval() * 1000;
     }
 
     @Override
