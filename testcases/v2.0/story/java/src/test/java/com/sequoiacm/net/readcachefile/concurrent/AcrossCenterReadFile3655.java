@@ -63,8 +63,7 @@ public class AcrossCenterReadFile3655 extends TestScmBase {
                 branchSite2Session );
     }
 
-    // SEQUOIACM-687 暂时屏蔽
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         // branchSite1创建文件
         fileId = ScmFileUtils.create( branchSite1Workspace,

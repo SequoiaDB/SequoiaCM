@@ -1,4 +1,4 @@
-package com.sequoiacm.asynctask;
+package com.sequoiacm.net.asynctask;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -14,13 +14,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
@@ -31,31 +27,30 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
- * @Descreption SCM-485:异步单文件迁移，源站点为主站点
- * @Author linsuqiang
- * @CreateDate 2017-06-23
- * @UpdateUser YiPan
- * @UpdateDate 2021/9/8
- * @UpdateRemark 优化用例
- * @Version 1.00
+ * @Descreption SCM-3742:异步单文件迁移，源站点为分站点
+ * @Author YiPan
+ * @CreateDate 2021/9/8
+ * @Version 1.0
  */
-
-public class AsyncTransfer485 extends TestScmBase {
-    private static final String fileName = "file485";
+public class AsyncTransfer3742 extends TestScmBase {
+    private static final String fileName = "file3742";
     private boolean runSuccess = false;
     private List< ScmId > fileIds = new ArrayList<>();
-    private final int fileSize = new Random().nextInt( 1024 ) + 1024;
+    private int fileSize = new Random().nextInt( 1024 ) + 1024;
     private File localPath = null;
     private String filePath = null;
     private ScmSession rootSiteSession = null;
     private ScmWorkspace rootSiteWs = null;
+    private ScmSession branchSiteSession = null;
+    private ScmWorkspace branchSiteWs = null;
     private SiteWrapper rootSite = null;
-    private SiteWrapper branchSite = null;
+    private SiteWrapper branchSite1 = null;
+    private SiteWrapper branchSite2 = null;
     private WsWrapper wsp = null;
     private BSONObject queryCond = null;
     private ScmId fileId;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -66,42 +61,55 @@ public class AsyncTransfer485 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         rootSite = ScmInfo.getRootSite();
-        branchSite = ScmInfo.getBranchSite();
+        List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
+        branchSite1 = branchSites.get( 0 );
+        branchSite2 = branchSites.get( 1 );
         wsp = ScmInfo.getWs();
         rootSiteSession = TestScmTools.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
+        branchSiteSession = TestScmTools.createSession( branchSite1 );
+        branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                branchSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
-        fileId = ScmFileUtils.create( rootSiteWs, fileName, filePath );
+        fileId = ScmFileUtils.create( branchSiteWs, fileName, filePath );
         fileIds.add( fileId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        // 主站点迁移到分站点
-        ScmFactory.File.asyncTransfer( rootSiteWs, fileId,
-                branchSite.getSiteName() );
-        SiteWrapper[] expSiteList = { rootSite, branchSite };
+        // 分站点迁移到主站点
+        ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                rootSite.getSiteName() );
+        SiteWrapper[] expSiteList = { rootSite, branchSite1 };
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
                 expSiteList.length );
         ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList );
 
-        // 主站点迁移到主站点
+        // 分站点迁移到相同分站点
         try {
-            ScmFactory.File.asyncTransfer( rootSiteWs, fileId,
-                    rootSite.getSiteName() );
+            ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                    branchSite1.getSiteName() );
             Assert.fail( "except fail but success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ) {
                 throw e;
             }
         }
+
+        // 分站点迁移到其他分站点
+        ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                branchSite2.getSiteName() );
+        SiteWrapper[] expSiteList2 = { rootSite, branchSite1, branchSite2 };
+        ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
+                expSiteList.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList2 );
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
@@ -110,6 +118,7 @@ public class AsyncTransfer485 extends TestScmBase {
             }
         } finally {
             rootSiteSession.close();
+            branchSiteSession.close();
         }
     }
 }

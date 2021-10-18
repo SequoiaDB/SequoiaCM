@@ -23,16 +23,16 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @FileName SCM-1227:创建调度任务，类型为迁移，指定源和目标站点错误
+ * @Descreption SCM-1227:创建调度任务，类型为迁移，指定源和目标站点错误
  * @Author huangxiaoni
- * @Date 2018-04-17
- * @updateUser YiPan
- * @updateDate 2021.9.2
- * @updateRemark 星状主站点不能迁移文件至分站点任务约束已取消，适配用例
+ * @CreateDate 2018-04-17
+ * @UpdateUser YiPan
+ * @UpdateDate 2021.9.8
+ * @UpdateRemark 优化用例
  * @version 1.1
  */
 
-public class CreateSche_siteError1227 extends TestScmBase {
+public class ScheduleTask1227 extends TestScmBase {
     private final static int branSiteNum = 2;
     private final static String name = "schetask1227";
     private final static String cron = "* * * * * ?";
@@ -45,7 +45,7 @@ public class CreateSche_siteError1227 extends TestScmBase {
     private boolean runSuccess = false;
     private List< ScmId > scheduleIds = new ArrayList<>();
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() throws ScmException {
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSiteNum );
@@ -57,15 +57,7 @@ public class CreateSche_siteError1227 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        // 主站点迁移到分站点
-        ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
-                rootSite.getSiteName(), branSites.get( 0 ).getSiteName(),
-                maxStayTime, queryCond );
-        ScmSchedule scmSchedule = ScmSystem.Schedule.create( session,
-                wsp.getName(), ScheduleType.COPY_FILE, name, "", content,
-                cron );
-        scheduleIds.add( scmSchedule.getId() );
-
+        ScmScheduleCopyFileContent content;
         // 源站点和目标站点都为主站点
         try {
             content = new ScmScheduleCopyFileContent( rootSite.getSiteName(),
@@ -79,6 +71,7 @@ public class CreateSche_siteError1227 extends TestScmBase {
             }
         }
 
+        // 不同分站点
         try {
             content = new ScmScheduleCopyFileContent(
                     branSites.get( 0 ).getSiteName(),
@@ -94,7 +87,7 @@ public class CreateSche_siteError1227 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

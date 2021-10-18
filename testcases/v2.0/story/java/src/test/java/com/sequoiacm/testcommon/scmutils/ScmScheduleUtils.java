@@ -267,6 +267,41 @@ public class ScmScheduleUtils extends TestScmBase {
         return branchSites;
     }
 
+    public static ScmSchedule createCopySchedule( ScmSession session,
+            SiteWrapper sourceSite, SiteWrapper targetSite, WsWrapper wsp,
+            BSONObject cond ) throws ScmException {
+        UUID uuid = UUID.randomUUID();
+        String maxStayTime = "0d";
+        String scheduleName = "testCopy" + uuid;
+        String description = "copy " + uuid;
+        ScmScheduleBuilder schBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleCopyFileContent copyContent = new ScmScheduleCopyFileContent(
+                sourceSite.getSiteName(), targetSite.getSiteName(), maxStayTime,
+                cond );
+        schBuilder.type( ScheduleType.COPY_FILE ).workspace( wsp.getName() )
+                .name( scheduleName ).description( description )
+                .content( copyContent ).cron( "* * * * * ?" ).enable( true );
+        return schBuilder.build();
+    }
+
+    public static ScmSchedule createCleanSchedule( ScmSession session,
+            SiteWrapper targetSite, WsWrapper wsp, BSONObject cond )
+            throws ScmException {
+        UUID uuid = UUID.randomUUID();
+        String maxStayTime = "0d";
+        String scheduleName = "testClean" + uuid;
+        String description = "copy " + uuid;
+        ScmScheduleBuilder schBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent(
+                targetSite.getSiteName(), maxStayTime, cond );
+        schBuilder.type( ScheduleType.CLEAN_FILE ).workspace( wsp.getName() )
+                .name( scheduleName ).description( description )
+                .content( cleanContent ).cron( "* * * * * ?" ).enable( true );
+        return schBuilder.build();
+    }
+
     /**
      * @Descrip 创建迁移任务
      * @param session

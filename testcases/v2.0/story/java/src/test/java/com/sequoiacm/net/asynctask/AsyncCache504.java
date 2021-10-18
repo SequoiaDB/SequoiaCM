@@ -2,20 +2,16 @@ package com.sequoiacm.net.asynctask;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
+import com.sequoiacm.client.core.*;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -27,17 +23,15 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
-import com.sequoiadb.exception.BaseException;
 
 /**
- * @FileName SCM-504: 异步缓存单个文件
+ * @Descreption SCM-504:异步单文件缓存，待缓存文件在主站点
  * @Author fanyu
- * @Date 2017-06-28
- * @Version 1.00
- */
-
-/*
- * 1、在分中心A异步缓存单个文件； 2、检查执行结果正确性； 3、后台异步缓存任务执行完成后检查缓存后的文件正确性；
+ * @CreateDate 2017-06-28
+ * @UpdateUser YiPan
+ * @UpdateDate 2021/9/8
+ * @UpdateRemark 优化用例
+ * @Version 1.0
  */
 public class AsyncCache504 extends TestScmBase {
     private static final String fileName = "AsyncCache504";
@@ -50,121 +44,56 @@ public class AsyncCache504 extends TestScmBase {
     private ScmWorkspace wsM = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
-
     private SiteWrapper rootSite = null;
-    private List< SiteWrapper > branceSiteList = new ArrayList< SiteWrapper >();
+    private SiteWrapper branchSiteA = null;
     private WsWrapper ws_T = null;
+    private BSONObject queryCond;
 
-    @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    @BeforeClass
+    private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            if ( ScmInfo.getSiteNum() > 2 ) {
-                branceSiteList = ScmInfo.getBranchSites( 2 );
-            } else {
-                branceSiteList = ScmInfo.getBranchSites( 1 );
-            }
-            ws_T = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branchSiteA = ScmInfo.getBranchSite();
+        ws_T = ScmInfo.getWs();
 
-            // login in
-            sessionM = TestScmTools.createSession( rootSite );
-            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
-            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-            writeFileFromMainCenter();
-        } catch ( ScmException | IOException e ) {
-            Assert.fail( e.getMessage() );
-        }
+        sessionM = TestScmTools.createSession( rootSite );
+        wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
+        sessionA = TestScmTools.createSession( branchSiteA );
+        wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( fileName ).get();
+        ScmFileUtils.cleanFile( ws_T, queryCond );
+        fileId = ScmFileUtils.create( wsM, fileName, filePath );
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false) // bug:315
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        AsyncCacheFromSubCenterB();
-        checkResult();
+        ScmFactory.File.asyncCache( wsA, fileId );
+        // check result
+        SiteWrapper[] expSiteList = { rootSite, branchSiteA };
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    @AfterClass
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                ScmFileUtils.cleanFile( ws_T, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
-            if ( sessionM != null ) {
-                sessionM.close();
-            }
-            if ( sessionA != null ) {
-                sessionA.close();
-            }
-        }
-    }
-
-    private void writeFileFromMainCenter() {
-        try {
-            ScmFile scmfile = ScmFactory.File.createInstance( wsM );
-            scmfile.setContent( filePath );
-            scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
-            fileId = scmfile.save();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
-    }
-
-    private void AsyncCacheFromSubCenterB() {
-        try {
-            // cache
-            ScmFactory.File.asyncCache( wsA, fileId );
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
-        }
-    }
-
-    private void checkResult() {
-        try {
-            SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ) };
-            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
-                    expSiteList.length );
-            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                    filePath );
-            checkFreeSite();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
-    }
-
-    private void checkFreeSite() throws Exception {
-        ScmSession session = null;
-        try {
-            if ( branceSiteList.size() == 2 ) {
-                session = TestScmTools.createSession( branceSiteList.get( 1 ) );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( ws_T.getName(), session );
-                ScmFileUtils.checkData( ws, fileId, localPath, filePath );
-                Assert.assertFalse( true,
-                        "expect result is fail but actual is success." );
-            }
-        } catch ( ScmException e ) {
-            if ( ScmError.DATA_NOT_EXIST != e.getError() ) {
-                e.printStackTrace();
-                throw e;
-            }
-        } finally {
-            if ( session != null ) {
-                session.close();
-            }
+            sessionM.close();
+            sessionA.close();
         }
     }
 }

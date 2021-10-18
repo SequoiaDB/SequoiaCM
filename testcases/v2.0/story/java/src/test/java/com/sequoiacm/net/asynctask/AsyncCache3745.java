@@ -1,4 +1,4 @@
-package com.sequoiacm.asynctask;
+package com.sequoiacm.net.asynctask;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,19 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -31,31 +25,28 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
- * @Descreption SCM-485:异步单文件迁移，源站点为主站点
- * @Author linsuqiang
- * @CreateDate 2017-06-23
- * @UpdateUser YiPan
- * @UpdateDate 2021/9/8
- * @UpdateRemark 优化用例
- * @Version 1.00
+ * @Descreption SCM-3745:异步单文件缓存，待缓存文件在分站点
+ * @Author YiPan
+ * @CreateDate 2021/9/10
+ * @Version 1.0
  */
-
-public class AsyncTransfer485 extends TestScmBase {
-    private static final String fileName = "file485";
+public class AsyncCache3745 extends TestScmBase {
+    private static final String fileName = "file3745";
     private boolean runSuccess = false;
-    private List< ScmId > fileIds = new ArrayList<>();
-    private final int fileSize = new Random().nextInt( 1024 ) + 1024;
+    private ScmId fileId = null;
+    private int fileSize = new Random().nextInt( 1024 ) + 1024;
     private File localPath = null;
     private String filePath = null;
     private ScmSession rootSiteSession = null;
     private ScmWorkspace rootSiteWs = null;
+    private ScmSession branchSiteSession = null;
+    private ScmWorkspace branchSiteWs = null;
     private SiteWrapper rootSite = null;
     private SiteWrapper branchSite = null;
     private WsWrapper wsp = null;
-    private BSONObject queryCond = null;
-    private ScmId fileId;
+    private List< ScmId > fileIds = new ArrayList<>();
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -64,52 +55,46 @@ public class AsyncTransfer485 extends TestScmBase {
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
-
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
+
         rootSiteSession = TestScmTools.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( fileName ).get();
+        branchSiteSession = TestScmTools.createSession( branchSite );
+        branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                branchSiteSession );
+
+        BSONObject queryCond = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
-        fileId = ScmFileUtils.create( rootSiteWs, fileName, filePath );
+        // 分站点A创建文件
+        fileId = ScmFileUtils.create( branchSiteWs, fileName, filePath );
         fileIds.add( fileId );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        // 主站点迁移到分站点
-        ScmFactory.File.asyncTransfer( rootSiteWs, fileId,
-                branchSite.getSiteName() );
-        SiteWrapper[] expSiteList = { rootSite, branchSite };
+        // 主站点缓存
+        SiteWrapper[] expSite = { branchSite, rootSite };
+        ScmFactory.File.asyncCache( rootSiteWs, fileId );
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
-                expSiteList.length );
-        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList );
-
-        // 主站点迁移到主站点
-        try {
-            ScmFactory.File.asyncTransfer( rootSiteWs, fileId,
-                    rootSite.getSiteName() );
-            Assert.fail( "except fail but success" );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ) {
-                throw e;
-            }
-        }
+                expSite.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFileUtils.cleanFile( wsp, queryCond );
+                ScmFactory.File.deleteInstance( rootSiteWs, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
             rootSiteSession.close();
+            branchSiteSession.close();
         }
     }
 }
