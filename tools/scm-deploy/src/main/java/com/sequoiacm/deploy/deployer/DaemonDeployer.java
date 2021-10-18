@@ -23,10 +23,10 @@ public class DaemonDeployer extends ServiceDeployerBase {
                     getServiceType().getInstllPack());
             try {
                 startNode(ssh, node, serviceInstallPath, null);
-
             }
             catch (Exception e) {
-                reThrowStartNodeException(host, serviceInstallPath, node, e);
+                throw new Exception("failed to start node, please check remote log " + host + ":("
+                        + serviceInstallPath + "/log/", e);
             }
         }
         finally {

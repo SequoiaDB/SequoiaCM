@@ -54,6 +54,8 @@ public class ScmDeployInfoMgr {
 
     private boolean isCheck;
 
+    private boolean isEnableDaemon;
+
     private SiteStrategyInfo siteStrategy;
 
     private static volatile ScmDeployInfoMgr instance;
@@ -91,6 +93,7 @@ public class ScmDeployInfoMgr {
         initAuditsourceInfo(parser);
         initSiteInfo(parser);
         initZones(parser);
+        initDaemonInfo(parser);
         initNodeInfo(parser);
         initInstallConfig(parser);
         logger.info("Parse the configuration success");
@@ -261,14 +264,15 @@ public class ScmDeployInfoMgr {
             }
         }
 
-        List<NodeInfo> list = new ArrayList<>();
-        for (Map.Entry<HostInfo, List<InstallPackType>> entry : hostToInstallPack.entrySet()) {
-            HostInfo host = entry.getKey();
-            list.add(new NodeInfo(host.getHostName(), ServiceType.DAEMON));
-            List<InstallPackType> installList = entry.getValue();
-            installList.add(InstallPackType.DAEMON);
+        if (isEnableDaemon) {
+            List<NodeInfo> list = new ArrayList<>();
+            for (Map.Entry<HostInfo, List<InstallPackType>> entry : hostToInstallPack.entrySet()) {
+                entry.getValue().add(InstallPackType.DAEMON);
+                HostInfo host = entry.getKey();
+                list.add(new NodeInfo(host.getHostName(), ServiceType.DAEMON));
+            }
+            serviceToNodes.put(ServiceType.DAEMON, list);
         }
-        serviceToNodes.put(ServiceType.DAEMON, list);
 
         for (ServiceType service : ServiceType.values()) {
             if (service.isRequire()) {
@@ -363,6 +367,19 @@ public class ScmDeployInfoMgr {
         }
         catch (Exception e) {
             throw new IllegalArgumentException("failed to check auditsource", e);
+        }
+    }
+
+    private void initDaemonInfo(ScmDeployConfParser parser) {
+        List<DaemonInfo> daemonInfos = parser.getSeaction(ConfFileDefine.SEACTION_DAEMON,
+                DaemonInfo.CONVERTER);
+        if (daemonInfos == null || daemonInfos.size() == 0) {
+            isEnableDaemon = true;
+        }
+        else {
+            CommonUtils.assertTrue(daemonInfos.size() == 1,
+                    "only need one enableDaemon option:" + daemonInfos);
+            isEnableDaemon = daemonInfos.get(0).isEnableDaemon();
         }
     }
 

@@ -60,4 +60,7 @@ public class ConfFileDefine {
     
     public static final String SEACTION_SITE_STRATEGY = "sitestrategy";
     public static final String SITE_STRATEGY= "Strategy";
+
+    public static final String SEACTION_DAEMON = "daemon";
+    public static final String DAEMON_ENABLE = "EnableDaemon";
 }
