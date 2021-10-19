@@ -76,12 +76,16 @@ public class ScmManagerWrapper {
                 else {
                     // 守护进程已开启，不做处理
                     isStartSuccess = true;
+                    logger.info("Daemon is already started");
+                    System.out.println("Daemon is already started");
                     return;
                 }
             }
             command = daemonMgr.startDaemon(period);
             cronMgr.createCron(period, command);
             isStartSuccess = true;
+            logger.info("Start daemon success");
+            System.out.println("Start daemon success");
         }
         finally {
             if (!isStartSuccess && command != null) {
@@ -115,9 +119,12 @@ public class ScmManagerWrapper {
                     }
                 }
                 cronMgr.deleteCronProp();
+                logger.info("Stop daemon success");
+                System.out.println("Stop daemon success");
             }
             else {
                 logger.info("Daemon is already stopped");
+                System.out.println("Daemon is already stopped");
             }
         }
         finally {

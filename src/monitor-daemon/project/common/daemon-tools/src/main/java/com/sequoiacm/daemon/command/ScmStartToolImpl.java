@@ -43,8 +43,6 @@ public class ScmStartToolImpl extends ScmTool {
         logger.info("Starting...");
         System.out.println("Starting...");
         executor.startDaemon(this.periodTime);
-        logger.info("Start daemon success");
-        System.out.println("Start daemon success");
     }
 
     @Override

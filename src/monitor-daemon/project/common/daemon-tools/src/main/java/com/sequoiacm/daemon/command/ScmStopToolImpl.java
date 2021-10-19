@@ -31,8 +31,6 @@ public class ScmStopToolImpl extends ScmTool {
         logger.info("Stopping...");
         System.out.println("Stopping...");
         executor.stopDaemon();
-        logger.info("Stop daemon success");
-        System.out.println("Stop daemon success");
     }
 
     @Override
