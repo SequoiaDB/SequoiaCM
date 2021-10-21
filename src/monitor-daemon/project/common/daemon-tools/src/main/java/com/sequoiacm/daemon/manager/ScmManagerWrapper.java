@@ -105,7 +105,9 @@ public class ScmManagerWrapper {
             if (scmCron != null) {
                 cronMgr.deleteCron(scmCron);
                 if (getDaemonPid(scmCron) == -1) {
+                    cronMgr.deleteCronProp();
                     logger.info("Daemon is already stopped");
+                    System.out.println("Daemon is already stopped");
                     return;
                 }
                 int pid = getDaemonPid(scmCron);
