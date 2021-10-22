@@ -83,10 +83,10 @@ public class AsyncTransfer3742 extends TestScmBase {
         // 分站点迁移到主站点
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
                 rootSite.getSiteName() );
-        SiteWrapper[] expSiteList = { rootSite, branchSite1 };
+        SiteWrapper[] exp_2SiteList = { rootSite, branchSite1 };
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
-                expSiteList.length );
-        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList );
+                exp_2SiteList.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, exp_2SiteList );
 
         // 分站点迁移到相同分站点
         try {
@@ -102,10 +102,10 @@ public class AsyncTransfer3742 extends TestScmBase {
         // 分站点迁移到其他分站点
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
                 branchSite2.getSiteName() );
-        SiteWrapper[] expSiteList2 = { rootSite, branchSite1, branchSite2 };
+        SiteWrapper[] exp_3SiteList = { rootSite, branchSite1, branchSite2 };
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
-                expSiteList.length );
-        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList2 );
+                exp_3SiteList.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, exp_3SiteList );
         runSuccess = true;
     }
 
