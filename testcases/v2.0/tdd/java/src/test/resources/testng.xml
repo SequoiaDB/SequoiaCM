@@ -5,7 +5,7 @@
 
     <parameter name="MAINSDBURL" value="sdbip:sdbport"/>
     <parameter name="SDBUSER" value="sdbadmin"/>
-    <parameter name="SDBPASSWD" value="sdbadmin"/>
+    <parameter name="SDBPASSWD" value="sequoiadb"/>
 
     <parameter name="SCMUSER" value="admin"/>
     <parameter name="SCMPASSWD" value="admin"/>
