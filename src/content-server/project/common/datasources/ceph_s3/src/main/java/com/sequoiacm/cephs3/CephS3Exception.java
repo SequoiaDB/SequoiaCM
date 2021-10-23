@@ -67,13 +67,15 @@ public class CephS3Exception extends ScmDatasourceException {
 
     private void setScmError() {
         if (status == CephS3Exception.STATUS_NOT_FOUND) {
-            if (ERR_CODE_NO_SUCH_BUCKET.equals(errorCode)
-                    || ERR_CODE_NO_SUCH_KEY.equals(errorCode)) {
+            if (ERR_CODE_NO_SUCH_BUCKET.equals(errorCode) || ERR_CODE_NO_SUCH_KEY.equals(errorCode)
+                    || ERR_CODE_NO_SUCH_UPLOAD.equals(errorCode)) {
                 scmError = ScmError.DATA_NOT_EXIST;
             }
-        } else if (ERR_CODE_OBJECT_EXIST.equals(errorCode)) {
+        }
+        else if (ERR_CODE_OBJECT_EXIST.equals(errorCode)) {
             scmError = ScmError.DATA_EXIST;
-        } else if (ERR_CODE_OPERATION_UNSUPPORTED.equals(errorCode)) {
+        }
+        else if (ERR_CODE_OPERATION_UNSUPPORTED.equals(errorCode)) {
             scmError = ScmError.OPERATION_UNSUPPORTED;
         }
     }

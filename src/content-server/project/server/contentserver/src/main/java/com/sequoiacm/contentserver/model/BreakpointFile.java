@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.model;
 
 import com.sequoiacm.common.checksum.ChecksumType;
+import org.bson.BSONObject;
 
 public class BreakpointFile {
     private String workspaceName;
@@ -18,6 +19,7 @@ public class BreakpointFile {
     private long uploadTime;
     private boolean isNeedMd5;
     private String md5;
+    private BSONObject extraContext;
 
     public BreakpointFile setMd5(String md5) {
         this.md5 = md5;
@@ -152,5 +154,27 @@ public class BreakpointFile {
     public BreakpointFile setUploadTime(long uploadTime) {
         this.uploadTime = uploadTime;
         return this;
+    }
+
+    public BSONObject getExtraContext() {
+        return extraContext;
+    }
+
+    public BreakpointFile setExtraContext(BSONObject extraContext) {
+        this.extraContext = extraContext;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "BreakpointFile: " + "workspaceName='" + workspaceName + '\'' + ", fileName='"
+                + fileName + '\'' + ", siteId=" + siteId + ", siteName='" + siteName + '\''
+                + ", checksumType=" + checksumType + ", checksum=" + checksum + ", dataId='"
+                + dataId + '\'' + ", completed=" + completed + ", uploadSize=" + uploadSize
+                + ", createUser='" + createUser + '\'' + ", createTime=" + createTime
+                + ", uploadUser='" + uploadUser + '\'' + ", uploadTime=" + uploadTime
+                + ", isNeedMd5=" + isNeedMd5 + ", md5='" + md5 + '\'' + ", extraContext="
+                // 替换掉双引号，避免这个字符串拼接到JSON中时，出现解析不了的情况
+                + extraContext.toString().replace("\"", "'");
     }
 }

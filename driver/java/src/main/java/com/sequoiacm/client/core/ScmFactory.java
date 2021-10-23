@@ -1,28 +1,12 @@
 package com.sequoiacm.client.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.common.CommonDefine;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.client.common.ScmChecksumType;
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.dispatcher.BsonReader;
-import com.sequoiacm.client.element.ScmBreakpointFileOption;
-import com.sequoiacm.client.element.ScmClassBasicInfo;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmNodeInfo;
-import com.sequoiacm.client.element.ScmSiteInfo;
-import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.fulltext.ScmFileFulltextInfo;
@@ -38,11 +22,20 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
 import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.client.util.Strings;
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * The class of ScmFactory
@@ -1077,7 +1070,8 @@ public class ScmFactory {
             checkArgNotNull("workspace", workspace);
             checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("checksumType", checksumType);
-            return new ScmBreakpointFileImpl(workspace, fileName, checksumType);
+            return new ScmBreakpointFileImpl(workspace, fileName,
+                    new ScmBreakpointFileOption(checksumType, ScmBreakpointFileOption.DEFAULT_BREAKPOINT_SIZE, false));
         }
 
         /**
@@ -1100,8 +1094,8 @@ public class ScmFactory {
             checkArgNotNull("workspace", workspace);
             checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("checksumType", checksumType);
-            return new ScmBreakpointFileImpl(workspace, fileName, checksumType, breakpointSize,
-                    false);
+            return new ScmBreakpointFileImpl(workspace, fileName,
+                    new ScmBreakpointFileOption(checksumType, breakpointSize, false));
         }
 
         /**

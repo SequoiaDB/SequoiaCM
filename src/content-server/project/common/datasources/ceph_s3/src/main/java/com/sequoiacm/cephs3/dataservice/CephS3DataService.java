@@ -95,6 +95,10 @@ public class CephS3DataService extends ScmService {
         return "ceph_s3";
     }
 
+    @Override
+    public boolean supportsBreakpointUpload() {
+        return true;
+    }
 }
 
 enum DeciderMode {

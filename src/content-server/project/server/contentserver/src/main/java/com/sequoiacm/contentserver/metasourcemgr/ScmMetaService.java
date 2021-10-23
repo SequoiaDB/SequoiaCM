@@ -1,33 +1,17 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.cache.ScmDirPath;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
-import com.sequoiacm.contentserver.model.BreakpointFile;
-import com.sequoiacm.contentserver.model.BreakpointFileBsonConverter;
-import com.sequoiacm.contentserver.model.MetadataAttr;
-import com.sequoiacm.contentserver.model.MetadataAttrBsonConverter;
-import com.sequoiacm.contentserver.model.MetadataClass;
-import com.sequoiacm.contentserver.model.MetadataClassBsonConverter;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.model.*;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
@@ -37,29 +21,20 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
-import com.sequoiacm.metasource.AllFileMetaCursor;
-import com.sequoiacm.metasource.HistoryFileMetaCursor;
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaAttrAccessor;
-import com.sequoiacm.metasource.MetaBatchAccessor;
-import com.sequoiacm.metasource.MetaBreakpointFileAccessor;
-import com.sequoiacm.metasource.MetaClassAccessor;
-import com.sequoiacm.metasource.MetaClassAttrRelAccessor;
-import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.MetaDirAccessor;
-import com.sequoiacm.metasource.MetaFileAccessor;
-import com.sequoiacm.metasource.MetaFileHistoryAccessor;
-import com.sequoiacm.metasource.MetaRelAccessor;
-import com.sequoiacm.metasource.MetaSource;
-import com.sequoiacm.metasource.MetaTaskAccessor;
-import com.sequoiacm.metasource.MetaTransLogAccessor;
-import com.sequoiacm.metasource.RelMetaCursor;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
+import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiadb.base.DBQuery;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ScmMetaService {
     private static final Logger logger = LoggerFactory.getLogger(ScmMetaService.class);
@@ -1318,6 +1293,7 @@ public class ScmMetaService {
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_UPLOAD_TIME, file.getUploadTime());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_IS_NEED_MD5, file.isNeedMd5());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_MD5, file.getMd5());
+        updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_EXTRA_CONTEXT, file.getExtraContext());
 
         BSONObject updater = new BasicBSONObject("$set", updateObj);
         try {

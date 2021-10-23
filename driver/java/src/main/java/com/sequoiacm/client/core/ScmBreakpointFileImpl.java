@@ -1,18 +1,5 @@
 package com.sequoiacm.client.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.Objects;
-import java.util.zip.Checksum;
-
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.client.common.ScmChecksumFactory;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
@@ -23,11 +10,17 @@ import com.sequoiacm.client.util.BreakpointInputStream;
 import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.Date;
+import java.util.Objects;
+import java.util.zip.Checksum;
 
 class ScmBreakpointFileImpl implements ScmBreakpointFile {
     private static final Logger logger = LoggerFactory.getLogger(ScmBreakpointFileImpl.class);
-    private static final int DEFAULT_BREAKPOINT_SIZE = 1024 * 1024 * 16; // 16MB
-    private static final int MIN_BREAKPOINT_SIZE = 1024 * 1024; // 1MB
 
     private final ScmWorkspace workspace;
     private String fileName;
@@ -58,15 +51,15 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         fromBSONObj(obj);
         this.workspace = workspace;
         this.isNew = false;
-        this.breakpointSize = Math.max(breakpointSize, MIN_BREAKPOINT_SIZE);
+        this.breakpointSize = Math.max(breakpointSize, ScmBreakpointFileOption.MIN_BREAKPOINT_SIZE);
     }
 
     ScmBreakpointFileImpl(ScmWorkspace workspace, BSONObject obj) throws ScmException {
-        this(workspace, obj, DEFAULT_BREAKPOINT_SIZE);
+        this(workspace, obj, ScmBreakpointFileOption.DEFAULT_BREAKPOINT_SIZE);
     }
 
-    ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmChecksumType checksumType,
-            int breakpointSize, boolean isNeedMd5) throws ScmException {
+    ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmBreakpointFileOption op)
+            throws ScmException {
         if (workspace == null) {
             throw new ScmInvalidArgumentException("workspace is null");
         }
@@ -75,27 +68,16 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
             throw new ScmInvalidArgumentException("fileName is null or empty");
         }
 
-        if (checksumType == null) {
+        if (op.getChecksumType() == null) {
             throw new ScmInvalidArgumentException("checksumType is null");
         }
 
         this.workspace = workspace;
         this.fileName = fileName;
-        this.checksumType = checksumType;
+        this.checksumType = op.getChecksumType();
         this.isNew = true;
-        this.isNeedMd5 = isNeedMd5;
-        this.breakpointSize = Math.max(breakpointSize, MIN_BREAKPOINT_SIZE);
-    }
-
-    ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmChecksumType checksumType)
-            throws ScmException {
-        this(workspace, fileName, checksumType, DEFAULT_BREAKPOINT_SIZE, false);
-    }
-
-    ScmBreakpointFileImpl(ScmWorkspace workspace, String fileName, ScmBreakpointFileOption option)
-            throws ScmException {
-        this(workspace, fileName, option.getChecksumType(), option.getBreakpointSize(),
-                option.isNeedMd5());
+        this.isNeedMd5 = op.isNeedMd5();
+        this.breakpointSize = op.getBreakpointSize();
     }
 
     private void fromBSONObj(BSONObject obj) throws ScmException {
@@ -218,18 +200,16 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
             throw new ScmInvalidArgumentException("fileStream is null");
         }
 
-        if (isCompleted()) {
-            throw new ScmInvalidArgumentException("The file is already completed");
-        }
-
         if (uploadSize > 0) {
             long checksum = calcChecksum(checksumType, dataStream, uploadSize);
             if (checksum != this.checksum) {
-                throw new ScmInvalidArgumentException("Checksum is different with server side");
+                throw new ScmInvalidArgumentException("Checksum is different with server side: isComplete=" + isCompleted());
             }
         }
 
-        incrementalUpload(dataStream, true);
+        if (!isCompleted()) {
+            incrementalUpload(dataStream, true);
+        }
     }
 
     @Override

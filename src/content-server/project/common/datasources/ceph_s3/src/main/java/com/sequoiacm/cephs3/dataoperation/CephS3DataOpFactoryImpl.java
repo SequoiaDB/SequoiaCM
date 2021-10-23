@@ -1,17 +1,18 @@
 package com.sequoiacm.cephs3.dataoperation;
 
-import java.util.Date;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.cephs3.dataservice.CephS3BreakpointFileContext;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.cephs3.CephS3DataLocation;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
 
 public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataOpFactoryImpl.class);
@@ -85,10 +86,11 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
 
     @Override
     public ScmBreakpointDataWriter createBreakpointWriter(ScmLocation location, ScmService service,
-            String wsName, String fileName, String dataId, Date createTime, boolean createData)
-                    throws CephS3Exception {
-        throw new CephS3Exception(CephS3Exception.ERR_CODE_OPERATION_UNSUPPORTED,
-                "do not support breakpoint upload");
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws CephS3Exception {
+        CephS3DataLocation dataLocation = (CephS3DataLocation) location;
+        return new CephS3BreakpointDataWriter(dataLocation.getBucketName(wsName, createTime),
+                dataId, new CephS3BreakpointFileContext(extraContext), service, writeOffset);
     }
 
     @Override

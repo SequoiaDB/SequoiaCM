@@ -1,5 +1,6 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
+import com.sequoiacm.datasource.ScmDatasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import com.sequoiadb.exception.SDBError;
 
 public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(SdbBreakpointDataWriter.class);
+    private long writeOffset;
 
     private String csName;
     private String clName;
@@ -28,61 +30,55 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
 
     private String createCsName;
 
-    public SdbBreakpointDataWriter(SdbDataLocation sdbLocation,
-            SdbDataService sds,
-            String csName,
-            String clName,
-            String dataId,
-            boolean createData)
-                    throws SequoiadbException {
+    public SdbBreakpointDataWriter(SdbDataLocation sdbLocation, SdbDataService sds, String csName,
+            String clName, String dataId, boolean createData, long writeOffset)
+            throws SequoiadbException {
         this.sdbLocation = sdbLocation;
         this.sds = sds;
         this.csName = csName;
         this.clName = clName;
         this.lobId = dataId;
         this.sdb = sds.getSequoiadb();
-
+        this.writeOffset = writeOffset;
         try {
             if (createData) {
                 this.lob = createLob(lobId);
-            } else {
+            }
+            else {
                 this.lob = openLob(lobId);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             try {
                 close();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 logger.warn(ex.getMessage(), ex);
             }
             if (e instanceof SequoiadbException) {
                 throw e;
-            } else {
-                throw new SequoiadbException(
-                        SDBError.SDB_SYS.getErrorCode(),
-                        "Failed to create breakpoint data writer",
-                        e);
+            }
+            else {
+                throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
+                        "Failed to create breakpoint data writer", e);
             }
         }
     }
 
     @Override
-    public void write(long dataOffset, byte[] data, int offset, int length)
-            throws SequoiadbException {
-        if (dataOffset != lob.getSize()) {
-            throw new SequoiadbException(
-                    SDBError.SDB_SYS.getErrorCode(),
+    public void write(byte[] data, int offset, int length) throws SequoiadbException {
+        if (writeOffset != lob.getSize()) {
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
                     "Only support append data");
         }
-
         try {
-            lob.seek(dataOffset, DBLob.SDB_LOB_SEEK_SET);
+            lob.seek(writeOffset, DBLob.SDB_LOB_SEEK_SET);
             lob.write(data, offset, length);
-        } catch (BaseException e) {
-            throw new SequoiadbException(
-                    e.getErrorCode(),
-                    "Failed to write breakpoint data",
-                    e);
         }
+        catch (BaseException e) {
+            throw new SequoiadbException(e.getErrorCode(), "Failed to write breakpoint data", e);
+        }
+        writeOffset += length;
     }
 
     @Override
@@ -102,24 +98,31 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
         this.lob = openLob(lobId);
     }
 
+    @Override
+    public void complete() throws ScmDatasourceException {
+        close();
+    }
+
+    @Override
+    public void abort() throws ScmDatasourceException {
+        closeLob();
+        SequoiadbHelper.removeLob(sdb, csName, clName, lobId);
+    }
+
     private void closeLob() throws SequoiadbException {
         try {
             if (null != lob) {
                 lob.close();
                 lob = null;
             }
-        } catch (BaseException e) {
-            throw new SequoiadbException(
-                    e.getErrorCode(),
-                    String.format("Failed to close lob: %s.%s/%s",
-                            csName, clName, lobId),
-                    e);
-        } catch (Exception e) {
-            throw new SequoiadbException(
-                    SDBError.SDB_SYS.getErrorCode(),
-                    String.format("Failed to close lob: %s.%s/%s",
-                            csName, clName, lobId),
-                    e);
+        }
+        catch (BaseException e) {
+            throw new SequoiadbException(e.getErrorCode(),
+                    String.format("Failed to close lob: %s.%s/%s", csName, clName, lobId), e);
+        }
+        catch (Exception e) {
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
+                    String.format("Failed to close lob: %s.%s/%s", csName, clName, lobId), e);
         }
     }
 
@@ -127,7 +130,8 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     public void close() throws SequoiadbException {
         try {
             closeLob();
-        } finally {
+        }
+        finally {
             // release connection
             if (null != sdb) {
                 sds.releaseSequoiadb(sdb);
@@ -140,25 +144,28 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     private DBLob createLobInner(String lobId) throws SequoiadbException {
         try {
             return SequoiadbHelper.createLob(sdb, csName, clName, lobId);
-        } catch (SequoiadbException e) {
+        }
+        catch (SequoiadbException e) {
             if (e.getDatabaseError() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()) {
                 boolean isCreatedCs = SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
                 SequoiadbHelper.createCL(sdb, csName, clName, generateCLOptions());
-                if(isCreatedCs) {
+                if (isCreatedCs) {
                     this.createCsName = csName;
                 }
                 return SequoiadbHelper.createLob(sdb, csName, clName, lobId);
-            } else if (e.getDatabaseError() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
+            }
+            else if (e.getDatabaseError() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
                 /*
-                 * since sdb have cached cs And cl. we should call
-                 * sdb.isCollectionSpaceExist to ensure the cs is exist or not
+                 * since sdb have cached cs And cl. we should call sdb.isCollectionSpaceExist to
+                 * ensure the cs is exist or not
                  */
                 if (!sdb.isCollectionSpaceExist(csName)) {
                     SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
                 }
                 SequoiadbHelper.createCL(sdb, csName, clName, generateCLOptions());
                 return SequoiadbHelper.createLob(sdb, csName, clName, lobId);
-            } else {
+            }
+            else {
                 throw e;
             }
         }
@@ -169,8 +176,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     private DBLob openLob(String lobId) throws SequoiadbException {
-        return SequoiadbHelper.openLobForWrite(
-                sdb, csName, clName, lobId);
+        return SequoiadbHelper.openLobForWrite(sdb, csName, clName, lobId);
     }
 
     private BSONObject generateCSOptions() throws SequoiadbException {
@@ -183,7 +189,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
         }
         catch (Exception e) {
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName +",cl=" + clName, e);
+                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
         }
     }
 
@@ -204,12 +210,17 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
         catch (Exception e) {
             logger.error("get sdb cl options failed:cs={},cl={}", csName, clName);
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName +",cl=" + clName, e);
+                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
         }
     }
 
     @Override
     public String getCreatedTableName() {
         return createCsName;
+    }
+
+    @Override
+    public BSONObject getContext() {
+        return null;
     }
 }

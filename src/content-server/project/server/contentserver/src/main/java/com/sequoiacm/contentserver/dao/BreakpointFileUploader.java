@@ -1,24 +1,9 @@
 package com.sequoiacm.contentserver.dao;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.zip.Checksum;
-
-import javax.xml.bind.DatatypeConverter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
 import com.sequoiacm.common.checksum.ChecksumException;
 import com.sequoiacm.common.checksum.ChecksumFactory;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -27,15 +12,27 @@ import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.zip.Checksum;
 
 public class BreakpointFileUploader {
     private static final Logger logger = LoggerFactory.getLogger(BreakpointFileUploader.class);
 
     private static final int ONCE_WRITE_BYTES = 1024 * 1024; // 1MB
     private static final int FLUSH_WRITE_BYTES = 1024 * 1024 * 50; // 50MB
+    private final boolean isLastContent;
     private ScmWorkspaceInfo workspaceInfo;
     private BreakpointFile file;
     private String uploadUser;
@@ -43,11 +40,12 @@ public class BreakpointFileUploader {
     private boolean dirty = false;
     private Checksum checksum;
 
-    public BreakpointFileUploader(String uploadUser, ScmWorkspaceInfo wsInfo, BreakpointFile file)
-            throws ScmServerException {
+    public BreakpointFileUploader(String uploadUser, ScmWorkspaceInfo wsInfo, BreakpointFile file,
+            boolean isLastContent) throws ScmServerException {
         this.uploadUser = uploadUser;
         this.workspaceInfo = wsInfo;
         this.file = file;
+        this.isLastContent = isLastContent;
 
         file.setUploadUser(uploadUser);
 
@@ -76,7 +74,7 @@ public class BreakpointFileUploader {
                     workspaceInfo.getDataLocation(),
                     ScmContentServer.getInstance().getDataService(), file.getWorkspaceName(),
                     file.getFileName(), file.getDataId(), new Date(file.getCreateTime()),
-                    createData);
+                    createData, file.getUploadSize(), file.getExtraContext());
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_BREAKPOINT_WRITE_ERROR),
@@ -100,7 +98,7 @@ public class BreakpointFileUploader {
         }
     }
 
-    public void write(InputStream stream, boolean isLastContent) throws ScmServerException {
+    public void write(InputStream stream) throws ScmServerException {
         if (file.isCompleted()) {
             throw new ScmServerException(ScmError.FILE_IO,
                     String.format("BreakpointFile is completed: /%s/%s", file.getWorkspaceName(),
@@ -108,7 +106,7 @@ public class BreakpointFileUploader {
         }
 
         try {
-            innerWrite(stream, isLastContent);
+            innerWrite(stream);
         }
         catch (ScmServerException e) {
             dirty = false;
@@ -119,13 +117,12 @@ public class BreakpointFileUploader {
             dirty = false;
             closeDataWriter();
             throw new ScmServerException(e.getScmError(ScmError.DATA_BREAKPOINT_WRITE_ERROR),
-                    "Failed to write breakpoint file data", e);
+                    "Failed to write breakpoint file data, cause by:" + e.getMessage(), e);
         }
     }
 
-    private void innerWrite(InputStream stream, boolean isLastContent)
-            throws ScmServerException, ScmDatasourceException {
-        long dataOffset = file.getUploadSize();
+    private void innerWrite(InputStream stream) throws ScmServerException, ScmDatasourceException {
+        long newUploadSize = file.getUploadSize();
         long writeSize = 0;
         long flushSize = 0;
         byte[] buffer = new byte[ONCE_WRITE_BYTES];
@@ -133,9 +130,9 @@ public class BreakpointFileUploader {
         int size = read(stream, buffer);
 
         while (size > 0) {
-            dataWriter.write(dataOffset, buffer, 0, size);
+            dataWriter.write(buffer, 0, size);
 
-            dataOffset += size;
+            newUploadSize += size;
             writeSize += size;
             flushSize += size;
             checksum.update(buffer, 0, size);
@@ -147,8 +144,8 @@ public class BreakpointFileUploader {
             // or no data remain
             if (flushSize >= FLUSH_WRITE_BYTES || size <= -1) {
                 if (size <= -1 && isLastContent) {
-                    dataWriter.close();
-                    dataWriter = null;
+                    dataWriter.complete();
+                    closeDataWriter();
                     file.setCompleted(true);
                     if (file.isNeedMd5()) {
                         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
@@ -159,9 +156,12 @@ public class BreakpointFileUploader {
                 }
                 else {
                     dataWriter.flush();
+                    file.setExtraContext(dataWriter.getContext());
                 }
+
+                // 不要在这里访问 datawriter，有可能前面已经被至 null 了
                 file.setUploadTime(System.currentTimeMillis());
-                file.setUploadSize(dataOffset);
+                file.setUploadSize(newUploadSize);
                 file.setChecksum(checksum.getValue());
                 dirty = true;
                 ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
@@ -172,7 +172,8 @@ public class BreakpointFileUploader {
 
         // no data write, only update file.completed
         if (writeSize == 0 && isLastContent) {
-            dataWriter.close();
+            dataWriter.complete();
+            closeDataWriter();
             file.setCompleted(true);
             file.setUploadTime(System.currentTimeMillis());
             if (file.isNeedMd5()) {
@@ -216,7 +217,7 @@ public class BreakpointFileUploader {
             }
             catch (ScmDatasourceException e) {
                 throw new ScmServerException(e.getScmError(ScmError.DATA_BREAKPOINT_WRITE_ERROR),
-                        "Failed to close breakpoint data writer", e);
+                        "Failed to close breakpoint data writer, cause by:" + e.getMessage(), e);
             }
 
             FileCommonOperator.recordDataTableName(workspaceInfo.getName(), dataWriter);

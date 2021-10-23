@@ -1,23 +1,17 @@
 package com.sequoiacm.hdfs.dataoperation;
 
-import java.util.Date;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
-import com.sequoiacm.datasource.dataoperation.ScmDataReader;
-import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.hdfs.HdfsDataLocation;
 import com.sequoiacm.hdfs.HdfsException;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
 
 public class HdfsDataOpFactoryImpl implements ScmDataOpFactory {
     private static final Logger logger = LoggerFactory.getLogger(HdfsDataOpFactoryImpl.class);
@@ -35,9 +29,8 @@ public class HdfsDataOpFactoryImpl implements ScmDataOpFactory {
             throw e;
         }
         catch (Exception e) {
-            throw new HdfsException(
-                    "build hdfs writer failed:siteId=" + siteId + ",wsName=" + wsName + ",fileId="
-                            + dataInfo.getId(), e);
+            throw new HdfsException("build hdfs writer failed:siteId=" + siteId + ",wsName="
+                    + wsName + ",fileId=" + dataInfo.getId(), e);
         }
     }
 
@@ -54,9 +47,8 @@ public class HdfsDataOpFactoryImpl implements ScmDataOpFactory {
             throw e;
         }
         catch (Exception e) {
-            throw new HdfsException(
-                    "build hdfs reader failed:siteId=" + siteId + ",wsName=" + wsName + ",fileId="
-                            + dataInfo.getId(), e);
+            throw new HdfsException("build hdfs reader failed:siteId=" + siteId + ",wsName="
+                    + wsName + ",fileId=" + dataInfo.getId(), e);
         }
     }
 
@@ -73,16 +65,15 @@ public class HdfsDataOpFactoryImpl implements ScmDataOpFactory {
             throw e;
         }
         catch (Exception e) {
-            throw new HdfsException(
-                    "build hdfs deleter failed:siteId=" + siteId + ",wsName=" + wsName + ",fileId="
-                            + dataInfo.getId(), e);
+            throw new HdfsException("build hdfs deleter failed:siteId=" + siteId + ",wsName="
+                    + wsName + ",fileId=" + dataInfo.getId(), e);
         }
     }
 
     @Override
     public ScmBreakpointDataWriter createBreakpointWriter(ScmLocation location, ScmService service,
-            String wsName, String fileName, String dataId, Date createTime, boolean createData)
-                    throws HdfsException {
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws HdfsException {
         throw new HdfsException(HdfsException.HDFS_ERROR_OPERATION_UNSUPPORTED,
                 "do not support breakpoint upload");
     }

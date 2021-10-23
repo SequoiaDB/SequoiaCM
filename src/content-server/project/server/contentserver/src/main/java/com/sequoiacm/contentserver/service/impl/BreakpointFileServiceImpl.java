@@ -1,23 +1,15 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.BreakpointFileDeleter;
+import com.sequoiacm.contentserver.dao.BreakpointFileMetaCorrector;
 import com.sequoiacm.contentserver.dao.BreakpointFileUploader;
+import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileExistException;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -25,10 +17,22 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IBreakpointFileService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
+import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class BreakpointFileServiceImpl implements IBreakpointFileService {
@@ -41,7 +45,54 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
 
-        return contentServer.getMetaService().getBreakpointFile(workspaceName, fileName);
+        ScmLock lock = xlock(workspaceName, fileName);
+        try {
+            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+                    fileName);
+            if (file == null) {
+                return null;
+            }
+            if (file.isCompleted()) {
+                return file;
+            }
+            if (file.getSiteId() != contentServer.getLocalSite()) {
+                return file;
+            }
+
+            // 元数据显示断点文件不完整，且断点文件数据在本地站点，
+            // 此时检查断点文件数据是否还在，若不在则检查断点文件数据是否已经合并，若已合并修正断点文件元数据
+            if (isBreakpointDataExist(file)) {
+                return file;
+            }
+            BreakpointFileMetaCorrector corrector = new BreakpointFileMetaCorrector(file);
+            return corrector.correct();
+        }
+        finally {
+            lock.unlock();
+        }
+    }
+
+    private boolean isBreakpointDataExist(BreakpointFile file) throws ScmServerException {
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        try {
+            ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory()
+                    .createBreakpointWriter(
+                            contentServer.getWorkspaceInfoChecked(file.getWorkspaceName())
+                                    .getDataLocation(),
+                            ScmContentServer.getInstance().getDataService(),
+                            file.getWorkspaceName(), file.getFileName(), file.getDataId(),
+                            new Date(file.getCreateTime()), false, file.getUploadSize(),
+                            file.getExtraContext());
+            writer.close();
+            return true;
+        }
+        catch (ScmDatasourceException e) {
+            if (e.getScmError(ScmError.DATA_ERROR) == ScmError.DATA_NOT_EXIST) {
+                return false;
+            }
+            throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),
+                    "failed to check breakpoint data status: breakpointFile=" + file, e);
+        }
     }
 
     @Override
@@ -78,8 +129,8 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
 
             if (fileStream != null) {
                 BreakpointFileUploader uploader = new BreakpointFileUploader(createUser,
-                        workspaceInfo, file);
-                uploader.write(fileStream, isLastContent);
+                        workspaceInfo, file, isLastContent);
+                uploader.write(fileStream);
                 return uploader.done();
             }
             else {
@@ -128,9 +179,23 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                         String.format("Invalid BreakpointFile offset: %d", offset));
             }
 
-            BreakpointFileUploader uploader = new BreakpointFileUploader(uploadUser, workspaceInfo,
-                    file);
-            uploader.write(fileStream, isLastContent);
+            BreakpointFileUploader uploader;
+            try {
+                uploader = new BreakpointFileUploader(uploadUser, workspaceInfo, file,
+                        isLastContent);
+            }
+            catch (ScmServerException e) {
+                if (e.getError() == ScmError.DATA_NOT_EXIST) {
+                    BreakpointFileMetaCorrector corrector = new BreakpointFileMetaCorrector(file);
+                    if (corrector.canCorrect()) {
+                        throw new ScmServerException(ScmError.DATA_BREAKPOINT_WRITE_ERROR,
+                                "breakpoint file may be completed, try reopen the file: fileName=" + fileName,
+                                e);
+                    }
+                }
+                throw e;
+            }
+            uploader.write(fileStream);
             BreakpointFile breakpointFile = uploader.done();
 
             long uploadSize = breakpointFile.getUploadSize();
@@ -186,7 +251,8 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
     }
 
     @Override
-    public String calcBreakpointFileMd5(String workspaceName, String fileName) throws ScmServerException {
+    public String calcBreakpointFileMd5(String workspaceName, String fileName)
+            throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
 

@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CephS3ConnWrapper {
     private static final Logger logger = LoggerFactory.getLogger(CephS3ConnWrapper.class);
@@ -200,5 +202,34 @@ public class CephS3ConnWrapper {
                         obj.getKey(), e);
             }
         }
+    }
+
+    public List<PartSummary> listPart(String bucketName, String key, String uploadId)
+            throws CephS3Exception {
+        ArrayList<PartSummary> ret = new ArrayList<>();
+        ListPartsRequest req = new ListPartsRequest(bucketName, key, uploadId);
+        PartListing c;
+        try {
+            do {
+                c = conn.getAmzClient().listParts(req);
+                ret.addAll(c.getParts());
+            }
+            while (c.isTruncated());
+        }
+        catch (AmazonServiceException e) {
+            checkFatalError(e);
+            throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
+                    "failed to get part list:siteId=" + conn.getSiteId() + ", bucket="
+                            + req.getBucketName() + ", key=" + req.getKey() + ", uploadId="
+                            + req.getUploadId(),
+                    e);
+        }
+        catch (Exception e) {
+            checkFatalError(e);
+            throw new CephS3Exception("failed to get part list:siteId=" + conn.getSiteId()
+                    + ", bucket=" + req.getBucketName() + ", key=" + req.getKey() + ", uploadId="
+                    + req.getUploadId(), e);
+        }
+        return ret;
     }
 }

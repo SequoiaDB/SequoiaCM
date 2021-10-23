@@ -1,23 +1,17 @@
 package com.sequoiacm.cephswift.dataoperation;
 
-import java.util.Date;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.cephswift.CephSwiftException;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
-import com.sequoiacm.datasource.dataoperation.ScmDataReader;
-import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.cephswift.CephSwiftDataLocation;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.List;
 
 public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
 
@@ -91,8 +85,8 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
 
     @Override
     public ScmBreakpointDataWriter createBreakpointWriter(ScmLocation location, ScmService service,
-            String wsName, String fileName, String dataId, Date createTime, boolean createData)
-                    throws CephSwiftException {
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws CephSwiftException {
         throw new CephSwiftException(CephSwiftException.ERR_OPERATION_UNSUPPORTED,
                 "do not support breakpoint upload");
     }

@@ -1,15 +1,16 @@
 package com.sequoiacm.contentserver.dao;
 
+import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
+import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
+import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.model.BreakpointFile;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
@@ -18,39 +19,77 @@ public class BreakpointFileDeleter {
 
     private ScmWorkspaceInfo workspaceInfo;
     private BreakpointFile file;
-    private ScmDataDeletor dataDeleter;
 
-    public BreakpointFileDeleter(ScmWorkspaceInfo wsInfo,
-                                 BreakpointFile file) throws ScmServerException {
+    public BreakpointFileDeleter(ScmWorkspaceInfo wsInfo, BreakpointFile file)
+            throws ScmServerException {
         this.workspaceInfo = wsInfo;
         this.file = file;
 
-        if (StringUtils.hasText(file.getDataId())) {
-            ScmDataInfo dataInfo = new ScmDataInfo(
-                    ENDataType.Normal.getValue(),
-                    file.getDataId(),
-                    new Date(file.getCreateTime()));
-            try {
-                dataDeleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                        ScmContentServer.getInstance().getLocalSite(), file.getWorkspaceName(),
-                        wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
-                        dataInfo);
-            } catch (ScmDatasourceException e) {
-                throw new ScmServerException(e.getScmError(ScmError.DATA_DELETE_ERROR),
-                        "Failed to create data deleter", e);
-            }
-        }
     }
 
     public void delete() throws ScmServerException {
         ScmContentServer.getInstance().getMetaService().deleteBreakpointFile(file);
-        if (dataDeleter != null) {
-            try {
-                dataDeleter.delete();
-            } catch (ScmDatasourceException e) {
-                throw new ScmServerException(e.getScmError(ScmError.DATA_DELETE_ERROR),
-                        "Failed to delete breakpoint data", e);
+        if (!StringUtils.hasText(file.getDataId())) {
+            return;
+        }
+
+        if (file.isCompleted()) {
+            deleteCompleteFile();
+            return;
+        }
+
+        try {
+            abortBreakpointFile();
+        }
+        catch (ScmDatasourceException e) {
+            if (e.getScmError(ScmError.DATA_ERROR) == ScmError.DATA_NOT_EXIST) {
+                deleteCompleteFile();
             }
+            throw new ScmServerException(ScmError.DATA_DELETE_ERROR,
+                    "failed to delete breakpoint data: ws=" + workspaceInfo.getName()
+                            + ", breakpointFile=" + file,
+                    e);
+        }
+        catch (ScmServerException e) {
+            throw new ScmServerException(ScmError.DATA_DELETE_ERROR,
+                    "failed to delete breakpoint data: ws=" + workspaceInfo.getName()
+                            + ", breakpointFile=" + file,
+                    e);
+        }
+    }
+
+    private void abortBreakpointFile() throws ScmServerException, ScmDatasourceException {
+        ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
+                workspaceInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                workspaceInfo.getName(), file.getFileName(), file.getDataId(),
+                new Date(file.getCreateTime()), false, file.getUploadSize(),
+                file.getExtraContext());
+        try {
+            writer.abort();
+        }
+        finally {
+            writer.close();
+        }
+
+    }
+
+    private void deleteCompleteFile() throws ScmServerException {
+        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
+                new Date(file.getCreateTime()));
+
+        ScmDataDeletor dataDeleter;
+        try {
+            dataDeleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
+                    ScmContentServer.getInstance().getLocalSite(), file.getWorkspaceName(),
+                    workspaceInfo.getDataLocation(),
+                    ScmContentServer.getInstance().getDataService(), dataInfo);
+            dataDeleter.delete();
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(ScmError.DATA_DELETE_ERROR,
+                    "failed to delete breakpoint data: ws=" + workspaceInfo.getName()
+                            + ", breakpointFile=" + file,
+                    e);
         }
     }
 }
