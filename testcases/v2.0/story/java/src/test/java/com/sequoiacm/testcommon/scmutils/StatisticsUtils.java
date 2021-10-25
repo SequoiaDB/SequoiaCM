@@ -1,39 +1,26 @@
 package com.sequoiacm.testcommon.scmutils;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
+import com.sequoiacm.client.element.privilege.ScmResource;
+import com.sequoiacm.client.element.privilege.ScmResourceFactory;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.StatisticsType;
 import com.sequoiacm.client.common.TrafficType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmStatisticsFileDelta;
-import com.sequoiacm.client.core.ScmStatisticsTraffic;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmFileStatisticInfo;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestTools;
 
 /**
  * @Description tatisticsUtils.java
@@ -309,5 +296,263 @@ public class StatisticsUtils extends TestScmBase {
             throw new Exception( "act = " + actInfo.toString() + "\n,exp = "
                     + expInfo.toString(), e );
         }
+    }
+
+    /**
+     * 检查新增指标的统计信息 (最大响应时间、最小响应时间、失败数)
+     *
+     * @param actInfo
+     * @param expInfo
+     * @throws Exception
+     */
+    public static void checkScmFileStatisticNewAddInfo(
+            ScmFileStatisticInfo actInfo, ScmFileStatisticInfo expInfo )
+            throws Exception {
+        try {
+
+            Assert.assertEquals( actInfo.getMaxResponseTime() >= 0 && actInfo
+                    .getMaxResponseTime() <= expInfo.getMaxResponseTime(),
+                    true );
+            Assert.assertEquals( actInfo.getMinResponseTime() >= 0 && actInfo
+                    .getMinResponseTime() <= expInfo.getMinResponseTime(),
+                    true );
+            Assert.assertEquals( actInfo.getSuccessCount(),
+                    expInfo.getSuccessCount() );
+            Assert.assertEquals( actInfo.getFailCount(),
+                    expInfo.getFailCount() );
+        } catch ( AssertionError e ) {
+            throw new Exception( "act = " + actInfo.toString() + "\n,exp = "
+                    + expInfo.toString(), e );
+        }
+    }
+
+    /**
+     * 配置网关信息,统计文件上传下载信息
+     *
+     * @param wsp
+     * @throws Exception
+     */
+    public static void configureGatewayAndAdminInfo( WsWrapper wsp )
+            throws Exception {
+        // 更新网关配置
+        ConfUtil.deleteGateWayStatisticalConf();
+        Map< String, String > confMap1 = new HashMap<>();
+        confMap1.put( "scm.statistics.types", "file_download,file_upload" );
+        confMap1.put(
+                "scm.statistics.types.file_download.conditions.workspaces",
+                wsp.getName() );
+        confMap1.put( "scm.statistics.types.file_upload.conditions.workspaces",
+                wsp.getName() );
+        ConfUtil.updateConf( ConfUtil.GATEWAY_SERVICE_NAME, confMap1 );
+        // 更新admin-server配置
+        Map< String, String > confMap2 = new HashMap<>();
+        confMap2.put( "scm.statistics.timeGranularity", "DAY" );
+        ConfUtil.updateConf( ConfUtil.ADMINSERVER_SERVICE_NAME, confMap2 );
+    }
+
+    /**
+     * 配置网关信息
+     * 
+     * @param wsp
+     * @param tpye
+     * @throws Exception
+     */
+    public static void configureGatewayAndAdminInfo( WsWrapper wsp,
+            ScmFileStatisticsType tpye ) throws Exception {
+        // 更新网关配置
+        ConfUtil.deleteGateWayStatisticalConf();
+        Map< String, String > confMap1 = new HashMap<>();
+        confMap1.put( "scm.statistics.types", tpye.toString().toLowerCase() );
+        if ( tpye.equals( ScmFileStatisticsType.FILE_DOWNLOAD.toString()
+                .toLowerCase() ) ) {
+            confMap1.put(
+                    "scm.statistics.types.file_download.conditions.workspaces",
+                    wsp.getName() );
+        }
+        if ( tpye.equals(
+                ScmFileStatisticsType.FILE_UPLOAD.toString().toLowerCase() ) ) {
+            confMap1.put(
+                    "scm.statistics.types.file_upload.conditions.workspaces",
+                    wsp.getName() );
+        }
+        ConfUtil.updateConf( ConfUtil.GATEWAY_SERVICE_NAME, confMap1 );
+        // 更新admin-server配置
+        Map< String, String > confMap2 = new HashMap<>();
+        confMap2.put( "scm.statistics.timeGranularity", "DAY" );
+        ConfUtil.updateConf( ConfUtil.ADMINSERVER_SERVICE_NAME, confMap2 );
+    }
+
+    /**
+     * 创建用户和角色
+     *
+     * @param rolename
+     * @param username
+     * @param wsp
+     * @param site
+     * @throws Exception
+     */
+    public static void createUserAndRole( String rolename, String username,
+            WsWrapper wsp, SiteWrapper site ) throws Exception {
+        ScmSession sessionA = null;
+        try {
+            sessionA = TestScmTools.createSession( site,
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
+            // 清理环境
+            try {
+                ScmFactory.Role.deleteRole( sessionA, rolename );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                    throw e;
+                }
+            }
+            try {
+                ScmFactory.User.deleteUser( sessionA, username );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                    throw e;
+                }
+            }
+            // 创建用户、角色和授权
+            ScmUser scmUser = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, username );
+            ScmRole role = ScmFactory.Role.createRole( sessionA, rolename, "" );
+            ScmUserModifier modifier = new ScmUserModifier();
+            modifier.addRole( role );
+            ScmFactory.User.alterUser( sessionA, scmUser, modifier );
+            ScmResource resource = ScmResourceFactory
+                    .createWorkspaceResource( wsp.getName() );
+            ScmFactory.Role.grantPrivilege( sessionA, role, resource,
+                    ScmPrivilegeType.ALL );
+            ScmAuthUtils.checkPriority( site, username, username, role,
+                    wsp.getName() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
+        }
+    }
+
+    /**
+     * 指定fileId下载文件
+     *
+     * @param fileId
+     * @param siteWorkspace
+     * @param currentTime
+     *            当前时间
+     * @return
+     * @throws Exception
+     */
+    public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace,
+            long currentTime ) throws Exception {
+        StatisticsUtils.setGateWaySystemTime( currentTime );
+        long downloadBeginTime = System.currentTimeMillis();
+        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
+        // download file
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        file.getContent( outputStream );
+        return System.currentTimeMillis() - downloadBeginTime;
+    }
+
+    /**
+     * 指定fileId下载文件失败
+     *
+     * @param fileId
+     * @param siteWorkspace
+     * @param currentTime
+     *            当前时间
+     * @throws Exception
+     */
+    public static void downloadFileFialed( ScmId fileId,
+            ScmWorkspace siteWorkspace ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
+        file.delete( true );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            file.getContent( outputStream );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode() ) {
+                throw new Exception(
+                        "the exception not FILE_NOT_FOUND,the exception: "
+                                + e.getMessage() );
+            }
+        }
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param currentTime
+     * @param filePath
+     * @param fileName
+     * @param fileIdList
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static long uploadFile( long currentTime, String filePath,
+            String fileName, List< ScmId > fileIdList,
+            ScmWorkspace siteWorkspace ) throws Exception {
+        StatisticsUtils.setGateWaySystemTime( currentTime );
+        long downloadBeginTime = System.currentTimeMillis();
+        ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
+        file.setFileName( fileName + UUID.randomUUID() );
+        file.setAuthor( fileName );
+        file.setContent( filePath );
+        fileIdList.add( file.save() );
+        return System.currentTimeMillis() - downloadBeginTime;
+    }
+
+    /**
+     * 上传文件失败
+     *
+     * @param filePath
+     * @param fileName
+     * @param fileIdList
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static void uploadFileFialed( String filePath, String fileName,
+            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
+            throws Exception {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
+            file.setFileName( fileName + UUID.randomUUID() );
+            file.setAuthor( fileName );
+            file.setContent( filePath );
+            file.setClassProperties(
+                    new ScmClassProperties( UUID.randomUUID().toString() ) );
+            file.save();
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.METADATA_CLASS_NOT_EXIST
+                    .getErrorCode() ) {
+                throw new Exception(
+                        "the exception not METADATA_CLASS_NOT_EXIST,the exception: "
+                                + e.getMessage() );
+            }
+        }
+    }
+
+    /**
+     * 生成文件
+     *
+     * @param fileSizes
+     * @param filePathList
+     * @return
+     * @throws Exception
+     */
+    public static File createFile( int[] fileSizes,
+            List< String > filePathList ) throws Exception {
+        File localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        for ( int i = 0; i < fileSizes.length; i++ ) {
+            String filePath = localPath + File.separator + "localFile_"
+                    + fileSizes[ i ] + ".txt";
+            TestTools.LocalFile.createFile( filePath, fileSizes[ i ] );
+            filePathList.add( filePath );
+        }
+        return localPath;
     }
 }
