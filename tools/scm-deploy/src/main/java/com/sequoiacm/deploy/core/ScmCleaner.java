@@ -26,7 +26,7 @@ public class ScmCleaner {
         cleanerMgr = ServiceCleanerMgr.getInstance();
     }
 
-    public void clean(boolean dryRun) {
+    public void clean(boolean dryRun) throws Exception{
         ScmDeployInfoMgr deployInfoMgr = ScmDeployInfoMgr.getInstance();
         List<CleanUnit> cleanUnits = new ArrayList<>();
         List<ServiceType> serviceTypes = ServiceType.getAllTyepSortByPriority();

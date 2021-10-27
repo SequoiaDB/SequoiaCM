@@ -34,7 +34,7 @@ public class ServiceCleanerMgr {
         }
     }
 
-    public void clean(HostInfo host, InstallPackType type, boolean dryRun) {
+    public void clean(HostInfo host, InstallPackType type, boolean dryRun) throws Exception{
         ServiceCleaner c = getCleaner(type);
         c.clean(host, dryRun);
     }
