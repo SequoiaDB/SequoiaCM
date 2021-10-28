@@ -197,7 +197,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="cron"  prop="cron">
-          <el-input id="input_schedule_cron" v-model="form.cron" maxlength="30"  placeholder="请输入Cron表达式">
+          <el-input id="input_schedule_cron" v-model="form.cron" maxlength="100"  placeholder="请输入Cron表达式">
             <template #suffix>
               <el-tooltip class="item" effect="dark" :content="'点击' + (showCronPicker ? '隐藏' : '显示') + 'cron快捷生成工具'" placement="top">
                 <i class="el-icon-question pointer-cursor no-select" @click="showCronPicker = !showCronPicker"></i>

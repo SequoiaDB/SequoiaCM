@@ -3,14 +3,18 @@
     <div>
       <div>
         每月
-        <el-select id="input_cronPicker_days" v-model="days" multiple size="mini" style="width: 200px" @change="emitChange()">
-          <el-option
-            v-for="item in dayOptions"
-            :key="item"
-            :label="item"
-            :value="item"
-          />
-        </el-select>
+         <el-date-picker 
+          size="mini" style="width: 200px"
+          popper-class="days_picker"
+          type="dates"
+          v-model="days"
+          :editable = "false"
+          default-value="1111-01-01"
+          format="dd"
+          value-format="yyyy-MM-dd"
+          placeholder="选择一个或多个日期"
+          @change="emitChange()">
+        </el-date-picker>
         日，运行一次
       </div>
     </div>
@@ -23,28 +27,26 @@ export default {
   name: 'CronMonth',
   data() {
     return {
-      days: [1],
+      days: [],
     }
   },
   computed: {
-    dayOptions() {
-      return Array.from(Array(31), (_, i) => i + 1)
-    },
     cronExp() {
-      if (this.days.length === 0) {
+      if (!this.days || this.days.length === 0) {
         return `0 0 0 * * ?`
       }
-      return `0 0 0 ${this.days.join(',')} * ?`
+      return `0 0 0 ${this.days.map(date => date.split("-")[2])} * ?`
     }
   },
   methods: {
     init(value) {
+      const prefix = "1111-01-"
       const tempArr = value.split(' ')
       if(tempArr[3] === '*'){
         this.days = []
       }else{
         const dayArr = tempArr[3].split(',')
-        this.days = dayArr.filter(v => v !== '').map(v => Number(v))
+        this.days = dayArr.filter(v => v !== '').map(v => prefix + v)
       }
     },
     emitChange() {
@@ -54,6 +56,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+
+.days_picker .el-date-picker__header,
+.days_picker .el-picker-panel__content .prev-month,
+.days_picker .el-picker-panel__content .next-month,
+.days_picker .el-picker-panel__content .el-date-table tbody tr:first-child {
+  display: none !important;
+}
 
 </style>
