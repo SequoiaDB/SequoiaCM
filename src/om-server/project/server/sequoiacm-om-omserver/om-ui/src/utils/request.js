@@ -1,6 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
-import { Message } from 'element-ui'
+import { message as Message } from '@/utils/scm-message'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 

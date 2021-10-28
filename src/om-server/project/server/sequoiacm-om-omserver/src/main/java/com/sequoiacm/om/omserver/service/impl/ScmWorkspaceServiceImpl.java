@@ -204,6 +204,11 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     }
 
     @Override
+    public void removeWorkspaceCache(String user) {
+        userAccessibleWsCache.remove(user);
+    }
+
+    @Override
     public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName)
             throws ScmInternalException, ScmOmServerException {
         OmCacheWrapper<OmWorkspaceDetail> cache = workspacesCache.get(workspaceName);

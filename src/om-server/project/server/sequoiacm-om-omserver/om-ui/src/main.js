@@ -29,6 +29,9 @@ Vue.prototype.$util = util
 
 Vue.config.productionTip = false
 
+import { message } from '@/utils/scm-message'
+Vue.prototype.$message = message
+
 new Vue({
   el: '#app',
   router,

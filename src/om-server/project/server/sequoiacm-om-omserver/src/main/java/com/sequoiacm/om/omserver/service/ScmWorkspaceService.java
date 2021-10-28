@@ -23,4 +23,6 @@ public interface ScmWorkspaceService {
 
     public long getWorkspaceCount(ScmOmSession session, BSONObject condition)
             throws ScmInternalException, ScmOmServerException;
+
+    public void removeWorkspaceCache(String user);
 }

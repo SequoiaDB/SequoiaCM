@@ -19,6 +19,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private ScmOmSessionFactory sessionFactory;
 
+    @Autowired
+    private ScmWorkspaceServiceImpl scmWorkspaceService;
+
     @Override
     public ScmOmSession login(String username, String password) throws ScmInternalException {
         ScmOmSession session = sessionFactory.createSession(username, password);
@@ -29,6 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(ScmOmSession session) throws ScmOmServerException {
         sessionMgr.deleteSession(session);
+        scmWorkspaceService.removeWorkspaceCache(session.getUser());
     }
 
 }
