@@ -303,7 +303,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer" style="border:1px soild red">
         <el-button id="btn_schedule_cancel" @click="scheduleDialogVisible = false" size="mini">取 消</el-button>
-        <el-button id="btn_schedule_save" type="primary" @click="submitForm" size="mini">保 存</el-button>
+        <el-button id="btn_schedule_save" type="primary" :loading="saveButtonLoading" @click="submitForm" size="mini">保 存</el-button>
       </span>
     </el-dialog>
 
@@ -338,6 +338,7 @@ export default {
       oldSchedule: {},
       scheduleDialogVisible: false,
       scheduleDialogLoading: false,
+      saveButtonLoading: false,
       tableLoading: false,
       filter: {},
       searchParams: {
@@ -479,6 +480,7 @@ export default {
     hanldeAddBtnClick() {
       this.initScheduleDialogData()
       this.operation = 'create'
+      this.saveButtonLoading = false
       this.clearForm()
       this.resetSiteList()
       this.showCronPicker = true
@@ -491,6 +493,7 @@ export default {
     handleEditBtnClick(row) {
       this.initScheduleDialogData()
       this.operation = 'update'
+      this.saveButtonLoading = false
       this.clearForm()
       this.selectedSchedule = {...row}
       this.showCronPicker = false
@@ -670,10 +673,13 @@ export default {
             condition: form.condition ? form.condition : "{}"
           }
           if (this.operation === 'create') {
+            this.saveButtonLoading = true
             createSchedule(formData).then(res => {
               this.scheduleDialogVisible = false
               this.$message.success("任务创建成功")
               this.queryTableData()
+            }).catch( () => {
+              this.saveButtonLoading = false
             })
           }else if (this.operation === 'update') {
             let isChange = !this.$util.equalsObj( this.oldSchedule, form)
@@ -681,10 +687,13 @@ export default {
               this.scheduleDialogVisible = false
               return
             }
+            this.saveButtonLoading = true
             updateSchedule(this.selectedSchedule.schedule_id, formData).then(res => {
               this.scheduleDialogVisible = false
               this.$message.success("任务修改成功")
               this.queryTableData()
+            }).catch( () => {
+              this.saveButtonLoading = false
             })
           }
         }
