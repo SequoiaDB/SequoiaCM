@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -139,7 +140,9 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
+            String startLogPath = new File(ScmCommon.START_LOG_PATH).getAbsolutePath();
+            throw new ScmToolsException("please check log: " + startLogPath,
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -239,8 +242,15 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         for (Entry<ScmNodeInfo, String> entry : port2Status.entrySet()) {
+            String logName = entry.getKey().getNodeType().getName().replace("-", "") + ".log";
+            String logPath = "." + File.separator + ScmToolsDefine.FILE_NAME.LOG + File.separator
+                    + entry.getKey().getNodeType().getName() + File.separator
+                    + entry.getKey().getPort() + File.separator + logName;
+            String absLogPath = new File(logPath).getAbsolutePath();
+
             logger.error("failed to start node" + entry.getKey().getNodeType().getUpperName() + "("
-                    + entry.getKey().getPort() + ")" + ",timeout,node status:" + entry.getValue());
+                    + entry.getKey().getPort() + ")" + ",timeout,node status:" + entry.getValue()
+                    + ", please check log: {}", absLogPath);
             System.out.println("Failed:" + entry.getKey().getNodeType().getUpperName() + "("
                     + entry.getKey().getPort() + ")" + " failed to start");
         }

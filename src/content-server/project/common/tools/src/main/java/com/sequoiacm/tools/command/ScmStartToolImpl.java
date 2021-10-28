@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -144,7 +143,9 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
+            String startLogPath = new File(ScmContentCommon.START_LOG_PATH).getAbsolutePath();
+            throw new ScmToolsException("please check log: " + startLogPath,
+                    ScmExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -172,10 +173,10 @@ public class ScmStartToolImpl extends ScmTool {
                 else {
                     String status = getNodeRunningStatus(key);
                     if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                        System.out.println("Success:sequoiacm(" + key
-                                + ") is already started (" + pid + ")");
-                        logger.info("Success:sequoiacm(" + key + ") is already started (" + pid
-                                + ")");
+                        System.out.println(
+                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
+                        logger.info(
+                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
                         startSuccessList.add(key);
                     }
                     else {
@@ -211,8 +212,8 @@ public class ScmStartToolImpl extends ScmTool {
                                 .equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
                             System.out.println("Success:sequoiacm(" + p
                                     + ") is successfully started (" + pid + ")");
-                            logger.info("Success:sequoiacm(" + p
-                                    + ") is successfully started (" + pid + ")");
+                            logger.info("Success:sequoiacm(" + p + ") is successfully started ("
+                                    + pid + ")");
                             startSuccessList.add(p);
                             it.remove();
                             port2Status.remove(p);
@@ -248,9 +249,16 @@ public class ScmStartToolImpl extends ScmTool {
             ScmContentCommon.sleep(200);
         }
 
+        String logName = ScmContentCommon.SCM_LOG_DIR_NAME.replace("-", "") + ".log";
+
         for (Entry<Integer, String> entry : port2Status.entrySet()) {
+            String logPath = ".." + File.separator + "log" + File.separator
+                    + ScmContentCommon.SCM_LOG_DIR_NAME + File.separator + entry.getKey()
+                    + File.separator + logName;
+            String absLogPath = new File(logPath).getAbsolutePath();
+
             logger.error("failed to start node(" + entry.getKey() + "),timeout,node status:"
-                    + entry.getValue());
+                    + entry.getValue() + ", please check log: {}", absLogPath);
             System.out.println("Failed:sequoiacm(" + entry.getKey() + ") failed to start");
         }
 
