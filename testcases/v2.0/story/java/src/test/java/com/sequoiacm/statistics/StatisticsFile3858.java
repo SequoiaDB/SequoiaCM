@@ -77,12 +77,11 @@ public class StatisticsFile3858 extends TestScmBase {
             file.setContent( filePathList.get( i ) );
             fileIdList.add( file.save() );
         }
-        ConfUtil.deleteGateWayStatisticalConf();
         // 更新网关和admin配置
         StatisticsUtils.configureGatewayAndAdminInfo( wsp );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
     }
 
@@ -99,7 +98,7 @@ public class StatisticsFile3858 extends TestScmBase {
 
         // 设置查询截止时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
         StatisticsUtils.waitStatisticalInfoCount( fileNums );
         // 取最大响应时间和最小响应时间
@@ -140,10 +139,8 @@ public class StatisticsFile3858 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
-                TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }
@@ -156,8 +153,8 @@ public class StatisticsFile3858 extends TestScmBase {
         private void UploadFile() throws Exception {
             for ( int i = fileNums / 2; i < fileNums; i++ ) {
                 int totaluploadTime = ( int ) StatisticsUtils.uploadFile(
-                        calendar.getTimeInMillis(), filePathList.get( i ), fileName,
-                        fileIdList, siteWorkspace );
+                        filePathList.get( i ), fileName, fileIdList,
+                        siteWorkspace );
                 uploadTime.add( totaluploadTime );
             }
         }
@@ -167,8 +164,8 @@ public class StatisticsFile3858 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void DownloadFile() throws Exception {
             for ( int i = 0; i < fileNums / 2; i++ ) {
-                int totalDownloadTime = ( int ) StatisticsUtils.downloadFile(
-                        fileIdList.get(i), siteWorkspace, calendar.getTimeInMillis() );
+                int totalDownloadTime = ( int ) StatisticsUtils
+                        .downloadFile( fileIdList.get( i ), siteWorkspace );
                 downloadTime.add( totalDownloadTime );
             }
         }

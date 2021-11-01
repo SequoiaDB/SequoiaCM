@@ -78,7 +78,7 @@ public class StatisticsFile3812 extends TestScmBase {
         StatisticsUtils.configureGatewayAndAdminInfo( wsp, statisticType );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造下载请求信息
         constructStatisticsInfo();
@@ -89,7 +89,7 @@ public class StatisticsFile3812 extends TestScmBase {
     public void test() throws Exception {
         // 设定统计结束时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
 
         // 取最大响应时间和最小响应时间
@@ -117,12 +117,10 @@ public class StatisticsFile3812 extends TestScmBase {
                     ScmFactory.File.deleteInstance( siteWorkspace,
                             fileIdList.get( i ), true );
                 }
-                TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }
@@ -133,9 +131,8 @@ public class StatisticsFile3812 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // 有多条下载信息
         for ( int i = 0; i < fileNums - failCount; i++ ) {
-            int totalDownloadTime = ( int ) StatisticsUtils.downloadFile(
-                    fileIdList.get( i ), siteWorkspace,
-                    calendar.getTimeInMillis() );
+            int totalDownloadTime = ( int ) StatisticsUtils
+                    .downloadFile( fileIdList.get( i ), siteWorkspace );
             downloadTime.add( totalDownloadTime );
         }
         for ( int i = fileNums - failCount; i < fileNums; i++ ) {

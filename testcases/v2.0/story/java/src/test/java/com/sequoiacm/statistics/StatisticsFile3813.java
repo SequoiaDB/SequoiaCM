@@ -54,7 +54,7 @@ public class StatisticsFile3813 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile(fileSizes, filePathList);
+        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
 
         site = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
@@ -72,13 +72,12 @@ public class StatisticsFile3813 extends TestScmBase {
             file.setContent( filePathList.get( i ) );
             fileIdList.add( file.save() );
         }
-
         // 更新网关和admin配置
         ScmFileStatisticsType statisticType = ScmFileStatisticsType.FILE_DOWNLOAD;
         StatisticsUtils.configureGatewayAndAdminInfo( wsp, statisticType );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造下载请求信息
         constructStatisticsInfo();
@@ -89,7 +88,7 @@ public class StatisticsFile3813 extends TestScmBase {
     public void test() throws Exception {
         // 设定统计结束时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
 
         // 查询下载接口统计信息
@@ -99,9 +98,10 @@ public class StatisticsFile3813 extends TestScmBase {
         // 检查结果
         ScmFileStatisticInfo expDownloadInfo = new ScmFileStatisticInfo(
                 ScmFileStatisticsType.FILE_DOWNLOAD, null, null,
-                TestScmBase.scmUserName, null, null, fileNums, 0, 0, 0,
-                0, fileNums );
-        StatisticsUtils.checkScmFileStatisticNewAddInfo(downloadInfo, expDownloadInfo);
+                TestScmBase.scmUserName, null, null, fileNums, 0, 0, 0, 0,
+                fileNums );
+        StatisticsUtils.checkScmFileStatisticNewAddInfo( downloadInfo,
+                expDownloadInfo );
         runSuccess = true;
     }
 
@@ -109,12 +109,10 @@ public class StatisticsFile3813 extends TestScmBase {
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {
-                TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }
@@ -125,8 +123,7 @@ public class StatisticsFile3813 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // 有多条下载信息
         for ( ScmId fileID : fileIdList ) {
-            StatisticsUtils.downloadFileFialed( fileID,
-                    siteWorkspace );
+            StatisticsUtils.downloadFileFialed( fileID, siteWorkspace );
         }
     }
 }

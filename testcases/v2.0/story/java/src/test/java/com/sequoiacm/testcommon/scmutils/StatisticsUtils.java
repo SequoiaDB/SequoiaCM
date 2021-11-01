@@ -442,9 +442,8 @@ public class StatisticsUtils extends TestScmBase {
      * @return
      * @throws Exception
      */
-    public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace,
-            long currentTime ) throws Exception {
-        StatisticsUtils.setGateWaySystemTime( currentTime );
+    public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace )
+            throws Exception {
         long downloadBeginTime = System.currentTimeMillis();
         ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
         // download file
@@ -458,8 +457,6 @@ public class StatisticsUtils extends TestScmBase {
      *
      * @param fileId
      * @param siteWorkspace
-     * @param currentTime
-     *            当前时间
      * @throws Exception
      */
     public static void downloadFileFialed( ScmId fileId,
@@ -481,7 +478,6 @@ public class StatisticsUtils extends TestScmBase {
     /**
      * 上传文件
      *
-     * @param currentTime
      * @param filePath
      * @param fileName
      * @param fileIdList
@@ -489,17 +485,17 @@ public class StatisticsUtils extends TestScmBase {
      * @return
      * @throws Exception
      */
-    public static long uploadFile( long currentTime, String filePath,
-            String fileName, List< ScmId > fileIdList,
-            ScmWorkspace siteWorkspace ) throws Exception {
-        StatisticsUtils.setGateWaySystemTime( currentTime );
+    public static long uploadFile( String filePath, String fileName,
+            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
+            throws Exception {
         long downloadBeginTime = System.currentTimeMillis();
         ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
         file.setFileName( fileName + UUID.randomUUID() );
         file.setAuthor( fileName );
         file.setContent( filePath );
         fileIdList.add( file.save() );
-        return System.currentTimeMillis() - downloadBeginTime;
+        long downloadEndTime = System.currentTimeMillis();
+        return downloadEndTime - downloadBeginTime;
     }
 
     /**

@@ -55,7 +55,7 @@ public class StatisticsFile3810 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile(fileSizes, filePathList);
+        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
 
         site = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
@@ -73,13 +73,12 @@ public class StatisticsFile3810 extends TestScmBase {
             file.setContent( filePathList.get( i ) );
             fileIdList.add( file.save() );
         }
-        ConfUtil.deleteGateWayStatisticalConf();
         // 更新配置
         ScmFileStatisticsType statisticType = ScmFileStatisticsType.FILE_DOWNLOAD;
         StatisticsUtils.configureGatewayAndAdminInfo( wsp, statisticType );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造下载请求信息
         constructStatisticsInfo();
@@ -90,7 +89,7 @@ public class StatisticsFile3810 extends TestScmBase {
     public void test() throws Exception {
         // 设定统计结束时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
         // 取最大响应时间和最小响应时间
         long maxTime = Collections.max( downloadTime );
@@ -121,7 +120,6 @@ public class StatisticsFile3810 extends TestScmBase {
                 ScmFileUtils.cleanFile( wsp, queryCond );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }
@@ -132,8 +130,8 @@ public class StatisticsFile3810 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // 有多条下载信息
         for ( ScmId fileId : fileIdList ) {
-            int totalDownloadTime = ( int ) StatisticsUtils.downloadFile(
-                    fileId, siteWorkspace, calendar.getTimeInMillis() );
+            int totalDownloadTime = ( int ) StatisticsUtils
+                    .downloadFile( fileId, siteWorkspace );
             downloadTime.add( totalDownloadTime );
         }
     }

@@ -65,13 +65,12 @@ public class StatisticsFile3816 extends TestScmBase {
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
-
         // 更新网关和admin配置
         ScmFileStatisticsType statisticType = ScmFileStatisticsType.FILE_UPLOAD;
         StatisticsUtils.configureGatewayAndAdminInfo( wsp, statisticType );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造上传请求信息
         constructStatisticsInfo();
@@ -82,7 +81,7 @@ public class StatisticsFile3816 extends TestScmBase {
     public void test() throws Exception {
         // 设置统计截止时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
         // 查询下载接口统计信息
         ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
@@ -90,9 +89,9 @@ public class StatisticsFile3816 extends TestScmBase {
                 .beginDate( beginDate ).endDate( endDate ).upload().get();
         // 检查结果
         ScmFileStatisticInfo expUploadInfo = new ScmFileStatisticInfo( null,
-                null, null, null, null, null, fileNums, 0, 0, 0, 0,
-                20 );
-        StatisticsUtils.checkScmFileStatisticNewAddInfo(uploadInfo, expUploadInfo);
+                null, null, null, null, null, fileNums, 0, 0, 0, 0, 20 );
+        StatisticsUtils.checkScmFileStatisticNewAddInfo( uploadInfo,
+                expUploadInfo );
         runSuccess = true;
     }
 
@@ -104,12 +103,10 @@ public class StatisticsFile3816 extends TestScmBase {
                     ScmFactory.File.deleteInstance( siteWorkspace, fileId,
                             true );
                 }
-                TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }

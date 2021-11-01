@@ -50,6 +50,7 @@ public class StatisticsFile3819 extends TestScmBase {
     private WsWrapper wsp = null;
     private BSONObject queryCond = null;
     private String fileName = "file3819";
+    private ScmSession siteSession = null;
     private ScmSession siteSession1 = null;
     private ScmSession siteSession2 = null;
     private ScmWorkspace siteWorkspace1 = null;
@@ -78,6 +79,7 @@ public class StatisticsFile3819 extends TestScmBase {
         StatisticsUtils.createUserAndRole( rolename1, username1, wsp, site );
         StatisticsUtils.createUserAndRole( rolename2, username2, wsp, site );
 
+        siteSession = TestScmTools.createSession( site );
         siteSession1 = TestScmTools.createSession( site, username1, username1 );
         siteSession2 = TestScmTools.createSession( site, username2, username2 );
 
@@ -89,13 +91,12 @@ public class StatisticsFile3819 extends TestScmBase {
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
-
         // 更新网关和admin配置
         ScmFileStatisticsType statisticType = ScmFileStatisticsType.FILE_UPLOAD;
         StatisticsUtils.configureGatewayAndAdminInfo( wsp, statisticType );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造上传请求信息
         constructStatisticsInfo();
@@ -106,7 +107,7 @@ public class StatisticsFile3819 extends TestScmBase {
     public void test() throws Exception {
         // 设置查询截止时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
 
         checkScmFileStatInfo( siteSession1, uploadTime1, username1,
@@ -125,16 +126,17 @@ public class StatisticsFile3819 extends TestScmBase {
                     ScmFactory.File.deleteInstance( siteWorkspace1,
                             fileIdList.get( i ), true );
                 }
-                ScmFactory.Role.deleteRole( siteSession1, rolename1 );
-                ScmFactory.User.deleteUser( siteSession1, username1 );
-                ScmFactory.Role.deleteRole( siteSession2, rolename2 );
-                ScmFactory.User.deleteUser( siteSession2, username2 );
+                ScmFactory.Role.deleteRole( siteSession, rolename1 );
+                ScmFactory.User.deleteUser( siteSession, username1 );
+                ScmFactory.Role.deleteRole( siteSession, rolename2 );
+                ScmFactory.User.deleteUser( siteSession, username2 );
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
-                TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
+                if ( siteSession != null ) {
+                    siteSession.close();
+                }
                 if ( siteSession1 != null ) {
                     siteSession1.close();
                 }
@@ -169,8 +171,8 @@ public class StatisticsFile3819 extends TestScmBase {
         // user1上传文件
         for ( int i = 0; i < uploadFilesSuccedNums1; i++ ) {
             int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
-                    calendar.getTimeInMillis(), filePathList.get( i ), fileName,
-                    fileIdList, siteWorkspace1 );
+                    filePathList.get( i ), fileName, fileIdList,
+                    siteWorkspace1 );
             uploadTime1.add( totalUploadTime );
         }
         int count = uploadFilesSuccedNums1 + uploadFilesFaidNums1;
@@ -181,11 +183,10 @@ public class StatisticsFile3819 extends TestScmBase {
         // user2上传文件
         for ( int i = count; i < count + uploadFilesSuccedNums2; i++ ) {
             int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
-                    calendar.getTimeInMillis(), filePathList.get( i ), fileName,
-                    fileIdList, siteWorkspace2 );
+                    filePathList.get( i ), fileName, fileIdList,
+                    siteWorkspace2 );
             uploadTime2.add( totalUploadTime );
         }
-
         for ( int i = count + uploadFilesSuccedNums2; i < fileNums; i++ ) {
             StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace2 );

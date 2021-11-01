@@ -73,7 +73,7 @@ public class StatisticsFile3817 extends TestScmBase {
         StatisticsUtils.configureGatewayAndAdminInfo( wsp );
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 删除文件
         deleteFiles();
@@ -83,7 +83,7 @@ public class StatisticsFile3817 extends TestScmBase {
     public void test() throws Exception {
         // 设置统计截止时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
 
         // 查询下载接口统计信息
@@ -102,12 +102,10 @@ public class StatisticsFile3817 extends TestScmBase {
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {
-                TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession != null ) {
                     siteSession.close();
                 }

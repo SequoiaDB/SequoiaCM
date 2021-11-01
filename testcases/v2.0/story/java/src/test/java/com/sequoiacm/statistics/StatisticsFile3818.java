@@ -83,12 +83,11 @@ public class StatisticsFile3818 extends TestScmBase {
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp1, queryCond );
         ScmFileUtils.cleanFile( wsp2, queryCond );
-        ConfUtil.deleteGateWayStatisticalConf();
         // 更新网关和admin配置
         prepareEnv();
         // 设置统计起始时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) - 100 );
+                calendar.get( Calendar.DAY_OF_YEAR ) - 1 );
         beginDate = calendar.getTime();
         // 制造上传请求信息
         constructStatisticsInfo();
@@ -99,7 +98,7 @@ public class StatisticsFile3818 extends TestScmBase {
     public void test() throws Exception {
         // 设置查询截至时间
         calendar.set( Calendar.DAY_OF_YEAR,
-                calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
+                calendar.get( Calendar.DAY_OF_YEAR ) + 2 );
         endDate = calendar.getTime();
         checkScmFileStatInfo( siteSession1, uploadTime1, uploadFilesFaidNums1,
                 wsp1 );
@@ -112,17 +111,11 @@ public class StatisticsFile3818 extends TestScmBase {
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {
-                for ( int i = 0; i < fileNums; i++ ) {
-                    ScmFactory.File.deleteInstance( siteWorkspace1,
-                            fileIdList.get( i ), true );
-                }
-                TestTools.LocalFile.removeFile( localPath );
                 ScmFileUtils.cleanFile( wsp1, queryCond );
                 ScmFileUtils.cleanFile( wsp2, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 ConfUtil.deleteGateWayStatisticalConf();
-                StatisticsUtils.restoreGateWaySystemTime();
                 if ( siteSession1 != null ) {
                     siteSession1.close();
                 }
@@ -138,7 +131,8 @@ public class StatisticsFile3818 extends TestScmBase {
         try {
             Assert.assertEquals( actInfo.getFailCount(),
                     expInfo.getFailCount() );
-            Assert.assertEquals( actInfo.getWorkspace(), expInfo.getWorkspace() );
+            Assert.assertEquals( actInfo.getWorkspace(),
+                    expInfo.getWorkspace() );
             Assert.assertEquals( actInfo.getSuccessCount(),
                     expInfo.getSuccessCount() );
             Assert.assertEquals( actInfo.getMaxResponseTime() >= 0 && actInfo
@@ -172,8 +166,8 @@ public class StatisticsFile3818 extends TestScmBase {
         // user1上传文件
         for ( int i = 0; i < uploadFilesSuccedNums1; i++ ) {
             int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
-                    calendar.getTimeInMillis(), filePathList.get( i ), fileName,
-                    fileIdList, siteWorkspace1 );
+                    filePathList.get( i ), fileName, fileIdList,
+                    siteWorkspace1 );
             uploadTime1.add( totalUploadTime );
         }
         int count = uploadFilesSuccedNums1 + uploadFilesFaidNums1;
@@ -184,8 +178,8 @@ public class StatisticsFile3818 extends TestScmBase {
         // user2上传文件
         for ( int i = count; i < count + uploadFilesSuccedNums2; i++ ) {
             int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
-                    calendar.getTimeInMillis(), filePathList.get( i ), fileName,
-                    fileIdList, siteWorkspace2 );
+                    filePathList.get( i ), fileName, fileIdList,
+                    siteWorkspace2 );
             uploadTime2.add( totalUploadTime );
         }
 
