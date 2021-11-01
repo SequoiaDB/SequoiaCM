@@ -93,14 +93,14 @@ public class ScmListToolImpl extends ScmTool {
         if (commandLine.hasOption("l")) {
             for (int i = 0; i < pidList.size(); i++) {
                 String propPath = confList.get(i) + File.separator + "application.properties";
-                System.out.println("sequoiacm(" + portList.get(i) + ") (" + pidList.get(i)
+                System.out.println("CONTENT-SERVER(" + portList.get(i) + ") (" + pidList.get(i)
                         + ") " + propPath);
             }
         }
         else {
             for (int i = 0; i < pidList.size(); i++) {
                 System.out.println(
-                        "sequoiacm(" + portList.get(i) + ") (" + pidList.get(i) + ")");
+                        "CONTENT-SERVER(" + portList.get(i) + ") (" + pidList.get(i) + ")");
             }
         }
         System.out.println("Total:" + pidList.size());

@@ -173,16 +173,14 @@ public class ScmStartToolImpl extends ScmTool {
                 else {
                     String status = getNodeRunningStatus(key);
                     if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                        System.out.println(
-                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
-                        logger.info(
-                                "Success:sequoiacm(" + key + ") is already started (" + pid + ")");
+                        System.out.println("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
+                        logger.info("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
                         startSuccessList.add(key);
                     }
                     else {
-                        System.out.println("Failed:sequoiacm(" + key + ") is already started ("
+                        System.out.println("Failed:CONTENT-SERVER(" + key + ") is already started ("
                                 + pid + "),but node status is not normal");
-                        logger.info("Failed:sequoiacm(" + key + ") is already started (" + pid
+                        logger.info("Failed:CONTENT-SERVER(" + key + ") is already started (" + pid
                                 + "),but node status is not normal:" + status);
                     }
                 }
@@ -210,10 +208,8 @@ public class ScmStartToolImpl extends ScmTool {
                         String runningStatus = getNodeRunningStatus(p);
                         if (runningStatus
                                 .equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                            System.out.println("Success:sequoiacm(" + p
-                                    + ") is successfully started (" + pid + ")");
-                            logger.info("Success:sequoiacm(" + p + ") is successfully started ("
-                                    + pid + ")");
+                            System.out.println("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
+                            logger.info("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
                             startSuccessList.add(p);
                             it.remove();
                             port2Status.remove(p);
@@ -259,7 +255,7 @@ public class ScmStartToolImpl extends ScmTool {
 
             logger.error("failed to start node(" + entry.getKey() + "),timeout,node status:"
                     + entry.getValue() + ", please check log: {}", absLogPath);
-            System.out.println("Failed:sequoiacm(" + entry.getKey() + ") failed to start");
+            System.out.println("Failed:CONTENT-SERVER(" + entry.getKey() + ") failed to start");
         }
 
         return false;

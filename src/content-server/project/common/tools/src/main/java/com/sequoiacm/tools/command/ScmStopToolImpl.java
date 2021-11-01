@@ -115,8 +115,8 @@ public class ScmStopToolImpl extends ScmTool {
                     checkList.add(key);
                 }
                 else {
-                    logger.info("Success:sequoiacm(" + key + ") is already stopped");
-                    System.out.println("Success:sequoiacm(" + key + ") is already stopped");
+                    logger.info("Success:CONTENT-SERVER(" + key + ") is already stopped");
+                    System.out.println("Success:CONTENT-SERVER(" + key + ") is already stopped");
                     success++;
                 }
             }
@@ -138,9 +138,9 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(port);
                     if (pid == -1) {
-                        logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
+                        logger.info("Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         System.out.println(
-                                "Success:sequoiacm(" + port + ") is successfully stopped");
+                                "Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -181,9 +181,9 @@ public class ScmStopToolImpl extends ScmTool {
                 try {
                     int pid = executor.getNodePid(port);
                     if (pid == -1) {
-                        logger.info("Success:sequoiacm(" + port + ") is successfully stopped");
+                        logger.info("Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         System.out.println(
-                                "Success:sequoiacm(" + port + ") is successfully stopped");
+                                "Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         it.remove();
                         success++;
                     }
@@ -201,9 +201,9 @@ public class ScmStopToolImpl extends ScmTool {
         }
 
         for (int port : checkList) {
-            logger.error("Failed:sequoiacm(" + port
+            logger.error("Failed:CONTENT-SERVER(" + port
                     + ") failed to stop, timeout, node still running");
-            System.out.println("Failed:sequoiacm(" + port + ") failed to stop");
+            System.out.println("Failed:CONTENT-SERVER(" + port + ") failed to stop");
         }
         return false;
     }

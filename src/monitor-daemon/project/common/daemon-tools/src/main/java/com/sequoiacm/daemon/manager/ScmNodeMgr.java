@@ -41,7 +41,7 @@ public class ScmNodeMgr {
         ZkNodeOperator zkOp = new ZkNodeOperator(executor);
         ScmNodeOperator scmOp = new ScmNodeOperator(executor);
         ops.put(ScmServerScriptEnum.ZOOKEEPER, zkOp);
-        ops.put(ScmServerScriptEnum.SEQUOIACM, scmOp);
+        ops.put(ScmServerScriptEnum.CONTENTSERVER, scmOp);
         ops.put(ScmServerScriptEnum.CONFIGSERVER, scmOp);
         ops.put(ScmServerScriptEnum.ADMINSERVER, scmOp);
         ops.put(ScmServerScriptEnum.AUTHSERVER, scmOp);

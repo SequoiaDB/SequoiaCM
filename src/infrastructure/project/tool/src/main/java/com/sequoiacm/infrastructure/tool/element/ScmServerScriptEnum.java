@@ -5,8 +5,8 @@ import java.util.List;
 
 public enum ScmServerScriptEnum {
     // 枚举类型根据每个节点工具的 list 命令输出定
-    // sequoiacm(15000) (31890) => SEQUOIACM
-    SEQUOIACM("sequoiacm-content", "SEQUOIACM", "scmctl.sh"),
+    // CONTENT-SERVER(15000) (31890) => CONTENTSERVER
+    CONTENTSERVER("sequoiacm-content", "CONTENT-SERVER", "scmctl.sh"),
     GATEWAY("sequoiacm-cloud", "GATEWAY", "scmcloudctl.sh"),
     AUTHSERVER("sequoiacm-cloud", "AUTH-SERVER", "scmcloudctl.sh"),
     SERVICECENTER("sequoiacm-cloud", "SERVICE-CENTER", "scmcloudctl.sh"),

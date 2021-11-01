@@ -57,7 +57,7 @@ public class ScmExecutorWrapper {
         }
         catch (ScmToolsException e) {
             throw new ScmToolsException(
-                    "Failed:sequoiacm(" + port + ") failed to start:" + e.getMessage(),
+                    "Failed:CONTENT-SERVER(" + port + ") failed to start:" + e.getMessage(),
                     e.getExitCode());
         }
     }
@@ -216,7 +216,7 @@ public class ScmExecutorWrapper {
             int port = entry.getKey();
             String propertiesPath = entry.getValue() + File.separator
                     + ScmContentCommon.APPLICATION_PROPERTIES;
-            String shell = scmdScriptPath + " add -o -s on -t SEQUOIACM -c " + propertiesPath;
+            String shell = scmdScriptPath + " add -o -s on -t CONTENT-SERVER -c " + propertiesPath;
             try {
                 logger.info(
                         "Adding node to monitor table by exec cmd (/bin/sh -c \" " + shell + "\")");
