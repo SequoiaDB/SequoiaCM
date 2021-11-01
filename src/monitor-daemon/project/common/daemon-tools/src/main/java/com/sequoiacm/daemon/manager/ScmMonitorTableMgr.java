@@ -4,6 +4,8 @@ import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
 import com.sequoiacm.daemon.common.TableUtils;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
+import com.sequoiacm.daemon.element.ScmNodeMatcher;
+import com.sequoiacm.daemon.element.ScmNodeModifier;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.lock.ScmFileLock;
 import com.sequoiacm.daemon.lock.ScmFileLockFactory;
@@ -198,8 +200,8 @@ public class ScmMonitorTableMgr {
                             propPath);
                 }
                 throw new ScmToolsException(
-                        "Failed to write daemon properties,properties:" + propPath,
-                        e.getExitCode(), e);
+                        "Failed to write daemon properties,properties:" + propPath, e.getExitCode(),
+                        e);
             }
             logger.info("Write daemon properties success,properties:{}", propPath);
             return propPath;
@@ -228,41 +230,27 @@ public class ScmMonitorTableMgr {
         }
     }
 
-    public void changeStatus(ScmNodeInfo needChangeNode) throws ScmToolsException {
+    public void changeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier) throws ScmToolsException {
         File file = new File(tablePath);
         ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
         fileLock.lock();
         try {
             List<ScmNodeInfo> nodeList = readTableWithBackUp(tablePath, backUpPath);
 
-            if (needChangeNode.getPort() > 0) {
-                int port = needChangeNode.getPort();
-                for (ScmNodeInfo node : nodeList) {
-                    if (node.getPort() == port) {
-                        logger.info("Change node:[{}] status,original:{},changed:{}",
-                                node.toString(), node.getStatus(), needChangeNode.getStatus());
-                        node.setStatus(needChangeNode.getStatus());
-                        break;
-                    }
+            boolean isNodeExist = false;
+            for (ScmNodeInfo nodeInfo : nodeList) {
+                if (matcher.isMatch(nodeInfo)) {
+                    isNodeExist = true;
+                    modifier.modifyNodeInfo(nodeInfo);
+                    logger.info("Change nodeInfo success:[{}]", nodeInfo.toString());
                 }
             }
-            else if (needChangeNode.getServerType() != null) {
-                for (ScmNodeInfo node : nodeList) {
-                    if (node.getServerType().getType()
-                            .equals(needChangeNode.getServerType().getType())) {
-                        logger.info("Change node:[{}] status,original:{},changed:{}",
-                                node.toString(), node.getStatus(), needChangeNode.getStatus());
-                        node.setStatus(needChangeNode.getStatus());
-                    }
-                }
-            }
-            // 如果不是前两者，说明用户设置 type=all
-            else {
-                for (ScmNodeInfo node : nodeList) {
-                    logger.info("Change node:[{}] status,original:{},changed:{}", node.toString(),
-                            node.getStatus(), needChangeNode.getStatus());
-                    node.setStatus(needChangeNode.getStatus());
-                }
+
+            if (!isNodeExist) {
+                throw new ScmToolsException(
+                        "Failed to change node status caused by no matching node in monitor table, condition="
+                                + matcher.toString(),
+                        ScmExitCode.INVALID_ARG);
             }
             TableUtils.nodeListToJsonFile(nodeList, file);
         }
@@ -288,7 +276,7 @@ public class ScmMonitorTableMgr {
         }
     }
 
-    public List<ScmNodeInfo> readTableNoLock() throws ScmToolsException{
+    public List<ScmNodeInfo> readTableNoLock() throws ScmToolsException {
         File tableFile = new File(tablePath);
         List<ScmNodeInfo> nodeList = null;
         try {

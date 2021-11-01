@@ -11,7 +11,9 @@ public class ArgsUtils {
 
     public static void checkPortValid(int port) throws ScmToolsException {
         if (port <= 0 || port > 65535) {
-            throw new ScmToolsException("Invalid args: -p or --port{" + port + "} is out of range",
+            throw new ScmToolsException(
+                    "Invalid args: -p or --port is out of range, port preferred in the range (0,65535], port="
+                            + port,
                     ScmExitCode.INVALID_ARG);
         }
     }
@@ -19,8 +21,10 @@ public class ArgsUtils {
     public static void checkStatusValid(String status) throws ScmToolsException {
         if (!status.equals(DaemonDefine.NODE_STATUS_ON)
                 && !status.equals(DaemonDefine.NODE_STATUS_OFF)) {
-            throw new ScmToolsException("Invalid args: please set -s or --status "
-                    + DaemonDefine.NODE_STATUS_ON + " or " + DaemonDefine.NODE_STATUS_OFF,
+            throw new ScmToolsException(
+                    "Invalid args: -s or --status is wrong option, please set -s or --status "
+                            + DaemonDefine.NODE_STATUS_ON + " or " + DaemonDefine.NODE_STATUS_OFF
+                            + " ,status=" + status,
                     ScmExitCode.INVALID_ARG);
         }
     }
@@ -32,7 +36,9 @@ public class ArgsUtils {
         }
         if (!confPath.contains(serverScriptEnum.getDirName())
                 || !confPath.contains(serverScriptEnum.getType().toLowerCase())) {
-            throw new ScmToolsException("Invalid args: type isn't compatible with conf",
+            throw new ScmToolsException(
+                    "Invalid args: type isn't compatible with conf, type="
+                            + serverScriptEnum.getType() + " ,confPath=" + confPath,
                     ScmExitCode.INVALID_ARG);
         }
     }
@@ -40,7 +46,7 @@ public class ArgsUtils {
     public static void checkPathExist(String confPath) throws ScmToolsException {
         File file = new File(confPath);
         if (!file.exists()) {
-            throw new ScmToolsException("Invalid args: conf {" + confPath + "} is not exist",
+            throw new ScmToolsException("Invalid args: conf is not exist, conf=" + confPath,
                     ScmExitCode.FILE_NOT_FIND);
         }
     }
@@ -54,14 +60,16 @@ public class ArgsUtils {
         int period = 0;
         try {
             period = ScmCommon.convertStrToInt(periodStr);
-            if (period <= 0) {
-                throw new ScmToolsException("Invalid args: period isn't a positive number",
-                        ScmExitCode.INVALID_ARG);
-            }
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Invalid args: period convert to int failed",
+            throw new ScmToolsException("Invalid args: period convert to number(int) failed",
                     e.getExitCode(), e);
+        }
+        if (period <= 0 || period >= DaemonDefine.PERIOD_MAXIMUM) {
+            throw new ScmToolsException(
+                    "Invalid args: period is out of range, period preferred in the range (0,"
+                            + DaemonDefine.PERIOD_MAXIMUM + "), period=" + period,
+                    ScmExitCode.INVALID_ARG);
         }
         return period;
     }

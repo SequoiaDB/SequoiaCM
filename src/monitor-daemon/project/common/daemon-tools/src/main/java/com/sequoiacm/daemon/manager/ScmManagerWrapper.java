@@ -1,8 +1,7 @@
 package com.sequoiacm.daemon.manager;
 
 import com.sequoiacm.daemon.common.*;
-import com.sequoiacm.daemon.element.ScmCron;
-import com.sequoiacm.daemon.element.ScmNodeInfo;
+import com.sequoiacm.daemon.element.*;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.lock.ScmFileLock;
 import com.sequoiacm.daemon.lock.ScmFileLockFactory;
@@ -160,8 +159,8 @@ public class ScmManagerWrapper {
     }
 
     // 跟表相关
-    public void changeNodeStatus(ScmNodeInfo needChangeNode) throws ScmToolsException {
-        tableMgr.changeStatus(needChangeNode);
+    public void changeNodeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier) throws ScmToolsException {
+        tableMgr.changeStatus(matcher, modifier);
     }
 
     public void addNodeInfo(ScmNodeInfo nodeInfo, boolean isOverwrite) throws ScmToolsException {

@@ -3,7 +3,7 @@ package com.sequoiacm.daemon.command;
 import com.sequoiacm.daemon.common.ArgsUtils;
 import com.sequoiacm.daemon.common.CommandUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
-import com.sequoiacm.daemon.element.ScmNodeInfo;
+import com.sequoiacm.daemon.element.*;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.manager.ScmManagerWrapper;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
@@ -51,42 +51,43 @@ public class ScmChStatusToolImpl extends ScmTool {
 
         String status = commandLine.getOptionValue(DaemonDefine.OPT_SHORT_STATUS);
         ArgsUtils.checkStatusValid(status);
+        ScmNodeModifier nodeModifier = new ScmNodeModifier(status);
 
-        ScmNodeInfo node = new ScmNodeInfo();
-        node.setStatus(status);
-
+        ScmNodeMatcher nodeMatcher = null;
         if (commandLine.hasOption(DaemonDefine.OPT_SHORT_PORT)) {
             String portStr = commandLine.getOptionValue(DaemonDefine.OPT_SHORT_PORT);
             int port = ScmCommon.convertStrToInt(portStr);
             ArgsUtils.checkPortValid(port);
-
-            node.setPort(port);
+            nodeMatcher = new ScmNodeMatcher(port);
         }
-        else if (commandLine.hasOption(DaemonDefine.OPT_SHORT_TYPE)) {
+        else {
             String type = commandLine.getOptionValue(DaemonDefine.OPT_SHORT_TYPE);
-            if (!type.equals("all")) {
+            if (type.equalsIgnoreCase("all")) {
+                nodeMatcher = new ScmNodeMatcher();
+            }
+            else {
                 ScmServerScriptEnum serverScript = ScmServerScriptEnum.getEnumByType(type);
                 if (serverScript == null) {
                     throw new ScmToolsException("Type isn't exist,type: " + type,
                             ScmExitCode.INVALID_ARG);
                 }
-                node.setServerType(serverScript);
+                nodeMatcher = new ScmNodeMatcher(serverScript.getType());
             }
         }
 
         try {
-            executor.changeNodeStatus(node);
+            executor.changeNodeStatus(nodeMatcher, nodeModifier);
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Failed to change node status,node:" + node.toString(),
+            throw new ScmToolsException("Failed to change node status,nodeMatcher:" + nodeMatcher.toString(),
                     e.getExitCode(), e);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to change node status,node:" + node.toString(),
+            throw new ScmToolsException("Failed to change node status,nodeMatcher:" + nodeMatcher.toString(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }
-        logger.info("Change node status success,node:{}", node.toString());
-        System.out.println("Change node status success,node:" + node.toString());
+        logger.info("Change node status success,nodeMatcher:{}", nodeMatcher.toString());
+        System.out.println("Change node status success,nodeMatcher:" + nodeMatcher.toString());
     }
 
     @Override

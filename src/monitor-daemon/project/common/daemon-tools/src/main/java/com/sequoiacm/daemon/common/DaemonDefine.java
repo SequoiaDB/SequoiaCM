@@ -40,7 +40,9 @@ public class DaemonDefine {
     public static final String OPT_SHORT_PERIOD = "p";
     public static final String OPT_LONG_PERIOD = "period";
 
-    public static final int PERIOD = 5;
+    public static final int PERIOD_DEFAULT = 5;
+    // PERIOD_MAXIMUM = 24 * 60 * 60 * 2
+    public static final int PERIOD_MAXIMUM = 172800;
     public static final String NODE_STATUS_ON = "on";
     public static final String NODE_STATUS_OFF = "off";
 
@@ -48,4 +50,8 @@ public class DaemonDefine {
     public static final String PORT = "port";
     public static final String STATUS = "status";
     public static final String CONF_PATH = "conf_path";
+
+    public static final int MATCH_PORT_FLAG = 0x00000001;
+    public static final int MATCH_TYPE_FLAG = 0x00000010;
+    public static final int MATCH_ALL_FLAG = 0x11111111;
 }

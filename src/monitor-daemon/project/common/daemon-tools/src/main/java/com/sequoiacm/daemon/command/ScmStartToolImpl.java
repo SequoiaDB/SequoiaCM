@@ -38,7 +38,7 @@ public class ScmStartToolImpl extends ScmTool {
             this.periodTime = ArgsUtils.convertAndCheckPeriod(periodStr);
         }
         else {
-            this.periodTime = DaemonDefine.PERIOD;
+            this.periodTime = DaemonDefine.PERIOD_DEFAULT;
         }
         logger.info("Starting...");
         System.out.println("Starting...");

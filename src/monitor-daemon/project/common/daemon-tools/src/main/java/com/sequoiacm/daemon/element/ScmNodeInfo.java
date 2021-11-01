@@ -1,8 +1,15 @@
 package com.sequoiacm.daemon.element;
 
+import com.sequoiacm.daemon.common.DaemonDefine;
+import com.sequoiacm.daemon.exception.ScmExitCode;
+import com.sequoiacm.daemon.manager.ScmDaemonMgr;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiadb.datasource.DatasourceOptions;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScmNodeInfo implements Serializable {
     private ScmServerScriptEnum serverType;
@@ -44,20 +51,11 @@ public class ScmNodeInfo implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ScmNodeInfo:");
-        if (serverType != null) {
-            sb.append("type=").append(serverType.getType()).append(",");
-        }
-        if (port != 0) {
-            sb.append("port=").append(port).append(",");
-        }
-        if (status != null) {
-            sb.append("status=").append(status).append(",");
-        }
-        if (confPath != null) {
-            sb.append("confPath=").append(confPath).append(",");
-        }
-        return sb.substring(0, sb.length() - 1);
+        return "ScmNodeInfo{" +
+                DaemonDefine.SERVER_TYPE + "=" + serverType + "," +
+                DaemonDefine.PORT + "=" + port + "," +
+                DaemonDefine.STATUS + "=" + status + "," +
+                DaemonDefine.CONF_PATH + "=" + confPath +
+                "}";
     }
 }
