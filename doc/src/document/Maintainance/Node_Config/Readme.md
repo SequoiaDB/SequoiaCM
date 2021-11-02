@@ -41,6 +41,8 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |ribbon.ReadTimeout|num|使用Ribbon时的读超时，默认值：5000，单位：ms|
 |hystrix.command.default.execution.timeout.enabled|boolean|设置HystrixCommand.run()的执行是否有超时限制，默认值：true
 |hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds|num|调用者等待命令执行的超时时间，超过此时间，HystrixCommand被标记为TIMEOUT，并执行fallback逻辑，默认值：1000，单位：ms|
+|scm.feign.connectTimeout|num|使用Feign调用远程服务的连接建立超时时间，默认值：10000，单位：ms|
+|scm.feign.readTimeout|num|使用Feign调用远程服务的读超时，默认值：60000，单位：ms|
 
 ##公共配置举例##
 

@@ -24,8 +24,7 @@ public class ScmConfClientFactory {
             return urlMapClient.get(nodeUrl);
         }
 
-        ScmConfClient client = scmFeignClient.builder().options(new Options(10 * 1000, 600 * 1000))
-                .exceptionConverter(exceptionConvertor)
+        ScmConfClient client = scmFeignClient.builder().exceptionConverter(exceptionConvertor)
                 .instanceTarget(ScmConfClient.class, nodeUrl);
         urlMapClient.put(nodeUrl, client);
         return client;
@@ -36,8 +35,7 @@ public class ScmConfClientFactory {
             return urlMapClient.get(serviceName);
         }
 
-        ScmConfClient client = scmFeignClient.builder().options(new Options(10 * 1000, 600 * 1000))
-                .exceptionConverter(exceptionConvertor)
+        ScmConfClient client = scmFeignClient.builder().exceptionConverter(exceptionConvertor)
                 .serviceTarget(ScmConfClient.class, serviceName.toLowerCase());
         serviceMapClient.put(serviceName, client);
         return client;

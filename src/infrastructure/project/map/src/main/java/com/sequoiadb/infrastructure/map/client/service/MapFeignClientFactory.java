@@ -34,7 +34,7 @@ public class MapFeignClientFactory {
         }
         else {
             MapFeignClient client = scmFeignClient.builder().exceptionConverter(exceptionConverter)
-                    .options(new Options(30 * 1000, 600 * 1000)).loggerLevel(Level.BASIC)
+                    .loggerLevel(Level.BASIC)
                     .objectMapper(mapper)
                     .serviceTarget(MapFeignClient.class, nodeName.toLowerCase());
             siteMapFeignClient.put(nodeName, client);
@@ -48,7 +48,7 @@ public class MapFeignClientFactory {
         }
         else {
             MapFeignClient client = scmFeignClient.builder().exceptionConverter(exceptionConverter)
-                    .loggerLevel(Level.BASIC).options(new Options(30 * 1000, 600 * 1000))
+                    .loggerLevel(Level.BASIC)
                     .objectMapper(mapper).instanceTarget(MapFeignClient.class, nodeURl);
             nodeMapFeignClient.put(nodeURl, client);
             return client;

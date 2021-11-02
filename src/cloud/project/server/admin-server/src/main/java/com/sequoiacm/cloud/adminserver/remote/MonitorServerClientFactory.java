@@ -31,7 +31,6 @@ public class MonitorServerClientFactory {
         else {
             MonitorServerClient client = feignClient.builder()
                     .typeDecoder(HealthInfo.class, healthInfoDecoder)
-                    .options(new Options(30 * 1000, 600 * 1000))
                     .instanceTarget(MonitorServerClient.class, nodeURl);
             nodeMapFeignClient.put(nodeURl, client);
             return client;

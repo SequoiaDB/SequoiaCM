@@ -42,7 +42,7 @@ public class ContentServerClientFactory {
             ContentServerClient client = scmFeignClient.builder()
                     .typeDecoder(DataInfo.class, dataInfoDecoder)
                     .exceptionConverter(exceptionConverter)
-                    .options(new Options(30 * 1000, 600 * 1000)).loggerLevel(Level.BASIC)
+                    .loggerLevel(Level.BASIC)
                     .objectMapper(mapper)
                     .serviceTarget(ContentServerClient.class, name.toLowerCase());
             siteMapFeignClient.put(name, client);
@@ -58,7 +58,7 @@ public class ContentServerClientFactory {
             ContentServerClient client = scmFeignClient.builder()
                     .typeDecoder(DataInfo.class, dataInfoDecoder)
                     .exceptionConverter(exceptionConverter).loggerLevel(Level.BASIC)
-                    .options(new Options(30 * 1000, 600 * 1000)).objectMapper(mapper)
+                    .objectMapper(mapper)
                     .instanceTarget(ContentServerClient.class, nodeURl);
             nodeMapFeignClient.put(nodeURl, client);
             return client;

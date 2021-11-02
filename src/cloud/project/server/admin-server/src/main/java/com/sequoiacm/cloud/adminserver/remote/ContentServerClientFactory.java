@@ -32,7 +32,6 @@ public class ContentServerClientFactory {
             ContentServerClient client = feignClient.builder()
                     .typeDecoder(FileDeltaInfo.class, fileDeltaDecoder)
                     .exceptionConverter(exceptionConverter)
-                    .options(new Options(30 * 1000, 600 * 1000))
                     .serviceTarget(ContentServerClient.class, name.toLowerCase());
             siteMapFeignClient.put(name, client);
             return client;
@@ -46,7 +45,6 @@ public class ContentServerClientFactory {
             ContentServerClient client = feignClient.builder()
                     .typeDecoder(FileDeltaInfo.class, fileDeltaDecoder)
                     .exceptionConverter(exceptionConverter)
-                    .options(new Options(30 * 1000, 600 * 1000))
                     .instanceTarget(ContentServerClient.class, nodeURl);
             nodeMapFeignClient.put(nodeURl, client);
             return client;

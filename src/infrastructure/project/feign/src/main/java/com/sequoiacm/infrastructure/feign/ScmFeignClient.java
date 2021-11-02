@@ -72,6 +72,9 @@ public class ScmFeignClient {
         @Autowired
         private Client springClient;
 
+        @Autowired
+        private ScmFeignConfig scmFeignConfig;
+
         private Builder() {
         }
 
@@ -133,6 +136,10 @@ public class ScmFeignClient {
 
             if (options != null) {
                 feignBuilder.options(options);
+            }
+            else {
+                feignBuilder.options(new Options(scmFeignConfig.getConnectTimeout(),
+                        scmFeignConfig.getReadTimeout()));
             }
 
             if (exceptionCoverter != null) {

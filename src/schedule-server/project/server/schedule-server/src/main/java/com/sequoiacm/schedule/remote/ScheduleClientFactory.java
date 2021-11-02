@@ -28,7 +28,6 @@ public class ScheduleClientFactory {
         }
         else {
             ScheduleClient client = scmFeignClient.builder()
-                    .options(new Options(10 * 1000, 600 * 1000))
                     .exceptionConverter(exceptionConverter)
                     .typeDecoder(ScheduleFullEntity.class, decoder)
                     .instanceTarget(ScheduleClient.class, targetUrl);
@@ -42,7 +41,7 @@ public class ScheduleClientFactory {
         if (workerClient != null) {
             return workerClient;
         }
-        workerClient = scmFeignClient.builder().options(new Options(10 * 1000, 600 * 1000))
+        workerClient = scmFeignClient.builder()
                 .exceptionConverter(exceptionConverter)
                 .instanceTarget(WorkerClient.class, targetUrl);
         nodeMapWorkerClient.put(targetUrl, workerClient);
