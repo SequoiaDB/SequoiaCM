@@ -4,7 +4,10 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.BSONObject;
@@ -15,6 +18,11 @@ import org.slf4j.LoggerFactory;
 
 public class CommonUtils {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtils.class);
+    public static final List<String> crontabCommands = new ArrayList<>();
+    static {
+        crontabCommands.add("service cron status");
+        crontabCommands.add("service crond status");
+    }
 
     public static void checkNoNull(Object obj, String msg) {
         if (obj == null) {

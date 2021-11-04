@@ -12,15 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class ScmCronMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmCronMgr.class);
 
     private ScmExecutor executor;
     private String cronPropPath;
+    private List<String> crontabCommands = new ArrayList<>();
     private static volatile ScmCronMgr instance;
 
     public static ScmCronMgr getInstance() throws ScmToolsException {
@@ -41,6 +40,8 @@ public class ScmCronMgr {
         String daemonHomePath = System.getProperty(DaemonDefine.USER_DIR);
         this.cronPropPath = daemonHomePath + File.separator + DaemonDefine.CONF + File.separator
                 + DaemonDefine.CRON_PROPERTIES;
+        this.crontabCommands.add("service cron status");
+        this.crontabCommands.add("service crond status");
     }
 
     public void createCron(int period, String startDaemonCommand) throws ScmToolsException {
@@ -147,8 +148,8 @@ public class ScmCronMgr {
             ScmCron cron = new ScmCron(prop.getProperty(DaemonDefine.CRON_USER),
                     prop.getProperty(DaemonDefine.CRON_LINUX),
                     Integer.parseInt(prop.getProperty(DaemonDefine.CRON_PERIOD)));
-            logger.info("Read cron properties success,user:{},linuxCron:{},period:{}", cron.getUser(),
-                    cron.getLinuxCron(),cron.getPeriod());
+            logger.info("Read cron properties success,user:{},linuxCron:{},period:{}",
+                    cron.getUser(), cron.getLinuxCron(), cron.getPeriod());
             return cron;
         }
         catch (ScmToolsException e) {
@@ -167,6 +168,29 @@ public class ScmCronMgr {
             logger.error(
                     "Failed to delete cron properties,file:{},please delete the file before try the command again",
                     cronPropPath);
+        }
+    }
+
+    public void checkCrontabService() {
+        boolean isCrontabRunning = false;
+        for (String command : crontabCommands) {
+            try {
+                executor.execCmd(command);
+                isCrontabRunning = true;
+                break;
+            }
+            catch (ScmToolsException e) {
+                // 如果执行的命令报错，就直接跳过，报错的原因：1.该命令不属于检测该系统crontab服务状态的命令；2.该系统没有开启crontab服务。
+                logger.debug("Failed to exec command to check crontab status, command:{}", command, e);
+            }
+        }
+        if (!isCrontabRunning) {
+            logger.warn(
+                    "Failed to check linux crontab service status, please ensure linux crontab service is running "
+                            + "or daemon process won't start automatically when it is suspended");
+            System.out.println(
+                    "Failed to check linux crontab service status, please ensure linux crontab service is running "
+                            + "or daemon process won't start automatically when it is suspended");
         }
     }
 }

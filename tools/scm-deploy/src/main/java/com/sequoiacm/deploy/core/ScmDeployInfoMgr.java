@@ -3,6 +3,7 @@ package com.sequoiacm.deploy.core;
 import java.io.IOException;
 import java.util.*;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,7 @@ public class ScmDeployInfoMgr {
         logger.info("Checking the configuration: Host (4/4)");
         checkHostIsReachable();
         checkJavaHome();
+        checkCrontabIsUsable();
 
         logger.info("Check the configuration success");
         isCheck = true;
@@ -169,6 +171,43 @@ public class ScmDeployInfoMgr {
             CommonUtils.closeResource(ssh);
         }
 
+    }
+
+    private void checkCrontabIsUsable() {
+        if (!isEnableDaemon) {
+            return;
+        }
+        for (HostInfo host : hosts) {
+            Ssh ssh = null;
+            try {
+                ssh = sshMgr.getSsh(host);
+                boolean isCrontabRunning = false;
+                for (String command : CommonUtils.crontabCommands) {
+                    try {
+                        ssh.exec(command);
+                        isCrontabRunning = true;
+                        break;
+                    }
+                    catch (Exception e) {
+                        // 如果执行的命令报错，就直接跳过，报错的原因：1.该命令不属于检测该系统crontab服务状态的命令；2.该系统没有开启crontab服务。
+                        logger.debug("failed to exec command to check crontab status, command={}", command, e);
+                    }
+                }
+                if (!isCrontabRunning) {
+                    logger.warn(
+                            "failed to check linux crontab status, please ensure the service start "
+                                    + "or daemon process won't start automatically when it is suspended, host={}",
+                            host.getHostName());
+                }
+            }
+            catch (Exception e) {
+                throw new IllegalArgumentException("failed to check linux crontab status, host="
+                        + host.getHostName() + ", causeby=" + e.getMessage(), e);
+            }
+            finally {
+                CommonUtils.closeResource(ssh);
+            }
+        }
     }
 
     private void checkHostIsReachable() {

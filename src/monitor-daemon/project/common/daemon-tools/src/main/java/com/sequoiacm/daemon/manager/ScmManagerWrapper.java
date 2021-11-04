@@ -51,6 +51,7 @@ public class ScmManagerWrapper {
     }
 
     public void startDaemon(int period) throws ScmToolsException {
+        checkEnvironment();
         File file = new File(tableMgr.getTablePath());
         ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(file);
         lock.lock();
@@ -170,7 +171,12 @@ public class ScmManagerWrapper {
     }
 
     public List<ScmNodeInfo> listNodeInfo() throws ScmToolsException {
+        tableMgr = ScmMonitorTableMgr.getInstance();
         return tableMgr.listTable();
+    }
+
+    public void checkEnvironment() throws ScmToolsException{
+        cronMgr.checkCrontabService();
     }
 
     public void startTimer(int period, String daemonHomePath) throws ScmToolsException {
