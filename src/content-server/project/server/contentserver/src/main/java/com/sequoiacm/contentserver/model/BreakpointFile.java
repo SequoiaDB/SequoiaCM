@@ -175,6 +175,6 @@ public class BreakpointFile {
                 + ", uploadUser='" + uploadUser + '\'' + ", uploadTime=" + uploadTime
                 + ", isNeedMd5=" + isNeedMd5 + ", md5='" + md5 + '\'' + ", extraContext="
                 // 替换掉双引号，避免这个字符串拼接到JSON中时，出现解析不了的情况
-                + extraContext.toString().replace("\"", "'");
+                + (extraContext != null ? extraContext.toString().replace("\"", "'") : null);
     }
 }
