@@ -45,7 +45,7 @@ public class ScmDaemonMgr {
             String daemonHomePath = ScmHelper.getPwd();
             String jarPath = CommonUtils.getJarPath(ScmDaemonMgr.class);
             String mainMethod = DaemonDefine.MAIN_METHOD;
-            String cmd = "export JAVA_HOME=" + javaHome + ";cd " + daemonHomePath
+            String cmd = "export JAVA_HOME=" + javaHome + ";export PATH=$JAVA_HOME/bin:$PATH;cd " + daemonHomePath
                     + ";nohup java -cp " + jarPath + " " + mainMethod + " cron " + "--period "
                     + period + " &";
             executor.execCmd(cmd);

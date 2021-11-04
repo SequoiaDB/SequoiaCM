@@ -50,8 +50,9 @@ public class ScmCronMgr {
         ScmCmdResult result = null;
         try {
             String linuxCron = cron + " " + startDaemonCommand;
-            String cmd = "(crontab -l | grep -v -F \"" + linuxCron + "\";echo \"" + linuxCron
-                    + "\") | crontab -";
+            String matchedCondition = CommonUtils.transferLinuxCronMeaning(linuxCron);
+            String cmd = "(crontab -l | grep -v -F " + matchedCondition + ";echo " + matchedCondition
+                    + ") | crontab -";
             logger.info("Creating linux crontab by exec cmd (/bin/sh -c \" " + cmd + "\")");
             result = executor.execCmd(cmd);
             logger.info("Create linux crontab success,crontab:{}", linuxCron);
@@ -82,7 +83,8 @@ public class ScmCronMgr {
         if (linuxCron == null) {
             return;
         }
-        String cmd = "(crontab -l | grep -v -F \"" + linuxCron + "\") | crontab -";
+        String matchedCondition = CommonUtils.transferLinuxCronMeaning(linuxCron);
+        String cmd = "(crontab -l | grep -v -F " + matchedCondition + ") | crontab -";
         try {
             logger.info("Deleting linux crontab by exec cmd (/bin/sh -c \" " + cmd + "\")");
             executor.execCmd(cmd);

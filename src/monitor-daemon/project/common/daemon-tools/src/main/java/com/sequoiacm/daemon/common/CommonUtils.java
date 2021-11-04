@@ -80,4 +80,28 @@ public class CommonUtils {
         }
         return executor;
     }
+
+    public static String transferLinuxCronMeaning(String linuxCron) throws ScmToolsException{
+        // 这个转换是为了保证在使用该命令作为grep和echo的操作对象时，特殊字符括号和环境变量$JAVA_HOME等能够保持原型
+        // linuxCron: */2 * * * * export JAVA_HOME=/usr/java;export PATH=$JAVA_HOME/bin:$PATH;
+        //            cd /opt/hml/run/sequoiacm/sequoiacm/daemon;
+        //            nohup java -cp /opt/sequoiacm/daemon/jars/sequoiacm-daemon-tools-3.1.2.jar
+        //            com.sequoiacm.daemon.Scmd cron --period 300 &
+        try {
+            String nohup = "nohup";
+            int nohupIndex = linuxCron.indexOf(nohup);
+            String envVariable = "'" + linuxCron.substring(0, nohupIndex) + "'";
+            String javaCommand = "\"" + linuxCron.substring(nohupIndex) + "\"";
+            // result:'*/2 * * * * export JAVA_HOME=/usr/java;export PATH=$JAVA_HOME/bin:$PATH;
+            //        cd /opt/hml/run/sequoiacm/sequoiacm/daemon;'
+            //        "nohup java -cp /opt/sequoiacm/daemon/jars/sequoiacm-daemon-tools-3.1.2.jar
+            //        com.sequoiacm.daemon.Scmd cron --period 300 &"
+            return envVariable + javaCommand;
+        }
+        catch (Exception e) {
+            throw new ScmToolsException(
+                    "Failed to transfer linux crontab meaning, linuxCron=" + linuxCron,
+                    ScmExitCode.INVALID_ARG, e);
+        }
+    }
 }
