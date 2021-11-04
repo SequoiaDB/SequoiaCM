@@ -172,6 +172,10 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         return new Date(uploadTime);
     }
 
+    protected boolean isNew() {
+        return isNew;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -5,6 +5,7 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
+import com.sequoiacm.client.common.ScmType.BreakpointFileType;
 import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
@@ -1123,6 +1124,36 @@ public class ScmFactory {
         }
 
         /**
+         * Create a new breakpoint file.
+         *
+         * @param workspace
+         *            the workspace where the breakpoint file will be created
+         * @param fileName
+         *            the breakpoint file name
+         * @param option
+         *            the breakpoint file option
+         * @see  BreakpointFileType
+         * @return the breakpoint file
+         * @throws ScmException
+         *             if error happens
+         */
+        public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
+                                                       ScmBreakpointFileOption option, BreakpointFileType type) throws ScmException {
+            checkArgNotNull("workspace", workspace);
+            checkArgInUriPath("breakfileName", fileName);
+            checkArgNotNull("option", option);
+            checkArgNotNull("type", type);
+
+            if (BreakpointFileType.BUFFERED == type) {
+                return new ScmBreakpointFileBufferedImpl(workspace, fileName, option);
+            }
+            else if (BreakpointFileType.DIRECTED == type) {
+                return new ScmBreakpointFileImpl(workspace, fileName, option);
+            }
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "unknown type:" + type);
+        }
+
+        /**
          * Get a breakpoint file.
          *
          * @param workspace
@@ -1163,6 +1194,38 @@ public class ScmFactory {
             BSONObject obj = workspace.getSession().getDispatcher()
                     .getBreakpointFile(workspace.getName(), fileName);
             return new ScmBreakpointFileImpl(workspace, obj, breakpointSize);
+        }
+
+        /**
+         * Get a breakpoint file.
+         *
+         * @param workspace
+         *            the workspace where the breakpoint file is in
+         * @param fileName
+         *            the breakpoint file name
+         * @param breakpointSize
+         *            the upload breakpoint size
+         * @see BreakpointFileType
+         * @return the breakpoint file
+         * @throws ScmException
+         *            if error happens
+         */
+        public static ScmBreakpointFile getInstance(ScmWorkspace workspace, String fileName,
+                                                    int breakpointSize, BreakpointFileType type) throws ScmException {
+            checkArgNotNull("workspace", workspace);
+            checkArgInUriPath("breakfileName", fileName);
+            checkArgNotNull("type", type);
+
+            BSONObject obj = workspace.getSession().getDispatcher()
+                    .getBreakpointFile(workspace.getName(), fileName);
+
+            if (BreakpointFileType.BUFFERED == type) {
+                return new ScmBreakpointFileBufferedImpl(workspace, obj, breakpointSize);
+            }
+            else if (BreakpointFileType.DIRECTED == type) {
+                return new ScmBreakpointFileImpl(workspace, obj, breakpointSize);
+            }
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "unknown type:" + type);
         }
 
         /**

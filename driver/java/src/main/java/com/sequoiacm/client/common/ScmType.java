@@ -353,4 +353,23 @@ public class ScmType {
         }
     }
 
+    /**
+     * Provides a set of constants to specify the BreakpointFile type..
+     */
+    public enum BreakpointFileType {
+        /**
+         * A constants representing the type of buffered BreakpointFile.
+         *
+         * @since 3.1.3
+         */
+        BUFFERED,
+
+        /**
+         * A constants representing the type of directed BreakpointFile.
+         *
+         * @since 3.1.3
+         */
+        DIRECTED;
+
+    }
 }
