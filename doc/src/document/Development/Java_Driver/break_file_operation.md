@@ -12,9 +12,13 @@ ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace("test_ws", session);
 
 // 创建断点文件:
 // ScmChecksumType 表示数据校验方式
-// 4 * 1024 * 1024 表示 4M 上传增量
-ScmBreakpointFile breakFile = ScmFactory.BreakpointFile.createInstance(workspace, "test",
-        ScmChecksumType.CRC32, 4 * 1024 * 1024);
+// 5 * 1024 * 1024 表示 5M 上传增量
+ScmBreakpointFileOption option = new ScmBreakpointFileOption();
+option.setChecksumType(ScmChecksumType.CRC32);
+option.setBreakpointSize(5 * 1024 * 1024);
+// BreakpointFileType.DIRECTED 表示数据不在驱动缓存
+ScmBreakpointFile breakFile = ScmFactory.BreakpointFile.createInstance(workspace, "test", option,
+                ScmType.BreakpointFileType.DIRECTED);
 
 // 断点文件上传：文件对象
 File uploadFile = new File("E:/test/breakfile.txt");
@@ -24,13 +28,13 @@ breakFile.upload(uploadFile);
 >
 >  * ScmChecksumType 校验方式：CRC32、NONE、ADLER32 ，默认为 NONE
 > 
->  * 上传增量 默认为 16M ，最小为 1M ，可自定义
+>  * 上传增量 默认为 15M ，最小为 1M ，可自定义，在 Ceph S3 站点上创建断点文件该参数需要是 5m 的整数倍）
 > 
 >  * upload接口 需要保证文件和流对象包括文件所有数据
 > 
 >  * upload接口 使用增量续传实现，检验已上传文件数据，对未上传数据按增量上传
 > 
->  * incrementalUpload接口 输入流不能包含已上传的数据
+>  * incrementalUpload接口 输入流不能包含已上传的数据；在 Ceph S3 站点上创建断点文件时，该接口只能接受 5m 整数倍的数据量（最后一段除外），可以使用 BreakpointFileType.BUFFERED 类型的 ScmBreakpointFile 来规避这个限制，此类型下 incrementalUpload 接口内部将会缓存数据并延迟发送
 > 
 >  * incrementalUpload接口 最后一次增量上传，必须isLastContent设置为true，否则文件记录为不完整
 

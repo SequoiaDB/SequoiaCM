@@ -25,6 +25,12 @@ Hbase 表的命名与工作区配置相关，如工作区命名为 ws1，配置 
 
 文件内容在 Ceph S3 上作为一个 Object 进行存储，文件内容的 data_id 作为 Object 的 Key，Object 存储的 Bucket 与工作区配置相关，如工作区命名为 ws1，配置工作区在 Ceph S3 按月划分文件内容，则该工作区的文件内容储存在 "ws1-scmfile-年月" Bucket 下。
 
+特别的，对于 Ceph S3 数据服务，SequoiaCM 允许为同一个站点配备两个独立的 Ceph S3 存储，这两个存储将以主备的形式为同一个站点提供存储支持，主 Ceph S3 可用时优先使用该存储进行数据读写，当 SequoiaCM 发现主存储不可用时可以自动切换到备存储上进行数据读写，同时定期检查主存储的可用性，一旦发现主存储可用即恢复到主存储上访问
+
+> **Note：**
+>
+> * SequoiaCM 不负责主备 CephS3 间的数据同步，用户需要自行处理数据同步问题
+
 ## Ceph Swift 数据服务 ##
 
 文件内容在 Ceph Swif 上使用 Object 进行存储。当文件内容小于 5M，使用单个 Object 存储。当文件文件内容大于 5M，使用一个 ManifestObject 及多个 ObjectSegment 存储。文件内容的 data_id 作为 Object Name。Object 存储的 Container 与工作区配置相关，如工作区命名为 ws1，配置工作区在 Ceph Swift 按月划分文件内容，则该工作区的文件内容储存在 "ws1_scmfile_年月" Container 下。

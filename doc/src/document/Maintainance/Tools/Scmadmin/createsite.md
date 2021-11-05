@@ -104,7 +104,7 @@ createsite 子命令提供创建站点的功能。
 > **Note:**
 >
 > - 创建 CephS3 类型分站点，名称为 site4，数据服务的两个连接拥有相同的用户名和密码 dsuser 和 dspasswd 。
-> - CephS3 数据服务支持主备库，以第一个 URL 作为主库，第二个 URL 作为备库。
+> - CephS3 数据服务支持[主备库][primary_standby_cephs3]，以第一个 URL 作为主库，第二个 URL 作为备库。
 > - 当两个库用户名密码不一致时，可以将其拼接在 URL 上，如：accessKey:secretKeyFilePath@http://cephS3Server2:port 。连接 CephS3 时，会优先使用地址上拼接的用户名和密码，当地址上未拼接用户名和密码时，才使用 dsuser 和 dspasswd 。
 
 ###4.Hdfs###
@@ -149,3 +149,4 @@ createsite 子命令提供创建站点的功能。
 
 
 [encrypt_tool]:Maintainance/Tools/Scmadmin/encrypt.md
+[primary_standby_cephs3]:Architecture/data_storage.md

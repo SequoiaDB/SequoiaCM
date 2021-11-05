@@ -128,6 +128,7 @@
     >  **Note：**
     > 
     >  * 本段配置数据服务的连接信息，数据服务为站点提供存储支持
+    >  * 特别的，对于 Ceph S3 类型的数据源，允许在这里配备两个同名的 datasource，形成[主备数据源][primary_standby_cephs3]（顺序在前为主数据源）
    
 	6). 站点配置段:
 
@@ -311,3 +312,4 @@
 
 [install_requirement]:Quick_Start/install_requirement.md
 [driver_operation]:Development/Java_Driver/Readme.md
+[primary_standby_cephs3]:Architecture/data_storage.md
