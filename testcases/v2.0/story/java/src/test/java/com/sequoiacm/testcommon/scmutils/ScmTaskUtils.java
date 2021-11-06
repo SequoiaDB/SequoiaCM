@@ -7,6 +7,7 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.TestScmBase;
 
@@ -105,4 +106,46 @@ public class ScmTaskUtils extends TestScmBase {
         }
     }
 
+    /**
+     * wait task stop
+     *
+     * @param session
+     * @param taskId
+     * @throws Exception
+     */
+    public static void waitTaskStop( ScmSession session, ScmId taskId )
+            throws Exception {
+        waitTaskStop( session, taskId, defaultTimeOut );
+    }
+
+    /**
+     * wait task stop
+     * 
+     * @param session
+     * @param taskId
+     * @param timeOutSec
+     * @throws Exception
+     */
+    public static void waitTaskStop( ScmSession session, ScmId taskId,
+            int timeOutSec ) throws Exception {
+        int sleepTime = 200;
+        int maxRetryTimes = ( timeOutSec * 1000 ) / sleepTime;
+        int retryTimes = 0;
+        while ( true ) {
+            ScmTask task = ScmSystem.Task.getTask( session, taskId );
+            if ( CommonDefine.TaskRunningFlag.SCM_TASK_INIT != task
+                    .getRunningFlag()
+                    && CommonDefine.TaskRunningFlag.SCM_TASK_RUNNING != task
+                            .getRunningFlag() ) {
+                break;
+            } else if ( retryTimes >= maxRetryTimes ) {
+                throw new Exception(
+                        "failed to wait task finished, maxRetryTimes="
+                                + maxRetryTimes + ", task info : \n"
+                                + task.toString() );
+            }
+            Thread.sleep( sleepTime );
+            retryTimes++;
+        }
+    }
 }
