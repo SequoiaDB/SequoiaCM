@@ -71,6 +71,7 @@ public class ScmCommon {
     public static final String DAEMON_LOCATION = "daemonHomePath";
     public static final String BIN = "bin";
     public static final String DAEMON_SCRIPT = "scmd.sh";
+    public static final String IGNORE_DAEMON_ENV = "IGNORE_DAEMON";
 
     private static final Logger logger = LoggerFactory.getLogger(ScmCommon.class);
 

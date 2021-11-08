@@ -162,24 +162,27 @@ start)
       exit 1
     fi
 
-    DAEMONDIR=$ZOOBINDIR/../../daemon
-    if [ ! -d $DAEMONDIR ];then
-        SCMDPROP=$ZOOBINDIR/../conf/.scmd.properties
-        if [ -e $SCMDPROP ];then
-            DAEMONDIR=`grep "daemonHomePath" $SCMDPROP | awk -F "=" '{print $2}'`
-        else
-            echo "zookeeper start success,but can not find daemon tool"
-            exit 0
+    if [ "x$IGNORE_DAEMON" == "x" ]
+    then
+        DAEMONDIR=$ZOOBINDIR/../../daemon
+        if [ ! -d $DAEMONDIR ];then
+            SCMDPROP=$ZOOBINDIR/../conf/.scmd.properties
+            if [ -e $SCMDPROP ];then
+                DAEMONDIR=`grep "daemonHomePath" $SCMDPROP | awk -F "=" '{print $2}'`
+            else
+                echo "zookeeper start success,but can not find daemon tool"
+                exit 0
+            fi
         fi
-    fi
-    if [ -d $DAEMONDIR ];then
-        cd $DAEMONDIR/bin
-        ./scmd.sh add -o -s on -t "ZOOKEEPER" -c $ZOOCFG
-        if [ $? -eq 0 ];then
-            exit 0
-        else
-            echo "Failed to add zookeeper node to monitor table,conf:$ZOOCFG"
-            exit 0
+        if [ -d $DAEMONDIR ];then
+            cd $DAEMONDIR/bin
+            ./scmd.sh add -o -s on -t "ZOOKEEPER" -c $ZOOCFG
+            if [ $? -eq 0 ];then
+                exit 0
+            else
+                echo "Failed to add zookeeper node to monitor table,conf:$ZOOCFG"
+                exit 0
+            fi
         fi
     fi
     ;;

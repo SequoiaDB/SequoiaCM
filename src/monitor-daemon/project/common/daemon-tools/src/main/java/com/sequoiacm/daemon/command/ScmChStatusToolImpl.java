@@ -34,7 +34,6 @@ public class ScmChStatusToolImpl extends ScmTool {
         CommandUtils.addTypeOptionForChStatus(options, hp, false);
         options.addOption(hp.createOpt(DaemonDefine.OPT_SHORT_STATUS, DaemonDefine.OPT_LONG_STATUS,
                 "node status.", true, true, false));
-
         executor = ScmManagerWrapper.getInstance();
     }
 

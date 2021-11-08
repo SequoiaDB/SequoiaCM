@@ -133,7 +133,10 @@ public class ScmStartToolImpl extends ScmTool {
 
         // check start res
         boolean startRes = isStartSuccess(checkList);
-        executor.addMonitorNodeList(startSuccessList);
+        String isIgnoreDaemon = System.getenv(ScmCommon.IGNORE_DAEMON_ENV);
+        if (isIgnoreDaemon == null) {
+            executor.addMonitorNodeList(startSuccessList);
+        }
 
         logger.info("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));

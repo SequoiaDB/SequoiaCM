@@ -51,6 +51,8 @@ public class DaemonDefine {
     public static final String STATUS = "status";
     public static final String CONF_PATH = "conf_path";
 
+    public static final String EXPORT_IGNORE_DAEMON_ENV = "export IGNORE_DAEMON=true;";
+
     public static final int MATCH_PORT_FLAG = 0x00000001;
     public static final int MATCH_TYPE_FLAG = 0x00000010;
     public static final int MATCH_ALL_FLAG = 0x11111111;

@@ -1,14 +1,13 @@
 package com.sequoiacm.daemon.manager;
 
-import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
-import com.sequoiacm.daemon.common.TableUtils;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
 import com.sequoiacm.daemon.element.ScmNodeMatcher;
 import com.sequoiacm.daemon.element.ScmNodeModifier;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.lock.ScmFileLock;
-import com.sequoiacm.daemon.lock.ScmFileLockFactory;
+import com.sequoiacm.daemon.lock.ScmFileResource;
+import com.sequoiacm.daemon.lock.ScmFileResourceFactory;
 import com.sequoiacm.infrastructure.tool.common.PropertiesUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -49,14 +48,14 @@ public class ScmMonitorTableMgr {
         this.backUpPath = daemonHomePath + File.separator + DaemonDefine.CONF + File.separator
                 + DaemonDefine.MONITOR_BACKUP;
 
-        initTable();
+        createTable();
     }
 
     public List<ScmNodeInfo> listTable() throws ScmToolsException {
         return readTable();
     }
 
-    private void initTable() throws ScmToolsException {
+    public void createTable() throws ScmToolsException {
         if (!isTableExist()) {
             try {
                 ScmCommon.createFile(tablePath);
@@ -68,18 +67,12 @@ public class ScmMonitorTableMgr {
                 logger.warn("Monitor table is already created");
             }
         }
+    }
+
+    public void initTable(ScmFileResource resource) throws ScmToolsException {
         boolean isInitSuccess = false;
-        File file = new File(tablePath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
-        fileLock.lock();
         try {
-            List<ScmNodeInfo> nodeList = null;
-            try {
-                nodeList = TableUtils.jsonFileToNodeList(file);
-            }
-            catch (ScmToolsException e) {
-                nodeList = recoverTable();
-            }
+            List<ScmNodeInfo> nodeList = resource.readFile();
             // 如果列表长度不为 0，说明监控表已经被其他进程初始化成功，那么就直接退出
             if (nodeList != null && nodeList.size() > 0) {
                 isInitSuccess = true;
@@ -96,34 +89,18 @@ public class ScmMonitorTableMgr {
                 List<ScmNodeInfo> nodeInfoList = nodeMgr.generateNodeInfo(serviceDir);
                 nodeList.addAll(nodeInfoList);
             }
-            TableUtils.nodeListToJsonFile(nodeList, file);
+            resource.writeFile(nodeList);
             isInitSuccess = true;
             logger.info("Init monitor table success,table:{}", tablePath);
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Failed to init file,file:" + tablePath, e.getExitCode(),
+            throw new ScmToolsException("Failed to init monitor table,file:" + tablePath, e.getExitCode(),
                     e);
         }
         finally {
             if (!isInitSuccess) {
-                if (file.exists()) {
-                    FileWriter fileWriter = null;
-                    try {
-                        fileWriter = new FileWriter(file);
-                        fileWriter.write("");
-                        fileWriter.flush();
-                    }
-                    catch (IOException e) {
-                        logger.error(
-                                "Failed to empty monitor table,file:{},please delete or empty the file before try the command again",
-                                tablePath, e);
-                    }
-                    finally {
-                        CommonUtils.closeResource(fileWriter);
-                    }
-                }
+                resource.clearFileResource();
             }
-            fileLock.unlock();
         }
     }
 
@@ -131,11 +108,12 @@ public class ScmMonitorTableMgr {
         boolean isAddSuccess = false;
         String scmdPropertiesPath = null;
         File file = new File(tablePath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
-        fileLock.lock();
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, backUpPath);
+        ScmFileLock lock = resource.createLock();
+        lock.lock();
         try {
+            List<ScmNodeInfo> nodeList = resource.readFile();
             scmdPropertiesPath = recordScmdLoc(needAddNode);
-            List<ScmNodeInfo> nodeList = readTableWithBackUp(tablePath, backUpPath);
             ScmNodeInfo nodeInTable = null;
             for (ScmNodeInfo node : nodeList) {
                 if (node.getPort() == needAddNode.getPort()) {
@@ -157,7 +135,7 @@ public class ScmMonitorTableMgr {
                 }
             }
             nodeList.add(needAddNode);
-            TableUtils.nodeListToJsonFile(nodeList, file);
+            resource.writeFile(nodeList);
             isAddSuccess = true;
         }
         finally {
@@ -169,7 +147,8 @@ public class ScmMonitorTableMgr {
                             scmdPropertiesPath);
                 }
             }
-            fileLock.unlock();
+            lock.unlock();
+            resource.releaseFileResource();
         }
     }
 
@@ -211,10 +190,11 @@ public class ScmMonitorTableMgr {
 
     public void removeNodeInfo(ScmNodeInfo nodeInfo) throws ScmToolsException {
         File file = new File(tablePath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
-        fileLock.lock();
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, backUpPath);
+        ScmFileLock lock = resource.createLock();
+        lock.lock();
         try {
-            List<ScmNodeInfo> nodeList = readTableWithBackUp(tablePath, backUpPath);
+            List<ScmNodeInfo> nodeList = resource.readFile();
 
             for (ScmNodeInfo node : nodeList) {
                 if (node.getPort() == nodeInfo.getPort()) {
@@ -222,20 +202,23 @@ public class ScmMonitorTableMgr {
                     break;
                 }
             }
-            TableUtils.nodeListToJsonFile(nodeList, file);
+            resource.writeFile(nodeList);
             logger.info("Remove node success,nodeInfo:{}", nodeInfo.toString());
         }
         finally {
-            fileLock.unlock();
+            lock.unlock();
+            resource.releaseFileResource();
         }
     }
 
-    public void changeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier) throws ScmToolsException {
+    public void changeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier)
+            throws ScmToolsException {
         File file = new File(tablePath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
-        fileLock.lock();
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, backUpPath);
+        ScmFileLock lock = resource.createLock();
+        lock.lock();
         try {
-            List<ScmNodeInfo> nodeList = readTableWithBackUp(tablePath, backUpPath);
+            List<ScmNodeInfo> nodeList = resource.readFile();
 
             boolean isNodeExist = false;
             for (ScmNodeInfo nodeInfo : nodeList) {
@@ -246,16 +229,21 @@ public class ScmMonitorTableMgr {
                 }
             }
 
+            // 如果要修改的节点不存在，那么就打屏告诉用户修改失败，然后直接退出程序
             if (!isNodeExist) {
-                throw new ScmToolsException(
+                logger.warn(
+                        "Failed to change node status caused by no matching node in monitor table, condition={}",
+                        matcher.toString());
+                System.out.println(
                         "Failed to change node status caused by no matching node in monitor table, condition="
-                                + matcher.toString(),
-                        ScmExitCode.INVALID_ARG);
+                                + matcher.toString());
+                System.exit(ScmExitCode.SUCCESS);
             }
-            TableUtils.nodeListToJsonFile(nodeList, file);
+            resource.writeFile(nodeList);
         }
         finally {
-            fileLock.unlock();
+            lock.unlock();
+            resource.releaseFileResource();
         }
     }
 
@@ -266,73 +254,16 @@ public class ScmMonitorTableMgr {
 
     public List<ScmNodeInfo> readTable() throws ScmToolsException {
         File tableFile = new File(tablePath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(tableFile);
-        fileLock.readLock();
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(tableFile, backUpPath);
+        ScmFileLock lock = resource.createLock();
+        lock.lock();
         try {
-            return readTableNoLock();
+            return resource.readFile();
         }
         finally {
-            fileLock.unlock();
+            lock.unlock();
+            resource.releaseFileResource();
         }
-    }
-
-    public List<ScmNodeInfo> readTableNoLock() throws ScmToolsException {
-        File tableFile = new File(tablePath);
-        List<ScmNodeInfo> nodeList = null;
-        try {
-            nodeList = TableUtils.jsonFileToNodeList(tableFile);
-        }
-        catch (ScmToolsException e) {
-            nodeList = recoverTable();
-        }
-        return nodeList == null ? new ArrayList<ScmNodeInfo>() : nodeList;
-    }
-
-    public List<ScmNodeInfo> recoverTable() throws ScmToolsException {
-        File tableFile = new File(tablePath);
-        try {
-            TableUtils.copyFile(backUpPath, tablePath);
-            try {
-                List<ScmNodeInfo> nodeList = TableUtils.jsonFileToNodeList(tableFile);
-                return nodeList;
-            }
-            catch (ScmToolsException e) {
-                File backUpFile = new File(backUpPath);
-                if (backUpFile.exists() && !backUpFile.delete()) {
-                    logger.error(
-                            "Failed to delete backUp file,file:{},please delete it before try exec command again",
-                            backUpPath);
-                }
-                throw new ScmToolsException(
-                        "Backup file is damaged and it is deleted, please try exec command again",
-                        ScmExitCode.INVALID_ARG, e);
-            }
-        }
-        catch (ScmToolsException e) {
-            throw new ScmToolsException("Failed to recover file,file:" + tablePath, e.getExitCode(),
-                    e);
-        }
-    }
-
-    private List<ScmNodeInfo> readTableWithBackUp(String tablePath, String backUpPath)
-            throws ScmToolsException {
-        File tableFile = new File(tablePath);
-        List<ScmNodeInfo> nodeList = null;
-
-        try {
-            nodeList = TableUtils.jsonFileToNodeList(tableFile);
-            try {
-                TableUtils.copyFile(tablePath, backUpPath);
-            }
-            catch (ScmToolsException e) {
-                logger.warn("Failed to back up file,file:{},backup:{}", tableFile, backUpPath);
-            }
-        }
-        catch (ScmToolsException e) {
-            nodeList = recoverTable();
-        }
-        logger.info("Back up monitor table success");
-        return nodeList == null ? new ArrayList<ScmNodeInfo>() : nodeList;
     }
 
     public void setTablePath(String tablePath) {
@@ -349,5 +280,9 @@ public class ScmMonitorTableMgr {
 
     public String getTablePath() {
         return this.tablePath;
+    }
+
+    public String getBackUpPath() {
+        return this.backUpPath;
     }
 }

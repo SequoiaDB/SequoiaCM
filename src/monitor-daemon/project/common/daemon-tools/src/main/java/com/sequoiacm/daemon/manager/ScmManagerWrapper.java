@@ -4,7 +4,8 @@ import com.sequoiacm.daemon.common.*;
 import com.sequoiacm.daemon.element.*;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.lock.ScmFileLock;
-import com.sequoiacm.daemon.lock.ScmFileLockFactory;
+import com.sequoiacm.daemon.lock.ScmFileResource;
+import com.sequoiacm.daemon.lock.ScmFileResourceFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -53,7 +54,8 @@ public class ScmManagerWrapper {
     public void startDaemon(int period) throws ScmToolsException {
         checkEnvironment();
         File file = new File(tableMgr.getTablePath());
-        ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(file);
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, tableMgr.getBackUpPath());
+        ScmFileLock lock = resource.createLock();
         lock.lock();
 
         boolean isStartSuccess = false;
@@ -63,8 +65,8 @@ public class ScmManagerWrapper {
             if (scmCron != null) {
                 if (scmCron.getPeriod() != period) {
                     throw new ScmToolsException(
-                            "The period input is different from current, input:" + period + ",current:"
-                                    + scmCron.getPeriod()
+                            "The period input is different from current, input:" + period
+                                    + ",current:" + scmCron.getPeriod()
                                     + ", please stop first if you want to change period",
                             ScmExitCode.INVALID_ARG);
                 }
@@ -81,6 +83,7 @@ public class ScmManagerWrapper {
                     return;
                 }
             }
+            tableMgr.initTable(resource);
             command = daemonMgr.startDaemon(period);
             cronMgr.createCron(period, command);
             isStartSuccess = true;
@@ -93,12 +96,14 @@ public class ScmManagerWrapper {
                 daemonMgr.stopDaemon(pid, true);
             }
             lock.unlock();
+            resource.releaseFileResource();
         }
     }
 
     public void stopDaemon() throws ScmToolsException {
         File file = new File(tableMgr.getTablePath());
-        ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(file);
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, tableMgr.getBackUpPath());
+        ScmFileLock lock = resource.createLock();
         lock.lock();
         try {
             ScmCron scmCron = cronMgr.readCronProp();
@@ -131,6 +136,7 @@ public class ScmManagerWrapper {
         }
         finally {
             lock.unlock();
+            resource.releaseFileResource();
         }
     }
 
@@ -139,14 +145,14 @@ public class ScmManagerWrapper {
             return -1;
         }
         // linuxCron: * * * * * export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java
-        //            -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5 &
+        // -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5 &
         String linuxCron = scmCron.getLinuxCron();
         if (linuxCron == null || linuxCron.length() == 0) {
             return -1;
         }
         String export = "export";
         // cron: export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java -cp xxx.jar
-        //       com.sequoiacm.daemon.Scmd cron --period 5 &
+        // com.sequoiacm.daemon.Scmd cron --period 5 &
         try {
             String cron = linuxCron.substring(linuxCron.indexOf(export)).trim();
             return daemonMgr.getDaemonPid(cron);
@@ -160,7 +166,8 @@ public class ScmManagerWrapper {
     }
 
     // 跟表相关
-    public void changeNodeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier) throws ScmToolsException {
+    public void changeNodeStatus(ScmNodeMatcher matcher, ScmNodeModifier modifier)
+            throws ScmToolsException {
         tableMgr.changeStatus(matcher, modifier);
     }
 
@@ -175,7 +182,7 @@ public class ScmManagerWrapper {
         return tableMgr.listTable();
     }
 
-    public void checkEnvironment() throws ScmToolsException{
+    public void checkEnvironment() throws ScmToolsException {
         cronMgr.checkCrontabService();
     }
 

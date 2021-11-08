@@ -1,10 +1,10 @@
 package com.sequoiacm.daemon.manager;
 
 import com.sequoiacm.daemon.common.DaemonDefine;
-import com.sequoiacm.daemon.common.TableUtils;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
 import com.sequoiacm.daemon.lock.ScmFileLock;
-import com.sequoiacm.daemon.lock.ScmFileLockFactory;
+import com.sequoiacm.daemon.lock.ScmFileResource;
+import com.sequoiacm.daemon.lock.ScmFileResourceFactory;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,11 @@ public class ScmTask {
                     // readTableOnce(on) => node stop(on->off) => tool found node failed,read
                     // again(off),continue
                     File tableFile = new File(tableMgr.getTablePath());
-                    ScmFileLock lock = ScmFileLockFactory.getInstance().createFileLock(tableFile);
-                    lock.readLock();
+                    ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(tableFile, tableMgr.getBackUpPath());
+                    ScmFileLock lock = resource.createLock();
+                    lock.lock();
                     try {
-                        List<ScmNodeInfo> newlyNodeList = tableMgr.readTableNoLock();
+                        List<ScmNodeInfo> newlyNodeList = resource.readFile();
                         ScmNodeInfo newlyNode = null;
                         for (ScmNodeInfo info : newlyNodeList) {
                             if (info.getPort() == node.getPort()) {
@@ -65,6 +66,7 @@ public class ScmTask {
                     }
                     finally {
                         lock.unlock();
+                        resource.releaseFileResource();
                     }
                 }
             }

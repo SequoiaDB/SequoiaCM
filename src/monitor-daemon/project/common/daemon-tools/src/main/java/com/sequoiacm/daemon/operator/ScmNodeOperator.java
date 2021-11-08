@@ -73,8 +73,7 @@ public class ScmNodeOperator implements NodeOperator {
         String dirName = node.getServerType().getDirName();
         String confPath = node.getConfPath();
         String servicePath = confPath.substring(0, confPath.indexOf(dirName) + dirName.length());
-
-        String cmd = servicePath + File.separator + "bin" + File.separator + shellName
+        String cmd = DaemonDefine.EXPORT_IGNORE_DAEMON_ENV + servicePath + File.separator + "bin" + File.separator + shellName
                 + " start -p " + port;
         executor.execCmd(cmd);
     }

@@ -3,9 +3,10 @@ package com.sequoiacm.daemon.command;
 import com.sequoiacm.daemon.common.ArgsUtils;
 import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
+import com.sequoiacm.daemon.lock.ScmFileResource;
+import com.sequoiacm.daemon.lock.ScmFileResourceFactory;
 import com.sequoiacm.daemon.manager.ScmManagerWrapper;
 import com.sequoiacm.daemon.lock.ScmFileLock;
-import com.sequoiacm.daemon.lock.ScmFileLockFactory;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.*;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -44,15 +45,17 @@ public class ScmCronToolImpl extends ScmTool {
 
         String jarPath = CommonUtils.getJarPath(ScmCronToolImpl.class);
         File file = new File(jarPath);
-        ScmFileLock fileLock = ScmFileLockFactory.getInstance().createFileLock(file);
-        if (fileLock.tryLock()) {
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file);
+        ScmFileLock lock = resource.createLock();
+        if (lock.tryLock()) {
             try {
                 String daemonHomePath = jarPath.substring(0,
                         jarPath.indexOf(File.separator + DaemonDefine.JARS));
                 executor.startTimer(period, daemonHomePath);
             }
             finally {
-                fileLock.unlock();
+                lock.unlock();
+                resource.releaseFileResource();
             }
         }
     }

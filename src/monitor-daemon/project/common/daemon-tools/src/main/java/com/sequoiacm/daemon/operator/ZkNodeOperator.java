@@ -66,7 +66,8 @@ public class ZkNodeOperator implements NodeOperator {
             return -1;
         }
         catch (IOException e) {
-            throw new ScmToolsException("Failed to get zookeeper pid", ScmBaseExitCode.SYSTEM_ERROR, e);
+            throw new ScmToolsException("Failed to get zookeeper pid", ScmBaseExitCode.SYSTEM_ERROR,
+                    e);
         }
         finally {
             CommonUtils.closeResource(bfr);
@@ -79,8 +80,8 @@ public class ZkNodeOperator implements NodeOperator {
         String confPath = node.getConfPath();
         String servicePath = confPath.substring(0, confPath.indexOf("/" + DaemonDefine.CONF));
         String shellName = node.getServerType().getShellName();
-        String cmd = servicePath + File.separator + "bin" + File.separator + shellName + " start "
-                + confPath;
+        String cmd = DaemonDefine.EXPORT_IGNORE_DAEMON_ENV + servicePath + File.separator + "bin"
+                + File.separator + shellName + " start " + confPath;
         executor.execCmd(cmd);
     }
 
