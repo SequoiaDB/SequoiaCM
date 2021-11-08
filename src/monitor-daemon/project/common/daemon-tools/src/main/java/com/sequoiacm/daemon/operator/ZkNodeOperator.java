@@ -3,6 +3,7 @@ package com.sequoiacm.daemon.operator;
 import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
+import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.exec.ScmExecutor;
 import com.sequoiacm.infrastructure.tool.common.PropertiesUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
@@ -42,7 +43,12 @@ public class ZkNodeOperator implements NodeOperator {
             return false;
         }
         int pid = getPid(pidFile);
-        return executor.getPid(pid + "") != -1;
+        List<Integer> pidList = executor.getPid(pid + "");
+        if (pidList.size() > 1) {
+            throw new ScmToolsException("Failed to ps zookeeper pid, matching condition:" + pid
+                    + ", result:" + pidList.toString(), ScmExitCode.SYSTEM_ERROR);
+        }
+        return pidList.size() == 1;
     }
 
     private int getPid(File pidFile) throws ScmToolsException {

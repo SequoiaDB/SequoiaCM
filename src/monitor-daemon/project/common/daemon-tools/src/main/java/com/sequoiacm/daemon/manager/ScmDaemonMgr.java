@@ -9,6 +9,8 @@ import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class ScmDaemonMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmDaemonMgr.class);
 
@@ -71,7 +73,7 @@ public class ScmDaemonMgr {
         }
     }
 
-    public int getDaemonPid(String cron) throws ScmToolsException {
+    public List<Integer> getDaemonPid(String cron) throws ScmToolsException {
         // cron: export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java -cp xxx.jar
         //       com.sequoiacm.daemon.Scmd cron --period 5 &
         cron = cron.trim();
@@ -80,7 +82,10 @@ public class ScmDaemonMgr {
             // processMatcher: java -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5
             String processMatcher = cron
                     .substring(cron.indexOf(nohup) + nohup.length(), cron.length() - 1).trim();
-            return executor.getPid(processMatcher);
+            logger.info("Get daemon pid by matching condition:{}", processMatcher);
+            List<Integer> pidList = executor.getPid(processMatcher);
+            logger.info("Get daemon pid success, pidList:{}", pidList);
+            return pidList;
         }
         catch (ScmToolsException e) {
             throw new ScmToolsException("Failed to get daemon pid", e.getExitCode(), e);

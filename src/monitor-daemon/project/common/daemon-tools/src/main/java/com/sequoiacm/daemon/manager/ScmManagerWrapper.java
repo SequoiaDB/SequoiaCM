@@ -70,7 +70,8 @@ public class ScmManagerWrapper {
                                     + ", please stop first if you want to change period",
                             ScmExitCode.INVALID_ARG);
                 }
-                if (getDaemonPid(scmCron) == -1) {
+                List<Integer> pidList = getDaemonPid(scmCron);
+                if (pidList.size() == 0) {
                     // 守护进程没有跑，清理环境
                     cronMgr.deleteCron(scmCron);
                     cronMgr.deleteCronProp();
@@ -92,8 +93,10 @@ public class ScmManagerWrapper {
         }
         finally {
             if (!isStartSuccess && command != null) {
-                int pid = daemonMgr.getDaemonPid(command);
-                daemonMgr.stopDaemon(pid, true);
+                List<Integer> pidList = daemonMgr.getDaemonPid(command);
+                for (int pid : pidList) {
+                    daemonMgr.stopDaemon(pid, true);
+                }
             }
             lock.unlock();
             resource.releaseFileResource();
@@ -109,20 +112,22 @@ public class ScmManagerWrapper {
             ScmCron scmCron = cronMgr.readCronProp();
             if (scmCron != null) {
                 cronMgr.deleteCron(scmCron);
-                if (getDaemonPid(scmCron) == -1) {
+                List<Integer> pidList = getDaemonPid(scmCron);
+                if (pidList.size() == 0) {
                     cronMgr.deleteCronProp();
                     logger.info("Daemon is already stopped");
                     System.out.println("Daemon is already stopped");
                     return;
                 }
-                int pid = getDaemonPid(scmCron);
-                long begin = System.currentTimeMillis();
-                daemonMgr.stopDaemon(pid, false);
-                while (getDaemonPid(scmCron) != -1) {
-                    ScmCommon.sleep(SLEEP_TIME);
-                    if (System.currentTimeMillis() - begin > STOP_TIME) {
-                        daemonMgr.stopDaemon(pid, true);
-                        break;
+                for (int pid : pidList) {
+                    long begin = System.currentTimeMillis();
+                    daemonMgr.stopDaemon(pid, false);
+                    while (getDaemonPid(scmCron).contains(pid)) {
+                        ScmCommon.sleep(SLEEP_TIME);
+                        if (System.currentTimeMillis() - begin > STOP_TIME) {
+                            daemonMgr.stopDaemon(pid, true);
+                            break;
+                        }
                     }
                 }
                 cronMgr.deleteCronProp();
@@ -140,15 +145,15 @@ public class ScmManagerWrapper {
         }
     }
 
-    private int getDaemonPid(ScmCron scmCron) throws ScmToolsException {
+    private List<Integer> getDaemonPid(ScmCron scmCron) throws ScmToolsException {
         if (scmCron == null) {
-            return -1;
+            return new ArrayList<>();
         }
         // linuxCron: * * * * * export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java
         // -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5 &
         String linuxCron = scmCron.getLinuxCron();
         if (linuxCron == null || linuxCron.length() == 0) {
-            return -1;
+            return new ArrayList<>();
         }
         String export = "export";
         // cron: export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java -cp xxx.jar
@@ -158,9 +163,7 @@ public class ScmManagerWrapper {
             return daemonMgr.getDaemonPid(cron);
         }
         catch (Exception e) {
-            throw new ScmToolsException(
-                    "Failed to get daemon pid,caused by cutting linuxCron failed, linuxCron: "
-                            + linuxCron,
+            throw new ScmToolsException("Failed to get daemon pid, linuxCron: " + linuxCron,
                     ScmExitCode.INVALID_ARG, e);
         }
     }

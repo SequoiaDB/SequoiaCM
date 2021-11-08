@@ -4,6 +4,8 @@ import com.sequoiacm.daemon.element.ScmCmdResult;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
+import java.util.List;
+
 public class ScmWindowsExecutorImpl implements ScmExecutor {
 
     @Override
@@ -17,7 +19,7 @@ public class ScmWindowsExecutorImpl implements ScmExecutor {
     }
 
     @Override
-    public int getPid(String match) throws ScmToolsException {
+    public List<Integer> getPid(String match) throws ScmToolsException {
         throw new ScmToolsException("Unsupported platform", ScmExitCode.SYSTEM_ERROR);
     }
 }

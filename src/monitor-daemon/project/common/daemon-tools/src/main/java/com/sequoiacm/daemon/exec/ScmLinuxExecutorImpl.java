@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ScmLinuxExecutorImpl implements ScmExecutor {
@@ -68,13 +70,13 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     }
 
     @Override
-    public int getPid(String match) throws ScmToolsException {
+    public List<Integer> getPid(String match) throws ScmToolsException {
         String cmd = "ps -eo pid,cmd | grep -w \"" + match + "\"| grep -w -v grep";
         Process ps = exec(cmd);
         try {
             int rc = ps.waitFor();
             if (rc == 1) {
-                return -1;
+                return new ArrayList<>();
             }
             if (rc != 0) {
                 String errorMsg = getMsg(ps).getStdStr();
@@ -99,19 +101,16 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         BufferedReader bfr = null;
         try {
             bfr = new BufferedReader(new InputStreamReader(ps.getInputStream()));
-            List<String> lineList = new ArrayList<>();
+            List<Integer> pidList = new ArrayList<>();
             String line;
             while (true) {
                 line = bfr.readLine();
                 if (line == null) {
                     break;
                 }
-                lineList.add(line);
+                pidList.add(parsePidLine(line));
             }
-            if (lineList.size() != 1) {
-                throw new ScmToolsException("Ps fit multiple process", ScmExitCode.INVALID_ARG);
-            }
-            return parsePidLine(lineList.get(0));
+            return pidList;
         }
         catch (IOException e) {
             throw new ScmToolsException("Failed to access ps std out:" + e.getMessage(),
