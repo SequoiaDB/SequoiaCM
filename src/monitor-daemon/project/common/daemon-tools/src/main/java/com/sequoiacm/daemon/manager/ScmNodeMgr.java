@@ -21,19 +21,14 @@ import java.util.Map;
 public class ScmNodeMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmNodeMgr.class);
     private final Map<ScmServerScriptEnum, NodeOperator> ops = new HashMap<>();
-    private static volatile ScmNodeMgr instance;
+    private static ScmNodeMgr instance;
 
     public static ScmNodeMgr getInstance() throws ScmToolsException {
         if (instance != null) {
             return instance;
         }
-        synchronized (ScmNodeMgr.class) {
-            if (instance != null) {
-                return instance;
-            }
-            instance = new ScmNodeMgr();
-            return instance;
-        }
+        instance = new ScmNodeMgr();
+        return instance;
     }
 
     private ScmNodeMgr() throws ScmToolsException {

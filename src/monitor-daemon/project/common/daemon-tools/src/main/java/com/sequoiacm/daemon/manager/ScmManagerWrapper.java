@@ -3,9 +3,6 @@ package com.sequoiacm.daemon.manager;
 import com.sequoiacm.daemon.common.*;
 import com.sequoiacm.daemon.element.*;
 import com.sequoiacm.daemon.exception.ScmExitCode;
-import com.sequoiacm.daemon.lock.ScmFileLock;
-import com.sequoiacm.daemon.lock.ScmFileResource;
-import com.sequoiacm.daemon.lock.ScmFileResourceFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -53,10 +50,6 @@ public class ScmManagerWrapper {
 
     public void startDaemon(int period) throws ScmToolsException {
         checkEnvironment();
-        File file = new File(tableMgr.getTablePath());
-        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, tableMgr.getBackUpPath());
-        ScmFileLock lock = resource.createLock();
-        lock.lock();
 
         boolean isStartSuccess = false;
         String command = null;
@@ -84,7 +77,7 @@ public class ScmManagerWrapper {
                     return;
                 }
             }
-            tableMgr.initTable(resource);
+            tableMgr.initTable();
             command = daemonMgr.startDaemon(period);
             cronMgr.createCron(period, command);
             isStartSuccess = true;
@@ -98,50 +91,38 @@ public class ScmManagerWrapper {
                     daemonMgr.stopDaemon(pid, true);
                 }
             }
-            lock.unlock();
-            resource.releaseFileResource();
         }
     }
 
     public void stopDaemon() throws ScmToolsException {
-        File file = new File(tableMgr.getTablePath());
-        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, tableMgr.getBackUpPath());
-        ScmFileLock lock = resource.createLock();
-        lock.lock();
-        try {
-            ScmCron scmCron = cronMgr.readCronProp();
-            if (scmCron != null) {
-                cronMgr.deleteCron(scmCron);
-                List<Integer> pidList = getDaemonPid(scmCron);
-                if (pidList.size() == 0) {
-                    cronMgr.deleteCronProp();
-                    logger.info("Daemon is already stopped");
-                    System.out.println("Daemon is already stopped");
-                    return;
-                }
-                for (int pid : pidList) {
-                    long begin = System.currentTimeMillis();
-                    daemonMgr.stopDaemon(pid, false);
-                    while (getDaemonPid(scmCron).contains(pid)) {
-                        ScmCommon.sleep(SLEEP_TIME);
-                        if (System.currentTimeMillis() - begin > STOP_TIME) {
-                            daemonMgr.stopDaemon(pid, true);
-                            break;
-                        }
-                    }
-                }
+        ScmCron scmCron = cronMgr.readCronProp();
+        if (scmCron != null) {
+            cronMgr.deleteCron(scmCron);
+            List<Integer> pidList = getDaemonPid(scmCron);
+            if (pidList.size() == 0) {
                 cronMgr.deleteCronProp();
-                logger.info("Stop daemon success");
-                System.out.println("Stop daemon success");
-            }
-            else {
                 logger.info("Daemon is already stopped");
                 System.out.println("Daemon is already stopped");
+                return;
             }
+            for (int pid : pidList) {
+                long begin = System.currentTimeMillis();
+                daemonMgr.stopDaemon(pid, false);
+                while (getDaemonPid(scmCron).contains(pid)) {
+                    ScmCommon.sleep(SLEEP_TIME);
+                    if (System.currentTimeMillis() - begin > STOP_TIME) {
+                        daemonMgr.stopDaemon(pid, true);
+                        break;
+                    }
+                }
+            }
+            cronMgr.deleteCronProp();
+            logger.info("Stop daemon success");
+            System.out.println("Stop daemon success");
         }
-        finally {
-            lock.unlock();
-            resource.releaseFileResource();
+        else {
+            logger.info("Daemon is already stopped");
+            System.out.println("Daemon is already stopped");
         }
     }
 
@@ -150,14 +131,14 @@ public class ScmManagerWrapper {
             return new ArrayList<>();
         }
         // linuxCron: * * * * * export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java
-        // -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5 &
+        // -cp xxx.jar com.sequoiacm.daemon.Scmd cron --period 5 /opt/sequoiacm/daemon/log/error.out 2>&1 &
         String linuxCron = scmCron.getLinuxCron();
         if (linuxCron == null || linuxCron.length() == 0) {
             return new ArrayList<>();
         }
         String export = "export";
         // cron: export JAVA_HOME=xxx;cd /opt/sequoiacm/daemon;nohup java -cp xxx.jar
-        // com.sequoiacm.daemon.Scmd cron --period 5 &
+        // com.sequoiacm.daemon.Scmd cron --period 5 /opt/sequoiacm/daemon/log/error.out 2>&1 &
         try {
             String cron = linuxCron.substring(linuxCron.indexOf(export)).trim();
             return daemonMgr.getDaemonPid(cron);

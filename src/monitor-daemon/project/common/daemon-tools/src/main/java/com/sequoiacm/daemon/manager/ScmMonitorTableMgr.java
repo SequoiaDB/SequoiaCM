@@ -26,19 +26,14 @@ public class ScmMonitorTableMgr {
     private String daemonHomePath;
     private final ScmNodeMgr nodeMgr = ScmNodeMgr.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(ScmMonitorTableMgr.class);
-    private static volatile ScmMonitorTableMgr instance;
+    private static ScmMonitorTableMgr instance;
 
     public static ScmMonitorTableMgr getInstance() throws ScmToolsException {
         if (instance != null) {
             return instance;
         }
-        synchronized (ScmMonitorTableMgr.class) {
-            if (instance != null) {
-                return instance;
-            }
-            instance = new ScmMonitorTableMgr();
-            return instance;
-        }
+        instance = new ScmMonitorTableMgr();
+        return instance;
     }
 
     private ScmMonitorTableMgr() throws ScmToolsException {
@@ -58,6 +53,7 @@ public class ScmMonitorTableMgr {
     public void createTable() throws ScmToolsException {
         if (!isTableExist()) {
             try {
+                logger.debug("Creating table, table:{}", tablePath);
                 ScmCommon.createFile(tablePath);
             }
             catch (ScmToolsException e) {
@@ -69,9 +65,14 @@ public class ScmMonitorTableMgr {
         }
     }
 
-    public void initTable(ScmFileResource resource) throws ScmToolsException {
+    public void initTable() throws ScmToolsException {
         boolean isInitSuccess = false;
+        File file = new File(tablePath);
+        ScmFileResource resource = ScmFileResourceFactory.getInstance().createFileResource(file, backUpPath);
+        ScmFileLock lock = resource.createLock();
+        lock.lock();
         try {
+            logger.debug("Initialing monitor table,table:{}", tablePath);
             List<ScmNodeInfo> nodeList = resource.readFile();
             // 如果列表长度不为 0，说明监控表已经被其他进程初始化成功，那么就直接退出
             if (nodeList != null && nodeList.size() > 0) {
@@ -101,6 +102,8 @@ public class ScmMonitorTableMgr {
             if (!isInitSuccess) {
                 resource.clearFileResource();
             }
+            lock.unlock();
+            resource.releaseFileResource();
         }
     }
 

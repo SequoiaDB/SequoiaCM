@@ -10,6 +10,7 @@ public class DaemonDefine {
     public static final String CRON_LOG_CONF = "logback_cron.xml";
     public static final String ZOO_PATTERN = "zoo[0-9]*.cfg";
     public static final String ZOO_PID_FILE = "zookeeper_server.pid";
+    public static final String ERROR_OUT = "error.out";
 
     public static final String CONF = "conf";
     public static final String JARS = "jars";

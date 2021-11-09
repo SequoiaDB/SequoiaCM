@@ -20,19 +20,14 @@ public class ScmCronMgr {
     private ScmExecutor executor;
     private String cronPropPath;
     private List<String> crontabCommands = new ArrayList<>();
-    private static volatile ScmCronMgr instance;
+    private static ScmCronMgr instance;
 
     public static ScmCronMgr getInstance() throws ScmToolsException {
         if (instance != null) {
             return instance;
         }
-        synchronized (ScmCronMgr.class) {
-            if (instance != null) {
-                return instance;
-            }
-            instance = new ScmCronMgr();
-            return instance;
-        }
+        instance = new ScmCronMgr();
+        return instance;
     }
 
     private ScmCronMgr() throws ScmToolsException {

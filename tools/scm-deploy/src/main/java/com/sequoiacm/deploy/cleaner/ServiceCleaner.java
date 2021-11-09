@@ -6,5 +6,5 @@ import com.sequoiacm.deploy.module.InstallPackType;
 public interface ServiceCleaner {
     InstallPackType getType();
 
-    public void clean(HostInfo host, boolean dryRun) throws Exception;
+    public void clean(HostInfo host, boolean dryRun);
 }
