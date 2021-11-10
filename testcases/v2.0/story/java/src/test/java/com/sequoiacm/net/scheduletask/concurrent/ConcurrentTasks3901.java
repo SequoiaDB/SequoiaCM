@@ -3,6 +3,7 @@ package com.sequoiacm.net.scheduletask.concurrent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -43,7 +44,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
     private int threadNums = 6;
     private WsWrapper wsp;
     private List< ScmId > fileIdList = new ArrayList<>();
-    private List< ScmId > taskIdList = new ArrayList<>();
+    private CopyOnWriteArrayList< ScmId > taskIdList = new CopyOnWriteArrayList< ScmId >();
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -73,7 +74,8 @@ public class ConcurrentTasks3901 extends TestScmBase {
         fileIdList.add( fileId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // 问题单SEQUOIACM-744未修改
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         for ( int i = 0; i < threadNums; i++ ) {

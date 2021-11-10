@@ -29,7 +29,8 @@ import java.util.List;
  * @version 1.0
  */
 public class ConcurrentTasks3900 extends TestScmBase {
-    private static final String fileName = "file3900";
+    private static final String fileName = "file3900_";
+    private static final String fileAuthor = "file3900Author";
     private static final int fileSize = 1024 * 1024 * 50;
     private SiteWrapper rootSite = null;
     private SiteWrapper branchSite = null;
@@ -64,7 +65,7 @@ public class ConcurrentTasks3900 extends TestScmBase {
                 branchSiteSession );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                .is( fileName ).get();
+                .is( fileAuthor ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
@@ -132,7 +133,11 @@ public class ConcurrentTasks3900 extends TestScmBase {
     private List< ScmId > createFileAndCache( String fileName )
             throws Exception {
         List< ScmId > fileIds = new ArrayList<>();
-        ScmId fileId = ScmFileUtils.create( rootSiteWs, fileName, filePath );
+        ScmFile file = ScmFactory.File.createInstance( rootSiteWs );
+        file.setFileName( fileName );
+        file.setAuthor( fileAuthor );
+        file.setContent( filePath );
+        ScmId fileId = file.save();
         fileIds.add( fileId );
         ScmFactory.File.asyncCache( branchSiteWs, fileId );
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId, 2 );
