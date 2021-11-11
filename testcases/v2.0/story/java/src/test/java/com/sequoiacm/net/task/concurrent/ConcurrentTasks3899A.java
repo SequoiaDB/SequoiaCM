@@ -12,6 +12,7 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -95,10 +96,9 @@ public class ConcurrentTasks3899A extends TestScmBase {
         } else if ( branchTask.taskInfo.getSuccessCount() == 1 ) {
             expSite = new SiteWrapper[] { rootSite };
         } else {
-            throw new Exception( "root task SuccessCount="
-                    + rootTask.taskInfo.getSuccessCount()
-                    + " branch task SuccessCount= "
-                    + branchTask.taskInfo.getSuccessCount() );
+            Assert.assertEquals( rootTask.taskInfo.getSuccessCount(), 0 );
+            Assert.assertEquals( branchTask.taskInfo.getSuccessCount(), 0 );
+            expSite = new SiteWrapper[] { rootSite, branchSite };
         }
         ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         runSuccess = true;
