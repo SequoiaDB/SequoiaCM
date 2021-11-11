@@ -87,10 +87,10 @@ public class ScmStartToolImpl extends ScmTool {
         String contentServerJarFile = ScmContentCommon.getContentServerJarName();
         File f = new File(contentServerJarFile);
         if (!f.exists()) {
-            logger.error("Can't find " + ScmContentCommon.getContenserverAbsolutePath()
+            logger.error("Can't find " + ScmContentCommon.getContentServerAbsolutePath()
                     + contentServerJarFile);
             throw new ScmToolsException("Can't find "
-                    + ScmContentCommon.getContenserverAbsolutePath() + contentServerJarFile,
+                    + ScmContentCommon.getContentServerAbsolutePath() + contentServerJarFile,
                     ScmExitCode.FILE_NOT_FIND);
         }
 
@@ -145,7 +145,8 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            String startLogPath = new File(ScmContentCommon.START_LOG_PATH).getAbsolutePath();
+            String startLogPath = ScmContentCommon.getScmLogAbsolutePath() + "start"
+                    + File.separator + "start.log";
             throw new ScmToolsException("please check log: " + startLogPath,
                     ScmExitCode.SYSTEM_ERROR);
         }
@@ -175,8 +176,10 @@ public class ScmStartToolImpl extends ScmTool {
                 else {
                     String status = getNodeRunningStatus(key);
                     if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                        System.out.println("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
-                        logger.info("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
+                        System.out.println("Success:CONTENT-SERVER(" + key
+                                + ") is already started (" + pid + ")");
+                        logger.info("Success:CONTENT-SERVER(" + key + ") is already started (" + pid
+                                + ")");
                         startSuccessList.add(key);
                     }
                     else {
@@ -210,8 +213,10 @@ public class ScmStartToolImpl extends ScmTool {
                         String runningStatus = getNodeRunningStatus(p);
                         if (runningStatus
                                 .equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                            System.out.println("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
-                            logger.info("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
+                            System.out.println("Success:CONTENT-SERVER(" + p
+                                    + ") is successfully started (" + pid + ")");
+                            logger.info("Success:CONTENT-SERVER(" + p
+                                    + ") is successfully started (" + pid + ")");
                             startSuccessList.add(p);
                             it.remove();
                             port2Status.remove(p);
@@ -250,13 +255,12 @@ public class ScmStartToolImpl extends ScmTool {
         String logName = ScmContentCommon.SCM_LOG_DIR_NAME.replace("-", "") + ".log";
 
         for (Entry<Integer, String> entry : port2Status.entrySet()) {
-            String logPath = ".." + File.separator + "log" + File.separator
+            String logPath = ScmContentCommon.getScmLogAbsolutePath()
                     + ScmContentCommon.SCM_LOG_DIR_NAME + File.separator + entry.getKey()
-                    + File.separator + logName;
-            String absLogPath = new File(logPath).getAbsolutePath();
+                    + File.separator + ScmContentCommon.SCM_LOG_FILE_NAME;
 
             logger.error("failed to start node(" + entry.getKey() + "),timeout,node status:"
-                    + entry.getValue() + ", please check log: {}", absLogPath);
+                    + entry.getValue() + ", please check log: {}", logPath);
             System.out.println("Failed:CONTENT-SERVER(" + entry.getKey() + ") failed to start");
         }
 

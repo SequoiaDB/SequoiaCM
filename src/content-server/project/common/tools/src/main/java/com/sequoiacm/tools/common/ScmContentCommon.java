@@ -75,6 +75,7 @@ public class ScmContentCommon {
     public static final String ERROR_LOG_FILE_NAME = "error.out";
     public static final String DEFAULT_CONTENSERVER_HOST = "localhost";
     public static final String SCM_CONF_DIR_NAME = "content-server";
+    public static final String SCM_LOG_FILE_NAME = "contentserver.log";
     public static final String SCM_LOG_DIR_NAME = "content-server";
     public static final String SCM_TOOL_LOG4J_PATH = File.separator + "main" + File.separator
             + "resources" + File.separator + "log4j.properties";
@@ -86,8 +87,8 @@ public class ScmContentCommon {
 
     public static final String DAEMON_DIR_PATH = "." + File.separator + ".." + File.separator + ".."
             + File.separator + "daemon";
-    public static final String DAEMON_CONF_FILE_PATH = "." + File.separator + ".."
-            + File.separator + "conf" + File.separator + ".scmd.properties";
+    public static final String DAEMON_CONF_FILE_PATH = "." + File.separator + ".." + File.separator
+            + "conf" + File.separator + ".scmd.properties";
     public static final String DAEMON_LOCATION = "daemonHomePath";
     public static final String BIN = "bin";
     public static final String DAEMON_SCRIPT = "scmd.sh";
@@ -124,19 +125,20 @@ public class ScmContentCommon {
     }
 
     public static String getScmConfAbsolutePath() {
-        File f = new File("..");
-        return f.getAbsolutePath() + File.separator + "conf" + File.separator + SCM_CONF_DIR_NAME
+        return getContentServerAbsolutePath() + "conf" + File.separator + SCM_CONF_DIR_NAME
                 + File.separator;
     }
 
     public static String getScmLibAbsolutePath() {
-        File f = new File("..");
-        return f.getAbsolutePath() + File.separator + "lib" + File.separator;
+        return getContentServerAbsolutePath() + "lib" + File.separator;
     }
 
-    public static String getContenserverAbsolutePath() {
-        File f = new File("..");
-        return f.getAbsolutePath() + File.separator;
+    public static String getScmLogAbsolutePath() {
+        return getContentServerAbsolutePath() + "log" + File.separator;
+    }
+
+    public static String getContentServerAbsolutePath() {
+        return new File("").getAbsoluteFile().getParent() + File.separator;
     }
 
     public static String getClassPath() throws ScmToolsException {
@@ -257,10 +259,10 @@ public class ScmContentCommon {
             owner = Files.getOwner(Paths.get(getContentServerJarName()), LinkOption.NOFOLLOW_LINKS);
         }
         catch (IOException e) {
-            logger.error("Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
+            logger.error("Failed to get owner of " + ScmContentCommon.getContentServerAbsolutePath()
                     + getContentServerJarName(), e);
             throw new ScmToolsException(
-                    "Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
+                    "Failed to get owner of " + ScmContentCommon.getContentServerAbsolutePath()
                             + getContentServerJarName() + ",errorMsg:" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR);
         }
@@ -298,15 +300,15 @@ public class ScmContentCommon {
         GroupPrincipal contentServerGroup = null;
         try {
             contentServerGroup = (GroupPrincipal) Files.getAttribute(
-                    Paths.get(ScmContentCommon.getContenserverAbsolutePath()), "posix:group",
+                    Paths.get(ScmContentCommon.getContentServerAbsolutePath()), "posix:group",
                     LinkOption.NOFOLLOW_LINKS);
         }
         catch (IOException e) {
             logger.error("Failed to get group name of "
-                    + ScmContentCommon.getContenserverAbsolutePath() + getContentServerJarName(),
+                    + ScmContentCommon.getContentServerAbsolutePath() + getContentServerJarName(),
                     e);
             throw new ScmToolsException(
-                    "Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
+                    "Failed to get group name of " + ScmContentCommon.getContentServerAbsolutePath()
                             + getContentServerJarName() + ",errorMsg" + e.getMessage(),
                     ScmExitCode.SYSTEM_ERROR);
         }

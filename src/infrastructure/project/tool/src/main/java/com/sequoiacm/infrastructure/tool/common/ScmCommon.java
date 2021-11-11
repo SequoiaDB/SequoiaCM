@@ -81,8 +81,8 @@ public class ScmCommon {
             info = ScmManifestParser.getManifestInfoFromJar(ScmCommon.class);
         }
         catch (IOException e) {
-            throw new ScmToolsException("failed to load manifest info:", ScmBaseExitCode.SYSTEM_ERROR,
-                    e);
+            throw new ScmToolsException("failed to load manifest info:",
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         String revision = info.getGitCommitIdOrSvnRevision();
         if (revision == null) {
@@ -103,9 +103,16 @@ public class ScmCommon {
         System.out.println(compTime);
     }
 
+    public static String getScmServiceAbsolutePath() {
+        return new File("").getAbsolutePath() + File.separator;
+    }
+
+    public static String getScmLogAbsolutePath() {
+        return getScmServiceAbsolutePath() + "log" + File.separator;
+    }
+
     public static String getScmConfAbsolutePath() {
-        File f = new File("");
-        return f.getAbsolutePath() + File.separator + "conf" + File.separator + SCM_CONF_DIR_NAME
+        return getScmServiceAbsolutePath() + "conf" + File.separator + SCM_CONF_DIR_NAME
                 + File.separator;
     }
 
@@ -467,6 +474,7 @@ public class ScmCommon {
         if (e instanceof ScmToolsException) {
             throw (ScmToolsException) e;
         }
-        throw new ScmToolsException(msg + ":error=" + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR, e);
+        throw new ScmToolsException(msg + ":error=" + e.getMessage(), ScmBaseExitCode.SYSTEM_ERROR,
+                e);
     }
 }
