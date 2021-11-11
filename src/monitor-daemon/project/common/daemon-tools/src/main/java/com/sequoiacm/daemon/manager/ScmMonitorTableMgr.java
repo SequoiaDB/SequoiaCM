@@ -53,7 +53,6 @@ public class ScmMonitorTableMgr {
     public void createTable() throws ScmToolsException {
         if (!isTableExist()) {
             try {
-                logger.debug("Creating table, table:{}", tablePath);
                 ScmCommon.createFile(tablePath);
             }
             catch (ScmToolsException e) {
@@ -72,7 +71,6 @@ public class ScmMonitorTableMgr {
         ScmFileLock lock = resource.createLock();
         lock.lock();
         try {
-            logger.debug("Initialing monitor table,table:{}", tablePath);
             List<ScmNodeInfo> nodeList = resource.readFile();
             // 如果列表长度不为 0，说明监控表已经被其他进程初始化成功，那么就直接退出
             if (nodeList != null && nodeList.size() > 0) {

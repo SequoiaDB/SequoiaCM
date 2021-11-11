@@ -47,7 +47,6 @@ public class ScmDaemonMgr {
             String cmd = "export JAVA_HOME=" + javaHome + ";export PATH=$JAVA_HOME/bin:$PATH;cd " + daemonHomePath
                     + ";nohup java -cp " + jarPath + " " + mainMethod + " cron " + "--period "
                     + period + " > " + errorLogPath + " 2>&1 &";
-            logger.debug("Starting daemon process by exec cmd, cmd:{}", cmd);
             executor.execCmd(cmd);
             logger.info("Start daemon process success,exec cmd:{}", cmd);
             return cmd;
