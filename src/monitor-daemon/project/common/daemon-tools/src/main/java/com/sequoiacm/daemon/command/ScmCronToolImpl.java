@@ -26,7 +26,7 @@ public class ScmCronToolImpl extends ScmTool {
     private ScmManagerWrapper executor;
 
     public ScmCronToolImpl() throws ScmToolsException {
-        super("cron");
+        super("cron", true);
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(hp.createOpt(DaemonDefine.OPT_SHORT_PERIOD, DaemonDefine.OPT_LONG_PERIOD,

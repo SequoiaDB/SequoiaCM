@@ -17,6 +17,8 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class ScmChStatusToolImpl extends ScmTool {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmChStatusToolImpl.class);
@@ -55,8 +57,7 @@ public class ScmChStatusToolImpl extends ScmTool {
         ScmNodeMatcher nodeMatcher = null;
         if (commandLine.hasOption(DaemonDefine.OPT_SHORT_PORT)) {
             String portStr = commandLine.getOptionValue(DaemonDefine.OPT_SHORT_PORT);
-            int port = ScmCommon.convertStrToInt(portStr);
-            ArgsUtils.checkPortValid(port);
+            int port = ArgsUtils.convertAndCheckPortValid(portStr);
             nodeMatcher = new ScmNodeMatcher(port);
         }
         else {
@@ -78,11 +79,16 @@ public class ScmChStatusToolImpl extends ScmTool {
             executor.changeNodeStatus(nodeMatcher, nodeModifier);
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Failed to change node status,nodeMatcher:" + nodeMatcher.toString(),
+            File file = new File(DaemonDefine.SCMD_LOG_PATH).getAbsoluteFile();
+            throw new ScmToolsException("Failed to change node status,nodeMatcher:"
+                    + nodeMatcher.toString() + ",please check log:" + file.getAbsolutePath(),
                     e.getExitCode(), e);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to change node status,nodeMatcher:" + nodeMatcher.toString(),
+            File file = new File(DaemonDefine.SCMD_LOG_PATH).getAbsoluteFile();
+            throw new ScmToolsException(
+                    "Failed to change node status,nodeMatcher:" + nodeMatcher.toString()
+                    + ",please check log:" + file.getAbsolutePath(),
                     ScmExitCode.SYSTEM_ERROR, e);
         }
         logger.info("Change node status success,nodeMatcher:{}", nodeMatcher.toString());

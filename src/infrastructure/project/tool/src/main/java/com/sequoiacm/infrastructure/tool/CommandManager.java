@@ -1,9 +1,6 @@
 package com.sequoiacm.infrastructure.tool;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +95,7 @@ public class CommandManager {
                 System.out.println("No such subcommand");
             }
         }
-        System.out.println(this.getHelpMsg());
+        System.out.println(this.getHelpMsg(false));
         System.exit(ScmBaseExitCode.INVALID_ARG);
     }
 
@@ -117,7 +114,7 @@ public class CommandManager {
                     printHelp(args[i + 1], false);
                 }
                 else {
-                    System.out.println(this.getHelpMsg());
+                    System.out.println(this.getHelpMsg(false));
                     System.exit(ScmBaseExitCode.SUCCESS);
                 }
             }
@@ -132,7 +129,7 @@ public class CommandManager {
         }
         else {
             System.out.println("No such command");
-            System.out.println(this.getHelpMsg());
+            System.out.println(this.getHelpMsg(isFullHelp));
             System.exit(ScmBaseExitCode.INVALID_ARG);
         }
     }
@@ -144,14 +141,25 @@ public class CommandManager {
         return instance;
     }
 
-    public String getHelpMsg() {
+    public String getHelpMsg(boolean isFullHelp) {
         String template = "usage: name <subcommand> [options] [args]" + "\r\n"
                 + "Type 'name help [subcommand]' for help on a specific subcommand" + "\r\n"
                 + "Type 'name --version' to see the program version" + "\r\n"
                 + "Available subcommands:" + "\r\n";
         template = template.replaceAll("name", this.commandManagerName);
         StringBuilder sb = new StringBuilder(template);
-        Set<String> cmdNames = this.tools.keySet();
+        Set<String> cmdNames = null;
+        if (isFullHelp) {
+            cmdNames = this.tools.keySet();
+        }
+        else {
+            cmdNames = new HashSet<>();
+            for (Map.Entry<String, ScmTool> entry : this.tools.entrySet()) {
+                if (!entry.getValue().isHidden()) {
+                    cmdNames.add(entry.getKey());
+                }
+            }
+        }
         for (String cmdName : cmdNames) {
             String s = String.format("\t%s" + "\r\n", cmdName);
             sb.append(s);

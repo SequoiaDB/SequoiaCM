@@ -18,13 +18,13 @@ public class ScmHelpFullToolImpl extends ScmTool {
             this.cmd.printHelp(args[0], true);
         }
         else {
-            System.out.println(this.cmd.getHelpMsg());
+            System.out.println(this.cmd.getHelpMsg(true));
             System.exit(ScmBaseExitCode.SUCCESS);
         }
     }
 
     @Override
     public void printHelp(boolean isFullHelp) throws ScmToolsException {
-        System.out.println(this.cmd.getHelpMsg());
+        System.out.println(this.cmd.getHelpMsg(isFullHelp));
     }
 }

@@ -1,5 +1,7 @@
 package com.sequoiacm.daemon.common;
 
+import java.io.File;
+
 public class DaemonDefine {
     public static final String MAIN_METHOD = "com.sequoiacm.daemon.Scmd";
 
@@ -11,6 +13,8 @@ public class DaemonDefine {
     public static final String ZOO_PATTERN = "zoo[0-9]*.cfg";
     public static final String ZOO_PID_FILE = "zookeeper_server.pid";
     public static final String ERROR_OUT = "error.out";
+
+    public static final String SCMD_LOG_PATH = "." + File.separator + "log" + File.separator + "scmd.log";
 
     public static final String CONF = "conf";
     public static final String JARS = "jars";

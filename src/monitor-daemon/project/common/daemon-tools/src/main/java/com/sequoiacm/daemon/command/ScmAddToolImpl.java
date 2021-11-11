@@ -16,6 +16,8 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class ScmAddToolImpl extends ScmTool {
     private final Logger logger = LoggerFactory.getLogger(ScmAddToolImpl.class);
 
@@ -65,12 +67,14 @@ public class ScmAddToolImpl extends ScmTool {
             executor.addNodeInfo(nodeInfo, isOverWrite);
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Failed to add node,node:" + nodeInfo.toString(),
-                    e.getExitCode(), e);
+            File file = new File(DaemonDefine.SCMD_LOG_PATH).getAbsoluteFile();
+            throw new ScmToolsException("Failed to add node,node:" + nodeInfo.toString()
+                    + ",please check log:" + file.getAbsolutePath(), e.getExitCode(), e);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to add node,node:" + nodeInfo.toString(),
-                    ScmExitCode.SYSTEM_ERROR, e);
+            File file = new File(DaemonDefine.SCMD_LOG_PATH).getAbsoluteFile();
+            throw new ScmToolsException("Failed to add node,node:" + nodeInfo.toString()
+                    + ",please check log:" + file.getAbsolutePath(), ScmExitCode.SYSTEM_ERROR, e);
         }
         logger.info("Add node success,node:{}", nodeInfo.toString());
         System.out.println("Add node success,node:" + nodeInfo.toString());

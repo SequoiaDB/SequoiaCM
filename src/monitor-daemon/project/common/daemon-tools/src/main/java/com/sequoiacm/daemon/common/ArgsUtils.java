@@ -9,13 +9,22 @@ import java.io.File;
 
 public class ArgsUtils {
 
-    public static void checkPortValid(int port) throws ScmToolsException {
+    public static int convertAndCheckPortValid(String portStr) throws ScmToolsException {
+        int port = 0;
+        try {
+            port = ScmCommon.convertStrToInt(portStr);
+        }
+        catch (ScmToolsException e) {
+            throw new ScmToolsException("Invalid args: port convert to number(int) failed, port=" + portStr,
+                    e.getExitCode(), e);
+        }
         if (port <= 0 || port > 65535) {
             throw new ScmToolsException(
                     "Invalid args: -p or --port is out of range, port preferred in the range (0,65535], port="
                             + port,
                     ScmExitCode.INVALID_ARG);
         }
+        return port;
     }
 
     public static void checkStatusValid(String status) throws ScmToolsException {
@@ -62,7 +71,7 @@ public class ArgsUtils {
             period = ScmCommon.convertStrToInt(periodStr);
         }
         catch (ScmToolsException e) {
-            throw new ScmToolsException("Invalid args: period convert to number(int) failed",
+            throw new ScmToolsException("Invalid args: period convert to number(int) failed, period=" + periodStr,
                     e.getExitCode(), e);
         }
         if (period <= 0 || period >= DaemonDefine.PERIOD_MAXIMUM) {
