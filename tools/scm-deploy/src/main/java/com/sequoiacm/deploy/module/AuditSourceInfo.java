@@ -27,6 +27,7 @@ public class AuditSourceInfo extends MetaSourceInfo {
         CommonUtils.assertTrue(passwordInfo.getPlaintext() != null, "password is null!");
         super.setPassword(passwordInfo.getPlaintext());
         super.setDomain(BsonUtils.getStringChecked(bson, ConfFileDefine.AUDITSOURCE_DOMAIN));
+        super.setType(ConfFileDefine.SEACTION_AUDITSOURCE);
     }
 
 }

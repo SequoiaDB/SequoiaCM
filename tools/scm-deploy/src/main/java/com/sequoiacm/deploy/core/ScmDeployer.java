@@ -48,7 +48,7 @@ public class ScmDeployer {
         logger.info("Deploying service{}...({}/{})", dryrun ? "(Dry Run Mode)" : "",
                 currentProgress++, progress);
 
-        logger.info("Deploying service: initializing metasouce and auditsource ({}/{})",
+        logger.info("Deploying service: initializing metasource and auditsource ({}/{})",
                 currentProgress++, progress);
         dbInitializer.doInitialize(dryrun);
 

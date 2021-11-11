@@ -113,7 +113,8 @@ public class SequoiadbTableInitializer {
             }
         }
         catch (Exception e) {
-            throw new Exception("failed to uninitialize:sdb=" + metasourceInfo.getUrl(), e);
+            throw new Exception("failed to uninitialize:source type=" + source.getType()
+                    + ",source url=" + source.getUrl(), e);
         }
         finally {
             CommonUtils.closeResource(sdb);
@@ -178,7 +179,8 @@ public class SequoiadbTableInitializer {
 
         }
         catch (Exception e) {
-            throw new Exception("failed to initialize:sdb=" + metasourceInfo.getUrl(), e);
+            throw new Exception("failed to initialize:source type=" + source.getType()
+                    + ",source url=" + source.getUrl(), e);
         }
         finally {
             CommonUtils.closeResource(sdb);

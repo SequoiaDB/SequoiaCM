@@ -57,13 +57,13 @@ public class ScmCleaner {
             cleanerMgr.clean(hostInfo, c.getType(), dryRun);
         }
 
-        logger.info("Cleaning service: uninitializing metasouce and auditsource ({}/{})",
+        logger.info("Cleaning service: uninitializing metasource and auditsource ({}/{})",
                 currentStep++, totalStep);
         try {
             tableInitializer.doUninitialize(dryRun);
         }
         catch (Exception e) {
-            logger.warn("failed to clean metasource and auditsouce", e);
+            logger.warn("failed to clean metasource and auditsource", e);
         }
 
         logger.info("Cleaning service: removing password file ({}/{})", currentStep++, totalStep);

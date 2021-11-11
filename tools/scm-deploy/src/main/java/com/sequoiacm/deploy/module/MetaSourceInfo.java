@@ -12,6 +12,7 @@ public class MetaSourceInfo {
     private String user;
     private String password;
     private String domain;
+    private String type;
 
     public static final ConfCoverter<MetaSourceInfo> CONVERTER = new ConfCoverter<MetaSourceInfo>() {
         @Override
@@ -33,6 +34,7 @@ public class MetaSourceInfo {
                 passwdFile);
         password = passwordInfo.getPlaintext();
         domain = BsonUtils.getStringChecked(bson, ConfFileDefine.METASOURCE_DOMAIN);
+        type = ConfFileDefine.SEACTION_METASOURCE;
     }
 
     public String getUrl() {
@@ -65,6 +67,14 @@ public class MetaSourceInfo {
 
     protected void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
