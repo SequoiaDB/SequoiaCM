@@ -110,6 +110,7 @@ public class GetTasks3737 extends TestScmBase {
         BSONObject updateOrderby = null;
         List< ScmTask > actTasks2 = copySchedule.getTasks( condition,
                 updateOrderby, skip, limit );
+        Collections.sort( actTasks2, new OrderBy() );
         Assert.assertEquals( expTasks.toString(), actTasks2.toString() );
 
         updateOrderby = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -162,7 +163,7 @@ public class GetTasks3737 extends TestScmBase {
         List< ScmTask > actTasks1 = copySchedule.getTasks( condition,
                 updateOrderby, skip, limit );
         List< ScmTask > expTasks1 = expTasks.subList( 0, expTasks.size() );
-        Collections.sort( expTasks1, new OrderBy() );
+        Collections.sort( expTasks1, new reverseOrderBy() );
         Assert.assertEquals( expTasks1.toString(), actTasks1.toString() );
         runSuccess = true;
     }
@@ -184,7 +185,7 @@ public class GetTasks3737 extends TestScmBase {
         }
     }
 
-    public class OrderBy implements Comparator< ScmTask > {
+    public class reverseOrderBy implements Comparator< ScmTask > {
         public int compare( ScmTask obj1, ScmTask obj2 ) {
             int flag = 0;
             String no1 = obj1.getId().get();
@@ -192,6 +193,20 @@ public class GetTasks3737 extends TestScmBase {
             if ( no1.compareTo( no2 ) < 0 ) {
                 flag = 1;
             } else if ( no1.compareTo( no2 ) > 0 ) {
+                flag = -1;
+            }
+            return flag;
+        }
+    }
+
+    public class OrderBy implements Comparator< ScmTask > {
+        public int compare( ScmTask obj1, ScmTask obj2 ) {
+            int flag = 0;
+            String no1 = obj1.getId().get();
+            String no2 = obj2.getId().get();
+            if ( no1.compareTo( no2 ) > 0 ) {
+                flag = 1;
+            } else if ( no1.compareTo( no2 ) < 0 ) {
                 flag = -1;
             }
             return flag;
