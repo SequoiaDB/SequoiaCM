@@ -1,9 +1,6 @@
 package com.sequoiacm.tools.common;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -13,10 +10,8 @@ import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.UserPrincipal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -523,20 +518,33 @@ public class ScmContentCommon {
     }
 
     public static String getContentServerJarName() throws ScmToolsException {
-        String version;
-        try {
-            version = ScmManifestParser.getManifestInfoFromJar(ScmContentCommon.class)
-                    .getScmVersion();
+        File libDir = new File(".");
+        final String matchCondition = "^" + CONTENTSERVER_NAME + "-(.*)\\.jar$";
+        FilenameFilter jarNameFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return Pattern.matches(matchCondition, name);
+            }
+        };
+        File[] files = libDir.listFiles(jarNameFilter);
+        if (files == null || files.length <= 0) {
+            logger.error("Missing jar, jarPrefix:{}, path:{}", matchCondition, libDir.getAbsolutePath());
+            throw new ScmToolsException(
+                    "Missing jar, jarPrefix:" + matchCondition + ",path:" + libDir.getAbsolutePath(),
+                    ScmExitCode.FILE_NOT_FIND);
         }
-        catch (IOException e) {
-            throw new ScmToolsException("failed to load manifest", ScmExitCode.SYSTEM_ERROR);
+        if (files.length == 1) {
+            return files[0].getName();
         }
-        if (version == null) {
-            logger.error("Missing version information in MANIFEST.MF");
-            throw new ScmToolsException("Missing version information in MANIFEST.MF",
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-        return CONTENTSERVER_NAME + "-" + version + ".jar";
+        Comparator<File> versionComparator = new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return o2.getName().compareTo(o1.getName());
+            }
+        };
+        Arrays.sort(files, versionComparator);
+        logger.info("Multiple jar in the path, jar:{}, path:{}", Arrays.toString(files), libDir.getAbsolutePath());
+        return files[0].getName();
     }
 
     public static ScmDataLocation createDataLocation(BSONObject dataLocationBSON,

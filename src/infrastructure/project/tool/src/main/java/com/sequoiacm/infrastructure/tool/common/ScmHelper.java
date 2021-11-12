@@ -13,7 +13,11 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.regex.Pattern;
 
 public class ScmHelper {
     private static String pwd;
@@ -28,20 +32,34 @@ public class ScmHelper {
         return pwd;
     }
 
-    public static String getJarNameByType(ScmNodeType type) throws ScmToolsException {
-        try {
-            String version = ScmManifestParser.getManifestInfoFromJar(ScmHelper.class)
-                    .getScmVersion();
-            if (version == null) {
-                version = "1.0-SNAPSHOT";
-                logger.warn("load version from manifest error,use default version:{}", version);
+    public static String getJarNameByType(final ScmNodeType type) throws ScmToolsException {
+        String jarsPath = getPwd() + File.separator + "jars";
+        File jarsDir = new File(jarsPath);
+        final String matchCondition = "^" + type.getJarNamePrefix() + "(.*)\\.jar$";
+        FilenameFilter jarNameFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return Pattern.matches(matchCondition, name);
             }
-            return type.getJarNamePrefix() + version + ".jar";
+        };
+        File[] files = jarsDir.listFiles(jarNameFilter);
+        if (files == null || files.length <= 0) {
+            logger.error("Missing jar, jarPrefix:{}, path:{}", matchCondition, jarsPath);
+            throw new ScmToolsException("Missing jar, jarPrefix:" + matchCondition + ",path:" + jarsPath,
+                    ScmBaseExitCode.FILE_NOT_FIND);
         }
-        catch (Exception e) {
-            throw new ScmToolsException("failed to load manifest info:", ScmBaseExitCode.SYSTEM_ERROR,
-                    e);
+        if (files.length == 1) {
+            return files[0].getName();
         }
+        Comparator<File> versionComparator = new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return o2.getName().compareTo(o1.getName());
+            }
+        };
+        Arrays.sort(files, versionComparator);
+        logger.info("Multiple jar in the path, jar:{}, path:{}", Arrays.toString(files), jarsPath);
+        return files[0].getName();
     }
 
     public static void configToolsLog(String logFile) throws ScmToolsException {
