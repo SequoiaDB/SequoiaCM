@@ -240,7 +240,7 @@ public class Ssh {
                                 + " stdout=" + str );
             }
             String confFile = str.substring( "--logging.config=".length() );
-            dir = confFile.substring( 0, confFile.indexOf( "conf" ) );
+            dir = confFile.substring( 0, confFile.indexOf( "lib" ) );
 
         } finally {
             ssh.disconnect();
