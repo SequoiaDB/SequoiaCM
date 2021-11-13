@@ -13,7 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,13 +76,17 @@ public class ScmFileResource {
     }
 
     private List<ScmNodeInfo> readFileAndTurnToNodeInfo() throws ScmToolsException {
+        Charset charset = Charset.forName(DaemonDefine.ENCODE_TYPE);
+        CharsetDecoder decoder = charset.newDecoder();
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         StringBuilder sb = new StringBuilder();
         try {
             raf.seek(0);
             while (channel.read(buffer) != -1) {
                 buffer.flip();
-                sb.append(new String(buffer.array(), DaemonDefine.ENCODE_TYPE));
+                // 将刚读入buffer的内容按照utf-8解码
+                CharBuffer cb = decoder.decode(buffer);
+                sb.append(cb);
                 buffer.clear();
             }
 
