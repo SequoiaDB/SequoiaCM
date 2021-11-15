@@ -45,7 +45,20 @@ SequoiaCM 配置
 |scm.jvm.options                |str    |配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
 |scm.dir.cache.enable           |boolean|内容服务节点是否开启目录缓存,默认值为：true|
 |scm.dir.cache.maxSize          |num    |内容服务节点目录最大缓存记录数,默认值为：10000|
-
+|scm.cephs3.connectionDecider.mode    |str  |配置cephs3站点主备策略，可选值：<br>auto，根据主备连接情况自动决策（默认）<br> primary_only，强制连主<br>standby_only，强制连备    |
+|scm.cephs3.detectInterval            |num  |内容服务节点探测宕机的cephs3是否恢复的时间间隔，默认值：5000，单位：毫秒|
+|scm.cephs3.client.connTimeout        |num  |内容服务节点与cephs3建立连接的超时时长，默认值为：10000，单位：毫秒|
+|scm.cephs3.client.socketTimeout      |num  |内容服务节点与cephs3的socket连接超时时长，默认值为：50000，单位：毫秒|
+|scm.cephs3.client.maxErrorRetry      |num  |内容服务节点请求cephs3的失败重试次数，默认值：3|
+|scm.cephs3.client.connTTL            |num  |内容服务节点的cephs3连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒 |
+|scm.cephs3.client.maxConns           |num  |内容服务节点允许同时与cephs3打开的最大连接数，默认值：50  |
+|scm.cephs3.client.signerOverride     |str  |cephs3驱动签名配置，默认值：S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
+|scm.cephs3.detectClient.connTimeout  |num  |内容服务节点探测宕机的cephs3是否恢复时，建立连接的超时时长，默认值：5000，单位：毫秒|
+|scm.cephs3.detectClient.socketTimeout|num  |内容服务节点探测宕机的cephs3是否恢复时，socket的连接超时时长，默认值：5000，单位：毫秒
+|scm.cephs3.detectClient.maxErrorRetry|num  |内容服务节点探测宕机的cephs3是否恢复时，请求cephs3的失败重试次数，默认值：1|
+|scm.cephs3.detectClient.connTTL            |num  |内容服务节点探测宕机的cephs3是否恢复时，cephs3连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒 |
+|scm.cephs3.detectClient.maxConns     |num  |内容服务节点探测宕机的cephs3是否恢复时，允许同时与cephs3打开的最大连接数，默认值：1|
+|scm.cephs3.detectClient.signerOverride|str  |内容服务节点探测宕机的cephs3是否恢复时的签名配置，默认值： S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
 
  > **Note:**
  >
