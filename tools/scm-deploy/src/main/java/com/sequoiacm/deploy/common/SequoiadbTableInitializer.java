@@ -137,7 +137,7 @@ public class SequoiadbTableInitializer {
             for (Object cs : css) {
                 BSONObject csBSON = (BSONObject) cs;
                 BSONObject csOption = (BSONObject) csBSON.get("options");
-                csOption.put("Domain", metasourceInfo.getDomain());
+                csOption.put("Domain", source.getDomain());
                 if (dryrun) {
                     logger.info("Collectionspace will be create:name=" + csBSON.get("name")
                             + ", sdb=" + source.getUrl());
