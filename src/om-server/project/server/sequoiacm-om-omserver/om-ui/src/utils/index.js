@@ -143,6 +143,24 @@ export function randomStr(len) {
   return JSON.stringify(obj, null, 2)
 }
 
+/**
+ * @param {string} str
+ * @returns {boolean}
+ */
+export function isJsonStr (str) {
+  if (typeof str == 'string') {
+    try {
+      let obj = JSON.parse(str)
+      if (typeof obj == 'object' && obj) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      return false
+    }
+  }
+}
 
 /**
  * @param {object} obj  

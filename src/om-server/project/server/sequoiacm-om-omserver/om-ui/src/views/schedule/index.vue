@@ -276,7 +276,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="查询条件">
+        <el-form-item label="查询条件" prop="condition">
           <el-input
             id="input_schedule_condition"
             v-model="form.condition"
@@ -325,6 +325,17 @@ export default {
     ScheduleDetailDialog
   },
   data(){
+    let validateCondition =  (rule, value, callback) => {
+      if (value != '') {
+        if (!this.$util.isJsonStr(value)) {
+          callback(new Error('查询条件格式不正确'));
+        } else {
+          callback()
+        }
+      } else {
+        callback()
+      }
+    }
     return{
       interval: 'minute', // 调度周期
       showCronPicker: true,
@@ -391,6 +402,9 @@ export default {
         scope: [
           { required: true, message: '请选择文件范围', trigger: 'change' },
         ],
+        condition: [
+          {validator: validateCondition, trigger: 'blur'}
+        ]
       },
       selectedSchedule: '',
       siteStrategy: '',

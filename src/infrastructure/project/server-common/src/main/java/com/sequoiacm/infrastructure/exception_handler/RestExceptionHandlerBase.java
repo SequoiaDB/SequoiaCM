@@ -38,7 +38,7 @@ public abstract class RestExceptionHandlerBase {
             throw e;
         }
 
-        if (sessionId != null && sessionId.length() > 0) {
+        if (exceptionBody.isNeedSessionId() && sessionId != null && sessionId.length() > 0) {
             exceptionBody.setMessage("sessionId=" + sessionId + "," + exceptionBody.getMessage());
         }
         exceptionBody.setException(e.getClass().getName());

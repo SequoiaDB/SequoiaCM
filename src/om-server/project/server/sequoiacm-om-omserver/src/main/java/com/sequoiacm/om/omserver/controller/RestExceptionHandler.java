@@ -21,7 +21,7 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
         if (srcException instanceof ScmInternalException) {
             ScmInternalException scmInternalException = (ScmInternalException) srcException;
             return new ExceptionBody(scmInternalException.getErrorCode(), "none",
-                    scmInternalException.getMessage());
+                    scmInternalException.getMessage(), false);
         }
 
         if (srcException instanceof ScmOmServerException) {
