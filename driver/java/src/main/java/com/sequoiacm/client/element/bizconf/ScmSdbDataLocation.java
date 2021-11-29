@@ -208,7 +208,7 @@ public class ScmSdbDataLocation extends ScmDataLocation {
      *             if error happens.
      */
     public void setClOptions(BSONObject clOptions) throws ScmInvalidArgumentException {
-        checkValueNotNull(csOptions, "clOptions");
+        checkValueNotNull(clOptions, "clOptions");
         this.clOptions = clOptions;
     }
 
