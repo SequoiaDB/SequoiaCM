@@ -58,7 +58,6 @@ public class WsIndex3020 extends TestScmBase {
         matcher.put( "author", author );
         ScmFactory.Fulltext.createIndex( ws,
                 new ScmFulltextOption( matcher, ScmFulltextMode.sync ) );
-
     }
 
     @Test
@@ -73,6 +72,10 @@ public class WsIndex3020 extends TestScmBase {
         newMatcher.put( "author", newAuthor );
         modifiler.newFileCondition( newMatcher );
         ScmFactory.Fulltext.alterIndex( ws, modifiler );
+        for ( int i = 0; i < fileIdListA.size(); i++ ) {
+            FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
+                    fileIdListA.get( i ) );
+        }
 
         // 新增文件匹配创建索引条件
         String fileNamePrefixB = "file3020new_";
