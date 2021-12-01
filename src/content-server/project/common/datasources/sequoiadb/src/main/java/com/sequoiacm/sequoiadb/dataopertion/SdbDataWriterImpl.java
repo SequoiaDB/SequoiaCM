@@ -40,8 +40,8 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         this.lobId = dataId;
 
         try {
-            sdbLocation = (SdbDataLocation)location;
-            sds = (SdbDataService)service;
+            sdbLocation = (SdbDataLocation) location;
+            sds = (SdbDataService) service;
             sdb = sds.getSequoiadb();
             lob = createLob();
         }
@@ -52,8 +52,9 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         catch (Exception e) {
             cancel();
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "create lob failed:siteId=" + siteId + ",csName=" + csName + ",clName="
-                            + clName + ",lob=" + dataId, e);
+                    "create lob failed:siteId=" + siteId + ",csName=" + csName + ",clName=" + clName
+                            + ",lob=" + dataId,
+                    e);
         }
     }
 
@@ -74,7 +75,7 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         catch (Exception e) {
             logger.error("get sdb cl options failed:cs={},cl={}", csName, clName);
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName +",cl=" + clName, e);
+                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
         }
     }
 
@@ -89,7 +90,7 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         catch (Exception e) {
             logger.error("get sdb cs options failed:cs={},cl={}", csName, clName);
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName +",cl=" + clName, e);
+                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
         }
     }
 
@@ -102,15 +103,15 @@ public class SdbDataWriterImpl extends ScmDataWriter {
             if (e.getDatabaseError() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()) {
                 boolean createdCs = SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
                 SequoiadbHelper.createCL(sdb, csName, clName, generateCLOptions());
-                if(createdCs) {
+                if (createdCs) {
                     createdCsName = csName;
                 }
                 tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
             }
             else if (e.getDatabaseError() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
                 /*
-                 * since sdb have cached cs And cl. we should call
-                 * sdb.isCollectionSpaceExist to ensure the cs is exist or not
+                 * since sdb have cached cs And cl. we should call sdb.isCollectionSpaceExist to
+                 * ensure the cs is exist or not
                  */
                 if (!sdb.isCollectionSpaceExist(csName)) {
                     SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
@@ -147,17 +148,15 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         catch (BaseException e) {
             logger.error("write lob failed:siteId=" + siteId + ",cs=" + csName + ",cl=" + clName
                     + ",lobId=" + lobId);
-            throw new SequoiadbException(e.getErrorCode(),
-                    "write lob failed:siteId=" + siteId + ",cs=" + csName + ",cl=" + clName
-                    + ",lobId=" + lobId, e);
+            throw new SequoiadbException(e.getErrorCode(), "write lob failed:siteId=" + siteId
+                    + ",cs=" + csName + ",cl=" + clName + ",lobId=" + lobId, e);
 
         }
         catch (Exception e) {
             logger.error("write lob failed:siteId=" + siteId + ",cs=" + csName + ",cl=" + clName
                     + ",lobId=" + lobId);
-            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "write lob failed:siteId=" + siteId + ",cs=" + csName + ",cl=" + clName
-                    + ",lobId=" + lobId, e);
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(), "write lob failed:siteId="
+                    + siteId + ",cs=" + csName + ",cl=" + clName + ",lobId=" + lobId, e);
         }
     }
 
@@ -181,14 +180,12 @@ public class SdbDataWriterImpl extends ScmDataWriter {
             }
         }
         catch (BaseException e) {
-            throw new SequoiadbException(e.getErrorCode(),
-                    "close lob failed:siteId=" + siteId + ",csName=" + csName + ",clName=" + clName
-                    + ",lobId=" + lobId, e);
+            throw new SequoiadbException(e.getErrorCode(), "close lob failed:siteId=" + siteId
+                    + ",csName=" + csName + ",clName=" + clName + ",lobId=" + lobId, e);
         }
         catch (Exception e) {
-            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "close lob failed:siteId=" + siteId + ",csName=" + csName + ",clName=" + clName
-                    + ",lobId=" + lobId, e);
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(), "close lob failed:siteId="
+                    + siteId + ",csName=" + csName + ",clName=" + clName + ",lobId=" + lobId, e);
         }
         finally {
             // release connection

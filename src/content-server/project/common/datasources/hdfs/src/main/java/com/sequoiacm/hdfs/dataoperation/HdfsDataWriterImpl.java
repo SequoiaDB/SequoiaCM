@@ -23,9 +23,8 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
     private HdfsDataService dataService;
     private FSDataOutputStream outputStream = null;
 
-    public HdfsDataWriterImpl(String wsName, HdfsDataLocation dataLocation,
-            ScmService service, ScmDataInfo dataInfo)
-                    throws HdfsException {
+    public HdfsDataWriterImpl(String wsName, HdfsDataLocation dataLocation, ScmService service,
+            ScmDataInfo dataInfo) throws HdfsException {
         try {
             this.filePath = dataLocation.getFileDir(wsName, dataInfo.getCreateTime(),
                     dataInfo.getId());
@@ -57,11 +56,12 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
         }
         catch (FileAlreadyExistsException e) {
             throw new HdfsException(HdfsException.HDFS_ERROR_FILE_ALREADY_EXISTS,
-                    "create FSDataOutputStream failed ,file data exist :filePath=" + this.filePath, e);
+                    "create FSDataOutputStream failed ,file data exist :filePath=" + this.filePath,
+                    e);
         }
         catch (Exception e) {
-            throw new HdfsException(
-                    "create FSDataOutputStream failed:filePath=" + this.filePath, e);
+            throw new HdfsException("create FSDataOutputStream failed:filePath=" + this.filePath,
+                    e);
         }
     }
 
@@ -77,8 +77,7 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
             this.offset += len;
         }
         catch (Exception e) {
-            throw new HdfsException(
-                    "write file failed:filePath=" + this.filePath, e);
+            throw new HdfsException("write file failed:filePath=" + this.filePath, e);
         }
     }
 
@@ -140,7 +139,7 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
 
     @Override
     public String getCreatedTableName() {
-        //no need record path, we have record the path when create workspace.
+        // no need record path, we have record the path when create workspace.
         return null;
     }
 }

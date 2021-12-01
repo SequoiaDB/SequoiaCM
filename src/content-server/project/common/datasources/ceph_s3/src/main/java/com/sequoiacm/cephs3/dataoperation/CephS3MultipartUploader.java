@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.cephs3.CephS3Exception;
 import com.sequoiacm.cephs3.dataservice.CephS3ConnWrapper;
 import com.sequoiacm.cephs3.dataservice.CephS3DataService;
+import com.sequoiacm.common.memorypool.ScmPoolWrapper;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ public class CephS3MultipartUploader {
     private static final Logger logger = LoggerFactory.getLogger(CephS3MultipartUploader.class);
     private static final int PART_SIZE = 5 * 1024 * 1024;
     private final long writeOffset;
-    private byte[] buffer = new byte[PART_SIZE];
+    private byte[] buffer = null;
     private int bufferOff = 0;
     private final String bucketName;
     private final String key;
@@ -26,6 +27,7 @@ public class CephS3MultipartUploader {
     private CephS3ConnWrapper conn;
     private int fileSize;
     private List<PartETag> eTags = new ArrayList<>();
+    private ScmPoolWrapper poolWrapper;
 
     public CephS3MultipartUploader(ScmService service, String bucketName, String key)
             throws CephS3Exception {
@@ -44,6 +46,14 @@ public class CephS3MultipartUploader {
             throw new CephS3Exception(
                     "construct CephS3MultipartUploader failed, cephs3 is down:bucketName="
                             + bucketName + ",key=" + key);
+        }
+        try {
+            this.poolWrapper = ScmPoolWrapper.getInstance();
+            this.buffer = poolWrapper.getBytes(PART_SIZE);
+        }
+        catch (Exception e) {
+            throw new CephS3Exception("construct CephS3MultipartUploader failed:bucketName="
+                    + bucketName + ",key=" + key, e);
         }
         try {
             init(bucketName, key, uploadId);
@@ -192,7 +202,9 @@ public class CephS3MultipartUploader {
     }
 
     private void releaseResource() {
-        buffer = null;
+        if (buffer != null) {
+            poolWrapper.releaseBytes(buffer);
+        }
         eTags = null;
         if (conn != null) {
             dataService.releaseConn(conn);

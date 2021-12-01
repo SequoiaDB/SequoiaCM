@@ -2,6 +2,7 @@ package com.sequoiacm.cephswift.dataoperation;
 
 import java.io.ByteArrayInputStream;
 
+import com.sequoiacm.common.memorypool.ScmPoolWrapper;
 import org.javaswift.joss.headers.object.ObjectManifest;
 import org.javaswift.joss.headers.object.ObjectMetadata;
 import org.javaswift.joss.instructions.UploadInstructions;
@@ -23,20 +24,21 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     private CephSwiftDataService dataService;
     private Container container;
 
-    private byte[] buffer = new byte[CephSwiftCommonDefine.SEGMENT_OBJ_SIZE];
+    private byte[] buffer = null;
 
     private int bufferOff = 0;
     private int fileSize = 0;
     private int partNum = 1;
     private Account account;
     private String createdContainerName;
+    private ScmPoolWrapper poolWrapper;
 
     public CephSwiftDataWriterImpl(String containerName, String objectName, ScmService service)
             throws CephSwiftException {
         try {
             this.containerName = containerName;
             this.objectName = objectName;
-            this.dataService = (CephSwiftDataService)service;
+            this.dataService = (CephSwiftDataService) service;
             this.account = dataService.createAccount();
             this.container = dataService.getContainer(account, containerName);
             if (dataService.isObjectExist(dataService.getObject(container, objectName))) {
@@ -44,6 +46,8 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
                         "file data exists:containerName=" + containerName + ",objectName="
                                 + objectName);
             }
+            this.poolWrapper = ScmPoolWrapper.getInstance();
+            this.buffer = poolWrapper.getBytes(CephSwiftCommonDefine.SEGMENT_OBJ_SIZE);
         }
         catch (CephSwiftException e) {
             logger.error("construct CephSwiftDataWriterImpl failed:container=" + containerName
@@ -55,11 +59,9 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
             logger.error("construct CephSwiftDataWriterImpl failed:container=" + containerName
                     + ",object=" + objectName);
             releaseResource();
-            throw new CephSwiftException(
-                    "construct CephSwiftDataWriterImpl failed:container=" + containerName
-                    + ",object=" + objectName, e);
+            throw new CephSwiftException("construct CephSwiftDataWriterImpl failed:container="
+                    + containerName + ",object=" + objectName, e);
         }
-
     }
 
     @Override
@@ -108,7 +110,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
                 this.container = account.getContainer(containerName);
 
                 boolean hasCreatedContainer = dataService.createContainer(container);
-                if(hasCreatedContainer) {
+                if (hasCreatedContainer) {
                     this.createdContainerName = containerName;
                 }
                 StoredObject obj = dataService.getObjectSegment(container, objectName, partNum);
@@ -126,7 +128,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
 
     @Override
     public void cancel() {
-        for(int i = 1; i < partNum; i++) {
+        for (int i = 1; i < partNum; i++) {
             try {
                 StoredObject segObject = dataService.getObjectSegment(container, objectName, i);
                 dataService.deleteObject(segObject);
@@ -140,7 +142,9 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     }
 
     private void releaseResource() {
-        buffer = null;
+        if (buffer != null) {
+            poolWrapper.releaseBytes(buffer);
+        }
         container = null;
     }
 
@@ -153,11 +157,12 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
             // create a normal object
             if (partNum < 2) {
                 try {
-                    dataService.uploadObject(obj, new UploadInstructions(new ByteArrayInputStream(
-                            buffer, 0, bufferOff)));
+                    dataService.uploadObject(obj,
+                            new UploadInstructions(new ByteArrayInputStream(buffer, 0, bufferOff)));
                 }
                 catch (CephSwiftException e) {
-                    if (e.getSwiftErrorCode().equals(CephSwiftException.ERR_ENTITY_DOES_NOT_EXIST)) {
+                    if (e.getSwiftErrorCode()
+                            .equals(CephSwiftException.ERR_ENTITY_DOES_NOT_EXIST)) {
                         // when occur this exception,current account may be
                         // become unusable,maybe it's because joss's bug,so
                         // create a new account
@@ -178,8 +183,8 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
                 if (bufferOff > 0) {
                     StoredObject segObj = dataService.getObjectSegment(container, objectName,
                             partNum);
-                    dataService.uploadObject(segObj, new UploadInstructions(
-                            new ByteArrayInputStream(buffer, 0, bufferOff)));
+                    dataService.uploadObject(segObj,
+                            new UploadInstructions(new ByteArrayInputStream(buffer, 0, bufferOff)));
                     partNum++;
                 }
 
@@ -198,9 +203,8 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
         catch (Exception e) {
             logger.error("close CephSwiftDataWriter failed:container=" + containerName + ",object="
                     + objectName);
-            throw new CephSwiftException(
-                    "close CephSwiftDataWriter failed:container=" + containerName + ",object="
-                            + objectName, e);
+            throw new CephSwiftException("close CephSwiftDataWriter failed:container="
+                    + containerName + ",object=" + objectName, e);
         }
         finally {
             releaseResource();

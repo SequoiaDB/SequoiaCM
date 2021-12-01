@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.dao;
 
 import com.sequoiacm.common.checksum.ChecksumException;
 import com.sequoiacm.common.checksum.ChecksumFactory;
+import com.sequoiacm.common.memorypool.ScmPoolWrapper;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -125,66 +126,81 @@ public class BreakpointFileUploader {
         long newUploadSize = file.getUploadSize();
         long writeSize = 0;
         long flushSize = 0;
-        byte[] buffer = new byte[ONCE_WRITE_BYTES];
+        byte[] buffer = null;
+        ScmPoolWrapper poolWrapper = null;
+        try {
+            try {
+                poolWrapper = ScmPoolWrapper.getInstance();
+                buffer = poolWrapper.getBytes(ONCE_WRITE_BYTES);
+            }
+            catch (Exception e) {
+                throw new ScmSystemException(
+                        "Failed to write breakpoint file data, cause by:" + e.getMessage(), e);
+            }
+            int size = read(stream, buffer);
 
-        int size = read(stream, buffer);
+            while (size > 0) {
+                dataWriter.write(buffer, 0, size);
 
-        while (size > 0) {
-            dataWriter.write(buffer, 0, size);
+                newUploadSize += size;
+                writeSize += size;
+                flushSize += size;
+                checksum.update(buffer, 0, size);
 
-            newUploadSize += size;
-            writeSize += size;
-            flushSize += size;
-            checksum.update(buffer, 0, size);
+                // read next bytes to see if data remain
+                size = read(stream, buffer);
 
-            // read next bytes to see if data remain
-            size = read(stream, buffer);
-
-            // write meta data if write enough bytes,
-            // or no data remain
-            if (flushSize >= FLUSH_WRITE_BYTES || size <= -1) {
-                if (size <= -1 && isLastContent) {
-                    dataWriter.complete();
-                    closeDataWriter();
-                    file.setCompleted(true);
-                    if (file.isNeedMd5()) {
-                        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
-                                file.getDataId(), new Date(file.getCreateTime()));
-                        String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
-                        file.setMd5(md5);
+                // write meta data if write enough bytes,
+                // or no data remain
+                if (flushSize >= FLUSH_WRITE_BYTES || size <= -1) {
+                    if (size <= -1 && isLastContent) {
+                        dataWriter.complete();
+                        closeDataWriter();
+                        file.setCompleted(true);
+                        if (file.isNeedMd5()) {
+                            ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
+                                    file.getDataId(), new Date(file.getCreateTime()));
+                            String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
+                            file.setMd5(md5);
+                        }
                     }
-                }
-                else {
-                    dataWriter.flush();
-                    file.setExtraContext(dataWriter.getContext());
-                }
+                    else {
+                        dataWriter.flush();
+                        file.setExtraContext(dataWriter.getContext());
+                    }
 
-                // 不要在这里访问 datawriter，有可能前面已经被至 null 了
+                    // 不要在这里访问 datawriter，有可能前面已经被至 null 了
+                    file.setUploadTime(System.currentTimeMillis());
+                    file.setUploadSize(newUploadSize);
+                    file.setChecksum(checksum.getValue());
+                    dirty = true;
+                    ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+                    dirty = false;
+                    flushSize = 0;
+                }
+            }
+
+            // no data write, only update file.completed
+            if (writeSize == 0 && isLastContent) {
+                dataWriter.complete();
+                closeDataWriter();
+                file.setCompleted(true);
                 file.setUploadTime(System.currentTimeMillis());
-                file.setUploadSize(newUploadSize);
-                file.setChecksum(checksum.getValue());
+                if (file.isNeedMd5()) {
+                    ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
+                            file.getDataId(), new Date(file.getCreateTime()));
+                    String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
+                    file.setMd5(md5);
+                }
                 dirty = true;
                 ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
                 dirty = false;
-                flushSize = 0;
             }
         }
-
-        // no data write, only update file.completed
-        if (writeSize == 0 && isLastContent) {
-            dataWriter.complete();
-            closeDataWriter();
-            file.setCompleted(true);
-            file.setUploadTime(System.currentTimeMillis());
-            if (file.isNeedMd5()) {
-                ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
-                        file.getDataId(), new Date(file.getCreateTime()));
-                String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
-                file.setMd5(md5);
+        finally {
+            if (buffer != null) {
+                poolWrapper.releaseBytes(buffer);
             }
-            dirty = true;
-            ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
-            dirty = false;
         }
     }
 

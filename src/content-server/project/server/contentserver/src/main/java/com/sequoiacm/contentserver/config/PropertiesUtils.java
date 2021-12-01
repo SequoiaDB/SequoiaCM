@@ -405,5 +405,4 @@ public class PropertiesUtils {
     public static CephS3DatasourceConfig getCephS3Config() {
         return cephS3Config;
     }
-
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.hbase.dataoperation;
 
 import java.nio.ByteBuffer;
 
+import com.sequoiacm.common.memorypool.ScmPoolWrapper;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
@@ -28,7 +29,7 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
 
     private Table table;
 
-    byte[] buffer = new byte[HbaseCommonDefine.HBASE_FILE_PIECE_SIZE];
+    byte[] buffer = null;
     private int bufferOff = 0;
     private long filePiece = 0;
 
@@ -36,15 +37,18 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
 
     private String createdTableName;
 
+    private ScmPoolWrapper poolWrapper;
 
-    public HbaseDataWriterImpl(String tableName, String fileId,
-            ScmService service) throws HbaseException {
+    public HbaseDataWriterImpl(String tableName, String fileId, ScmService service)
+            throws HbaseException {
         this.tableName = tableName;
         try {
             this.fileId = Bytes.toBytes(fileId);
-            this.dataService = (HbaseDataService)service;
-            //            this.con = dataService.getConnection(customConf);
+            this.dataService = (HbaseDataService) service;
+            // this.con = dataService.getConnection(customConf);
             this.con = dataService.getConnection();
+            this.poolWrapper = ScmPoolWrapper.getInstance();
+            this.buffer = this.poolWrapper.getBytes(HbaseCommonDefine.HBASE_FILE_PIECE_SIZE);
             createFile();
         }
         catch (HbaseException e) {
@@ -57,9 +61,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
             logger.error("construct HbaseFileContentWriter failed:tableName=" + tableName
                     + ",fileId=" + fileId);
             releaseReource();
-            throw new HbaseException(
-                    "construct HbaseFileContentWriter failed:tableName=" + tableName + ",fileId="
-                            + fileId, e);
+            throw new HbaseException("construct HbaseFileContentWriter failed:tableName="
+                    + tableName + ",fileId=" + fileId, e);
         }
     }
 
@@ -76,13 +79,13 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
             put.addColumn(metaFamily, fileStatusQualifier, fileStatus);
             table = dataService.getTable(con, tableName);
             // try to create a new row,and set file status to unavailable
-            isSuccess = dataService.checkAndPut(table, this.fileId, metaFamily,
-                    fileStatusQualifier, null, put);
+            isSuccess = dataService.checkAndPut(table, this.fileId, metaFamily, fileStatusQualifier,
+                    null, put);
         }
         catch (HbaseException e) {
             if (e.getErrorCode().equals(HbaseException.HBASE_ERROR_TABLE_NOTEXIST)) {
                 boolean hasCreatedTable = dataService.createTable(con, tableName);
-                if(hasCreatedTable) {
+                if (hasCreatedTable) {
                     this.createdTableName = tableName;
                 }
                 table = dataService.getTable(con, tableName);
@@ -126,9 +129,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
             throw e;
         }
         catch (Exception e) {
-            throw new HbaseException(
-                    "write data failed:tableName=" + tableName + ",fileId="
-                            + Bytes.toString(fileId), e);
+            throw new HbaseException("write data failed:tableName=" + tableName + ",fileId="
+                    + Bytes.toString(fileId), e);
         }
     }
 
@@ -158,7 +160,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
         }
         catch (Exception e) {
             logger.warn(
-                    "cancel failed:tableName=" + tableName + ",fileId=" + Bytes.toString(fileId), e);
+                    "cancel failed:tableName=" + tableName + ",fileId=" + Bytes.toString(fileId),
+                    e);
         }
         releaseReource();
     }
@@ -169,8 +172,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
             Put put = new Put(fileId);
             if (bufferOff > 0) {
                 // add buffer data
-                ByteBuffer qualifierBuf = ByteBuffer.wrap(Bytes
-                        .toBytes(HbaseCommonDefine.HBASE_FILE_PIECE_NUM_PREFIX + filePiece));
+                ByteBuffer qualifierBuf = ByteBuffer.wrap(
+                        Bytes.toBytes(HbaseCommonDefine.HBASE_FILE_PIECE_NUM_PREFIX + filePiece));
                 ByteBuffer valueBuf = ByteBuffer.wrap(buffer, 0, bufferOff);
                 put.addColumn(dataFamily, qualifierBuf, HConstants.LATEST_TIMESTAMP, valueBuf);
                 filePiece++;
@@ -195,8 +198,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
         catch (Exception e) {
             logger.error("close failed:table=" + tableName + ",fileId=" + Bytes.toString(fileId));
             fileSize = 0;
-            throw new HbaseException("close failed:table="
-                    + tableName + ",fileId=" + Bytes.toString(fileId), e);
+            throw new HbaseException(
+                    "close failed:table=" + tableName + ",fileId=" + Bytes.toString(fileId), e);
         }
         finally {
             releaseReource();
@@ -209,7 +212,9 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
 
         dataService = null;
         table = null;
-        buffer = null;
+        if (buffer != null) {
+            poolWrapper.releaseBytes(buffer);
+        }
         metaFamily = null;
         dataFamily = null;
         fileId = null;
@@ -228,9 +233,8 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
             }
         }
         catch (Exception e) {
-            logger.warn(
-                    "close connection failed:table=" + tableName + ",fileId="
-                            + Bytes.toString(fileId), e);
+            logger.warn("close connection failed:table=" + tableName + ",fileId="
+                    + Bytes.toString(fileId), e);
         }
     }
 
