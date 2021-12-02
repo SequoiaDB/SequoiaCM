@@ -158,7 +158,8 @@ public class DiffCenterWriteFile256 extends TestScmBase {
 
             // check content
             Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ) );
+                    TestTools.getMD5( downloadPath ), "downloadPath:"
+                            + downloadPath + " fileId:" + fileId.get() );
         } finally {
             if ( fos != null )
                 fos.close();

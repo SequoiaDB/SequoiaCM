@@ -30,7 +30,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
  */
 public class WsPool {
     private static final int timeout = 2;
-    private static final int newWsNum = 2;
+    private static final int newWsNum = 3;
     private static final int getWsMaxTimesCount = 10;
     private static ArrayBlockingQueue< String > resources;
     private static AtomicInteger count = new AtomicInteger( 0 );
