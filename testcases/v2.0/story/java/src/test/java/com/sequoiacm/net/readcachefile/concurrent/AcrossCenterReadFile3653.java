@@ -9,6 +9,7 @@ import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -19,13 +20,17 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @Testcase: SCM-3653:跨站点读不缓存和指定UNSEEKABLE至本地操作并发
+ * @descreption SCM-3653:跨站点读不缓存和指定UNSEEKABLE至本地操作并发
  * @author YiPan
  * @date 2021.7.9
+ * @updateUser YiPan
+ * @updateDate 2021/11/24
+ * @updateRemark
+ * @version 1.0
  */
 public class AcrossCenterReadFile3653 extends TestScmBase {
     private final int branSitesNum = 2;
-    private int fileSize = 1024 * 100;
+    private int fileSize = 1024 * 1024 * 50;
     private File localPath = null;
     private String filePath = null;
     private String fileName = "file3653";
@@ -37,6 +42,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
     private ScmWorkspace branchSite2Ws;
     private SiteWrapper branchSite1;
     private SiteWrapper branchSite2;
+    private BSONObject queryCond;
     private ScmId fileId = null;
     private boolean runSuccess = false;
 
@@ -60,14 +66,15 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
                 branchSite1session );
         branchSite2Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite2session );
+        queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    // SEQUOIACM-695 暂时屏蔽
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         // branchSite1创建文件
-        fileId = ScmFileUtils.create( branchSite1Ws,
-                fileName + "_" + UUID.randomUUID(), filePath );
+        fileId = ScmFileUtils.create( branchSite1Ws, fileName, filePath );
 
         // branchSite2并发操作
         ThreadExecutor t = new ThreadExecutor();
@@ -77,8 +84,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
         t.run();
 
         SiteWrapper[] expMetaSites = { branchSite1 };
-        Object[] expDataSites = { branchSite1.getSiteId(),
-                ScmInfo.getRootSite().getSiteId() };
+        Object[] expDataSites = { branchSite1.getSiteId() };
         ScmFileUtils.checkMeta( branchSite2Ws, fileId, expMetaSites );
         Object[] actDataSites = AcrossCenterReadFileUtils.getCacheDataSites(
                 wsp.getName(), fileId, localPath, filePath );
@@ -90,7 +96,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {
-                ScmFactory.File.deleteInstance( branchSite1Ws, fileId, true );
+                ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             } finally {
                 branchSite1session.close();
