@@ -192,7 +192,7 @@ public class ScmFileUtils extends TestScmBase {
         String actMd5 = TestTools.getMD5( downloadPath );
         if ( !expMd5.equals( actMd5 ) ) {
             throw new Exception( "Failed to check data, " + "expMd5=" + expMd5
-                    + ", actMd5=" + actMd5 );
+                    + ", actMd5=" + actMd5 + " fileId:" + fileId.get() );
         }
         TestTools.LocalFile.removeFile( downloadPath );
     }
