@@ -74,7 +74,9 @@
          <package name="com.sequoiacm.s3.bucket.concurrent"/>
          <package name="com.sequoiacm.s3.object"/>
          <package name="com.sequoiacm.s3.object.concurrent"/>
-
+         <!-- statistics -->
+         <package name="com.sequoiacm.statistics"/>
+         
          <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2  -->
          <!-- <package name="com.sequoiacm.schedulePreferredZone"/>-->
       </packages>
