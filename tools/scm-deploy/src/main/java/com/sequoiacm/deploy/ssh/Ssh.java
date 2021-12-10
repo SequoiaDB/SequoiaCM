@@ -105,7 +105,7 @@ public class Ssh implements Closeable {
         String command = "echo -e '#!/bin/bash \n . " + sshConfig.getEnvFile()
                 + " > /dev/null \n echo $" + key
                 + "' > ./searchEnv.sh && /bin/bash ./searchEnv.sh && rm ./searchEnv.sh";
-        SshExecRes res = internalSudoExec(command);
+        SshExecRes res = internalSudoExec(command, false);
         String envValue = res.getStdOut();
         if (envValue == null || envValue.trim().length() == 0) {
             throw new IllegalArgumentException("env " + key + " not define, host=" + host
@@ -117,7 +117,7 @@ public class Ssh implements Closeable {
 
     public String getUserEffectiveGroup(String user) throws IOException {
         String cmd = "id -ng " + user;
-        SshExecRes res = internalSudoExec(cmd);
+        SshExecRes res = internalSudoExec(cmd, false);
         String envValue = res.getStdOut();
         if (envValue == null || envValue.trim().length() == 0) {
             throw new IllegalArgumentException("failed to get effective group, user:" + user);
@@ -175,25 +175,32 @@ public class Ssh implements Closeable {
             }
         }
         String cmd = "su " + suToUser + " -c '" + envCmdBuilder.toString() + command + "'";
-        return sudoExec(cmd, expectExitCode);
+        return internalSudoExec(cmd, true, expectExitCode).getExitCode();
     }
 
     public int sudoExec(String command, Integer... expectExitCode) throws IOException {
-        return internalSudoExec(command, expectExitCode).getExitCode();
+        return internalSudoExec(command, false, expectExitCode).getExitCode();
     }
 
-    private SshExecRes internalSudoExec(String command, Integer... expectExitCode)
+    private SshExecRes internalSudoExec(String command, boolean isSwitchUser, Integer... expectExitCode)
             throws IOException {
         if (isRootUser) {
             return internalExec(command, false, expectExitCode);
         }
         if (password == null || password.length() <= 0) {
             // no password
-            command = "sudo -n " + command;
+            command = createSudoCommand("sudo -n", isSwitchUser, command);
             return internalExec(command, false, expectExitCode);
         }
-        command = "sudo -S -p '' " + command;
+        command = createSudoCommand("sudo -S -p ''", isSwitchUser, command);
         return internalExec(command, true, expectExitCode);
+    }
+
+    private String createSudoCommand(String prefix, boolean isSwitchUser, String command) {
+        if (!isSwitchUser) {
+            return prefix + " " + sshConfig.getSudoShellPath() + " -c \"" + command + "\"";
+        }
+        return prefix + " " + command;
     }
 
     private SshExecRes internalExec(String command, boolean isNeedSendPasswd,
