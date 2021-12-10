@@ -186,12 +186,12 @@ public class StatisticsFile4036 extends TestScmBase {
     public void downloadFileRelevancyBatch() throws Exception {
         // 下载批次下文件
         ScmBatch batch2 = ScmFactory.Batch.getInstance( siteWorkspace,
-                batchIdList.get(0) );
+                batchIdList.get( 0 ) );
         filesList = batch2.listFiles();
         for ( int i = 0; i < filesList.size(); i++ ) {
             ScmId fileId = filesList.get( i ).getFileId();
-            int totalDownloadTime = ( int ) StatisticsUtils.downloadFile(
-                    fileId, siteWorkspace, calendar.getTimeInMillis() );
+            int totalDownloadTime = ( int ) StatisticsUtils
+                    .downloadFile( fileId, siteWorkspace );
             downloadTime.add( totalDownloadTime );
         }
     }
