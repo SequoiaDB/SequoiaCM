@@ -18,7 +18,7 @@ public class ZookeeperServiceCleaner extends ServiceCleanerBase {
     }
 
     @Override
-    protected void stopNode(Ssh ssh, InstallConfig installConfig, String javaHome) {
+    protected void stopNode(Ssh ssh, InstallConfig installConfig, String javaHome) throws Exception {
         String installUser = installConfig.getInstallUser();
         LinkedHashMap<String, String> env = new LinkedHashMap<>();
         env.put("JAVA_HOME", javaHome);
@@ -34,7 +34,7 @@ public class ZookeeperServiceCleaner extends ServiceCleanerBase {
             }
         }
         catch (Exception e) {
-            logger.warn("failed to stop service:serviceType={}", getType(), e);
+            throw new Exception("failed to stop service:serviceType=" + getType(), e);
         }
     }
 }

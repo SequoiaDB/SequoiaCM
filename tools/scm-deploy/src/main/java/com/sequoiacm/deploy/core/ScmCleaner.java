@@ -26,7 +26,7 @@ public class ScmCleaner {
         cleanerMgr = ServiceCleanerMgr.getInstance();
     }
 
-    public void clean(boolean dryRun) {
+    public void clean(boolean dryRun) throws Exception {
         ScmDeployInfoMgr deployInfoMgr = ScmDeployInfoMgr.getInstance();
         List<CleanUnit> cleanUnits = new ArrayList<>();
         List<ServiceType> serviceTypes = ServiceType.getAllTyepSortByPriority();
@@ -59,22 +59,12 @@ public class ScmCleaner {
 
         logger.info("Cleaning service: uninitializing metasource and auditsource ({}/{})",
                 currentStep++, totalStep);
-        try {
-            tableInitializer.doUninitialize(dryRun);
-        }
-        catch (Exception e) {
-            logger.warn("failed to clean metasource and auditsource", e);
-        }
+        tableInitializer.doUninitialize(dryRun);
 
         logger.info("Cleaning service: removing password file ({}/{})", currentStep++, totalStep);
         List<HostInfo> hosts = deployInfoMgr.getHosts();
         for (HostInfo host : hosts) {
-            try {
-                passwordFileSender.cleanPasswordFile(host, dryRun);
-            }
-            catch (Exception e) {
-                logger.warn("failed to clean password file:host={}", host.getHostName());
-            }
+            passwordFileSender.cleanPasswordFile(host, dryRun);
         }
         logger.info("Clean service success");
     }

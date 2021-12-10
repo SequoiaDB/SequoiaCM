@@ -59,7 +59,7 @@ public abstract class ServiceCleanerBase implements ServiceCleaner {
     }
 
     @Override
-    public void clean(HostInfo host, boolean dryRun) {
+    public void clean(HostInfo host, boolean dryRun) throws Exception {
         if (dryRun) {
             logger.info("Directory will be delete:host=" + host.getHostName() + ", dir="
                     + getInstallPath());
@@ -73,36 +73,33 @@ public abstract class ServiceCleanerBase implements ServiceCleaner {
             removeInstallPath(ssh);
         }
         catch (Exception e) {
-            logger.warn("failed to clean:host={}, service={}", host.getHostName(), getType(), e);
+            throw new Exception("failed to stop node, please check remote log:(" + installPath
+                    + "/log, host=" + host.getHostName() + ", service=" + getType() + ")", e);
         }
         finally {
             CommonUtils.closeResource(ssh);
         }
     }
 
-    protected void removeInstallPath(Ssh ssh) {
+    protected void removeInstallPath(Ssh ssh) throws Exception {
         try {
             ssh.sudoExec("rm -rf " + getInstallPath());
         }
         catch (Exception e) {
-            logger.warn("failed to remove install dir:" + getInstallPath(), e);
+            throw new Exception("failed to remove install dir:" + getInstallPath(), e);
         }
     }
 
-    protected void stopNode(Ssh ssh, InstallConfig installConfig, String javaHome) {
+    protected void stopNode(Ssh ssh, InstallConfig installConfig, String javaHome)
+            throws Exception {
         String installUser = installConfig.getInstallUser();
         LinkedHashMap<String, String> env = new LinkedHashMap<>();
         env.put("JAVA_HOME", javaHome);
         env.put("PATH", "$JAVA_HOME/bin:$PATH");
-        try {
-            String stopScript = getInstallPath() + "/bin/" + stopScriptName;
-            int isExists = ssh.sudoExec("ls " + stopScript, 0, 2);
-            if (isExists == 0) {
-                ssh.sudoSuExec(installUser, stopScript + " " + stopScriptOption, env);
-            }
-        }
-        catch (Exception e) {
-            logger.warn("failed to stop service:host={}, serviceType={}", ssh.getHost(), getType(), e);
+        String stopScript = getInstallPath() + "/bin/" + stopScriptName;
+        int isExists = ssh.sudoExec("ls " + stopScript, 0, 2);
+        if (isExists == 0) {
+            ssh.sudoSuExec(installUser, stopScript + " " + stopScriptOption, env);
         }
     }
 
