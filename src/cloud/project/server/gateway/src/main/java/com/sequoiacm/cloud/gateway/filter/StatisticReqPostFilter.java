@@ -14,6 +14,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,6 +25,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class StatisticReqPostFilter extends ZuulFilter {
 
     private final ScmStatisticsRawDataReporter reporter;
+
+    public final static int FILTER_ORDER = 10000;
 
     @Autowired
     public StatisticReqPostFilter(ScmStatisticsRawDataReporter reporter) {
@@ -74,15 +77,22 @@ public class StatisticReqPostFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return Integer.MAX_VALUE;
+        return FILTER_ORDER;
     }
 
 }
 
-// 阻止下游服务的响应头 X-STATISTICS-EXTRA 传递到客户端
-// 将响应头 X-STATISTICS-EXTRA 存放至 Request Attribute 中，以便后续过滤器获取
+// 阻止下游服务的部分响应头传递到客户端
+// 将响应头存放至 Request Attribute 中，以便后续过滤器获取
 @Component
 class ExtraStatisticHeaderHandleFilter extends ZuulFilter {
+
+    private final static List<String> excludeHeaders;
+
+    static {
+        excludeHeaders = new ArrayList<>();
+        excludeHeaders.add(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
+    }
 
     @Override
     public String filterType() {
@@ -110,11 +120,22 @@ class ExtraStatisticHeaderHandleFilter extends ZuulFilter {
         Iterator<Pair<String, String>> it = headers.iterator();
         while (it.hasNext()) {
             Pair<String, String> header = it.next();
-            if (header.first().equalsIgnoreCase(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER)) {
+            String headerName = header.first();
+            String excludeHeader = getFromExcludeHeaders(headerName);
+            if (excludeHeader != null) {
                 it.remove();
-                RequestContext.getCurrentContext().getRequest()
-                        .setAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, header.second());
-                break;
+                RequestContext.getCurrentContext().getRequest().setAttribute(excludeHeader,
+                        header.second());
+            }
+
+        }
+        return null;
+    }
+
+    private String getFromExcludeHeaders(String headerName) {
+        for (String excludeHeader : excludeHeaders) {
+            if (excludeHeader.equalsIgnoreCase(headerName)) {
+                return excludeHeader;
             }
         }
         return null;

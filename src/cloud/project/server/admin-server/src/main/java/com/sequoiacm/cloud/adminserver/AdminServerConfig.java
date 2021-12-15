@@ -148,7 +148,6 @@ class SdbConfig {
         this.recheckCyclePeriod = recheckCyclePeriod;
     }
 
-
 }
 
 @Component
@@ -188,6 +187,14 @@ public class AdminServerConfig {
     @Value("${scm.statistics.job.period:" + StatisticsDefine.DefaultValue.JOB_PERIOD + "}")
     private String jobPeriod;
 
+    @Value("${scm.statistics.job.breakpointFileCleanPeriod:"
+            + StatisticsDefine.DefaultValue.JOB_BREAKPOINT_FILE_CLEAN_PERIOD + "}")
+    private String breakpointFileCleanPeriod;
+
+    @Value("${scm.statistics.job.breakpointFileStayDays:"
+            + StatisticsDefine.DefaultValue.JOB_BREAKPOINT_FILE_STAY_DAYS + "}")
+    private String breakpointFileStayDays;
+
     public Date getJobFirstTime() throws Exception {
         SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm:ss");
         Date parseDate = timeFmt.parse(jobFirstTime);
@@ -202,6 +209,16 @@ public class AdminServerConfig {
         long oneDay = 24 * 60 * 60 * 1000;
         jobPeriod = jobPeriod.replace("d", "");
         return Integer.parseInt(jobPeriod) * oneDay;
+    }
+
+    public long getBreakpointFileCleanPeriod() {
+        long oneDay = 24 * 60 * 60 * 1000;
+        breakpointFileCleanPeriod = breakpointFileCleanPeriod.replace("d", "");
+        return Long.parseLong(breakpointFileCleanPeriod) * oneDay;
+    }
+
+    public long getBreakpointFileStayDays() {
+        return Long.parseLong(breakpointFileStayDays.replace("d", ""));
     }
 
     public int getConnectTimeout() {

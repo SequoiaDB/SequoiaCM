@@ -1,5 +1,7 @@
 package com.sequoiacm.cloud.adminserver;
 
+import com.sequoiacm.cloud.adminserver.core.job.BreakpointFileCleanJobManager;
+import com.sequoiacm.cloud.adminserver.dao.BreakpointFileStatisticsDao;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,10 @@ public class AdminServer implements ApplicationRunner {
 
     @Autowired
     private WorkspaceDao workspaceDao;
-    
+
+    @Autowired
+    private BreakpointFileStatisticsDao breakpointFileStatisticsDao;
+
     @Autowired
     private ScmConfClient confClient;
     
@@ -73,7 +78,7 @@ public class AdminServer implements ApplicationRunner {
         }
 
         confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm.", "scm.statistics"));
-        
+
         initSystem(config);
     }
 
@@ -84,6 +89,8 @@ public class AdminServer implements ApplicationRunner {
                 config.getJobPeriod());
         StatisticsJobManager.getInstance().startFileDeltaJob(config.getJobFirstTime(),
                 config.getJobPeriod());
+        BreakpointFileCleanJobManager.getInstance().startCleanJob(breakpointFileStatisticsDao,
+                config.getBreakpointFileCleanPeriod(), config.getBreakpointFileStayDays());
    }
   
 }

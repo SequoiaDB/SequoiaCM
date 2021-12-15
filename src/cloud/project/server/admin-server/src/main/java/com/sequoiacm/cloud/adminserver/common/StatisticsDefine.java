@@ -27,10 +27,17 @@ public class StatisticsDefine {
         public static final String SEQUOIADB_MATCHER_ELEMMATCH = "$elemMatch";
         public static final String SEQUOIADB_MATCHER_AND = "$and";
     }
+
+    public static class Modifier {
+        public static final String SEQUOIADB_MODIFIER_SET = "$set";
+        public static final String SEQUOIADB_MODIFIER_INC = "$inc";
+    }
     
     public static final class DefaultValue {
         public static final String JOB_FIRST_TIME = "00:00:00";
         public static final String JOB_PERIOD = "1d";
+        public static final String JOB_BREAKPOINT_FILE_CLEAN_PERIOD = "7d";
+        public static final String JOB_BREAKPOINT_FILE_STAY_DAYS = "10d";
     }
     
     public static final class Scope {

@@ -12,12 +12,15 @@ public class ScmStatisticsFileMeta {
     private String version;
     private String batchId;
     private long trafficSize;
+    private long dataCreateTime;
+    private String breakpointFileName;
 
     public ScmStatisticsFileMeta() {
     }
 
     public ScmStatisticsFileMeta(String workspace, String site, String user, String mimeType,
-            String version, String batchId, long size, long trafficSize) {
+            String version, String batchId, long size, long trafficSize, long dataCreateTime,
+            String breakpointFileName) {
         this.workspace = workspace;
         this.site = site;
         this.user = user;
@@ -26,6 +29,9 @@ public class ScmStatisticsFileMeta {
         this.batchId = batchId;
         this.size = size;
         this.trafficSize = trafficSize;
+        this.dataCreateTime = dataCreateTime;
+        this.breakpointFileName = breakpointFileName;
+
     }
 
     public long getTrafficSize() {
@@ -92,16 +98,34 @@ public class ScmStatisticsFileMeta {
         return size;
     }
 
+    public long getDataCreateTime() {
+        return dataCreateTime;
+    }
+
+    public void setDataCreateTime(long dataCreateTime) {
+        this.dataCreateTime = dataCreateTime;
+    }
+
+    public String getBreakpointFileName() {
+        return breakpointFileName;
+    }
+
+    public void setBreakpointFileName(String breakpointFileName) {
+        this.breakpointFileName = breakpointFileName;
+    }
+
     public String toJSON() {
         return JSON.toJSONString(this);
     }
 
     @Override
     public String toString() {
-        return "ScmStatisticsFileMeta{" + "workspace='" + workspace + '\'' + ", site='" + site
-                + '\'' + ", user='" + user + '\'' + ", mimeType='" + mimeType + '\'' + ", version='"
-                + version + '\'' + ", batchId='" + batchId + '\'' + ", size=" + size
-                + ", trafficSize=" + trafficSize + ", toJSON='" + toJSON() + '\'' + '}';
+        return "ScmStatisticsFileMeta{" + "size=" + size + ", workspace='" + workspace + '\''
+                + ", site='" + site + '\'' + ", user='" + user + '\'' + ", mimeType='" + mimeType
+                + '\'' + ", version='" + version + '\'' + ", batchId='" + batchId + '\''
+                + ", trafficSize=" + trafficSize + ", dataCreateTime=" + dataCreateTime
+                + ", breakpointFileName='" + breakpointFileName + '\'' + ", toJSON='" + toJSON()
+                + '\'' + '}';
     }
 
     public static ScmStatisticsFileMeta fromJSON(String json) {

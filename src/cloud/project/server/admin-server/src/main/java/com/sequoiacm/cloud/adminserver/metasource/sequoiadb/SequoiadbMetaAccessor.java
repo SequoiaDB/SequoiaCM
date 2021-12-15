@@ -58,7 +58,7 @@ public class SequoiadbMetaAccessor implements MetaAccessor {
         catch (BaseException e) {
             if (e.getErrorCode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
                 throw new ScmMetasourceException(StatisticsError.RECORD_EXISTS,
-                        "record alredy exist:csName=" + csName + ",clName=" + clName + ",record="
+                        "record already exist:csName=" + csName + ",clName=" + clName + ",record="
                                 + record,
                         e);
             }
@@ -179,6 +179,40 @@ public class SequoiadbMetaAccessor implements MetaAccessor {
                 throw new ScmMetasourceException(StatisticsError.METASOURCE_ERROR,
                         "failed to collection:" + csName + "." + clName, e);
             }
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public void delete(BSONObject matcher) throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBCollection cl = SequoiadbHelper.getCL(db, csName, clName);
+            cl.delete(matcher);
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException(
+                    "delete failed:csName=" + csName + ",clName=" + clName + ",matcher=" + matcher,
+                    e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public long getCount(BSONObject matcher) throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBCollection cl = SequoiadbHelper.getCL(db, csName, clName);
+            return cl.getCount(matcher);
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException(
+                    "count failed:csName=" + csName + ",clName=" + clName + ",matcher=" + matcher,
+                    e);
         }
         finally {
             releaseConnection(db);

@@ -15,4 +15,6 @@ public interface MetaSource {
     public MetaAccessor getFileDeltaAccessor() throws ScmMetasourceException;
 
     public MetaAccessor getFileStatisticsAccessor() throws ScmMetasourceException;
+
+    public MetaAccessor getBreakpointFileStatisticsAccessor() throws ScmMetasourceException;
 }

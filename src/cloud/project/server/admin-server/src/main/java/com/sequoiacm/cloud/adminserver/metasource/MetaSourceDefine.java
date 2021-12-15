@@ -16,6 +16,7 @@ public class MetaSourceDefine {
         public static final String CL_TRAFFIC = "TRAFFIC";
         public static final String CL_FILE_DELTA = "FILE_DELTA";
         public static final String CL_STATISTICS_DATA = "STATISTICS_DATA";
+        public static final String CL_STATISTICS_BREAKPOINT_FILE = "STATISTICS_BREAKPOINT_FILE";
     }
 
     public static class WorkspaceCLName {

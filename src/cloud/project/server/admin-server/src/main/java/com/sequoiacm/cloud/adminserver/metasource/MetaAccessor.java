@@ -19,6 +19,10 @@ public interface MetaAccessor {
 
     public void ensureTable() throws ScmMetasourceException;
 
+    public void delete(BSONObject matcher) throws ScmMetasourceException;
+
+    public long getCount(BSONObject matcher) throws ScmMetasourceException;
+
     // public void delete(BSONObject deletor) throws ScmInnerException;
 
     // public void update(BSONObject matcher, BSONObject updator) throws

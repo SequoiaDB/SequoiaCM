@@ -116,4 +116,10 @@ public class SequoiadbMetaSource implements MetaSource {
                 MetaSourceDefine.SystemClName.CL_STATISTICS_DATA);
     }
 
+    @Override
+    public MetaAccessor getBreakpointFileStatisticsAccessor() throws ScmMetasourceException {
+        return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_STATISTICS_BREAKPOINT_FILE);
+    }
+
 }

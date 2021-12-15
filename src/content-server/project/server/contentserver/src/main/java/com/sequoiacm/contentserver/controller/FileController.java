@@ -275,7 +275,7 @@ public class FileController {
         ResponseEntity.BodyBuilder e = ResponseEntity.ok();
         if (ScmStatisticsType.FILE_UPLOAD.equals(statisticsType)) {
             ScmStatisticsFileMeta staticsExtra = createStatisticsFileMeta(fullFileInfo,
-                    workspaceName, username, -1);
+                    workspaceName, username, -1, breakpointFileName);
             e.header(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, staticsExtra.toJSON());
         }
         return e.body(body);
@@ -361,7 +361,7 @@ public class FileController {
     // }
 
     public ScmStatisticsFileMeta createStatisticsFileMeta(BSONObject fileInfo, String workspace,
-            String userName, long trafficSize) {
+            String userName, long trafficSize, String breakpointFileName) {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         String mySiteName = contentServer.getSiteInfo(contentServer.getLocalSite()).getName();
         String mimeType = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
@@ -369,11 +369,13 @@ public class FileController {
         String versionStr = BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MAJOR_VERSION)
                 + "." + BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MINOR_VERSION);
         long size = BsonUtils.getLongChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_SIZE);
+        long dataCreateTime = BsonUtils.getLongChecked(fileInfo,
+                FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
         if (trafficSize <= -1) {
             trafficSize = size;
         }
         return new ScmStatisticsFileMeta(workspace, mySiteName, userName, mimeType, versionStr,
-                batchId, size, trafficSize);
+                batchId, size, trafficSize, dataCreateTime, breakpointFileName);
 
     }
 
@@ -431,7 +433,7 @@ public class FileController {
                 if (ScmStatisticsType.FILE_DOWNLOAD.equals(statisticsType)) {
                     response.setHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
                             createStatisticsFileMeta(fileInfo, workspace_name, auth.getName(),
-                                    readLen).toJSON());
+                                    readLen, null).toJSON());
                 }
 
                 // read all file data
@@ -452,7 +454,7 @@ public class FileController {
                 if (ScmStatisticsType.FILE_DOWNLOAD.equals(statisticsType)) {
                     response.setHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
                             createStatisticsFileMeta(fileInfo, workspace_name, auth.getName(),
-                                    expectedLength).toJSON());
+                                    expectedLength, null).toJSON());
                 }
 
                 byte[] buffer = new byte[expectedLength];

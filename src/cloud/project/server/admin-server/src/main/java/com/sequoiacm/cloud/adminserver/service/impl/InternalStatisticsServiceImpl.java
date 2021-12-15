@@ -1,10 +1,14 @@
 package com.sequoiacm.cloud.adminserver.service.impl;
 
 import com.sequoiacm.cloud.adminserver.StatisticsConfig;
+import com.sequoiacm.cloud.adminserver.dao.BreakpointFileStatisticsDao;
+import com.sequoiacm.cloud.adminserver.exception.ScmMetasourceException;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
+import com.sequoiacm.cloud.adminserver.model.BreakpointFileStatisticsData;
+import com.sequoiacm.cloud.adminserver.model.statistics.BreakpointFileStatisticsDataKey;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
-import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
+import com.sequoiacm.infrastructure.statistics.common.*;
 import com.sequoiacm.cloud.adminserver.dao.FileStatisticsDao;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
 import com.sequoiacm.cloud.adminserver.lock.LockPathFactory;
@@ -13,7 +17,8 @@ import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataKey;
 import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsRawDataSum;
 import com.sequoiacm.cloud.adminserver.service.InternalStatisticsService;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileRawData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +34,10 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
     private LockPathFactory lockPathFactory;
     @Autowired
     private FileStatisticsDao dao;
+    @Autowired
+    private BreakpointFileStatisticsDao breakpointFileDao;
+    
+    private Logger logger = LoggerFactory.getLogger(InternalStatisticsServiceImpl.class);
 
     @Override
     public void reportFileRawData(List<ScmStatisticsFileRawData> rawDataList)
@@ -41,12 +50,21 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
             FileStatisticsDataKey key = new FileStatisticsDataKey(timeStr, fileRawData.getUser(),
                     fileRawData.getFileMeta().getWorkspace(), fileRawData.getType());
             FileStatisticsRawDataSum data = sumMap.get(key);
+            long responseTime = fileRawData.getResponseTime();
+            if (fileRawData.getFileMeta().getBreakpointFileName() != null
+                    && fileRawData.isSuccess()) {
+                ScmStatisticsFileMeta fileMeta = fileRawData.getFileMeta();
+                responseTime += breakpointFileDao.getTotalUploadTime(
+                        fileMeta.getBreakpointFileName(), fileMeta.getWorkspace(),
+                        fileMeta.getDataCreateTime());
+                breakpointFileDao.deleteBreakpointFileRecord(fileMeta.getBreakpointFileName(),
+                        fileMeta.getWorkspace(), fileMeta.getDataCreateTime());
+            }
             if (data == null) {
                 if (fileRawData.isSuccess()) {
                     data = new FileStatisticsRawDataSum(key, 1, 0,
-                            fileRawData.getFileMeta().getTrafficSize(),
-                            fileRawData.getResponseTime(), fileRawData.getResponseTime(),
-                            fileRawData.getResponseTime());
+                            fileRawData.getFileMeta().getTrafficSize(), responseTime, responseTime,
+                            responseTime);
                 }
                 else {
                     data = new FileStatisticsRawDataSum(key, 1, 1, 0, 0, Long.MIN_VALUE,
@@ -60,12 +78,9 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
                 if (fileRawData.isSuccess()) {
                     data.setTotalTrafficSize(data.getTotalTrafficSize()
                             + fileRawData.getFileMeta().getTrafficSize());
-                    data.setTotalResponseTime(
-                            data.getTotalResponseTime() + fileRawData.getResponseTime());
-                    data.setMaxResponseTime(
-                            Math.max(fileRawData.getResponseTime(), data.getMaxResponseTime()));
-                    data.setMinResponseTime(
-                            Math.min(fileRawData.getResponseTime(), data.getMinResponseTime()));
+                    data.setTotalResponseTime(data.getTotalResponseTime() + responseTime);
+                    data.setMaxResponseTime(Math.max(responseTime, data.getMaxResponseTime()));
+                    data.setMinResponseTime(Math.min(responseTime, data.getMinResponseTime()));
                 }
                 else {
                     data.setFailCount(data.getFailCount() + 1);
@@ -115,6 +130,48 @@ public class InternalStatisticsServiceImpl implements InternalStatisticsService 
             finally {
                 lock.unlock();
             }
+        }
+    }
+
+    @Override
+    public void reportBreakpointFileRawData(List<ScmStatisticsBreakpointFileRawData> rawDataList)
+            throws StatisticsException {
+        // 根据断点文件分类 : key为：filename+workspace+createTime , value对应文件总的上传时间
+        Map<BreakpointFileStatisticsDataKey, Long> timeMap = new HashMap<>();
+        for (ScmStatisticsBreakpointFileRawData rawData : rawDataList) {
+            if (!rawData.isSuccess()) {
+                continue;
+            }
+            ScmStatisticsBreakpointFileMeta fileMeta = rawData.getFileMeta();
+            BreakpointFileStatisticsDataKey key = new BreakpointFileStatisticsDataKey(
+                    fileMeta.getFileName(), fileMeta.getWorkspaceName(), fileMeta.getCreateTime());
+            Long totalUploadTime = timeMap.get(key);
+            if (totalUploadTime != null) {
+                timeMap.put(key, totalUploadTime + rawData.getResponseTime());
+            }
+            else {
+                timeMap.put(key, rawData.getResponseTime());
+            }
+        }
+
+        for (Map.Entry<BreakpointFileStatisticsDataKey, Long> entry : timeMap.entrySet()) {
+            BreakpointFileStatisticsDataKey key = entry.getKey();
+            Long uploadTime = entry.getValue();
+            try {
+                BreakpointFileStatisticsData record = new BreakpointFileStatisticsData();
+                record.setDataKey(key);
+                record.setTotalUploadTime(uploadTime);
+                breakpointFileDao.saveBreakpointFileRecord(record);
+            }
+            catch (ScmMetasourceException e) {
+                if (StatisticsError.RECORD_EXISTS.equals(e.getCode())) {
+                    breakpointFileDao.incrTotalUploadTime(key, uploadTime);
+                }
+                else {
+                    throw e;
+                }
+            }
+
         }
     }
 

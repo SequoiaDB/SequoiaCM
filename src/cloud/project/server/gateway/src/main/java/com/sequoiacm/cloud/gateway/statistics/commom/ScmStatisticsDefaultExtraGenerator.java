@@ -14,6 +14,8 @@ public class ScmStatisticsDefaultExtraGenerator {
             case ScmStatisticsType.FILE_DOWNLOAD:
             case ScmStatisticsType.FILE_UPLOAD:
                 return generateWorkspaceExtra(request);
+            case ScmStatisticsType.BREAKPOINT_FILE_UPLOAD:
+                return null;
             default:
                 throw new IllegalArgumentException("unrecognized statistics type:" + type);
         }

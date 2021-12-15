@@ -123,6 +123,8 @@ SequoiaCM 配置
 |scm.statistics.job.period|str|执行统计任务的间隔时间。默认值：1d（一天，只支持按天统计）|
 |scm.server.listInstanceCheckInterval|num|监控服务节点在处理list请求时，每列取多少个对象检查一次与客户端的连接状态（检查状态的同时，会对该连接执行 flush ），默认值：2000|
 |scm.statistics.timeGranularity|str|监控服务对网关上报的统计数据的处理粒度，可选值：DAY、HOUR，默认值：DAY，该粒度体现在用户按时间段检索统计数据时，时间段所允许的最大精度|
+|scm.statistics.job.breakpointFileCleanPeriod|num|清理断点文件上传时间临时记录表的周期。默认值：7d（每隔7天清理一次）|
+|scm.statistics.job.breakpointFileStayDays|num|断点文件上传时间记录在数据表中的最大遗留时间（当断点文件上传完成但未转换成普通文件时，表中会临时保存该文件的上传时间）。默认值：10d|
 
 ##服务跟踪##
 

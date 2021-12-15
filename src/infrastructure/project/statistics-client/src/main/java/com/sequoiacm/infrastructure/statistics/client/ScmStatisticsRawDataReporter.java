@@ -1,13 +1,11 @@
 package com.sequoiacm.infrastructure.statistics.client;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructure.statistics.client.flush.StatisticsRawDataFlush;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -29,16 +27,22 @@ public class ScmStatisticsRawDataReporter {
     private final int cacheSizeLimit;
     private final int highWatermark;
     private final ExecutorService executors;
+    private ScmStatisticsClient client;
+    private List<StatisticsRawDataFlush> rawDataFlushList = new ArrayList<>();
 
     public ScmStatisticsRawDataReporter(ScmStatisticsReporterConfig config,
-            ScmStatisticsClient client) {
+            ScmStatisticsClient client, List<StatisticsRawDataFlush> rawDataFlushList) {
         cache = new ConcurrentLinkedQueue<>();
         cacheSizeLimit = config.getRawDataCacheSize();
         highWatermark = cacheSizeLimit / 5;
+        this.client = client;
         executors = Executors.newSingleThreadExecutor(
                 new CustomizableThreadFactory("scm-statistics-rawdata-reporter"));
         reporterJob = new ReporterJob(cache, config.getRawDataReportPeriod(), highWatermark,
                 client);
+        if (rawDataFlushList != null) {
+            this.rawDataFlushList = rawDataFlushList;
+        }
 
         // 执行一次空数据的上报，让 feign 相关的懒加载 bean 初始化起来，
         // 这样做是为了避免在 destroy() 中出现首次上报数据的情况，spring context 销毁阶段已经无法初始化 feign 相关实例
@@ -68,7 +72,19 @@ public class ScmStatisticsRawDataReporter {
     }
 
     public void report(ScmStatisticsRawData rawData) {
-        cache.add(rawData);
+        cache.offer(rawData);
+        for (StatisticsRawDataFlush statisticsRawDataFlush : rawDataFlushList) {
+            try {
+                if (statisticsRawDataFlush.isNeedFlush(rawData)) {
+                    ScmStatisticsFlushCondition flushCondition = statisticsRawDataFlush
+                            .getFlushCondition(rawData);
+                    flushSelectedRawData(flushCondition);
+                }
+            }
+            catch (Exception e) {
+                logger.warn("failed to flush statistics raw data", e);
+            }
+        }
         if (cache.size() >= highWatermark) {
             wakeupReporterJob();
         }
@@ -80,8 +96,39 @@ public class ScmStatisticsRawDataReporter {
         }
     }
 
+    public void flushSelectedRawData(ScmStatisticsFlushCondition condition) {
+        Map<String, List<ScmStatisticsRawData>> type2RawData = new HashMap<>();
+        for (ScmStatisticsRawData rawData : cache) {
+            if (condition.isMatch(rawData)) {
+                boolean removed = cache.remove(rawData);
+                if (removed) {
+                    List<ScmStatisticsRawData> rawDataList = type2RawData.get(rawData.getType());
+                    if (rawDataList == null) {
+                        rawDataList = new ArrayList<>();
+                        type2RawData.put(rawData.getType(), rawDataList);
+                    }
+                    rawDataList.add(rawData);
+                }
+            }
+        }
+        for (Map.Entry<String, List<ScmStatisticsRawData>> entry : type2RawData.entrySet()) {
+            try {
+                client.reportRawData(entry.getKey(), entry.getValue());
+            }
+            catch (Exception e) {
+                logger.warn(
+                        "failed to flush statistics raw data to admin-server:type={}, count={}",
+                        entry.getKey(), entry.getValue().size(), e);
+            }
+        }
+    }
+
     private void wakeupReporterJob() {
         reporterJob.wakeup();
+    }
+
+    public interface ScmStatisticsFlushCondition {
+        boolean isMatch(ScmStatisticsRawData statisticsRawData);
     }
 }
 
@@ -97,8 +144,8 @@ class ReporterJob implements Runnable {
     private Map<String, List<ScmStatisticsRawData>> lastFailedReportData;
     private boolean isLastReportFailed = false;
 
-    public ReporterJob(Queue<ScmStatisticsRawData> rawDataQueue, int period, int highWatermark,
-            ScmStatisticsClient client) {
+    public ReporterJob(Queue<ScmStatisticsRawData> rawDataQueue, int period,
+            int highWatermark, ScmStatisticsClient client) {
         this.rawDataQueue = rawDataQueue;
         this.period = period;
         this.client = client;

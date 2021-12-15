@@ -2,6 +2,7 @@ package com.sequoiacm.cloud.adminserver.controller;
 
 import java.util.List;
 
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsBreakpointFileRawData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,16 @@ public class InternalStatisticsController {
         }
         logger.debug("received raw data: {}", rawDataList);
         service.reportFileRawData(rawDataList);
+    }
+
+    @PostMapping(path = "/raw_data/" + ScmStatisticsType.BREAKPOINT_FILE_UPLOAD)
+    public void reportBreakpointFileRawData(
+            @RequestBody List<ScmStatisticsBreakpointFileRawData> rawDataList)
+            throws StatisticsException {
+        if (rawDataList == null || rawDataList.size() <= 0) {
+            return;
+        }
+        logger.debug("received raw data: {}", rawDataList);
+        service.reportBreakpointFileRawData(rawDataList);
     }
 }

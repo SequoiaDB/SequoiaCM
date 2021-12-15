@@ -8,6 +8,9 @@ public class ScmStatisticsRawDataFactory {
             case ScmStatisticsType.FILE_UPLOAD:
                 return new ScmStatisticsFileRawData(isSuccess, type, user, timestamp, responseTime,
                         extraInfo);
+            case ScmStatisticsType.BREAKPOINT_FILE_UPLOAD:
+                return new ScmStatisticsBreakpointFileRawData(isSuccess, type, user, timestamp,
+                        responseTime, extraInfo);
             default:
                 throw new IllegalArgumentException("unrecognized raw data type:" + type);
         }

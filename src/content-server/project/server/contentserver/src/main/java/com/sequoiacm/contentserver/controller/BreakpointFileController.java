@@ -8,21 +8,16 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsBreakpointFileMeta;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -113,7 +108,8 @@ public class BreakpointFileController {
             @RequestParam(value = "checksum_type", required = false) ChecksumType checksumType,
             @RequestParam(value = "is_last_content", required = false) Boolean isLastContent,
             @RequestParam(value = "is_need_md5", required = false, defaultValue = "false") boolean isNeedMd5,
-            HttpServletRequest request, Authentication auth)
+            @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
+            HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException, IOException {
         InputStream is = request.getInputStream();
         try {
@@ -133,8 +129,13 @@ public class BreakpointFileController {
                     ScmPrivilegeDefine.CREATE, "create breakpoint file");
             audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0,
                     "create breakpoint file, fileName=" + fileName);
-            return breakpointFileService.createBreakpointFile(auth.getName(), workspaceName,
-                    fileName, createTime, checksumType, is, isLastContent, isNeedMd5);
+            BreakpointFile breakpointFile = breakpointFileService.createBreakpointFile(
+                    auth.getName(), workspaceName, fileName, createTime, checksumType, is,
+                    isLastContent, isNeedMd5);
+            if (ScmStatisticsType.BREAKPOINT_FILE_UPLOAD.equals(statisticsType)) {
+                addExtraHeader(response, breakpointFile, isLastContent);
+            }
+            return breakpointFile;
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);
@@ -145,7 +146,9 @@ public class BreakpointFileController {
     public BreakpointFile uploadBreakpointFile(@RequestParam("workspace_name") String workspaceName,
             @PathVariable("file_name") String fileName,
             @RequestParam(value = "is_last_content") boolean isLastContent,
-            @RequestParam("offset") long offset, HttpServletRequest request, Authentication auth)
+            @RequestParam("offset") long offset,
+            @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
+            HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException, IOException {
         InputStream fileStream = request.getInputStream();
         try {
@@ -153,8 +156,12 @@ public class BreakpointFileController {
                     ScmPrivilegeDefine.CREATE, "upload breakpoint file");
             audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0,
                     "upload breakpoint file, fileName=" + fileName);
-            return breakpointFileService.uploadBreakpointFile(auth.getName(), workspaceName,
-                    fileName, fileStream, offset, isLastContent);
+            BreakpointFile breakpointFile = breakpointFileService.uploadBreakpointFile(
+                    auth.getName(), workspaceName, fileName, fileStream, offset, isLastContent);
+            if (ScmStatisticsType.BREAKPOINT_FILE_UPLOAD.equals(statisticsType)) {
+                addExtraHeader(response, breakpointFile, isLastContent);
+            }
+            return breakpointFile;
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(fileStream);
@@ -183,5 +190,13 @@ public class BreakpointFileController {
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
                 "calculate breakpoint file md5, fileName=" + fileName);
         return new BasicBSONObject(FieldName.BreakpointFile.FIELD_MD5, md5);
+    }
+
+    private void addExtraHeader(HttpServletResponse response, BreakpointFile breakpointFile,
+            boolean isLastContent) {
+        ScmStatisticsBreakpointFileMeta fileMeta = new ScmStatisticsBreakpointFileMeta(
+                breakpointFile.getFileName(), breakpointFile.getWorkspaceName(),
+                breakpointFile.getCreateTime(), isLastContent);
+        response.setHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, fileMeta.toJSON());
     }
 }
