@@ -191,8 +191,6 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
     testcaseDir = os.path.abspath(os.path.join(sys.path[0], os.pardir))+"/v2.0"
     for dir in os.listdir(testcaseDir):
         srcXmlFile="testng.xml"
-        if SCM_DEPLOY_NET == "true":
-            srcXmlFile="testng-net.xml"
         xmlDir = testcaseDir+"/"+dir+"/java/src/test/resources"
         if not os.path.exists(xmlDir+"/"+srcXmlFile):
             continue
@@ -225,11 +223,13 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+mainsitehost+".xml")
         replaceTestngStr(xmlDir+"/testng_"+controlhost+".xml", "localhost", controlhost)
         replaceTestngStr(xmlDir+"/testng_"+mainsitehost+".xml", "localhost", mainsitehost)
-        
+        if SCM_DEPLOY_NET == "true":
+            replaceTestngStr(xmlDir+"/proxy.xml", "$IGNORE", "net")
+        else :
+            replaceTestngStr(xmlDir+"/proxy.xml", "$IGNORE", "star")
         #if serial testcase is exists,then  deal with testng-serial.xml
         srcXmlFile="testng-serial.xml"
-        if SCM_DEPLOY_NET == "true":
-            srcXmlFile="testng-net-serial.xml"
+
         if os.path.exists(xmlDir+"/"+srcXmlFile):
             shutil.copy(xmlDir+"/"+srcXmlFile,xmlDir+"/proxy-serial.xml")
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "XXXX", destgroup)
@@ -238,6 +238,10 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3PASSWORD", S3_SECRETKEY)
+            if SCM_DEPLOY_NET == "true":
+                replaceTestngStr(xmlDir+"/proxy-serial.xml", "$IGNORE", "net")
+            else :
+                replaceTestngStr(xmlDir+"/proxy-serial.xml", "$IGNORE", "star")
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
             replaceTestngStr(xmlDir+"/proxy_env.xml", "XXXX", destgroup)
