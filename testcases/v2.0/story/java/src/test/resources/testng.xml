@@ -14,6 +14,8 @@
    <parameter name="SDBUSER" value="sdbadmin" />
    <parameter name="SDBPASSWD" value="sequoiadb" />
 
+   <!-- 需要屏蔽的独有用例类型，网状模型下指定star，星状模型下指定net -->
+   <parameter name="IGNORE" value="${IGNORE}"/>
    <parameter name="GATEWAYS" value="GATEWAYURLS"/>
    <parameter name="ROOTSITESVCNAME" value="rootsite"/>
    <parameter name="SCMUSER" value="admin" />
@@ -34,17 +36,12 @@
          <method-selector>
             <script language="beanshell">
                <![CDATA[
-               groups.containsKey("XXXX")||groups.isEmpty();
+                    IGNORE=testngMethod.getXmlTest().getParameter("IGNORE");
+               groups.containsKey("fourSite")&&(!groups.containsKey(IGNORE))||groups.isEmpty();
                ]]>
             </script>
          </method-selector>
       </method-selectors>
-       <groups>
-           <run>
-               <!-- 根据通信模型需要屏蔽的独有用例 -->
-               <exclude name="${IGNORE}"/>
-           </run>
-       </groups>
 
       <packages>
          <!-- asynctask -->
@@ -96,8 +93,6 @@
          <package name="com.sequoiacm.s3.bucket.concurrent"/>
          <package name="com.sequoiacm.s3.object"/>
          <package name="com.sequoiacm.s3.object.concurrent"/>
-         <!-- statistics -->
-         <package name="com.sequoiacm.statistics"/>
 
 
           <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2 -->
