@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -130,19 +131,15 @@ public class Transfer_stopInitTask414 extends TestScmBase {
         fileId = scmfile.save();
     }
 
-    private ScmId startTask() {
+    private ScmId startTask() throws ScmException {
         ScmId taskId = null;
-        try {
-            expStartTime = new Date();
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
-            taskIdList.add( taskId );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        expStartTime = new Date();
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
+        taskIdList.add( taskId );
         return taskId;
     }
 

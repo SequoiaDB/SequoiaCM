@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -121,7 +122,8 @@ public class Transfer_inRootSite410 extends TestScmBase {
 
     private void startTask() throws ScmException {
         try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
             Assert.assertFalse( true,
                     "expect result is fail but actual is success." );
         } catch ( ScmException e ) {

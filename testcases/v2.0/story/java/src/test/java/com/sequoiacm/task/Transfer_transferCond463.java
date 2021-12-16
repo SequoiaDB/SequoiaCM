@@ -220,7 +220,8 @@ public class Transfer_transferCond463 extends TestScmBase {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                 session );
         expStartTime = getDate();
-        ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond );
+        ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScopeType.SCOPE_CURRENT, ScmInfo.getRootSite().getSiteName() );
         return taskId;
     }
 

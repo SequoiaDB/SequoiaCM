@@ -39,6 +39,12 @@
             </script>
          </method-selector>
       </method-selectors>
+       <groups>
+           <run>
+               <!-- 根据通信模型需要屏蔽的独有用例 -->
+               <exclude name="${IGNORE}"/>
+           </run>
+       </groups>
 
       <packages>
          <!-- asynctask -->
@@ -81,6 +87,7 @@
          <package name="com.sequoiacm.breakpointfile.concurrent"/>
          <!-- file version -->
          <package name="com.sequoiacm.version"/>
+         <package name="com.sequoiacm.version.concurrent"/>
          <!-- definemeta -->
          <package name="com.sequoiacm.definemeta"/>
          <package name="com.sequoiacm.definemeta.concurrent"/>
@@ -89,6 +96,8 @@
          <package name="com.sequoiacm.s3.bucket.concurrent"/>
          <package name="com.sequoiacm.s3.object"/>
          <package name="com.sequoiacm.s3.object.concurrent"/>
+         <!-- statistics -->
+         <package name="com.sequoiacm.statistics"/>
 
 
           <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2 -->

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -121,13 +122,15 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
                 for ( ScmId fileId : fileIdList ) {
                     try {
                         ScmFactory.File.deleteInstance( ws, fileId, true );
-                    } catch ( ScmException e1 ) {
-                        System.out.println( "file is not found" );
+                    } catch ( ScmException e ) {
+                        if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                            throw e;
+                        }
                     }
                 }
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( BaseException e ) {
+        } catch ( BaseException | ScmException e ) {
             Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
@@ -205,7 +208,8 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                         .get();
-                taskId = ScmSystem.Task.startTransferTask( ws, condition );
+                taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
                 waitTaskStop();
             } finally {
                 if ( sessionA != null ) {

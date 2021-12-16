@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -70,55 +71,46 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
-            ws_T = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
+        ws_T = ScmInfo.getWs();
 
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-            prepareFiles( ws );
-            bulkUpdateFileName( ws, fileNum / 2, fileNum, randauthorName );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        sessionM = TestScmTools.createSession( rootSite );
+        sessionA = TestScmTools.createSession( branceSite );
+        ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        prepareFiles( ws );
+        bulkUpdateFileName( ws, fileNum / 2, fileNum, randauthorName );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            UpdateThread updateThd = new UpdateThread( fileNum / 2, fileNum,
-                    transauthorName );
-            TransferThread transThd = new TransferThread();
-            updateThd.start();
-            transThd.start();
+        UpdateThread updateThd = new UpdateThread( fileNum / 2, fileNum,
+                transauthorName );
+        TransferThread transThd = new TransferThread();
+        updateThd.start();
+        transThd.start();
 
-            Assert.assertTrue( updateThd.isSuccess(), updateThd.getErrorMsg() );
-            Assert.assertTrue( transThd.isSuccess(), transThd.getErrorMsg() );
+        Assert.assertTrue( updateThd.isSuccess(), updateThd.getErrorMsg() );
+        Assert.assertTrue( transThd.isSuccess(), transThd.getErrorMsg() );
 
-            ScmTaskUtils.waitTaskFinish( sessionM, taskId );
-            checkTransfered( 0, fileNum / 2 );
-            checkFileUsable( 0, fileNum );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        ScmTaskUtils.waitTaskFinish( sessionM, taskId );
+        checkTransfered( 0, fileNum / 2 );
+        checkFileUsable( 0, fileNum );
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileNum; ++i ) {
@@ -128,8 +120,6 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -221,7 +211,9 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
             try {
                 BSONObject condition = new BasicBSONObject(
                         ScmAttributeName.File.AUTHOR, transauthorName );
-                taskId = ScmSystem.Task.startTransferTask( ws, condition );
+                taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
                 ScmTaskUtils.waitTaskFinish( sessionA, taskId );
             } finally {
                 if ( sessionA != null ) {

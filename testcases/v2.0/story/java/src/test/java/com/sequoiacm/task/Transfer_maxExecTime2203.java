@@ -132,18 +132,13 @@ public class Transfer_maxExecTime2203 extends TestScmBase {
         }
     }
 
-    private void startTask( long maxExecTime ) {
-        try {
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond,
-                    ScopeType.SCOPE_CURRENT, maxExecTime );
-            taskIdList.add( taskId );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void startTask( long maxExecTime ) throws ScmException {
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScopeType.SCOPE_CURRENT, maxExecTime,
+                ScmInfo.getRootSite().getSiteName() );
+        taskIdList.add( taskId );
     }
 
     private void waitTaskStop( ScmId taskId ) throws ScmException {

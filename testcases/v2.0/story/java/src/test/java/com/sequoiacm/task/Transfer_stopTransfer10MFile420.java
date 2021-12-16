@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -60,57 +61,42 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
-            ws_T = ScmInfo.getWs();
+        branceSite = ScmInfo.getBranchSite();
+        ws_T = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( authorName )
-                    .get();
-            ScmFileUtils.cleanFile( ws_T, cond );
-
-            prepareFiles( sessionA );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-            if ( sessionA != null ) {
-                sessionA.close();
-            }
-        }
+        sessionA = TestScmTools.createSession( branceSite );
+        ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
+        prepareFiles( sessionA );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            taskId = transferAllFile( sessionA );
-            waitTaskRunning();
-            ScmSystem.Task.stopTask( sessionA, taskId );
-            waitStopFinish( sessionA, taskId );
-            Assert.assertEquals(
-                    ScmSystem.Task.getTask( sessionA, taskId ).getRunningFlag(),
-                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ); // 4: cancel
-            checkTransfered();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        taskId = transferAllFile();
+        waitTaskRunning();
+        ScmSystem.Task.stopTask( sessionA, taskId );
+        waitStopFinish( sessionA, taskId );
+        Assert.assertEquals(
+                ScmSystem.Task.getTask( sessionA, taskId ).getRunningFlag(),
+                CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ); // 4: cancel
+        checkTransfered();
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -118,8 +104,6 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -139,10 +123,12 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
         }
     }
 
-    private ScmId transferAllFile( ScmSession session ) throws ScmException {
+    private ScmId transferAllFile() throws ScmException {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        return ScmSystem.Task.startTransferTask( ws, condition );
+        return ScmSystem.Task.startTransferTask( ws, condition,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
     }
 
     /*
@@ -178,15 +164,10 @@ public class Transfer_stopTransfer10MFile420 extends TestScmBase {
         }
     }
 
-    private void checkTransfered() {
-        try {
-            SiteWrapper rootSite = ScmInfo.getRootSite();
-            SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void checkTransfered() throws Exception {
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
     }
 }

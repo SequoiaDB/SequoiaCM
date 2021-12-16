@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -111,12 +112,14 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
 
         BSONObject cond1 = basicCond.and( ScmAttributeName.File.TITLE )
                 .is( ws1.getName() ).get();
-        taskId1 = ScmSystem.Task.startTransferTask( ws1, cond1 );
+        taskId1 = ScmSystem.Task.startTransferTask( ws1, cond1,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         ScmSystem.Task.stopTask( sessionB, taskId1 );
 
         BSONObject cond2 = basicCond.and( ScmAttributeName.File.TITLE )
                 .is( ws2.getName() ).get();
-        taskId2 = ScmSystem.Task.startTransferTask( ws2, cond2 );
+        taskId2 = ScmSystem.Task.startTransferTask( ws2, cond2,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         ScmSystem.Task.stopTask( sessionB, taskId2 );
 
         waitTaskStop( taskId1 );

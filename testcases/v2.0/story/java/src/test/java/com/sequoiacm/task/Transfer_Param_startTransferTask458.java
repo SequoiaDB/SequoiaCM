@@ -2,6 +2,7 @@ package com.sequoiacm.task;
 
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,7 +85,9 @@ public class Transfer_Param_startTransferTask458 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder.start( "test" )
                     .greaterThanEquals( "aa" )
                     .and( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-            taskId = ScmSystem.Task.startTransferTask( ws, condition );
+            taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                    ScmType.ScopeType.SCOPE_CURRENT,
+                    ScmInfo.getRootSite().getSiteName() );
             ScmTaskUtils.waitTaskFinish( session, taskId );
             // check task info
             ScmTask taskInfo = ScmSystem.Task.getTask( session, taskId );

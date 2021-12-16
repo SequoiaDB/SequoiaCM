@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -153,7 +154,8 @@ public class Transfer_stopTaskByMainCenter419 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.SIZE ).greaterThanEquals( value )
                 .get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
     }
 
     private void checkMetaAndLobs() throws Exception {

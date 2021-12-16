@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -155,7 +156,9 @@ public class Transfer_readFileWhenTransfering432 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             try {
-                taskId = ScmSystem.Task.startTransferTask( wsA, cond );
+                taskId = ScmSystem.Task.startTransferTask( wsA, cond,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
                 waitTaskRunning();
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );

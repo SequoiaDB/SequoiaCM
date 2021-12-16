@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,8 +60,8 @@ public class Transfer_startAndStopTime883 extends TestScmBase {
             // 5m30s slower than current time
             Long updateTime = new Date().getTime() - 5 * 60 * 1000 - 30 * 1000;
 
-            TestTools.setSystemTime( branceSite.getNode().getHost(), "\"" +
-                    dateFmt.format( updateTime ) + "\"" );
+            TestTools.setSystemTime( branceSite.getNode().getHost(),
+                    "\"" + dateFmt.format( updateTime ) + "\"" );
 
             // login
             sessionA = TestScmTools.createSession( branceSite );
@@ -127,6 +128,8 @@ public class Transfer_startAndStopTime883 extends TestScmBase {
     private void startTransferTask() throws ScmException, InterruptedException {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task.startTransferTask( wsA, condition );
+        taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
     }
 }

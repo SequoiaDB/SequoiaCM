@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -111,7 +112,8 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        taskId = ScmSystem.Task.startTransferTask( wsA, cond );
+        taskId = ScmSystem.Task.startTransferTask( wsA, cond,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         ScmTaskUtils.waitTaskFinish( sessionA, taskId );
 
         checkResults();
@@ -129,7 +131,7 @@ public class Transfer_dissatisfySiteCond945 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

@@ -1,9 +1,11 @@
 package com.sequoiacm.task;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,56 +61,46 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + FILE_SIZE
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, FILE_SIZE );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, FILE_SIZE );
 
-            branceSite = ScmInfo.getBranchSite();
-            ws_T = ScmInfo.getWs();
+        branceSite = ScmInfo.getBranchSite();
+        ws_T = ScmInfo.getWs();
 
-            session = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
+        session = TestScmTools.createSession( branceSite );
+        ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
-            cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                    .is( authorName ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
 
-            createFile( ws, filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        createFile( ws, filePath );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws ScmException {
-        startTask();
-        try {
-            ScmTaskUtils.waitTaskFinish( session, taskId );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + ",taskId = " + taskId.get() );
-        }
+    private void test() throws Exception {
+        taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
+        ScmTaskUtils.waitTaskFinish( session, taskId );
         checkRepeatCloseCursor();
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
                 ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
@@ -124,15 +116,6 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
         scmfile.setFileName( authorName + "_" + UUID.randomUUID() );
         scmfile.setAuthor( authorName );
         fileId = scmfile.save();
-    }
-
-    private void startTask() {
-        try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
     }
 
     private void checkRepeatCloseCursor() throws ScmException {

@@ -2,6 +2,7 @@ package com.sequoiacm.task;
 
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -50,8 +51,7 @@ public class Transfer_param_stopTask459 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
+    private void setUp() throws ScmException {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
@@ -64,10 +64,8 @@ public class Transfer_param_stopTask459 extends TestScmBase {
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             fileId = createFile( ws );
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScmType.ScopeType.SCOPE_CURRENT,ScmInfo.getRootSite().getSiteName());
     }
 
     @Test(groups = { "twoSite", "fourSite" })

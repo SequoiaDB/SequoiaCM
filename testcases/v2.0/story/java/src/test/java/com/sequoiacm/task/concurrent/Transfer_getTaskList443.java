@@ -1,11 +1,13 @@
 package com.sequoiacm.task.concurrent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -63,59 +65,48 @@ public class Transfer_getTaskList443 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + FILE_SIZE
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, FILE_SIZE );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, FILE_SIZE );
 
-            rootSite = ScmInfo.getRootSite();
-            branceSiteList = ScmInfo.getBranchSites( 2 );
-            ws_T = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branceSiteList = ScmInfo.getBranchSites( 2 );
+        ws_T = ScmInfo.getWs();
 
-            cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                    .is( authorName ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
-            session = TestScmTools.createSession( branceSiteList.get( 1 ) );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
-            prepareFiles( session );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
+        session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+        ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
+        prepareFiles( session );
     }
 
     @Test(groups = { "fourSite" })
-    private void test() {
-        try {
-            TaskThread TaskThreadM = new TaskThread( rootSite );
-            TaskThread TaskThreadA = new TaskThread( branceSiteList.get( 0 ) );
-            TaskThread TaskThreadB = new TaskThread( branceSiteList.get( 1 ) );
+    private void test() throws Exception {
 
-            startTask();
-            ScmTaskUtils.waitTaskFinish( session, taskId );
+        TaskThread TaskThreadM = new TaskThread( rootSite );
+        TaskThread TaskThreadA = new TaskThread( branceSiteList.get( 0 ) );
+        TaskThread TaskThreadB = new TaskThread( branceSiteList.get( 1 ) );
 
-            TaskThreadM.start( 50 );
-            TaskThreadA.start( 50 );
-            TaskThreadB.start( 50 );
+        startTask();
+        ScmTaskUtils.waitTaskFinish( session, taskId );
 
-            Assert.assertTrue( TaskThreadM.isSuccess(),
-                    TaskThreadM.getErrorMsg() );
-            Assert.assertTrue( TaskThreadA.isSuccess(),
-                    TaskThreadA.getErrorMsg() );
-            Assert.assertTrue( TaskThreadB.isSuccess(),
-                    TaskThreadB.getErrorMsg() );
+        TaskThreadM.start( 50 );
+        TaskThreadA.start( 50 );
+        TaskThreadB.start( 50 );
 
-            checkTaskList( TaskThreadM.getCursor() );
-            checkTaskList( TaskThreadA.getCursor() );
-            checkTaskList( TaskThreadB.getCursor() );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        Assert.assertTrue( TaskThreadM.isSuccess(), TaskThreadM.getErrorMsg() );
+        Assert.assertTrue( TaskThreadA.isSuccess(), TaskThreadA.getErrorMsg() );
+        Assert.assertTrue( TaskThreadB.isSuccess(), TaskThreadB.getErrorMsg() );
+
+        checkTaskList( TaskThreadM.getCursor() );
+        checkTaskList( TaskThreadA.getCursor() );
+        checkTaskList( TaskThreadB.getCursor() );
         runSuccess = true;
     }
 
@@ -151,7 +142,8 @@ public class Transfer_getTaskList443 extends TestScmBase {
 
     private void startTask() {
         try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
         }

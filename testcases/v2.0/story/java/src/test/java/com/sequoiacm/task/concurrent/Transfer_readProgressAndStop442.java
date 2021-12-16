@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -155,7 +156,8 @@ public class Transfer_readProgressAndStop442 extends TestScmBase {
 
     private void startTask() {
         try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
         }

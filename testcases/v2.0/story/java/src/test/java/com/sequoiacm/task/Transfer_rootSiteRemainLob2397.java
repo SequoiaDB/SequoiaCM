@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -152,7 +153,8 @@ public class Transfer_rootSiteRemainLob2397 extends TestScmBase {
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                 .put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileNum + startNum ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
     }
 
     private void checkTaskAtt( ScmSession session ) throws ScmException {

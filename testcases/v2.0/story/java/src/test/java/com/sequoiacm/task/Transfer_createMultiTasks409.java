@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -129,9 +130,13 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
 
     private void startTask() throws ScmException {
         try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
+            taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                    ScmType.ScopeType.SCOPE_CURRENT,
+                    ScmInfo.getRootSite().getSiteName() );
             for ( int i = 0; i < 5; i++ ) {
-                ScmSystem.Task.startTransferTask( ws, cond );
+                ScmSystem.Task.startTransferTask( ws, cond,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        ScmInfo.getRootSite().getSiteName() );
             }
         } catch ( ScmException e ) {
             if ( ScmError.TASK_DUPLICATE != e.getError() ) {

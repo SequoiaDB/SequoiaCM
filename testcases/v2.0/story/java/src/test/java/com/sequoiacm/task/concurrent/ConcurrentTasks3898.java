@@ -47,7 +47,7 @@ public class ConcurrentTasks3898 extends TestScmBase {
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -67,7 +67,7 @@ public class ConcurrentTasks3898 extends TestScmBase {
         branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
 
-        queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+        queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
@@ -101,7 +101,7 @@ public class ConcurrentTasks3898 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

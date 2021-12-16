@@ -2,6 +2,7 @@ package com.sequoiacm.task;
 
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +75,9 @@ public class Transfer_getCurWhenMatch0Record423 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        startTask();
+        taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
         ScmTaskUtils.waitTaskFinish( sessionA, taskId );
         checkCursorMethod();
         runSuccess = true;
@@ -104,15 +107,6 @@ public class Transfer_getCurWhenMatch0Record423 extends TestScmBase {
         scmfile.setAuthor( authorName );
         fileId = scmfile.save();
         return fileId;
-    }
-
-    private void startTask() {
-        try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() + "  ws = " + ws + " cond = " + cond );
-            e.printStackTrace();
-        }
     }
 
     private ScmCursor< ScmTaskBasicInfo > getTaskList() {

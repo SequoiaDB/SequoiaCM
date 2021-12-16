@@ -59,7 +59,8 @@ public class Clean_oneSite906 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    private List< SiteWrapper > branceSiteList = new ArrayList< SiteWrapper >();
+    private SiteWrapper rootSite;
+    private SiteWrapper branchSite;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
@@ -74,7 +75,9 @@ public class Clean_oneSite906 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSiteList = ScmInfo.getBranchSites( 2 );
+            branchSite=ScmInfo.getBranchSite();
+            rootSite=ScmInfo.getRootSite();
+
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -82,10 +85,10 @@ public class Clean_oneSite906 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            sessionA = TestScmTools.createSession( rootSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionB = TestScmTools.createSession( branchSite );
             wsB = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionB );
 
             // ready scmfile
@@ -171,7 +174,7 @@ public class Clean_oneSite906 extends TestScmBase {
     private void checkResults() throws Exception {
         SiteWrapper rootSite = ScmInfo.getRootSite();
         // file exists only in one site
-        SiteWrapper[] siteArr = { rootSite, branceSiteList.get( 1 ) };
+        SiteWrapper[] siteArr = { branchSite };
         ScmFileUtils.checkMetaAndData( ws_T, fileIdList, siteArr, localPath,
                 filePath );
 

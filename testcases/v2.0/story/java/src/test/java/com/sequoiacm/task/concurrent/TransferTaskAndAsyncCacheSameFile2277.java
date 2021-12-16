@@ -1,6 +1,7 @@
-package com.sequoiacm.net.task.concurrent;
+package com.sequoiacm.task.concurrent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,51 +59,41 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready local file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready local file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            ws_T = ScmInfo.getWs();
-            List< SiteWrapper > siteList = ScmNetUtils.getSortSites( ws_T );
-            rootSite = siteList.get( 0 );
-            branceSite = siteList.get( 1 );
+        ws_T = ScmInfo.getWs();
+        List< SiteWrapper > siteList = ScmNetUtils.getSortSites( ws_T );
+        rootSite = siteList.get( 0 );
+        branceSite = siteList.get( 1 );
 
-            BSONObject cond = ScmQueryBuilder.start()
-                    .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        BSONObject cond = ScmQueryBuilder.start()
+                .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
 
-            // login
-            sessionA = TestScmTools.createSession( rootSite );
-            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        // login
+        sessionA = TestScmTools.createSession( rootSite );
+        wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            // ready file
-            this.writeFile();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // ready file
+        this.writeFile();
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "net" })
     private void test() throws Exception {
-        try {
-            asyncCache();
-            startTransferTask();
-            // check results
-            SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        asyncCache();
+        startTransferTask();
+        // check results
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -114,8 +105,6 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
                 TestSdbTools.Task.deleteMeta( taskId );
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -148,10 +137,6 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -172,10 +157,6 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
                     expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

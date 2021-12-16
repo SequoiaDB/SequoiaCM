@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -149,7 +150,9 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
                         .greaterThanEquals( fileSize )
                         .and( ScmAttributeName.File.AUTHOR ).is( authorName )
                         .get();
-                taskId = ScmSystem.Task.startTransferTask( ws, condition );
+                taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
             } finally {
                 if ( session != null )
                     session.close();
@@ -165,7 +168,8 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
                 sessionA = TestScmTools.createSession( branchSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
-                ScmFactory.File.asyncTransfer( ws, randomId );
+                ScmFactory.File.asyncTransfer( ws, randomId,
+                        rootSite.getSiteName() );
             } finally {
                 if ( sessionA != null ) {
                     sessionA.close();

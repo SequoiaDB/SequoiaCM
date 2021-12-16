@@ -139,7 +139,8 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
                     .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                     .get();
             ScmId taskId = ScmSystem.Task.startTransferTask( ws, cond,
-                    ScopeType.SCOPE_CURRENT, maxExecTime );
+                    ScopeType.SCOPE_CURRENT, maxExecTime,
+                    ScmInfo.getRootSite().getSiteName() );
             taskIdList.add( taskId );
         } catch ( ScmException e ) {
             e.printStackTrace();

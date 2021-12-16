@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -185,7 +186,9 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( authorName )
                         .get();
-                taskId = ScmSystem.Task.startTransferTask( ws, condition );
+                taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
                 // check result
                 // task runningFlag
                 while ( true ) {

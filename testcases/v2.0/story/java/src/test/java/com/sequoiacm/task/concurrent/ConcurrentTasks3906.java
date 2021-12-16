@@ -47,7 +47,7 @@ public class ConcurrentTasks3906 extends TestScmBase {
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -117,7 +117,7 @@ public class ConcurrentTasks3906 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

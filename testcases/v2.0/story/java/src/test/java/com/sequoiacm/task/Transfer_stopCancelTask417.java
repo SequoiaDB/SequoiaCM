@@ -1,11 +1,13 @@
 package com.sequoiacm.task;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +49,7 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private boolean runSuccess = false;
     private File localPath = null;
     private String filePath = null;
-    private int fileSize = 1024*200;
+    private int fileSize = 1024 * 200;
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
     private ScmId taskId = null;
@@ -61,36 +63,33 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private WsWrapper wsp = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
-            wsp = ScmInfo.getWs();
+        branceSite = ScmInfo.getBranchSite();
+        wsp = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionA = TestScmTools.createSession( branceSite );
+        ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-            cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
-                    .is( authorName ).get();
-            ScmFileUtils.cleanFile( wsp, cond );
+        cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-            createFile( ws, filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        createFile( ws, filePath );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws ScmException {
-        startTask();
+        taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
         stopTaskAgain();
         checkTaskAttribute();
         runSuccess = true;
@@ -126,14 +125,6 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
             scmfile.setAuthor( authorName );
             ScmId fileId = scmfile.save();
             fileIdList.add( fileId );
-        }
-    }
-
-    private void startTask() {
-        try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond );
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         }
     }
 

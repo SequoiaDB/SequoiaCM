@@ -49,7 +49,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -80,9 +80,8 @@ public class ConcurrentTasks3911 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 主站点在ws1和ws2下创建文件
-        List< ScmId > filelist1 = createFile( rootSiteWs1, 0, taskNum / 2 );
-        List< ScmId > filelist2 = createFile( rootSiteWs2, taskNum / 2,
-                taskNum );
+        createFile( rootSiteWs1, 0, taskNum / 2 );
+        createFile( rootSiteWs2, taskNum / 2, taskNum );
 
         // 执行并发迁移任务
         ThreadExecutor t = new ThreadExecutor();
@@ -113,7 +112,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
