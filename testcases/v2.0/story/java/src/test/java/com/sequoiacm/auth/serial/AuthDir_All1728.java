@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -82,7 +84,7 @@ public class AuthDir_All1728 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootsite = ScmInfo.getRootSite();
-            branchsite = ScmInfo.getBranchSite();
+            branchsite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             wsp = ScmInfo.getWs();
             sessionA = TestScmTools.createSession( rootsite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
@@ -287,7 +289,8 @@ public class AuthDir_All1728 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsALL, fileId );
+            ScmFactory.File.asyncTransfer( wsALL, fileId,
+                    rootsite.getSiteName() );
             ;
         } catch ( ScmException e ) {
             e.printStackTrace();
@@ -321,7 +324,8 @@ public class AuthDir_All1728 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsALL, fileId, 1, 0 );
+            ScmFactory.File.asyncTransfer( wsALL, fileId, 1, 0,
+                    rootsite.getSiteName() );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -648,6 +652,7 @@ public class AuthDir_All1728 extends TestScmBase {
                     passwd );
             wsALL = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionALL );
+
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

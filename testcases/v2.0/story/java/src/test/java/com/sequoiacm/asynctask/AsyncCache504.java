@@ -49,7 +49,7 @@ public class AsyncCache504 extends TestScmBase {
     private WsWrapper ws_T = null;
     private BSONObject queryCond;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -85,7 +85,7 @@ public class AsyncCache504 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

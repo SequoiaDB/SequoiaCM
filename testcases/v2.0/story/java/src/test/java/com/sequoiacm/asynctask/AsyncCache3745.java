@@ -46,7 +46,7 @@ public class AsyncCache3745 extends TestScmBase {
     private WsWrapper wsp = null;
     private List< ScmId > fileIds = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -85,7 +85,7 @@ public class AsyncCache3745 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

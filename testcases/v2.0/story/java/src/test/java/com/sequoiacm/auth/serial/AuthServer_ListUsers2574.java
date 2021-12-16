@@ -104,7 +104,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
                 { cond2, 100, 100, 0, 0 } };
     }
 
-    @Test(dataProvider = "dataProvider")
+    @Test(groups = { "twoSite", "fourSite", "oneSite" },dataProvider = "dataProvider")
     private void test( BSONObject filter, long skip, long limit,
             int expPageSize, int expTotalNum ) throws Exception {
         int actPageSize = 0;
@@ -142,7 +142,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testInvalid() throws Exception {
         try {
             ScmFactory.User.listUsers( session, new BasicBSONObject(), -1, 0 );
@@ -164,7 +164,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testInvalidSession() throws Exception {
         try {
             ScmFactory.User.listUsers( null, new BasicBSONObject(), 1, 0 );

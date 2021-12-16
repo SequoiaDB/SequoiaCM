@@ -74,25 +74,15 @@ public class ReadFileFromLocalCenter232 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testWRLocalFileFromM() throws Exception {
-        try {
-            ScmId fileId = writeFile( rootSite );
-            readFile( rootSite, fileId );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        ScmId fileId = writeFile( rootSite );
+        readFile( rootSite, fileId );
         runSuccess1 = true;
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testWRLocalFileFromA() throws Exception {
-        try {
-            ScmId fileId = writeFile( branSite );
-            readFile( branSite, fileId );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        ScmId fileId = writeFile( branSite );
+        readFile( branSite, fileId );
         runSuccess2 = true;
     }
 

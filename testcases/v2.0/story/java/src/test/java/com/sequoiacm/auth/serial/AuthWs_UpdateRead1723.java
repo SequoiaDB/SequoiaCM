@@ -103,8 +103,14 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "twoSite", "fourSite", "star" })
+    private void startest() throws Exception {
+        nettest();
+        testCancelTransferTask();
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void nettest() throws Exception {
         testUpdateBatch();
         testBatchAttachFile();
         testBatchDetachFile();
@@ -114,11 +120,10 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         testAsynTransfer();
         testAsynTransferByVersion();
         testUpdateSche();
+        testTransferTask();
         testCleanTask();
         testCleanTaskByScope();
         testCancelCleanTask();
-        testCancelTransferTask();
-        testTransferTask();
         testTransferTaskByScope();
         testTransferTaskByTarget();
     }
@@ -276,7 +281,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         ScmId fileId = null;
         try {
             fileId = createFile( wsA, name );
-            ScmFactory.File.asyncTransfer( wsUR, fileId );
+            ScmFactory.File.asyncTransfer( wsUR, fileId,
+                    rootsite.getSiteName() );
             SiteWrapper[] expSiteList = { ScmInfo.getRootSite(), site };
             ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
                     expSiteList.length );
@@ -294,7 +300,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
         try {
             fileId = createFile( wsA, name );
 
-            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0 );
+            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0,
+                    rootsite.getSiteName() );
 
             SiteWrapper[] expSiteList = { ScmInfo.getRootSite(), site };
             ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
@@ -414,7 +421,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             List< ScmId > fileIdList = prepareTransferFile( wsA, name, 1 );
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
-            taskId = ScmSystem.Task.startTransferTask( wsUR, condition );
+            taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
             ScmTaskUtils.waitTaskFinish( sessionM, taskId );
             SiteWrapper[] siteArr = { rootsite, site };
@@ -425,6 +433,30 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
                     e );
         }
     }
+
+//    private void testTransferTaskNet() throws Exception {
+//        String fileName = author + "_" + UUID.randomUUID();
+//        ScmId fileId;
+//        ScmId taskId = null;
+//        try {
+//            fileId = ScmFileUtils.create( wsA, fileName, filePath );
+//            fileIdList.add( fileId );
+//
+//            BSONObject condition = ScmQueryBuilder
+//                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
+//                    .get();
+//            taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
+//                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
+//            taskIdList.add( taskId );
+//
+//            ScmTaskUtils.waitTaskFinish( sessionA, taskId );
+//            SiteWrapper[] siteArr = { rootsite, site };
+//            ScmFileUtils.checkMetaAndData( wsp, fileId, siteArr, localPath,
+//                    filePath );
+//        } catch ( AssertionError e ) {
+//            throw new Exception( "testTransferTask taskId = " + taskId, e );
+//        }
+//    }
 
     private void testCancelTransferTask() throws Exception {
         String name = author + "_" + UUID.randomUUID();
@@ -456,7 +488,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             BSONObject condition = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( name ).get();
             taskId = ScmSystem.Task.startTransferTask( wsUR, condition,
-                    ScopeType.SCOPE_CURRENT );
+                    ScopeType.SCOPE_CURRENT, rootsite.getSiteName() );
             taskIdList.add( taskId );
             ScmTaskUtils.waitTaskFinish( sessionM, taskId );
             SiteWrapper[] siteArr = { rootsite, site };

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -65,7 +66,7 @@ public class AsyncTransfer_whenAMExistFile486 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -86,7 +87,8 @@ public class AsyncTransfer_whenAMExistFile486 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
-            ScmFactory.File.asyncTransfer( wsA, fileId );
+            ScmFactory.File.asyncTransfer( wsA, fileId,
+                    rootSite.getSiteName() );
             checkResult();
         } catch ( Exception e ) {
             e.printStackTrace();

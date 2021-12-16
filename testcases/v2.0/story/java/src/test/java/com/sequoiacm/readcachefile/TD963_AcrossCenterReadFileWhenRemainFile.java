@@ -7,6 +7,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -63,8 +64,8 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
@@ -72,7 +73,25 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId, filePath );
 
         // read from centerB
-        this.readFileFromB();
+        this.readFileFrom( branSites.get( 1 ) );
+
+        // check result
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    public void startest() throws Exception {
+        // write from centerA
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
+
+        // remain file from centerB
+        TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId, filePath );
+
+        // read from centerB
+        this.readFileFrom( branSites.get( 1 ) );
 
         // check result
         SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
@@ -80,7 +99,7 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                 filePath );
 
         // read from centerM
-        this.readFileFromM();
+        this.readFileFrom( rootSite );
         // check result
         SiteWrapper[] expSites2 = { rootSite, branSites.get( 0 ),
                 branSites.get( 1 ) };
@@ -103,34 +122,12 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         }
     }
 
-    private void readFileFromB() throws Exception {
+    private void readFileFrom( SiteWrapper site ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( branSites.get( 1 ) );
+            session = TestScmTools.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
-            // read scmfile
-            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile.initDownloadPath(
-                    localPath, TestTools.getMethodName(),
-                    Thread.currentThread().getId() );
-            file.getContent( downloadPath );
-            Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ) );
-        } finally {
-            if ( session != null ) {
-                session.close();
-            }
-        }
-    }
-
-    private void readFileFromM() throws Exception {
-        ScmSession session = null;
-        try {
-            session = TestScmTools.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
-                    session );
-
             // read scmfile
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             String downloadPath = TestTools.LocalFile.initDownloadPath(

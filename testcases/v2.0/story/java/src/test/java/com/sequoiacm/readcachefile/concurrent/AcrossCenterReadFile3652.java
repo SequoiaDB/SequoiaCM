@@ -11,6 +11,7 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.*;
@@ -38,7 +39,7 @@ public class AcrossCenterReadFile3652 extends TestScmBase {
     private ScmId fileId = null;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -57,8 +58,10 @@ public class AcrossCenterReadFile3652 extends TestScmBase {
                 branchSite1Session );
     }
 
-    @Test(groups = { "fourSite" })
-    public void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    public void netTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branchSite1, branchSite2 };
+
         // branchSite1创建文件
         fileId = ScmFileUtils.create( branchSite1Workspace,
                 fileName + "_" + UUID.randomUUID(), filePath );
@@ -69,14 +72,32 @@ public class AcrossCenterReadFile3652 extends TestScmBase {
         t.addWorker( new GetInputStreamReadFile() );
         t.run();
 
-        SiteWrapper[] expSites = { branchSite1, branchSite2,
-                ScmInfo.getRootSite() };
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                 filePath );
         runSuccess = true;
     }
 
-    @AfterClass
+    @Test(groups = { "fourSite", "star" })
+    public void starTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branchSite1, branchSite2,
+                ScmInfo.getRootSite() };
+
+        // branchSite1创建文件
+        fileId = ScmFileUtils.create( branchSite1Workspace,
+                fileName + "_" + UUID.randomUUID(), filePath );
+
+        ThreadExecutor t = new ThreadExecutor();
+        t.addWorker( new SeekFile() );
+        t.addWorker( new GetContentReadFile() );
+        t.addWorker( new GetInputStreamReadFile() );
+        t.run();
+
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

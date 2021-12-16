@@ -100,33 +100,28 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }) // bug:315
+    @Test(groups = { "fourSite", "star" }) // bug:315
     private void test() throws Exception {
         ScmFile file;
-        try {
-            fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
-            this.readFileFromB( wsB );
-            TestSdbTools.Lob.removeLob( rootSite, wsp, fileId );
-            TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
+        this.readFileFromB( wsB );
+        TestSdbTools.Lob.removeLob( rootSite, wsp, fileId );
+        TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
 
-            // get lastAccessTime before read
-            file = ScmFactory.File.getInstance( wsM, fileId );
-            preSiteInfoList = file.getLocationList();
+        // get lastAccessTime before read
+        file = ScmFactory.File.getInstance( wsM, fileId );
+        preSiteInfoList = file.getLocationList();
 
-            this.readFileFromB( wsB );
+        this.readFileFromB( wsB );
 
-            // get lastAccessTime after read
-            file = ScmFactory.File.getInstance( wsM, fileId );
-            aftSiteInfoList = file.getLocationList();
+        // get lastAccessTime after read
+        file = ScmFactory.File.getInstance( wsM, fileId );
+        aftSiteInfoList = file.getLocationList();
 
-            // check results
-            this.checkMetaAndData();
-            this.checkLastAccessTime();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // check results
+        this.checkMetaAndData();
+        this.checkLastAccessTime();
         runSuccess = true;
     }
 

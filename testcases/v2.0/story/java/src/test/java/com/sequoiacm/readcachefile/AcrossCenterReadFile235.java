@@ -74,20 +74,15 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite", "star" }, enabled = false)
     private void test() throws Exception {
-        try {
-            this.writeFileFromA();
-            this.readFileFromB();
+        this.writeFileFromA();
+        this.readFileFromB();
 
-            TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
-            TestSdbTools.Lob.removeLob( branSites.get( 1 ), wsp, fileId );
+        TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
+        TestSdbTools.Lob.removeLob( branSites.get( 1 ), wsp, fileId );
 
-            this.readFileFromM();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        this.readFileFromM();
         runSuccess = true;
     }
 

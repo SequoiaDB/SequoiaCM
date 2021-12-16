@@ -41,7 +41,7 @@ public class CreateSche_ParamEnable2371 extends TestScmBase {
         ssA = TestScmTools.createSession( branSite );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         ScmSchedule schedule = this.createScheduleTask();
         schedule.delete();

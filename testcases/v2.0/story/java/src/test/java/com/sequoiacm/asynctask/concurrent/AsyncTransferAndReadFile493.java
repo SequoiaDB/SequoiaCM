@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -55,6 +56,7 @@ public class AsyncTransferAndReadFile493 extends TestScmBase {
 
     private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
+    private SiteWrapper rootSite;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -68,8 +70,9 @@ public class AsyncTransferAndReadFile493 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
 
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
@@ -135,9 +138,7 @@ public class AsyncTransferAndReadFile493 extends TestScmBase {
     }
 
     private void checkResult() {
-        SiteWrapper rootSite;
         try {
-            rootSite = ScmInfo.getRootSite();
             SiteWrapper[] expSiteList = { rootSite, branceSite };
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
                     expSiteList.length );
@@ -158,7 +159,8 @@ public class AsyncTransferAndReadFile493 extends TestScmBase {
                 sessionA = TestScmTools.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
-                ScmFactory.File.asyncTransfer( ws, fileId );
+                ScmFactory.File.asyncTransfer( ws, fileId,
+                        rootSite.getSiteName() );
             } finally {
                 if ( sessionA != null ) {
                     sessionA.close();

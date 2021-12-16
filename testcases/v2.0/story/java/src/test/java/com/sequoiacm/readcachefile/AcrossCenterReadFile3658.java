@@ -10,6 +10,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.*;
@@ -40,7 +41,7 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
     private ScmId fileIdB = null;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -65,8 +66,10 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
                 branchSite2session );
     }
 
-    @Test(groups = { "fourSite" })
-    public void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    public void netTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branchSite1, branchSite2 };
+
         // branchSite1创建文件
         fileIdA = ScmFileUtils.create( branchSite1Ws,
                 fileName + "_" + UUID.randomUUID(), filePathA );
@@ -77,8 +80,6 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
         AcrossCenterReadFileUtils.readFile( branchSite2Ws, fileIdA, localPath );
 
         // branchSite2跨站点读A,同时指定偏移读和跨站点不缓存
-        SiteWrapper[] expSites = { branchSite1, branchSite2,
-                ScmInfo.getRootSite() };
         String actInputStreamReadFile = AcrossCenterReadFileUtils
                 .getInputStreamReadFile( branchSite2Ws, fileIdA, localPath,
                         CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
@@ -102,7 +103,45 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @Test(groups = { "fourSite", "star" })
+    public void starTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branchSite1, branchSite2,
+                ScmInfo.getRootSite() };
+
+        // branchSite1创建文件
+        fileIdA = ScmFileUtils.create( branchSite1Ws,
+                fileName + "_" + UUID.randomUUID(), filePathA );
+        fileIdB = ScmFileUtils.create( branchSite1Ws,
+                fileName + "_" + UUID.randomUUID(), filePathB );
+
+        // 跨站点读取A缓存至本地
+        AcrossCenterReadFileUtils.readFile( branchSite2Ws, fileIdA, localPath );
+
+        // branchSite2跨站点读A,同时指定偏移读和跨站点不缓存
+        String actInputStreamReadFile = AcrossCenterReadFileUtils
+                .getInputStreamReadFile( branchSite2Ws, fileIdA, localPath,
+                        CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
+                                | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK );
+        Assert.assertEquals( TestTools.getMD5( actInputStreamReadFile ),
+                TestTools.getMD5( filePathA ) );
+        ScmFileUtils.checkMeta( branchSite2Ws, fileIdA, expSites );
+
+        // branchSite2跨站点读B,同时指定偏移读和跨站点不缓存
+        try {
+            AcrossCenterReadFileUtils.getInputStreamReadFile( branchSite2Ws,
+                    fileIdB, localPath,
+                    CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
+                            | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
+                throw e;
+            }
+        }
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

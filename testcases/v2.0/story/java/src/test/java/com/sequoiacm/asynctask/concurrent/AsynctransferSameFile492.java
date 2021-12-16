@@ -50,7 +50,7 @@ public class AsynctransferSameFile492 extends TestScmBase {
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
 
-    private SiteWrapper branceSite = null;
+    private SiteWrapper rootSite = null, branceSite = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
@@ -64,8 +64,9 @@ public class AsynctransferSameFile492 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmInfo.getBranchSite();
 
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.FILE_NAME ).is( fileName )
@@ -123,7 +124,6 @@ public class AsynctransferSameFile492 extends TestScmBase {
     }
 
     private void checkResult() {
-        SiteWrapper rootSite = ScmInfo.getRootSite();
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,
@@ -143,7 +143,8 @@ public class AsynctransferSameFile492 extends TestScmBase {
                 session = TestScmTools.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
-                ScmFactory.File.asyncTransfer( ws, fileId );
+                ScmFactory.File.asyncTransfer( ws, fileId,
+                        rootSite.getSiteName() );
             } catch ( ScmException e ) {
                 throw e;
             } finally {

@@ -43,7 +43,7 @@ public class Param_scmInputStream272 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite", "star" })
     private void testParamIsNull() throws ScmException {
         ScmInputStream sis = null;
         try {
@@ -63,7 +63,7 @@ public class Param_scmInputStream272 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite", "star" })
     private void testScmFileNotExist() throws ScmException {
         ScmInputStream sis = null;
         try {

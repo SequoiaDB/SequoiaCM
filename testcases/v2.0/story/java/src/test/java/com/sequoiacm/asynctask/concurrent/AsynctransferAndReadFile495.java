@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -67,7 +68,7 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -80,6 +81,8 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromSubCenterB();
         } catch ( ScmException | IOException e ) {
+            Assert.fail( e.getMessage() );
+        } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
     }
@@ -151,7 +154,8 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
                 // AsyncTransfer
-                ScmFactory.File.asyncTransfer( ws, fileId );
+                ScmFactory.File.asyncTransfer( ws, fileId,
+                        rootSite.getSiteName() );
             } catch ( ScmException e ) {
                 throw e;
             } finally {

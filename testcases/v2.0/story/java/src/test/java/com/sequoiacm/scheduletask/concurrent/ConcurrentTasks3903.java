@@ -51,7 +51,7 @@ public class ConcurrentTasks3903 extends TestScmBase {
             .synchronizedList( new ArrayList< ScmId >() );
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -111,7 +111,7 @@ public class ConcurrentTasks3903 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

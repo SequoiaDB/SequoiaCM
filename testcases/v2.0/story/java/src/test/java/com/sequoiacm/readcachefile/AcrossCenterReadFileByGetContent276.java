@@ -7,6 +7,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -67,17 +68,26 @@ public class AcrossCenterReadFileByGetContent276 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
-        try {
-            // writeFileFromA
-            fileId = ScmFileUtils.create( ws, fileName, filePath );
-            this.readFileFromB();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    @Test(groups = { "fourSite", "net" })
+    public void netTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
 
+        // writeFileFromA
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
+        this.readFileFromB( expSites );
+
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    public void starTest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ), rootSite };
+
+        // writeFileFromA
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
+        this.readFileFromB( expSites );
         runSuccess = true;
     }
 
@@ -98,7 +108,7 @@ public class AcrossCenterReadFileByGetContent276 extends TestScmBase {
         }
     }
 
-    private void readFileFromB() {
+    private void readFileFromB( SiteWrapper[] expSites ) {
         ScmSession session = null;
         try {
             // login
@@ -117,8 +127,6 @@ public class AcrossCenterReadFileByGetContent276 extends TestScmBase {
             Assert.assertEquals( TestTools.getMD5( filePath ),
                     TestTools.getMD5( downloadPath ) );
 
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                     filePath );
         } catch ( Exception e ) {

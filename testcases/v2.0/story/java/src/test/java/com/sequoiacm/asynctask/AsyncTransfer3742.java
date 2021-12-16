@@ -12,6 +12,7 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.element.ScmId;
@@ -50,7 +51,7 @@ public class AsyncTransfer3742 extends TestScmBase {
     private BSONObject queryCond = null;
     private ScmId fileId;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -78,8 +79,39 @@ public class AsyncTransfer3742 extends TestScmBase {
         fileIds.add( fileId );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    private void nettest() throws Exception {
+        // 分站点迁移到主站点
+        ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                rootSite.getSiteName() );
+        SiteWrapper[] expSiteList = { rootSite, branchSite1 };
+        ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
+                expSiteList.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSiteList );
+
+        // 分站点迁移到相同分站点
+        try {
+            ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                    branchSite1.getSiteName() );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ) {
+                throw e;
+            }
+        }
+
+        // 分站点迁移到其他分站点
+        ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
+                branchSite2.getSiteName() );
+        SiteWrapper[] exp_3SiteList = { rootSite, branchSite1, branchSite2 };
+        ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId,
+                exp_3SiteList.length );
+        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, exp_3SiteList );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    private void startest() throws Exception {
         // 分站点迁移到主站点
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
                 rootSite.getSiteName() );
@@ -112,7 +144,7 @@ public class AsyncTransfer3742 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

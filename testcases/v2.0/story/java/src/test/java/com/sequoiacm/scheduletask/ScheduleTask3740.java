@@ -38,7 +38,7 @@ public class ScheduleTask3740 extends TestScmBase {
     private ScmSchedule scmSchedule;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -75,7 +75,7 @@ public class ScheduleTask3740 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {

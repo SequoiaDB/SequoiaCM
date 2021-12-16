@@ -8,10 +8,7 @@ import java.util.List;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -67,7 +64,7 @@ public class AcrossCenterReadFileByOffset239 extends TestScmBase {
                 new Object[] { 0 }, new Object[] { 1024 * 1024 }, };
     }
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -93,14 +90,25 @@ public class AcrossCenterReadFileByOffset239 extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
-    @Test(groups = { "fourSite" }, dataProvider = "seekSizeProvider")
-    private void test( int seekSize ) throws Exception {
+    @Test(groups = { "fourSite", "star" }, dataProvider = "seekSizeProvider")
+    private void startest( int seekSize ) throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ), rootSite };
         this.readFileFromB( wsB, seekSize );
-        this.checkResult();
+        this.checkResult( expSites );
         runSuccess = true;
     }
 
-    @AfterClass()
+    @Test(groups = { "fourSite", "net" }, dataProvider = "seekSizeProvider")
+    private void nettest( int seekSize ) throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
+        this.readFileFromB( wsB, seekSize );
+        this.checkResult( expSites );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {
@@ -157,9 +165,7 @@ public class AcrossCenterReadFileByOffset239 extends TestScmBase {
         }
     }
 
-    private void checkResult() throws Exception {
-        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                branSites.get( 1 ) };
+    private void checkResult( SiteWrapper[] expSites ) throws Exception {
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                 filePath );
         checkFreeSite();

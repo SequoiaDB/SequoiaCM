@@ -88,7 +88,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                         remainFilePathList2.get( 3 ) } };
     }
 
-    @Test(groups = { "fourSite" }, dataProvider = "range-provider")
+    @Test(groups = { "fourSite", "star" }, dataProvider = "range-provider")
     private void test( String remainFilePath1, String remainFilePath2 )
             throws Exception {
         // write from centerA

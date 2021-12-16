@@ -63,7 +63,7 @@ public class GetLatesTask3719 extends TestScmBase {
     private List< ScmTask > tasks = new ArrayList<>();
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         zone = TestScmBase.zone1;
         region = TestScmBase.defaultRegion;
@@ -92,7 +92,7 @@ public class GetLatesTask3719 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     public void test() throws Exception {
         ScmScheduleContent copyContent = new ScmScheduleCopyFileContent(
                 branchSite.getSiteName(), rootSite.getSiteName(), "0d",
@@ -126,7 +126,7 @@ public class GetLatesTask3719 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

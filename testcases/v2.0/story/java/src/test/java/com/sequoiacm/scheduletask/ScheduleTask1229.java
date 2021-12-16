@@ -61,7 +61,7 @@ public class ScheduleTask1229 extends TestScmBase {
     private ScmScheduleContent content = null;
     private String cron = "* * * * * ?";
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -96,7 +96,7 @@ public class ScheduleTask1229 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( rootSiteSession, scmSchedule.getId() );

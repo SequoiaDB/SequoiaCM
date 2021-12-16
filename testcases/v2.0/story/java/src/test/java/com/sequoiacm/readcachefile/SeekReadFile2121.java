@@ -62,7 +62,7 @@ public class SeekReadFile2121 extends TestScmBase {
                 new Object[] { 1 }, };
     }
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -91,11 +91,11 @@ public class SeekReadFile2121 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFactory.File.getInstance( wsA, fileId ).delete( true );
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } catch ( ScmException e ) {

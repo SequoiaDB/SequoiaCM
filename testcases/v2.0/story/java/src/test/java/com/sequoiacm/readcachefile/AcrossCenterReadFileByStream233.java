@@ -97,19 +97,14 @@ public class AcrossCenterReadFileByStream233 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }) // bug:315
+    @Test(groups = { "fourSite", "star" }) // bug:315
     private void test() throws Exception {
-        try {
-            fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
-            this.readFileFromM();
+        this.readFileFromM();
 
-            TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
-            this.readFileFromB();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        TestSdbTools.Lob.removeLob( branSites.get( 0 ), wsp, fileId );
+        this.readFileFromB();
         runSuccess = true;
     }
 

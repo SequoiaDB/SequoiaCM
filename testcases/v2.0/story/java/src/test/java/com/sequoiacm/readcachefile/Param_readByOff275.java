@@ -3,16 +3,16 @@ package com.sequoiacm.readcachefile;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmInputStream;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -64,6 +64,9 @@ public class Param_readByOff275 extends TestScmBase {
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             // write file
+            BSONObject queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME)
+                    .is( fileName ).get();
+            ScmFileUtils.cleanFile( wsp, queryCond );
             fileId = ScmFileUtils.create( ws, fileName, filePath );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
@@ -73,7 +76,7 @@ public class Param_readByOff275 extends TestScmBase {
     /*
      * invalid param: off+len >= byte.lenght; 1
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite", "star" })
     private void testOffAddLenGteByteSize() throws ScmException {
         ScmInputStream sis = null;
         try {

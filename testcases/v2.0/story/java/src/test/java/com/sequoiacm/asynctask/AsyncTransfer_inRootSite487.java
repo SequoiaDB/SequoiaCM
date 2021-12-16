@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -47,8 +49,8 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     private String filePath = null;
     private ScmId fileId = null;
     private String fileName = "AsyncTransferWhenMExistFile487";
-    private ScmSession sessionM = null;
-    private ScmWorkspace wsM = null;
+    private ScmSession session = null;
+    private ScmWorkspace ws = null;
 
     private SiteWrapper rootSite = null;
     private SiteWrapper branceSite = null;
@@ -69,7 +71,7 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -78,24 +80,29 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_T, cond );
 
             // login in
-            sessionM = TestScmTools.createSession( rootSite );
-            wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
+            session = TestScmTools.createSession( rootSite );
+            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
-            writeFileFromMainCenter( wsM, filePath );
+            writeFileFromMainCenter( ws, filePath );
         } catch ( ScmException | IOException e ) {
             e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
-        try {
-            asyncTransferFromSubCenterA();
-            checkResult();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void nettest() throws Exception {
+        asyncTransferFromSubCenterANet();
+        checkResult( new SiteWrapper[] { rootSite, branceSite } );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "star" })
+    private void startest() throws Exception {
+        asyncTransferFromSubCenterAStar();
+        checkResult( new SiteWrapper[] { rootSite } );
         runSuccess = true;
     }
 
@@ -103,14 +110,14 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } catch ( BaseException | ScmException e ) {
             Assert.fail( e.getMessage() );
         } finally {
-            if ( sessionM != null ) {
-                sessionM.close();
+            if ( session != null ) {
+                session.close();
             }
         }
     }
@@ -126,7 +133,7 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
         }
     }
 
-    private void asyncTransferFromSubCenterA() throws ScmException {
+    private void asyncTransferFromSubCenterAStar() throws ScmException {
         ScmSession sessionB = null;
         try {
             sessionB = TestScmTools.createSession( branceSite );
@@ -147,10 +154,15 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
         }
     }
 
-    private void checkResult() {
+    private void asyncTransferFromSubCenterANet() throws ScmException {
+        ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                session );
+        ScmFactory.File.asyncTransfer( wsB, fileId );
+    }
+
+    private void checkResult( SiteWrapper[] expSiteList ) {
         try {
-            SiteWrapper[] expSiteList = { rootSite };
-            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
                     expSiteList.length );
             ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
                     filePath );

@@ -104,7 +104,8 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
                 { negative, 5, -1, negativeList, 1, expTotalNum - 5 } };
     }
 
-    @Test(dataProvider = "dataProvider")
+    @Test(groups = { "twoSite", "fourSite",
+            "oneSite" }, dataProvider = "dataProvider")
     private void test( BSONObject orderby, long skip, long limit,
             List< ScmRole > expScmRoles, int expPageSize, double expTotalNum )
             throws Exception {
@@ -143,7 +144,7 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testInvalid() throws Exception {
         try {
             ScmFactory.Role.listRoles( session, new BasicBSONObject(), -1, 0 );
@@ -164,7 +165,7 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testInvalidSession() throws Exception {
         try {
             ScmFactory.Role.listRoles( null, new BasicBSONObject(), -1, 0 );

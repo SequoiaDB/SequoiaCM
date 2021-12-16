@@ -245,7 +245,8 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsUR, fileId );
+            ScmFactory.File.asyncTransfer( wsUR, fileId,
+                    rootsite.getSiteName() );
 
             // check
             SiteWrapper[] expSiteList = { rootsite, branchsite };
@@ -285,7 +286,8 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0 );
+            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0,
+                    rootsite.getSiteName() );
 
             // check
             SiteWrapper[] expSiteList = { rootsite, branchsite };
@@ -440,6 +442,7 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
                     passwd );
             wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionUR );
+
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

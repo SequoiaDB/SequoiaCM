@@ -56,7 +56,7 @@ public class ReadFileByOff250 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -88,7 +88,7 @@ public class ReadFileByOff250 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {

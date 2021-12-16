@@ -54,7 +54,7 @@ public class DiffCenterReadFile261 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -99,7 +99,7 @@ public class DiffCenterReadFile261 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {

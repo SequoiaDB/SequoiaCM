@@ -82,7 +82,7 @@ public class AsyncCache_fileInrootAndBranSite505 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    private void test() {
         try {
             readFile( sessionA, fileId );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),

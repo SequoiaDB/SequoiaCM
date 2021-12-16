@@ -52,6 +52,9 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
     private ScmWorkspace wsB = null;
     private String fileName = "readcachefile257";
     private int fileSize = 1024 * 1024 * 2;
+    // readThreads涉及以下读取文件时，每个站点分配多少个读取线程同时读取。
+    // 如果测试机器性能不理想，建议将这个值适当改小，保证大于3即可。
+    private final int readThreads = 5;
     private ScmId mFileId = null;
     private ScmId aFileId = null;
     private ScmId bFileId = null;
@@ -101,13 +104,13 @@ public class MultiCenterReadLocalFile257 extends TestScmBase {
     private void test() {
         try {
             ReadFileFromM readFromM = new ReadFileFromM();
-            readFromM.start( 20 );
+            readFromM.start( readThreads );
 
             ReadFileFromA readFromA = new ReadFileFromA();
-            readFromA.start( 20 );
+            readFromA.start( readThreads );
 
             ReadFileFromB readFromB = new ReadFileFromB();
-            readFromB.start( 20 );
+            readFromB.start( readThreads );
 
             if ( !( readFromM.isSuccess() && readFromA.isSuccess()
                     && readFromB.isSuccess() ) ) {

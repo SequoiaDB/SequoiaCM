@@ -245,7 +245,8 @@ public class AuthDir_UpdateRead1726 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsUR, fileId );
+            ScmFactory.File.asyncTransfer( wsUR, fileId,
+                    rootsite.getSiteName() );
 
             // check
             SiteWrapper[] expSiteList = { rootsite, branchsite };
@@ -285,7 +286,8 @@ public class AuthDir_UpdateRead1726 extends TestScmBase {
             expfile.setContent( filePath );
             fileId = expfile.save();
 
-            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0 );
+            ScmFactory.File.asyncTransfer( wsUR, fileId, 1, 0,
+                    rootsite.getSiteName() );
 
             SiteWrapper[] expSiteList = { rootsite, branchsite };
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId,

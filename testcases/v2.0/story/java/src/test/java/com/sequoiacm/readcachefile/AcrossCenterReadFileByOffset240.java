@@ -10,6 +10,7 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.InputStreamType;
@@ -58,7 +59,7 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -84,14 +85,25 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    public void nettest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
-        this.readFileFromB( wsB );
+        this.readFileFromB( wsB, expSites );
         runSuccess = true;
     }
 
-    @AfterClass()
+    @Test(groups = { "fourSite", "star" })
+    public void startest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { rootSite,
+                branSites.get( 0 ), branSites.get( 1 ) };
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        this.readFileFromB( wsB, expSites );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {
@@ -110,7 +122,8 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
         }
     }
 
-    private void readFileFromB( ScmWorkspace ws ) throws Exception {
+    private void readFileFromB( ScmWorkspace ws, SiteWrapper[] expSites )
+            throws Exception {
         ScmInputStream in = null;
         try {
             // read content
@@ -130,9 +143,6 @@ public class AcrossCenterReadFileByOffset240 extends TestScmBase {
             TestTools.LocalFile.readFile( filePath, seekSize, tmpPath );
             Assert.assertEquals( TestTools.getMD5( downloadPath ),
                     TestTools.getMD5( tmpPath ) );
-
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                     filePath );
         } finally {

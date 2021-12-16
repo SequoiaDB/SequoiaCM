@@ -46,7 +46,7 @@ public class CreateSche_disable2368 extends TestScmBase {
         ssA = TestScmTools.createSession( branSite );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         this.createScheduleTask();
         this.checkScheduleTaskInfo();

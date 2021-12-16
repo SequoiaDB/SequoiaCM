@@ -59,6 +59,9 @@ public class DiffCenterReadFile260 extends TestScmBase {
 
     private File localPath = null;
     private String filePath = null;
+    // readThreads涉及以下读取文件时，每个站点分配多少个读取线程同时读取。
+    // 如果测试机器性能不理想，建议将这个值适当改小，保证大于3即可。
+    private final int readThreads = 5;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -100,17 +103,17 @@ public class DiffCenterReadFile260 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", "star" })
     private void test() {
         try {
             ReadFileFromM ReadFromM = new ReadFileFromM();
-            ReadFromM.start( 15 );
+            ReadFromM.start( readThreads );
 
             ReadFileFromA ReadFromA = new ReadFileFromA();
-            ReadFromA.start( 15 );
+            ReadFromA.start( readThreads );
 
             ReadFileFromB ReadFromB = new ReadFileFromB();
-            ReadFromB.start( 15 );
+            ReadFromB.start( readThreads );
 
             // check results
             if ( !( ReadFromM.isSuccess() && ReadFromA.isSuccess()

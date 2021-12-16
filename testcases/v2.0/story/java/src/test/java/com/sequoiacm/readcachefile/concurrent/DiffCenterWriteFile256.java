@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -44,6 +45,9 @@ public class DiffCenterWriteFile256 extends TestScmBase {
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
+    // writeThreads涉及以下读取文件时，每个站点分配多少个读取线程同时读取。
+    // 如果测试机器性能不理想，建议将这个值适当改小，保证大于3即可。
+    private final int writeThreads = 5;
 
     private List< ScmId > fileIdList = Collections
             .synchronizedList( new ArrayList< ScmId >() );
@@ -74,17 +78,49 @@ public class DiffCenterWriteFile256 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() {
+    @Test(groups = { "fourSite", "net" })
+    public void nettest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
+
         try {
             WriteFileFromM writeFromM = new WriteFileFromM();
-            writeFromM.start( 15 );
+            writeFromM.start( writeThreads );
 
             WriteFileFromA WriteFromA = new WriteFileFromA();
-            WriteFromA.start( 15 );
+            WriteFromA.setExpSites( expSites );
+            WriteFromA.start( writeThreads );
 
             WriteFileFromB WriteFromB = new WriteFileFromB();
-            WriteFromB.start( 15 );
+            WriteFromB.start( writeThreads );
+
+            if ( !( writeFromM.isSuccess() && WriteFromA.isSuccess()
+                    && WriteFromB.isSuccess() ) ) {
+                Assert.fail( writeFromM.getErrorMsg() + WriteFromA.getErrorMsg()
+                        + WriteFromB.getErrorMsg() );
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            Assert.fail( e.getMessage() );
+        }
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    public void startest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ), ScmInfo.getRootSite() };
+
+        try {
+            WriteFileFromM writeFromM = new WriteFileFromM();
+            writeFromM.start( writeThreads );
+
+            WriteFileFromA WriteFromA = new WriteFileFromA();
+            WriteFromA.setExpSites( expSites );
+            WriteFromA.start( writeThreads );
+
+            WriteFileFromB WriteFromB = new WriteFileFromB();
+            WriteFromB.start( writeThreads );
 
             if ( !( writeFromM.isSuccess() && WriteFromA.isSuccess()
                     && WriteFromB.isSuccess() ) ) {
@@ -158,8 +194,7 @@ public class DiffCenterWriteFile256 extends TestScmBase {
 
             // check content
             Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ), "downloadPath:"
-                            + downloadPath + " fileId:" + fileId.get() );
+                    TestTools.getMD5( downloadPath ) );
         } finally {
             if ( fos != null )
                 fos.close();
@@ -192,6 +227,8 @@ public class DiffCenterWriteFile256 extends TestScmBase {
     }
 
     private class WriteFileFromA extends TestThreadBase {
+        private SiteWrapper[] expSites;
+
         @Override
         public void exec() throws Exception {
             try {
@@ -202,14 +239,16 @@ public class DiffCenterWriteFile256 extends TestScmBase {
                 synchronized ( fileId ) {
                     readFile( branSites.get( 1 ), fileId );
                     // check meta data
-                    SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                            branSites.get( 1 ) };
                     ScmFileUtils.checkMetaAndData( wsp, fileId, expSites,
                             localPath, filePath );
                 }
             } catch ( ScmException e ) {
                 Assert.fail( e.getMessage() );
             }
+        }
+
+        public void setExpSites( SiteWrapper[] expSites ) {
+            this.expSites = expSites;
         }
     }
 

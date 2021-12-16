@@ -308,6 +308,7 @@ public class AuthWsDir_CreateDelete1730 extends TestScmBase {
             sessionCRUD = TestScmTools.createSession( site, username, passwd );
             wsCRUD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionCRUD );
+
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

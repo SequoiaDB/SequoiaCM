@@ -88,7 +88,7 @@ public class CreateSche_enable2dis2370 extends TestScmBase {
         this.readyScmFile( wsA, 0, fileNum );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         // enable
         SiteWrapper[] expSites = { rootSite, branSite };

@@ -22,7 +22,7 @@ import java.util.UUID;
  * @date 2021.7.9
  */
 public class AcrossCenterReadFile3654 extends TestScmBase {
-    private final int branSitesNum = 3;
+    private final int branSitesNum = 2;
     private int fileSize = 1024 * 100;
     private File localPath = null;
     private String filePath = null;
@@ -38,7 +38,7 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
     private int numOfCycles = 10;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -52,7 +52,8 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite3 = branSites.get( 2 );
+        // branchSite3 = branSites.get( 2 );
+        branchSite3 = ScmInfo.getRootSite();
         branchSite1Session = TestScmTools.createSession( branchSite1 );
         branchSite1Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
@@ -78,7 +79,7 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

@@ -11,6 +11,7 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScheduleType;
@@ -119,7 +120,9 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
-        this.deleteScheduleTask();
+        if ( null != scheduleId ) {
+            this.deleteScheduleTask();
+        }
         ScmWorkspaceUtil.deleteWs( wsName, session );
         if ( session != null ) {
             session.close();

@@ -3,6 +3,8 @@ package com.sequoiacm.asynctask;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -40,13 +42,13 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
             .getLogger( AsyncCache_fileInBranchSite506.class );
     private final int fileSize = 200 * 1024;
     private boolean runSuccess = false;
-    private ScmSession sessionA = null;
+    private ScmSession sessionA = null, sessionB = null;
     private ScmId fileId = null;
     private String fileName = "AsyncCache506";
     private File localPath = null;
     private String filePath = null;
 
-    private SiteWrapper branceSite = null;
+    private SiteWrapper rootSite = null, branceSite = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
@@ -61,21 +63,25 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
+            rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
-
             sessionA = TestScmTools.createSession( branceSite );
+            sessionB = TestScmTools.createSession( rootSite );
             prepareFiles( sessionA );
         } catch ( Exception e ) {
             if ( sessionA != null ) {
                 sessionA.close();
             }
+            if ( sessionB != null ) {
+                sessionB.close();
+            }
             Assert.fail( e.getMessage() );
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
-    private void test() throws Exception {
+    @Test(groups = { "twoSite", "fourSite", "star" }, enabled = false)
+    private void testFailed() throws Exception {
         try {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     sessionA );
@@ -91,6 +97,16 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
                 throw e;
             }
         }
+        runSuccess = true;
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void testSuccess() throws Exception {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionB );
+        ScmFactory.File.asyncCache( ws, fileId );
+        ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, 2 );
+        checkAsync();
         runSuccess = true;
     }
 
@@ -119,5 +135,12 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
         scmfile.setContent( filePath );
         scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
         fileId = scmfile.save();
+    }
+
+    private void checkAsync() throws Exception {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionB );
+        SiteWrapper[] expSiteList = { branceSite, rootSite };
+        ScmFileUtils.checkMeta( ws, fileId, expSiteList );
     }
 }

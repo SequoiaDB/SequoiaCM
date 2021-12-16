@@ -3,9 +3,13 @@ package com.sequoiacm.asynctask;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -65,7 +69,7 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
             sessionA = TestScmTools.createSession( branceSite );
@@ -79,8 +83,17 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void nettest() throws Exception {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionA );
+        ScmFactory.File.asyncTransfer( ws, fileId, rootSite.getSiteName() );
+        checkResult();
+        runSuccess = true;
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "star" })
+    private void startest() throws Exception {
         ScmSession sessionM = null;
         try {
             sessionM = TestScmTools.createSession( rootSite );
@@ -123,6 +136,16 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
         scmfile.setContent( filePath );
         scmfile.setFileName( fileName + "_" + UUID.randomUUID() );
         fileId = scmfile.save();
+    }
+
+    private void checkResult() throws Exception {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
+                sessionA );
+        SiteWrapper[] expSiteList = { branceSite, rootSite };
+        ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
+                expSiteList.length );
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
     }
 
 }

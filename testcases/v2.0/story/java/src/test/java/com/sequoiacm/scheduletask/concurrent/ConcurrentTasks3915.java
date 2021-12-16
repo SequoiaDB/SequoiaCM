@@ -50,7 +50,7 @@ public class ConcurrentTasks3915 extends TestScmBase {
     private ScmId taskId;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -62,7 +62,7 @@ public class ConcurrentTasks3915 extends TestScmBase {
 
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
-        List< SiteWrapper > branchSitesList = ScmInfo.getBranchSites(2);
+        List< SiteWrapper > branchSitesList = ScmInfo.getBranchSites( 2 );
         branchSite1 = branchSitesList.get( 0 );
         branchSite2 = branchSitesList.get( 1 );
 
@@ -97,7 +97,7 @@ public class ConcurrentTasks3915 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

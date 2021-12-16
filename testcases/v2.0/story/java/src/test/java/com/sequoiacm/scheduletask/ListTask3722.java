@@ -35,7 +35,7 @@ public class ListTask3722 extends TestScmBase {
     private WsWrapper wsp;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
@@ -44,7 +44,7 @@ public class ListTask3722 extends TestScmBase {
         session = TestScmTools.createSession( rootSite );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", "star" })
     public void test() throws Exception {
         schedule = ScmScheduleUtils.createSchedule( session, branchSite,
                 rootSite, cleanSite, wsp, fileName );
@@ -62,7 +62,7 @@ public class ListTask3722 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

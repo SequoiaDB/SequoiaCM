@@ -91,8 +91,20 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "twoSite", "fourSite", "star" })
+    private void startest() throws Exception {
+        nettest();
+        testTransferTask();
+        testCancelTransferTask();
+        testCleanTask();
+        testCancelCleanTask();
+        testCleanTaskByScope();
+        testTransferTaskByScope();
+        testTransferTaskByTarget();
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void nettest() throws Exception {
         testUpdateBatch();
         testBatchAttachFile();
         testBatchDetachFile();
@@ -102,13 +114,6 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         testAsynTransfer();
         testAsynTransferByVersion();
         testUpdateSche();
-        testCleanTask();
-        testCleanTaskByScope();
-        testCancelCleanTask();
-        testCancelTransferTask();
-        testTransferTask();
-        testTransferTaskByScope();
-        testTransferTaskByTarget();
     }
 
     private void testUpdateBatch() throws ScmException {

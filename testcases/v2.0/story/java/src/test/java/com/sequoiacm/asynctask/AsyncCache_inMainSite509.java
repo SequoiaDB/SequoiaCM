@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -81,10 +82,17 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "twoSite", "fourSite", "net" })
+    private void nettest() throws Exception {
+        AsyncCacheFromMainCenterSuccess();
+        checkResult();
+        runSuccess = true;
+    }
+
+    @Test(groups = { "twoSite", "fourSite", "star" })
+    private void startest() {
         try {
-            AsyncCacheFromMainCenter();
+            AsyncCacheFromMainCenterFailed();
             checkResult();
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -122,7 +130,7 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
         }
     }
 
-    private void AsyncCacheFromMainCenter() throws ScmException {
+    private void AsyncCacheFromMainCenterFailed() throws ScmException {
         try {
             ScmFactory.File.asyncCache( wsM, fileId );
             Assert.assertFalse( false,
@@ -133,6 +141,10 @@ public class AsyncCache_inMainSite509 extends TestScmBase {
                 throw e;
             }
         }
+    }
+
+    private void AsyncCacheFromMainCenterSuccess() throws ScmException {
+        ScmFactory.File.asyncCache( wsM, fileId );
     }
 
     private void checkResult() {

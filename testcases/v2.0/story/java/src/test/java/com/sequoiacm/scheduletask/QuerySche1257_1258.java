@@ -3,6 +3,7 @@ package com.sequoiacm.scheduletask;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

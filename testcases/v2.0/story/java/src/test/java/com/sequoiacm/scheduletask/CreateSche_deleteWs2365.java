@@ -71,7 +71,7 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, ssA );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         ScmFileUtils.create( ws, name, filePath );
         // create schedule

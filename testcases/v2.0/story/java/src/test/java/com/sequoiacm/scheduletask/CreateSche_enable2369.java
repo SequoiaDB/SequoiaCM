@@ -91,7 +91,7 @@ public class CreateSche_enable2369 extends TestScmBase {
         this.readyScmFile( wsA, 0, fileNum );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         SiteWrapper[] expSites = { rootSite, branSite };
         this.createScheduleTask();

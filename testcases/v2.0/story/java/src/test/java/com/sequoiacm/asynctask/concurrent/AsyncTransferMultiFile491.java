@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +48,7 @@ public class AsyncTransferMultiFile491 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    private SiteWrapper branceSite = null;
+    private SiteWrapper rootSite = null, branceSite = null;
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
@@ -61,8 +62,9 @@ public class AsyncTransferMultiFile491 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
 
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
@@ -111,7 +113,8 @@ public class AsyncTransferMultiFile491 extends TestScmBase {
 
     private void asyncTransferFromA() throws Exception {
         for ( ScmId fileId : fileIdList ) {
-            ScmFactory.File.asyncTransfer( wsA, fileId );
+            ScmFactory.File.asyncTransfer( wsA, fileId,
+                    rootSite.getSiteName() );
         }
     }
 
@@ -127,7 +130,6 @@ public class AsyncTransferMultiFile491 extends TestScmBase {
     }
 
     private void checkResult() {
-        SiteWrapper rootSite = ScmInfo.getRootSite();
         try {
             SiteWrapper[] expSiteList = { rootSite, branceSite };
             for ( int i = 0; i < fileNum; i++ ) {

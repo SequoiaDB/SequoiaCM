@@ -40,7 +40,7 @@ public class AcrossCenterReadFile3648_3649 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList<>();
     private AtomicInteger runSuccessCount = new AtomicInteger( 0 );
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -101,7 +101,7 @@ public class AcrossCenterReadFile3648_3649 extends TestScmBase {
         runSuccessCount.incrementAndGet();
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws ScmException {
         if ( runSuccessCount.get() == FileSize().length
                 || TestScmBase.forceClear ) {

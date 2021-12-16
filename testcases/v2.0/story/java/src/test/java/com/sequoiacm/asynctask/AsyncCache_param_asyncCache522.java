@@ -69,8 +69,8 @@ public class AsyncCache_param_asyncCache522 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
+            branceSite = ScmInfo.getBranchSite();
 
             // clean file
             cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )

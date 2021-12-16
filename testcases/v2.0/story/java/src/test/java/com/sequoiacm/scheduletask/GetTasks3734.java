@@ -57,7 +57,7 @@ public class GetTasks3734 extends TestScmBase {
     private List< ScmId > fileIds = new ArrayList<>();
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws IOException, ScmException {
         zone = TestScmBase.zone1;
         region = TestScmBase.defaultRegion;
@@ -84,7 +84,7 @@ public class GetTasks3734 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     public void test() throws Exception {
         ScmSchedule copySchedule = ScmScheduleUtils.createCopySchedule(
                 branchSiteSession, branchSite, rootSite, wsp, queryCond, region,
@@ -123,7 +123,7 @@ public class GetTasks3734 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

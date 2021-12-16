@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,6 +32,10 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
  * @Author linsuqiang
  * @Date 2017-06-23
  * @Version 1.00
+ */
+
+/*
+ * 1、在分中心A异步迁移单个文件，该文件在主中心有残留LOB，且大小一致； 2、检查执行结果正确性；
  */
 
 public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
@@ -64,7 +69,7 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         rootSite = ScmInfo.getRootSite();
-        branceSite = ScmInfo.getBranchSite();
+        branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
         ws_T = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branceSite );
@@ -79,7 +84,7 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
         TestSdbTools.Lob.putLob( rootSite, ws_T, fileId, filePath );
         ScmWorkspace wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                 sessionA );
-        ScmFactory.File.asyncTransfer( wsA, fileId );
+        ScmFactory.File.asyncTransfer( wsA, fileId, rootSite.getSiteName() );
         // check result
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );

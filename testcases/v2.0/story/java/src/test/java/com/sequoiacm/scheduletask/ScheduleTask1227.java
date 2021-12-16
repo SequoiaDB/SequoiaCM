@@ -10,6 +10,7 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScheduleType;
@@ -45,7 +46,7 @@ public class ScheduleTask1227 extends TestScmBase {
     private boolean runSuccess = false;
     private List< ScmId > scheduleIds = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSiteNum );
@@ -55,8 +56,26 @@ public class ScheduleTask1227 extends TestScmBase {
                 .is( name ).get();
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    private void nettest() throws Exception {
+        ScmScheduleCopyFileContent content;
+        // 源站点和目标站点都为主站点
+        try {
+            content = new ScmScheduleCopyFileContent( rootSite.getSiteName(),
+                    rootSite.getSiteName(), maxStayTime, queryCond );
+            ScmSystem.Schedule.create( session, wsp.getName(),
+                    ScheduleType.COPY_FILE, name, "", content, cron );
+            Assert.fail( "expect fail but actual success" );
+        } catch ( ScmException e ) {
+            if ( ScmError.HTTP_BAD_REQUEST != e.getError() ) {
+                throw e;
+            }
+        }
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    private void startest() throws Exception {
         ScmScheduleCopyFileContent content;
         // 源站点和目标站点都为主站点
         try {
@@ -84,10 +103,11 @@ public class ScheduleTask1227 extends TestScmBase {
                 throw e;
             }
         }
+
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

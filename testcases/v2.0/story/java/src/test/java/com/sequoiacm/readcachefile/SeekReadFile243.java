@@ -8,10 +8,7 @@ import java.util.List;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -69,7 +66,7 @@ public class SeekReadFile243 extends TestScmBase {
                 new Object[] { 1 }, };
     }
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -95,13 +92,23 @@ public class SeekReadFile243 extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
-    @Test(groups = { "fourSite" }, dataProvider = "seekSizeProvider")
-    private void test( int seekSize ) throws Exception {
-        this.readFileFromB( wsB, seekSize );
+    @Test(groups = { "fourSite", "net" }, dataProvider = "seekSizeProvider")
+    public void nettest( int seekSize ) throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
+        this.readFileFromB( wsB, seekSize, expSites );
         runSuccess = true;
     }
 
-    @AfterClass()
+    @Test(groups = { "fourSite", "star" }, dataProvider = "seekSizeProvider")
+    public void startest( int seekSize ) throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { rootSite,
+                branSites.get( 0 ), branSites.get( 1 ) };
+        this.readFileFromB( wsB, seekSize, expSites );
+        runSuccess = true;
+    }
+
+    @AfterClass(alwaysRun = true)
     private void tearDown() {
         try {
             if ( runSuccess || forceClear ) {
@@ -120,8 +127,8 @@ public class SeekReadFile243 extends TestScmBase {
         }
     }
 
-    private void readFileFromB( ScmWorkspace ws, int seekSize )
-            throws Exception {
+    private void readFileFromB( ScmWorkspace ws, int seekSize,
+            SiteWrapper[] expSites ) throws Exception {
 
         OutputStream fos = null;
         ScmInputStream in = null;
@@ -145,8 +152,6 @@ public class SeekReadFile243 extends TestScmBase {
             Assert.assertEquals( TestTools.getMD5( tmpPath ),
                     TestTools.getMD5( downloadPath ) );
 
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                     filePath );
         } finally {

@@ -54,7 +54,7 @@ public class Param_readByStream274 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite", "star" })
     private void testPathIsNull() throws ScmException {
         ScmInputStream sis = null;
         try {

@@ -47,7 +47,7 @@ public class ScheduleTask1228 extends TestScmBase {
     private ScmSchedule scmSchedule;
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -82,7 +82,7 @@ public class ScheduleTask1228 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( rootSiteSession, scmSchedule.getId() );

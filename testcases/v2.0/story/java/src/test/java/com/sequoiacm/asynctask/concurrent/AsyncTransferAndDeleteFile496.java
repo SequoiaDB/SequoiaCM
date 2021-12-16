@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -47,6 +48,7 @@ import com.sequoiadb.exception.BaseException;
 public class AsyncTransferAndDeleteFile496 extends TestScmBase {
     private static final int fileNum = 50;
     private boolean runSuccess = false;
+    private SiteWrapper rootSite = null;
     private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
     private ScmSession sessionA = null;
@@ -70,7 +72,8 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            branceSite = ScmInfo.getBranchSite();
+            rootSite = ScmInfo.getRootSite();
+            branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
             BSONObject cond = ScmQueryBuilder
@@ -83,6 +86,8 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromSubCenterA( wsA, filePath );
         } catch ( ScmException | IOException e ) {
+            Assert.fail( e.getMessage() );
+        } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
     }
@@ -171,7 +176,8 @@ public class AsyncTransferAndDeleteFile496 extends TestScmBase {
                 session = TestScmTools.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
-                ScmFactory.File.asyncTransfer( ws, fileId );
+                ScmFactory.File.asyncTransfer( ws, fileId,
+                        rootSite.getSiteName() );
                 int expSiteNum = 2;
                 ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteNum );
             } catch ( ScmException e ) {

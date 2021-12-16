@@ -8,6 +8,7 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -74,19 +75,38 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", "net" })
+    public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
         // remain file from centerB
-        TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath );
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
         TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId,
                 remainFilePath );
         // read from centerB
         this.readFileFromB();
         // check result
-        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                branSites.get( 1 ) };
+
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    public void startest() throws Exception {
+        // write from centerA
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
+        // remain file from centerB
+        TestSdbTools.Lob.putLob( rootSite, wsp, fileId, remainFilePath );
+        SiteWrapper[] expSites = new SiteWrapper[] { rootSite,
+                branSites.get( 0 ), branSites.get( 1 ) };
+        TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId,
+                remainFilePath );
+        // read from centerB
+        this.readFileFromB();
+        // check result
+
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                 filePath );
         runSuccess = true;

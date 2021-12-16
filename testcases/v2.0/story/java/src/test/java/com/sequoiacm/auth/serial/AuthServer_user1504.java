@@ -46,7 +46,7 @@ public class AuthServer_user1504 extends TestScmBase {
                 ScmUserPasswordType.LDAP, "aaa" );
     }
 
-    @Test
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException, InterruptedException {
         test_setLdapPasswd();
         test_setToLocalNoPasswd();

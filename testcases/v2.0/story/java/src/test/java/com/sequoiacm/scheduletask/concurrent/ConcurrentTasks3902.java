@@ -1,28 +1,25 @@
 package com.sequoiacm.scheduletask.concurrent;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiadb.threadexecutor.ResultStore;
-import com.sequoiadb.threadexecutor.ThreadExecutor;
-import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description SCM-3902:并发执行迁移任务，相同源站点，不同目标站点，迁移相同文件
@@ -49,7 +46,7 @@ public class ConcurrentTasks3902 extends TestScmBase {
     private List< ScmId > taskIdList = new ArrayList<>();
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -100,7 +97,7 @@ public class ConcurrentTasks3902 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

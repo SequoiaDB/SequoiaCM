@@ -255,6 +255,7 @@ public class AuthDir_NoCreateDelete1726 extends TestScmBase {
             sessionCRD = TestScmTools.createSession( site, username, passwd );
             wsCRD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionCRD );
+
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

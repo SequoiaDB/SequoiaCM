@@ -50,11 +50,11 @@ public class ConcurrentTasks3901 extends TestScmBase {
     private CopyOnWriteArrayList< ScmId > taskIdList = new CopyOnWriteArrayList< ScmId >();
     private boolean runSuccess = false;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
-        branchSite = ScmInfo.getBranchSites().get( 0 );
+        branchSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
 
         rootSiteSession = TestScmTools.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -100,7 +100,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown() throws Exception {
         if ( runSuccess || TestScmBase.forceClear ) {
             try {

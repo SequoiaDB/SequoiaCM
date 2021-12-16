@@ -153,11 +153,11 @@ public class UpdateSche_upCron1254 extends TestScmBase {
         try {
             printTaskInfo();
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmSystem.Schedule.delete( ssA, scheduleId );
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
                 ScmScheduleUtils.cleanTask( ssA, scheduleId );
             }
+            ScmSystem.Schedule.delete( ssA, scheduleId );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

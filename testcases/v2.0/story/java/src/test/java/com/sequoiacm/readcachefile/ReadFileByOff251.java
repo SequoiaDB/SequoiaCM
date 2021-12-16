@@ -7,6 +7,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -70,16 +71,23 @@ public class ReadFileByOff251 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
-        try {
-            // writeFileFromA
-            fileId = ScmFileUtils.create( ws, fileName, filePath );
-            this.readFileFromB();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    @Test(groups = { "fourSite", "net" })
+    public void nettest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
+                branSites.get( 1 ) };
+        // writeFileFromA
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
+        this.readFileFromB( expSites );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "star" })
+    public void startest() throws Exception {
+        SiteWrapper[] expSites = new SiteWrapper[] { rootSite,
+                branSites.get( 0 ), branSites.get( 1 ) };
+        // writeFileFromA
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
+        this.readFileFromB( expSites );
         runSuccess = true;
     }
 
@@ -100,7 +108,7 @@ public class ReadFileByOff251 extends TestScmBase {
         }
     }
 
-    private void readFileFromB() throws Exception {
+    private void readFileFromB( SiteWrapper[] expSites ) throws Exception {
         ScmSession session = null;
         ScmInputStream sis = null;
         try {
@@ -117,8 +125,6 @@ public class ReadFileByOff251 extends TestScmBase {
             Assert.assertEquals( readSize, -1 );
 
             // check results
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
             ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                     filePath );
         } finally {

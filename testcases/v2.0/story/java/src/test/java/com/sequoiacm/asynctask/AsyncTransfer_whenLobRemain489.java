@@ -3,6 +3,7 @@ package com.sequoiacm.asynctask;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +52,7 @@ public class AsyncTransfer_whenLobRemain489 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() throws ScmException, IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -64,7 +65,7 @@ public class AsyncTransfer_whenLobRemain489 extends TestScmBase {
         TestTools.LocalFile.createFile( lobPath, contentBase, lobSize );
 
         rootSite = ScmInfo.getRootSite();
-        branceSite = ScmInfo.getBranchSite();
+        branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
         ws_T = ScmInfo.getWs();
 
         BSONObject cond = ScmQueryBuilder
@@ -83,7 +84,7 @@ public class AsyncTransfer_whenLobRemain489 extends TestScmBase {
         // analog lob remain in mainSite's sdb
         TestSdbTools.Lob.putLob( rootSite, ws_T, fileId, lobPath );
         // transfer siteA's file to mainSite, expect not transfer
-        ScmFactory.File.asyncTransfer( wsA, fileId );
+        ScmFactory.File.asyncTransfer( wsA, fileId, rootSite.getSiteName() );
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, expSiteList.length );
         ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,

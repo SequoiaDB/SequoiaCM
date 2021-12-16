@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -56,9 +57,8 @@ public class CreateSche_wsSame1264 extends TestScmBase {
     private String filePath = null;
     private BSONObject queryCond = null;
 
-    private List< ScmId > scheIds = Collections
-            .synchronizedList( new ArrayList< ScmId >() );
-    private List< CreateSchedule > crtSches = new ArrayList<>();
+    private List< ScmId > scheIds = new CopyOnWriteArrayList<>();
+    private List< CreateSchedule > crtSches = new CopyOnWriteArrayList<>();
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {

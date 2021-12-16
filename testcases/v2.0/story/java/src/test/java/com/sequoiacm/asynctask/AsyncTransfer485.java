@@ -101,7 +101,7 @@ public class AsyncTransfer485 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
