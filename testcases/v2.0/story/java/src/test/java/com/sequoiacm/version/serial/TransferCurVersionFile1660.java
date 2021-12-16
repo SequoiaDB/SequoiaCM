@@ -34,13 +34,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer the current version file testlink-case:SCM-1660
- *
+ * @description SCM-1660:迁移当前版本文件
  * @author wuyan
- * @Date 2018.06.05
- * @version 1.00
+ * @createDate 2018.06.05
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class TransferCurVersionFile1660 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -54,7 +55,6 @@ public class TransferCurVersionFile1660 extends TestScmBase {
     private File localPath = null;
     private int fileNum = 10;
     private BSONObject condition = null;
-
     private String fileName = "fileVersion1660";
     private String authorName = "author1660";
     private int fileSize1 = 1024 * 100;
@@ -86,6 +86,9 @@ public class TransferCurVersionFile1660 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
     }
 
@@ -102,9 +105,9 @@ public class TransferCurVersionFile1660 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( wsM, new ScmId( fileId ),
@@ -112,8 +115,6 @@ public class TransferCurVersionFile1660 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -145,7 +146,8 @@ public class TransferCurVersionFile1660 extends TestScmBase {
         condition = ScmQueryBuilder.start().put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileSize1 )
                 .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType,
+                rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );

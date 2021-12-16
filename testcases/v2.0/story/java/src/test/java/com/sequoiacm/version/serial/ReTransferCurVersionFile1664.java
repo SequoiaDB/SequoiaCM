@@ -1,14 +1,12 @@
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
 import java.util.Collection;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
@@ -30,14 +28,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content :the currentVersion file in both the rootSite and the branSite,
- * transfer the current version file again. testlink-case:SCM-1664
- *
+ * @description SCM-1664:主/分中心已存在历史版本文件，再次迁移当前版本文件
  * @author wuyan
- * @Date 2018.06.07
- * @version 1.00
+ * @createDate 2018.06.07
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class ReTransferCurVersionFile1664 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -48,7 +46,6 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
     private ScmId taskId = null;
-
     private String fileName = "versionfile1664";
     private String authorName = "author1664";
     private byte[] filedata = new byte[ 1024 * 80 ];
@@ -56,7 +53,7 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -65,7 +62,9 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata,
                 authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
@@ -101,14 +100,12 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsA, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -121,7 +118,8 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
 
     private void asyncTransferCurrentVersionFile( int majorVersion )
             throws Exception {
-        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
+        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0,
+                rootSite.getSiteName() );
 
         // wait task finished
         int sitenums = 2;
@@ -135,7 +133,7 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
         taskId = ScmSystem.Task.startTransferTask( ws, condition,
-                ScopeType.SCOPE_CURRENT );
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
@@ -149,5 +147,4 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
         Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
         return actSiteInfo;
     }
-
 }

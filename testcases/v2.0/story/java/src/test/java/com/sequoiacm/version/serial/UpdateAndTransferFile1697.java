@@ -5,6 +5,11 @@ package com.sequoiacm.version.serial;
 
 import java.io.IOException;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,9 +38,13 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description UpdateAndAsyncTransferFile1692.java
+ * @description SCM-1697:并发使用断点文件更新和迁移相同文件
  * @author luweikang
- * @date 2018年6月13日
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
 public class UpdateAndTransferFile1697 extends TestScmBase {
     private static WsWrapper wsp = null;
@@ -55,7 +64,7 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         BreakpointUtil.checkDBDataSource();
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
@@ -65,30 +74,22 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
         sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
                 updatedata );
-
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-
         int currentVersion = 2;
         int historyVersion = 1;
-
-        UpdateFileThread updateFileThread = new UpdateFileThread();
-        updateFileThread.start();
-
-        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
-                .is( fileId.toString() ).get();
-        taskId = ScmSystem.Task.startTransferTask( wsA, cond );
-
-        ScmTaskUtils.waitTaskFinish( sessionA, taskId );
-        Assert.assertTrue( updateFileThread.isSuccess(),
-                updateFileThread.getErrorMsg() );
-
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new TransferFileThread() );
+        es.addWorker( new UpdateFileThread() );
+        es.run();
         int curFileVersion = rootCurVersion();
 
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
@@ -100,20 +101,16 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
             VersionUtils.CheckFileContentByStream( wsM, fileName,
                     currentVersion, updatedata );
         }
-
         runSuccess = true;
-
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -133,15 +130,44 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
         }
     }
 
-    class UpdateFileThread extends TestThreadBase {
-
-        @Override
-        public void exec() throws Exception {
-            Thread.sleep( 210 );
-            ScmFile scmFile = ScmFactory.File.getInstance( wsA, fileId );
-            scmFile.updateContent( sbFile );
+    private class UpdateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFile scmFile = ScmFactory.File.getInstance( ws, fileId );
+                scmFile.updateContent( sbFile );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
         }
-
     }
 
+    private class TransferFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                BSONObject cond = ScmQueryBuilder
+                        .start( ScmAttributeName.File.FILE_ID )
+                        .is( fileId.toString() ).get();
+                taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
+                ScmTaskUtils.waitTaskFinish( session, taskId );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 }

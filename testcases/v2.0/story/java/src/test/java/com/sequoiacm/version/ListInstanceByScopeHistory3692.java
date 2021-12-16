@@ -20,12 +20,14 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * @Description SCM-3692:指定字段，排序查询历史文件表
+ * @description SCM-3692:指定字段，排序查询历史文件表
  * @author YiPan
- * @Date 2021.7.17
- * @Version 1.00
+ * @createDate 2021.07.17
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class ListInstanceByScopeHistory3692 extends TestScmBase {
     private ScmSession session;
     private ScmWorkspace workspace;
@@ -108,7 +110,7 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
 
     @AfterClass
     public void tearDown() throws ScmException {
-        if ( runSuccess ) {
+        if ( runSuccess || TestScmBase.forceClear ) {
             try {
                 ScmFactory.File.deleteInstance( workspace, fileId1, true );
                 ScmFactory.File.deleteInstance( workspace, fileId2, true );
@@ -117,5 +119,4 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
             }
         }
     }
-
 }

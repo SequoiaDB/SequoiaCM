@@ -1,17 +1,16 @@
 package com.sequoiacm.version;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmCursor;
@@ -30,14 +29,15 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:listInstance by the current /history version/ all scm file
- * testlink-case:SCM-1680/1681/1682
- *
+ * @description SCM-1680:指定当前版本获取文件列表 SCM-1681:指定历史版本获取文件列表
+ *              SCM-1682:指定所有版本获取文件列表
  * @author wuyan
- * @Date 2018.06.12
- * @version 1.00
+ * @createDate 2018.06.12
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
@@ -45,7 +45,6 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
     private ScmWorkspace ws = null;
     private ScmId fileId1 = null;
     private ScmId fileId2 = null;
-
     private String fileName1 = "file1680";
     private String fileName2 = "file1681";
     private String authorName = "author1680";
@@ -54,12 +53,14 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId1 = VersionUtils.createFileByStream( ws, fileName1, writedata,
                 authorName );
         fileId2 = VersionUtils.createFileByStream( ws, fileName2, writedata,
@@ -79,22 +80,18 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
         expectFileNames.add( fileName1 );
         expectFileNames.add( fileName2 );
         listInstanceByCurrentVersion( expectFileNames );
-
         listInstanceByHistoryVersion( fileId2, fileName2 );
-
         listInstanceByAllVersion();
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId1, true );
                 ScmFactory.File.deleteInstance( ws, fileId2, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();

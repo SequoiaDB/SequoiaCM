@@ -2,21 +2,15 @@ package com.sequoiacm.version;
 
 import java.io.IOException;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmRole;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmUserPasswordType;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
@@ -29,14 +23,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that the inputStream update Content of the current scm
- * file testlink-case:SCM-1641
- *
+ * @description SCM-1648:不同用户更新文件
  * @author wuyan
- * @Date 2018.06.01
- * @version 1.00
+ * @createDate 2018.06.01
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.07
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContent1648 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
@@ -45,7 +39,6 @@ public class UpdateContent1648 extends TestScmBase {
     private ScmWorkspace ws1 = null;
     private ScmWorkspace ws2 = null;
     private ScmId fileId = null;
-
     private String fileName = "file1648";
     private String newUsername = "admin1648";
     private String newPassword = "admin1648";
@@ -55,11 +48,14 @@ public class UpdateContent1648 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session1 = TestScmTools.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -80,15 +76,13 @@ public class UpdateContent1648 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws1, fileId, true );
                 ScmFactory.User.deleteUser( session1, newUsername );
                 ScmFactory.Role.deleteRole( session1, roleName );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session1 != null ) {
                 session1.close();
@@ -96,7 +90,7 @@ public class UpdateContent1648 extends TestScmBase {
         }
     }
 
-    private void createScmUser() throws ScmException, InterruptedException {
+    private void createScmUser() throws ScmException {
         ScmUser user = ScmFactory.User.createUser( session1, newUsername,
                 ScmUserPasswordType.LOCAL, newPassword );
         ScmRole role = ScmFactory.Role.createRole( session1, roleName, null );
@@ -104,7 +98,7 @@ public class UpdateContent1648 extends TestScmBase {
         ScmResource rs = ScmResourceFactory
                 .createWorkspaceResource( wsp.getName() );
         ScmFactory.Role.grantPrivilege( session1, role, rs,
-                ScmPrivilegeDefine.ALL );
+                ScmPrivilegeType.ALL );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
         session2 = TestScmTools.createSession( site, newUsername, newPassword );
@@ -112,7 +106,7 @@ public class UpdateContent1648 extends TestScmBase {
     }
 
     private void updateContent( ScmWorkspace ws, byte[] updateData )
-            throws ScmException, IOException, InterruptedException {
+            throws InterruptedException {
         boolean success = false;
         for ( int i = 0; i < 60; i++ ) {
             try {

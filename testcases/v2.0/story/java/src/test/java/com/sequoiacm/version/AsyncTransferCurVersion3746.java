@@ -7,20 +7,20 @@ import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 /**
- * @Descreption SCM-3746:异步迁移当前版本文件，源站点为主站点，目标站点为分站点
- * @Author YiPan
- * @CreateDate 2021/9/10
- * @Version v1.0
+ * @description SCM-3746:异步迁移当前版本文件，源站点为主站点，目标站点为分站点
+ * @author YiPan
+ * @createDate 2021.09.10
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
 public class AsyncTransferCurVersion3746 extends TestScmBase {
     private static final String fileName = "file3746";
@@ -34,7 +34,6 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
     private SiteWrapper rootSite = null;
     private ScmSession rootSiteSession = null;
     private ScmWorkspace rootSiteWs = null;
-    private ScmSession branchSiteSession = null;
     private ScmId fileId = null;
     private BSONObject queryCond;
     private boolean runSuccess = false;
@@ -56,7 +55,6 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
         rootSiteSession = TestScmTools.createSession( rootSite );
-        branchSiteSession = TestScmTools.createSession( branchSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -89,13 +87,14 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
     @AfterClass
     public void tearDown() throws ScmException {
         try {
-            if ( runSuccess || forceClear ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFileUtils.cleanFile( wsp, queryCond );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
-            rootSiteSession.close();
-            branchSiteSession.close();
+            if ( rootSiteSession != null ) {
+                rootSiteSession.close();
+            }
         }
     }
 

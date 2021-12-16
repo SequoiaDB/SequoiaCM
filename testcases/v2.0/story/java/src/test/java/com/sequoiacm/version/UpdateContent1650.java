@@ -4,14 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -23,24 +23,24 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update Content of the current scm file from siteA,than download
- * the updatefile from siteB testlink-case:SCM-1650
- *
+ * @description SCM-1650:跨站点读取更新文件内容
  * @author wuyan
- * @Date 2018.06.04
- * @version 1.00
+ * @createDate 2018.06.04
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContent1650 extends TestScmBase {
     private static WsWrapper wsp = null;
-    private final int branSitesNum = 2;
-    private List< SiteWrapper > branSites = null;
+    private SiteWrapper branSite = null;
+    private SiteWrapper rootSite = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
     private ScmSession sessionB = null;
     private ScmWorkspace wsB = null;
     private ScmId fileId = null;
-
+    private boolean runSuccess = false;
     private String fileName = "file1650";
     private int writeSize = 1024 * 500;
     private int updateSize = 1024 * 1024 * 2;
@@ -59,13 +59,17 @@ public class UpdateContent1650 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, updateSize );
 
-        branSites = ScmInfo.getBranchSites( branSitesNum );
+        branSite = ScmInfo.getBranchSite();
+        rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = TestScmTools.createSession( rootSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+        sessionB = TestScmTools.createSession( branSite );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
     }
 
     @Test(groups = { "fourSite" })
@@ -84,24 +88,23 @@ public class UpdateContent1650 extends TestScmBase {
                 filePath, localPath );
 
         // check the sitelist/currentversion/size
-        SiteWrapper[] expSiteList = { branSites.get( 0 ), branSites.get( 1 ),
-                ScmInfo.getRootSite() };
-        SiteWrapper[] expSiteListA = { branSites.get( 0 ) };
+        SiteWrapper[] expSiteList = { rootSite, branSite,};
+        SiteWrapper[] expSiteListA = { rootSite };
         VersionUtils.checkSite( wsA, fileId, currentVersion, expSiteList );
         VersionUtils.checkSite( wsA, fileId, historyVersion, expSiteListA );
         VersionUtils.checkFileCurrentVersion( wsA, fileId, currentVersion );
         VersionUtils.checkFileSize( wsA, fileId, currentVersion, updateSize );
         VersionUtils.checkFileSize( wsA, fileId, historyVersion, writeSize );
-
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( wsB, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( wsB, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

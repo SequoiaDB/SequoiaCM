@@ -1,19 +1,16 @@
 package com.sequoiacm.version.concurrent;
 
-import java.io.IOException;
-
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -21,33 +18,35 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: delete the same file concurrently testlink-case:SCM-1702
- *
+ * @description SCM-1702:并发删除相同文件
  * @author wuyan
- * @Date 2018.06.19
- * @version 1.00
+ * @createDate 2018.06.19
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class DeleteSameFile1702 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
+    private BSONObject cond = null;
     private ScmId fileId = null;
-
+    private boolean runSuccess = false;
+    private int threadNums = 3;
     private String fileName = "versionfile1702";
     private String authorName = "author1702";
     private byte[] writeData = new byte[ 1024 * 10 ];
     private byte[] updateData = new byte[ 1024 * 1024 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -55,6 +54,9 @@ public class DeleteSameFile1702 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
+        cond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
+                .is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
         VersionUtils.updateContentByStream( wsM, fileId, updateData );
@@ -62,19 +64,22 @@ public class DeleteSameFile1702 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        DeleteFile deleteFile = new DeleteFile();
-        deleteFile.start( 3 );
-        Assert.assertTrue( deleteFile.isSuccess(), deleteFile.getErrorMsg() );
+        ThreadExecutor es = new ThreadExecutor();
+        for ( int i = 0; i < threadNums; i++ ) {
+            es.addWorker( new DeleteFileThread() );
+        }
+        es.run();
         // check the delete result
         checkDeleteFileResult( wsM );
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( wsM, fileId, true );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFileUtils.cleanFile( wsp, cond );
+            }
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -104,9 +109,10 @@ public class DeleteSameFile1702 extends TestScmBase {
         Assert.assertEquals( count, expFileConut );
     }
 
-    public class DeleteFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
+    private class DeleteFileThread extends ResultStore {
+
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
@@ -120,5 +126,4 @@ public class DeleteSameFile1702 extends TestScmBase {
             }
         }
     }
-
 }

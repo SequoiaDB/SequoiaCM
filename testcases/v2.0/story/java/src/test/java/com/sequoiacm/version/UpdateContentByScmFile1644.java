@@ -4,16 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmOutputStream;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -25,21 +23,21 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:specify that scmfile outputStream update Content of the scmfile
- * testlink-case:SCM-1644
- *
+ * @description SCM-1644:指定scmfile输出流方式更新当前文件内容
  * @author wuyan
- * @Date 2018.06.02
- * @version 1.00
+ * @createDate 2018.06.02
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContentByScmFile1644 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-
+    private boolean runSuccess = false;
     private String fileName = "file1644";
     private int fileSize = 1024 * 800;
     private byte[] contentdata = new byte[ 1024 * 1024 * 2 ];
@@ -63,6 +61,9 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
     }
 
@@ -82,19 +83,19 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         VersionUtils.CheckFileContentByStream( ws, fileName, historyVersion2,
                 contentdata );
         // http://jira:8080/browse/SEQUOIACM-274
-        // VersionUtil.CheckFileContentByStream( ws, fileName,
-        // currentVersion, partdata );
+        VersionUtils.CheckFileContentByStream( ws, fileName, currentVersion,
+                partdata );
         VersionUtils.checkFileCurrentVersion( ws, fileId, currentVersion );
-
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( session != null ) {
                 session.close();
@@ -123,5 +124,4 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         fileOutStream.write( contentdata, off, len );
         fileOutStream.commit();
     }
-
 }

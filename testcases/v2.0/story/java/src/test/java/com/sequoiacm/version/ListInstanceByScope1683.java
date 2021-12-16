@@ -1,7 +1,6 @@
 package com.sequoiacm.version;
 
-import java.io.IOException;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -27,22 +26,20 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:listInstance by the history and all scm file, the querey
- * condtion contains fields other than the history version table
- * testlink-case:SCM-1683
- *
+ * @description SCM-1683:查询条件存在历史表以外的字段
  * @author wuyan
- * @Date 2018.06.12
- * @version 1.00
+ * @createDate 2018.06.12
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class ListInstanceByScope1683 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-
     private String fileName = "file1683";
     private String authorName = "author1683";
     private byte[] writedata = new byte[ 1024 * 1 ];
@@ -50,12 +47,15 @@ public class ListInstanceByScope1683 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( ws, fileName, writedata,
                 authorName );
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
@@ -69,13 +69,11 @@ public class ListInstanceByScope1683 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();

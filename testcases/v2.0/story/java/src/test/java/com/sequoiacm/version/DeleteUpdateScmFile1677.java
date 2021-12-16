@@ -3,6 +3,7 @@ package com.sequoiacm.version;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,14 +27,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: there are multiple versions of the file ,than delete the
- * scmfile testlink-case:SCM-1677
- *
+ * @description SCM-1677:文件存在多个版本，执行删除
  * @author wuyan
- * @Date 2018.06.11
- * @version 1.00
+ * @createDate 2018.06.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class DeleteUpdateScmFile1677 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -69,7 +70,9 @@ public class DeleteUpdateScmFile1677 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByFile( wsA, fileName, filePath );
     }
 
@@ -85,11 +88,9 @@ public class DeleteUpdateScmFile1677 extends TestScmBase {
     @AfterClass
     private void tearDown() {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

@@ -1,16 +1,15 @@
 package com.sequoiacm.version.concurrent;
 
-import java.io.IOException;
-
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -18,19 +17,18 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of the same file concurrently
- * testlink-case:SCM-1688
- *
+ * @description SCM-1688:并发更新相同文件
  * @author wuyan
- * @Date 2018.06.13
- * @version 1.00
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContentBySameFile1688 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -38,20 +36,23 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
+    private int updateThreadStatus = 0;
+    private boolean runSuccess = false;
     private String fileName = "versionfile1688";
     private String authorName = "author1688";
     private byte[] writeData = new byte[ 1024 * 20 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
     }
@@ -62,51 +63,24 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
         int updateSize2 = 1024 * 1024;
         byte[] updateData1 = new byte[ updateSize1 ];
         byte[] updateData2 = new byte[ updateSize2 ];
-        UpdateContentThread updateContentThread1 = new UpdateContentThread(
-                updateData1 );
-        UpdateContentThread updateContentThread2 = new UpdateContentThread(
-                updateData2 );
-        updateContentThread1.start();
-        updateContentThread2.start();
-
-        if ( updateContentThread1.isSuccess() ) {
-            if ( !updateContentThread2.isSuccess() ) {
-                Assert.assertTrue( !updateContentThread2.isSuccess(),
-                        updateContentThread2.getErrorMsg() );
-                ScmException e = ( ScmException ) updateContentThread2
-                        .getExceptions().get( 0 );
-                Assert.assertEquals( e.getError(),
-                        ScmError.FILE_VERSION_MISMATCHING,
-                        "updateContent2 fail:"
-                                + updateContentThread2.getErrorMsg() );
-                checkUpdateContentResult( wsM, updateData1 );
-            } else if ( updateContentThread2.isSuccess() ) {
-                checkAllUpdateContentResult( wsM, updateData1, updateData2 );
-            } else {
-                Assert.fail(
-                        "the results can only by updated successfully or one "
-                                + "update succeeds" );
-            }
-        } else if ( !updateContentThread1.isSuccess() ) {
-            Assert.assertTrue( updateContentThread2.isSuccess(),
-                    updateContentThread2.getErrorMsg() );
-            ScmException e = ( ScmException ) updateContentThread1
-                    .getExceptions().get( 0 );
-            Assert.assertEquals( e.getError(),
-                    ScmError.FILE_VERSION_MISMATCHING, "updateContent1 fail:"
-                            + updateContentThread1.getErrorMsg() );
-            checkUpdateContentResult( wsM, updateData2 );
-            ;
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new UpdateFileThread( updateData1 ) );
+        es.addWorker( new UpdateFileThread( updateData2 ) );
+        es.run();
+        if ( updateThreadStatus == 2 ) {
+            checkAllUpdateContentResult( wsM, updateData1, updateData2 );
+        } else if ( updateThreadStatus == 0 ) {
+            Assert.fail( "Only One thread is expected to succeed" );
         }
-
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( wsM, fileId, true );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( wsM, fileId, true );
+            }
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -155,21 +129,28 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
                 writeData );
     }
 
-    public class UpdateContentThread extends TestThreadBase {
+    private class UpdateFileThread extends ResultStore {
         byte[] fileData;
 
-        public UpdateContentThread( byte[] fileData ) {
+        public UpdateFileThread( byte[] fileData ) {
             this.fileData = fileData;
         }
 
-        @Override
-        public void exec() throws Exception {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 VersionUtils.updateContentByStream( ws, fileId, fileData );
+                checkUpdateContentResult( wsM, fileData );
+                updateThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_VERSION_MISMATCHING
+                        .getErrorCode() ) {
+                   throw e;
+                }
             } finally {
                 if ( session != null ) {
                     session.close();

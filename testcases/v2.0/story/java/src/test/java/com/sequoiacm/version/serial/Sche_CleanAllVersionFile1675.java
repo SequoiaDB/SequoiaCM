@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -34,14 +32,14 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:create ScheduleCleanTask,clean the all current file
- * testlink-case:SCM-1675
- *
+ * @description SCM-1675:异步调度任务指定清理所有版本文件
  * @author wuyan
- * @Date 2018.06.13
- * @version 1.00
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class Sche_CleanAllVersionFile1675 extends TestScmBase {
     private final static String taskname = "versionfile_schetask1675";
     private static WsWrapper wsp = null;
@@ -90,6 +88,9 @@ public class Sche_CleanAllVersionFile1675 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
     }
 
@@ -115,7 +116,7 @@ public class Sche_CleanAllVersionFile1675 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( sessionA, scheduleId );
             if ( runSuccess || TestScmBase.forceClear ) {
@@ -125,8 +126,6 @@ public class Sche_CleanAllVersionFile1675 extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
                 ScmScheduleUtils.cleanTask( sessionA, scheduleId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -181,5 +180,4 @@ public class Sche_CleanAllVersionFile1675 extends TestScmBase {
             file.getContent( downloadPath );
         }
     }
-
 }

@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmCursor;
@@ -34,14 +33,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the all version file, matcheing partial current version
- * file clean testlink-case:SCM-1669
- *
+ * @description SCM-1669:清理所有版本文件
  * @author wuyan
- * @Date 2018.06.11
- * @version 1.00
+ * @createDate 2018.06.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class CleanAllVersionFile1669 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -55,7 +54,6 @@ public class CleanAllVersionFile1669 extends TestScmBase {
     private File localPath = null;
     private int fileNum = 10;
     private BSONObject condition = null;
-
     private String fileName = "fileVersion1669";
     private String authorName = "author1669";
     private int fileSize1 = 1024 * 50;
@@ -87,6 +85,9 @@ public class CleanAllVersionFile1669 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
     }
 
@@ -108,9 +109,9 @@ public class CleanAllVersionFile1669 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( wsM, new ScmId( fileId ),
@@ -118,8 +119,6 @@ public class CleanAllVersionFile1669 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

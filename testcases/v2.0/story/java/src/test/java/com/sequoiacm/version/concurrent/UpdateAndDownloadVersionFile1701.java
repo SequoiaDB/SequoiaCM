@@ -5,94 +5,82 @@ package com.sequoiacm.version.concurrent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.testng.Assert;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description UpdateAndDownloadVersionFile1701.java
+ * @description SCM-1701:并发更新和下载相同文件
  * @author luweikang
- * @date 2018年6月19日
+ * @createDate 2018.06.19
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
 public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper branSiteA = null;
-    private SiteWrapper branSiteB = null;
+    private SiteWrapper rootSite = null;
     private ScmSession sessionA = null;
     private ScmSession sessionB = null;
     private ScmWorkspace wsA = null;
     private ScmWorkspace wsB = null;
     private ScmId fileId = null;
-
     private String fileName = "fileVersion1701";
     private byte[] filedata = new byte[ 1024 * 100 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
     private byte[] downloadData = null;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > siteList = new ArrayList< SiteWrapper >();
-        siteList = ScmInfo.getBranchSites( 2 );
-        branSiteA = siteList.get( 0 );
-        branSiteB = siteList.get( 1 );
+    private void setUp() throws ScmException {
+        branSiteA = ScmInfo.getBranchSite();
+        rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSiteA );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSiteB );
+        sessionB = TestScmTools.createSession( rootSite );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-
     }
 
-    @Test(groups = { "twoSite" })
+    @Test(groups = { "twoSite","fourSite" })
     private void test() throws Exception {
-
-        UpdateFileThread updateFileThread = new UpdateFileThread();
-        updateFileThread.start();
-
-        DownloadFileThread downloadFileThread = new DownloadFileThread();
-        downloadFileThread.start();
-
-        Assert.assertTrue( updateFileThread.isSuccess(),
-                updateFileThread.getErrorMsg() );
-        Assert.assertTrue( downloadFileThread.isSuccess(),
-                downloadFileThread.getErrorMsg() );
-
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new DownloadFileThread() );
+        es.addWorker( new UpdateFileThread() );
+        es.run();
         VersionUtils.assertByteArrayEqual( filedata, downloadData );
         VersionUtils.CheckFileContentByStream( wsA, fileName, 2, updatedata );
-
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsA, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -103,25 +91,41 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
         }
     }
 
-    class UpdateFileThread extends TestThreadBase {
-
-        @Override
-        public void exec() throws Exception {
-            VersionUtils.updateContentByStream( wsA, fileId, updatedata );
+    private class DownloadFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException, IOException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( rootSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                file.getContent( outputStream );
+                downloadData = outputStream.toByteArray();
+                outputStream.close();
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
         }
-
     }
 
-    class DownloadFileThread extends TestThreadBase {
-
-        @Override
-        public void exec() throws Exception {
-            ScmFile file = ScmFactory.File.getInstance( wsB, fileId );
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            file.getContent( outputStream );
-            downloadData = outputStream.toByteArray();
-            outputStream.close();
+    private class UpdateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSiteA );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                VersionUtils.updateContentByStream( ws, fileId, updatedata );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
         }
-
     }
 }

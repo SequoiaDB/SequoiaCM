@@ -2,15 +2,16 @@ package com.sequoiacm.version.concurrent;
 
 import java.io.IOException;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -22,14 +23,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content and asyncCache the same file concurrently:
- * a.update content b.asyncCache the file testlink-case:SCM-1694
- *
+ * @description SCM-1694:并发更新和异步缓存相同文件
  * @author wuyan
- * @Date 2018.06.15
- * @version 1.00
+ * @createDate 2018.06.15
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
@@ -38,21 +39,21 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
     private String fileName = "versionfile1694";
     private String authorName = "author1694";
     private byte[] writeData = new byte[ 1024 * 200 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
-        System.out.println( "branSite=" + branSite.getSiteId() );
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
     }
@@ -61,29 +62,20 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
     private void test() throws Exception {
         int updateSize = 1024 * 180;
         byte[] updateData = new byte[ updateSize ];
-
-        AsyncCacheFile asyncCacheFile = new AsyncCacheFile();
-        UpdateFile updateFile = new UpdateFile( updateData );
-        asyncCacheFile.start();
-        updateFile.start();
-
-        Assert.assertTrue( updateFile.isSuccess(), updateFile.getErrorMsg() );
-        Assert.assertTrue( asyncCacheFile.isSuccess(),
-                asyncCacheFile.getErrorMsg() );
-
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new AsyncCacheFileThread() );
+        es.addWorker( new UpdateFileThread( updateData ) );
+        es.run();
         checkUpdateAndAsyncCacheFileResult( wsM, updateData );
         runSuccess = true;
-
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -120,32 +112,10 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
                 writeData );
     }
 
-    public class UpdateFile extends TestThreadBase {
-        private byte[] updateData;
+    private class AsyncCacheFileThread extends ResultStore {
 
-        public UpdateFile( byte[] updateData ) {
-            this.updateData = updateData;
-        }
-
-        @Override
-        public void exec() throws Exception {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( rootSite );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
-                VersionUtils.updateContentByStream( ws, fileId, updateData );
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
-        }
-    }
-
-    public class AsyncCacheFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
@@ -158,6 +128,29 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
                 ScmFactory.File.asyncCache( ws, fileId, currentVersion, 0 );
                 VersionUtils.waitAsyncTaskFinished( ws, fileId, currentVersion,
                         sitenums );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private class UpdateFileThread extends ResultStore {
+        private byte[] updateData;
+
+        public UpdateFileThread( byte[] updateData ) {
+            this.updateData = updateData;
+        }
+
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( rootSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                VersionUtils.updateContentByStream( ws, fileId, updateData );
             } finally {
                 if ( session != null ) {
                     session.close();

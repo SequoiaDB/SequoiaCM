@@ -1,21 +1,17 @@
 package com.sequoiacm.version;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -27,31 +23,34 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description CountHisVersionFile1685.java
+ * @description SCM-1685:指定历史版本统计文件
  * @author luweikang
- * @date 2018年6月12日
+ * @createDate 2018.06.12
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
 public class CountHisVersionFile1685 extends TestScmBase {
-
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper site = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private List< ScmId > fileIdList = null;
-
     private String fileName = "fileVersion1685";
     private byte[] filedata = new byte[ 1024 * 100 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileIdList = new ArrayList< ScmId >();
         for ( int i = 1; i < 6; i++ ) {
             ScmId fileId = VersionUtils.createFileByStream( ws,
@@ -65,7 +64,6 @@ public class CountHisVersionFile1685 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-
         // 组合major_version
         BSONObject filter1 = new BasicBSONObject();
         BSONObject[] option1 = {
@@ -95,21 +93,18 @@ public class CountHisVersionFile1685 extends TestScmBase {
                         site.getSiteId() ) };
         filter3.put( "$and", option3 );
         listInstanceByOption( ws, filter3, 2 );
-
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
                     ScmFactory.File.deleteInstance( ws, fileIdList.get( i ),
                             true );
                 }
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( session != null ) {
                 session.close();

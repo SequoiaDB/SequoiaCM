@@ -4,17 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmBreakpointFile;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -22,21 +21,19 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of the same file concurrently,two ways of
- * concurrent: a.update content by file b.update content by breakpointfile
- * testlink-case:SCM-1689
- *
+ * @description SCM-1689:并发使用文件和断点文件方式更新相同文件
  * @author wuyan
- * @Date 2018.06.13
- * @version 1.00
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContentBySameFile1689 extends TestScmBase {
     private static WsWrapper wsp = null;
     private final int FILE_SIZE = 1024 * 800;
@@ -47,6 +44,8 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
     private ScmWorkspace wsA = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsM = null;
+    private int updateFileThreadStatus = 0;
+    private int updateBreakPointFileThreadStatus = 0;
     private ScmId fileId = null;
     private File localPath = null;
     private String filePath = null;
@@ -73,7 +72,9 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
     }
@@ -82,57 +83,38 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
     private void test() throws Exception {
         int updateSize = 1024 * 900;
         byte[] updateData = new byte[ updateSize ];
-
         createBreakPointFile( wsA, updateData );
-        UpdateContentByBreakpointFile updateByBreakpointFile = new UpdateContentByBreakpointFile();
-        UpdateContentByFile updateByFile = new UpdateContentByFile();
-        updateByBreakpointFile.start();
-        updateByFile.start();
-
-        if ( updateByBreakpointFile.isSuccess() ) {
-            if ( !updateByFile.isSuccess() ) {
-                Assert.assertTrue( !updateByFile.isSuccess(),
-                        updateByFile.getErrorMsg() );
-                ScmException e = ( ScmException ) updateByFile.getExceptions()
-                        .get( 0 );
-                Assert.assertEquals( e.getError(),
-                        ScmError.FILE_VERSION_MISMATCHING,
-                        "updateContent by file fail:"
-                                + updateByFile.getErrorMsg() );
-                checkUpdateByBreakpointfileResult( wsM, updateData );
-            } else if ( updateByFile.isSuccess() ) {
-                checkAllUpdateContentResult( wsM, updateData );
-            } else {
-                Assert.fail(
-                        "the results can only by updated successfully or one "
-                                + "update succeeds" );
-            }
-        } else if ( !updateByBreakpointFile.isSuccess() ) {
-            Assert.assertTrue( updateByFile.isSuccess(),
-                    updateByFile.getErrorMsg() );
-            ScmException e = ( ScmException ) updateByBreakpointFile
-                    .getExceptions().get( 0 );
-            Assert.assertEquals( e.getError(),
-                    ScmError.FILE_VERSION_MISMATCHING,
-                    "updateContent by breakpointfile fail:"
-                            + updateByBreakpointFile.getErrorMsg() );
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new UpdateContentByBreakpointFileThread() );
+        es.addWorker( new UpdateContentByFileThread() );
+        es.run();
+        if ( updateFileThreadStatus == 1
+                && updateBreakPointFileThreadStatus == 0 ) {
             checkUpdateByFileResult( wsM );
-            ScmFactory.BreakpointFile.deleteInstance( wsA, fileName );
+        } else if ( updateFileThreadStatus == 0
+                && updateBreakPointFileThreadStatus == 1 ) {
+            checkUpdateByBreakpointfileResult( wsM, updateData );
+        } else if ( updateFileThreadStatus == 1
+                && updateBreakPointFileThreadStatus == 1 ) {
+            checkAllUpdateContentResult( wsM, updateData );
+        } else {
+            Assert.fail( "expected is least one thread to succeed" );
         }
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
+            }
+            if ( sessionA != null ) {
+                sessionA.close();
             }
         }
     }
@@ -191,8 +173,7 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
-                        + e.getMessage() );
+                throw e;
             }
         }
     }
@@ -206,27 +187,9 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                 writeData );
     }
 
-    public class UpdateContentByFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( branSite );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
-                VersionUtils.updateContentByFile( ws, fileName, fileId,
-                        filePath );
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
-        }
-    }
-
-    public class UpdateContentByBreakpointFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
+    private class UpdateContentByBreakpointFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
@@ -236,6 +199,36 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                         .getInstance( ws, fileName );
                 file.updateContent( breakpointFile );
+                updateBreakPointFileThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND
+                        .getErrorCode() ) {
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private class UpdateContentByFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                VersionUtils.updateContentByFile( ws, fileName, fileId,
+                        filePath );
+                updateFileThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_VERSION_MISMATCHING
+                        .getErrorCode() ) {
+                    throw e;
+                }
             } finally {
                 if ( session != null ) {
                     session.close();

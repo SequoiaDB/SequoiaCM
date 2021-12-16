@@ -1,13 +1,11 @@
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
@@ -28,14 +26,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer the history version file, specify the version is not
- * exist testlink-case:SCM-1665
- *
+ * @description SCM-1665:指定文件版本不存在，执行迁移任务
  * @author wuyan
- * @Date 2018.06.05
- * @version 1.00
+ * @createDate 2018.06.05
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class TransferHisVersionFile1665 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -46,14 +44,13 @@ public class TransferHisVersionFile1665 extends TestScmBase {
     private ScmWorkspace wsM = null;
     private ScmId taskId = null;
     private ScmId fileId = null;
-
     private String fileName = "fileVersion1661";
     private String authorName = "transfer1661";
     private byte[] writeData = new byte[ 1024 * 2 ];
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -62,6 +59,9 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
     }
@@ -83,14 +83,12 @@ public class TransferHisVersionFile1665 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -107,10 +105,9 @@ public class TransferHisVersionFile1665 extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
         taskId = ScmSystem.Task.startTransferTask( ws, condition,
-                ScopeType.SCOPE_HISTORY );
+                ScopeType.SCOPE_HISTORY, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
-
 }

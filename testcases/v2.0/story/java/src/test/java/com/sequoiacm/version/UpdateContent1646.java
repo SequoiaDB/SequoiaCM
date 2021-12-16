@@ -5,15 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -25,21 +24,21 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content of the current scm file ,the file is empty
- * testlink-case:SCM-1646
- *
+ * @description SCM-1646:当前文件内容为空，更新文件内容
  * @author wuyan
- * @Date 2018.06.01
- * @version 1.00
+ * @createDate 2018.06.01
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateContent1646 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
-
+    private boolean runSuccess = false;
     private String fileName = "file1646";
     private int fileSize = 0;
     private int dataSize = 1024 * 10;
@@ -62,6 +61,9 @@ public class UpdateContent1646 extends TestScmBase {
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -86,15 +88,16 @@ public class UpdateContent1646 extends TestScmBase {
         checkFileSize( currentVersion, dataSize );
         checkFileSize( historyVersion1, fileSize );
         checkFileSize( historyVersion2, fileSize );
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( session != null ) {
                 session.close();
@@ -119,6 +122,5 @@ public class UpdateContent1646 extends TestScmBase {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId, version, 0 );
         Assert.assertEquals( file.getSize(), expSize );
         Assert.assertEquals( file.getMajorVersion(), version );
-
     }
 }

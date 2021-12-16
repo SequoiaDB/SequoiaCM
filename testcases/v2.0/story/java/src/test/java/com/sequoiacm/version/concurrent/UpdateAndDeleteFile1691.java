@@ -1,15 +1,16 @@
 package com.sequoiacm.version.concurrent;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Random;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
@@ -25,47 +26,41 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content by breakpoint file and delete the same file
- * concurrently: a.update content by breakpointfile b.delete the file
- * testlink-case:SCM-1691
- *
+ * @description SCM-1691:并发使用断点文件更新和删除相同文件
  * @author wuyan
- * @Date 2018.06.15
- * @version 1.00
+ * @createDate 2018.06.15
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateAndDeleteFile1691 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper branSite = null;
-    private SiteWrapper rootSite = null;
-    private ScmSession sessionM = null;
     private ScmWorkspace wsA = null;
     private ScmSession sessionA = null;
-    private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
+    private int deleteThreadStatus = 0;
+    private int updateThreadStatus = 0;
     private String fileName = "versionfile1691";
     private String authorName = "author1691";
     private byte[] writeData = new byte[ 1024 * 20 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
-        rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-
-        sessionM = TestScmTools.createSession( rootSite );
-        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-
-        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
     }
 
@@ -73,56 +68,33 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
     private void test() throws Exception {
         int updateSize = 1024 * 1024;
         byte[] updateData = new byte[ updateSize ];
-
         createBreakPointFile( wsA, updateData );
-        UpdateContentByBreakpointFile updateFile = new UpdateContentByBreakpointFile();
-        DeleteFile deleteFile = new DeleteFile();
-        deleteFile.start();
-        updateFile.start();
-
-        if ( deleteFile.isSuccess() ) {
-            if ( !updateFile.isSuccess() ) {
-                Assert.assertTrue( !updateFile.isSuccess(),
-                        updateFile.getErrorMsg() );
-                ScmException e = ( ScmException ) updateFile.getExceptions()
-                        .get( 0 );
-                Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
-                        "updateContent by breakpointfile fail:"
-                                + updateFile.getErrorMsg() );
-                checkDeleteFileResult( wsA );
-                // update fail,the breakpointfile is exist,than delete
-                ScmFactory.BreakpointFile.deleteInstance( wsA, fileName );
-            } else if ( updateFile.isSuccess() ) {
-                checkDeleteFileResult( wsA );
-            } else {
-                Assert.fail(
-                        "the results can only by updated successfully or one "
-                                + "update succeeds" );
-            }
-        } else if ( !deleteFile.isSuccess() ) {
-            Assert.assertTrue( updateFile.isSuccess(),
-                    updateFile.getErrorMsg() );
-            ScmException e = ( ScmException ) deleteFile.getExceptions()
-                    .get( 0 );
-            Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
-                    "delete file fail:" + deleteFile.getErrorMsg() );
-
-            checkUpdateFileResult( wsM, updateData );
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new DeleteFileThread() );
+        es.addWorker( new UpdateFileThread() );
+        es.run();
+        if ( updateThreadStatus == 1 && deleteThreadStatus == 0 ) {
+            checkUpdateFileResult( wsA, updateData );
+        } else if ( updateThreadStatus == 0 && deleteThreadStatus == 1 ) {
+            checkDeleteFileResult( wsA );
+        } else if ( updateThreadStatus == 1 && deleteThreadStatus == 1 ) {
+            checkAllResult( wsA );
+        } else {
+            Assert.fail( "Only One thread is expected to succeed" );
         }
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
+            if ( ( runSuccess || TestScmBase.forceClear )
+                    && deleteThreadStatus == 0 ) {
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
-            if ( sessionM != null ) {
-                sessionM.close();
+            if ( sessionA != null ) {
+                sessionA.close();
             }
         }
     }
@@ -142,8 +114,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
             Assert.fail( "get file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
-                        + e.getMessage() );
+                throw e;
             }
         }
 
@@ -155,6 +126,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
                 condition );
         long expFileConut = 0;
         Assert.assertEquals( count, expFileConut );
+        ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
     }
 
     private void checkUpdateFileResult( ScmWorkspace ws, byte[] expUpdateData )
@@ -172,15 +144,56 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
-                        + e.getMessage() );
+                throw e;
             }
         }
     }
 
-    public class UpdateContentByBreakpointFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
+    private void checkAllResult( ScmWorkspace ws ) throws ScmException {
+        try {
+            ScmFactory.File.getInstance( ws, fileId );
+            Assert.fail( "get file must bu fail!" );
+        } catch ( ScmException e ) {
+            if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
+                throw e;
+            }
+        }
+        try {
+            ScmFactory.BreakpointFile.getInstance( ws, fileName );
+            Assert.fail( "get breakpoint file must bu fail!" );
+        } catch ( ScmException e ) {
+            if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
+                throw e;
+            }
+        }
+    }
+
+    private class DeleteFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                deleteThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND
+                        .getErrorCode() ) {
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    private class UpdateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
@@ -190,28 +203,12 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                         .getInstance( ws, fileName );
                 file.updateContent( breakpointFile );
-            } finally {
-                if ( session != null ) {
-                    session.close();
+                updateThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND
+                        .getErrorCode() ) {
+                    throw e;
                 }
-            }
-        }
-    }
-
-    public class DeleteFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( branSite );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
-
-                // random waiting 100ms to delete
-                Random random = new Random();
-                int time = random.nextInt( 100 );
-                Thread.sleep( time );
-                ScmFactory.File.deleteInstance( ws, fileId, true );
             } finally {
                 if ( session != null ) {
                     session.close();

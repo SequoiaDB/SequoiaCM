@@ -3,16 +3,13 @@
  */
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -35,9 +32,13 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description ScheduleAsyncTransferCurVersionFile1670.java
+ * @description  SCM-1670:异步调度任务指定迁移当前版本文件
  * @author luweikang
- * @date 2018年6月13日
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
 public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
     private static WsWrapper wsp = null;
@@ -52,7 +53,7 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
     private ScmId fileId2 = null;
     private ScmId scheduleId = null;
     private List< String > fileIdList = new ArrayList<>();
-
+    private String authorName = "fileVersion1670";
     private String fileName1 = "fileVersion1670_1";
     private String fileName2 = "fileVersion1670_2";
     private String scheduleName = "schedule1670";
@@ -60,7 +61,7 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -69,20 +70,22 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
-        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata );
-        fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata,
+                authorName );
+        fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata,
+                authorName );
         VersionUtils.updateContentByStream( wsA, fileId1, updatedata );
         VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
         VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
         fileIdList.add( fileId1.toString() );
         fileIdList.add( fileId2.toString() );
-
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-
         createScheduleTask();
 
         VersionUtils.waitAsyncTaskFinished( wsM, fileId1, 2, 2 );
@@ -97,7 +100,7 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
     }
 
     @AfterClass()
-    private void tearDown() {
+    private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( sessionA, scheduleId );
             if ( runSuccess ) {
@@ -105,8 +108,6 @@ public class ScheduleAsyncTransferCurVersionFile1670 extends TestScmBase {
                 ScmFactory.File.deleteInstance( wsM, fileId2, true );
                 ScmScheduleUtils.cleanTask( sessionA, scheduleId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

@@ -2,13 +2,12 @@ package com.sequoiacm.version.serial;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -31,14 +30,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the histroy version file,specify the fields in condition
- * are not in the history table. testlink-case:SCM-1676
- *
+ * @description SCM-1676:任务条件包含历史表以外的字段
  * @author wuyan
- * @Date 2018.06.13
- * @version 1.00
+ * @createDate 2018.06.13
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class Sche_CleanHisVersionFile1676 extends TestScmBase {
     private final static String taskname = "versionfile_schetask1676";
     private static WsWrapper wsp = null;
@@ -56,7 +55,7 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -65,6 +64,9 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updateData );
@@ -79,18 +81,15 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
 
         // update clean history version file
         createScheduleTask( sessionA );
-
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -129,5 +128,4 @@ public class Sche_CleanHisVersionFile1676 extends TestScmBase {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );
     }
-
 }

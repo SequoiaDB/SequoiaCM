@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmCursor;
@@ -33,13 +32,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer the history version file testlink-case:SCM-1661
- *
+ * @description SCM-1661:迁移历史版本文件
  * @author wuyan
- * @Date 2018.06.05
- * @version 1.00
+ * @createDate 2018.06.05
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class TransferHisVersionFile1661 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -52,7 +52,6 @@ public class TransferHisVersionFile1661 extends TestScmBase {
     private List< String > fileIdList = new ArrayList< String >();
     private File localPath = null;
     private int fileNum = 10;
-
     private String fileName = "fileVersion1661";
     private String authorName = "transfer1661";
     private int fileSize1 = 1024 * 50;
@@ -84,6 +83,9 @@ public class TransferHisVersionFile1661 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
     }
 
@@ -99,9 +101,9 @@ public class TransferHisVersionFile1661 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( wsM, new ScmId( fileId ),
@@ -109,8 +111,6 @@ public class TransferHisVersionFile1661 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -147,7 +147,8 @@ public class TransferHisVersionFile1661 extends TestScmBase {
                 .greaterThanEquals( fileSize1 )
                 .put( ScmAttributeName.File.MAJOR_VERSION ).greaterThan( 0 )
                 .get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType,
+                rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
@@ -218,5 +219,4 @@ public class TransferHisVersionFile1661 extends TestScmBase {
         int expFileNums = 10;
         Assert.assertEquals( size, expFileNums );
     }
-
 }

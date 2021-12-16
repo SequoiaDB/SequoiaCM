@@ -3,136 +3,175 @@
  */
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
-
+import java.io.File;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.breakpointfile.BreakpointUtil;
-import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestThreadBase;
-import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description BreFileUpdateAndCreateVersionFile1700.java
+ * @description SCM-1700:并发使用断点文件更新和创建新文件
  * @author luweikang
- * @date 2018年6月15日
+ * @createDate 2018.06.15
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
 public class BreFileUpdateAndCreateVersionFile1700 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper branSite = null;
-    private SiteWrapper rootSite = null;
     private ScmSession sessionA = null;
-    private ScmSession sessionM = null;
+    private int updateThreadStatus = 0;
+    private int createThreadStatus = 0;
     private ScmWorkspace wsA = null;
     private ScmWorkspace wsM = null;
-    private ScmId fileId = null;
+    private ScmId fileId1 = null;
+    private ScmId fileId2 = null;
     private ScmBreakpointFile sbFile = null;
-    private ScmId taskId = null;
-
-    private String fileName = "fileVersion1700";
+    private String fileName1 = "fileVersion1700_1";
+    private String fileName2 = "fileVersion1700_2";
+    private String fileAuthor = "fileAuthorVersion1700_1";
     private byte[] filedata = new byte[ 1024 * 100 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
-    @BeforeClass(enabled = false)
-    private void setUp() throws IOException, ScmException {
+    @BeforeClass()
+    private void setUp() throws ScmException {
         BreakpointUtil.checkDBDataSource();
         branSite = ScmInfo.getBranchSite();
-        rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
-        wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( fileAuthor ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata,
+                fileAuthor );
+        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName1,
                 updatedata );
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-
-        ScmFactory.File.asyncTransfer( wsA, fileId );
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2, 30 );
-
-        UpdateFileThread updateFileThread = new UpdateFileThread();
-        updateFileThread.start();
-
-        CleanFileThread cleanFileThread = new CleanFileThread();
-        cleanFileThread.start();
-
-        Assert.assertTrue( updateFileThread.isSuccess(),
-                updateFileThread.getErrorMsg() );
-        Assert.assertTrue( cleanFileThread.isSuccess(),
-                cleanFileThread.getErrorMsg() );
-
-        SiteWrapper[] expSites = { rootSite };
-        VersionUtils.checkSite( wsM, fileId, 1, expSites );
-        VersionUtils.CheckFileContentByStream( wsA, fileName, 2, updatedata );
-
+        int currentVersion = 2;
+        int historyVersion = 1;
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new CreateFileThread() );
+        es.addWorker( new UpdateFileThread() );
+        es.run();
+        if ( updateThreadStatus == 1 && createThreadStatus == 0 ) {
+            VersionUtils.CheckFileContentByStream( wsA, fileName1,
+                    currentVersion, updatedata );
+        } else if ( updateThreadStatus == 0 && createThreadStatus == 1 ) {
+            checkFile();
+            VersionUtils.CheckFileContentByStream( wsA, fileName1,
+                    historyVersion, filedata );
+        } else {
+            Assert.fail( "Only One thread is expected to succeed" );
+        }
         runSuccess = true;
     }
 
-    @AfterClass(enabled = false)
-    private void tearDown() {
+    @AfterClass()
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
-                TestSdbTools.Task.deleteMeta( taskId );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( wsA, fileId1, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
             }
-            if ( sessionM != null ) {
-                sessionM.close();
+        }
+    }
+
+    private class UpdateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId1 );
+                ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                        .getInstance( ws, fileName1 );
+                file.updateContent( breakpointFile );
+                updateThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode()
+                        && e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                                .getErrorCode() ) {
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
             }
         }
     }
 
-    class UpdateFileThread extends TestThreadBase {
-
-        @Override
-        public void exec() throws Exception {
-            Thread.sleep( 210 );
-            ScmFile scmFile = ScmFactory.File.getInstance( wsA, fileId );
-            scmFile.updateContent( sbFile );
+    private class CreateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws ScmException {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setContent( sbFile );
+                file.setFileName( fileName2 );
+                file.setTitle( fileName2 );
+                fileId2 = file.save();
+                createThreadStatus++;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                        .getErrorCode() ) {
+                    throw e;
+                }
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
         }
-
     }
 
-    class CleanFileThread extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.FILE_ID )
-                    .is( fileId.toString() ).get();
-            taskId = ScmSystem.Task.startCleanTask( wsA, cond,
-                    ScopeType.SCOPE_CURRENT );
-        }
+    public void checkFile() throws Exception {
+        // down file
+        File filePath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        String downloadPath = TestTools.LocalFile.initDownloadPath( filePath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
+        ScmFile file = ScmFactory.File.getInstance( wsA, fileId2 );
+        file.getContent( downloadPath );
+
+        // check results
+        Assert.assertEquals( TestTools.getMD5( downloadPath ),
+                TestTools.getMD5( updatedata ) );
+        TestTools.LocalFile.removeFile( downloadPath );
+        ScmFactory.File.deleteInstance( wsA, fileId2, true );
     }
 }

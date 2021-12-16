@@ -1,13 +1,11 @@
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
@@ -26,15 +24,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Transfer file, specify the fields in transfer condition are not
- * in the history table. the current version file transfer is test by
- * testcase-1660 testlink-case:SCM-1666
- *
+ * @description SCM-1666:任务条件包含历史表以外的字段
  * @author wuyan
- * @Date 2018.06.08
- * @version 1.00
+ * @createDate 2018.06.08
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class TransferFile1666 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -44,7 +41,6 @@ public class TransferFile1666 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
     private String fileName = "fileVersion1666";
     private String authorName = "transfer1666";
     private byte[] writeData = new byte[ 1024 * 2 ];
@@ -52,7 +48,7 @@ public class TransferFile1666 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -61,6 +57,9 @@ public class TransferFile1666 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
         VersionUtils.updateContentByStream( wsA, fileId, updateData );
@@ -80,13 +79,11 @@ public class TransferFile1666 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -104,7 +101,7 @@ public class TransferFile1666 extends TestScmBase {
 
         try {
             ScmSystem.Task.startTransferTask( ws, condition,
-                    ScopeType.SCOPE_HISTORY );
+                    ScopeType.SCOPE_HISTORY, rootSite.getSiteName() );
             Assert.fail( "transfer file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
@@ -115,7 +112,7 @@ public class TransferFile1666 extends TestScmBase {
 
         try {
             ScmSystem.Task.startTransferTask( ws, condition,
-                    ScopeType.SCOPE_ALL );
+                    ScopeType.SCOPE_ALL, rootSite.getSiteName() );
             Assert.fail( "transfer file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {

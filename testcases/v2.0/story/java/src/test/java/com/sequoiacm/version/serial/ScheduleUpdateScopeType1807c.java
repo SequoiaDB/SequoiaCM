@@ -5,6 +5,7 @@ package com.sequoiacm.version.serial;
 
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,9 +34,13 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @Description ScheduleUpdateScopeType1807a.java
+ * @description SCM-1807:异步迁移任务，更新scopeType类型
  * @author luweikang
- * @date 2018年6月15日
+ * @createDate 2018.06.15
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
 public class ScheduleUpdateScopeType1807c extends TestScmBase {
     private static WsWrapper wsp = null;
@@ -48,14 +53,13 @@ public class ScheduleUpdateScopeType1807c extends TestScmBase {
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
     private ScmId scheduleId = null;
-
     private String fileName = "fileVersion1807";
     private String scheduleName = "schedule1807c";
     private byte[] filedata = new byte[ 1024 * 100 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
@@ -64,41 +68,35 @@ public class ScheduleUpdateScopeType1807c extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-
         createScheduleTask();
-
         VersionUtils.waitAsyncTaskFinished( wsM, fileId, 2, 2 );
 
         changeScheduleType();
-
         VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
 
         SiteWrapper[] expSites = { rootSite, branSite };
         VersionUtils.checkSite( wsM, fileId, 1, expSites );
-
         VersionUtils.checkSite( wsM, fileId, 2, expSites );
-
         runSuccess = true;
-
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( sessionM, scheduleId );
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
                 ScmScheduleUtils.cleanTask( sessionA, scheduleId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();

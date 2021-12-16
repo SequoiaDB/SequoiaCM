@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -34,13 +35,14 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the current version file testlink-case:SCM-1667
- *
+ * @description SCM-1667:清理当前版本文件
  * @author wuyan
- * @Date 2018.06.08
- * @version 1.00
+ * @createDate 2018.06.08
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class CleanCurVersionFile1667 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
@@ -86,8 +88,10 @@ public class CleanCurVersionFile1667 extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
-
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -108,9 +112,9 @@ public class CleanCurVersionFile1667 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
                 for ( String fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( wsM, new ScmId( fileId ),
@@ -118,8 +122,6 @@ public class CleanCurVersionFile1667 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -232,5 +234,4 @@ public class CleanCurVersionFile1667 extends TestScmBase {
             file.getContent( downloadPath );
         }
     }
-
 }

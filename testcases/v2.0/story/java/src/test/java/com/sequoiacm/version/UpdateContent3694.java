@@ -1,13 +1,12 @@
 package com.sequoiacm.version;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -18,10 +17,13 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * @Description SCM-3694:创建ScmFile对象，未执行save更新文件内容
+ * @description SCM-3694:创建ScmFile对象，未执行save更新文件内容
  * @author YiPan
- * @Date 2021.7.21
- * @Version 1.00
+ * @createDate 2021.7.21
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.00
  */
 public class UpdateContent3694 extends TestScmBase {
     private ScmSession session;

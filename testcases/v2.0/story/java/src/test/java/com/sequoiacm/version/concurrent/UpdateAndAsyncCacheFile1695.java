@@ -1,19 +1,17 @@
 package com.sequoiacm.version.concurrent;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Random;
-
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmBreakpointFile;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -21,20 +19,18 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content: update Content by breakPointfile and asyncCache the same file
- * concurrently: a.update content by breakPointFile b.asyncCache the file
- * testlink-case:SCM-1695
- *
+ * @description SCM-1695:并发使用断点文件更新和异步缓存相同文件
  * @author wuyan
- * @Date 2018.06.19
- * @version 1.00
+ * @createDate 2018.06.19
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
@@ -43,21 +39,22 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
     private String fileName = "versionfile1695";
     private String authorName = "author1695";
     private byte[] writeData = new byte[ 1024 * 1024 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
-        System.out.println( "branSite=" + branSite.getSiteId() );
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
     }
@@ -66,30 +63,22 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
     private void test() throws Exception {
         int updateSize = 1024 * 900;
         byte[] updateData = new byte[ updateSize ];
-
         createBreakPointFile( wsM, updateData );
-        AsyncCacheFile asyncCacheFile = new AsyncCacheFile();
-        UpdateFile updateFile = new UpdateFile();
-        asyncCacheFile.start();
-        updateFile.start();
-
-        Assert.assertTrue( updateFile.isSuccess(), updateFile.getErrorMsg() );
-        Assert.assertTrue( asyncCacheFile.isSuccess(),
-                asyncCacheFile.getErrorMsg() );
+        ThreadExecutor es = new ThreadExecutor();
+        es.addWorker( new AsyncCacheFileThread() );
+        es.addWorker( new UpdateFileThread() );
+        es.run();
 
         checkUpdateAndAsyncCacheFileResult( wsM, updateData );
         runSuccess = true;
-
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
-                // ScmFactory.File.deleteInstance(wsM, fileId, true);
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -145,10 +134,31 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
         breakpointFile.upload( new ByteArrayInputStream( updateData ) );
     }
 
-    public class UpdateFile extends TestThreadBase {
+    private class AsyncCacheFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
+            ScmSession session = null;
+            try {
+                session = TestScmTools.createSession( branSite );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                int sitenums = 2;
+                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+                int currentVersion = file.getMajorVersion();
+                ScmFactory.File.asyncCache( ws, fileId, currentVersion, 0 );
+                VersionUtils.waitAsyncTaskFinished( ws, fileId, currentVersion,
+                        sitenums );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
 
-        @Override
-        public void exec() throws Exception {
+    private class UpdateFileThread extends ResultStore {
+        @ExecuteOrder(step = 1)
+        private void exec() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( rootSite );
@@ -158,29 +168,6 @@ public class UpdateAndAsyncCacheFile1695 extends TestScmBase {
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                         .getInstance( ws, fileName );
                 file.updateContent( breakpointFile );
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
-        }
-    }
-
-    public class AsyncCacheFile extends TestThreadBase {
-        @Override
-        public void exec() throws Exception {
-            ScmSession session = null;
-            try {
-                session = TestScmTools.createSession( branSite );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
-
-                int sitenums = 2;
-                ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-                int currentVersion = file.getMajorVersion();
-                ScmFactory.File.asyncCache( ws, fileId, currentVersion, 0 );
-                VersionUtils.waitAsyncTaskFinished( ws, fileId, currentVersion,
-                        sitenums );
             } finally {
                 if ( session != null ) {
                     session.close();

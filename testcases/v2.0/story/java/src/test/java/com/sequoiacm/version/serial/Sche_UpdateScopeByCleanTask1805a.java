@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -34,14 +33,14 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:Clean the current version file,than set Scopetype is history
- * testlink-case:SCM-1805
- *
+ * @description SCM-1805:异步清理任务，更新scopeType类型
  * @author wuyan
- * @Date 2018.06.13
- * @version 1.00
+ * @createDate 2018.06.14
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.09
+ * @updateRemark
+ * @version v1.0
  */
-
 public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
     private final static String taskname = "versionfile_schetask1805a";
     private static WsWrapper wsp = null;
@@ -90,6 +89,9 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         writeAndUpdateFile( wsA );
     }
 
@@ -127,7 +129,7 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws Exception {
         try {
             ScmSystem.Schedule.delete( sessionA, scheduleId );
             if ( runSuccess || TestScmBase.forceClear ) {
@@ -137,8 +139,6 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
                 ScmScheduleUtils.cleanTask( sessionA, scheduleId );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() + e.getStackTrace() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -198,5 +198,4 @@ public class Sche_UpdateScopeByCleanTask1805a extends TestScmBase {
             file.getContent( downloadPath );
         }
     }
-
 }

@@ -4,14 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -24,14 +24,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * test content:update files exist on multiple sites , delete the file
- * testlink-case:SCM-1679
- *
+ * @description SCM-1679:文件存在多个站点，执行删除
  * @author wuyan
- * @Date 2018.06.11
- * @version 1.00
+ * @createDate 2018.06.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.06
+ * @updateRemark
+ * @version v1.0
  */
-
 public class DeleteUpdateScmFile1679 extends TestScmBase {
     private static WsWrapper wsp = null;
     private final int branSitesNum = 3;
@@ -45,7 +45,6 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-
     private String fileName = "file1679";
     private int fileSize = 1024 * 800;
     private File localPath = null;
@@ -75,6 +74,9 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByFile( wsA, fileName, filePath );
     }
 
@@ -97,11 +99,9 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
     @AfterClass
     private void tearDown() {
         try {
-            if ( runSuccess ) {
+            if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
