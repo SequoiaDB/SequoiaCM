@@ -8,13 +8,13 @@ public class CuratorLockProperty {
     public static final long BIGSLEEPTIME = 10000;
 
     // Curator client retryPolicy properties
-    public static final int MAXRETRIES = 3;
+    public static final int MAXRETRIES = 2;
     public static final int BASESLEEPTIMEMS = 1000;
 
     public static final int SLEEPMSBETWEENRETRIES = 1000;
 
     public static final int SESSIONTIMEOUTMS = 60000;
-    public static final int CONNECTIONTIMEOUTMS = 10000;
+    public static final int CONNECTIONTIMEOUTMS = 6000;
 
     public static final int ZK_CONNECTION_TIMEOUTMS = 3000;
     public static final String LOCK_PATH_SEPERATOR = "/";

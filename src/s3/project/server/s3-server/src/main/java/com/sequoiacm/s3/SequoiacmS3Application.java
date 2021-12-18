@@ -8,10 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import com.sequoiadb.infrastructure.map.client.EnableMapClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 
 @EnableDiscoveryClient
 @EnableMapClient
 @SpringBootApplication
+@EnableHystrix
 public class SequoiacmS3Application implements ApplicationRunner {
 
     public static void main(String[] args) {

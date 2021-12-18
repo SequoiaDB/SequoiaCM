@@ -12,6 +12,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.sequoiacm.cloud.adminserver.common.StatisticsDefine;
@@ -34,6 +35,7 @@ import de.codecentric.boot.admin.config.EnableAdminServer;
 @EnableConfClient
 @EnableScmLock
 @ComponentScan(basePackages = { "com.sequoiacm.cloud.adminserver" })
+@EnableHystrix
 public class AdminServer implements ApplicationRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(AdminServer.class);

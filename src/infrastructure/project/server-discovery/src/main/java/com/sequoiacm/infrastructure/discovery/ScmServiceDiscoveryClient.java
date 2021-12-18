@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.discovery;
 
+import com.sequoiacm.infrastructure.common.NetUtil;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
@@ -89,6 +90,21 @@ public class ScmServiceDiscoveryClient {
         List<ScmServiceInstance> allInstances = getInstances(service);
         if (allInstances.size() > 0) {
             return allInstances.get(random.nextInt(allInstances.size()));
+        }
+        return null;
+    }
+
+    public String getServiceNameByUrl(String url) {
+        String hostAndPort = NetUtil.getHostAndPort(url);
+        List<String> services = discoveryClient.getServices();
+        for (String service : services) {
+            List<ServiceInstance> instances = discoveryClient.getInstances(service);
+            for (ServiceInstance instance : instances) {
+                String serviceUrl = instance.getHost() + ":" + instance.getPort();
+                if (serviceUrl.equalsIgnoreCase(hostAndPort)) {
+                    return service.toLowerCase();
+                }
+            }
         }
         return null;
     }

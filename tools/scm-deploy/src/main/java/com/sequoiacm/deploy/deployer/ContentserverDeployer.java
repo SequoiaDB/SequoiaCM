@@ -46,7 +46,7 @@ public class ContentserverDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
 
         /**
          * { nodes:[ { node:[ {real node info here} ] } ] }

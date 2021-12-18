@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.sequoiacm.deploy.common.BsonUtils;
+import com.sequoiacm.deploy.module.SiteInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -161,11 +163,11 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
     protected abstract String getStartCmd(NodeInfo node, String serviceRemoteInstallPath,
             String deployJsonFileRemotePath);
 
-    protected abstract BSONObject decorateTemplateDeployJson(BSONObject templateBson,
-            NodeInfo node);
+    protected abstract BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node)
+            throws Exception;
 
-    // service center info, custom node props
-    protected BSONObject genBaseDeployJson(NodeInfo node) {
+    // service center info, hystrix, custom node props
+    protected BSONObject genBaseDeployJson(NodeInfo node, boolean isNeedHystrixConf) throws Exception {
         List<String> zones = confMgr.getZones();
         // availableZone indicates that service-center is deployed in the zone
         List<String> availableZones = new ArrayList<>();
@@ -192,11 +194,20 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
             basicBSON.put(DeployJsonDefine.ZONE_URL_PREFIX + zone, CommonUtils.toString(url, ","));
         }
 
+        // generate hystrix config
+        if (isNeedHystrixConf) {
+            basicBSON.putAll(confMgr.getHystrixConfig());
+        }
+
         BSONObject customConf = node.getCustomNodeConf();
         if (customConf != null) {
             basicBSON.putAll(customConf);
         }
         return basicBSON;
+    }
+
+    protected BSONObject genBaseDeployJson(NodeInfo node) throws Exception {
+       return genBaseDeployJson(node, true);
     }
 
     @Override

@@ -8,12 +8,21 @@ public class ScmNodeType {
     // 该属性用于提醒用户，新添加一个工具时，要向 ScmServerScriptEnum 类中添加新工具的脚本信息
     private ScmServerScriptEnum serverScriptEnum;
 
+    // 创建该节点时，是否需要生成Hystrix配置
+    private boolean isNeedHystrixConf = true;
+
     public ScmNodeType(String type, String name, String jarNamePrefix,
             ScmServerScriptEnum serverScriptEnum) {
+        this(type,name,jarNamePrefix,serverScriptEnum,true);
+    }
+
+    public ScmNodeType(String type, String name, String jarNamePrefix,
+            ScmServerScriptEnum serverScriptEnum, boolean isNeedHystrixConf) {
         this.type = type;
         this.name = name;
         this.jarNamePrefix = jarNamePrefix;
         this.serverScriptEnum = serverScriptEnum;
+        this.isNeedHystrixConf = isNeedHystrixConf;
     }
 
     public ScmNodeType(String type, String name, String jarNamePrefix,
@@ -41,6 +50,11 @@ public class ScmNodeType {
     public String getUpperName() {
         return getName().toUpperCase();
     }
+
+    public boolean isNeedHystrixConf() {
+        return isNeedHystrixConf;
+    }
+
 
     @Override
     public String toString() {

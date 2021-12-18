@@ -29,7 +29,7 @@ public class AuthServerDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
         BasicBSONList templateBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.AUTH_SERVER);
         BSONObject templateServerBson = (BSONObject) templateBSONArray.get(0);

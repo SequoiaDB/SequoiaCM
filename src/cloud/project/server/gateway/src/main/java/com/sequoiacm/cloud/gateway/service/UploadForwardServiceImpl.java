@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Header;
@@ -114,13 +115,13 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
     @Override
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
-            HttpServletResponse clientResp, boolean chunked) throws IOException {
+            HttpServletResponse clientResp, boolean chunked) throws Exception {
         long requestStartTime = System.currentTimeMillis();
         ServiceInstance instance = loadBalancerClient.choose(targetService);
         if (instance == null) {
             throw new IllegalArgumentException("unknown service:" + targetService);
         }
-        HttpHost targetInstance = new HttpHost(instance.getHost(), instance.getPort());
+        final HttpHost targetInstance = new HttpHost(instance.getHost(), instance.getPort());
 
         ScmStatisticsDecisionResult statisticsDecideResult = statisticsDecider.decide(clientReq);
 
@@ -130,8 +131,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         try {
             // build forward request
             clientInputstream = clientReq.getInputStream();
-            HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream, clientReq,
-                    chunked);
+            final HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream,
+                    clientReq, chunked);
             if (statisticsDecideResult.isNeedStatistics()) {
                 forwardReq.addHeader(ScmStatisticsDefine.STATISTICS_HEADER,
                         statisticsDecideResult.getStatisticsType());
@@ -139,9 +140,14 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             forwardReq.addHeader("x-forwarded-prefix", "/" + targetService);
             logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
 
-            // forward
-            forwardResp = httpClient.execute(targetInstance, forwardReq);
-
+            // execute with hystrix
+            forwardResp = ScmHystrixExecutor.execute(targetService, targetService,
+                    new ScmHystrixExecutor.Runnable<CloseableHttpResponse>() {
+                        @Override
+                        public CloseableHttpResponse run() throws IOException {
+                            return httpClient.execute(targetInstance, forwardReq);
+                        }
+                    });
             clientInputstreamWasConsumed = true;
             logger.debug("forward upload response:instance={},resp={}", targetInstance,
                     forwardResp);
@@ -381,7 +387,6 @@ class ScmInputStremEntity extends InputStreamEntity {
         super(instream, len);
         this.bufferSize = bufferSize;
     }
-
 
     @Override
     public void writeTo(OutputStream outstream) throws IOException {

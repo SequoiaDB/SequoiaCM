@@ -17,7 +17,7 @@ public class ServiceCenterDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
         BasicBSONList templateBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.SERVICE_CENTER);
         BSONObject templateServerBson = (BSONObject) templateBSONArray.get(0);
@@ -25,7 +25,7 @@ public class ServiceCenterDeployer extends ServiceDeployerBase {
         BasicBSONList decoratedArrayBson = new BasicBSONList();
         BasicBSONObject decoratedBSON = new BasicBSONObject();
         decoratedBSON.putAll(templateServerBson);
-        decoratedBSON.putAll(super.genBaseDeployJson(node));
+        decoratedBSON.putAll(super.genBaseDeployJson(node, false));
 
         decoratedArrayBson.add(decoratedBSON);
         return new BasicBSONObject().append(DeployJsonDefine.SERVICE_CENTER, decoratedArrayBson)

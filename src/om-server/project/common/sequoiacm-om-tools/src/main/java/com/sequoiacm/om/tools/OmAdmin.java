@@ -14,7 +14,8 @@ public class OmAdmin {
         CommandManager cmd = new CommandManager("omadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-", ScmServerScriptEnum.OMSERVER));
+        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-",
+                ScmServerScriptEnum.OMSERVER, false));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()

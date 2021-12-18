@@ -29,5 +29,9 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-crypto</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-server-discovery</artifactId>
+        </dependency>
     </dependencies>
 </project>

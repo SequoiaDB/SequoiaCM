@@ -39,6 +39,12 @@ public class WebMvcConfig {
     }
 
     @Bean
+    ScmSendErrorFilter scmSendErrorFilter(){
+        return new ScmSendErrorFilter();
+    }
+
+
+    @Bean
     public DefaultErrorAttributes errorAttributes() {
         return new ErrorAttributes();
     }

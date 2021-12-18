@@ -7,5 +7,5 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface UploadForwardService {
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
-            HttpServletResponse clientResp, boolean chunked) throws IOException;
+            HttpServletResponse clientResp, boolean chunked) throws Exception;
 }

@@ -7,7 +7,8 @@ import org.springframework.context.annotation.Bean;
 @EnableDiscoveryClient
 public class ScmServiceDiscoveryClientAutoConfig {
     @Bean
-    public ScmServiceDiscoveryClient client(DiscoveryClient springDiscoveryClient) {
+    public ScmServiceDiscoveryClient scmServiceDiscoveryClient(
+            DiscoveryClient springDiscoveryClient) {
         return new ScmServiceDiscoveryClient(springDiscoveryClient);
     }
 }

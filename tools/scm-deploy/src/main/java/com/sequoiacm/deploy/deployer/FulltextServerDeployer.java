@@ -28,7 +28,7 @@ public class FulltextServerDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
         BasicBSONList templateBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.FULLTEXT_SERVER);
         BSONObject templateServerBson = (BSONObject) templateBSONArray.get(0);

@@ -31,6 +31,7 @@
         <feign.jackson.version>9.5.1</feign.jackson.version>
         <feign-form-spring.version>2.2.1</feign-form-spring.version>
         <fastjson.version>1.2.73</fastjson.version>
+        <commons-io.version>2.6</commons-io.version>
     </properties>
 
     <modules>
@@ -56,6 +57,7 @@
         <module>./tool</module>
         <module>./statistics-common</module>
         <module>./statistics-client</module>
+        <module>./server-discovery</module>
     </modules>
 
     <dependencyManagement>
@@ -98,6 +100,12 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
 
             <dependency>
@@ -168,6 +176,12 @@
              <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-server-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-server-discovery</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

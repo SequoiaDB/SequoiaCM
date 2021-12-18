@@ -35,6 +35,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.List;
@@ -48,6 +49,7 @@ import java.util.List;
 @EnableConfClient
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.schedule" })
+@EnableHystrix
 public class ScheduleApplication implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(ScheduleApplication.class);
 

@@ -1,8 +1,14 @@
 package com.sequoiacm.deploy.config;
 
 import java.io.File;
+import java.util.List;
 
+import com.sequoiacm.deploy.common.BsonUtils;
+import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.module.JavaVersion;
+import com.sequoiacm.deploy.module.SiteInfo;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
 public class CommonConfig {
     private String basePath = SystemApplicationProperty.getInstance().getString("common.basePath",
@@ -30,10 +36,14 @@ public class CommonConfig {
     private String zkDeployScript = basePath + "sequoiacm-deploy" + File.separator + "bin"
             + File.separator + "deploy_zk.py";
 
+    private String hystrixConfigPath = basePath + "sequoiacm-deploy" + File.separator + "bindata"
+            + File.separator + "hystrix.json";
+
     private int waitServiceReadyTimeout = 3 * 60 * 1000;
 
     private String regionName = "DefaultRegion";
     private JavaVersion requireJavaVersion = new JavaVersion("1.8");
+    private BSONObject hystrixConf;
 
     private static volatile CommonConfig instance;
 
@@ -168,4 +178,11 @@ public class CommonConfig {
         this.tempPath = tempPath;
     }
 
+    public String getHystrixConfigPath() {
+        return hystrixConfigPath;
+    }
+
+    public void setHystrixConfigPath(String hystrixConfigPath) {
+        this.hystrixConfigPath = hystrixConfigPath;
+    }
 }

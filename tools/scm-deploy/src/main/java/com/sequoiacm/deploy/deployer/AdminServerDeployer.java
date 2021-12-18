@@ -29,7 +29,7 @@ public class AdminServerDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
         BasicBSONList templateAdminBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.ADMIN_SERVER);
         BSONObject templateAdminServerBson = (BSONObject) templateAdminBSONArray.get(0);

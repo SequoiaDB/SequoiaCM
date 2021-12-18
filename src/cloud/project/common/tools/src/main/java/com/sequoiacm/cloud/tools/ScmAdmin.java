@@ -19,7 +19,8 @@ public class ScmAdmin {
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
-        nodeTypes.add(new ScmNodeType("1", "service-center", "sequoiacm-cloud-servicecenter-", ScmServerScriptEnum.SERVICECENTER));
+        nodeTypes.add(new ScmNodeType("1", "service-center", "sequoiacm-cloud-servicecenter-",
+                ScmServerScriptEnum.SERVICECENTER, false));
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup1 = ScmNodeRequiredParamGroup.newBuilder()
                 .addServerPortParam(8800).addCloudParam().get();
         nodeProperties.put("1", scmNodeRequiredParamGroup1);
@@ -34,7 +35,7 @@ public class ScmAdmin {
                 .addServerPortParam(8810).addCloudParam().addSdbParam().get();
         nodeProperties.put("3", scmNodeRequiredParamGroup3);
 
-        nodeTypes.add(new ScmNodeType("20", "service-trace", "sequoiacm-cloud-servicetrace-",ScmServerScriptEnum.SERVICETRACE));
+        nodeTypes.add(new ScmNodeType("20", "service-trace", "sequoiacm-cloud-servicetrace-",ScmServerScriptEnum.SERVICETRACE, false));
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup4 = ScmNodeRequiredParamGroup.newBuilder()
                 .addServerPortParam(8890).addCloudParam().get();
         nodeProperties.put("20", scmNodeRequiredParamGroup4);

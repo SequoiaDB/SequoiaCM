@@ -1,3 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.sequoiacm.infrastructure.feign.ScmFeignClient,\
-com.sequoiacm.infrastructure.feign.ScmFeignConfig
+com.sequoiacm.infrastructure.feign.ScmFeignConfig,\
+com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor,\
+com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixConfig

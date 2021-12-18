@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
@@ -32,15 +33,21 @@ public class ScmInnerRemoteDataWriter {
     private HttpURLConnection conn;
     private OutputStream os;
 
-    public ScmInnerRemoteDataWriter(int remoteSiteId, ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo)
+    public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo, final ScmDataInfo dataInfo)
             throws ScmServerException {
         this.dataInfo = dataInfo;
         ScmContentServer contentServer = ScmContentServer.getInstance();
         remoteSiteName = contentServer.getSiteInfo(remoteSiteId).getName();
-        String hostPort = LoadBalancedUtil.choose(remoteSiteName);
+        final String hostPort = LoadBalancedUtil.choose(remoteSiteName);
         try {
-            conn = getCreateDataConn(hostPort, wsInfo.getName(), dataInfo);
-            os = conn.getOutputStream();
+            ScmHystrixExecutor.execute(remoteSiteName, hostPort, new ScmHystrixExecutor.Runnable<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    conn = getCreateDataConn(hostPort, wsInfo.getName(), dataInfo);
+                    os = conn.getOutputStream();
+                    return null;
+                }
+            });
         }
         catch (IOException e) {
             closeOs(os);

@@ -17,7 +17,7 @@ public class GatewayDeployer extends ServiceDeployerBase {
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) {
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
         BasicBSONList templateBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.GATEWAY);
         BSONObject templateServerBson = (BSONObject) templateBSONArray.get(0);

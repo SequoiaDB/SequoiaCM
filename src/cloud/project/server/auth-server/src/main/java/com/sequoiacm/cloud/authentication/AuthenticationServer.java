@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 import com.sequoiacm.cloud.authentication.service.IPrivilegeService;
@@ -32,6 +33,7 @@ import com.sequoiadb.exception.SDBError;
 @EnableScmMonitorServer
 @EnableConfClient
 @EnableAudit
+@EnableHystrix
 public class AuthenticationServer implements ApplicationRunner {
 
     @Autowired

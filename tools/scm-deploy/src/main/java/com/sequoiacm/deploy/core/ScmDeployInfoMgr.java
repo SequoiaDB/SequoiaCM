@@ -3,7 +3,9 @@ package com.sequoiacm.deploy.core;
 import java.io.IOException;
 import java.util.*;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.deploy.common.BsonUtils;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,8 @@ public class ScmDeployInfoMgr {
     private String zkUrls;
 
     private InstallConfig installConfig;
+
+    private BSONObject hystrixConfig = new BasicBSONObject();
 
     private SiteInfo rootSite;
     private List<SiteInfo> siteInfos;
@@ -85,7 +89,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private synchronized void init() throws IOException {
+    private synchronized void init() throws Exception {
         logger.info("Parsing the configuration...");
         ScmDeployConfParser parser = new ScmDeployConfParser(commonConf.getDeployConfigFilePath());
         initHostInfo(parser);
@@ -97,7 +101,21 @@ public class ScmDeployInfoMgr {
         initDaemonInfo(parser);
         initNodeInfo(parser);
         initInstallConfig(parser);
+        initHystrixConfig();
         logger.info("Parse the configuration success");
+    }
+
+    private void initHystrixConfig() throws Exception {
+        BSONObject bsonObject = CommonUtils
+                .parseJsonFile(commonConf.getHystrixConfigPath());
+        BSONObject rootSiteHystrixConf = BsonUtils.getBSONObjectChecked(bsonObject, "rootSite");
+        SiteInfo rootSite = getRootSite();
+        for (String configKey : rootSiteHystrixConf.keySet()) {
+            String configValue = (String) rootSiteHystrixConf.get(configKey);
+            String realConfigKey = configKey.replace("$serverName",
+                    rootSite.getName().toLowerCase());
+            this.hystrixConfig.put(realConfigKey, configValue);
+        }
     }
 
     public void check() {
@@ -641,4 +659,7 @@ public class ScmDeployInfoMgr {
         return h;
     }
 
+    public BSONObject getHystrixConfig() {
+        return hystrixConfig;
+    }
 }

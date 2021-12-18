@@ -5,6 +5,8 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.util.Collection;
 
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixIgnoreException;
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,11 +26,23 @@ public class ScmFeignErrorDecoder implements ErrorDecoder {
 
     private ScmFeignExceptionConverter exceptionConverter;
 
+    private boolean isHystrixEnabled = false;
+
+    public ScmFeignErrorDecoder(boolean isHystrixEnabled) {
+        this.isHystrixEnabled = isHystrixEnabled;
+    }
+
     public ScmFeignErrorDecoder() {
     }
 
     public ScmFeignErrorDecoder(ScmFeignExceptionConverter exceptionConverter) {
         this.exceptionConverter = exceptionConverter;
+    }
+
+    public ScmFeignErrorDecoder(ScmFeignExceptionConverter exceptionConverter,
+            boolean isHystrixEnabled) {
+        this.exceptionConverter = exceptionConverter;
+        this.isHystrixEnabled = isHystrixEnabled;
     }
 
     @Override
@@ -67,8 +81,19 @@ public class ScmFeignErrorDecoder implements ErrorDecoder {
         }
 
         if (exceptionConverter != null) {
+            if (isHystrixEnabled) {
+                /**
+                 * 将异常用ScmHystrixIgnoreException包裹后，该异常将不会用于Hystrix的熔断计算
+                 * @see ScmHystrixInvocationHandler#createCommand(java.lang.reflect.Method, java.lang.Object[])
+                 */
+                return new ScmHystrixIgnoreException(exceptionConverter.convert(scmFeignException));
+            }
             return exceptionConverter.convert(scmFeignException);
-        } else {
+        }
+        else {
+            if (isHystrixEnabled) {
+                return new ScmHystrixIgnoreException(scmFeignException);
+            }
             return scmFeignException;
         }
     }

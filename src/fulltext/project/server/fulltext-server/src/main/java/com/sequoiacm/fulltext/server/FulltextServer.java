@@ -16,6 +16,7 @@ import com.sequoiacm.mq.client.EnableScmMqAdmin;
 import com.sequoiacm.mq.client.EnableScmMqConsumer;
 import com.sequoiacm.schedule.client.EnableScheduleClient;
 import com.sequoiacm.schedule.client.EnableScheduleWorker;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 
 @EnableEurekaClient
 @SpringBootApplication
@@ -26,6 +27,7 @@ import com.sequoiacm.schedule.client.EnableScheduleWorker;
 @EnableScmMqAdmin
 @EnableScmMqProducer
 @EnableContentserverClient
+@EnableHystrix
 public class FulltextServer implements ApplicationRunner {
 
     @Autowired

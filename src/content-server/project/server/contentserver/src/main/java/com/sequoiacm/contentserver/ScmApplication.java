@@ -13,6 +13,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
@@ -45,6 +46,7 @@ import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 @EnableAudit
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.contentserver" })
+@EnableHystrix
 public class ScmApplication implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(ScmApplication.class);
 

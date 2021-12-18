@@ -4,15 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.attribute.UserPrincipal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import org.apache.commons.io.IOUtils;
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +30,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import org.springframework.web.client.RestTemplate;
 
 public class ScmCommon {
     public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
@@ -73,6 +78,8 @@ public class ScmCommon {
     public static final String DAEMON_SCRIPT = "scmd.sh";
     public static final String IGNORE_DAEMON_ENV = "IGNORE_DAEMON";
 
+    private static final RestTemplate restTemplate = new RestTemplate();
+
     private static final Logger logger = LoggerFactory.getLogger(ScmCommon.class);
 
     public static void printVersion() throws ScmToolsException {
@@ -81,8 +88,8 @@ public class ScmCommon {
             info = ScmManifestParser.getManifestInfoFromJar(ScmCommon.class);
         }
         catch (IOException e) {
-            throw new ScmToolsException("failed to load manifest info:", ScmBaseExitCode.SYSTEM_ERROR,
-                    e);
+            throw new ScmToolsException("failed to load manifest info:",
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
         String revision = info.getGitCommitIdOrSvnRevision();
         if (revision == null) {
@@ -383,6 +390,82 @@ public class ScmCommon {
             return true;
         }
         return false;
+    }
+
+    public static Set<String> getEurekaUrlsFromConfig(Properties nodeConf) {
+        if (nodeConf == null) {
+            return Collections.emptySet();
+        }
+        Set<String> eurekaUrls = new HashSet<>();
+        Set<String> propertyNames = nodeConf.stringPropertyNames();
+        for (String propertyName : propertyNames) {
+            if (propertyName.startsWith("eureka.client.service-url")) {
+                String propertyValue = (String) nodeConf.get(propertyName);
+                String[] urlArr = propertyValue.split(",");
+                for (String url : urlArr) {
+                    if (!url.endsWith("/")) {
+                        eurekaUrls.add(url + "/");
+                    }
+                    else {
+                        eurekaUrls.add(url);
+                    }
+                }
+            }
+        }
+        return eurekaUrls;
+    }
+
+
+    public static String getRootSiteFromEurekaUrls(Set<String> urls) {
+        for (String url : urls) {
+            try {
+                String resp = restTemplate.getForObject(url + "apps", String.class);
+                BSONObject bson = (BSONObject) JSON.parse(resp);
+                BSONObject apps = BsonUtils.getBSONChecked(bson, "applications");
+                BasicBSONList appList = BsonUtils.getArrayChecked(apps, "application");
+                for (Object app : appList) {
+                    BSONObject appObj = (BSONObject) app;
+                    String serverName = (String) appObj.get("name");
+                    BasicBSONList instanceList = BsonUtils.getArrayChecked(appObj, "instance");
+                    if (instanceList.size() > 0) {
+                        BSONObject instance = (BSONObject) instanceList.get(0);
+                        BSONObject metadata = (BSONObject) instance.get("metadata");
+                        if (Boolean.parseBoolean((String) metadata.get("isRootSiteInstance") )) {
+                            return serverName.toLowerCase();
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                logger.warn("Cannot get rootSite from Eureka Server:{}", url);
+                continue;
+            }
+        }
+        return null;
+    }
+
+
+    public static BSONObject parseBsonFromClassPathFile(String fileName) throws ScmToolsException {
+        InputStream is = null;
+        try {
+            is = ScmCommon.class.getClassLoader().getResourceAsStream(fileName);
+            String json = IOUtils.toString(is, StandardCharsets.UTF_8);
+            return (BSONObject) JSON.parse(json);
+        }
+        catch (Exception e) {
+            throw new ScmToolsException("failed to parse classPath file:" + fileName,
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
+        }
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                }
+                catch (IOException e) {
+                    logger.warn("failed to close resource:{}", is, e);
+                }
+            }
+        }
     }
 
     public static class DateUtil {

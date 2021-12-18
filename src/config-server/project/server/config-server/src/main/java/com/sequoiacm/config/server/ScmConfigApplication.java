@@ -9,6 +9,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -26,6 +27,7 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 @SpringBootApplication
 @EnableConfClient
 @ComponentScan(basePackages = { "com.sequoiacm.config.server", "com.sequoiacm.config.framework" })
+@EnableHystrix
 public class ScmConfigApplication implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(ScmConfigApplication.class);
 

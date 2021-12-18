@@ -19,7 +19,8 @@ public class OmCtl {
         CommandManager cmd = new CommandManager("omctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-", ScmServerScriptEnum.OMSERVER));
+        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-",
+                ScmServerScriptEnum.OMSERVER, false));
 
         try {
             cmd.addTool(new ScmStartToolImpl(nodeTypes));

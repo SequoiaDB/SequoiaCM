@@ -8,10 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.sequoiacm.cloud.gateway.service.UploadForwardService;
 import com.sequoiacm.infrastructure.monitor.ReqRecorder;
@@ -25,7 +22,7 @@ public class UploadForwardController {
     @RequestMapping(value = "/zuul/{target_service}/**", method = { RequestMethod.POST,
             RequestMethod.PUT })
     public void forwardUpload(@PathVariable("target_service") String targetService,
-            HttpServletRequest clientReq, HttpServletResponse clientResp) throws IOException {
+            HttpServletRequest clientReq, HttpServletResponse clientResp) throws Exception {
         long before = System.currentTimeMillis();
         try {
             String uri = clientReq.getRequestURI();
@@ -42,7 +39,7 @@ public class UploadForwardController {
     @RequestMapping(value = "/s3/**", method = { RequestMethod.POST, RequestMethod.GET,
             RequestMethod.HEAD, RequestMethod.DELETE, RequestMethod.PUT })
     public void forwardS3Upload(HttpServletRequest clientReq, HttpServletResponse clientResp)
-            throws IOException {
+            throws Exception {
         long before = System.currentTimeMillis();
         try {
             String uri = clientReq.getRequestURI();

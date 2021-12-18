@@ -21,6 +21,7 @@ public class ScmConfFeignClientFactory {
         ScmConfFeignClient client = feignClient.builder()
                 .exceptionConverter(exceptionConvertor)
                 .serviceTarget(ScmConfFeignClient.class, "config-server");
+        this.instance = client;
         return client;
     }
 }

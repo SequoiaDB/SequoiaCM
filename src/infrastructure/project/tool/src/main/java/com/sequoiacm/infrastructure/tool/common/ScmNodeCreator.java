@@ -1,10 +1,12 @@
 package com.sequoiacm.infrastructure.tool.common;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +22,16 @@ public class ScmNodeCreator {
     private Map<Object, Object> otherLog = null;
     private boolean loadDefaultPortAble = true;
 
-    public ScmNodeCreator(ScmNodeType type, Properties prop, ScmNodeTypeList nodeTypes) {
+    private BSONObject hystrixConfig = ScmCommon.parseBsonFromClassPathFile("hystrix.json");
+
+    public ScmNodeCreator(ScmNodeType type, Properties prop, ScmNodeTypeList nodeTypes) throws ScmToolsException {
         this.nodeTypes = nodeTypes;
         this.type = type;
         this.prop = prop;
     }
 
     public ScmNodeCreator(ScmNodeType type, Properties prop, ScmNodeTypeList nodeTypes,
-                          Map<Object, Object> otherLog, boolean loadDefaultPortAble) {
+                          Map<Object, Object> otherLog, boolean loadDefaultPortAble) throws ScmToolsException {
         this(type, prop, nodeTypes);
         this.otherLog = otherLog;
         this.loadDefaultPortAble = loadDefaultPortAble;
@@ -132,6 +136,9 @@ public class ScmNodeCreator {
             throw new ScmToolsException("missing resource file:" + sampleConf,
                     ScmBaseExitCode.SYSTEM_ERROR);
         }
+        if (this.type.isNeedHystrixConf()) {
+            appendHystrixConfig(modifier);
+        }
         BufferedReader br = null;
         BufferedWriter bw = null;
         try {
@@ -154,6 +161,25 @@ public class ScmNodeCreator {
             close(bw);
             close(br);
         }
+    }
+
+    private void appendHystrixConfig(Properties nodeConf) {
+        if (nodeConf == null) {
+            return;
+        }
+        Set<String> eurekaUrls = ScmCommon.getEurekaUrlsFromConfig(nodeConf);
+        String rootSiteName = ScmCommon.getRootSiteFromEurekaUrls(eurekaUrls);
+        if (rootSiteName != null) {
+            BSONObject rootSiteHystrixConf = BsonUtils.getBSONChecked(this.hystrixConfig, "rootSite");
+            for (String configKey : rootSiteHystrixConf.keySet()) {
+                String configValue = (String) rootSiteHystrixConf.get(configKey);
+                String realConfigKey = configKey.replace("$serverName", rootSiteName);
+                if (!nodeConf.containsKey(realConfigKey)) {
+                    nodeConf.put(realConfigKey, configValue);
+                }
+            }
+        }
+
     }
 
     private void modifyForAppConf(Properties modifier, BufferedReader br, BufferedWriter bw)
