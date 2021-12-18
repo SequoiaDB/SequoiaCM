@@ -36,8 +36,8 @@
          <method-selector>
             <script language="beanshell">
                <![CDATA[
-                    IGNORE=testngMethod.getXmlTest().getParameter("IGNORE");
-               groups.containsKey("fourSite")&&(!groups.containsKey(IGNORE))||groups.isEmpty();
+               (groups.containsKey("XXXX")&&(!groups.containsKey(testngMethod.getXmlTest().getParameter("IGNORE"))))
+               ||groups.isEmpty();
                ]]>
             </script>
          </method-selector>

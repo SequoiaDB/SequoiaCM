@@ -6,10 +6,10 @@
    <parameter name="DATADIR" value="/tmp/ci_cm" />
    <parameter name="NTPSERVER" value="192.168.20.200" />
    <parameter name="LOCALHOSTNAME" value="localhost" />
-   
+
    <parameter name="SSHUSER" value="root" />
    <parameter name="SSHPASSWD" value="jenkins" />
-   
+
    <parameter name="MAINSDBURL" value="mainSiteHostName:11810" />
    <parameter name="SDBUSER" value="sdbadmin" />
    <parameter name="SDBPASSWD" value="sequoiadb" />
@@ -24,10 +24,10 @@
     <parameter name="S3ACCESSKEYID" value="S3USER" />
     <parameter name="S3SECRETKEY" value="S3PASSWORD" />
     <parameter name="S3WOKERSPACES" value="ws_default"/>
-   
+
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
-   <listeners> 
+   <listeners>
           <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
    </listeners>
 
@@ -35,9 +35,9 @@
        <method-selectors>
            <method-selector>
                <script language="beanshell">
-                   <![CDATA[
-                    IGNORE=testngMethod.getXmlTest().getParameter("IGNORE");
-               groups.containsKey("fourSite")&&(!groups.containsKey(IGNORE))||groups.isEmpty();
+               <![CDATA[
+               (groups.containsKey("XXXX")&&(!groups.containsKey(testngMethod.getXmlTest().getParameter("IGNORE"))))
+               ||groups.isEmpty();
                ]]>
                </script>
            </method-selector>
