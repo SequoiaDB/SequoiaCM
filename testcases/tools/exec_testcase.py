@@ -219,14 +219,12 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         replaceTestngStr(xmlDir+"/proxy.xml", "GATEWAYURLS", gatewayurls)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
+        replaceIgnoreByDeployModel(SCM_DEPLOY_NET,xmlDir+"/proxy.xml")
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+controlhost+".xml")
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+mainsitehost+".xml")
         replaceTestngStr(xmlDir+"/testng_"+controlhost+".xml", "localhost", controlhost)
         replaceTestngStr(xmlDir+"/testng_"+mainsitehost+".xml", "localhost", mainsitehost)
-        if SCM_DEPLOY_NET == "true":
-            replaceTestngStr(xmlDir+"/proxy.xml", "$IGNORE", "net")
-        else :
-            replaceTestngStr(xmlDir+"/proxy.xml", "$IGNORE", "star")
+        
         #if serial testcase is exists,then  deal with testng-serial.xml
         srcXmlFile="testng-serial.xml"
 
@@ -238,10 +236,8 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3PASSWORD", S3_SECRETKEY)
-            if SCM_DEPLOY_NET == "true":
-                replaceTestngStr(xmlDir+"/proxy-serial.xml", "$IGNORE", "net")
-            else :
-                replaceTestngStr(xmlDir+"/proxy-serial.xml", "$IGNORE", "star")
+            replaceIgnoreByDeployModel(SCM_DEPLOY_NET,xmlDir+"/proxy-serial.xml")
+          
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
             replaceTestngStr(xmlDir+"/proxy_env.xml", "XXXX", destgroup)
@@ -284,7 +280,14 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
                        file.writelines(lines)
                        file.close()                
     displayInfo("End divide testng.xml")
-                        
+
+def replaceIgnoreByDeployModel(isNetMode, xmlFile):
+    if isNetMode == "true":
+        caseType = "star"
+    else :
+        caseType = "net"
+    replaceTestngStr(xmlFile, "\${IGNORE}", caseType)
+                 
 def execTestcase():
     if EXEC_MODE == "p":
         displayInfo("Begin to run testcase parallel in different host")
