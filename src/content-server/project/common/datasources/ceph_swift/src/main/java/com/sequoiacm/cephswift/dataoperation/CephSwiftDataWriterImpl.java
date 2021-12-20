@@ -144,6 +144,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     private void releaseResource() {
         if (buffer != null) {
             poolWrapper.releaseBytes(buffer);
+            buffer = null;
         }
         container = null;
     }

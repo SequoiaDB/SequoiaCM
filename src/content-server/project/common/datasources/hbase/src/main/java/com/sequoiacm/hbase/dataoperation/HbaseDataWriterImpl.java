@@ -214,6 +214,7 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
         table = null;
         if (buffer != null) {
             poolWrapper.releaseBytes(buffer);
+            buffer = null;
         }
         metaFamily = null;
         dataFamily = null;

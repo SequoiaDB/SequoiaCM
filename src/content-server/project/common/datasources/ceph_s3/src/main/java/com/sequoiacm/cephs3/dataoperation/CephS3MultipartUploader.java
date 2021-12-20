@@ -204,6 +204,7 @@ public class CephS3MultipartUploader {
     private void releaseResource() {
         if (buffer != null) {
             poolWrapper.releaseBytes(buffer);
+            buffer = null;
         }
         eTags = null;
         if (conn != null) {
