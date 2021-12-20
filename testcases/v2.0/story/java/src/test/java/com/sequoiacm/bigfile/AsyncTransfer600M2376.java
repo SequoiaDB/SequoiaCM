@@ -68,7 +68,7 @@ public class AsyncTransfer600M2376 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        ScmFactory.File.asyncTransfer( ws, fileId );
+        ScmFactory.File.asyncTransfer( ws, fileId, rootSite.getSiteName() );
         // check result
         SiteWrapper[] expSiteList = { rootSite, branceSite };
         ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );

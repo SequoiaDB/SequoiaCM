@@ -48,6 +48,7 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
     private int fileSize = 1024 * 1024 * 600;
     private File localPath = null;
     private String filePath = null;
+    private String downloadPath;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
@@ -69,10 +70,30 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite" }) // SEQUOIACM-415
-    private void test() throws Exception {
-        this.writeFileFromA();
-        this.readFileFromB();
+    @Test(groups = { "fourSite", "star" }) // SEQUOIACM-415
+    private void starTest() throws Exception {
+        writeFileFromA();
+        readFileFromB();
+
+        Assert.assertEquals( TestTools.getMD5( filePath ),
+                TestTools.getMD5( downloadPath ) );
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "net" })
+    private void netTest() throws Exception {
+        writeFileFromA();
+        readFileFromB();
+
+        Assert.assertEquals( TestTools.getMD5( filePath ),
+                TestTools.getMD5( downloadPath ) );
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -111,9 +132,8 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
                     session );
             // read content
             ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-            String downloadPath = TestTools.LocalFile.initDownloadPath(
-                    localPath, TestTools.getMethodName(),
-                    Thread.currentThread().getId() );
+            downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                    TestTools.getMethodName(), Thread.currentThread().getId() );
             OutputStream fos = new FileOutputStream( new File( downloadPath ) );
             scmfile.getContent( fos );
             fos.close();
@@ -122,12 +142,6 @@ public class AcrossCenterReadFileByGetContent600M2374 extends TestScmBase {
                     + new File( downloadPath ).length() );
 
             // check results
-            Assert.assertEquals( TestTools.getMD5( filePath ),
-                    TestTools.getMD5( downloadPath ) );
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
-                    filePath );
         } finally {
             if ( session != null )
                 session.close();

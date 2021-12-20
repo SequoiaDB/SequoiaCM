@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -96,7 +97,9 @@ public class Transfer_FileSize600M2375 extends TestScmBase {
     private void startTask() throws ScmException {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, cond );
+        taskId = ScmSystem.Task.startTransferTask( ws, cond,
+                ScmType.ScopeType.SCOPE_CURRENT,
+                ScmInfo.getRootSite().getSiteName() );
     }
 
     private void waitTaskStop() throws ScmException {
