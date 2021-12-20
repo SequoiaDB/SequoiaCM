@@ -60,7 +60,7 @@ public class StatisticsFile4036 extends TestScmBase {
     public void setUp() throws Exception {
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );
         wsp = ScmInfo.getWs();
-        site = ScmInfo.getBranchSite();
+        site = ScmInfo.getSite();
         siteSession = TestScmTools.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );

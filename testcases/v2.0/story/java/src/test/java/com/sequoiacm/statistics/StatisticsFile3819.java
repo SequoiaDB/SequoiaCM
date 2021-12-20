@@ -73,7 +73,7 @@ public class StatisticsFile3819 extends TestScmBase {
         fileNums = fileSizes.length;
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );
         wsp = ScmInfo.getWs();
-        site = ScmInfo.getBranchSite();
+        site = ScmInfo.getSite();
 
         // 创建用户
         StatisticsUtils.createUserAndRole( rolename1, username1, wsp, site );

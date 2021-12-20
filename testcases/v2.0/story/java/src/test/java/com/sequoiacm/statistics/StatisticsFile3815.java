@@ -55,7 +55,7 @@ public class StatisticsFile3815 extends TestScmBase {
         fileNums = fileSizes.length;
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );
 
-        site = ScmInfo.getBranchSite();
+        site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         siteSession = TestScmTools.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),

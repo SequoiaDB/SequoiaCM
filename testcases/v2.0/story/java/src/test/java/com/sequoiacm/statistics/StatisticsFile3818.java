@@ -65,10 +65,13 @@ public class StatisticsFile3818 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
+        if ( ScmInfo.getWsNum() < 2 ) {
+            throw new SkipException( "need 2 wss!!!!" );
+        }
         fileNums = fileSizes.length;
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );
 
-        site = ScmInfo.getBranchSite();
+        site = ScmInfo.getSite();
         wsp1 = ScmInfo.getAllWorkspaces().get( 0 );
         wsp2 = ScmInfo.getAllWorkspaces().get( 1 );
 
