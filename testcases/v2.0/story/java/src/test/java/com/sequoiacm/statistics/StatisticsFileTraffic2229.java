@@ -53,11 +53,10 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
     private byte[] fileData = new byte[ fileSize ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
+    private void setUp() throws ScmException {
         wsp = ScmInfo.getWs();
-        List< SiteWrapper > siteList = ScmNetUtils.getSortSites( wsp );
-        sourceSite = siteList.get( 0 );
-        targetSite = siteList.get( 1 );
+        sourceSite = ScmInfo.getBranchSite();
+        targetSite = ScmInfo.getRootSite();
 
         sessionA = TestScmTools.createSession( sourceSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
@@ -88,15 +87,13 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 for ( ScmId fileId : fileIds ) {
                     ScmFactory.File.deleteInstance( wsA, fileId, true );
                 }
             }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -117,7 +114,8 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
 
     private void asyncTransferFile( ScmWorkspace ws ) throws Exception {
         for ( ScmId fileId : fileIds ) {
-            ScmFactory.File.asyncTransfer( ws, fileId );
+            ScmFactory.File.asyncTransfer( ws, fileId,
+                    targetSite.getSiteName() );
 
             // waiting for asyncTransfer success
             SiteWrapper[] expSiteList = { sourceSite, targetSite };
