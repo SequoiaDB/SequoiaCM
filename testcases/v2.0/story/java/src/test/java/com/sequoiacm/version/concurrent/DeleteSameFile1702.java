@@ -112,13 +112,17 @@ public class DeleteSameFile1702 extends TestScmBase {
     private class DeleteFileThread extends ResultStore {
 
         @ExecuteOrder(step = 1)
-        private void exec() throws Exception {
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.deleteInstance( ws, fileId, true );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                    throw e;
+                }
             } finally {
                 if ( session != null ) {
                     session.close();
