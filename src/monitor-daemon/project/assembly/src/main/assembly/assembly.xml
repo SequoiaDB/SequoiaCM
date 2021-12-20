@@ -20,7 +20,6 @@
             <directory>${project.basedir}/../../script</directory>
             <outputDirectory>jars</outputDirectory>
         </fileSet>
-
     </fileSets>
 
     <dependencySets>

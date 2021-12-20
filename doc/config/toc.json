@@ -1013,6 +1013,30 @@
             }]
         },
         {
+            "id": 1639063516,
+            "dir": "Daemon",
+            "cn": "守护进程",
+            "en": "Daemon",
+            "contents": [{
+                "id": 1639463509,
+                "file": "overview",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1639063544,
+                "file": "deploy",
+                "cn": "部署",
+                "en": "Deploy"
+            },
+            {
+                "id": 1639063567,
+                "file": "use_daemon",
+                "cn": "主要操作",
+                "en": "Use Daemon"
+            }]
+        },
+        {
             "id": 1561241336,
             "dir": "Upgrade",
             "cn": "升级",
