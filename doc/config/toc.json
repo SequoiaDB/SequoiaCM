@@ -1042,6 +1042,21 @@
             "cn": "升级",
             "en": "Upgrade",
             "contents": [{
+                "id": 1638783330,
+                "file": "overview",
+                "cn": "概述",
+                "en": "Overview"
+            },{
+                "id": 1638783387,
+                "file": "upgrade_guide",
+                "cn": "升级指南",
+                "en": "Upgrade Guide"
+            },{
+                "id": 1638797837,
+                "file": "upgrade_case",
+                "cn": "升级案例",
+                "en": "Upgrade Case"
+            },{
                 "id": 1551311568,
                 "file": "compatibility",
                 "cn": "版本兼容性",

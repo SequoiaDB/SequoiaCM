@@ -111,6 +111,10 @@
 		},
 		{
 			"type": "copy",
+			"src": "../../script/upgrade/scmupgrade.py"
+		},
+		{
+			"type": "copy",
 			"src": "../../script/deploy/sequoiacm/README.md"
 		},
 		{
