@@ -83,6 +83,12 @@
                         <fileset>
                             <directory>${vue.modules.dir}</directory>
                         </fileset>
+                        <fileset>
+                            <directory>${vue.project.root}</directory>
+                            <includes>
+                                <include>package-lock.json</include>
+                            </includes>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
@@ -119,7 +125,7 @@
                             <executable>npm</executable>
                             <arguments>
                                 <argument>cache</argument>
-                                <argument>clear</argument>
+                                <argument>clean</argument>
                                 <argument>--force</argument>
                             </arguments>
                             <workingDirectory>${vue.project.root}</workingDirectory>
