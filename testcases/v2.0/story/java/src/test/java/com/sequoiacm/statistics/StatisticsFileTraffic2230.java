@@ -58,9 +58,8 @@ public class StatisticsFileTraffic2230 extends TestScmBase {
     @BeforeClass
     private void setUp() throws IOException, ScmException {
         wsp = ScmInfo.getWs();
-        List< SiteWrapper > siteList = ScmNetUtils.getSortSites( wsp );
-        sourceSite = siteList.get( 0 );
-        targetSite = siteList.get( 1 );
+        sourceSite = ScmInfo.getRootSite();
+        targetSite = ScmInfo.getBranchSite();
 
         sessionA = TestScmTools.createSession( sourceSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
