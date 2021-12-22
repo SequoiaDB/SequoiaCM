@@ -18,12 +18,14 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @FileName SCM-1224: 获取任务列表
- * @Author linsuqiang
- * @Date 2018-04-11
- * @Version 1.00
+ * @description SCM-1224:获取任务列表
+ * @author linsuqiang
+ * @createDate 2018.04.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.27
+ * @updateRemark
+ * @version v1.0
  */
-
 public class ListTasks1224 extends TestScmBase {
     private WsWrapper ws = null;
     private RestWrapper rest = null;
@@ -31,7 +33,7 @@ public class ListTasks1224 extends TestScmBase {
     private SiteWrapper site = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() throws Exception {
+    private void setUp() {
         ws = ScmInfo.getWs();
         site = ScmInfo.getBranchSite();
         rest = new RestWrapper();
@@ -39,7 +41,9 @@ public class ListTasks1224 extends TestScmBase {
                 TestScmBase.scmPassword );
 
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", "inexistent_author1224" ) );
+        JSONObject option = new JSONObject();
+        option.put( "author", "inexistent_author1224" );
+        options.put( "filter", option );
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )
@@ -50,7 +54,7 @@ public class ListTasks1224 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    private void test() {
         String response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "tasks?filter={uri}" )
                 .setUriVariables(

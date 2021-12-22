@@ -33,10 +33,13 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Description:SCM-1101 :: 提交清理任务（post请求）/获取任务信息
+ * @description SCM-1101:提交清理任务（post请求）/获取任务信息
  * @author fanyu
- * @Date:2018年3月22日
- * @version:1.0
+ * @createDate 2018.03.22
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.27
+ * @updateRemark
+ * @version v1.0
  */
 public class CleanByPost1101 extends TestScmBase {
     private boolean runSuccess = false;
@@ -89,22 +92,17 @@ public class CleanByPost1101 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", author ) );
-        try {
-            String response1 = rest2.reset().setApi( "tasks" )
-                    .setRequestMethod( HttpMethod.POST )
-                    .setParameter( "task_type", "2" )
-                    .setParameter( "workspace_name", ws.getName() )
-                    .setParameter( "options", options.toString() )
-                    .setResponseType( String.class ).exec().getBody()
-                    .toString();
-            taskId = JSON.parseObject(  response1 ).getJSONObject( "task" )
-                    .getString( "id" );
-        } catch ( HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-
+        JSONObject option = new JSONObject();
+        option.put( "author", author );
+        options.put( "filter", option );
+        String response1 = rest2.reset().setApi( "tasks" )
+                .setRequestMethod( HttpMethod.POST )
+                .setParameter( "task_type", "2" )
+                .setParameter( "workspace_name", ws.getName() )
+                .setParameter( "options", options.toString() )
+                .setResponseType( String.class ).exec().getBody().toString();
+        taskId = JSON.parseObject( response1 ).getJSONObject( "task" )
+                .getString( "id" );
         waitTaskStop();
         JSONObject taskInfo = getTaskInfo( taskId );
         check( taskInfo );
@@ -147,30 +145,17 @@ public class CleanByPost1101 extends TestScmBase {
     }
 
     private JSONObject getTaskInfo( String taskId ) {
-        JSONObject taskInfo = null;
-        try {
-            String response = rest1.reset().setApi( "tasks/" + taskId )
-                    .setRequestMethod( HttpMethod.GET ).exec().getBody()
-                    .toString();
-            taskInfo = JSON.parseObject(  response );
-        } catch ( HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        String response = rest1.reset().setApi( "tasks/" + taskId )
+                .setRequestMethod( HttpMethod.GET ).exec().getBody().toString();
+        JSONObject taskInfo = JSON.parseObject( response );
         return taskInfo;
     }
 
-    private void check( JSONObject taskInfo ) {
+    private void check( JSONObject taskInfo ) throws Exception {
         // check site
         SiteWrapper[] expSiteList = { ScmInfo.getRootSite() };
-        try {
-            ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList,
-                    localPath, filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-
+        ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList, localPath,
+                filePath );
         // checktaskInfo
         JSONObject taskDetail = taskInfo.getJSONObject( "task" );
         Assert.assertEquals( taskDetail.getString( "id" ), taskId );
@@ -180,7 +165,8 @@ public class CleanByPost1101 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException, FileNotFoundException {
+            RestWrapper rest )
+            throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )

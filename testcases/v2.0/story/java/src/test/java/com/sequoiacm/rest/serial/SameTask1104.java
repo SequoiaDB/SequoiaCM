@@ -30,10 +30,13 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1104 :: 并发提交多个相同ws下的任务
+ * @description SCM-1104:并发提交多个相同ws下的任务
  * @author fanyu
- * @Date:2018年3月24日
- * @version:1.0
+ * @createDate 2018.03.24
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.27
+ * @updateRemark
+ * @version v1.0
  */
 public class SameTask1104 extends TestScmBase {
     private boolean runSuccess = false;
@@ -135,7 +138,9 @@ public class SameTask1104 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void run(){
             JSONObject options = new JSONObject();
-            options.put( "filter", new JSONObject().put( "author", author ) );
+            JSONObject option = new JSONObject();
+            option.put( "author", author );
+            options.put( "filter", option );
 
             String response1 = rest.setApi( "tasks" )
                     .setRequestMethod( HttpMethod.POST )

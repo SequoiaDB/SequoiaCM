@@ -26,12 +26,14 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @FileName SCM-1212: 停止任务
- * @Author linsuqiang
- * @Date 2018-04-11
- * @Version 1.00
+ * @description SCM-1212:停止任务
+ * @author linsuqiang
+ * @createDate 2018.04.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.27
+ * @updateRemark
+ * @version v1.0
  */
-
 public class StopTasks1212 extends TestScmBase {
     private final int fileNum = 5;
     private final int fileSize = 0;
@@ -131,7 +133,9 @@ public class StopTasks1212 extends TestScmBase {
     private String transferFiles( RestWrapper rest, WsWrapper ws )
             throws Exception {
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", authorName ) );
+        JSONObject option = new JSONObject();
+        option.put( "author", authorName );
+        options.put( "filter", option );
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "tasks" ).setParameter( "task_type", "2" )
                 .setParameter( "workspace_name", ws.getName() )

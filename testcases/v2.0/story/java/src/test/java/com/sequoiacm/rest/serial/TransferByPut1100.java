@@ -3,10 +3,12 @@ package com.sequoiacm.rest.serial;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.exception.ScmException;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.testng.Assert;
@@ -27,10 +29,13 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description:SCM-1100 :: 提交迁移任务（put请求）/获取任务信息
+ * @description SCM-1100:提交迁移任务（put请求）/获取任务信息
  * @author fanyu
- * @Date:2018年3月22日
- * @version:1.0
+ * @createDate 2018.03.22
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.27
+ * @updateRemark
+ * @version v1.0
  */
 public class TransferByPut1100 extends TestScmBase {
     private boolean runSuccess = false;
@@ -47,41 +52,38 @@ public class TransferByPut1100 extends TestScmBase {
     private SiteWrapper site = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator
-                    + TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize
-                    + ".txt";
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
-            ws = ScmInfo.getWs();
-            site = ScmInfo.getBranchSite();
-            rest = new RestWrapper();
-            rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
-                    TestScmBase.scmPassword );
-            for ( int i = 0; i < fileNum; i++ ) {
-                JSONObject desc = new JSONObject();
-                desc.put( "name", author + i + UUID.randomUUID() );
-                desc.put( "author", author );
-                desc.put( "title", author + i );
-                desc.put( "mime_type", "text/plain" );
-                String fileId = upload( filePath, ws, desc.toString(), rest );
-                fileIdList.add( new ScmId( fileId ) );
-                descs.add( desc );
-            }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+    private void setUp() throws IOException, ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        // ready file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        ws = ScmInfo.getWs();
+        site = ScmInfo.getBranchSite();
+        rest = new RestWrapper();
+        rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+        for ( int i = 0; i < fileNum; i++ ) {
+            JSONObject desc = new JSONObject();
+            desc.put( "name", author + i + UUID.randomUUID() );
+            desc.put( "author", author );
+            desc.put( "title", author + i );
+            desc.put( "mime_type", "text/plain" );
+            String fileId = upload( filePath, ws, desc.toString(), rest );
+            fileIdList.add( new ScmId( fileId ) );
+            descs.add( desc );
         }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws Exception {
+    private void test() {
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject option = new JSONObject();
+        option.put( "author", author );
+        options.put( "filter", option );
         String response1 = rest.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.PUT )
                 .setParameter( "task_type", "1" )
@@ -132,17 +134,9 @@ public class TransferByPut1100 extends TestScmBase {
     }
 
     private JSONObject getTaskInfo( String taskId, RestWrapper rest ) {
-        JSONObject taskInfo = null;
-        try {
-            String response = rest.reset().setApi( "tasks/" + taskId )
-                    .setRequestMethod( HttpMethod.GET ).exec().getBody()
-                    .toString();
-            taskInfo = JSON.parseObject( response );
-        } catch ( HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-        return taskInfo;
+        String response = rest.reset().setApi( "tasks/" + taskId )
+                .setRequestMethod( HttpMethod.GET ).exec().getBody().toString();
+        return JSON.parseObject( response );
     }
 
     private void check( JSONObject taskInfo ) {
@@ -158,12 +152,9 @@ public class TransferByPut1100 extends TestScmBase {
             RestWrapper rest )
             throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
-        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                // .setParameter("file", resource)
-                // .setParameter("description", desc)
-                .setRequestHeaders( "description", desc.toString() )
+                .setRequestHeaders( "description", desc )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
         String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )

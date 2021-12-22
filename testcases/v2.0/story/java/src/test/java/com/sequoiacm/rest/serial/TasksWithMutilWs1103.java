@@ -6,9 +6,11 @@ package com.sequoiacm.rest.serial;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.exception.ScmException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
@@ -55,48 +57,43 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     private SiteWrapper branchSite = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            localPath = new File( TestScmBase.dataDirectory + File.separator
-                    + TestTools.getClassName() );
-            filePath = localPath + File.separator + "localFile_" + fileSize
-                    + ".txt";
-            // ready file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
-            wsList = ScmInfo.getAllWorkspaces();
-            rootSite = ScmInfo.getRootSite();
-            branchSite = ScmInfo.getBranchSite();
-            rest1 = new RestWrapper();
-            rest2 = new RestWrapper();
-            rest1.connect( rootSite.getSiteServiceName(),
-                    TestScmBase.scmUserName, TestScmBase.scmPassword );
-            rest2.connect( branchSite.getSiteServiceName(),
-                    TestScmBase.scmUserName, TestScmBase.scmPassword );
-            if ( wsList.size() < 2 ) {
-                wsList.add( wsList.get( 0 ) );
-            }
-            for ( int i = 0; i < fileNum; i++ ) {
-                JSONObject desc = new JSONObject();
-                desc.put( "name", author + i );
-                desc.put( "author", author );
-                desc.put( "title", author + i );
-                desc.put( "mime_type", "text/plain" );
-                // for clean
-                String fileId1 = upload( filePath, wsList.get( 0 ),
-                        desc.toString(), rest1 );
-                download( fileId1, rest2, wsList.get( 0 ) );
-                fileIdList1.add( new ScmId( fileId1 ) );
-                // for transfer
-                String fileId2 = upload( filePath, wsList.get( 1 ),
-                        desc.toString(), rest2 );
-                fileIdList2.add( new ScmId( fileId2 ) );
-                descs.add( desc );
-            }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+    private void setUp() throws IOException, ScmException {
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        // ready file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        wsList = ScmInfo.getAllWorkspaces();
+        rootSite = ScmInfo.getRootSite();
+        branchSite = ScmInfo.getBranchSite();
+        rest1 = new RestWrapper();
+        rest2 = new RestWrapper();
+        rest1.connect( rootSite.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+        rest2.connect( branchSite.getSiteServiceName(), TestScmBase.scmUserName,
+                TestScmBase.scmPassword );
+        if ( wsList.size() < 2 ) {
+            wsList.add( wsList.get( 0 ) );
+        }
+        for ( int i = 0; i < fileNum; i++ ) {
+            JSONObject desc = new JSONObject();
+            desc.put( "name", author + i );
+            desc.put( "author", author );
+            desc.put( "title", author + i );
+            desc.put( "mime_type", "text/plain" );
+            // for clean
+            String fileId1 = upload( filePath, wsList.get( 0 ), desc.toString(),
+                    rest1 );
+            download( fileId1, rest2, wsList.get( 0 ) );
+            fileIdList1.add( new ScmId( fileId1 ) );
+            // for transfer
+            String fileId2 = upload( filePath, wsList.get( 1 ), desc.toString(),
+                    rest2 );
+            fileIdList2.add( new ScmId( fileId2 ) );
+            descs.add( desc );
         }
     }
 
@@ -151,23 +148,20 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         waitTaskStop( taskId1, rest1 );
     }
 
-    private void cleanAnCheck() {
+    private void cleanAnCheck() throws Exception {
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", author ) );
-        try {
-            String response1 = rest2.setApi( "tasks" )
-                    .setRequestMethod( HttpMethod.PUT )
-                    .setParameter( "task_type", "2" )
-                    .setParameter( "workspace_name", wsList.get( 0 ).getName() )
-                    .setParameter( "options", options.toString() )
-                    .setResponseType( String.class ).exec().getBody()
-                    .toString();
-            taskId2 = JSON.parseObject( response1 ).getJSONObject( "task" )
-                    .getString( "id" );
-        } catch ( HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        JSONObject option = new JSONObject();
+        option.put( "author", author );
+        options.put( "filter", option );
+        String response1 = rest2.setApi( "tasks" )
+                .setRequestMethod( HttpMethod.PUT )
+                .setParameter( "task_type", "2" )
+                .setParameter( "workspace_name", wsList.get( 0 ).getName() )
+                .setParameter( "options", options.toString() )
+                .setResponseType( String.class ).exec().getBody().toString();
+        taskId2 = JSON.parseObject( response1 ).getJSONObject( "task" )
+                .getString( "id" );
+
         waitTaskStop( taskId2, rest1 );
         JSONObject taskInfo = getTaskInfo( taskId2, rest2 );
         SiteWrapper[] expSites = { ScmInfo.getRootSite() };
@@ -185,30 +179,18 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     private JSONObject getTaskInfo( String taskId, RestWrapper rest ) {
-        JSONObject taskInfo = null;
-        try {
-            String response = rest.reset().setApi( "tasks/" + taskId )
-                    .setRequestMethod( HttpMethod.GET ).exec().getBody()
-                    .toString();
-            taskInfo = JSON.parseObject( response );
-        } catch ( HttpClientErrorException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        String response = rest.reset().setApi( "tasks/" + taskId )
+                .setRequestMethod( HttpMethod.GET ).exec().getBody().toString();
+        JSONObject taskInfo = JSON.parseObject( response );
         return taskInfo;
     }
 
     private void check( JSONObject taskInfo, WsWrapper ws,
-            List< ScmId > fileIdList, SiteWrapper[] expSiteList ) {
+            List< ScmId > fileIdList, SiteWrapper[] expSiteList )
+            throws Exception {
         // check site
-        try {
-            ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList,
-                    localPath, filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-
+        ScmFileUtils.checkMetaAndData( ws, fileIdList, expSiteList, localPath,
+                filePath );
         // checktaskInfo
         JSONObject taskDetail = taskInfo.getJSONObject( "task" );
         Assert.assertEquals( taskDetail.getString( "running_flag" ), "3" );
@@ -220,11 +202,8 @@ public class TasksWithMutilWs1103 extends TestScmBase {
             RestWrapper rest )
             throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
-        // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
                 .setRequestMethod( HttpMethod.POST )
-                // .setParameter("file", resource)
-                // .setParameter("description", desc)
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
