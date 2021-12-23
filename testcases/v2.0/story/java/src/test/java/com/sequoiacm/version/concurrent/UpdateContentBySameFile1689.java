@@ -201,8 +201,10 @@ public class UpdateContentBySameFile1689 extends TestScmBase {
                 file.updateContent( breakpointFile );
                 updateBreakPointFileThreadStatus++;
             } catch ( ScmException e ) {
-                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND
-                        .getErrorCode() ) {
+                if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode()
+                        && e.getError()
+                                .getErrorCode() != ScmError.FILE_VERSION_MISMATCHING
+                                        .getErrorCode() ) {
                     throw e;
                 }
             } finally {
