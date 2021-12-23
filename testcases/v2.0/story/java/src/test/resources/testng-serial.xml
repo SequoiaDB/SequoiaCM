@@ -79,7 +79,8 @@
            <!--audit-->
            <package name="com.sequoiacm.audit"/>
            <!--big file-->
-           <package name="com.sequoiacm.bigfile"/>
+           <!-- SEQUOIACM-770暂时屏蔽该用例       -->
+           <!-- <package name="com.sequoiacm.bigfile"/>-->
            <!--directory -->
            <package name="com.sequoiacm.directory.serial"/>
            <!--s3-->
