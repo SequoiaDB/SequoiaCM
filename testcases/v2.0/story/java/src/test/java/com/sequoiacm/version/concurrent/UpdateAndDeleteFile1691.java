@@ -2,6 +2,8 @@ package com.sequoiacm.version.concurrent;
 
 import java.io.ByteArrayInputStream;
 import java.util.Random;
+
+import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -53,6 +55,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
+        BreakpointUtil.checkDBDataSource();
         branSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
         sessionA = TestScmTools.createSession( branSite );
