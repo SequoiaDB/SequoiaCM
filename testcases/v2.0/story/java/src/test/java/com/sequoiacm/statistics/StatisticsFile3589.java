@@ -37,11 +37,14 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
- * @Description: SCM-3589:指定时间段内有统计信息，用户查询单个工作区上传/下载接口的统计信息
- *               SCM-3639:循环查询文件统计信息，查看链接是否泄漏
+ * @description SCM-3589:指定时间段内有统计信息，用户查询单个工作区上传/下载接口的统计信息
+ *              SCM-3639:循环查询文件统计信息，查看链接是否泄漏
  * @author fanyu
- * @Date:2021/03/30
- * @version:1.0
+ * @createDate 2021.03.30
+ * @updateUser ZhangYanan
+ * @updateDate 2021.12.24
+ * @updateRemark
+ * @version v1.0
  */
 public class StatisticsFile3589 extends TestScmBase {
     private boolean runSuccess = false;
@@ -154,11 +157,19 @@ public class StatisticsFile3589 extends TestScmBase {
         // ws只有1条上传统计信息，有多条下载统计信息
         totalUploadTime += createFiles( wsp.getName(), fileNum, fileIdList1 );
         // 网关时间跳变，制造有多条记录
+        // 打印日历时间，定位ci问题
+        System.out.println( "----calendar.getTime=" + calendar.getTime() );
+        System.out.println(
+                "----calendar.getTimeInMillis=" + calendar.getTimeInMillis() );
         totalDownloadTime += downloadFile( wsp.getName(),
                 fileIdList1.subList( 0, fileNum / 2 ),
                 calendar.getTimeInMillis() );
         calendar.set( Calendar.HOUR_OF_DAY,
                 calendar.get( Calendar.HOUR_OF_DAY ) + 1 );
+        // 打印日历时间，定位ci问题
+        System.out.println( "----calendar.getTime=" + calendar.getTime() );
+        System.out.println(
+                "----calendar.getTimeInMillis=" + calendar.getTimeInMillis() );
         totalDownloadTime += downloadFile( wsp.getName(),
                 fileIdList1.subList( fileNum / 2, fileNum ),
                 calendar.getTimeInMillis() );
