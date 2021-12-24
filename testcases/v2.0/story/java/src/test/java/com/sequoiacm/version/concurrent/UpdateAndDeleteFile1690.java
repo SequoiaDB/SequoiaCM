@@ -76,8 +76,8 @@ public class UpdateAndDeleteFile1690 extends TestScmBase {
             checkUpdateFileResult( wsM, updateData );
         } else if ( updateThreadStatus == 0 && deleteThreadStatus == 1 ) {
             checkDeleteFileResult( wsA );
-        } else {
-            Assert.fail( "Only One thread is expected to succeed" );
+        } else if ( updateThreadStatus == 1 && deleteThreadStatus == 1 ) {
+            checkDeleteFileResult( wsA );
         }
         runSuccess = true;
     }
