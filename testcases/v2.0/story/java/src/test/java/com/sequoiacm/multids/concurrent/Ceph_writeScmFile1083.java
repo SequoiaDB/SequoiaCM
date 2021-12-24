@@ -49,48 +49,53 @@ public class Ceph_writeScmFile1083 extends TestScmBase {
     private String filePath = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branSites = ScmInfo.getBranchSites( branSitesNum );
-            wsp = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branSites = ScmInfo.getBranchSites( branSitesNum );
+        wsp = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
-            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-            fileId = ScmFileUtils.create( wsA, fileName, filePath );
-        } catch ( IOException | ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() {
-        try {
-            ReadFileFromCenterB readFromB = new ReadFileFromCenterB();
-            readFromB.start( 20 );
-            if ( !( readFromB.isSuccess() ) ) {
-                Assert.fail( readFromB.getErrorMsg() );
-            }
-
-            // check results
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+    @Test(groups = { "fourSite", "star" })
+    private void starTest() throws Exception {
+        ReadFileFromCenterB readFromB = new ReadFileFromCenterB();
+        readFromB.start( 20 );
+        if ( !( readFromB.isSuccess() ) ) {
+            Assert.fail( readFromB.getErrorMsg() );
         }
+
+        // check results
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", "net" })
+    private void netTest() throws Exception {
+        ReadFileFromCenterB readFromB = new ReadFileFromCenterB();
+        readFromB.start( 20 );
+        if ( !( readFromB.isSuccess() ) ) {
+            Assert.fail( readFromB.getErrorMsg() );
+        }
+
+        // check results
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
