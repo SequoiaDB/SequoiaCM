@@ -86,6 +86,8 @@ public class TransferByPut1100 extends TestScmBase {
                 .setRequestMethod( HttpMethod.PUT )
                 .setParameter( "task_type", "1" )
                 .setParameter( "workspace_name", ws.getName() )
+                .setParameter( "target_site",
+                        ScmInfo.getRootSite().getSiteName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
         taskId = JSON.parseObject( response1 ).getJSONObject( "task" )
@@ -119,7 +121,7 @@ public class TransferByPut1100 extends TestScmBase {
         }
     }
 
-    private void waitTaskStop( String taskId, RestWrapper rest ){
+    private void waitTaskStop( String taskId, RestWrapper rest ) {
         String stopTime = null;
         JSONObject taskInfo = null;
         while ( stopTime == null ) {
@@ -135,7 +137,7 @@ public class TransferByPut1100 extends TestScmBase {
             String response = rest.reset().setApi( "tasks/" + taskId )
                     .setRequestMethod( HttpMethod.GET ).exec().getBody()
                     .toString();
-            taskInfo = JSON.parseObject(  response );
+            taskInfo = JSON.parseObject( response );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -153,7 +155,8 @@ public class TransferByPut1100 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException, FileNotFoundException {
+            RestWrapper rest )
+            throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
@@ -163,7 +166,7 @@ public class TransferByPut1100 extends TestScmBase {
                 .setRequestHeaders( "description", desc.toString() )
                 .setInputStream( new FileInputStream( file ) )
                 .setResponseType( String.class ).exec().getBody().toString();
-        String fileId =JSON.parseObject( wResponse ).getJSONObject( "file" )
+        String fileId = JSON.parseObject( wResponse ).getJSONObject( "file" )
                 .getString( "id" );
         return fileId;
     }

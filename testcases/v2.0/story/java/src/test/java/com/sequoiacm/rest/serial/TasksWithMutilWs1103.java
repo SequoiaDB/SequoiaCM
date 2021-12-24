@@ -100,7 +100,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         transferAndCheck();
         cleanAnCheck();
@@ -151,7 +151,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
         waitTaskStop( taskId1, rest1 );
     }
 
-    private void cleanAnCheck(){
+    private void cleanAnCheck() {
         JSONObject options = new JSONObject();
         options.put( "filter", new JSONObject().put( "author", author ) );
         try {
@@ -162,7 +162,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
                     .setParameter( "options", options.toString() )
                     .setResponseType( String.class ).exec().getBody()
                     .toString();
-            taskId2 = JSON.parseObject(  response1 ).getJSONObject( "task" )
+            taskId2 = JSON.parseObject( response1 ).getJSONObject( "task" )
                     .getString( "id" );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
@@ -190,7 +190,7 @@ public class TasksWithMutilWs1103 extends TestScmBase {
             String response = rest.reset().setApi( "tasks/" + taskId )
                     .setRequestMethod( HttpMethod.GET ).exec().getBody()
                     .toString();
-            taskInfo =JSON.parseObject( response );
+            taskInfo = JSON.parseObject( response );
         } catch ( HttpClientErrorException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
@@ -217,7 +217,8 @@ public class TasksWithMutilWs1103 extends TestScmBase {
     }
 
     public String upload( String filePath, WsWrapper ws, String desc,
-            RestWrapper rest ) throws HttpClientErrorException,FileNotFoundException {
+            RestWrapper rest )
+            throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )
