@@ -79,8 +79,17 @@ public class ScmTaskCleanFile extends ScmTaskFile {
                 deleter.delete();
             }
             catch (ScmDatasourceException e) {
-                throw new ScmServerException(e.getScmError(ScmError.DATA_DELETE_ERROR),
-                        "Failed to delete file", e);
+                ScmError scmError = e.getScmError(ScmError.DATA_DELETE_ERROR);
+                if (scmError == ScmError.FILE_NOT_FOUND || scmError == ScmError.DATA_NOT_EXIST
+                        || scmError == ScmError.DATA_IS_IN_USE
+                        || scmError == ScmError.DATA_UNAVAILABLE) {
+                    logger.warn("metasource updated successfully, but failed to delete data:fileId="
+                            + fileId + ",workspace=" + ws.getName(), e);
+                    return DoFileRes.SUCCESS;
+                }
+                else {
+                    throw new ScmServerException(scmError, "Failed to delete file", e);
+                }
             }
             return DoFileRes.SUCCESS;
         }
