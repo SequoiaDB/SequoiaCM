@@ -40,39 +40,34 @@ public class ReadFileByStreamNet247 extends TestScmBase {
     private File localPath = null;
     private String filePath = null;
 
-    @BeforeClass(groups = { "net" })
-    private void setUp() throws IOException {
+    @BeforeClass
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            wsp = ScmInfo.getWs();
-            // clean file
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
-            ScmFileUtils.cleanFile( wsp, cond );
-            List< SiteWrapper > siteList = ScmInfo.getBranchSites();
-            scmSite1 = siteList.get( 0 );
-            scmSite2 = siteList.get( 1 );
+        wsp = ScmInfo.getWs();
+        // clean file
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
+        List< SiteWrapper > siteList = ScmInfo.getBranchSites();
+        scmSite1 = siteList.get( 0 );
+        scmSite2 = siteList.get( 1 );
 
-            sessionA = TestScmTools.createSession( scmSite1 );
-            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-            sessionB = TestScmTools.createSession( scmSite2 );
-            wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        }
+        sessionA = TestScmTools.createSession( scmSite1 );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        sessionB = TestScmTools.createSession( scmSite2 );
+        wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 
     @Test(groups = { "fourSite", "net" })
     private void test() throws Exception {
-        SiteWrapper[] expSites = new SiteWrapper[] { scmSite1,
-                scmSite2 };
+        SiteWrapper[] expSites = new SiteWrapper[] { scmSite1, scmSite2 };
         // writeFileFromA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
         this.readFileFromB( wsB, expSites );
@@ -80,14 +75,12 @@ public class ReadFileByStreamNet247 extends TestScmBase {
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
                 ScmFactory.File.deleteInstance( wsA, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
