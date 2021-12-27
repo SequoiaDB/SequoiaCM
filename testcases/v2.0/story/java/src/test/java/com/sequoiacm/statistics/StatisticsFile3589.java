@@ -2,13 +2,7 @@ package com.sequoiacm.statistics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -56,7 +50,8 @@ public class StatisticsFile3589 extends TestScmBase {
     private int fileNum = 10;
     private int totalUploadTime = 0;
     private int totalDownloadTime = 0;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = Calendar
+            .getInstance( TimeZone.getTimeZone( "GMT+08:00" ) );
     private File localPath = null;
     private String filePath = null;
 
