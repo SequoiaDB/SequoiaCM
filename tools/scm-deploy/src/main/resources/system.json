@@ -88,6 +88,15 @@
                     },
                     "isUnique": "true",
                     "enforced": "false"
+                },
+                {
+                    "name": "idx_workspace_schedule_name",
+                    "indexDef": {
+                        "workspace": 1,
+                        "name": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
                 }
             ]                   
         },

@@ -290,7 +290,7 @@ public class ScheduleMgrWrapper {
             }
 
             // 3.write to db
-            scheduleDao.update(scheduleId, newValue);
+            scheduleDao.updateByScheduleId(scheduleId, newValue);
 
             logger.info("update schedule job success:id={}", scheduleId);
 
@@ -419,7 +419,7 @@ public class ScheduleMgrWrapper {
         try {
             BasicBSONObject newValue = new BasicBSONObject();
             newValue.put(FieldName.Schedule.FIELD_ENABLE, false);
-            scheduleDao.update(info.getId(), newValue);
+            scheduleDao.updateByScheduleId(info.getId(), newValue);
         }
         catch (Exception e) {
             logger.warn("failed to disable schedule:id={}", info.getId(), e);

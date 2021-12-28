@@ -44,7 +44,7 @@ public abstract class RestExceptionHandlerBase {
         exceptionBody.setException(e.getClass().getName());
         exceptionBody.setPath(request.getRequestURI());
 
-        String log = String.format("sessionId=%s, request=%s, errcode=%d, errcodeDesc", sessionId,
+        String log = String.format("sessionId=%s, request=%s, errcode=%d, errcodeDesc=%s", sessionId,
                 request.getRequestURI(), exceptionBody.getStatus(), exceptionBody.getError());
         logger.error(log, e);
         if ("HEAD".equalsIgnoreCase(request.getMethod())) {

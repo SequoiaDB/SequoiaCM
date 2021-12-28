@@ -76,7 +76,7 @@ public class TestConcurrentSchedule extends ScmTestMultiCenterBase {
                     site2.getName(), "0d",
                     new BasicBSONObject(FieldName.FIELD_CLFILE_ID, fileForClean.get()));
             ScmSchedule cleanSch = ScmSystem.Schedule.create(site1RootSiteSession,
-                    getWorkspaceName(), ScheduleType.CLEAN_FILE, "s1", "desc", cleanContent, cron);
+                    getWorkspaceName(), ScheduleType.CLEAN_FILE, "s2", "desc", cleanContent, cron);
             cleanScheduleId = cleanSch.getId();
 
             ScmTask cleanTask;

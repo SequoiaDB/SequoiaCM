@@ -2,6 +2,10 @@ package com.sequoiacm.schedule.dao.sequoiadb;
 
 import java.util.List;
 
+import com.sequoiacm.schedule.common.RestCommonDefine;
+import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -42,6 +46,13 @@ public class SdbScheduleDao implements ScheduleDao {
             cl.insert(obj);
         }
         catch (Exception e) {
+            if (e instanceof BaseException) {
+                if (((BaseException) e).getErrorCode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
+                    throw new ScheduleException(RestCommonDefine.ErrorCode.SCHEDULE_EXISTS,
+                            "schedule with the same name already exists:workspace="
+                                    + info.getWorkspace() + ",name=" + info.getName());
+                }
+            }
             logger.error("insert schedule failed[cs={},cl={}]:info={}", csName, clName, info);
             throw e;
         }
@@ -54,7 +65,7 @@ public class SdbScheduleDao implements ScheduleDao {
     public ScmBSONObjectCursor query(BSONObject matcher) throws Exception {
         return SdbDaoCommon.query(datasource, csName, clName, matcher);
     }
-    
+
     @Override
     public ScmBSONObjectCursor query(BSONObject matcher, BSONObject orderBy, long skip, long limit)
             throws Exception {
@@ -111,11 +122,24 @@ public class SdbScheduleDao implements ScheduleDao {
     }
 
     @Override
-    public void update(String scheduleId, BSONObject newValue) throws Exception {
+    public void updateByScheduleId(String scheduleId, BSONObject newValue) throws Exception {
         BSONObject matcher = new BasicBSONObject(FieldName.Schedule.FIELD_ID, scheduleId);
         BSONObject updator = new BasicBSONObject();
         updator.put("$set", newValue);
-        update(matcher, updator);
+        try {
+            update(matcher, updator);
+        }
+        catch (Exception e) {
+            if (e instanceof BaseException) {
+                if (((BaseException) e).getErrorCode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
+                    throw new ScheduleException(RestCommonDefine.ErrorCode.SCHEDULE_EXISTS,
+                            "schedule with the same name already exists,workspace="
+                                    + queryOne(scheduleId).getWorkspace() + ",name="
+                                    + newValue.get(FieldName.Schedule.FIELD_NAME));
+                }
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -146,7 +170,8 @@ public class SdbScheduleDao implements ScheduleDao {
             return cl.getCount(condition);
         }
         catch (Exception e) {
-            logger.error("get schedule count failed[cs={},cl={}]:condition={}", csName, clName, condition);
+            logger.error("get schedule count failed[cs={},cl={}]:condition={}", csName, clName,
+                    condition);
             throw e;
         }
         finally {

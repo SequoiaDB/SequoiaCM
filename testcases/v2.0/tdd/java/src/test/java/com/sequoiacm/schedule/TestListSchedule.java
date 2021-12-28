@@ -43,23 +43,23 @@ public class TestListSchedule extends ScmTestMultiCenterBase {
             Assert.assertFalse(cursor.hasNext());
             cursor.close();
 
-            String name = UUID.randomUUID().toString();
+            String desc = UUID.randomUUID().toString();
             ScmSiteInfo rootsite = ScmTestTools.getSiteInfo(ss, getSiteId1());
             ScmSiteInfo site2 = ScmTestTools.getSiteInfo(ss, getSiteId2());
             ScmScheduleContent content = new ScmScheduleCopyFileContent(site2.getName(),
                     rootsite.getName(), "0d", null);
             String cron = "* * 21 * * ?";
             ScmSchedule sch = ScmSystem.Schedule.create(ss, getWorkspaceName(),
-                    ScheduleType.COPY_FILE, name, "desc", content, cron);
+                    ScheduleType.COPY_FILE, "sch1", desc, content, cron);
             scheduleId = sch.getId();
 
             String cron2 = "* * 11 * * ?";
             ScmSchedule sch2 = ScmSystem.Schedule.create(ss, getWorkspaceName(),
-                    ScheduleType.COPY_FILE, name, "desc", content, cron2);
+                    ScheduleType.COPY_FILE, "sch2", desc, content, cron2);
             scheduleId2 = sch2.getId();
 
             cursor = ScmSystem.Schedule.list(ss, new BasicBSONObject(
-                    ScmAttributeName.Schedule.NAME, name));
+                    ScmAttributeName.Schedule.DESC, desc));
             ScmScheduleBasicInfo basicInfo = cursor.getNext();
             logger.info("info=" + basicInfo);
 

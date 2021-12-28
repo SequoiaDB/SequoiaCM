@@ -21,7 +21,7 @@ public interface ScheduleDao {
 
     // TODO: 注意嵌套结构不能直接使用{$set:{a:{b:1}}}, 或者限定要全字段update,
     // 或者需要更新嵌套结构时必须带嵌套结构中的所有值
-    public void update(String scheduleId, BSONObject newValue) throws Exception;
+    public void updateByScheduleId(String scheduleId, BSONObject newValue) throws Exception;
 
     public void update(BSONObject matcher, BSONObject updator) throws Exception;
     

@@ -21,16 +21,15 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
         HttpStatus status;
         switch (e.getCode()) {
             case RestCommonDefine.ErrorCode.INVALID_AUTH_INFO:
+            case RestCommonDefine.ErrorCode.PERMISSION_DENIED:
                 status = HttpStatus.UNAUTHORIZED;
                 break;
             case RestCommonDefine.ErrorCode.INVALID_ACCOUNT:
                 status = HttpStatus.FORBIDDEN;
                 break;
-            case RestCommonDefine.ErrorCode.PERMISSION_DENIED:
-                status = HttpStatus.UNAUTHORIZED;
-                break;
             case RestCommonDefine.ErrorCode.MISSING_ARGUMENT:
             case RestCommonDefine.ErrorCode.INVALID_ARGUMENT:
+            case RestCommonDefine.ErrorCode.SCHEDULE_EXISTS:
                 status = HttpStatus.BAD_REQUEST;
                 break;
             case RestCommonDefine.ErrorCode.WORKSPACE_NOT_EXISTS:

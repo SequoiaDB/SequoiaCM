@@ -29,6 +29,7 @@ public class RestCommonDefine {
         public static final String INVALID_AUTH_INFO = "invalid_auth_info";
         public static final String PERMISSION_DENIED = "permission_denied";
         public static final String INVALID_ACCOUNT = "invalid_account";
+        public static final String SCHEDULE_EXISTS = "schedule_already_exists";
         public static final String RECORD_NOT_EXISTS = "record_not_exists";
         public static final String ROOT_SITE_NOT_EXISTS = "root_site_not_exists";
         public static final String SITE_NOT_EXISTS = "site_not_exists";

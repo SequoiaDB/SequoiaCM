@@ -166,12 +166,10 @@ public class QuartzInternalSchJob extends QuartzScheduleJob {
 
     private void updateWorker(ScheduleDao dao, String schId, String worker, long startTime)
             throws Exception {
-        BasicBSONObject matcher = new BasicBSONObject(FieldName.Schedule.FIELD_ID, schId);
-        BasicBSONObject updator = new BasicBSONObject(FieldName.Schedule.FIELD_CONTENT + "."
+        BasicBSONObject newValue = new BasicBSONObject(FieldName.Schedule.FIELD_CONTENT + "."
                 + FieldName.Schedule.FIELD_INTERNAL_WORKER_NODE, worker);
-        updator.put(FieldName.Schedule.FIELD_CONTENT + "."
+        newValue.put(FieldName.Schedule.FIELD_CONTENT + "."
                 + FieldName.Schedule.FIELD_INTERNAL_WORKER_START_TIME, startTime);
-        updator = new BasicBSONObject("$set", updator);
-        dao.update(matcher, updator);
+        dao.updateByScheduleId(schId, newValue);
     }
 }
