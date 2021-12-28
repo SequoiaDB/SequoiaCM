@@ -50,8 +50,7 @@ public class StatisticsFile3589 extends TestScmBase {
     private int fileNum = 10;
     private int totalUploadTime = 0;
     private int totalDownloadTime = 0;
-    private Calendar calendar = Calendar
-            .getInstance( TimeZone.getTimeZone( "GMT+08:00" ) );
+    private Calendar calendar = null;
     private File localPath = null;
     private String filePath = null;
 
@@ -67,6 +66,8 @@ public class StatisticsFile3589 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         // 清理环境和更新配置
+        TimeZone.setDefault( TimeZone.getTimeZone( "GMT+08:00" ) );
+        calendar = Calendar.getInstance();
         prepareEnv();
         // 制造上传和下载请求信息
         prepareRawData();
