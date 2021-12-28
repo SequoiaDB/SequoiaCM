@@ -70,7 +70,7 @@ public class StatisticsFile3593 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        List<SiteWrapper> siteList = ScmInfo.getAllSites();
+        List< SiteWrapper > siteList = ScmInfo.getAllSites();
         for ( SiteWrapper siteWrapper : siteList ) {
             if ( siteWrapper.getDataType()
                     .equals( ScmType.DatasourceType.SEQUOIADB ) ) {
@@ -242,12 +242,12 @@ public class StatisticsFile3593 extends TestScmBase {
     }
 
     private long createFileByBreakpointFile() throws ScmException, IOException {
+        long uploadBeginTime = System.currentTimeMillis();
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileNameBase + UUID.randomUUID() );
         InputStream inputStream = new FileInputStream( filePath );
         breakpointFile.upload( inputStream );
         inputStream.close();
-        long uploadBeginTime = System.currentTimeMillis();
         ScmFile file = ScmFactory.File.createInstance( ws );
         String fileName = fileNameBase + "_" + UUID.randomUUID();
         file.setFileName( fileName );
