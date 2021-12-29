@@ -85,6 +85,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                 relClOptions.put("AutoSplit", true);
                 BSONObject relClShardingKey = new BasicBSONObject(
                         FieldName.FIELD_CLREL_DIRECTORY_ID, 1);
+                relClShardingKey.put(FieldName.FIELD_CLREL_FILENAME, 1);
                 relClOptions.put("ShardingKey", relClShardingKey);
                 logger.info("creating cl:clName={}.{},options={}",
                         wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL,
