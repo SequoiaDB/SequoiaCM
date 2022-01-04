@@ -49,7 +49,7 @@ public class AsyncTransfer1208 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, 0 );
 
         ws = ScmInfo.getWs();
-        site = ScmInfo.getBranchSite();
+        site = ScmInfo.getRootSite();
         rest = new RestWrapper();
         rest.connect( site.getSiteServiceName(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
@@ -61,6 +61,8 @@ public class AsyncTransfer1208 extends TestScmBase {
         String response = rest.setRequestMethod( HttpMethod.POST )
                 .setApi( "files/" + fileId + "/async-transfer?workspace_name="
                         + ws.getName() )
+                .setParameter( "target_site",
+                        ScmInfo.getBranchSite().getSiteName() )
                 .setResponseType( String.class ).exec().getBody().toString();
         Assert.assertEquals( "\"\"", response );
         checkAsyncTransfer( rest, ws, fileId );
