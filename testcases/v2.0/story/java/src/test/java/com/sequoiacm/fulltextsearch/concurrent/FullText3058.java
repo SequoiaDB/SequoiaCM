@@ -76,6 +76,7 @@ public class FullText3058 extends TestScmBase {
         ScmFactory.Fulltext.createIndex( ws,
                 new ScmFulltextOption( fileCondition, ScmFulltextMode.async ) );
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
+        ScmFactory.Fulltext.inspectIndex( ws );
     }
 
     @Test
