@@ -106,7 +106,7 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
 
     @Override
     public DatasourceType getType() {
-        return DatasourceType.CEPH_SWIFT;
+        return DatasourceType.CEPH_S3;
     }
 
     /**
