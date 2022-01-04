@@ -5,15 +5,15 @@ package com.sequoiacm.rest;
 
 import java.io.IOException;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.RestWrapper;
@@ -55,6 +55,9 @@ public class AsyncTransferVersionFile1717 extends TestScmBase {
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
@@ -99,7 +102,8 @@ public class AsyncTransferVersionFile1717 extends TestScmBase {
                 .setApi( "/files/" + fileId + "/async-transfer?workspace_name="
                         + wsA.getName() )
                 .setParameter( "major_version", 1 )
-                .setParameter( "minor_version", 0 ).exec();
+                .setParameter( "minor_version", 0 )
+                .setParameter( "target_site", rootSite.getSiteName() ).exec();
         rest.disconnect();
     }
 }
