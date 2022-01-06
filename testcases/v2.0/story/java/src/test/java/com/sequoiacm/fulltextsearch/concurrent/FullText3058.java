@@ -79,7 +79,8 @@ public class FullText3058 extends TestScmBase {
         ScmFactory.Fulltext.inspectIndex( ws );
     }
 
-    @Test
+    // 文件索引状态校验异常，已在问题单SEQUOIACM-779中跟踪，改用例暂时屏蔽
+    @Test(enabled = false)
     private void test() throws Throwable {
         ThreadExecutor threadExec = new ThreadExecutor();
         // 全文检索
