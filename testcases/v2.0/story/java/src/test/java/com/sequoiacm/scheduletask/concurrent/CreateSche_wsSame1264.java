@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -59,6 +60,7 @@ public class CreateSche_wsSame1264 extends TestScmBase {
 
     private List< ScmId > scheIds = new CopyOnWriteArrayList<>();
     private List< CreateSchedule > crtSches = new CopyOnWriteArrayList<>();
+    private AtomicInteger serial = new AtomicInteger();
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -181,8 +183,9 @@ public class CreateSche_wsSame1264 extends TestScmBase {
                 ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                         branSite.getSiteName(), rootSite.getSiteName(),
                         maxStayTime, cond );
+                String scheduleName = name + "_" + serial.incrementAndGet();
                 ScmSchedule sche = ScmSystem.Schedule.create( ssA,
-                        wsp.getName(), ScheduleType.COPY_FILE, name, "",
+                        wsp.getName(), ScheduleType.COPY_FILE, scheduleName, "",
                         content, cron );
                 ScmId scheduleId = sche.getId();
                 scheIds.add( scheduleId );
