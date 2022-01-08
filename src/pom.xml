@@ -167,6 +167,19 @@
                     <version>${maven-resources-plugin.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <!-- 移除官方hystrix，使用sequoiacm-infrastructure-common修改后的hystrix -->
+                                <groupId>com.netflix.hystrix</groupId>
+                                <artifactId>hystrix-core</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
 	               <groupId>org.apache.maven.plugins</groupId>
 	               <artifactId>maven-javadoc-plugin</artifactId>
 	               <version>${maven-javadoc-plugin.version}</version>
