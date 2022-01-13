@@ -1,15 +1,5 @@
 package com.sequoiacm.infrastructure.config.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -20,14 +10,17 @@ import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClient;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClientFactory;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
-import com.sequoiacm.infrastructure.config.core.msg.Config;
-import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
-import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
-import com.sequoiacm.infrastructure.config.core.msg.EnableBsonConvertor;
-import com.sequoiacm.infrastructure.config.core.msg.Version;
-import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
+import com.sequoiacm.infrastructure.config.core.msg.*;
 import com.sequoiacm.infrastructure.config.core.verifier.ScmConfigPropVerifier;
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @EnableBsonConvertor
@@ -54,7 +47,7 @@ public class ScmConfClient {
     private ScmTimer asyncSubscribeTimer;
 
     public void subscribeWithAsyncRetry(ScmConfSubscriber subscriber) throws ScmConfigException {
-        subscriberMgr.addSubscriber(subscriber);
+        subscriberMgr.addSubscriber(subscriber, this);
 
         try {
             logger.info("server subscribe {} config notify event ",

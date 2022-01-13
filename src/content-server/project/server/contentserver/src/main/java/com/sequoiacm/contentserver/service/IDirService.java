@@ -1,14 +1,23 @@
 package com.sequoiacm.contentserver.service;
 
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.metasource.MetaCursor;
+import java.util.Date;
 
 public interface IDirService {
-    public BSONObject getDirInfoById(String wsName, String dirId) throws ScmServerException;
+    public BSONObject getDirInfoById(ScmUser user, String wsName, String dirId)
+            throws ScmServerException;
+
+    public BSONObject getDirInfoByPath(ScmUser user, String wsName, String dirPath)
+            throws ScmServerException;
 
     public BSONObject getDirInfoByPath(String wsName, String dirPath) throws ScmServerException;
+
+    public String getDirPathById(ScmUser user, String wsName, String dirId)
+            throws ScmServerException;
 
     public String getDirPathById(String wsName, String dirId) throws ScmServerException;
 
@@ -16,29 +25,32 @@ public interface IDirService {
      * public void getDirList(PrintWriter writer, String wsName, BSONObject
      * condition) throws ScmServerException;
      */
-    public MetaCursor getDirList(String wsName, BSONObject condition, BSONObject orderby, long skip,
-            long limit) throws ScmServerException;
+    public MetaCursor getDirList(ScmUser user, String wsName, BSONObject condition,
+            BSONObject orderby, long skip, long limit) throws ScmServerException;
 
-    public long reanmeDirById(String user, String wsName, String dirId, String newName)
+    public long reanmeDirById(ScmUser user, String wsName, String dirId, String newName)
             throws ScmServerException;
 
-    public long renameDirByPath(String user, String wsName, String dirPath, String newName)
+    public long renameDirByPath(ScmUser user, String wsName, String dirPath, String newName)
             throws ScmServerException;
 
-    public long moveDirById(String user, String wsName, String dirId, String newParentId,
+    public long moveDirById(ScmUser user, String wsName, String dirId, String newParentId,
             String newParentPath) throws ScmServerException;
 
-    public long moveDirByPath(String user, String wsName, String dirPath, String newParentId,
+    public long moveDirByPath(ScmUser user, String wsName, String dirPath, String newParentId,
             String newParentPath) throws ScmServerException;
 
-    public BSONObject createDirByPath(String user, String wsName, String path)
+    public BSONObject createDirByPath(ScmUser user, String wsName, String path)
             throws ScmServerException;
 
-    public BSONObject createDirByPidAndName(String user, String wsName, String name,
+    public BSONObject createDirByPidAndName(ScmUser user, String wsName, String name,
             String parentID) throws ScmServerException;
 
-    public void deleteDir(String wsName, String id, String path) throws ScmServerException;
+    public void deleteDir(ScmUser user, String wsName, String id, String path)
+            throws ScmServerException;
 
-    public long countDir(String wsName, BSONObject condition) throws ScmServerException;
+    public long countDir(ScmUser user, String wsName, BSONObject condition)
+            throws ScmServerException;
 
+    public String generateId(Date dirCreateTime) throws ScmServerException;
 }

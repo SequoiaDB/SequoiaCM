@@ -1,23 +1,5 @@
 package com.sequoiacm.contentserver.controller;
 
-import java.io.IOException;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.Const;
@@ -29,6 +11,16 @@ import com.sequoiacm.contentserver.service.impl.ServiceUtils;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaCursor;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/internal/v1")
@@ -73,8 +65,8 @@ public class InternalFileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_SELECTOR, required = false) BSONObject selector,
             HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
-        MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby, skip,
-                limit, selector);
+        MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby,
+                skip, limit, selector);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 
@@ -86,7 +78,7 @@ public class InternalFileController {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName)
             throws ScmServerException {
         return fileService.updateFileExternalData(workspaceName, fileId, majorVersion, minorVersion,
-                externalData);
+                externalData, null);
     }
 
     @PostMapping(value = "/files", params = "action=updateExternalData")

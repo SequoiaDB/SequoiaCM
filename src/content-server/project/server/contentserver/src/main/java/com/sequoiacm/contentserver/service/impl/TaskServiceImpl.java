@@ -11,6 +11,7 @@ import com.sequoiacm.contentserver.job.ScmTaskManager;
 import com.sequoiacm.contentserver.job.TaskRemoveUpdator;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.service.ITaskService;
@@ -20,6 +21,8 @@ import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.metasource.MetaCursor;
@@ -79,17 +82,19 @@ public class TaskServiceImpl implements ITaskService {
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
-                    "Failed to get task list, condition=" + condition
-                    + ", orderby=" + orderby
-                    + ", selector=" + selector
-                    + ", skip=" + skip
-                    + ", limit="+ limit, e);
+                    "Failed to get task list, condition=" + condition + ", orderby=" + orderby
+                            + ", selector=" + selector + ", skip=" + skip + ", limit=" + limit,
+                    e);
         }
     }
 
     @Override
-    public String startTask(String serssionId, String userDetail, String wsName, int taskType,
-            int serverId, String targetSite, BSONObject options) throws ScmServerException {
+    public String startTask(String serssionId, String userDetail, ScmUser user, String wsName,
+            int taskType, int serverId, String targetSite, BSONObject options)
+            throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.UPDATE,
+                "start task");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfoChecked(wsName);
         String taskId = "";
@@ -131,6 +136,7 @@ public class TaskServiceImpl implements ITaskService {
             taskId = forwardStartToMainSite(serssionId, userDetail, wsName, taskType, options,
                     serverId, targetSite);
         }
+
         return taskId;
     }
 
@@ -266,8 +272,10 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public void stopTask(String sessionId, String userDetail, String taskId)
-            throws ScmServerException {
+    public void stopTask(String sessionId, String userDetail, ScmUser user, String ws,
+            String taskId) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, ws, ScmPrivilegeDefine.UPDATE,
+                "stop task");
         if (ScmContentServer.getInstance().isInMainSite()) {
             stopAndNotifyTask(taskId);
         }

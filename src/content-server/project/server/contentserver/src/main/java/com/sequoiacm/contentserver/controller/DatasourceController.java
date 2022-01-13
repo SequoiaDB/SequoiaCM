@@ -116,7 +116,7 @@ public class DatasourceController {
             HttpServletRequest request) throws ScmServerException, IOException {
         InputStream is = request.getInputStream();
         try {
-            datasourceService.createData(wsName, dataId, type, createTime, is);
+            datasourceService.createDataInLocal(wsName, dataId, type, createTime, is);
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);

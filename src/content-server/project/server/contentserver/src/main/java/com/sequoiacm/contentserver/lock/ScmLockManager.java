@@ -1,19 +1,18 @@
 package com.sequoiacm.contentserver.lock;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
+import com.sequoiacm.contentserver.config.PropertiesUtils;
+import com.sequoiacm.contentserver.exception.ScmLockException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.lock.LockFactory;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.exception.ScmLockException;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.lock.LockFactory;
-import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class ScmLockManager {
     private static final Logger logger = LoggerFactory.getLogger(ScmLockManager.class);
@@ -42,18 +41,18 @@ public class ScmLockManager {
             }
         }
         catch (ConnectionLossException e) {
-            closeLockFactory();
+            close();
             logger.warn("zookeeper connection loss, failed to init lock manager", e);
             return false;
         }
         catch (Exception e) {
-            closeLockFactory();
+            close();
             throw new ScmLockException("failed to init lock manager", e);
         }
         return true;
     }
 
-    private void closeLockFactory() {
+    public void close() {
         if (innerFactory != null) {
             innerFactory.close();
             innerFactory = null;

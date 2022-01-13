@@ -1,10 +1,10 @@
 package com.sequoiacm.contentserver.service.impl;
 
+import com.sequoiacm.infrastructure.audit.ScmAudit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.DirResource;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
@@ -12,15 +12,20 @@ import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IPrivilegeService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.IResource;
 import com.sequoiacm.infrastructrue.security.privilege.IResourceBuilder;
+import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmWsAllResource;
 
 @Service
 public class PrivilegeServiceImpl implements IPrivilegeService {
     @Autowired
     private IDirService dirService;
+
+    @Autowired
+    private ScmAudit audit;
 
     private IResource checkResource(String resourceType, String resource)
             throws ScmServerException {
@@ -67,6 +72,9 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
                             + ",privilege=" + privilege,
                     e);
         }
+        audit.info(ScmAuditType.GRANT, user, null, 0,
+                "grant privilege, user=" + user + "," + "roleName=" + roleName + ",resourceType="
+                        + resourceType + ",resource=" + resource + ",privilege=" + privilege);
     }
 
     @Override
@@ -83,5 +91,9 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
                             + ",privilege=" + privilege,
                     e);
         }
+
+        audit.info(ScmAuditType.REVOKE, user, null, 0,
+                "grant privilege, user=" + user + "," + "roleName=" + roleName + ",resourceType="
+                        + resourceType + ",resource=" + resource + ",privilege=" + privilege);
     }
 }

@@ -4,7 +4,7 @@ import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
 import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.infrastructure.map.server.MapDataSourceHandler;
 
-public class ScmMetaSourceHandler implements IMetaSourceHandler {
+public class MapServerHandlerAdapter implements IMetaSourceHandler {
     private MapDataSourceHandler mapHandler = new MapDataSourceHandler();
 
     @Override

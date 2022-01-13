@@ -1,10 +1,20 @@
 package com.sequoiacm.contentserver.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
+import com.sequoiacm.contentserver.service.IWorkspaceService;
+import com.sequoiacm.contentserver.service.impl.ServiceUtils;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmSite;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -15,24 +25,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.ScmArgChecker;
-import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
-import com.sequoiacm.contentserver.service.IWorkspaceService;
-import com.sequoiacm.contentserver.service.impl.ServiceUtils;
-import com.sequoiacm.contentserver.site.ScmContentServer;
-import com.sequoiacm.contentserver.site.ScmSite;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructrue.security.core.ScmRole;
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.audit.ScmAudit;
-import com.sequoiacm.infrastructure.audit.ScmAuditType;
-import com.sequoiacm.infrastructure.security.auth.RestField;
-import com.sequoiacm.metasource.MetaCursor;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -55,10 +50,9 @@ public class WorkspaceController {
             @PathVariable("workspace_name") String workspaceName, Authentication auth)
             throws ScmServerException {
         logger.debug(String.format("getting the workspace:%s", workspaceName));
-        BSONObject workspace = workspaceService.getWorkspace(workspaceName);
 
-        audit.info(ScmAuditType.WS_DQL, auth, workspaceName, 0,
-                "get workspace by workspaceName=" + workspaceName);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject workspace = workspaceService.getWorkspace(user, workspaceName);
 
         Map<String, Object> result = new HashMap<>(1);
         result.put(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(workspace));
@@ -80,13 +74,11 @@ public class WorkspaceController {
             throw new ScmServerException(ScmError.INVALID_ARGUMENT,
                     "limit can not be less than -1");
         }
-        MetaCursor cursor = workspaceService.getWorkspaceList(filter, orderBy, skip, limit);
+
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        MetaCursor cursor = workspaceService.getWorkspaceList(user, filter, orderBy, skip, limit);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
-        String auditMessage = "";
-        if (filter != null) {
-            auditMessage += " by filter=" + filter.toString();
-        }
-        audit.info(ScmAuditType.WS_DQL, auth, null, 0, "get workspace list" + auditMessage);
+
     }
 
     @PostMapping(value = "/workspaces/{workspace_name}")
@@ -96,16 +88,12 @@ public class WorkspaceController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
-        if (!scmUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            throw new ScmOperationUnauthorizedException("permission denied:user=" + auth.getName());
-        }
         if (!ScmArgChecker.Workspace.checkWorkspaceName(newWsName)) {
             throw new ScmInvalidArgumentException("invalid workspace name:name=" + newWsName);
         }
 
-        BSONObject newWs = workspaceService.createWorkspace(newWsName, newWsConf, auth.getName());
-        audit.info(ScmAuditType.CREATE_WS, auth, newWsName, 0,
-                "create workspace by wsconf : " + newWsConf.toString());
+        BSONObject newWs = workspaceService.createWorkspace(scmUser, newWsName, newWsConf,
+                auth.getName());
         return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(newWs));
 
     }
@@ -117,12 +105,7 @@ public class WorkspaceController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
-        if (!scmUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            throw new ScmOperationUnauthorizedException("permission denied:user=" + auth.getName());
-        }
         workspaceService.deleteWorkspace(sessionId, token, scmUser, workspaceName, isEnforced);
-        audit.info(ScmAuditType.DELETE_WS, auth, workspaceName, 0,
-                "delete workspace: " + workspaceName + ", isEnforced=" + isEnforced);
 
     }
 
@@ -133,16 +116,10 @@ public class WorkspaceController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
-        if (!scmUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            audit.info(ScmAuditType.DELETE_WS, auth, workspaceName,
-                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
-                    "update workspace failed, permission denied:user=" + auth.getName());
-            throw new ScmOperationUnauthorizedException("permission denied:user=" + auth.getName());
-        }
+
         ClientWorkspaceUpdator clientWsUpdator = ClientWorkspaceUpdator.fromBSONObject(updator);
-        BSONObject config = workspaceService.updateWorkspace(workspaceName, clientWsUpdator);
-        audit.info(ScmAuditType.UPDATE_WS, auth, workspaceName, 0,
-                "update workspace:" + workspaceName + ", updator=" + updator);
+        BSONObject config = workspaceService.updateWorkspace(scmUser, workspaceName, clientWsUpdator);
+
         return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
     }
 
@@ -150,12 +127,9 @@ public class WorkspaceController {
     public ResponseEntity<String> countWorkspace(
             @RequestParam(value = CommonDefine.RestArg.WORKSPACE_FILTER, required = false) BSONObject condition,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
-        String message = "count workspace";
-        if (null != condition) {
-            message += " by condition=" + condition.toString();
-        }
-        audit.info(ScmAuditType.WS_DQL, auth, null, 0, message);
-        long count = workspaceService.countWorkspace(condition);
+
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        long count = workspaceService.countWorkspace(user, condition);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
     }

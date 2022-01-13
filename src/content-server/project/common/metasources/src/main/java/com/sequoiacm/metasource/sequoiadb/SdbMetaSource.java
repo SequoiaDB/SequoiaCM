@@ -1,55 +1,18 @@
 package com.sequoiacm.metasource.sequoiadb;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaAttrAccessor;
-import com.sequoiacm.metasource.MetaBatchAccessor;
-import com.sequoiacm.metasource.MetaBreakpointFileAccessor;
-import com.sequoiacm.metasource.MetaClassAccessor;
-import com.sequoiacm.metasource.MetaClassAttrRelAccessor;
-import com.sequoiacm.metasource.MetaDirAccessor;
-import com.sequoiacm.metasource.MetaFileAccessor;
-import com.sequoiacm.metasource.MetaFileHistoryAccessor;
-import com.sequoiacm.metasource.MetaHistoryDataTableNameAccessor;
-import com.sequoiacm.metasource.MetaRelAccessor;
-import com.sequoiacm.metasource.MetaSessionAccessor;
-import com.sequoiacm.metasource.MetaSource;
-import com.sequoiacm.metasource.MetaSourceDefine;
-import com.sequoiacm.metasource.MetaTaskAccessor;
-import com.sequoiacm.metasource.MetaTransLogAccessor;
-import com.sequoiacm.metasource.MetaWorkspaceAccessor;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
+import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbAttrAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbAuditAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbBatchAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbBreakpointFileAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbClassAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbClassAttrRelAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbDataTableNameHistoryAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbDirAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbFileCurrentAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbFileHistoryAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbRelAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbServerAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbSessionAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbSiteAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbStrategyAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbTaskAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbTransLogAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbUserAccessor;
-import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceAccessor;
+import com.sequoiacm.metasource.sequoiadb.accessor.*;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.net.ConfigOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SdbMetaSource implements MetaSource {
+import java.util.List;
+
+public class SdbMetaSource implements ContentModuleMetaSource {
     private static final Logger logger = LoggerFactory.getLogger(SdbMetaSource.class);
 
     private SdbDataSourceWrapper ms = null;
@@ -195,6 +158,21 @@ public class SdbMetaSource implements MetaSource {
             TransactionContext context) {
         return new SdbClassAttrRelAccessor(this, wsName + "_META",
                 MetaSourceDefine.WorkspaceCLName.CL_CLASS_ATTR_REL, context);
+    }
+
+    @Override
+    public MetaAccessor createMetaAccessor(String tableName) throws ScmMetasourceException {
+        return createMetaAccessor(tableName, null);
+    }
+
+    @Override
+    public MetaAccessor createMetaAccessor(String tableName, TransactionContext context)
+            throws ScmMetasourceException {
+        String[] cscl = tableName.split("\\.");
+        if (cscl.length != 2) {
+            throw new ScmMetasourceException("invalid sdb table name:" + tableName);
+        }
+        return new SdbMetaAccessor(this, cscl[0], cscl[1], context);
     }
 
     @Override

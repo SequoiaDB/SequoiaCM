@@ -1,16 +1,5 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.util.ArrayList;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.IBatchDao;
@@ -23,19 +12,37 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathDefine;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBatchService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
 
 @Service
 public class BatchServiceImpl implements IBatchService {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchServiceImpl.class);
+
+    @Autowired
+    private ScmAudit audit;
 
     @Autowired
     private IBatchDao batchDao;
@@ -44,8 +51,20 @@ public class BatchServiceImpl implements IBatchService {
     private FileOperationListenerMgr fileOpListenerMgr;
 
     @Override
+    public BSONObject getBatchInfo(ScmUser user, String workspaceName, String batchId,
+            boolean isDetail) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.READ, "get batch");
+        BSONObject ret = getBatchInfo(workspaceName, batchId, isDetail);
+        audit.info(ScmAuditType.BATCH_DQL, user, workspaceName, 0, "get batch by batchId=" + batchId
+                + ", batchName=" + (String) ret.get(FieldName.Batch.FIELD_NAME));
+        return ret;
+    }
+
+    @Override
     public BSONObject getBatchInfo(String workspaceName, String batchId, boolean isDetail)
             throws ScmServerException {
+
         BSONObject batch = null;
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
@@ -81,11 +100,25 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public MetaCursor getList(String workspaceName, BSONObject matcher, BSONObject orderBy,
-            long skip, long limit) throws ScmServerException {
+    public MetaCursor getList(ScmUser user, String workspaceName, BSONObject matcher,
+            BSONObject orderBy, long skip, long limit) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.LOW_LEVEL_READ, "list batches");
+
+        String message = "list batches";
+        if (null != matcher) {
+            message += " by filter=" + matcher.toString();
+        }
+        if (null != orderBy) {
+            message += " order by=" + orderBy.toString();
+        }
+        message += " skip=" + skip + " limit=" + limit;
+        audit.info(ScmAuditType.BATCH_DQL, user, workspaceName, 0, message);
+
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
             return batchDao.query(wsInfo, matcher, orderBy, skip, limit);
+
         }
         catch (ScmServerException e) {
             throw e;
@@ -93,8 +126,12 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public void delete(String sessionId, String userDetail, String user, String workspaceName,
+    public void delete(String sessionId, String userDetail, ScmUser user, String workspaceName,
             String batchId) throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.DELETE, "delete batch");
+
         ScmLock batchLock = null;
         ScmLockPath batchLockPath = null;
 
@@ -114,7 +151,10 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // delete batch
-            batchDao.delete(wsInfo, batchId, batchCreateMonth, sessionId, userDetail, user);
+            batchDao.delete(wsInfo, batchId, batchCreateMonth, sessionId, userDetail,
+                    user.getUsername());
+            audit.info(ScmAuditType.DELETE_BATCH, user, workspaceName, 0,
+                    "delete batch by batchId=" + batchId);
         }
         catch (ScmServerException e) {
             throw e;
@@ -129,11 +169,16 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public String create(String user, String workspaceName, BSONObject batchInfo)
+    public String create(ScmUser user, String workspaceName, BSONObject batchInfo)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.CREATE, "create batch");
         try {
             ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
-            return batchDao.insert(wsInfo, batchInfo, user);
+            String id = batchDao.insert(wsInfo, batchInfo, user.getUsername());
+            audit.info(ScmAuditType.CREATE_BATCH, user, workspaceName, 0, "create batch, batchId="
+                    + id + ", batchName=" + (String) batchInfo.get(FieldName.Batch.FIELD_NAME));
+            return id;
         }
         catch (ScmServerException e) {
             throw e;
@@ -145,9 +190,10 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public void update(String user, String workspaceName, String batchId, BSONObject updator)
+    public void update(ScmUser user, String workspaceName, String batchId, BSONObject updator)
             throws ScmServerException {
-
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.UPDATE, "update batch");
         ScmLock batchLock = null;
         ScmLockPath batchLockPath = null;
 
@@ -166,12 +212,16 @@ public class BatchServiceImpl implements IBatchService {
                         e);
             }
 
-            boolean ret = batchDao.updateById(wsInfo, batchId, batchCreateMonth, updator, user);
+            boolean ret = batchDao.updateById(wsInfo, batchId, batchCreateMonth, updator,
+                    user.getUsername());
             if (!ret) {
                 throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
                         "update failed, batch is unexist: workspace=" + workspaceName + ", batchId="
                                 + batchId);
             }
+
+            audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
+                    "update batch by batchId=" + batchId + ", newBatchBson" + updator);
         }
         catch (ScmServerException e) {
             throw e;
@@ -187,9 +237,10 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public void attachFile(String user, String workspaceName, String batchId, String fileId)
+    public void attachFile(ScmUser user, String workspaceName, String batchId, String fileId)
             throws ScmServerException {
-
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.UPDATE, "attach batch's file");
         ScmLock batchLock = null;
         ScmLockPath batchLockPath = null;
         ScmLock fileLock = null;
@@ -228,8 +279,8 @@ public class BatchServiceImpl implements IBatchService {
             if (isFileInBatch(batch, fileId)) {
                 if (StringUtils.isEmpty(batchIdInFile)) {
                     // update file's batch_id
-                    ScmContentServer.getInstance().getMetaService()
-                            .updateBatchIdOfFile(workspaceName, batchId, fileId, user, null);
+                    ScmContentServer.getInstance().getMetaService().updateBatchIdOfFile(
+                            workspaceName, batchId, fileId, user.getUsername(), null);
                 }
                 throw new ScmServerException(ScmError.FILE_IN_SPECIFIED_BATCH,
                         "attachFile failed, the file is already in the batch: workspace="
@@ -254,8 +305,10 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // attach
-            batchDao.attachFile(wsInfo, batchId, batchCreateMonth, fileId, user);
+            batchDao.attachFile(wsInfo, batchId, batchCreateMonth, fileId, user.getUsername());
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
+            audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
+                    "attach batch's file batchId=" + batchId + ", fileId=" + fileId);
         }
         catch (ScmServerException e) {
             throw e;
@@ -310,9 +363,11 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public void detachFile(String user, String workspaceName, String batchId, String fileId)
+    public void detachFile(ScmUser user, String workspaceName, String batchId, String fileId)
             throws ScmServerException {
 
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.UPDATE, "deattach batch's file");
         ScmLock batchLock = null;
         ScmLockPath batchLockPath = null;
 
@@ -348,8 +403,8 @@ public class BatchServiceImpl implements IBatchService {
             /*
              * if (null == fileInfo) { throw new
              * ScmServerException(ScmError.METASOURCE_RECORD_NOT_EXIST,
-             * "attachFile failed, file is unexist: workspace=" + workspaceName
-             * + ",batchId=" + batchId + ",fileId=" + fileId); }
+             * "attachFile failed, file is unexist: workspace=" + workspaceName +
+             * ",batchId=" + batchId + ",fileId=" + fileId); }
              */
 
             // when file not in the batch
@@ -368,8 +423,9 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // detach
-            batchDao.detachFile(wsInfo, batchId, batchCreateMonth, fileId, user);
+            batchDao.detachFile(wsInfo, batchId, batchCreateMonth, fileId, user.getUsername());
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
+
         }
         catch (ScmServerException e) {
             throw e;
@@ -384,6 +440,9 @@ public class BatchServiceImpl implements IBatchService {
             unlock(batchLock, batchLockPath);
         }
         callback.onComplete();
+
+        audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
+                "detach batch's file batchId=" + batchId + ", fileId=" + fileId);
     }
 
     private ScmLock lock(ScmLockPath lockPath) throws Exception {
@@ -441,7 +500,16 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     @Override
-    public long countBatch(String wsName, BSONObject condition) throws ScmServerException {
-        return ScmContentServer.getInstance().getMetaService().getBatchCount(wsName, condition);
+    public long countBatch(ScmUser user, String wsName, BSONObject condition)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName,
+                ScmPrivilegeDefine.LOW_LEVEL_READ, "count directory");
+        long ret = ScmContentServer.getInstance().getMetaService().getBatchCount(wsName, condition);
+        String message = "count batch";
+        if (null != condition) {
+            message += " by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.BATCH_DQL, user, wsName, 0, "");
+        return ret;
     }
 }

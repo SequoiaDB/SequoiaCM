@@ -91,6 +91,8 @@ public class PropertiesUtils {
         PropertiesUtils.cephS3Config = conf;
     }
 
+
+    // 装载一些配置的key到特定集合中，对外暴露了通过key获取配置项的能力
     public static void loadSysConfig() throws ScmServerException {
         loadAppProperties();
     }

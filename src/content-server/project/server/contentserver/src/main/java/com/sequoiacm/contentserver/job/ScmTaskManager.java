@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.job;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.ScmServer;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmServerException;
@@ -102,7 +103,7 @@ public class ScmTaskManager {
     public void restore() throws ScmServerException {
         // abort init & running task(taskType=transfer_file & clean_file)
         int mainSiteId = ScmContentServer.getInstance().getMainSite();
-        int serverId = ScmContentServer.getInstance().getId();
+        int serverId = ScmServer.getInstance().getContentServerInfo().getId();
         AbortTask(mainSiteId, serverId);
 
         // fill stop time is null

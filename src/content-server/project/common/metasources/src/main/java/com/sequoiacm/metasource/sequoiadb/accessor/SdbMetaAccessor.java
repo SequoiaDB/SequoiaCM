@@ -1,29 +1,20 @@
 package com.sequoiacm.metasource.sequoiadb.accessor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
-import com.sequoiacm.metasource.sequoiadb.SdbMetaCursor;
-import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
-import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
-import com.sequoiacm.metasource.sequoiadb.SdbTransactionContext;
-import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.DBCursor;
-import com.sequoiadb.base.DBQuery;
-import com.sequoiadb.base.Sequoiadb;
+import com.sequoiacm.metasource.sequoiadb.*;
+import com.sequoiadb.base.*;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
-public abstract class SdbMetaAccessor implements MetaAccessor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SdbMetaAccessor implements MetaAccessor {
     private SdbMetaSource metasource;
     private String csName;
     private String clName;

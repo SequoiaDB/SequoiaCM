@@ -1,24 +1,18 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
-import org.bson.util.JSON;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServerMapping;
@@ -27,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.MetaSource;
+import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.ScmMetasourceException;
 
 public class ScmMetaSourceHelper {
@@ -78,7 +72,7 @@ public class ScmMetaSourceHelper {
         }
     }
 
-    public static List<ScmSite> getSiteList(MetaSource metasource) throws ScmServerException {
+    public static List<ScmSite> getSiteList(ContentModuleMetaSource metasource) throws ScmServerException {
         MetaCursor cursor = null;
         try {
             MetaAccessor siteAccesor = metasource.getSiteAccessor();
@@ -104,7 +98,7 @@ public class ScmMetaSourceHelper {
         }
     }
 
-    public static List<ScmContentServerMapping> getServerList(MetaSource metasource)
+    public static List<ScmContentServerMapping> getServerList(ContentModuleMetaSource metasource)
             throws ScmServerException {
         MetaCursor cursor = null;
         try {
@@ -131,7 +125,7 @@ public class ScmMetaSourceHelper {
         }
     }
 
-    public static List<BSONObject> getWorkspaceList(MetaSource metasource)
+    public static List<BSONObject> getWorkspaceList(ContentModuleMetaSource metasource)
             throws ScmServerException {
 
         MetaCursor cursor = null;

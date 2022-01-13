@@ -1,36 +1,12 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import com.sequoiacm.contentserver.site.ScmSite;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.InvalidArgumentException;
-import com.sequoiacm.common.ScmArgChecker;
-import com.sequoiacm.common.ScmFileLocation;
-import com.sequoiacm.common.ScmUpdateContentOption;
+import com.sequoiacm.common.*;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
+import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
-import com.sequoiacm.contentserver.dao.BreakpointFileConvertor;
-import com.sequoiacm.contentserver.dao.FileContentUpdateDao;
-import com.sequoiacm.contentserver.dao.FileCreatorDao;
-import com.sequoiacm.contentserver.dao.FileDeletorDao;
-import com.sequoiacm.contentserver.dao.FileInfoUpdatorDao;
-import com.sequoiacm.contentserver.dao.FileReaderDao;
-import com.sequoiacm.contentserver.dao.IFileCreatorDao;
+import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
+import com.sequoiacm.contentserver.dao.*;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.job.ScmJobCacheFile;
@@ -41,8 +17,10 @@ import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
+import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
@@ -51,11 +29,13 @@ import com.sequoiacm.contentserver.service.IBatchService;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
@@ -67,6 +47,19 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
 import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.TransactionContext;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class FileServiceImpl implements IFileService {
@@ -86,6 +79,18 @@ public class FileServiceImpl implements IFileService {
     private ScmAudit audit;
 
     @Override
+    public BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId,
+            int majorVersion, int minorVersion) throws ScmServerException {
+        BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion);
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID), ScmPrivilegeDefine.READ,
+                "get file by id");
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file info by file id="
+                + fileId + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        return fileInfo;
+    }
+
+    @Override
     public BSONObject getFileInfoById(String workspaceName, String fileId, int majorVersion,
             int minorVersion) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
@@ -101,8 +106,10 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
-    public BSONObject getFileInfoByPath(String workspaceName, String filePath, int majorVersion,
-            int minorVersion) throws ScmServerException {
+    public BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
+            int majorVersion, int minorVersion) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriority(user, workspaceName, filePath,
+                ScmPrivilegeDefine.READ, "get file by path");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
         if (!ws.isEnableDirectory()) {
@@ -115,7 +122,6 @@ public class FileServiceImpl implements IFileService {
         BSONObject fileInfo = null;
         try {
             BSONObject parentDir = dirService.getDirInfoByPath(workspaceName, parentDirPath);
-
             String parentDirId = (String) parentDir.get(FieldName.FIELD_CLDIR_ID);
             fileInfo = contentServer.getMetaService().getFileInfo(ws, parentDirId, fileName,
                     majorVersion, minorVersion);
@@ -131,6 +137,9 @@ public class FileServiceImpl implements IFileService {
                     + ",filePath=" + filePath + ",version="
                     + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
+
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file by file path="
+                + filePath + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return fileInfo;
     }
 
@@ -141,6 +150,7 @@ public class FileServiceImpl implements IFileService {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
 
+        MetaCursor metaCursor = null;
         try {
             if (selector == null) {
                 selector = new BasicBSONObject();
@@ -154,22 +164,24 @@ public class FileServiceImpl implements IFileService {
             }
 
             if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
-                return contentServer.getMetaService().queryCurrentFile(ws, condition, selector,
-                        orderby, skip, limit);
+                metaCursor = contentServer.getMetaService().queryCurrentFile(ws, condition,
+                        selector, orderby, skip, limit);
             }
             else {
                 ScmArgChecker.File.checkHistoryFileMatcher(condition);
                 if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
                     ScmArgChecker.File.checkHistoryFileOrderby(orderby);
-                    return contentServer.getMetaService().queryHistoryFile(ws.getMetaLocation(),
-                            workspaceName, condition, selector, orderby, skip, limit);
+                    metaCursor = contentServer.getMetaService().queryHistoryFile(
+                            ws.getMetaLocation(), workspaceName, condition, selector, orderby, skip,
+                            limit);
                 }
                 else if (scope == CommonDefine.Scope.SCOPE_ALL) {
                     if (orderby != null || skip != 0 || limit != -1) {
                         throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
                                 "query all file unsupport orderby/skip/limit");
                     }
-                    return contentServer.getMetaService().queryAllFile(ws, condition, selector);
+                    metaCursor = contentServer.getMetaService().queryAllFile(ws, condition,
+                            selector);
                 }
                 else {
                     throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
@@ -179,21 +191,70 @@ public class FileServiceImpl implements IFileService {
         catch (InvalidArgumentException e) {
             throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
         }
+        return metaCursor;
     }
 
     @Override
-    public BSONObject uploadFile(String workspaceName, String username, InputStream is,
-            BSONObject fileInfo) throws ScmServerException {
-        return uploadFile(workspaceName, username, is, fileInfo, null, null, null,
-                new ClientUploadConf());
+    public MetaCursor getFileList(ScmUser user, String workspaceName, BSONObject condition,
+            int scope, BSONObject orderby, long skip, long limit, BSONObject selector)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.LOW_LEVEL_READ, "list files");
+        MetaCursor ret = getFileList(workspaceName, condition, scope, orderby, skip, limit,
+                selector);
+        String message = "list file ";
+        if (null != condition) {
+            message += "by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, message);
+        return ret;
+    }
+
+    @Override
+    public MetaCursor getDirSubFileList(ScmUser user, String workspaceName, String dirId,
+            BSONObject condition, int scope, BSONObject orderby, long skip, long limit,
+            BSONObject selector) throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                dirId, ScmPrivilegeDefine.READ, "list directory's files");
+
+        BSONObject matcher = new BasicBSONObject(FieldName.FIELD_CLFILE_DIRECTORY_ID, dirId);
+        if (condition != null) {
+            BasicBSONList arrayCond = new BasicBSONList();
+            arrayCond.add(condition);
+            arrayCond.add(matcher);
+
+            matcher = new BasicBSONObject();
+            matcher.put("$and", arrayCond);
+        }
+
+        audit.info(ScmAuditType.DIR_DQL, user, workspaceName, 0,
+                "list directory's files, directoryId=" + dirId + ", matcher" + matcher.toString());
+        return getFileList(workspaceName, matcher, CommonDefine.Scope.SCOPE_CURRENT, orderby, skip,
+                limit, selector);
     }
 
     // when overwrite file, may be to forward request of delete file.
     @Override
-    public BSONObject uploadFile(String workspaceName, String username, InputStream is,
+    public BSONObject uploadFile(ScmUser user, String workspaceName, InputStream is,
             BSONObject fileInfo, String sessionId, String userDetail,
             ScmUserPasswordType passwordType, ClientUploadConf uploadConf)
             throws ScmServerException {
+
+        if (uploadConf.isOverwrite()) {
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                    (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
+                    ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag(),
+                    "overwrite file for delete and create");
+            ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                    ScmPrivilegeDefine.UPDATE, "overwrite file for detach batch");
+        }
+        else {
+            // create file priv
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                    (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
+                    ScmPrivilegeDefine.CREATE, "create file");
+        }
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
 
@@ -212,7 +273,7 @@ public class FileServiceImpl implements IFileService {
         String dataId = fileId;
         Date dataCreateDate = fileCreateDate;
         addExtraField(wsInfo, checkedFileObj, fileId, dataId, fileCreateDate, dataCreateDate,
-                username, contentServer.getLocalSite(), 1, 0);
+                user.getUsername(), contentServer.getLocalSite(), 1, 0);
 
         // checkDirWithSameNameExist(checkedFileObj, workspaceName);
 
@@ -224,7 +285,7 @@ public class FileServiceImpl implements IFileService {
         BSONObject finfo = null;
         try {
             dao.write(is);
-            finfo = insertFileInfo(wsInfo, dao, checkedFileObj, uploadConf, sessionId, username,
+            finfo = insertFileInfo(wsInfo, dao, checkedFileObj, uploadConf, sessionId, user,
                     passwordType, userDetail);
         }
         catch (ScmServerException e) {
@@ -244,21 +305,34 @@ public class FileServiceImpl implements IFileService {
         }
 
         listenerMgr.postCreate(wsInfo, fileId).onComplete();
+
+        audit.info(ScmAuditType.CREATE_FILE, user, workspaceName, 0,
+                "create file , file id=" + finfo.get(FieldName.FIELD_CLFILE_ID) + ", file name="
+                        + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
         return finfo;
     }
 
     @Override
-    public BSONObject uploadFile(String workspaceName, String username, String breakpointFileName,
-            BSONObject fileInfo) throws ScmServerException {
-        return uploadFile(workspaceName, username, breakpointFileName, fileInfo, null, null, null,
-                new ClientUploadConf());
-    }
-
-    @Override
-    public BSONObject uploadFile(String workspaceName, String username, String breakpointFileName,
+    public BSONObject uploadFile(ScmUser user, String workspaceName, String breakpointFileName,
             BSONObject fileInfo, String sessionId, String userDetail,
             ScmUserPasswordType passwordType, ClientUploadConf uploadConf)
             throws ScmServerException {
+
+        if (uploadConf.isOverwrite()) {
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                    (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
+                    ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag(),
+                    "overwrite file for delete and create");
+            ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                    ScmPrivilegeDefine.UPDATE, "overwrite file for detach batch");
+        }
+        else {
+            // create file priv
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                    (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
+                    ScmPrivilegeDefine.CREATE, "create file");
+        }
+
         ScmContentServer contentServer = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
         BSONObject ret;
@@ -307,7 +381,7 @@ public class FileServiceImpl implements IFileService {
             }
 
             addExtraField(wsInfo, checkedFileObj, fileId, dataId, fileCreateDate, dataCreateDate,
-                    username, contentServer.getLocalSite(), 1, 0);
+                    user.getUsername(), contentServer.getLocalSite(), 1, 0);
 
             checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_SIZE, breakpointFile.getUploadSize());
             checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, ENDataType.Normal.getValue());
@@ -319,7 +393,7 @@ public class FileServiceImpl implements IFileService {
             listenerMgr.preCreate(wsInfo, checkedFileObj);
             IFileCreatorDao fileDao = new BreakpointFileConvertor(wsInfo, breakpointFile,
                     checkedFileObj);
-            ret = insertFileInfo(wsInfo, fileDao, checkedFileObj, uploadConf, sessionId, username,
+            ret = insertFileInfo(wsInfo, fileDao, checkedFileObj, uploadConf, sessionId, user,
                     passwordType, userDetail);
             callback = listenerMgr.postCreate(wsInfo, fileId);
         }
@@ -333,11 +407,15 @@ public class FileServiceImpl implements IFileService {
             lock.unlock();
         }
         callback.onComplete();
+
+        audit.info(ScmAuditType.CREATE_FILE, user, workspaceName, 0,
+                "create breakpointFile , file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
+                        + ", breakpointFileName=" + breakpointFileName);
         return ret;
     }
 
     private BSONObject insertFileInfo(ScmWorkspaceInfo ws, IFileCreatorDao fileDao,
-            BSONObject fileInfo, ClientUploadConf uploadConf, String sessionId, String username,
+            BSONObject fileInfo, ClientUploadConf uploadConf, String sessionId, ScmUser user,
             ScmUserPasswordType passwordType, String userDetail) throws ScmServerException {
         try {
             return fileDao.insert();
@@ -350,7 +428,7 @@ public class FileServiceImpl implements IFileService {
                 String existFileId = contentService.getMetaService().getFileId(ws, parentDirId,
                         fileName);
                 if (existFileId != null) {
-                    deleteCurrentFile(sessionId, fileDao.getWorkspaceName(), username, passwordType,
+                    deleteCurrentFile(sessionId, fileDao.getWorkspaceName(), user, passwordType,
                             userDetail, existFileId);
                 }
                 return fileDao.insert();
@@ -368,7 +446,7 @@ public class FileServiceImpl implements IFileService {
         }
     }
 
-    private void deleteCurrentFile(String sessionId, String workspaceName, String username,
+    private void deleteCurrentFile(String sessionId, String workspaceName, ScmUser user,
             ScmUserPasswordType passwordType, String userDetail, String existFileId)
             throws ScmServerException {
         try {
@@ -383,11 +461,12 @@ public class FileServiceImpl implements IFileService {
             String batchId = (String) existFileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
             if (batchId != null && !batchId.isEmpty()) {
                 try {
-                    batchService.detachFile(username, workspaceName, batchId, existFileId);
+                    batchService.detachFile(user, workspaceName, batchId, existFileId);
                     audit.info(ScmAuditType.UPDATE_BATCH,
-                            ScmUserAuditType.getScmUserAuditType(passwordType.toString()), username,
-                            workspaceName, 0, "overwrite file, detach batch's file batchId="
-                                    + batchId + ", fileId=" + existFileId);
+                            ScmUserAuditType.getScmUserAuditType(passwordType.toString()),
+                            user.getUsername(), workspaceName, 0,
+                            "overwrite file, detach batch's file batchId=" + batchId + ", fileId="
+                                    + existFileId);
                 }
                 catch (ScmServerException e) {
                     if (e.getError() != ScmError.BATCH_NOT_FOUND
@@ -397,13 +476,12 @@ public class FileServiceImpl implements IFileService {
                 }
             }
 
-            ScmFileServicePriv.getInstance().checkDirPriorityByFileId(username, workspaceName, this,
+            ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this,
                     existFileId, -1, -1, dirService, ScmPrivilegeDefine.DELETE,
                     "overwrite file,delete old file");
-            deleteFile(sessionId, userDetail, workspaceName, username, existFileId, -1, -1, true);
-            audit.info(ScmAuditType.DELETE_FILE,
-                    ScmUserAuditType.getScmUserAuditType(passwordType.toString()), username,
-                    workspaceName, 0, "overwrite file, delete old file by file id=" + existFileId);
+            deleteFile(sessionId, userDetail, workspaceName, existFileId, -1, -1, true);
+            audit.info(ScmAuditType.DELETE_FILE, user, workspaceName, 0,
+                    "overwrite file, delete old file by file id=" + existFileId);
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.FILE_NOT_FOUND) {
@@ -415,16 +493,26 @@ public class FileServiceImpl implements IFileService {
     @Override
     public FileReaderDao downloadFile(String sessionId, String userDetail, String workspaceName,
             BSONObject fileInfo, int readFlag) throws ScmServerException {
-        FileReaderDao dao = new FileReaderDao(sessionId, userDetail,
+        return new FileReaderDao(sessionId, userDetail,
                 ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName), fileInfo,
                 readFlag);
-        return dao;
     }
 
     @Override
-    public void deleteFile(String sessionid, String userDetail, String workspaceName,
-            String username, String fileId, int majorVersion, int minorVersion, boolean isPhysical)
-            throws ScmServerException {
+    public FileReaderDao downloadFile(String sessionId, String userDetail, ScmUser user,
+            String workspaceName, BSONObject fileInfo, int readFlag) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID), ScmPrivilegeDefine.READ,
+                "read file");
+        FileReaderDao dao = downloadFile(sessionId, userDetail, workspaceName, fileInfo, readFlag);
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
+                "read file, file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
+                        + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
+        return dao;
+    }
+
+    public void deleteFile(String sessionid, String userDetail, String workspaceName, String fileId,
+            int majorVersion, int minorVersion, boolean isPhysical) throws ScmServerException {
         try {
             FileDeletorDao dao = new FileDeletorDao();
             ScmWorkspaceInfo wsInfo = ScmContentServer.getInstance()
@@ -439,6 +527,32 @@ public class FileServiceImpl implements IFileService {
         catch (Exception e) {
             throw e;
         }
+    }
+
+    @Override
+    public void deleteFile(String sessionid, String userDetail, ScmUser user, String workspaceName,
+            String fileId, int majorVersion, int minorVersion, boolean isPhysical)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.DELETE, "delete file");
+        deleteFile(sessionid, userDetail, workspaceName, fileId, majorVersion, minorVersion,
+                isPhysical);
+        audit.info(ScmAuditType.DELETE_FILE, user, workspaceName, 0,
+                "delete file by file id=" + fileId);
+    }
+
+    public long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition)
+            throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.LOW_LEVEL_READ, "count file");
+        long ret = countFiles(workspaceName, scope, condition);
+        String message = "count file";
+        if (null != condition) {
+            message += " by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, message);
+        return ret;
     }
 
     @Override
@@ -496,16 +610,19 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
-    public BSONObject updateFileInfo(String workspaceName, String user, String fileId,
+    public BSONObject updateFileInfo(ScmUser user, String workspaceName, String fileId,
             BSONObject fileInfo, int majorVersion, int minorVersion) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "update file by id");
         BSONObject ret;
         OperationCompleteCallback callback = null;
         ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName);
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
-            FileInfoUpdatorDao dao = new FileInfoUpdatorDao(user, ws, fileId, majorVersion,
-                    minorVersion, fileInfo);
+            FileInfoUpdatorDao dao = new FileInfoUpdatorDao(user.getUsername(), ws, fileId,
+                    majorVersion, minorVersion, fileInfo);
             ret = dao.updateInfo();
             callback = listenerMgr.postUpdate(ws, dao.getFileInfoBeforeUpdate());
         }
@@ -513,12 +630,18 @@ public class FileServiceImpl implements IFileService {
             writeLock.unlock();
         }
         callback.onComplete();
+
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "update file by file id=" + fileId);
         return ret;
     }
 
     @Override
-    public void asyncTransferFile(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, String userTargetSite) throws ScmServerException {
+    public void asyncTransferFile(ScmUser user, String workspaceName, String fileId,
+            int majorVersion, int minorVersion, String userTargetSite) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "async transfer file");
         ScmContentServer contentserver = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfoChecked(workspaceName);
         int localSiteId = contentserver.getLocalSite();
@@ -537,7 +660,7 @@ public class FileServiceImpl implements IFileService {
 
         // 2. get transfer target site
         int transferTargetSiteId;
-        if (null != userTargetSite){
+        if (null != userTargetSite) {
             // get target site id
             ScmSite siteInfo = contentserver.getSiteInfo(userTargetSite);
             if (null == siteInfo) {
@@ -546,8 +669,10 @@ public class FileServiceImpl implements IFileService {
                                 + ",targetSite=" + userTargetSite);
             }
             transferTargetSiteId = siteInfo.getId();
-        }else {
-            transferTargetSiteId = ScmStrategyMgr.getInstance().getDefaultAsyncTransferTargetSite(wsInfo, localSiteId);
+        }
+        else {
+            transferTargetSiteId = ScmStrategyMgr.getInstance()
+                    .getDefaultAsyncTransferTargetSite(wsInfo, localSiteId);
         }
         ScmStrategyMgr.getInstance().checkTransferSite(wsInfo, localSiteId, transferTargetSiteId);
 
@@ -563,6 +688,8 @@ public class FileServiceImpl implements IFileService {
         // 4. check remote
         if (CommonHelper.isSiteExist(transferTargetSiteId, siteList)) {
             // remote site is exist. just response and return
+            audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                    "async transfer file by file id=" + fileId);
             return;
         }
 
@@ -570,11 +697,16 @@ public class FileServiceImpl implements IFileService {
         ScmJobTransferFile job = new ScmJobTransferFile(wsInfo, fileId, majorVersion, minorVersion,
                 dataId, transferTargetSiteId);
         ScmJobManager.getInstance().schedule(job, 0);
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "async transfer file by file id=" + fileId);
     }
 
     @Override
-    public void asyncCacheFile(String workspaceName, String fileId, int majorVersion,
+    public void asyncCacheFile(ScmUser user, String workspaceName, String fileId, int majorVersion,
             int minorVersion) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "async cache file");
         ScmContentServer contentserver = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfoChecked(workspaceName);
 
@@ -597,6 +729,8 @@ public class FileServiceImpl implements IFileService {
         // 3. check local
         if (CommonHelper.isSiteExist(localSiteId, siteList)) {
             // local site is already exist. just return.
+            audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                    "async cache file by file id=" + fileId);
             return;
         }
 
@@ -608,6 +742,8 @@ public class FileServiceImpl implements IFileService {
         ScmJobCacheFile job = new ScmJobCacheFile(wsInfo, fileId, majorVersion, minorVersion,
                 dataId, remoteSiteId);
         ScmJobManager.getInstance().schedule(job, 0);
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "async cache file by file id=" + fileId);
     }
 
     private static ScmLock lockBreakpointFile(String workspaceName, String breakpointFileName)
@@ -751,26 +887,42 @@ public class FileServiceImpl implements IFileService {
     // }
 
     @Override
-    public BSONObject updateFileContent(String workspaceName, String user, String fileId,
+    public BSONObject updateFileContent(ScmUser user, String workspaceName, String fileId,
             InputStream newFileContent, int majorVersion, int minorVersion,
             ScmUpdateContentOption option) throws ScmServerException {
-        FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion, option, listenerMgr);
-        return dao.updateContent(newFileContent);
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "update file by id");
+        FileContentUpdateDao dao = new FileContentUpdateDao(user.getUsername(), workspaceName,
+                fileId, majorVersion, minorVersion, option, listenerMgr);
+        BSONObject ret = dao.updateContent(newFileContent);
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "update file by file id=" + fileId);
+        return ret;
     }
 
     @Override
-    public BSONObject updateFileContent(String workspaceName, String user, String fileId,
+    public BSONObject updateFileContent(ScmUser user, String workspaceName, String fileId,
             String newBreakpointFileContent, int majorVersion, int minorVersion,
             ScmUpdateContentOption option) throws ScmServerException {
-        FileContentUpdateDao dao = new FileContentUpdateDao(user, workspaceName, fileId,
-                majorVersion, minorVersion, option, listenerMgr);
-        return dao.updateContent(newBreakpointFileContent);
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "update file by id");
+        FileContentUpdateDao dao = new FileContentUpdateDao(user.getUsername(), workspaceName,
+                fileId, majorVersion, minorVersion, option, listenerMgr);
+        BSONObject ret = dao.updateContent(newBreakpointFileContent);
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "update file by file id=" + fileId);
+        return ret;
     }
 
     @Override
-    public String calcFileMd5(String sessionid, String userDetail, String workspaceName,
-            String fileId, int majorVersion, int minorVersion) throws ScmServerException {
+    public String calcFileMd5(String sessionid, String userDetail, ScmUser user,
+            String workspaceName, String fileId, int majorVersion, int minorVersion)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(user, workspaceName, this, fileId,
+                majorVersion, minorVersion, dirService, ScmPrivilegeDefine.UPDATE,
+                "calculate file md5");
         BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion);
         BasicBSONList siteBson = BsonUtils.getArray(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
@@ -800,12 +952,59 @@ public class FileServiceImpl implements IFileService {
                     majorVersion, minorVersion);
             md5 = BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
         }
+        audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
+                "calculate file md5, id=" + fileId);
         return md5;
     }
 
     @Override
+    public String generateId(Date fileCreateTime) {
+        return ScmIdGenerator.FileId.get(fileCreateTime);
+    }
+
+    @Override
+    public BSONObject createFileMeta(String ws, ScmUser user, BSONObject fileInfo,
+            ScmDataInfoDetail dataInfoDetail, TransactionCallback transactionCallback)
+            throws ScmServerException {
+        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfo(ws);
+        BSONObject checkedFileObj = checkFileObj(fileInfo);
+
+        Date fileCreateDate = dataInfoDetail.getDataInfo().getCreateTime();
+        String fileId = dataInfoDetail.getDataInfo().getId();
+
+        addExtraField(wsInfo, checkedFileObj, fileId, fileId, fileCreateDate, fileCreateDate,
+                user.getUsername(), dataInfoDetail.getSiteId(), 1, 0);
+
+        checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_SIZE, dataInfoDetail.getSize());
+        checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE,
+                dataInfoDetail.getDataInfo().getType());
+
+        listenerMgr.preCreate(wsInfo, checkedFileObj);
+
+        String parentId = (String) checkedFileObj.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        ScmMetaService metaservice = ScmContentServer.getInstance().getMetaService();
+
+        OperationCompleteCallback listenerCallback;
+        ScmLock rLock = ScmFileOperateUtils.lockDirForCreateFile(wsInfo, parentId);
+        try {
+            ScmFileOperateUtils.checkDirForCreateFile(wsInfo, parentId);
+            metaservice.insertFile(wsInfo, checkedFileObj, transactionCallback);
+            listenerCallback = listenerMgr.postCreate(wsInfo, fileId);
+        }
+        finally {
+            if (rLock != null) {
+                rLock.unlock();
+            }
+        }
+        listenerCallback.onComplete();
+        return checkedFileObj;
+    }
+
+    @Override
     public boolean updateFileExternalData(String workspaceName, String fileId, int majorVersion,
-            int minorVersion, BSONObject externalData) throws ScmServerException {
+            int minorVersion, BSONObject externalData, TransactionContext transactionContext)
+            throws ScmServerException {
         logger.debug("update file ext data:ws={}, fileId={}, version={}.{}, ext={}", workspaceName,
                 fileId, majorVersion, minorVersion, externalData);
         ScmWorkspaceInfo wsInfo = ScmContentServer.getInstance()
@@ -814,7 +1013,7 @@ public class FileServiceImpl implements IFileService {
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
             return ScmContentServer.getInstance().getMetaService().updateFileExternalData(wsInfo,
-                    fileId, majorVersion, minorVersion, externalData);
+                    fileId, majorVersion, minorVersion, externalData, transactionContext);
         }
         finally {
             writeLock.unlock();

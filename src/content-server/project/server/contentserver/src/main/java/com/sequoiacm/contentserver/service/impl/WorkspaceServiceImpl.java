@@ -1,29 +1,12 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import com.sequoiacm.common.InvalidArgumentException;
-import com.sequoiacm.common.ScmArgChecker;
-import com.sequoiacm.contentserver.common.AsyncUtils;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
+import com.sequoiacm.contentserver.common.AsyncUtils;
 import com.sequoiacm.contentserver.dao.WorkspaceCreator;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
 import com.sequoiacm.contentserver.model.ClientLocationOutline;
 import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
@@ -39,11 +22,14 @@ import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
 import com.sequoiacm.infrastructrue.security.core.ScmResource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.IResource;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
@@ -51,6 +37,19 @@ import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaHistoryDataTableNameAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Service
 public class WorkspaceServiceImpl implements IWorkspaceService {
@@ -62,20 +61,31 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     @Autowired
     IPrivilegeService privilegeService;
 
+    @Autowired
+    ScmAudit audit;
+
     @Override
-    public BSONObject getWorkspace(String workspaceName) throws ScmServerException {
+    public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
+        audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
+                "get workspace by workspaceName=" + workspaceName);
         ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName);
         return ws.getBSONObject();
     }
 
     @Override
-    public MetaCursor getWorkspaceList(BSONObject condition,BSONObject orderBy, long skip, long limit)
-            throws ScmServerException {
+    public MetaCursor getWorkspaceList(ScmUser user, BSONObject condition, BSONObject orderBy,
+            long skip, long limit) throws ScmServerException {
         ScmContentServer contentServer = ScmContentServer.getInstance();
         MetaAccessor accessor = contentServer.getMetaService().getMetaSource()
                 .getWorkspaceAccessor();
         try {
-            return accessor.query(condition, null, orderBy, skip , limit);
+            MetaCursor ret = accessor.query(condition, null, orderBy, skip, limit);
+            String auditMessage = "";
+            if (condition != null) {
+                auditMessage += " by filter=" + condition.toString();
+            }
+            audit.info(ScmAuditType.WS_DQL, user, null, 0, "get workspace list" + auditMessage);
+            return ret;
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
@@ -84,28 +94,43 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     }
 
     @Override
-    public BSONObject createWorkspace(String wsName, BSONObject wsConf, String createUser)
-            throws ScmServerException {
+    public BSONObject createWorkspace(ScmUser user, String wsName, BSONObject wsConf,
+            String createUser) throws ScmServerException {
+        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            throw new ScmOperationUnauthorizedException(
+                    "permission denied:user=" + user.getUsername());
+        }
         WorkspaceCreator creator = new WorkspaceCreator(wsName, createUser, wsConf);
-        return creator.create();
+        BSONObject ret = creator.create();
+
+        audit.info(ScmAuditType.CREATE_WS, user, wsName, 0,
+                "create workspace by wsconf : " + wsConf);
+        return ret;
     }
 
     @Override
     public void deleteWorkspace(String sessionId, String token, ScmUser user, final String wsName,
-                                boolean isEnforced) throws ScmServerException {
+            boolean isEnforced) throws ScmServerException {
+
+        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            throw new ScmOperationUnauthorizedException(
+                    "permission denied:user=" + user.getUsername());
+        }
         final ScmContentServer contentserver = ScmContentServer.getInstance();
         if (!contentserver.isInMainSite()) {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(contentserver.getMainSiteName());
             client.deleteWorkspace(sessionId, token, wsName, isEnforced);
+
+            audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
+                    "delete workspace: " + wsName + ", isEnforced=" + isEnforced);
             return;
         }
 
         if (!isEnforced) {
             ScmWorkspaceInfo ws = contentserver.getWorkspaceInfo(wsName);
             if (ws != null) {
-                long fileCount = contentserver.getMetaService()
-                        .getCurrentFileCount(ws, null);
+                long fileCount = contentserver.getMetaService().getCurrentFileCount(ws, null);
                 if (fileCount > 0) {
                     throw new ScmServerException(ScmError.WORKSPACE_NOT_EMPTY,
                             "workspace is not empty:wsName=" + wsName);
@@ -126,6 +151,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 deleteDataTable(contentserver, wsName);
             }
         });
+
+        audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
+                "delete workspace: " + wsName + ", isEnforced=" + isEnforced);
 
     }
 
@@ -241,21 +269,38 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     }
 
     @Override
-    public BSONObject updateWorkspace(String wsName, ClientWorkspaceUpdator updator)
+    public BSONObject updateWorkspace(ScmUser user, String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException {
+        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            audit.info(ScmAuditType.DELETE_WS, user, wsName,
+                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
+                    "update workspace failed, permission denied:user=" + user.getUsername());
+            throw new ScmOperationUnauthorizedException(
+                    "permission denied:user=" + user.getUsername());
+        }
         WorkspaceUpdator confUpdator = validateUpdator(wsName, updator);
         WorkspaceConfig resp = ContenserverConfClient.getInstance()
                 .updateWorkspaceConf(confUpdator);
-        return resp.toBSONObject();
+        BSONObject ret = resp.toBSONObject();
+        audit.info(ScmAuditType.UPDATE_WS, user, wsName, 0,
+                "update workspace:" + wsName + ", updator=" + updator);
+        return ret;
     }
 
     @Override
-    public long countWorkspace(BSONObject condition) throws ScmServerException {
+    public long countWorkspace(ScmUser user, BSONObject condition) throws ScmServerException {
         try {
             ScmContentServer contentServer = ScmContentServer.getInstance();
             MetaAccessor accessor = contentServer.getMetaService().getMetaSource()
                     .getWorkspaceAccessor();
-            return accessor.count(condition);
+            long ret = accessor.count(condition);
+            String message = "count workspace";
+            if (null != condition) {
+                message += " by condition=" + condition.toString();
+            }
+
+            audit.info(ScmAuditType.WS_DQL, user, null, 0, message);
+            return ret;
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
@@ -334,6 +379,5 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
         return confUpdator;
     }
-
 
 }

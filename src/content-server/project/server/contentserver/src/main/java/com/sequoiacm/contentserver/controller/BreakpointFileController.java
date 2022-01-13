@@ -1,13 +1,21 @@
 package com.sequoiacm.contentserver.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.checksum.ChecksumType;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
+import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.model.BreakpointFile;
+import com.sequoiacm.contentserver.model.BreakpointFileJsonSerializer;
+import com.sequoiacm.contentserver.service.IBreakpointFileService;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsBreakpointFileMeta;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
@@ -19,24 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.checksum.ChecksumType;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
-import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.model.BreakpointFile;
-import com.sequoiacm.contentserver.model.BreakpointFileJsonSerializer;
-import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
-import com.sequoiacm.contentserver.service.IBreakpointFileService;
-import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
-import com.sequoiacm.infrastructure.audit.ScmAudit;
-import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -64,10 +60,9 @@ public class BreakpointFileController {
     public void findBreakpointFile(@RequestParam("workspace_name") String workspaceName,
             @PathVariable("file_name") String fileName, HttpServletResponse response,
             Authentication auth) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.READ, "find breakpoint file");
+        ScmUser user = (ScmUser) auth.getPrincipal();
 
-        BreakpointFile file = breakpointFileService.getBreakpointFile(workspaceName, fileName);
+        BreakpointFile file = breakpointFileService.getBreakpointFile(user, workspaceName, fileName);
         if (file == null) {
             throw new ScmFileNotFoundException(
                     String.format("BreakpointFile is not found: /%s/%s", workspaceName, fileName));
@@ -80,8 +75,6 @@ public class BreakpointFileController {
         catch (JsonProcessingException e) {
             throw new ScmSystemException("Failed to serialize BreakpointFile to json", e);
         }
-        audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0,
-                "find breakpoint file by file name=" + fileName);
         response.setHeader(BREAKPOINT_FILE_ATTRIBUTE, RestUtils.urlEncode(jsonFile));
     }
 
@@ -90,15 +83,9 @@ public class BreakpointFileController {
             @RequestParam("workspace_name") String workspaceName,
             @RequestParam(value = "filter", required = false) BSONObject filter,
             Authentication auth) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.READ, "list breakpoint files");
+        ScmUser user = (ScmUser) auth.getPrincipal();
 
-        String message = "list breakpoint files";
-        if (null != filter) {
-            message += " by filter=" + filter.toString();
-        }
-        audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0, message);
-        return breakpointFileService.getBreakpointFiles(workspaceName, filter);
+        return breakpointFileService.getBreakpointFiles(user, workspaceName, filter);
     }
 
     @PostMapping("/breakpointfiles/{file_name}")
@@ -111,6 +98,8 @@ public class BreakpointFileController {
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException, IOException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
         InputStream is = request.getInputStream();
         try {
             if (checksumType == null) {
@@ -125,12 +114,8 @@ public class BreakpointFileController {
                 createTime = System.currentTimeMillis();
             }
 
-            ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                    ScmPrivilegeDefine.CREATE, "create breakpoint file");
-            audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0,
-                    "create breakpoint file, fileName=" + fileName);
             BreakpointFile breakpointFile = breakpointFileService.createBreakpointFile(
-                    auth.getName(), workspaceName, fileName, createTime, checksumType, is,
+                   user, workspaceName, fileName, createTime, checksumType, is,
                     isLastContent, isNeedMd5);
             if (ScmStatisticsType.BREAKPOINT_FILE_UPLOAD.equals(statisticsType)) {
                 addExtraHeader(response, breakpointFile, isLastContent);
@@ -150,14 +135,12 @@ public class BreakpointFileController {
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException, IOException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
         InputStream fileStream = request.getInputStream();
         try {
-            ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                    ScmPrivilegeDefine.CREATE, "upload breakpoint file");
-            audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0,
-                    "upload breakpoint file, fileName=" + fileName);
             BreakpointFile breakpointFile = breakpointFileService.uploadBreakpointFile(
-                    auth.getName(), workspaceName, fileName, fileStream, offset, isLastContent);
+                  user, workspaceName, fileName, fileStream, offset, isLastContent);
             if (ScmStatisticsType.BREAKPOINT_FILE_UPLOAD.equals(statisticsType)) {
                 addExtraHeader(response, breakpointFile, isLastContent);
             }
@@ -172,11 +155,8 @@ public class BreakpointFileController {
     public void deleteBreakpointFile(@RequestParam("workspace_name") String workspaceName,
             @PathVariable("file_name") String fileName, Authentication auth)
             throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.DELETE, "delete breakpoint file");
-        breakpointFileService.deleteBreakpointFile(workspaceName, fileName);
-        audit.info(ScmAuditType.DELETE_FILE, auth, workspaceName, 0,
-                "delete breakpoint file, fileName=" + fileName);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        breakpointFileService.deleteBreakpointFile(user, workspaceName, fileName);
     }
 
     @PostMapping(value = "/breakpointfiles/{file_name}", params = "action="
@@ -184,11 +164,9 @@ public class BreakpointFileController {
     public BSONObject calcMd5(@RequestParam("workspace_name") String workspaceName,
             @PathVariable("file_name") String fileName, Authentication auth,
             HttpServletResponse response) throws ScmServerException, UnsupportedEncodingException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.UPDATE, "calculate breakpoint file md5");
-        String md5 = breakpointFileService.calcBreakpointFileMd5(workspaceName, fileName);
-        audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
-                "calculate breakpoint file md5, fileName=" + fileName);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        String md5 = breakpointFileService.calcBreakpointFileMd5(user, workspaceName, fileName);
+
         return new BasicBSONObject(FieldName.BreakpointFile.FIELD_MD5, md5);
     }
 

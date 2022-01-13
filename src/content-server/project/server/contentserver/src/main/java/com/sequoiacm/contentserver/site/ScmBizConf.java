@@ -1,50 +1,43 @@
 package com.sequoiacm.contentserver.site;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceMgr;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaSource;
+import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaWorkspaceAccessor;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class ScmBizConf {
     private static final Logger logger = LoggerFactory.getLogger(ScmBizConf.class);
 
     private int rootSiteId = -1;
 
+    private ScmSite mySite;
     private Map<Integer, ScmSite> siteInfoMap = new HashMap<>();
     private Map<String, ScmSite> siteInfoMapByName = new HashMap<>();
     private ReentrantReadWriteLock siteReadWriteLock = new ReentrantReadWriteLock();
 
-    private ScmContentServerInfo myServer;
     private Map<Integer, Map<String, ScmContentServerInfo>> serverMapBySiteId = new HashMap<>();
     private Map<String, ScmContentServerInfo> serverMapByName = new HashMap<>();
     private Map<Integer, ScmContentServerInfo> serverMap = new HashMap<>();
@@ -52,9 +45,11 @@ public class ScmBizConf {
 
     private List<BSONObject> workspaceInfoList = Collections
             .synchronizedList(new ArrayList<BSONObject>());
+    private String mySiteName;
 
-    public void init() throws ScmServerException {
-        MetaSource metasource = null;
+    public void init(String mySiteName) throws ScmServerException {
+        this.mySiteName = mySiteName;
+        ContentModuleMetaSource metasource = null;
         try {
             String user = PropertiesUtils.getRootSiteUser();
             AuthInfo auth = ScmFilePasswordParser.parserFile(PropertiesUtils.getRootSitePassword());
@@ -103,7 +98,7 @@ public class ScmBizConf {
                 + ",url=" + url);
     }
 
-    private void initSystemInfo(MetaSource metasource) throws ScmServerException {
+    private void initSystemInfo(ContentModuleMetaSource metasource) throws ScmServerException {
         List<ScmSite> siteList = null;
         List<ScmContentServerMapping> serverList = null;
 
@@ -140,12 +135,12 @@ public class ScmBizConf {
                 reloadNode(nodeInfo);
             }
         }
-
-        if (null == myServer) {
-            throw new ScmServerException(ScmError.METASOURCE_ERROR,
-                    "this server is not exist in SCM:host=" + ScmSystemUtils.getHostName()
-                            + ",port=" + PropertiesUtils.getServerPort());
-        }
+        //
+        // if (null == myServer) {
+        // throw new ScmServerException(ScmError.METASOURCE_ERROR,
+        // "this server is not exist in SCM:host=" + ScmSystemUtils.getHostName()
+        // + ",port=" + PropertiesUtils.getServerPort());
+        // }
     }
 
     private void loadSiteInfo(List<ScmSite> siteList) throws ScmServerException {
@@ -153,6 +148,11 @@ public class ScmBizConf {
         for (int i = 0; i < siteList.size(); i++) {
             ScmSite oneSite = siteList.get(i);
             reloadSite(oneSite);
+        }
+        if (mySite == null) {
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "content module did not bind any site: bindingSite=" + mySiteName
+                            + ", siteList=" + siteList);
         }
     }
 
@@ -209,17 +209,17 @@ public class ScmBizConf {
             rLock.unlock();
         }
     }
-
-    public ScmContentServerInfo getMyServer() {
-        return myServer;
-    }
+    //
+    // public ScmContentServerInfo getMyServer() {
+    // return myServer;
+    // }
 
     public int getRootSiteId() {
         return rootSiteId;
     }
 
     public int getLocateSiteId() {
-        return myServer.getSite().getId();
+        return mySite.getId();
     }
 
     public Map<Integer, ScmSite> getSiteMap() {
@@ -244,6 +244,17 @@ public class ScmBizConf {
         }
     }
 
+    public List<ScmContentServerInfo> getContentServers() {
+        ReadLock rLock = nodeReadWriterLock.readLock();
+        rLock.lock();
+        try {
+            return new ArrayList<>(serverMapByName.values());
+        }
+        finally {
+            rLock.unlock();
+        }
+    }
+
     public List<ScmContentServerInfo> getContentServers(int siteId) {
         ReadLock rLock = nodeReadWriterLock.readLock();
         rLock.lock();
@@ -259,39 +270,40 @@ public class ScmBizConf {
             rLock.unlock();
         }
     }
-
-    public List<ScmContentServerInfo> getOtherContentServers() {
-        ReadLock rLock = nodeReadWriterLock.readLock();
-        rLock.lock();
-        try {
-            Map<String, ScmContentServerInfo> tmpServerMapByName = new HashMap<>();
-            tmpServerMapByName.putAll(serverMapByName);
-            tmpServerMapByName.remove(myServer.getName());
-            return new ArrayList<>(tmpServerMapByName.values());
-        }
-        finally {
-            rLock.unlock();
-        }
-    }
-
-    public List<ScmContentServerInfo> getOtherContentServers(int siteId) {
-        ReadLock rLock = nodeReadWriterLock.readLock();
-        rLock.lock();
-        try {
-            Map<String, ScmContentServerInfo> ServerMapInSite = serverMapBySiteId.get(siteId);
-            List<ScmContentServerInfo> otherContentServers = new ArrayList<>();
-            if (ServerMapInSite != null) {
-                Map<String, ScmContentServerInfo> tmpServerMap = new HashMap<>();
-                tmpServerMap.putAll(ServerMapInSite);
-                tmpServerMap.remove(myServer.getName());
-                otherContentServers.addAll(tmpServerMap.values());
-            }
-            return otherContentServers;
-        }
-        finally {
-            rLock.unlock();
-        }
-    }
+    //
+    // public List<ScmContentServerInfo> getOtherContentServers() {
+    // ReadLock rLock = nodeReadWriterLock.readLock();
+    // rLock.lock();
+    // try {
+    // Map<String, ScmContentServerInfo> tmpServerMapByName = new HashMap<>();
+    // tmpServerMapByName.putAll(serverMapByName);
+    // tmpServerMapByName.remove(myServer.getName());
+    // return new ArrayList<>(tmpServerMapByName.values());
+    // }
+    // finally {
+    // rLock.unlock();
+    // }
+    // }
+    //
+    // public List<ScmContentServerInfo> getOtherContentServers(int siteId) {
+    // ReadLock rLock = nodeReadWriterLock.readLock();
+    // rLock.lock();
+    // try {
+    // Map<String, ScmContentServerInfo> ServerMapInSite =
+    // serverMapBySiteId.get(siteId);
+    // List<ScmContentServerInfo> otherContentServers = new ArrayList<>();
+    // if (ServerMapInSite != null) {
+    // Map<String, ScmContentServerInfo> tmpServerMap = new HashMap<>();
+    // tmpServerMap.putAll(ServerMapInSite);
+    // tmpServerMap.remove(myServer.getName());
+    // otherContentServers.addAll(tmpServerMap.values());
+    // }
+    // return otherContentServers;
+    // }
+    // finally {
+    // rLock.unlock();
+    // }
+    // }
 
     public ScmContentServerInfo getServerInfo(int serverId) {
         ReadLock rLock = nodeReadWriterLock.readLock();
@@ -379,6 +391,13 @@ public class ScmBizConf {
         finally {
             wLock.unlock();
         }
+        if (site.getName().equals(mySiteName)) {
+            mySite = site;
+        }
+    }
+
+    public ScmSite getMySite() {
+        return mySite;
     }
 
     public void removeSite(String siteName) {
@@ -437,11 +456,11 @@ public class ScmBizConf {
             serverMapByName.put(nodeName, nodeInfo);
             serverMap.put(nodeInfo.getId(), nodeInfo);
 
-            // reload loacl server node
-            if (ScmSystemUtils.isLocalHost(nodeInfo.getHostName())
-                    && nodeInfo.getPort() == PropertiesUtils.getServerPort()) {
-                myServer = nodeInfo;
-            }
+            // // reload loacl server node
+            // if (ScmSystemUtils.isLocalHost(nodeInfo.getHostName())
+            // && nodeInfo.getPort() == PropertiesUtils.getServerPort()) {
+            // myServer = nodeInfo;
+            // }
 
             // reload server node in site
             int siteId = nodeInfo.getSite().getId();

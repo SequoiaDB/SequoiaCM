@@ -1,47 +1,51 @@
 package com.sequoiacm.contentserver.service;
 
-import java.util.List;
-
-import org.bson.BSONObject;
-
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import org.bson.BSONObject;
+
+import java.util.List;
 
 public interface IMetaDataService {
 
-    List<MetadataClass> listClass(String wsName, BSONObject filter) throws ScmServerException;
-
-    MetadataClass getClassInfoWithAttr(String wsName, String classId) throws ScmServerException;
-
-    MetadataClass getClassInfoWithAttrByName(String wsName, String className)
+    List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter)
             throws ScmServerException;
 
-    MetadataClass createClass(String user, String wsName, BSONObject classInfo)
+    MetadataClass getClassInfoWithAttr(ScmUser user, String wsName, String classId)
             throws ScmServerException;
 
-    MetadataClass updateClass(String user, String wsName, String classId, BSONObject updator)
+    MetadataClass getClassInfoWithAttrByName(ScmUser user, String wsName, String className)
             throws ScmServerException;
 
-    void deleteClass(String wsName, String classId) throws ScmServerException;
-
-    void deleteClassByName(String workspaceName, String className) throws ScmServerException;
-
-    void attachAttr(String user, String wsName, String classId, String attrId)
+    MetadataClass createClass(ScmUser user, String wsName, BSONObject classInfo)
             throws ScmServerException;
 
-    void detachAttr(String user, String wsName, String classId, String attrId)
+    MetadataClass updateClass(ScmUser user, String wsName, String classId, BSONObject updator)
             throws ScmServerException;
 
-    MetadataAttr createAttr(String user, String wsName, BSONObject attrInfo)
+    void deleteClass(ScmUser user, String wsName, String classId) throws ScmServerException;
+
+    void deleteClassByName(ScmUser user, String workspaceName, String className)
             throws ScmServerException;
-    
-    List<MetadataAttr> listAttr(String wsName, BSONObject filter) throws ScmServerException;
-    
-    MetadataAttr getAttrInfo(String wsName, String attrId) throws ScmServerException;
-    
-    MetadataAttr updateAttr(String user, String wsName, String attrId, BSONObject updator)
+
+    void attachAttr(ScmUser user, String wsName, String classId, String attrId)
             throws ScmServerException;
-    
-    void deleteAttr(String wsName, String attrId) throws ScmServerException;
+
+    void detachAttr(ScmUser user, String wsName, String classId, String attrId)
+            throws ScmServerException;
+
+    MetadataAttr createAttr(ScmUser user, String wsName, BSONObject attrInfo)
+            throws ScmServerException;
+
+    List<MetadataAttr> listAttr(ScmUser user, String wsName, BSONObject filter)
+            throws ScmServerException;
+
+    MetadataAttr getAttrInfo(ScmUser user, String wsName, String attrId) throws ScmServerException;
+
+    MetadataAttr updateAttr(ScmUser user, String wsName, String attrId, BSONObject updator)
+            throws ScmServerException;
+
+    void deleteAttr(ScmUser user, String wsName, String attrId) throws ScmServerException;
 }

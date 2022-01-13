@@ -1,11 +1,18 @@
 package com.sequoiacm.contentserver.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
+import com.sequoiacm.contentserver.metadata.MetaDataManager;
+import com.sequoiacm.contentserver.service.IBatchService;
+import com.sequoiacm.contentserver.service.impl.ServiceUtils;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,33 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.metadata.MetaDataManager;
-import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
-import com.sequoiacm.contentserver.service.IBatchService;
-import com.sequoiacm.contentserver.service.impl.ServiceUtils;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
-import com.sequoiacm.infrastructure.audit.ScmAudit;
-import com.sequoiacm.infrastructure.audit.ScmAuditType;
-import com.sequoiacm.infrastructure.security.auth.RestField;
-import com.sequoiacm.metasource.MetaCursor;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -62,9 +48,7 @@ public class BatchController {
             @RequestParam(value = CommonDefine.RestArg.BATCH_DESCRIPTION) BSONObject batchInfo,
             Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        String user = auth.getName();
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspace_name,
-                ScmPrivilegeDefine.CREATE, "create batch");
+        ScmUser user = (ScmUser) auth.getPrincipal();
 
         // e.g.
         // description={"name":"batch-test","properties":{"k1":"v1"},"tags":{"k1":"v1"}}
@@ -79,11 +63,8 @@ public class BatchController {
                 (String) batchInfo.get(FieldName.Batch.FIELD_CLASS_ID),
                 (BSONObject) batchInfo.get(FieldName.Batch.FIELD_CLASS_PROPERTIES));
 
-        logger.info("batch {} : {}", CommonDefine.RestArg.BATCH_DESCRIPTION, batchInfo.toString());
-
         String batchId = batchService.create(user, workspace_name, batchInfo);
-        audit.info(ScmAuditType.CREATE_BATCH, auth, workspace_name, 0, "create batch, batchId="
-                + batchId + ", batchName=" + (String) batchInfo.get(FieldName.Batch.FIELD_NAME));
+
         // return just created
         Map<String, Object> result = new HashMap<>(1);
         batchInfo = batchService.getBatchInfo(workspace_name, batchId, false);
@@ -99,6 +80,7 @@ public class BatchController {
             @RequestParam(value = CommonDefine.RestArg.BATCH_SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = CommonDefine.RestArg.BATCH_LIMIT, required = false, defaultValue = "-1") long limit,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         if (skip < 0) {
             throw new ScmServerException(ScmError.INVALID_ARGUMENT, "skip can not be less than 0");
         }
@@ -107,23 +89,13 @@ public class BatchController {
                     "limit can not be less than -1");
         }
         RestUtils.checkWorkspaceName(workspace_name);
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspace_name,
-                ScmPrivilegeDefine.LOW_LEVEL_READ, "list batches");
         // e.g.
         // filter={"name":"batch-test","properties":{"k1":"v1"},"tags":{"k1":"v1"}}
         logger.info("batch {} : {}", CommonDefine.RestArg.BATCH_FILTER, filter);
-        String message = "list batches";
-        if (null != filter) {
-            message += " by filter=" + filter.toString();
-        }
-        if (null != orderBy) {
-            message += " order by=" + orderBy.toString();
-        }
-        message += " skip=" + skip + " limit=" + limit;
-        audit.info(ScmAuditType.BATCH_DQL, auth, workspace_name, 0, message);
 
         response.setHeader("Content-Type", "application/json;charset=utf-8");
-        MetaCursor cursor = batchService.getList(workspace_name, filter, orderBy, skip, limit);
+        MetaCursor cursor = batchService.getList(user, workspace_name, filter, orderBy, skip,
+                limit);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 
@@ -131,12 +103,8 @@ public class BatchController {
     public ResponseEntity batch(String workspace_name, @PathVariable("batch_id") String batchId,
             Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspace_name,
-                ScmPrivilegeDefine.READ, "get batch");
-        BSONObject batchInfo = batchService.getBatchInfo(workspace_name, batchId, true);
-        audit.info(ScmAuditType.BATCH_DQL, auth, workspace_name, 0, "get batch by batchId="
-                + batchId + ", batchName=" + (String) batchInfo.get(FieldName.Batch.FIELD_NAME));
-
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject batchInfo = batchService.getBatchInfo(user, workspace_name, batchId, true);
         batchInfo.removeField("_id");
         Map<String, Object> result = new HashMap<>(1);
         result.put(CommonDefine.RestArg.BATCH_OBJECT, batchInfo);
@@ -149,13 +117,8 @@ public class BatchController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        String user = auth.getName();
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspace_name,
-                ScmPrivilegeDefine.DELETE, "delete batch");
+        ScmUser user = (ScmUser) auth.getPrincipal();
         batchService.delete(sessionId, userDetail, user, workspace_name, batchId);
-        audit.info(ScmAuditType.DELETE_BATCH, auth, workspace_name, 0,
-                "delete batch by batchId=" + batchId);
-
         return ResponseEntity.ok("");
     }
 
@@ -164,15 +127,10 @@ public class BatchController {
             @RequestParam(CommonDefine.RestArg.BATCH_DESCRIPTION) BSONObject newBatchBson,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        String user = auth.getName();
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspace_name,
-                ScmPrivilegeDefine.UPDATE, "update batch");
-
+        ScmUser user = (ScmUser) auth.getPrincipal();
         logger.info("batch update {} : {}", CommonDefine.RestArg.BATCH_DESCRIPTION,
                 newBatchBson.toString());
         batchService.update(user, workspace_name, batchId, newBatchBson);
-        audit.info(ScmAuditType.UPDATE_BATCH, auth, workspace_name, 0,
-                "update batch by batchId=" + batchId + ", newBatchBson" + newBatchBson.toString());
         BSONObject batch = batchService.getBatchInfo(workspace_name, batchId, false);
         batch.removeField("_id");
         response.setHeader(CommonDefine.RestArg.BATCH_OBJECT, batch.toString());
@@ -184,13 +142,10 @@ public class BatchController {
             @PathVariable("batch_id") String batchId, HttpServletRequest request,
             Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        String user = auth.getName();
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspace_name,
-                ScmPrivilegeDefine.UPDATE, "attach batch's file");
+        ScmUser user = (ScmUser) auth.getPrincipal();
         String fileId = getAndCheckParameter(request, CommonDefine.RestArg.BATCH_FILE_ID);
         batchService.attachFile(user, workspace_name, batchId, fileId);
-        audit.info(ScmAuditType.UPDATE_BATCH, auth, workspace_name, 0,
-                "attach batch's file batchId=" + batchId + ", fileId=" + fileId);
+
         return ResponseEntity.ok("");
     }
 
@@ -199,13 +154,9 @@ public class BatchController {
             @PathVariable("batch_id") String batchId, HttpServletRequest request,
             Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
-        String user = auth.getName();
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspace_name,
-                ScmPrivilegeDefine.UPDATE, "deattach batch's file");
+        ScmUser user = (ScmUser) auth.getPrincipal();
         String fileId = getAndCheckParameter(request, CommonDefine.RestArg.BATCH_FILE_ID);
         batchService.detachFile(user, workspace_name, batchId, fileId);
-        audit.info(ScmAuditType.UPDATE_BATCH, auth, workspace_name, 0,
-                "detach batch's file batchId=" + batchId + ", fileId=" + fileId);
         return ResponseEntity.ok("");
     }
 
@@ -223,14 +174,9 @@ public class BatchController {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.LOW_LEVEL_READ, "count directory");
-        String message = "count batch";
-        if (null != condition) {
-            message += " by condition=" + condition.toString();
-        }
-        audit.info(ScmAuditType.BATCH_DQL, auth, workspaceName, 0, message);
-        long count = batchService.countBatch(workspaceName, condition);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
+        long count = batchService.countBatch(user, workspaceName, condition);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
     }
 }

@@ -1,44 +1,6 @@
 package com.sequoiacm.contentserver.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.sequoiacm.contentserver.site.ScmContentServer;
-import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.util.JSON;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.dropwizard.DropwizardMetricServices;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.MimeType;
-import com.sequoiacm.common.ScmUpdateContentOption;
+import com.sequoiacm.common.*;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
@@ -50,16 +12,38 @@ import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
+import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
-import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 import com.sequoiacm.metasource.MetaCursor;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.util.JSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.dropwizard.DropwizardMetricServices;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -91,29 +75,21 @@ public class FileController {
             @RequestParam(name = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
         BSONObject file;
         if (type.equals("path")) {
             String ignoreStr = "/api/v1/files/path";
             String filePath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             filePath = ScmSystemUtils.formatFilePath(filePath);
-            ScmFileServicePriv.getInstance().checkDirPriority(auth.getName(), workspaceName,
-                    filePath, ScmPrivilegeDefine.READ, "get file by path");
-            file = fileService.getFileInfoByPath(workspaceName, filePath, version.getMajorVersion(),
-                    version.getMinorVersion());
-            audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0, "get file by file path="
-                    + filePath + ", fileName=" + (String) file.get(FieldName.FIELD_CLFILE_NAME));
+            file = fileService.getFileInfoByPath(user, workspaceName, filePath,
+                    version.getMajorVersion(), version.getMinorVersion());
         }
         else if (type.equals("id")) {
             String ignoreStr = "/api/v1/files/id/";
             String fileId = request.getRequestURI().substring(ignoreStr.length());
-            file = fileService.getFileInfoById(workspaceName, fileId, version.getMajorVersion(),
-                    version.getMinorVersion());
-            ScmFileServicePriv.getInstance().checkDirPriorityById(auth.getName(), workspaceName,
-                    dirService, (String) file.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
-                    ScmPrivilegeDefine.READ, "get file by id");
-            audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0, "get file info by file id="
-                    + fileId + ", fileName=" + (String) file.get(FieldName.FIELD_CLFILE_NAME));
+            file = fileService.getFileInfoById(user, workspaceName, fileId,
+                    version.getMajorVersion(), version.getMinorVersion());
         }
         else {
             throw new ScmInvalidArgumentException("unknown type:type=" + type);
@@ -135,29 +111,26 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_UPDATE_CONTENT_OPTION, required = false) BSONObject updateContentOption,
             Authentication auth, HttpServletRequest request, HttpServletResponse response)
             throws ScmServerException, IOException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         InputStream inputStreamEntity = null;
         BSONObject updatedFileInfo;
         try {
             ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-            String user = auth.getName();
-            ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
-                    fileService, fileId, version.getMajorVersion(), version.getMinorVersion(),
-                    dirService, ScmPrivilegeDefine.UPDATE, "update file by id");
 
             if (newFileProperties != null) {
-                updatedFileInfo = fileService.updateFileInfo(workspaceName, user, fileId,
+                updatedFileInfo = fileService.updateFileInfo(user, workspaceName, fileId,
                         newFileProperties, version.getMajorVersion(), version.getMinorVersion());
             }
             else if (newBreakPointFileContent != null) {
                 // update content by breakPoint
-                updatedFileInfo = fileService.updateFileContent(workspaceName, user, fileId,
+                updatedFileInfo = fileService.updateFileContent(user, workspaceName, fileId,
                         newBreakPointFileContent, version.getMajorVersion(),
                         version.getMinorVersion(), new ScmUpdateContentOption(updateContentOption));
             }
             else {
                 // update content by InputStreamEntity file
                 inputStreamEntity = request.getInputStream();
-                updatedFileInfo = fileService.updateFileContent(workspaceName, user, fileId,
+                updatedFileInfo = fileService.updateFileContent(user, workspaceName, fileId,
                         inputStreamEntity, version.getMajorVersion(), version.getMinorVersion(),
                         new ScmUpdateContentOption(updateContentOption));
             }
@@ -181,17 +154,12 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_LIMIT, required = false, defaultValue = "-1") long limit,
             @RequestParam(value = CommonDefine.RestArg.FILE_SELECTOR, required = false) BSONObject select,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspace_name,
-                ScmPrivilegeDefine.LOW_LEVEL_READ, "list files");
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
         response.setHeader("Content-Type", "application/json;charset=utf-8");
-        MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby, skip,
-                limit, select);
+        MetaCursor cursor = fileService.getFileList(user, workspace_name, condition, scope, orderby,
+                skip, limit, select);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
-        String message = "list file ";
-        if (null != condition) {
-            message += "by condition=" + condition.toString();
-        }
-        audit.info(ScmAuditType.FILE_DQL, auth, workspace_name, 0, message);
     }
 
     // 文件上传接口在网关 UploadFileStatisticsDeciderImpl 中对其进行了捕获，修改下载接口需要考虑网关
@@ -206,6 +174,7 @@ public class FileController {
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, Authentication auth)
             throws ScmServerException, IOException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         // statistical traffic
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_UPLOAD + workspaceName);
 
@@ -233,33 +202,16 @@ public class FileController {
 
             // overwrite file priv
             ClientUploadConf uploadConf = new ClientUploadConf(uploadConfig);
-            if (uploadConf.isOverwrite()) {
-                privService.checkDirPriorityById(username, workspaceName, dirService,
-                        (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
-                        ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag(),
-                        "overwrite file for delete and create");
-                privService.checkWsPriority(username, workspaceName, ScmPrivilegeDefine.UPDATE,
-                        "overwrite file for detach batch");
-            }
-            else {
-                // create file priv
-                privService.checkDirPriorityById(username, workspaceName, dirService,
-                        (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
-                        ScmPrivilegeDefine.CREATE, "create file");
-            }
 
             ScmUserPasswordType userPasswordType = ((ScmUser) auth.getPrincipal())
                     .getPasswordType();
             if (null != breakpointFileName) {
-                fullFileInfo = fileService.uploadFile(workspaceName, username, breakpointFileName,
+                fullFileInfo = fileService.uploadFile(user, workspaceName, breakpointFileName,
                         fileInfo, sessionId, userDetail, userPasswordType, uploadConf);
-                message = "create breakpointFile , file id="
-                        + fullFileInfo.get(FieldName.FIELD_CLFILE_ID) + ", breakpointFileName="
-                        + breakpointFileName;
             }
             else {
-                fullFileInfo = fileService.uploadFile(workspaceName, username, is, fileInfo,
-                        sessionId, userDetail, userPasswordType, uploadConf);
+                fullFileInfo = fileService.uploadFile(user, workspaceName, is, fileInfo, sessionId,
+                        userDetail, userPasswordType, uploadConf);
                 message = "create file , file id=" + fullFileInfo.get(FieldName.FIELD_CLFILE_ID)
                         + ", file name="
                         + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME));
@@ -394,6 +346,7 @@ public class FileController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         // statistical traffic
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_DOWNLOAD + workspace_name);
 
@@ -407,11 +360,9 @@ public class FileController {
 
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
-        BSONObject fileInfo = fileService.getFileInfoById(workspace_name, fileId,
+        BSONObject fileInfo = fileService.getFileInfoById(user, workspace_name, fileId,
                 version.getMajorVersion(), version.getMinorVersion());
-        ScmFileServicePriv.getInstance().checkDirPriorityById(auth.getName(), workspace_name,
-                dirService, (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
-                ScmPrivilegeDefine.READ, "read file");
+
         response.setHeader("Content-Type",
                 String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE)));
         response.setHeader("Content-Disposition",
@@ -424,7 +375,7 @@ public class FileController {
         }
 
         // TODO:有可能服务端抛异常后再发了一次消息，考虑其它办法
-        FileReaderDao dao = fileService.downloadFile(sessionId, userDetail, workspace_name,
+        FileReaderDao dao = fileService.downloadFile(sessionId, userDetail, user, workspace_name,
                 fileInfo, readFlag);
         try {
             dao.seek(offset);
@@ -478,9 +429,6 @@ public class FileController {
             dao.close();
         }
 
-        audit.info(ScmAuditType.FILE_DQL, auth, workspace_name, 0, "read file, file id=" + fileId
-                + ", fileName=" + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
-
         RestUtils.flush(os);
     }
 
@@ -501,16 +449,10 @@ public class FileController {
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
-
-        String userName = auth.getName();
+        ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
-                fileService, fileId, version.getMajorVersion(), version.getMinorVersion(),
-                dirService, ScmPrivilegeDefine.DELETE, "delete file");
-        fileService.deleteFile(sessionId, userDetail, workspaceName, userName, fileId,
+        fileService.deleteFile(sessionId, userDetail, user, workspaceName, fileId,
                 version.getMajorVersion(), version.getMinorVersion(), isPhysical);
-        audit.info(ScmAuditType.DELETE_FILE, auth, workspaceName, 0,
-                "delete file by file id=" + fileId);
     }
 
     @RequestMapping(value = "/files", method = RequestMethod.HEAD)
@@ -520,14 +462,8 @@ public class FileController {
                     + "") Integer scope,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkWsPriority(auth.getName(), workspaceName,
-                ScmPrivilegeDefine.LOW_LEVEL_READ, "count file");
-        String message = "count file";
-        if (null != condition) {
-            message += " by condition=" + condition.toString();
-        }
-        audit.info(ScmAuditType.FILE_DQL, auth, workspaceName, 0, message);
-        long count = fileService.countFiles(workspaceName, scope, condition);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        long count = fileService.countFiles(user, workspaceName, scope, condition);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
     }
@@ -539,14 +475,10 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
-                fileService, fileId, version.getMajorVersion(), version.getMinorVersion(),
-                dirService, ScmPrivilegeDefine.UPDATE, "async transfer file");
-        fileService.asyncTransferFile(workspaceName, fileId, version.getMajorVersion(),
+        fileService.asyncTransferFile(user, workspaceName, fileId, version.getMajorVersion(),
                 version.getMinorVersion(), targetSite);
-        audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
-                "async transfer file by file id=" + fileId);
         return ResponseEntity.ok("");
     }
 
@@ -556,14 +488,10 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
-                fileService, fileId, version.getMajorVersion(), version.getMinorVersion(),
-                dirService, ScmPrivilegeDefine.UPDATE, "async cache file");
-        fileService.asyncCacheFile(workspaceName, fileId, version.getMajorVersion(),
+        fileService.asyncCacheFile(user, workspaceName, fileId, version.getMajorVersion(),
                 version.getMinorVersion());
-        audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
-                "async cache file by file id=" + fileId);
         return ResponseEntity.ok("");
     }
 
@@ -577,13 +505,10 @@ public class FileController {
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException, UnsupportedEncodingException {
-        ScmFileServicePriv.getInstance().checkDirPriorityByFileId(auth.getName(), workspaceName,
-                fileService, fileId, majorVersion, minorVersion, dirService,
-                ScmPrivilegeDefine.UPDATE, "calculate file md5");
-        String md5 = fileService.calcFileMd5(sessionId, userDetail, workspaceName, fileId,
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        String md5 = fileService.calcFileMd5(sessionId, userDetail, user, workspaceName, fileId,
                 majorVersion, minorVersion);
-        audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
-                "calculate file md5, id=" + fileId);
+
         return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
     }
 }

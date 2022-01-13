@@ -1,12 +1,6 @@
 package com.sequoiacm.infrastructure.audit;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +11,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 @RefreshScope
 @Component
@@ -42,16 +41,21 @@ public class ScmAudit {
         myHostName = InetAddress.getLocalHost().getHostName();
     }
 
-    public void info(ScmAuditType auditType, Authentication auth, String wsName,
-            int flag, String message) {
-        ScmUserAuditType  userAuditType = ScmUserAuditType.SYSTEM_USER;
+    public void info(ScmAuditType auditType, Authentication auth, String wsName, int flag,
+            String message) {
+        ScmUser user = auth == null ? null : (ScmUser) auth.getPrincipal();
+        info(auditType, user, wsName, flag, message);
+    }
+
+    public void info(ScmAuditType auditType, ScmUser user, String wsName, int flag,
+            String message) {
+        ScmUserAuditType userAuditType = ScmUserAuditType.SYSTEM_USER;
         String userName = ScmUserAuditType.SYSTEM_USER.getName();
-        if (auth != null) {
-            ScmUser scmUser = (ScmUser) auth.getPrincipal();
-            String passwordType = scmUser.getPasswordType().toString();
+        if (user != null) {
+            String passwordType = user.getPasswordType().toString();
             userAuditType = ScmUserAuditType.getScmUserAuditType(passwordType);
             Assert.notNull(userAuditType, "unknown password type:" + passwordType);
-            userName = scmUser.getUsername();
+            userName = user.getUsername();
         }
 
         info(auditType, userAuditType, userName, wsName, flag, message);

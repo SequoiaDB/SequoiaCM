@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.service;
 
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import org.bson.BSONObject;
 
 import com.sequoiacm.exception.ScmServerException;
@@ -14,10 +15,10 @@ public interface ITaskService {
     MetaCursor getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
             long skip, long limit) throws ScmServerException;
 
-    String startTask(String serssionId, String userDetail, String wsName, int taskType, int serverId, 
-            String targetSite, BSONObject options) throws ScmServerException;
+    String startTask(String serssionId, String userDetail, ScmUser user, String wsName, int taskType, int serverId,
+                     String targetSite, BSONObject options) throws ScmServerException;
 
-    void stopTask(String sessionId, String userDetail, String taskId) throws ScmServerException;
+    void stopTask(String sessionId, String userDetail, ScmUser user,String ws, String taskId) throws ScmServerException;
 
     void notifyTask(String taskId, int notifyType) throws ScmServerException;
 

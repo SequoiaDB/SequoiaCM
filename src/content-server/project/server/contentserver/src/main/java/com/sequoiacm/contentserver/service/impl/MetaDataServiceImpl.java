@@ -1,13 +1,5 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
@@ -15,60 +7,91 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
+import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IMetaDataService;
 import com.sequoiacm.contentserver.site.ScmContentServer;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataAttributeConfig;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataAttributeConfigFilter;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataAttributeConfigUpdator;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataClassConfig;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataClassConfigFilter;
-import com.sequoiacm.infrastructure.config.core.msg.metadata.MetaDataClassConfigUpdator;
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.config.core.msg.metadata.*;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class MetaDataServiceImpl implements IMetaDataService {
     private static final Logger logger = LoggerFactory.getLogger(MetaDataServiceImpl.class);
-
+    @Autowired
+    private ScmAudit audit;
     /*
-     * @Override public void listClass(PrintWriter writer, String wsName,
-     * BSONObject filter) throws ScmServerException { ScmContentServer
-     * contentServer = ScmContentServer.getInstance();
+     * @Override public void listClass(PrintWriter writer, String wsName, BSONObject
+     * filter) throws ScmServerException { ScmContentServer contentServer =
+     * ScmContentServer.getInstance();
      * contentServer.getWorkspaceInfoChecked(wsName);
      *
-     * MetaCursor cursor = null; try { BSONObject selector = new
-     * BasicBSONObject(); selector.put(FieldName.Class.FIELD_ID, 1);
+     * MetaCursor cursor = null; try { BSONObject selector = new BasicBSONObject();
+     * selector.put(FieldName.Class.FIELD_ID, 1);
      * selector.put(FieldName.Class.FIELD_NAME, 1);
      * selector.put(FieldName.Class.FIELD_DESCRIPTION, 1);
      * selector.put(FieldName.Class.FIELD_INNER_CREATE_USER, 1);
      * selector.put(FieldName.Class.FIELD_INNER_CREATE_TIME, 1);
      *
-     * contentServer.getMetaService().getClassInfoList(wsName, filter,
-     * selector); ServiceUtils.putCursorToWriter(cursor, writer); } finally {
+     * contentServer.getMetaService().getClassInfoList(wsName, filter, selector);
+     * ServiceUtils.putCursorToWriter(cursor, writer); } finally {
      * ScmSystemUtils.closeResource(cursor); } }
      */
 
     @Override
-    public List<MetadataClass> listClass(String wsName, BSONObject filter)
+    public List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
+                "list class info");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(wsName);
-        return contentServer.getMetaService().listClassInfo(wsName, filter);
+        List<MetadataClass> ret = contentServer.getMetaService().listClassInfo(wsName, filter);
+        String message = "list meta data class info";
+        if (filter != null) {
+            message += " by filter=" + filter.toString();
+        }
+        audit.info(ScmAuditType.META_CLASS_DQL, user, wsName, 0, message);
+        return ret;
     }
 
     @Override
-    public MetadataClass getClassInfoWithAttr(String wsName, String classId)
+    public MetadataClass getClassInfoWithAttr(ScmUser user, String wsName, String classId)
             throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
+                "get class info with attr");
         BSONObject idMatcher = new BasicBSONObject(FieldName.Class.FIELD_ID, classId);
-        return getClassInfoWithAttr(wsName, idMatcher);
+
+        MetadataClass ret = getClassInfoWithAttr(wsName, idMatcher);
+        audit.info(ScmAuditType.META_CLASS_DQL, user, wsName, 0,
+                "get class info with attr by classId=" + classId);
+        return ret;
     }
 
     @Override
-    public MetadataClass getClassInfoWithAttrByName(String wsName, String className)
+    public MetadataClass getClassInfoWithAttrByName(ScmUser user, String wsName, String className)
             throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
+                "get class info with attr");
         BSONObject nameMatcher = new BasicBSONObject(FieldName.Class.FIELD_NAME, className);
-        return getClassInfoWithAttr(wsName, nameMatcher);
+        MetadataClass ret = getClassInfoWithAttr(wsName, nameMatcher);
+
+        audit.info(ScmAuditType.META_CLASS_DQL, user, wsName, 0,
+                "get class info with attr by className=" + className);
+        return ret;
     }
 
     private MetadataClass getClassInfoWithAttr(String wsName, BSONObject matcher)
@@ -83,16 +106,22 @@ public class MetaDataServiceImpl implements IMetaDataService {
     }
 
     @Override
-    public MetadataClass createClass(String user, String workspaceName, BSONObject classInfo)
+    public MetadataClass createClass(ScmUser user, String workspaceName, BSONObject classInfo)
             throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "create class");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
 
-        classInfo.put(FieldName.Class.FIELD_INNER_CREATE_USER, user);
+        classInfo.put(FieldName.Class.FIELD_INNER_CREATE_USER, user.getUsername());
         MetaDataClassConfig classConfig = new MetaDataClassConfig(classInfo);
         classConfig.setWsName(workspaceName);
         MetaDataClassConfig resp = ContenserverConfClient.getInstance().createClass(classConfig);
-        return convertConfClass(resp);
+        MetadataClass ret = convertConfClass(resp);
+        audit.info(ScmAuditType.CREATE_META_CLASS, user, workspaceName, 0,
+                "create meta data class=" + classInfo.toString());
+        return ret;
     }
 
     private MetadataClass convertConfClass(MetaDataClassConfig confClass) {
@@ -108,31 +137,46 @@ public class MetaDataServiceImpl implements IMetaDataService {
     }
 
     @Override
-    public MetadataClass updateClass(String user, String workspaceName, String classId,
+    public MetadataClass updateClass(ScmUser user, String workspaceName, String classId,
             BSONObject updator) throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "update class");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
         MetaDataClassConfigUpdator classUpdator = new MetaDataClassConfigUpdator(updator);
         classUpdator.setClassId(classId);
         classUpdator.setWsName(workspaceName);
-        classUpdator.setUpdateUser(user);
+        classUpdator.setUpdateUser(user.getUsername());
         MetaDataClassConfig resp = ContenserverConfClient.getInstance().updateClass(classUpdator);
-        return convertConfClass(resp);
+        MetadataClass ret = convertConfClass(resp);
+        audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
+                "update class, classid=" + classId + ", description=" + updator);
+        return ret;
     }
 
     @Override
-    public void deleteClass(String workspaceName, String classId) throws ScmServerException {
+    public void deleteClass(ScmUser user, String workspaceName, String classId)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "delete class");
         MetaDataClassConfigFilter filter = new MetaDataClassConfigFilter(workspaceName)
                 .appendId(classId);
         deleteClass(workspaceName, filter);
+        audit.info(ScmAuditType.DELETE_META_CLASS, user, workspaceName, 0,
+                "delete class by classid=" + classId);
     }
 
     @Override
-    public void deleteClassByName(String workspaceName, String className)
+    public void deleteClassByName(ScmUser user, String workspaceName, String className)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "delete class");
         MetaDataClassConfigFilter filter = new MetaDataClassConfigFilter(workspaceName)
                 .appendName(className);
         deleteClass(workspaceName, filter);
+        audit.info(ScmAuditType.DELETE_META_CLASS, user, workspaceName, 0,
+                "delete class by className=" + className);
     }
 
     private void deleteClass(String workspaceName, MetaDataClassConfigFilter filter)
@@ -143,38 +187,53 @@ public class MetaDataServiceImpl implements IMetaDataService {
     }
 
     @Override
-    public void attachAttr(String user, String workspaceName, String classId, String attrId)
+    public void attachAttr(ScmUser user, String workspaceName, String classId, String attrId)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "class attach attr");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
         MetaDataClassConfigUpdator updator = new MetaDataClassConfigUpdator(workspaceName, classId,
-                user);
+                user.getUsername());
         updator.setAttachAttributeId(attrId);
         ContenserverConfClient.getInstance().updateClass(updator);
+
+        audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
+                "attach attr , classid=" + classId + ", and attrId=" + attrId);
     }
 
     @Override
-    public void detachAttr(String user, String workspaceName, String classId, String attrId)
+    public void detachAttr(ScmUser user, String workspaceName, String classId, String attrId)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "class detach attr");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
         MetaDataClassConfigUpdator classUpdator = new MetaDataClassConfigUpdator(workspaceName,
-                classId, user);
+                classId, user.getUsername());
         classUpdator.setDettachAttributeId(attrId);
         ContenserverConfClient.getInstance().updateClass(classUpdator);
+        audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
+                "detach attr , classid=" + classId + ", and attrId=" + attrId);
     }
 
     @Override
-    public MetadataAttr createAttr(String user, String workspaceName, BSONObject attrInfo)
+    public MetadataAttr createAttr(ScmUser user, String workspaceName, BSONObject attrInfo)
             throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "create attr");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
-        attrInfo.put(FieldName.Attribute.FIELD_INNER_CREATE_USER, user);
+        attrInfo.put(FieldName.Attribute.FIELD_INNER_CREATE_USER, user.getUsername());
         MetaDataAttributeConfig attributeConfig = new MetaDataAttributeConfig(attrInfo);
         attributeConfig.setWsName(workspaceName);
         MetaDataAttributeConfig resp = ContenserverConfClient.getInstance()
                 .createAttribute(attributeConfig);
-        return convertConfAttribute(resp);
+        MetadataAttr ret = convertConfAttribute(resp);
+
+        audit.info(ScmAuditType.CREATE_META_ATTR, user, workspaceName, 0,
+                "create attr , desc=" + attrInfo);
+        return ret;
     }
 
     private MetadataAttr convertConfAttribute(MetaDataAttributeConfig confAttr) {
@@ -194,42 +253,75 @@ public class MetaDataServiceImpl implements IMetaDataService {
     }
 
     @Override
-    public List<MetadataAttr> listAttr(String wsName, BSONObject filter) throws ScmServerException {
+    public List<MetadataAttr> listAttr(ScmUser user, String wsName, BSONObject filter)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
+                "list attr info");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(wsName);
-        return contentServer.getMetaService().listAttrInfo(wsName, filter);
+        List<MetadataAttr> ret = contentServer.getMetaService().listAttrInfo(wsName, filter);
+
+        String message = "get class attr info list";
+        if (filter != null) {
+            message += " by filter=" + filter.toString();
+        }
+        audit.info(ScmAuditType.META_ATTR_DQL, user, wsName, 0, message);
+        return ret;
     }
 
     @Override
-    public MetadataAttr getAttrInfo(String wsName, String attrId) throws ScmServerException {
+    public MetadataAttr getAttrInfo(ScmUser user, String wsName, String attrId)
+            throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
+                "get attr info");
+
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(wsName);
 
-        return getAndCheckAttr(wsName, attrId);
+        MetadataAttr ret = getAndCheckAttr(wsName, attrId);
+        audit.info(ScmAuditType.META_ATTR_DQL, user, wsName, 0,
+                "get attr info by attrId=" + attrId);
+        return ret;
+
     }
 
     @Override
-    public MetadataAttr updateAttr(String user, String workspaceName, String attrId,
+    public MetadataAttr updateAttr(ScmUser user, String workspaceName, String attrId,
             BSONObject updator) throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "update attr");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
         MetaDataAttributeConfigUpdator attributeUpdator = new MetaDataAttributeConfigUpdator(
                 updator);
         attributeUpdator.setAttributeId(attrId);
-        attributeUpdator.setUpdateUser(user);
+        attributeUpdator.setUpdateUser(user.getUsername());
         attributeUpdator.setWsName(workspaceName);
         MetaDataAttributeConfig resp = ContenserverConfClient.getInstance()
                 .updateAttribute(attributeUpdator);
-        return convertConfAttribute(resp);
+        MetadataAttr ret = convertConfAttribute(resp);
+
+        audit.info(ScmAuditType.UPDATE_META_ATTR, user, workspaceName, 0,
+                "update attr, attrId=" + attrId + ", desc=" + updator);
+        return ret;
     }
 
     @Override
-    public void deleteAttr(String workspaceName, String attrId) throws ScmServerException {
+    public void deleteAttr(ScmUser user, String workspaceName, String attrId)
+            throws ScmServerException {
+
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.ALL, "delete attr");
         ScmContentServer contentServer = ScmContentServer.getInstance();
         contentServer.getWorkspaceInfoChecked(workspaceName);
         MetaDataAttributeConfigFilter filter = new MetaDataAttributeConfigFilter(workspaceName,
                 attrId);
         ContenserverConfClient.getInstance().deleteAttribute(filter);
+
+        audit.info(ScmAuditType.DELETE_META_ATTR, user, workspaceName, 0,
+                "delete attr by attrId=" + attrId);
     }
 
     private MetadataClass getAndCheckClass(String wsName, BSONObject matcher)

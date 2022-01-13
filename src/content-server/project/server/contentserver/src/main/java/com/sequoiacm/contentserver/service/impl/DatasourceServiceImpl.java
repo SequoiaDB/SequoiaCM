@@ -1,34 +1,34 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
-
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
+import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
+import com.sequoiacm.contentserver.dao.FileCommonOperator;
+import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
+import com.sequoiacm.contentserver.service.IDatasourceService;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.*;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.contentserver.common.Const;
-import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
-import com.sequoiacm.contentserver.dao.FileCommonOperator;
-import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.service.IDatasourceService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
-import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.datasource.dataoperation.ScmDataReader;
-import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
-import com.sequoiacm.exception.ScmError;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class DatasourceServiceImpl implements IDatasourceService {
@@ -94,7 +94,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     }
 
     @Override
-    public void createData(String wsName, String dataId, int dataType, long createTime,
+    public void createDataInLocal(String wsName, String dataId, int dataType, long createTime,
             InputStream is) throws ScmServerException {
         ScmContentServer contentserver = ScmContentServer.getInstance();
         ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfoChecked(wsName);
@@ -140,6 +140,61 @@ public class DatasourceServiceImpl implements IDatasourceService {
         finally {
             FileCommonOperator.recordDataTableName(wsName, writer);
         }
+    }
+
+    @Override
+    public ScmDataInfoDetail createData(String ws, InputStream data) throws ScmServerException {
+        InputStreamWithCalcMd5 inputStreamWithCalcMd5 = new InputStreamWithCalcMd5(data);
+        ScmContentServer cs = ScmContentServer.getInstance();
+        ScmWorkspaceInfo workspace = cs.getWorkspaceInfo(ws);
+        if (workspace == null) {
+            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST, "workspace not found:" + ws);
+        }
+
+        Date createTime = new Date();
+        String dataId = ScmIdGenerator.FileId.get(createTime);
+
+        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createTime);
+        ScmDataInfoDetail scmDataInfoDetail = new ScmDataInfoDetail(dataInfo);
+
+        if (workspace.getLocationObj(cs.getLocalSite()) != null) {
+            createDataInLocal(ws, dataId, ENDataType.Normal.getValue(), createTime.getTime(),
+                    inputStreamWithCalcMd5);
+            scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
+            scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
+            scmDataInfoDetail.setSiteId(ScmContentServer.getInstance().getLocalSite());
+            return scmDataInfoDetail;
+        }
+
+        byte[] buf = new byte[Const.TRANSMISSION_LEN];
+        ScmInnerRemoteDataWriter writer = new ScmInnerRemoteDataWriter(cs.getMainSite(), workspace,
+                dataInfo);
+        try {
+            while (true) {
+                int ret = CommonHelper.readAsMuchAsPossible(inputStreamWithCalcMd5, buf);
+                if (ret <= -1) {
+                    break;
+                }
+                writer.write(buf, 0, ret);
+                if (ret < buf.length) {
+                    break;
+                }
+            }
+            writer.close();
+        }
+        catch (ScmServerException e) {
+            writer.cancel();
+            throw e;
+        }
+        catch (Exception e) {
+            writer.cancel();
+            throw new ScmServerException(ScmError.DATA_WRITE_ERROR,
+                    "failed to write data to main site: ws=" + ws + ", dataId=" + dataId, e);
+        }
+        scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
+        scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
+        scmDataInfoDetail.setSiteId(cs.getMainSite());
+        return scmDataInfoDetail;
     }
 
     @Override

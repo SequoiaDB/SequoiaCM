@@ -1,23 +1,9 @@
 package com.sequoiacm.contentserver.site;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import org.bson.BSONObject;
-import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
-import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHandler;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
@@ -25,6 +11,19 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
+import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
+import org.bson.BSONObject;
+import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class ScmContentServer {
     private static final Logger logger = LoggerFactory.getLogger(ScmContentServer.class);
@@ -35,12 +34,20 @@ public class ScmContentServer {
     private ReentrantReadWriteLock wsReadWriteLock = new ReentrantReadWriteLock();
     private Map<Integer, ScmWorkspaceInfo> workspaceMap = new HashMap<>();
     private Map<String, ScmWorkspaceInfo> workspaceMapByName = new HashMap<>();
-    private ScmMetaSourceHandler metaSourceHandler = new ScmMetaSourceHandler();
+    private static IMetaSourceHandler metaSourceHandler;
 
     private static ScmContentServer cs = null;
+    private static String mySiteName;
 
     private ScmContentServer() {
+    }
 
+    public static void bindSite(String site) {
+        mySiteName = site;
+    }
+
+    public static void metaSourceHandler(IMetaSourceHandler handler) {
+        metaSourceHandler = handler;
     }
 
     public static void reload() throws ScmServerException {
@@ -60,12 +67,8 @@ public class ScmContentServer {
                     ScmContentServer tmp = cs;
                     cs = newcs;
                     tmp.clear();
-                    logger.info(
-                            "server init success:rootSiteId={},mySiteId={},myServerId={},myHostname={},myPort={}",
-                            cs.bizConf.getRootSiteId(), cs.bizConf.getMyServer().getSite().getId(),
-                            cs.bizConf.getMyServer().getId(),
-                            cs.bizConf.getMyServer().getHostName(),
-                            cs.bizConf.getMyServer().getPort());
+                    logger.info("server init success:rootSiteId={},mySite={}",
+                            cs.bizConf.getRootSiteId(), cs.bizConf.getMySite().getId());
                 }
             }
             catch (ScmServerException e) {
@@ -80,7 +83,9 @@ public class ScmContentServer {
     }
 
     private void activeMetaSourceHandler() throws ScmServerException {
-        getMetaService().getMetaSource().activeHandler(metaSourceHandler);
+        if (metaSourceHandler != null) {
+            getMetaService().getMetaSource().activeHandler(metaSourceHandler);
+        }
     }
 
     private static boolean isSiteEquals(ScmBizConf oldConf, ScmBizConf newConf) {
@@ -116,6 +121,9 @@ public class ScmContentServer {
     }
 
     public static ScmContentServer getInstance() {
+        if (mySiteName == null) {
+            throw new RuntimeException("bind site first!");
+        }
         if (null == cs) {
             synchronized (ScmContentServer.class) {
                 if (null == cs) {
@@ -142,7 +150,7 @@ public class ScmContentServer {
     }
 
     private void initBizConf() throws ScmServerException {
-        bizConf.init();
+        bizConf.init(mySiteName);
     }
 
     private void loadWorkspaceInfo(List<BSONObject> workspaceList) throws ScmServerException {
@@ -211,11 +219,8 @@ public class ScmContentServer {
             initWorkspaceInfo();
             checkAndAmendDirVersion();
             activeMetaSourceHandler();
-            logger.info(
-                    "server init success:rootSiteId={},mySiteId={},myServerId={},myHostname={},myPort={}",
-                    bizConf.getRootSiteId(), bizConf.getMyServer().getSite().getId(),
-                    bizConf.getMyServer().getId(), bizConf.getMyServer().getHostName(),
-                    bizConf.getMyServer().getPort());
+            logger.info("server init success:rootSiteId={},mySiteId={}", bizConf.getRootSiteId(),
+                    bizConf.getMySite().getName());
         }
         catch (ScmServerException e) {
             clear();
@@ -366,20 +371,8 @@ public class ScmContentServer {
         return bizConf.getContentServers(siteId);
     }
 
-    public String getHostName() {
-        return bizConf.getMyServer().getHostName();
-    }
-
-    public String getName() {
-        return bizConf.getMyServer().getName();
-    }
-
-    public int getId() {
-        return bizConf.getMyServer().getId();
-    }
-
-    public int getPort() {
-        return bizConf.getMyServer().getPort();
+    public List<ScmContentServerInfo> getContentServerList() {
+        return bizConf.getContentServers();
     }
 
     public int getMainSite() {
@@ -481,18 +474,18 @@ public class ScmContentServer {
     public String generateSessionID() {
         return ObjectId.get().toString();
     }
-
-    public List<ScmContentServerInfo> getOtherContentServers() {
-        return bizConf.getOtherContentServers();
-    }
-
-    public List<ScmContentServerInfo> getOtherContentServers(int siteId) {
-        return bizConf.getOtherContentServers(siteId);
-    }
-
-    public ScmContentServerInfo getServerInfo() {
-        return bizConf.getMyServer();
-    }
+    //
+    // public List<ScmContentServerInfo> getOtherContentServers() {
+    // return bizConf.getOtherContentServers();
+    // }
+    //
+    // public List<ScmContentServerInfo> getOtherContentServers(int siteId) {
+    // return bizConf.getOtherContentServers(siteId);
+    // }
+    //
+    // public ScmContentServerInfo getServerInfo() {
+    // return bizConf.getMyServer();
+    // }
 
     public ScmContentServerInfo getServerInfo(int serverId) {
         return bizConf.getServerInfo(serverId);

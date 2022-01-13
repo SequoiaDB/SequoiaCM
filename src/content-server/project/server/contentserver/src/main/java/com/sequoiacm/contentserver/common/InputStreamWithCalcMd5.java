@@ -1,18 +1,18 @@
 package com.sequoiacm.contentserver.common;
 
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.exception.ScmServerException;
+
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
-
-import javax.xml.bind.DatatypeConverter;
-
-import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.exception.ScmServerException;
 
 public class InputStreamWithCalcMd5 extends InputStream {
     private InputStream src;
     private MessageDigest md5Calc;
     private byte[] md5Bytes;
+    private long size = 0;
 
     public InputStreamWithCalcMd5(InputStream src) throws ScmServerException {
         this.src = src;
@@ -37,6 +37,7 @@ public class InputStreamWithCalcMd5 extends InputStream {
         }
 
         md5Calc.update(b, off, len);
+        size += len;
         return len;
     }
 
@@ -51,5 +52,9 @@ public class InputStreamWithCalcMd5 extends InputStream {
         }
         md5Bytes = md5Calc.digest();
         return DatatypeConverter.printBase64Binary(md5Bytes);
+    }
+
+    public long getSize() {
+        return size;
     }
 }

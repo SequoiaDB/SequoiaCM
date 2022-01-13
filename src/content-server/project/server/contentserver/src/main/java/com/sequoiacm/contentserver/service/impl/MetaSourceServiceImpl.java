@@ -1,0 +1,15 @@
+package com.sequoiacm.contentserver.service.impl;
+
+import com.sequoiacm.contentserver.service.MetaSourceService;
+import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.metasource.MetaSource;
+import org.springframework.stereotype.Service;
+
+@Service
+public class MetaSourceServiceImpl implements MetaSourceService {
+    @Override
+    public MetaSource getMetaSource() throws ScmServerException {
+        return ScmContentServer.getInstance().getMetaService().getMetaSource();
+    }
+}

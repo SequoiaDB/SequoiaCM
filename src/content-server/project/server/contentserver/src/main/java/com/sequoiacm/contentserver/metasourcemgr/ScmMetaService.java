@@ -7,6 +7,7 @@ import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.cache.ScmDirPath;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -40,7 +41,7 @@ public class ScmMetaService {
     private static final Logger logger = LoggerFactory.getLogger(ScmMetaService.class);
 
     private int siteId;
-    private MetaSource metasource;
+    private ContentModuleMetaSource metasource;
     private BreakpointFileBsonConverter breakpointFileBsonConverter = new BreakpointFileBsonConverter();
     private MetadataAttrBsonConverter metadataAttrBsonConverter = new MetadataAttrBsonConverter();
     private MetadataClassBsonConverter metadataClassBsonConverter = new MetadataClassBsonConverter();
@@ -68,10 +69,18 @@ public class ScmMetaService {
     }
 
     public void insertFile(ScmWorkspaceInfo wsInfo, BSONObject file) throws ScmServerException {
+        insertFile(wsInfo, file, (TransactionCallback) null);
+    }
+
+    public void insertFile(ScmWorkspaceInfo wsInfo, BSONObject file,
+            TransactionCallback transactionCallback) throws ScmServerException {
         TransactionContext context = createTransactionContext();
         try {
             beginTransaction(context);
             insertFile(wsInfo, file, context);
+            if (transactionCallback != null) {
+                transactionCallback.beforeTransactionCommit(context);
+            }
             commitTransaction(context);
         }
         catch (ScmServerException e) {
@@ -89,7 +98,7 @@ public class ScmMetaService {
                                     + file.get(FieldName.FIELD_CLFILE_ID),
                             ex);
                 }
-                insertFile(wsInfo, file);
+                insertFile(wsInfo, file, transactionCallback);
                 return;
             }
             throw new ScmServerException(e.getError(), "insert file failed:siteId=" + siteId
@@ -231,7 +240,8 @@ public class ScmMetaService {
     }
 
     public boolean updateFileExternalData(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, BSONObject externalData) throws ScmServerException {
+            int minorVersion, BSONObject externalData, TransactionContext context)
+            throws ScmServerException {
         try {
             BasicBSONObject matcher = new BasicBSONObject();
             SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
@@ -239,7 +249,7 @@ public class ScmMetaService {
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
 
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
-                    wsInfo.getName(), null);
+                    wsInfo.getName(), context);
             BSONObject newFileInfo = fileAccessor.updateFileExternalData(matcher, externalData);
             if (newFileInfo != null) {
                 if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
@@ -253,7 +263,7 @@ public class ScmMetaService {
                 }
             }
             MetaFileHistoryAccessor historyFileAccessor = metasource
-                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), context);
             newFileInfo = historyFileAccessor.updateFileExternalData(matcher, externalData);
             if (newFileInfo != null) {
                 if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
@@ -356,7 +366,8 @@ public class ScmMetaService {
             if (oldFileRecord == null) {
                 return false;
             }
-            ScmFileOperateUtils.updateFileRelForUpdateFile(wsInfo, fileId, oldFileRecord, relUpdator, context);
+            ScmFileOperateUtils.updateFileRelForUpdateFile(wsInfo, fileId, oldFileRecord,
+                    relUpdator, context);
             return true;
         }
         catch (ScmMetasourceException e) {
@@ -371,14 +382,14 @@ public class ScmMetaService {
 
     /*
      * public boolean updateFileProperties(MetaSourceLocation location, String
-     * wsName, String fileId, BSONObject classProperties) throws
-     * ScmServerException{ try { MetaFileAccessor mateFileAccessor =
+     * wsName, String fileId, BSONObject classProperties) throws ScmServerException{
+     * try { MetaFileAccessor mateFileAccessor =
      * metasource.getFileAccessor(location, wsName, null); return
      * mateFileAccessor.updateFileProperties(fileId, classProperties); } catch
      * (ScmServerException e) { throw new ScmServerException(e.getError(),
-     * "updateBatchInfo failed: workspace=" + wsName, e); } catch (Exception e)
-     * { throw new ScmSystemException( "updateBatchInfo failed: workspace=" +
-     * wsName , e); }
+     * "updateBatchInfo failed: workspace=" + wsName, e); } catch (Exception e) {
+     * throw new ScmSystemException( "updateBatchInfo failed: workspace=" + wsName ,
+     * e); }
      *
      * }
      */
@@ -549,7 +560,8 @@ public class ScmMetaService {
                     .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), context);
             BSONObject deletedFileRecord = fileAccessor.delete(fileID, -1, -1);
             if (deletedFileRecord != null) {
-                ScmFileOperateUtils.deleteFileRelForDeleteFile(ws, fileID, deletedFileRecord, context);
+                ScmFileOperateUtils.deleteFileRelForDeleteFile(ws, fileID, deletedFileRecord,
+                        context);
                 historyAccessor.delete(fileID);
             }
             commitTransaction(context);
@@ -1601,7 +1613,7 @@ public class ScmMetaService {
         }
     }
 
-    public MetaSource getMetaSource() {
+    public ContentModuleMetaSource getMetaSource() {
         return metasource;
     }
 
@@ -1659,7 +1671,8 @@ public class ScmMetaService {
         }
         BSONObject relUpdator = ScmMetaSourceHelper
                 .createRelUpdatorByFileUpdator(currentRecUpdator);
-        ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, oldFileRecord, relUpdator, transaction);
+        ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, oldFileRecord, relUpdator,
+                transaction);
     }
 
     public void breakpointFileToNewVersionFile(ScmWorkspaceInfo ws, String breakpointFile,

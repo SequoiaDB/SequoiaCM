@@ -1,11 +1,12 @@
 package com.sequoiacm.infrastructure.security.privilege.impl;
 
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
-@EnableFeignClients("com.sequoiacm.infrastructure.security.privilege.impl")
-@EnableDiscoveryClient
-@ComponentScan("com.sequoiacm.infrastructure.security.privilege.impl")
+import java.lang.annotation.*;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(ScmPrivAutoConfig.class)
 public @interface EnableScmPrivClient {
 }

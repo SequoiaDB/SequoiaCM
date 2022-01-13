@@ -1,33 +1,24 @@
 package com.sequoiacm.infrastructure.security.privilege.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.sequoiacm.infrastructrue.security.core.ScmPrivMeta;
-import com.sequoiacm.infrastructrue.security.core.ScmPrivMetaDeSerializer;
-import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
-import com.sequoiacm.infrastructrue.security.core.ScmPrivilegeDeserilizer;
-import com.sequoiacm.infrastructrue.security.core.ScmResource;
-import com.sequoiacm.infrastructrue.security.core.ScmResourceDeserializer;
-import com.sequoiacm.infrastructrue.security.core.ScmRole;
-import com.sequoiacm.infrastructrue.security.core.ScmRoleJsonDeserializer;
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
+import com.sequoiacm.infrastructrue.security.core.*;
 import com.sequoiacm.infrastructrue.security.privilege.IResource;
 import com.sequoiacm.infrastructrue.security.privilege.IResourceBuilder;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ScmPrivClient {
@@ -54,11 +45,19 @@ public class ScmPrivClient {
         module.addDeserializer(ScmResource.class, new ScmResourceDeserializer());
         mapper.registerModule(module);
 
-        privService = feignClient.builder().objectMapper(mapper)
-                .serviceTarget(ScmPrivService.class, "auth-server");
+        privService = feignClient.builder().objectMapper(mapper).serviceTarget(ScmPrivService.class,
+                "auth-server");
 
         addResourceBuilder(new WsResourceBuilder());
         addResourceBuilder(new WsAllResourceBuilder());
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
     public void loadAuth() {
@@ -350,7 +349,8 @@ public class ScmPrivClient {
         return sb.toString();
     }
 
-    public List<ScmPrivilege> listPrivilegeFromAuth(String roleId, String roleName, String resourceType, String resource){
+    public List<ScmPrivilege> listPrivilegeFromAuth(String roleId, String roleName,
+            String resourceType, String resource) {
         return privService.listPrivileges(roleId, roleName, resourceType, resource);
     }
 
