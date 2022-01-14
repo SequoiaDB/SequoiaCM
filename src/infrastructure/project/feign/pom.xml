@@ -41,5 +41,39 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-server-discovery</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <includes>
+                            <include>com.sequoiadb:sequoiacm-infrastructure-feign</include>
+                            <include>com.netflix.hystrix:hystrix-core</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>com.netflix.hystrix:hystrix-core</artifact>
+                            <excludes>
+                                <exclude>com/netflix/hystrix/HystrixCommandMetrics*.*</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
 </project>

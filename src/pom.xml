@@ -172,7 +172,7 @@
                     <configuration>
                         <excludes>
                             <exclude>
-                                <!-- 移除官方hystrix，使用sequoiacm-infrastructure-common修改后的hystrix -->
+                                <!-- 移除官方hystrix，使用sequoiacm-infrastructure-feign修改后的hystrix -->
                                 <groupId>com.netflix.hystrix</groupId>
                                 <artifactId>hystrix-core</artifactId>
                             </exclude>
