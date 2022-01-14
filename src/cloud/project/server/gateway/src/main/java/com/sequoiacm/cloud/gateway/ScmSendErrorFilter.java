@@ -5,6 +5,7 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.sequoiacm.infrastructure.common.ExceptionUtils;
 import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixException;
 import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixUtils;
 import org.apache.commons.logging.Log;
@@ -117,6 +118,9 @@ public class ScmSendErrorFilter extends ZuulFilter {
                     .maxQueueSize().get();
             return new ScmHystrixException(
                     ScmHystrixUtils.formatThreadPoolRejectedMsg(service, queueSize), e);
+        }
+        if (ExceptionUtils.causedBySocketTimeout(e)) {
+            return new ScmHystrixException(ScmHystrixUtils.formatSocketTimeoutMsg(service), e);
         }
         return null;
     }

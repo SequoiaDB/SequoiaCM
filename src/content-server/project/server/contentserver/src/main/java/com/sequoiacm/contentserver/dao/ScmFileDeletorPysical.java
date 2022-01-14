@@ -3,6 +3,8 @@ package com.sequoiacm.contentserver.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.contentserver.common.AsyncUtils;
+import com.sequoiacm.infrastructure.common.ExceptionUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -94,7 +96,10 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
             throw e;
         }
         catch (Exception e) {
-            throw new ScmSystemException("forwardToMainSite failed:,remote=" + remoteSiteName, e);
+            if (ExceptionUtils.causedBySocketTimeout(e)) {
+                throw new ScmSystemException("forwardToMainSite timed out: remote=" + remoteSiteName, e);
+            }
+            throw new ScmSystemException("forwardToMainSite failed: remote=" + remoteSiteName, e);
         }
     }
 
@@ -117,7 +122,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
                             + batchId);
         }
 
-        List<BSONObject> allVersionFile = new ArrayList<>();
+        final List<BSONObject> allVersionFile = new ArrayList<>();
         allVersionFile.add(currentFile);
         if (!isFirstVersion(currentFile)) {
             addHistoryVersionRecord(allVersionFile, currentFile);
@@ -126,10 +131,15 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         // delete file meta
         contentServer.getMetaService().deleteFile(wsInfo, fileId);
 
-        // delete file data
-        for (BSONObject fileRecord : allVersionFile) {
-            deleteData(fileRecord);
-        }
+        // delete file data async
+        AsyncUtils.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (BSONObject fileRecord : allVersionFile) {
+                    deleteData(fileRecord);
+                }
+            }
+        });
         listenerMgr.postDelete(wsInfo, allVersionFile);
     }
 

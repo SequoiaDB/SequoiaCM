@@ -2,6 +2,7 @@ package com.sequoiacm.infrastructure.feign.hystrix;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixThreadPoolMetrics;
+import com.sequoiacm.infrastructure.common.ExceptionUtils;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 
 public class ScmHystrixUtils {
@@ -24,6 +25,10 @@ public class ScmHystrixUtils {
         // 被熔断器拒绝
         else if (hystrixCommand.isResponseShortCircuited()) {
             return new ScmHystrixException(formatShortCircuitedMsg(target), e);
+        }
+        // 其它异常
+        if (ExceptionUtils.causedBySocketTimeout(e)) {
+            return new ScmHystrixException(ScmHystrixUtils.formatSocketTimeoutMsg(target), e);
         }
         if (e.getCause() != null) {
             return new Exception(e.getCause().getMessage(), e);
@@ -52,4 +57,12 @@ public class ScmHystrixUtils {
                 maxConcurrentRequests);
         return msg;
     }
+
+    public static String formatSocketTimeoutMsg(String target) {
+        String msg = String.format("%s[%s] calling %s timed out.", ScmFeignClient.localService,
+                ScmFeignClient.localHostPort, target);
+        return msg;
+    }
+
+
 }

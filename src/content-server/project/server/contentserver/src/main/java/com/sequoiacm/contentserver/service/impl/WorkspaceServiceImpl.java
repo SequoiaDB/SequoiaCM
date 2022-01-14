@@ -8,12 +8,14 @@ import java.util.Map.Entry;
 
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.contentserver.common.AsyncUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -89,9 +91,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     }
 
     @Override
-    public void deleteWorkspace(String sessionId, String token, ScmUser user, String wsName,
-            boolean isEnforced) throws ScmServerException {
-        ScmContentServer contentserver = ScmContentServer.getInstance();
+    public void deleteWorkspace(String sessionId, String token, ScmUser user, final String wsName,
+                                boolean isEnforced) throws ScmServerException {
+        final ScmContentServer contentserver = ScmContentServer.getInstance();
         if (!contentserver.isInMainSite()) {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(contentserver.getMainSiteName());
@@ -118,7 +120,12 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
 
         cleanPrivilege(token, user, wsName);
 
-        deleteDataTable(contentserver, wsName);
+        AsyncUtils.execute(new Runnable() {
+            @Override
+            public void run() {
+                deleteDataTable(contentserver, wsName);
+            }
+        });
 
     }
 
@@ -170,7 +177,6 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
     }
 
-    @Async
     private void deleteDataTable(ScmContentServer coontentserver, String wsName) {
         // siteName map dataTableName list
         Map<String, List<String>> tableNameMap = new HashMap<>();
