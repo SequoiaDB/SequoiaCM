@@ -160,20 +160,22 @@ public class FullText3014 extends TestScmBase {
         Assert.assertEquals( indexInfo.getMode(), ScmFulltextMode.async );
         Assert.assertEquals( indexInfo.getStatus(), ScmFulltextStatus.CREATED );
         ScmFulltextJobInfo jodInfo = indexInfo.getJobInfo();
-        while ( jodInfo.getSuccessCount() != fileIdList1.size() * 2 ) {
+        int times = 0;
+        while ( jodInfo.getProgress() != 100 ) {
             jodInfo = ScmFactory.Fulltext.getIndexInfo( ws ).getJobInfo();
+            if ( times > 60 ) {
+                throw new Exception( "wait jodInfo.getProgress()=100 time out,"
+                        + jodInfo.toString() );
+            }
+            times++;
+            Thread.sleep( 1000 );
         }
-        try {
-            Assert.assertEquals( jodInfo.getEstimateFileCount(), fileNum * 2 );
-            Assert.assertEquals( jodInfo.getErrorCount(),
-                    fileIdList2.size() * 2 );
-            Assert.assertEquals( jodInfo.getSuccessCount(),
-                    fileIdList1.size() * 2 );
-            Assert.assertEquals( jodInfo.getProgress(), 100 );
-            Assert.assertNotNull( jodInfo.getSpeed() );
-        } catch ( AssertionError e ) {
-            throw new Exception( "jodInfo = " + jodInfo.toString(), e );
-        }
+        Assert.assertEquals( jodInfo.getEstimateFileCount(), fileNum * 2 );
+        Assert.assertEquals( jodInfo.getErrorCount(), fileIdList2.size() * 2 );
+        Assert.assertEquals( jodInfo.getSuccessCount(),
+                fileIdList1.size() * 2 );
+        Assert.assertEquals( jodInfo.getProgress(), 100 );
+        Assert.assertNotNull( jodInfo.getSpeed() );
     }
 
     private void prepareFile( String fileNameBase, String dirId, int fileNum )
