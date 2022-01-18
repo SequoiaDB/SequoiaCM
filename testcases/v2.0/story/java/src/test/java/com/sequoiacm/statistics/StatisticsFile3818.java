@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
- * @description SCM-3819:不同用户下，文件上传部分失败，查询统计信息。
+ * @description SCM-3818:不同工作空间下，文件上传部分失败，查询统计信息。
  * @author ZhangYanan
  * @createDate 2021.10.15
  * @updateUser ZhangYanan

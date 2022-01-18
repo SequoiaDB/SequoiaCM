@@ -6,6 +6,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
@@ -437,19 +438,20 @@ public class StatisticsUtils extends TestScmBase {
      *
      * @param fileId
      * @param siteWorkspace
-     * @param currentTime
-     *            当前时间
+     *
      * @return
      * @throws Exception
      */
     public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace )
             throws Exception {
-        long downloadBeginTime = System.currentTimeMillis();
+        long downloadBeginTime = System.nanoTime();
         ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
         // download file
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         file.getContent( outputStream );
-        return System.currentTimeMillis() - downloadBeginTime;
+        long nanoTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - downloadBeginTime, TimeUnit.NANOSECONDS );
+        return nanoTime;
     }
 
     /**
@@ -488,14 +490,15 @@ public class StatisticsUtils extends TestScmBase {
     public static long uploadFile( String filePath, String fileName,
             List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
             throws Exception {
-        long downloadBeginTime = System.currentTimeMillis();
+        long uploadBeginTime = System.nanoTime();
         ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
         file.setFileName( fileName + UUID.randomUUID() );
         file.setAuthor( fileName );
         file.setContent( filePath );
         fileIdList.add( file.save() );
-        long downloadEndTime = System.currentTimeMillis();
-        return downloadEndTime - downloadBeginTime;
+        long uploadTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
+        return uploadTime;
     }
 
     /**
