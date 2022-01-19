@@ -1,19 +1,13 @@
 package com.sequoiacm.contentserver.dao;
 
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
-import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.lock.ScmLockPath;
-import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
-import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class BreakpointFileConvertor implements IFileCreatorDao {
@@ -33,10 +27,10 @@ public class BreakpointFileConvertor implements IFileCreatorDao {
         String parentId = (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
 
         ScmLock rLock = ScmFileOperateUtils.lockDirForCreateFile(wsInfo, parentId);
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
         try {
             ScmFileOperateUtils.checkDirForCreateFile(wsInfo, parentId);
-            contentServer.getMetaService().breakpointFileToFile(wsInfo, breakpointFile, fileInfo);
+            contentModule.getMetaService().breakpointFileToFile(wsInfo, breakpointFile, fileInfo);
         }
         finally {
             if (rLock != null) {

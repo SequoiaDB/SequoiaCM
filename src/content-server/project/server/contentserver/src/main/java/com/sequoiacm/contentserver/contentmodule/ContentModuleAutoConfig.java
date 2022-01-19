@@ -1,7 +1,7 @@
 package com.sequoiacm.contentserver.contentmodule;
 
 import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
@@ -73,6 +73,6 @@ class ContentModuleInitRunner {
     @PreDestroy
     public void destroy() throws ScmServerException {
         ScmLockManager.getInstance().close();
-        ScmContentServer.getInstance().getSiteMgr().clear();
+        ScmContentModule.getInstance().getSiteMgr().clear();
     }
 }

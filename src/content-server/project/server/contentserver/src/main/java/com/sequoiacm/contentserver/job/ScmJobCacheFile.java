@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public final class ScmJobCacheFile extends ScmBackgroundJob {
@@ -57,13 +57,13 @@ public final class ScmJobCacheFile extends ScmBackgroundJob {
         ScmLock readLock = null;
         try {
             ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
-                    wsInfo.getName(), ScmContentServer.getInstance().getLocalSiteInfo().getName(),
+                    wsInfo.getName(), ScmContentModule.getInstance().getLocalSiteInfo().getName(),
                     dataId);
             ScmLockPath fileReadLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(),
                     fileId);
             readLock = ScmLockManager.getInstance().acquiresReadLock(fileReadLockPath);
             fileContentLock = ScmLockManager.getInstance().acquiresLock(fileContentLockPath);
-            BSONObject file = ScmContentServer
+            BSONObject file = ScmContentModule
                     .getInstance()
                     .getMetaService()
                     .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion,

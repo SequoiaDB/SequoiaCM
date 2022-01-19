@@ -1,28 +1,21 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentServerMapping;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
+import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.ScmMetasourceException;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+
+import java.util.*;
 
 public class ScmMetaSourceHelper {
     public static final String SEQUOIADB_MATCHER_DOLLAR0 = "$0";
@@ -108,8 +101,8 @@ public class ScmMetaSourceHelper {
             List<ScmContentServerMapping> serverList = new ArrayList<>();
             while (cursor.hasNext()) {
                 BSONObject bo = cursor.getNext();
-                ScmContentServerMapping contentServer = new ScmContentServerMapping(bo);
-                serverList.add(contentServer);
+                ScmContentServerMapping serverMapping = new ScmContentServerMapping(bo);
+                serverList.add(serverMapping);
             }
 
             return serverList;

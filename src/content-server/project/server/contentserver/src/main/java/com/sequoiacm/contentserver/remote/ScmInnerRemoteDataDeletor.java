@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.exception.ScmServerException;
@@ -24,8 +24,8 @@ public class ScmInnerRemoteDataDeletor {
     }
 
     public void delete() throws ScmServerException {
-        ScmContentServer contentserver = ScmContentServer.getInstance();
-        ScmSite remoteSiteInfo = contentserver.getSiteInfo(remoteSiteId);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmSite remoteSiteInfo =contentModule.getSiteInfo(remoteSiteId);
         try {
             ContentServerClient c = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteInfo.getName());
             c.deleteData(wsInfo.getName(), dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime());

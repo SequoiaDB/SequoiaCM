@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
@@ -34,7 +34,7 @@ public class ScmFileOperateUtils {
     public static void checkDirForCreateFile(ScmWorkspaceInfo wsInfo, String parentId)
             throws ScmServerException {
         if (wsInfo.isEnableDirectory()) {
-            ScmMetaService metaservice = ScmContentServer.getInstance().getMetaService();
+            ScmMetaService metaservice = ScmContentModule.getInstance().getMetaService();
             BSONObject parentDirMatcher = new BasicBSONObject();
             parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentId);
             if (metaservice.getDirCount(wsInfo.getName(), parentDirMatcher) <= 0) {
@@ -48,7 +48,7 @@ public class ScmFileOperateUtils {
             TransactionContext context) throws ScmServerException, ScmMetasourceException {
         if (wsInfo.isEnableDirectory()) {
             BSONObject relInsertor = ScmMetaSourceHelper.createRelInsertorByFileInsertor(fileInfo);
-            MetaRelAccessor relAccessor = ScmContentServer.getInstance().getMetaService()
+            MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource().getRelAccessor(wsInfo.getName(), context);
             relAccessor.insert(relInsertor);
         }
@@ -58,7 +58,7 @@ public class ScmFileOperateUtils {
             BSONObject oldFileRecord, BSONObject relUpdator, TransactionContext context)
             throws ScmServerException, ScmMetasourceException {
         if (wsInfo.isEnableDirectory()) {
-            MetaRelAccessor relAccessor = ScmContentServer.getInstance().getMetaService()
+            MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource().getRelAccessor(wsInfo.getName(), context);
             String oldDirId = BsonUtils.getStringChecked(oldFileRecord,
                     FieldName.FIELD_CLFILE_DIRECTORY_ID);
@@ -72,7 +72,7 @@ public class ScmFileOperateUtils {
             BSONObject deletedFileRecord, TransactionContext context)
             throws ScmServerException, ScmMetasourceException {
         if (ws.isEnableDirectory()) {
-            MetaRelAccessor relAccessor = ScmContentServer.getInstance().getMetaService()
+            MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource().getRelAccessor(ws.getName(), context);
             String dirId = BsonUtils.getStringChecked(deletedFileRecord,
                     FieldName.FIELD_CLFILE_DIRECTORY_ID);

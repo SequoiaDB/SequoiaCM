@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
@@ -36,7 +36,7 @@ public class FileCacheDao {
     public FileCacheDao(ScmWorkspaceInfo wsInfo, int remoteSiteId) {
         this.wsInfo = wsInfo;
         this.remoteSiteId = remoteSiteId;
-        this.localSiteId = ScmContentServer.getInstance().getLocalSite();
+        this.localSiteId = ScmContentModule.getInstance().getLocalSite();
     }
 
     public void doCache(BSONObject file) throws ScmServerException {
@@ -134,7 +134,7 @@ public class FileCacheDao {
         ScmDataWriter writer = null;
         try {
             writer = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId, wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
         }
         catch (ScmDatasourceException e) {

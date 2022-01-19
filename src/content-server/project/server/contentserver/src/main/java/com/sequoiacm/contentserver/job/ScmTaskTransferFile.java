@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
@@ -55,7 +55,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
         int remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
         ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
                 getWorkspaceInfo().getName(),
-                ScmContentServer.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
+                ScmContentModule.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
 
         ScmLock fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(fileContentLockPath);
         if (fileContentLock == null) {
@@ -67,7 +67,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
         BSONObject file;
         try {
             ScmWorkspaceInfo ws = getWorkspaceInfo();
-            file = ScmContentServer.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
+            file = ScmContentModule.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
                     ws.getName(), fileId, majorVersion, minorVersion);
             if (file == null) {
                 logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}",
@@ -117,7 +117,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
             BasicBSONList matcherList = new BasicBSONList();
             BSONObject taskMatcher = getTaskContent();
             BSONObject mySiteFileMatcher = ScmMetaSourceHelper
-                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
+                    .dollarSiteInList(ScmContentModule.getInstance().getLocalSite());
             BSONObject targetSiteFileMatcher = ScmMetaSourceHelper
                     .dollarSiteNotInList(remoteSiteId);
             matcherList.add(taskMatcher);

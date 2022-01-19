@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.metasource.sequoiadb.MetaSequoiadbRecorder;
 import com.sequoiacm.sequoiadb.dataservice.SequoiadbRecorder;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 
 public class ScmLogResourceJob extends ScmBackgroundJob {
@@ -68,7 +68,7 @@ public class ScmLogResourceJob extends ScmBackgroundJob {
     @Override
     public void _run() {
         if (logger.isDebugEnabled()) {
-            logger.debug("ScmSiteMgr:\n" + ScmContentServer.getInstance().getSiteMgr().toString());
+            logger.debug("ScmSiteMgr:\n" + ScmContentModule.getInstance().getSiteMgr().toString());
             logger.debug("MetaSequoiadbRecorder:\n" + MetaSequoiadbRecorder.getInstance().toString());
             logger.debug("SequoiadbRecorder:\n" + SequoiadbRecorder.getInstance().toString());
         }

@@ -4,7 +4,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.ScmServer;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -102,7 +102,7 @@ public class ScmTaskManager {
 
     public void restore() throws ScmServerException {
         // abort init & running task(taskType=transfer_file & clean_file)
-        int mainSiteId = ScmContentServer.getInstance().getMainSite();
+        int mainSiteId = ScmContentModule.getInstance().getMainSite();
         int serverId = ScmServer.getInstance().getContentServerInfo().getId();
         AbortTask(mainSiteId, serverId);
 
@@ -112,12 +112,12 @@ public class ScmTaskManager {
 
     private void fillStopTime(int mainSiteId, int serverId) throws ScmServerException {
         Date date = new Date();
-        ScmContentServer.getInstance().getMetaService().setAllStopTime(serverId, date);
+        ScmContentModule.getInstance().getMetaService().setAllStopTime(serverId, date);
     }
 
     private void AbortTask(int mainSiteId, int serverId) throws ScmServerException {
         Date date = new Date();
-        ScmContentServer.getInstance().getMetaService().abortAllTask(serverId, date);
+        ScmContentModule.getInstance().getMetaService().abortAllTask(serverId, date);
     }
 
     public void addAsyncTaskUpdator(TaskUpdator updator) {

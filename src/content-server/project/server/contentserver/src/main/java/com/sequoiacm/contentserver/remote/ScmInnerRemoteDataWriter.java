@@ -21,7 +21,7 @@ import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 
@@ -36,8 +36,8 @@ public class ScmInnerRemoteDataWriter {
     public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo, final ScmDataInfo dataInfo)
             throws ScmServerException {
         this.dataInfo = dataInfo;
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        remoteSiteName = contentServer.getSiteInfo(remoteSiteId).getName();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
         final String hostPort = LoadBalancedUtil.choose(remoteSiteName);
         try {
             ScmHystrixExecutor.execute(remoteSiteName, hostPort, new ScmHystrixExecutor.Runnable<Object>() {

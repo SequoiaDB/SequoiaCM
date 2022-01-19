@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBreakpointFileService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
@@ -52,12 +52,12 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.READ, "find breakpoint file");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        contentServer.getWorkspaceInfoChecked(workspaceName);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        contentModule.getWorkspaceInfoChecked(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
-            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+            BreakpointFile file = contentModule.getMetaService().getBreakpointFile(workspaceName,
                     fileName);
             if (file == null) {
                 return null;
@@ -67,7 +67,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             if (file.isCompleted()) {
                 return file;
             }
-            if (file.getSiteId() != contentServer.getLocalSite()) {
+            if (file.getSiteId() != contentModule.getLocalSite()) {
                 return file;
             }
 
@@ -85,13 +85,13 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
     }
 
     private boolean isBreakpointDataExist(BreakpointFile file) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
         try {
             ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory()
                     .createBreakpointWriter(
-                            contentServer.getWorkspaceInfoChecked(file.getWorkspaceName())
+                            contentModule.getWorkspaceInfoChecked(file.getWorkspaceName())
                                     .getDataLocation(),
-                            ScmContentServer.getInstance().getDataService(),
+                            ScmContentModule.getInstance().getDataService(),
                             file.getWorkspaceName(), file.getFileName(), file.getDataId(),
                             new Date(file.getCreateTime()), false, file.getUploadSize(),
                             file.getExtraContext());
@@ -112,9 +112,9 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             BSONObject filter) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.READ, "list breakpoint files");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        contentServer.getWorkspaceInfoChecked(workspaceName);
-        List<BreakpointFile> ret = contentServer.getMetaService().listBreakpointFiles(workspaceName,
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        contentModule.getWorkspaceInfoChecked(workspaceName);
+        List<BreakpointFile> ret = contentModule.getMetaService().listBreakpointFiles(workspaceName,
                 filter);
         String message = "list breakpoint files";
         if (null != filter) {
@@ -132,24 +132,24 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.CREATE, "create breakpoint file");
 
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        if (!contentServer.getDataService().supportsBreakpointUpload()) {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (!contentModule.getDataService().supportsBreakpointUpload()) {
             throw new ScmOperationUnsupportedException(String.format(
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
 
-        ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
-            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+            BreakpointFile file = contentModule.getMetaService().getBreakpointFile(workspaceName,
                     fileName);
             if (file != null) {
                 throw new ScmFileExistException(String.format(
                         "BreakpointFile is already exist: /%s/%s", workspaceName, fileName));
             }
 
-            file = contentServer.getMetaService().createBreakpointFile(user.getUsername(),
+            file = contentModule.getMetaService().createBreakpointFile(user.getUsername(),
                     workspaceName, fileName, checksumType, createTime, isNeedMd5);
 
             if (fileStream != null) {
@@ -173,24 +173,24 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
 
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.CREATE, "upload breakpoint file");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        if (!contentServer.getDataService().supportsBreakpointUpload()) {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (!contentModule.getDataService().supportsBreakpointUpload()) {
             throw new ScmOperationUnsupportedException(String.format(
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
 
-        ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
-            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+            BreakpointFile file = contentModule.getMetaService().getBreakpointFile(workspaceName,
                     fileName);
             if (file == null) {
                 throw new ScmFileNotFoundException(String
                         .format("BreakpointFile is not found: /%s/%s", workspaceName, fileName));
             }
 
-            if (file.getSiteId() != contentServer.getLocalSite()) {
+            if (file.getSiteId() != contentModule.getLocalSite()) {
                 throw new ScmInvalidArgumentException(
                         String.format("BreakpointFile[/%s/%s] should be uploaded in site[%s]",
                                 workspaceName, fileName, file.getSiteName()));
@@ -248,28 +248,28 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.DELETE, "delete breakpoint file");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        if (!contentServer.getDataService().supportsBreakpointUpload()) {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (!contentModule.getDataService().supportsBreakpointUpload()) {
             throw new ScmOperationUnsupportedException(String.format(
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
-            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+            BreakpointFile file = contentModule.getMetaService().getBreakpointFile(workspaceName,
                     fileName);
             if (file == null) {
                 throw new ScmFileNotFoundException(String
                         .format("BreakpointFile is not found: /%s/%s", workspaceName, fileName));
             }
 
-            if (file.getSiteId() != contentServer.getLocalSite()) {
+            if (file.getSiteId() != contentModule.getLocalSite()) {
                 throw new ScmInvalidArgumentException(
                         String.format("BreakpointFile[/%s/%s] should be uploaded in site[%s]",
                                 workspaceName, fileName, file.getSiteName()));
             }
 
-            ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
+            ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
             BreakpointFileDeleter fileDeleter = new BreakpointFileDeleter(workspaceInfo, file);
             fileDeleter.delete();
 
@@ -292,19 +292,19 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
 
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.UPDATE, "calculate breakpoint file md5");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmWorkspaceInfo workspaceInfo = contentServer.getWorkspaceInfoChecked(workspaceName);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
-            BreakpointFile file = contentServer.getMetaService().getBreakpointFile(workspaceName,
+            BreakpointFile file = contentModule.getMetaService().getBreakpointFile(workspaceName,
                     fileName);
             if (file == null) {
                 throw new ScmFileNotFoundException(String
                         .format("BreakpointFile is not found: /%s/%s", workspaceName, fileName));
             }
 
-            if (file.getSiteId() != contentServer.getLocalSite()) {
+            if (file.getSiteId() != contentModule.getLocalSite()) {
                 throw new ScmInvalidArgumentException(
                         String.format("BreakpointFile[/%s/%s] should be uploaded in site[%s]",
                                 workspaceName, fileName, file.getSiteName()));
@@ -326,7 +326,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
             file.setMd5(md5);
             file.setNeedMd5(true);
-            ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+            ScmContentModule.getInstance().getMetaService().updateBreakpointFile(file);
             audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
                     "calculate breakpoint file md5, fileName=" + fileName);
             return md5;

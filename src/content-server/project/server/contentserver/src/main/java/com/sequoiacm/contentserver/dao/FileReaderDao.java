@@ -24,7 +24,7 @@ import com.sequoiacm.contentserver.remote.ScmLocalFileReader;
 import com.sequoiacm.contentserver.remote.ScmRemoteFileReader;
 import com.sequoiacm.contentserver.remote.ScmRemoteFileReaderSeakable;
 import com.sequoiacm.contentserver.remote.ScmRemoteFileReaderWrapper;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
@@ -52,7 +52,7 @@ public class FileReaderDao {
         this.wsInfo = wsInfo;
         this.wsName = wsInfo.getName();
 
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
 
         ScmDataInfo dataInfo = new ScmDataInfo(fileRecord);
         long size = BsonUtils.getLong(fileRecord, FieldName.FIELD_CLFILE_FILE_SIZE);
@@ -63,7 +63,7 @@ public class FileReaderDao {
             pullNullSite();
         }
 
-        localSiteId = contentServer.getLocalSite();
+        localSiteId = contentModule.getLocalSite();
 
         if (isReadLocalOnly(flag)) {
             fileReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
@@ -213,7 +213,7 @@ public class FileReaderDao {
         try {
             logger.info("update site info:wsName=" + wsName + ",fileId=" + fileId + ",majorVersion="
                     + majorVersion + ",minorVersion=" + minorVersion);
-            ScmContentServer.getInstance().getMetaService().deleteNullSiteFromFile(wsInfo, fileId,
+            ScmContentModule.getInstance().getMetaService().deleteNullSiteFromFile(wsInfo, fileId,
                     majorVersion, minorVersion);
         }
         catch (Exception e) {

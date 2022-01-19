@@ -1,7 +1,7 @@
 package com.sequoiacm.contentserver.job;
 
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 
 public class TaskRemoveUpdator implements TaskUpdator {
 
@@ -17,7 +17,7 @@ public class TaskRemoveUpdator implements TaskUpdator {
 
     @Override
     public void doUpdate() throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().deleteTask(taskId);
+        ScmContentModule.getInstance().getMetaService().deleteTask(taskId);
     }
 
 }

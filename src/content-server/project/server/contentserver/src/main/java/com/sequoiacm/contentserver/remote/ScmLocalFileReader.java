@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.remote;
 
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.exception.ScmServerException;
@@ -16,9 +16,9 @@ public class ScmLocalFileReader extends ScmFileReader {
             throws ScmServerException {
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
-                    ScmContentServer.getInstance().getLocalSite(),
+                    ScmContentModule.getInstance().getLocalSite(),
                     wsInfo.getName(), wsInfo.getDataLocation(),
-                    ScmContentServer.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),
                     "Failed to create data reader", e);

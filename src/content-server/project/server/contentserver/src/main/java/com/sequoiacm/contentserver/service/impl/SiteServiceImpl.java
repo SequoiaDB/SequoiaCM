@@ -8,7 +8,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.service.ISiteService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
@@ -19,7 +19,7 @@ public class SiteServiceImpl implements ISiteService {
 
     @Override
     public BSONObject getSite(String siteName) throws ScmServerException {
-        MetaAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource().getSiteAccessor();
+        MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource().getSiteAccessor();
         BasicBSONObject matcher = new BasicBSONObject();
         matcher.put(FieldName.FIELD_CLSITE_NAME, siteName);
         BSONObject site = ScmMetaSourceHelper.queryOne(accessor, matcher);
@@ -31,7 +31,7 @@ public class SiteServiceImpl implements ISiteService {
 
     @Override
     public MetaCursor getSiteList(BSONObject condition) throws ScmServerException {
-        MetaAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource().getSiteAccessor();
+        MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource().getSiteAccessor();
         try {
             return accessor.query(condition, null, null);
         } catch (ScmMetasourceException e) {

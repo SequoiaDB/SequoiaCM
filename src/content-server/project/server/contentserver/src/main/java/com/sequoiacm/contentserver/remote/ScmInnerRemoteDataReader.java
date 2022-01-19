@@ -12,7 +12,7 @@ import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 
@@ -38,8 +38,8 @@ public class ScmInnerRemoteDataReader {
         this.dataInfo = dataInfo;
         this.flag = flag & ~CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA;
         this.wsInfo = wsInfo;
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        remoteSiteName = contentServer.getSiteInfo(remoteSiteId).getName();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
 
         try {
             client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);

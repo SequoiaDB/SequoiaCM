@@ -19,7 +19,7 @@ import com.sequoiacm.contentserver.metadata.impl.WSClassInfo;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 
 public class MetaDataManager {
@@ -55,8 +55,8 @@ public class MetaDataManager {
     }
 
     public void reloadMetaDataByWsName(String wsName) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmMetaService metaService = contentServer.getMetaService();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmMetaService metaService = contentModule.getMetaService();
         logger.info("refresh metaData cache:wsName={}", wsName);
         WSClassInfo wsClassInfo = queryWorkspaceClassInfo(metaService, wsName);
         metadataInfo.put(wsName, wsClassInfo);
@@ -67,10 +67,10 @@ public class MetaDataManager {
     }
 
     public void initMetaDataInfomation() throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmMetaService metaService = contentServer.getMetaService();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmMetaService metaService = contentModule.getMetaService();
         metadataInfo.clear();
-        List<String> wsNames = contentServer.getWorkspaceNames();
+        List<String> wsNames = contentModule.getWorkspaceNames();
         try {
             for (String wsName : wsNames) {
                 // get class by workspace

@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
 
@@ -39,8 +39,8 @@ public class ScmRemoteFileReader extends ScmFileReader {
         this.fileId = fileId;
         this.workspaceName = wsInfo.getName();
         this.flag = flag & ~CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA;
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        remoteSite = contentServer.getSiteInfo(remoteSiteId);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        remoteSite = contentModule.getSiteInfo(remoteSiteId);
 
         try {
             ContentServerClient client = ContentServerClientFactory

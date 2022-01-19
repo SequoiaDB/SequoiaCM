@@ -16,7 +16,7 @@ import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.remote.DataInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
@@ -32,8 +32,8 @@ public class FileCommonOperator {
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             if (size == reader.getSize()) {
                 return true;
@@ -53,9 +53,9 @@ public class FileCommonOperator {
     public static long getSize(String remoteSiteName, String wsName, ScmDataInfo dataInfo)
             throws ScmServerException {
         ContentServerClient client = null;
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR && !contentServer.isInMainSite()) {
-            String mainSiteName = ScmContentServer.getInstance().getMainSiteName();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR && !contentModule.isInMainSite()) {
+            String mainSiteName = ScmContentModule.getInstance().getMainSiteName();
             client = ContentServerClientFactory.getFeignClientByServiceName(mainSiteName);
         }
         else {
@@ -72,8 +72,8 @@ public class FileCommonOperator {
                 localSiteId, wsInfo.getName(), dataInfo.getId());
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
             logger.info("delete residul file content success:localSiteId={},wsName={},dataId={}",
@@ -109,7 +109,7 @@ public class FileCommonOperator {
     public static boolean isRemoteDataExist(int remoteSiteId, ScmWorkspaceInfo wsInfo,
             ScmDataInfo dataInfo, long size) throws ScmServerException {
         try {
-            String remoteSiteName = ScmContentServer.getInstance().getSiteInfo(remoteSiteId)
+            String remoteSiteName = ScmContentModule.getInstance().getSiteInfo(remoteSiteId)
                     .getName();
             long remoteDataSize = getSize(remoteSiteName, wsInfo.getName(), dataInfo);
             if (size == remoteDataSize) {
@@ -137,7 +137,7 @@ public class FileCommonOperator {
         logger.info("add site to site list:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + addedSiteId);
-        ScmContentServer.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
+        ScmContentModule.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
                 majorVersion, minorVersion, addedSiteId, new Date());
 
     }
@@ -147,7 +147,7 @@ public class FileCommonOperator {
         logger.debug("updating access time:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + siteId);
-        ScmContentServer.getInstance().getMetaService().updateAccessTimeInFile(wsInfo, fileId,
+        ScmContentModule.getInstance().getMetaService().updateAccessTimeInFile(wsInfo, fileId,
                 majorVersion, minorVersion, siteId, date);
 
     }
@@ -157,7 +157,7 @@ public class FileCommonOperator {
         logger.info("delete site from file:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + siteId);
-        ScmContentServer.getInstance().getMetaService().deleteSiteFromFile(wsInfo, fileId,
+        ScmContentModule.getInstance().getMetaService().deleteSiteFromFile(wsInfo, fileId,
                 majorVersion, minorVersion, siteId);
     }
 
@@ -212,7 +212,7 @@ public class FileCommonOperator {
 
     private static void recordTableName(String wsName, String tableName) {
         try {
-            ScmContentServer.getInstance().getMetaService().recordDataTableName(wsName, tableName);
+            ScmContentModule.getInstance().getMetaService().recordDataTableName(wsName, tableName);
         }
         catch (Exception e) {
             logger.warn("failed to record data table name:wsName={},tableName={}", wsName,

@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 
 public class TransSingleFileDeletor extends ScmTransBase {
@@ -29,7 +29,7 @@ public class TransSingleFileDeletor extends ScmTransBase {
     private int minorVersion = -1;
     private String user = null;
     private String transID = null;
-    private ScmContentServer contentServer = ScmContentServer.getInstance();
+    private ScmContentModule contentModule = ScmContentModule.getInstance();
 
     private final int type = ServiceDefine.TransType.DELETING_SINGLE_FILE;
 
@@ -85,12 +85,12 @@ public class TransSingleFileDeletor extends ScmTransBase {
     }
 
     private void removeFileInfo() throws ScmServerException {
-        // contentServer.deleteCurrentFile(wsInfo, fileID, majorVersion,
+        // contentModule.deleteCurrentFile(wsInfo, fileID, majorVersion,
         // minorVersion);
     }
 
     private void saveFileHistoryInfo() throws ScmServerException {
-        BSONObject file = contentServer.getMetaService().getFileInfo(wsInfo.getMetaLocation(),
+        BSONObject file = contentModule.getMetaService().getFileInfo(wsInfo.getMetaLocation(),
                 wsInfo.getName(), fileID, majorVersion, minorVersion);
 
         if (null == file) {
@@ -103,10 +103,10 @@ public class TransSingleFileDeletor extends ScmTransBase {
         // file = SequoiadbHelper.currentFileToHistory(file,
         // ServiceDefine.FileHistoryFlag.DELETED,
         // user, new Date());
-        // contentServer.insertHistoryFile(workspaceName, file);
+        // contentModule.insertHistoryFile(workspaceName, file);
     }
 
-    private void saveTransLog(ScmContentServer contentServer) throws ScmServerException {
+    private void saveTransLog(ScmContentModule contentModule) throws ScmServerException {
         BSONObject transRecord = new BasicBSONObject();
         transRecord.put(FieldName.FIELD_CLTRANS_ID, getTransID());
         transRecord.put(FieldName.FIELD_CLTRANS_TYPE, getType());
@@ -116,11 +116,11 @@ public class TransSingleFileDeletor extends ScmTransBase {
         transRecord.put(FieldName.FIELD_CLTRANS_FILEID, fileID);
         transRecord.put(FieldName.FIELD_CLTRANS_MAJORVERSION, majorVersion);
         transRecord.put(FieldName.FIELD_CLTRANS_MINORVERSION, minorVersion);
-        contentServer.insertTransLog(getWorkspaceName(), transRecord);
+        contentModule.insertTransLog(getWorkspaceName(), transRecord);
     }
 
-    private void markFileInTrans(ScmContentServer contentServer) throws ScmServerException {
-        ScmMetaService sms = contentServer.getMetaService();
+    private void markFileInTrans(ScmContentModule contentModule) throws ScmServerException {
+        ScmMetaService sms = contentModule.getMetaService();
         try {
             boolean isUpdated = sms.updateTransId(wsInfo, fileID, majorVersion, minorVersion,
                     ServiceDefine.FileStatus.DELETING, getTransID());
@@ -136,21 +136,21 @@ public class TransSingleFileDeletor extends ScmTransBase {
         }
     }
 
-    private void unmarkFileIntrans(ScmContentServer contentServer, String fileID, int majorVersion,
-            int minorVersion) throws ScmServerException {
+    private void unmarkFileIntrans(ScmContentModule contentModule, String fileID, int majorVersion,
+                                   int minorVersion) throws ScmServerException {
         logger.debug("set current status:" + FieldName.FIELD_CLFILE_EXTRA_STATUS + "="
                 + ServiceDefine.FileStatus.NORMAL + "," + FieldName.FIELD_CLFILE_EXTRA_TRANS_ID
                 + "=\"\"");
 
         logger.info("updating file:wsName=" + workspaceName + ",fileId=" + fileID + ",version="
                 + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
-        contentServer.getMetaService().unmarkTransIdFromFile(wsInfo, fileID, majorVersion,
+        contentModule.getMetaService().unmarkTransIdFromFile(wsInfo, fileID, majorVersion,
                 minorVersion, ServiceDefine.FileStatus.NORMAL);
     }
 
-    private void removeFileHistoryInfo(ScmContentServer contentServer) throws ScmServerException {
+    private void removeFileHistoryInfo(ScmContentModule contentModule) throws ScmServerException {
         // try {
-        // contentServer.deleteHistoryFile(getWorkspaceName(), fileID,
+        // contentModule.deleteHistoryFile(getWorkspaceName(), fileID,
         // majorVersion, minorVersion);
         // }
         // catch (ScmServerException e) {
@@ -194,15 +194,15 @@ public class TransSingleFileDeletor extends ScmTransBase {
     @Override
     protected void _execute() throws ScmServerException {
         try {
-            saveTransLog(contentServer);
-            markFileInTrans(contentServer);
+            saveTransLog(contentModule);
+            markFileInTrans(contentModule);
             saveFileHistoryInfo();
             removeFileInfo();
 
             // after remove file info. we assume remove operator have been
             // successfully executed.
             // the following code must not throws any errors.
-            removeTransLog(contentServer, siteID, workspaceName, transID);
+            removeTransLog(contentModule, siteID, workspaceName, transID);
         }
         catch (Exception e) {
             logger.error("delete file failed:fileID=" + fileID + ",version="
@@ -216,19 +216,19 @@ public class TransSingleFileDeletor extends ScmTransBase {
         logger.warn("start to rollback file:fileID=" + fileID + ",version="
                 + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         logger.warn("start to delete history file record");
-        removeFileHistoryInfo(contentServer);
+        removeFileHistoryInfo(contentModule);
 
         logger.warn("start to unmark file trans status");
-        unmarkFileIntrans(contentServer, fileID, majorVersion, minorVersion);
+        unmarkFileIntrans(contentModule, fileID, majorVersion, minorVersion);
         // after unmark file's transaction flag. we assume rollback is
         // success.
         logger.warn("delete translog:transID=" + transID);
-        removeTransLog(contentServer, siteID, workspaceName, transID);
+        removeTransLog(contentModule, siteID, workspaceName, transID);
     }
 
     @Override
     protected boolean _isInTransStatus() throws ScmServerException {
-        BSONObject file = contentServer.getMetaService().getFileInfo(wsInfo.getMetaLocation(),
+        BSONObject file = contentModule.getMetaService().getFileInfo(wsInfo.getMetaLocation(),
                 wsInfo.getName(), fileID, majorVersion, minorVersion);
         if (null == file) {
             // file is unexist, do not need to rollback

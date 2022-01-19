@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.bizconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
@@ -36,10 +36,10 @@ public class NodeConfSubscriber implements ScmConfSubscriber {
         NodeNotifyOption option = (NodeNotifyOption) notification;
         String nodeName = option.getNodeName();
         if (notification.getEventType() == EventType.DELTE) {
-            ScmContentServer.getInstance().removeNode(nodeName);
+            ScmContentModule.getInstance().removeNode(nodeName);
             return;
         }
-        ScmContentServer.getInstance().reloadNode(nodeName);
+        ScmContentModule.getInstance().reloadNode(nodeName);
     }
 
     @Override

@@ -11,13 +11,13 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaRelAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 
 public class DirUpdatorDao {
-    private ScmContentServer contentServer = ScmContentServer.getInstance();
+    private ScmContentModule contentModule = ScmContentModule.getInstance();
     private ScmWorkspaceInfo ws;
     private BSONObject dirRec;
     private String user;
@@ -28,7 +28,7 @@ public class DirUpdatorDao {
     public DirUpdatorDao(String user, String wsName, BSONObject newDirInfo)
             throws ScmServerException {
         this.user = user;
-        this.ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        this.ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         this.updator = newDirInfo;
         this.dirOperator = DirOperator.getInstance();
     }
@@ -37,7 +37,7 @@ public class DirUpdatorDao {
         if (dirId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
             throw new ScmInvalidArgumentException("can not update root directory:id=" + dirId);
         }
-        dirRec = contentServer.getMetaService().getDirInfo(ws.getName(), dirId);
+        dirRec = contentModule.getMetaService().getDirInfo(ws.getName(), dirId);
         if (dirRec == null) {
             throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                     "directory not exist:directoryId=" + dirId);
@@ -97,7 +97,7 @@ public class DirUpdatorDao {
     }
 
     private void rename(String newName) throws ScmServerException {
-        ScmMetaService metaService = contentServer.getMetaService();
+        ScmMetaService metaService = contentModule.getMetaService();
         String dirParentId = (String) dirRec.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID);
 
         checkFileNotExist(metaService.getMetaSource().getRelAccessor(ws.getName(), null), newName,
@@ -118,7 +118,7 @@ public class DirUpdatorDao {
                             + destParentDirID);
         }
 
-        ScmMetaService metaService = contentServer.getMetaService();
+        ScmMetaService metaService = contentModule.getMetaService();
         checkFileNotExist(metaService.getMetaSource().getRelAccessor(ws.getName(), null),
                 (String) dirRec.get(FieldName.FIELD_CLDIR_NAME), destParentDirID);
 

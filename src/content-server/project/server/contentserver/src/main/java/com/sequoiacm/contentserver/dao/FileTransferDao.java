@@ -16,9 +16,8 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
@@ -45,7 +44,7 @@ public class FileTransferDao {
         this.wsInfo = wsInfo;
         this.remoteSiteId = remoteSiteId;
         this.interrupter = interrupter;
-        this.localSiteId = ScmContentServer.getInstance().getLocalSite();
+        this.localSiteId = ScmContentModule.getInstance().getLocalSite();
     }
 
     // return true if transfer success,return false if transfer get interrupt
@@ -135,8 +134,8 @@ public class FileTransferDao {
         try {
             writer = new ScmInnerRemoteDataWriter(remoteSiteId, wsInfo, dataInfo);
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             int length = 0;
             resetInterrupter();

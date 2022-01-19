@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.job.ScmJobManager;
 
 public abstract class ScmTransBase {
@@ -78,10 +78,10 @@ public abstract class ScmTransBase {
 		}
 	}
 
-	protected final void removeTransLog(ScmContentServer contentServer, int siteID,
-			String workspaceName, String transID) {
+	protected final void removeTransLog(ScmContentModule contentModule, int siteID,
+                                        String workspaceName, String transID) {
 		try {
-			contentServer.deleteTransLog(workspaceName, transID);
+			contentModule.deleteTransLog(workspaceName, transID);
 		}
 		catch (Exception e) {
 			logger.warn("remove trans log failed:id=" + transID, e);

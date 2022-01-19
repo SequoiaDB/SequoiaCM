@@ -13,7 +13,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.metasource.ScmMetasourceException;
@@ -25,7 +25,7 @@ public class DirCreatorDao {
 
     public DirCreatorDao(String user, String wsName) throws ScmServerException {
         this.user = user;
-        this.ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        this.ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         this.dirOperator = DirOperator.getInstance();
     }
 
@@ -66,7 +66,7 @@ public class DirCreatorDao {
     }
 
     private void checkSameName(BSONObject dirInfo) throws ScmServerException {
-        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
         String parentID = (String) dirInfo.get(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID);
         String dirName = (String) dirInfo.get(FieldName.FIELD_CLDIR_NAME);
 

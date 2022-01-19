@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
@@ -58,7 +58,7 @@ public final class ScmJobTransferFile extends ScmBackgroundJob {
         ScmLock fileContentLock = null;
 
         try {
-            ScmSite removeSiteInfo = ScmContentServer.getInstance().getSiteInfo(remoteSiteId);
+            ScmSite removeSiteInfo = ScmContentModule.getInstance().getSiteInfo(remoteSiteId);
             ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
                     wsInfo.getName(), removeSiteInfo.getName(), dataId);
 
@@ -68,7 +68,7 @@ public final class ScmJobTransferFile extends ScmBackgroundJob {
             fileContentLock = ScmLockManager.getInstance().acquiresLock(fileContentLockPath);
 
             FileTransferDao fileTrans = new FileTransferDao(wsInfo, remoteSiteId);
-            BSONObject file = ScmContentServer
+            BSONObject file = ScmContentModule
                     .getInstance()
                     .getMetaService()
                     .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion,

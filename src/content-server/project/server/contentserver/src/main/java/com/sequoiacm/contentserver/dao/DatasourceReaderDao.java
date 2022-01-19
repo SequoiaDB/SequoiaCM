@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
@@ -24,8 +24,8 @@ public class DatasourceReaderDao {
         this.dataInfo = dataInfo;
         try {
             this.reader = ScmDataOpFactoryAssit.getFactory().createReader(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),

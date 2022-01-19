@@ -10,7 +10,7 @@ import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.job.ScmJobManager;
 import com.sequoiacm.contentserver.job.ScmTaskManager;
 import com.sequoiacm.contentserver.metasourcemgr.MapServerHandlerAdapter;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmContentServerInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -52,8 +52,8 @@ public class ScmServer {
     }
 
     private void initLocalServerInfo() throws ScmServerException {
-        ScmContentServer cs = ScmContentServer.getInstance();
-        List<ScmContentServerInfo> localSiteNode = cs.getContentServerList(cs.getLocalSite());
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        List<ScmContentServerInfo> localSiteNode = contentModule.getContentServerList(contentModule.getLocalSite());
         for (ScmContentServerInfo node : localSiteNode) {
             if (ScmSystemUtils.isLocalHost(node.getHostName())
                     && PropertiesUtils.getServerPort() == node.getPort()) {
@@ -75,10 +75,14 @@ public class ScmServer {
             throws Exception {
         ContentModuleInitializer initializer = new ContentModuleInitializer(privClient, confClient,
                 siteName, siteName, new MapServerHandlerAdapter());
+
+        // 先执行 content-module 第一阶段的初始化
         initializer.initBizComponent();
 
+        // 第一阶段初始化后可以从content-module拿到节点列表，将本节点信息识别出来
         initLocalServerInfo();
 
+        // 第二节点初始化使用本节点 ID 初始化节点 ID 生成器
         initializer.initIdGenerator(contentServerInfo.getId());
 
         logger.info("restore task");

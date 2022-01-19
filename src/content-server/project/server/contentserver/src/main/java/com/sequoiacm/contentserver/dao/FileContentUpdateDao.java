@@ -1,15 +1,5 @@
 package com.sequoiacm.contentserver.dao;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.common.Const;
@@ -25,7 +15,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
@@ -35,6 +25,15 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
 
 public class FileContentUpdateDao {
     private static final Logger logger = LoggerFactory.getLogger(FileContentUpdateDao.class);
@@ -44,7 +43,7 @@ public class FileContentUpdateDao {
     private int clientMajorVersion;
     private int clientMinorVersion;
     private ScmWorkspaceInfo ws;
-    private ScmContentServer contentserver = ScmContentServer.getInstance();
+    private ScmContentModule contentModule = ScmContentModule.getInstance();
     private ScmUpdateContentOption option;
     private FileOperationListenerMgr listenerMgr;
 
@@ -56,7 +55,7 @@ public class FileContentUpdateDao {
         this.clientMajorVersion = majorVersion;
         this.clientMinorVersion = minorVersion;
         this.option = option;
-        this.ws = contentserver.getWorkspaceInfoChecked(wsName);
+        this.ws =contentModule.getWorkspaceInfoChecked(wsName);
         this.listenerMgr = listenerMgr;
     }
 
@@ -66,7 +65,7 @@ public class FileContentUpdateDao {
         ScmLock breakpointFileXLock = ScmLockManager.getInstance()
                 .acquiresLock(breakpointFilelockPath);
         try {
-            BreakpointFile breakpointFile = contentserver.getMetaService()
+            BreakpointFile breakpointFile =contentModule.getMetaService()
                     .getBreakpointFile(ws.getName(), breakpointFileName);
             if (breakpointFile == null) {
                 // TODO:错误码为断点文件不存在
@@ -104,8 +103,8 @@ public class FileContentUpdateDao {
         ScmDataWriter dataWriter = null;
         try {
             dataWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
-                    contentserver.getLocalSite(), ws.getName(), ws.getDataLocation(),
-                    contentserver.getDataService(), dataInfo);
+                    contentModule.getLocalSite(), ws.getName(), ws.getDataLocation(),
+                    contentModule.getDataService(), dataInfo);
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
@@ -125,7 +124,7 @@ public class FileContentUpdateDao {
         // write meta
         try {
             return updateMeta(createDate.getTime(), dataId, dataWriter.getSize(),
-                    contentserver.getLocalSite(), null, md5);
+                    contentModule.getLocalSite(), null, md5);
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
@@ -183,8 +182,8 @@ public class FileContentUpdateDao {
         // delete lob
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                    ScmContentServer.getInstance().getLocalSite(), ws.getName(),
-                    ws.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), ws.getName(),
+                    ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
         }
@@ -209,11 +208,11 @@ public class FileContentUpdateDao {
                     createTime, md5);
             listenerMgr.preUpdateContent(ws, newVersionUpdator);
             if (breakFileName == null) {
-                contentserver.getMetaService().addNewFileVersion(ws, fileId, historyRec,
+                contentModule.getMetaService().addNewFileVersion(ws, fileId, historyRec,
                         newVersionUpdator);
             }
             else {
-                contentserver.getMetaService().breakpointFileToNewVersionFile(ws, breakFileName, fileId, historyRec, newVersionUpdator);
+                contentModule.getMetaService().breakpointFileToNewVersionFile(ws, breakFileName, fileId, historyRec, newVersionUpdator);
             }
             onCompleteCallback = listenerMgr.postUpdateContent(ws, fileId);
         }
@@ -291,7 +290,7 @@ public class FileContentUpdateDao {
     }
 
     private BSONObject getCurrentFileAndCheckVersion() throws ScmServerException {
-        BSONObject destFile = contentserver.getMetaService()
+        BSONObject destFile =contentModule.getMetaService()
                 .getCurrentFileInfo(ws.getMetaLocation(), ws.getName(), fileId);
         if (destFile == null) {
             throw new ScmFileNotFoundException(

@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-public class ScmContentServer {
-    private static final Logger logger = LoggerFactory.getLogger(ScmContentServer.class);
+public class ScmContentModule {
+    private static final Logger logger = LoggerFactory.getLogger(ScmContentModule.class);
 
     private ScmBizConf bizConf = new ScmBizConf();
     private ScmSiteMgr siteMgr = new ScmSiteMgr();
@@ -36,10 +36,10 @@ public class ScmContentServer {
     private Map<String, ScmWorkspaceInfo> workspaceMapByName = new HashMap<>();
     private static IMetaSourceHandler metaSourceHandler;
 
-    private static ScmContentServer cs = null;
+    private static ScmContentModule contentModule = null;
     private static String mySiteName;
 
-    private ScmContentServer() {
+    private ScmContentModule() {
     }
 
     public static void bindSite(String site) {
@@ -51,24 +51,24 @@ public class ScmContentServer {
     }
 
     public static void reload() throws ScmServerException {
-        synchronized (ScmContentServer.class) {
-            ScmContentServer newcs = new ScmContentServer();
+        synchronized (ScmContentModule.class) {
+            ScmContentModule newContentModule = new ScmContentModule();
             try {
-                newcs.initBizConf();
-                if (isSiteEquals(cs.bizConf, newcs.bizConf)) {
-                    newcs.clear();
-                    newcs = null;
+                newContentModule.initBizConf();
+                if (isSiteEquals(contentModule.bizConf, newContentModule.bizConf)) {
+                    newContentModule.clear();
+                    newContentModule = null;
                     logger.info("business configuration haven't changed, reloadbizconf do noting");
                 }
                 else {
-                    newcs.initSiteMgr();
-                    newcs.initWorkspaceInfo();
-                    newcs.activeMetaSourceHandler();
-                    ScmContentServer tmp = cs;
-                    cs = newcs;
+                    newContentModule.initSiteMgr();
+                    newContentModule.initWorkspaceInfo();
+                    newContentModule.activeMetaSourceHandler();
+                    ScmContentModule tmp = contentModule;
+                    contentModule = newContentModule;
                     tmp.clear();
                     logger.info("server init success:rootSiteId={},mySite={}",
-                            cs.bizConf.getRootSiteId(), cs.bizConf.getMySite().getId());
+                            contentModule.bizConf.getRootSiteId(), contentModule.bizConf.getMySite().getId());
                 }
             }
             catch (ScmServerException e) {
@@ -120,28 +120,28 @@ public class ScmContentServer {
         return true;
     }
 
-    public static ScmContentServer getInstance() {
+    public static ScmContentModule getInstance() {
         if (mySiteName == null) {
             throw new RuntimeException("bind site first!");
         }
-        if (null == cs) {
-            synchronized (ScmContentServer.class) {
-                if (null == cs) {
-                    ScmContentServer tmp = new ScmContentServer();
+        if (null == contentModule) {
+            synchronized (ScmContentModule.class) {
+                if (null == contentModule) {
+                    ScmContentModule tmp = new ScmContentModule();
                     try {
                         tmp.init();
                     }
                     catch (Exception e) {
                         logger.error("initial ContentServer failed", e);
-                        cs = null;
+                        contentModule = null;
                         System.exit(-1);
                     }
-                    cs = tmp;
+                    contentModule = tmp;
                 }
             }
         }
 
-        return cs;
+        return contentModule;
     }
 
     private void clear() {
@@ -228,7 +228,7 @@ public class ScmContentServer {
         }
         catch (Exception e) {
             clear();
-            throw new ScmSystemException("init contentServer failed", e);
+            throw new ScmSystemException("init contentModule failed", e);
         }
     }
 

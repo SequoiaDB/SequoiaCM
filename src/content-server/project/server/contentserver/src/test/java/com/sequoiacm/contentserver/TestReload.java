@@ -9,8 +9,8 @@ public class TestReload {
         //        InputStream sysconfInputStream = ScmServer.class.getClassLoader()
         //                .getResourceAsStream("sysconf.properties");
         //        PropertiesUtils.loadSysConfig(sysconfInputStream);
-        //        ScmContentServer contentServer = ScmContentServer.getInstance();
-        //        System.out.println("contentServer=" + contentServer);
+        //        ScmContentServer contentModule = ScmContentServer.getInstance();
+        //        System.out.println("contentModule=" + contentModule);
         //
         //        try {
         //            ScmContentServer.reload();
@@ -19,7 +19,7 @@ public class TestReload {
         //            e.printStackTrace();
         //        }
         //
-        //        contentServer = ScmContentServer.getInstance();
-        //        System.out.println("contentServer=" + contentServer);
+        //        contentModule = ScmContentServer.getInstance();
+        //        System.out.println("contentModule=" + contentModule);
     }
 }

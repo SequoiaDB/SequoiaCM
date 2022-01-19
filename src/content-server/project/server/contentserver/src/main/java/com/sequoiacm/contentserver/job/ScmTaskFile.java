@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
@@ -69,10 +69,10 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             if (info.containsField(FieldName.Task.FIELD_SCOPE)) {
                 scope = (int) info.get(FieldName.Task.FIELD_SCOPE);
             }
-            ScmContentServer contentServer = ScmContentServer.getInstance();
-            wsInfo = contentServer.getWorkspaceInfoChecked(wsName);
-            mainSiteId = contentServer.getMainSite();
-            localSiteId = contentServer.getLocalSite();
+            ScmContentModule contentModule = ScmContentModule.getInstance();
+            wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+            mainSiteId = contentModule.getMainSite();
+            localSiteId = contentModule.getLocalSite();
 
             actualMatcher = buildActualMatcher();
             initTaskFileCount();
@@ -129,7 +129,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     public static int getTaskRunningFlag(String taskId) throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
 
-        BSONObject task = ScmContentServer.getInstance().getTaskInfo(matcher);
+        BSONObject task = ScmContentModule.getInstance().getTaskInfo(matcher);
         if (null == task) {
             throw new ScmServerException(ScmError.TASK_NOT_EXIST,
                     "task is inexistent:taskId=" + taskId);
@@ -172,7 +172,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             int progress = calculateProgress(successCount, failedCount);
 
             if (progress - preProgress >= PROGRESS_STEP || seconds > DATE_STEP) {
-                ScmContentServer.getInstance().getMetaService().updateTaskProgress(taskId, progress,
+                ScmContentModule.getInstance().getMetaService().updateTaskProgress(taskId, progress,
                         successCount, failedCount);
 
                 preProgress = progress;
@@ -197,7 +197,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     }
 
     private void initTaskFileCount() throws ScmServerException {
-        ScmMetaService sms = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
         try {
             switch (scope) {
                 case CommonDefine.Scope.SCOPE_CURRENT:
@@ -243,7 +243,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         ScmMetaService sms = null;
         MetaCursor cursor = null;
         try {
-            sms = ScmContentServer.getInstance().getMetaService();
+            sms = ScmContentModule.getInstance().getMetaService();
         }
         catch (ScmServerException e) {
             logger.warn("do task failed:taskId=" + getTaskId(), e);

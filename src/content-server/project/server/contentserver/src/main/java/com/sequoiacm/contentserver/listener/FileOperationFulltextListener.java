@@ -16,7 +16,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.config.ServerConfig;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
@@ -221,7 +221,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
         BasicBSONObject condition = new BasicBSONObject("$and", andArr);
         MetaCursor cursor = null;
         try {
-            cursor = ScmContentServer.getInstance().getMetaService().queryCurrentFile(wsInfo,
+            cursor = ScmContentModule.getInstance().getMetaService().queryCurrentFile(wsInfo,
                     condition, null, null, 0, 1);
             return cursor.getNext();
         }

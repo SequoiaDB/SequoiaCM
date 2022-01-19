@@ -13,7 +13,7 @@ import com.sequoiacm.contentserver.model.MetadataAttrBsonConverter;
 import com.sequoiacm.contentserver.model.MetadataClass;
 import com.sequoiacm.contentserver.model.MetadataClassBsonConverter;
 import com.sequoiacm.contentserver.service.IMetaDataService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -343,7 +343,7 @@ public class MetaDataController {
          */
         if (updateInfoObj.containsField(FieldName.Attribute.FIELD_CHECK_RULE)) {
             if (attrType == null) {
-                MetadataAttr attrInfo = ScmContentServer.getInstance().getMetaService()
+                MetadataAttr attrInfo = ScmContentModule.getInstance().getMetaService()
                         .getAttrInfo(wsName, attrId);
                 attrType = attrInfo.getType();
             }

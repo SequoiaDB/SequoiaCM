@@ -4,7 +4,7 @@ import com.sequoiacm.common.checksum.ChecksumFactory;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
@@ -38,12 +38,12 @@ public class BreakpointFileMetaCorrector {
     }
 
     public boolean canCorrect() throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(file.getWorkspaceName());
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoChecked(file.getWorkspaceName());
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(), contentServer.getDataService(),
+                    file.getWorkspaceName(), ws.getDataLocation(), contentModule.getDataService(),
                     new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
                             new Date(file.getCreateTime())));
             if (reader.getSize() < file.getUploadSize()) {
@@ -64,12 +64,12 @@ public class BreakpointFileMetaCorrector {
     }
 
     public BreakpointFile correct() throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(file.getWorkspaceName());
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoChecked(file.getWorkspaceName());
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(), contentServer.getDataService(),
+                    file.getWorkspaceName(), ws.getDataLocation(), contentModule.getDataService(),
                     new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
                             new Date(file.getCreateTime())));
             if (reader.getSize() < file.getUploadSize()) {
@@ -85,7 +85,7 @@ public class BreakpointFileMetaCorrector {
             }
             file.setUploadSize(reader.getSize());
             file.setCompleted(true);
-            contentServer.getMetaService().updateBreakpointFile(file);
+            contentModule.getMetaService().updateBreakpointFile(file);
             logger.info(" correct breakpoint file meta success: file={}", file);
         }
         catch (ScmDatasourceException e) {

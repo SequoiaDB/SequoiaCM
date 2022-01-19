@@ -10,7 +10,7 @@ import com.sequoiacm.contentserver.privilege.DirResource;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IPrivilegeService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -44,8 +44,8 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
             return r;
         }
 
-        ScmContentServer contentserver = ScmContentServer.getInstance();
-        ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfo(r.getWorkspace());
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfo(r.getWorkspace());
         if (null == wsInfo) {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     "workspace is not exist:resource=" + resource);

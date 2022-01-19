@@ -12,7 +12,7 @@ import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -45,14 +45,14 @@ public class DirServiceImpl implements IDirService {
         ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, dirId,
                 ScmPrivilegeDefine.READ, "get dir path info by id");
         try {
-            ScmContentServer contentserver = ScmContentServer.getInstance();
-            ScmWorkspaceInfo ws = contentserver.getWorkspaceInfoChecked(wsName);
+            ScmContentModule contentModule = ScmContentModule.getInstance();
+            ScmWorkspaceInfo ws =contentModule.getWorkspaceInfoChecked(wsName);
             if (!ws.isEnableDirectory()) {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "failed to get directory, directory feature is disable:ws=" + ws.getName()
                                 + ", id=" + dirId);
             }
-            BSONObject destDir = contentserver.getMetaService().getDirInfo(wsName, dirId);
+            BSONObject destDir =contentModule.getMetaService().getDirInfo(wsName, dirId);
             if (destDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "directory not exist:id=" + dirId);
@@ -72,7 +72,7 @@ public class DirServiceImpl implements IDirService {
 
     public BSONObject getDirInfoByPath(String wsName, String dirPath) throws ScmServerException {
         try {
-            ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+            ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
             if (!ws.isEnableDirectory()) {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "failed to get directory, directory feature is disable:ws=" + ws.getName()
@@ -106,7 +106,7 @@ public class DirServiceImpl implements IDirService {
     }
 
     public String getDirPathById(String wsName, String dirId) throws ScmServerException {
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to get directory path, directory feature is disable:ws=" + ws.getName()
@@ -141,14 +141,14 @@ public class DirServiceImpl implements IDirService {
         audit.info(ScmAuditType.DIR_DQL, user, wsName, 0,
                 "list directory, condition=" + condition.toString());
         try {
-            ScmContentServer cs = ScmContentServer.getInstance();
-            ScmWorkspaceInfo ws = cs.getWorkspaceInfoChecked(wsName);
+            ScmContentModule contentModule = ScmContentModule.getInstance();
+            ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoChecked(wsName);
             if (!ws.isEnableDirectory()) {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "failed to list directory, directory feature is disable:ws=" + ws.getName()
                                 + ", condition=" + condition);
             }
-            MetaDirAccessor dirAccessor = cs.getMetaService().getMetaSource()
+            MetaDirAccessor dirAccessor = contentModule.getMetaService().getMetaSource()
                     .getDirAccessor(wsName);
             return dirAccessor.query(condition, null, orderby, skip, limit);
         }
@@ -168,7 +168,7 @@ public class DirServiceImpl implements IDirService {
     @Override
     public void deleteDir(ScmUser user, String wsName, String id, String path)
             throws ScmServerException {
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to delete directory, directory feature is disable:ws=" + ws.getName()
@@ -203,7 +203,7 @@ public class DirServiceImpl implements IDirService {
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkDirPriority(user, wsName, path,
                 ScmPrivilegeDefine.CREATE, "create dir by path");
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to create directory, directory feature is disable:ws=" + ws.getName()
@@ -232,7 +232,7 @@ public class DirServiceImpl implements IDirService {
         ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, parentID,
                 ScmPrivilegeDefine.CREATE, "create dir by parentIdAndName");
 
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to create directory, directory feature is disable:ws=" + ws.getName()
@@ -266,7 +266,7 @@ public class DirServiceImpl implements IDirService {
                 ScmPrivilegeDefine.DELETE, "delete source when rename dir by id");
         ScmFileServicePriv.getInstance().checkDirPriorityByOldIdAndNewName(user, wsName, this,
                 dirId, newName, ScmPrivilegeDefine.CREATE, "create target when rename dir by id");
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to rename directory, directory feature is disable:ws=" + ws.getName()
@@ -303,7 +303,7 @@ public class DirServiceImpl implements IDirService {
         ScmFileServicePriv.getInstance().checkDirPriorityByOldDirAndNewName(user, wsName, dirPath,
                 newName, ScmPrivilegeDefine.CREATE, "create target when rename dir by path");
 
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to rename directory, directory feature is disable:ws=" + ws.getName()
@@ -347,7 +347,7 @@ public class DirServiceImpl implements IDirService {
         }
         ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, dirId,
                 ScmPrivilegeDefine.DELETE, "delete source when move dir by id");
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to move directory, directory feature is disable:ws=" + ws.getName()
@@ -389,7 +389,7 @@ public class DirServiceImpl implements IDirService {
 
         ScmFileServicePriv.getInstance().checkDirPriority(user, wsName, dirPath,
                 ScmPrivilegeDefine.DELETE, "delete source when move dir by path");
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to move directory, directory feature is disable:ws=" + ws.getName()
@@ -436,15 +436,15 @@ public class DirServiceImpl implements IDirService {
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName,
                 ScmPrivilegeDefine.LOW_LEVEL_READ, "count directory");
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
         if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to count directory, directory feature is disable:ws=" + ws.getName()
                             + ", condition=" + condition);
         }
-        ScmContentServer contentserver = ScmContentServer.getInstance();
-        contentserver.getWorkspaceInfoChecked(wsName);
-        long count = contentserver.getMetaService().getDirCount(wsName, condition);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        contentModule.getWorkspaceInfoChecked(wsName);
+        long count =contentModule.getMetaService().getDirCount(wsName, condition);
         String message = "count direcotry";
         if (null != condition) {
             message += " by condition=" + condition.toString();

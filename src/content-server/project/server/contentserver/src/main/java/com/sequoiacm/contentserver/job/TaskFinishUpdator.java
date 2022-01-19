@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.job;
 import java.util.Date;
 
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 
 public class TaskFinishUpdator implements TaskUpdator {
     private String taskId;
@@ -18,7 +18,7 @@ public class TaskFinishUpdator implements TaskUpdator {
 
     @Override
     public void doUpdate() throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().finishTask(taskId, new Date(),
+        ScmContentModule.getInstance().getMetaService().finishTask(taskId, new Date(),
                 successCount, failedCount);
     }
 

@@ -15,7 +15,7 @@ import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.service.ITaskService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmContentServerInfo;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
@@ -52,7 +52,7 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     public BSONObject getTaskDetail(String taskId) throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
-        BSONObject taskInfo = ScmContentServer.getInstance().getTaskInfo(matcher);
+        BSONObject taskInfo = ScmContentModule.getInstance().getTaskInfo(matcher);
         if (taskInfo == null) {
             throw new ScmServerException(ScmError.TASK_NOT_EXIST,
                     "task not exist:taskId=" + taskId);
@@ -64,7 +64,7 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     public MetaCursor getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
             long skip, long limit) throws ScmServerException {
-        MetaTaskAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource()
+        MetaTaskAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
                 .getTaskAccessor();
 
         try {
@@ -95,11 +95,11 @@ public class TaskServiceImpl implements ITaskService {
 
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.UPDATE,
                 "start task");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        ScmWorkspaceInfo wsInfo = contentServer.getWorkspaceInfoChecked(wsName);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
         String taskId = "";
 
-        ScmContentServerInfo serverInfo = contentServer.getServerInfo(serverId);
+        ScmContentServerInfo serverInfo = contentModule.getServerInfo(serverId);
         if (null == serverInfo) {
             throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
                     "server is not exist:serverId=" + serverId);
@@ -111,7 +111,7 @@ public class TaskServiceImpl implements ITaskService {
             // get remote site id
             Set<Integer> siteIds = wsInfo.getDataSiteIds();
             for (Integer id : siteIds) {
-                ScmSite scmSite = contentServer.getSiteInfo(id);
+                ScmSite scmSite = contentModule.getSiteInfo(id);
                 if (scmSite.getName().equals(targetSite)) {
                     targetSiteId = scmSite.getId();
                 }
@@ -128,7 +128,7 @@ public class TaskServiceImpl implements ITaskService {
             ScmStrategyMgr.getInstance().checkCleanSite(wsInfo, sourceSiteId);
         }
 
-        if (contentServer.isInMainSite()) {
+        if (contentModule.isInMainSite()) {
             taskId = initAndNotifyTask(wsInfo, taskType, options, serverId, targetSiteId);
         }
         else {
@@ -177,7 +177,7 @@ public class TaskServiceImpl implements ITaskService {
 
     private void notifyTask(int serverId, String taskId, int notifyType) throws ScmServerException {
 
-        ScmContentServerInfo serverInfo = ScmContentServer.getInstance().getServerInfo(serverId);
+        ScmContentServerInfo serverInfo = ScmContentModule.getInstance().getServerInfo(serverId);
         if (null == serverInfo) {
             throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
                     "server is unexist:serverId=" + serverId);
@@ -217,7 +217,7 @@ public class TaskServiceImpl implements ITaskService {
     private void createTask(int type, String id, String workspaceName, BSONObject content,
             int serverId, Integer targetSiteId, int taskScope, long maxExecTime)
             throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
         long time = new Date().getTime();
 
         BSONObject task = new BasicBSONObject();
@@ -239,15 +239,15 @@ public class TaskServiceImpl implements ITaskService {
             task.put(FieldName.Task.FIELD_TARGET_SITE, targetSiteId);
         }
         task.put(FieldName.Task.FIELD_MAX_EXEC_TIME, maxExecTime);
-        contentServer.insertTask(task);
+        contentModule.insertTask(task);
     }
 
     private void forwardStopToMainSite(String sessionId, String userDetail, String taskId)
             throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        int remoteSiteId = contentServer.getMainSite();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        int remoteSiteId = contentModule.getMainSite();
         ContentServerClient client = ContentServerClientFactory
-                .getFeignClientByServiceName(contentServer.getSiteInfo(remoteSiteId).getName());
+                .getFeignClientByServiceName(contentModule.getSiteInfo(remoteSiteId).getName());
         client.stopTask(sessionId, userDetail, taskId);
 
     }
@@ -255,10 +255,10 @@ public class TaskServiceImpl implements ITaskService {
     private String forwardStartToMainSite(String sessionId, String userDetail, String wsName,
             int taskType, BSONObject options, int serverId, String targetSite)
             throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        int remoteSiteId = contentServer.getMainSite();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        int remoteSiteId = contentModule.getMainSite();
         ContentServerClient client = ContentServerClientFactory
-                .getFeignClientByServiceName(contentServer.getSiteInfo(remoteSiteId).getName());
+                .getFeignClientByServiceName(contentModule.getSiteInfo(remoteSiteId).getName());
         BSONObject res = client.startTask(sessionId, userDetail, wsName, taskType, serverId,
                 targetSite, options.toString());
         BSONObject task = (BSONObject) res.get(CommonDefine.RestArg.TASK_INFO_RESP);
@@ -276,7 +276,7 @@ public class TaskServiceImpl implements ITaskService {
             String taskId) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, ws, ScmPrivilegeDefine.UPDATE,
                 "stop task");
-        if (ScmContentServer.getInstance().isInMainSite()) {
+        if (ScmContentModule.getInstance().isInMainSite()) {
             stopAndNotifyTask(taskId);
         }
         else {
@@ -300,7 +300,7 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public long countTask(BSONObject condition) throws ScmServerException {
-        MetaTaskAccessor accessor = ScmContentServer.getInstance().getMetaService().getMetaSource()
+        MetaTaskAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
                 .getTaskAccessor();
         try {
             return accessor.count(condition);
@@ -313,7 +313,7 @@ public class TaskServiceImpl implements ITaskService {
 
     private void stopAndNotifyTask(String taskId) throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
-        BSONObject taskInfo = ScmContentServer.getInstance().getTaskInfo(matcher);
+        BSONObject taskInfo = ScmContentModule.getInstance().getTaskInfo(matcher);
         if (null == taskInfo) {
             throw new ScmServerException(ScmError.TASK_NOT_EXIST,
                     "task is inexistent:taskId=" + taskId);
@@ -357,7 +357,7 @@ public class TaskServiceImpl implements ITaskService {
         try {
             // 1. get task info
             BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
-            BSONObject taskInfo = ScmContentServer.getInstance().getTaskInfo(matcher);
+            BSONObject taskInfo = ScmContentModule.getInstance().getTaskInfo(matcher);
             if (null == taskInfo) {
                 throw new ScmServerException(ScmError.TASK_NOT_EXIST,
                         "task is not exist:taskId=" + taskId);

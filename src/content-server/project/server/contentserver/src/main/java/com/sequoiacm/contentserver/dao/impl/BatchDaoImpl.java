@@ -13,19 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.metasource.BatchMetaCursorFillInFileCount;
@@ -45,7 +43,7 @@ public class BatchDaoImpl implements IBatchDao {
             batchInfo = checkCreateObj(batchInfo);
             batchId = addExtraFields(wsInfo, batchInfo, userName);
 
-            ScmContentServer.getInstance().getMetaService().insertBatch(wsInfo, batchInfo);
+            ScmContentModule.getInstance().getMetaService().insertBatch(wsInfo, batchInfo);
         }
         catch (Exception e) {
             logger.error("create batch failed: workspace={}, batchId={}", wsInfo.getName(),
@@ -59,7 +57,7 @@ public class BatchDaoImpl implements IBatchDao {
     public void delete(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
             String sessionId, String userDetail, String user) throws ScmServerException {
         try {
-            ScmContentServer.getInstance().getMetaService().deleteBatch(wsInfo, batchId,
+            ScmContentModule.getInstance().getMetaService().deleteBatch(wsInfo, batchId,
                     batchCreateMonth, sessionId, userDetail, user, listenerMgr);
         }
         catch (ScmServerException e) {
@@ -74,7 +72,7 @@ public class BatchDaoImpl implements IBatchDao {
             throws ScmServerException {
         BSONObject batchInfo = null;
         try {
-            batchInfo = ScmContentServer.getInstance().getMetaService().getBatchInfo(wsInfo,
+            batchInfo = ScmContentModule.getInstance().getMetaService().getBatchInfo(wsInfo,
                     batchId, batchCreateMonth);
         }
         catch (ScmServerException e) {
@@ -94,7 +92,7 @@ public class BatchDaoImpl implements IBatchDao {
             selector.put(FieldName.Batch.FIELD_NAME, null);
             selector.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, null);
             selector.put(FieldName.Batch.FIELD_FILES, null);
-            cursor = ScmContentServer.getInstance().getMetaService().getBatchList(wsInfo.getName(),
+            cursor = ScmContentModule.getInstance().getMetaService().getBatchList(wsInfo.getName(),
                     matcher, selector, orderBy, skip, limit);
             return new BatchMetaCursorFillInFileCount(cursor);
         }
@@ -111,7 +109,7 @@ public class BatchDaoImpl implements IBatchDao {
     public void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
             String fileId, String user) throws ScmServerException {
         try {
-            ScmContentServer.getInstance().getMetaService().batchAttachFile(wsInfo, batchId,
+            ScmContentModule.getInstance().getMetaService().batchAttachFile(wsInfo, batchId,
                     batchCreateMonth, fileId, user);
         }
         catch (ScmServerException e) {
@@ -125,7 +123,7 @@ public class BatchDaoImpl implements IBatchDao {
     public void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
             String fileId, String updateUser) throws ScmServerException {
         try {
-            ScmContentServer.getInstance().getMetaService().batchDetachFile(wsInfo.getName(),
+            ScmContentModule.getInstance().getMetaService().batchDetachFile(wsInfo.getName(),
                     batchId, batchCreateMonth, fileId, updateUser);
         }
         catch (ScmServerException e) {
@@ -147,7 +145,7 @@ public class BatchDaoImpl implements IBatchDao {
             MetaDataManager metaDataManager = MetaDataManager.getInstence();
             if (updator.containsField(classIdKey) || updator.containsField(propertiesKey)
                     || metaDataManager.isUpdateSingleClassProperty(updator, propertiesKey)) {
-                ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+                ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
                 BSONObject oldbatch = metaService.getBatchInfo(wsInfo, batchId, batchCreateMonth);
                 if (oldbatch == null) {
                     return false;
@@ -165,7 +163,7 @@ public class BatchDaoImpl implements IBatchDao {
             logger.info("updating batch:wsName=" + wsInfo.getName() + ",batchId=" + batchId
                     + ",user=" + user + ",updator=" + updator.toString());
 
-            boolean ret = ScmContentServer.getInstance().getMetaService()
+            boolean ret = ScmContentModule.getInstance().getMetaService()
                     .updateBatchInfo(wsInfo.getName(), batchId, batchCreateMonth, updator);
             return ret;
         }

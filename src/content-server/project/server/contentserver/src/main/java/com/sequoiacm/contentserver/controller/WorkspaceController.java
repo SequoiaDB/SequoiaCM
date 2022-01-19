@@ -7,7 +7,7 @@ import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
 import com.sequoiacm.contentserver.service.IWorkspaceService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -142,7 +142,7 @@ public class WorkspaceController {
         BSONObject clientMetaLocation = new BasicBSONObject();
         clientMetaLocation.putAll(metaLocation);
         int metaSiteId = (int) clientMetaLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-        ScmSite metaSite = ScmContentServer.getInstance().getSiteInfo(metaSiteId);
+        ScmSite metaSite = ScmContentModule.getInstance().getSiteInfo(metaSiteId);
         clientMetaLocation.put(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME,
                 metaSite.getName());
         clientMetaLocation.put(CommonDefine.RestArg.WORKSPACE_LOCATION_TYPE,
@@ -157,7 +157,7 @@ public class WorkspaceController {
             clientDataLocation.putAll((BSONObject) datalocation);
             int dataSiteId = (int) clientDataLocation
                     .get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-            ScmSite dataSite = ScmContentServer.getInstance().getSiteInfo(dataSiteId);
+            ScmSite dataSite = ScmContentModule.getInstance().getSiteInfo(dataSiteId);
             clientDataLocation.put(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME,
                     dataSite.getName());
             clientDataLocation.put(CommonDefine.RestArg.WORKSPACE_LOCATION_TYPE,

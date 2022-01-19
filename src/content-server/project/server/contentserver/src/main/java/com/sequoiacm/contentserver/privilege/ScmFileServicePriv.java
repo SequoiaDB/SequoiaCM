@@ -5,7 +5,7 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
@@ -87,7 +87,7 @@ public class ScmFileServicePriv {
     }
 
     private void checkWs(String wsName, String opDesc) throws ScmServerException {
-        if (ScmContentServer.getInstance().getWorkspaceInfo(wsName) == null) {
+        if (ScmContentModule.getInstance().getWorkspaceInfo(wsName) == null) {
             logger.error("workspace is not exist:ws={}", wsName);
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     opDesc + " failed, workspace is not exist:ws=" + wsName);

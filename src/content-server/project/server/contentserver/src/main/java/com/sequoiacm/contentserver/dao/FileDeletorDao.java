@@ -8,7 +8,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 
@@ -39,8 +39,8 @@ public class FileDeletorDao {
 
     private void getFileName(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
             int minorVersion) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        BSONObject file = contentServer.getCurrentFileInfo(wsInfo, fileId);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        BSONObject file = contentModule.getCurrentFileInfo(wsInfo, fileId);
         if (file == null) {
             throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                     "file not found:ws=" + wsInfo.getName() + ",fileId=" + fileId + ",version="

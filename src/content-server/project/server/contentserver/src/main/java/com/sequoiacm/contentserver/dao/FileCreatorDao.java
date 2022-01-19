@@ -16,7 +16,7 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
@@ -52,8 +52,8 @@ public class FileCreatorDao implements IFileCreatorDao {
 
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
         }
         catch (ScmDatasourceException e) {
@@ -130,7 +130,7 @@ public class FileCreatorDao implements IFileCreatorDao {
     @Override
     public BSONObject insert() throws ScmServerException {
         String parentId = (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        ScmMetaService metaservice = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaservice = ScmContentModule.getInstance().getMetaService();
 
         ScmLock rLock = ScmFileOperateUtils.lockDirForCreateFile(wsInfo, parentId);
         try {
@@ -150,8 +150,8 @@ public class FileCreatorDao implements IFileCreatorDao {
         // delete lob
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                    ScmContentServer.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                    ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
+                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
         }

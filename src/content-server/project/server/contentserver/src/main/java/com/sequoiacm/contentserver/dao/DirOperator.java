@@ -24,7 +24,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
@@ -73,7 +73,7 @@ public class DirOperator {
     private DirInfo _getDirByPath(ScmWorkspaceInfo ws, String dirPathStr)
             throws ScmServerException {
         ScmDirPath dirPath = new ScmDirPath(dirPathStr);
-        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
         // no query cache
         int currentDirLevel = dirPath.getLevel();
         if (!enableCache() || dirPath.isRootDir() || currentDirLevel < CACHE_DIR_LEVEL) {
@@ -175,7 +175,7 @@ public class DirOperator {
             return CommonDefine.Directory.SCM_ROOT_DIR_NAME;
         }
 
-        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
         // no query cache
         if (!enableCache()) {
             return metaService.getPathByDirId(ws.getName(), id);
@@ -261,7 +261,7 @@ public class DirOperator {
     public void rename(ScmWorkspaceInfo ws, String id, BSONObject updator)
             throws ScmServerException {
         try {
-            ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+            ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
             String newName = (String) updator.get(FieldName.FIELD_CLDIR_NAME);
             long newVersion = metaService.updateDir(ws.getName(), id, updator);
             renameDirCache(getCache(ws), id, newName, newVersion);
@@ -291,7 +291,7 @@ public class DirOperator {
         ScmLock globalDirWLock = null;
 
         try {
-            ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+            ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
             if (!destParentDirID.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
                 // this lock for check move option
                 globalDirWLock = writeLock(globalDirLockPath);
@@ -357,7 +357,7 @@ public class DirOperator {
     }
 
     public void delete(ScmWorkspaceInfo ws, String id, String path) throws ScmServerException {
-        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
         MetaRelAccessor relAccessor = metaService.getMetaSource().getRelAccessor(ws.getName(),
                 null);
 
@@ -404,7 +404,7 @@ public class DirOperator {
         parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, parentID);
         ScmLockPath lockPath = ScmLockPathFactory.createDirLockPath(ws.getName(), parentID);
         ScmLock rLock = null;
-        ScmMetaService metaService = ScmContentServer.getInstance().getMetaService();
+        ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
         if (!parentID.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
             rLock = readLock(lockPath);
         }

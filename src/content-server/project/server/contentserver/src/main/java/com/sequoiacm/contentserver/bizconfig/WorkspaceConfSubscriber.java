@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
@@ -37,14 +37,14 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
         WorkspaceNotifyOption option = (WorkspaceNotifyOption) notification;
         String wsName = option.getWorkspaceName();
         if (notification.getEventType() == EventType.DELTE) {
-            ScmContentServer.getInstance().removeWorkspace(wsName);
+            ScmContentModule.getInstance().removeWorkspace(wsName);
             MetaDataManager.getInstence().removeMetaDataByWsName(wsName);
             return;
         }
         if (notification.getEventType() == EventType.CREATE) {
             MetaDataManager.getInstence().reloadMetaDataByWsName(wsName);
         }
-        ScmContentServer.getInstance().reloadWorkspace(wsName);
+        ScmContentModule.getInstance().reloadWorkspace(wsName);
     }
 
     @Override

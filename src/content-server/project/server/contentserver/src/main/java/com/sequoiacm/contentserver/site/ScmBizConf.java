@@ -135,12 +135,6 @@ public class ScmBizConf {
                 reloadNode(nodeInfo);
             }
         }
-        //
-        // if (null == myServer) {
-        // throw new ScmServerException(ScmError.METASOURCE_ERROR,
-        // "this server is not exist in SCM:host=" + ScmSystemUtils.getHostName()
-        // + ",port=" + PropertiesUtils.getServerPort());
-        // }
     }
 
     private void loadSiteInfo(List<ScmSite> siteList) throws ScmServerException {
@@ -209,10 +203,6 @@ public class ScmBizConf {
             rLock.unlock();
         }
     }
-    //
-    // public ScmContentServerInfo getMyServer() {
-    // return myServer;
-    // }
 
     public int getRootSiteId() {
         return rootSiteId;
@@ -270,40 +260,6 @@ public class ScmBizConf {
             rLock.unlock();
         }
     }
-    //
-    // public List<ScmContentServerInfo> getOtherContentServers() {
-    // ReadLock rLock = nodeReadWriterLock.readLock();
-    // rLock.lock();
-    // try {
-    // Map<String, ScmContentServerInfo> tmpServerMapByName = new HashMap<>();
-    // tmpServerMapByName.putAll(serverMapByName);
-    // tmpServerMapByName.remove(myServer.getName());
-    // return new ArrayList<>(tmpServerMapByName.values());
-    // }
-    // finally {
-    // rLock.unlock();
-    // }
-    // }
-    //
-    // public List<ScmContentServerInfo> getOtherContentServers(int siteId) {
-    // ReadLock rLock = nodeReadWriterLock.readLock();
-    // rLock.lock();
-    // try {
-    // Map<String, ScmContentServerInfo> ServerMapInSite =
-    // serverMapBySiteId.get(siteId);
-    // List<ScmContentServerInfo> otherContentServers = new ArrayList<>();
-    // if (ServerMapInSite != null) {
-    // Map<String, ScmContentServerInfo> tmpServerMap = new HashMap<>();
-    // tmpServerMap.putAll(ServerMapInSite);
-    // tmpServerMap.remove(myServer.getName());
-    // otherContentServers.addAll(tmpServerMap.values());
-    // }
-    // return otherContentServers;
-    // }
-    // finally {
-    // rLock.unlock();
-    // }
-    // }
 
     public ScmContentServerInfo getServerInfo(int serverId) {
         ReadLock rLock = nodeReadWriterLock.readLock();
@@ -330,7 +286,7 @@ public class ScmBizConf {
     }
 
     public BSONObject reloadWorkspace(String wsName) throws ScmServerException {
-        MetaWorkspaceAccessor assersor = ScmContentServer.getInstance().getMetaService()
+        MetaWorkspaceAccessor assersor = ScmContentModule.getInstance().getMetaService()
                 .getMetaSource().getWorkspaceAccessor();
         BSONObject wsObj = ScmMetaSourceHelper.queryOne(assersor,
                 new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName));
@@ -365,7 +321,7 @@ public class ScmBizConf {
     }
 
     private BSONObject queryOneSite(String siteName) throws ScmServerException {
-        MetaAccessor assersor = ScmContentServer.getInstance().getMetaService().getMetaSource()
+        MetaAccessor assersor = ScmContentModule.getInstance().getMetaService().getMetaSource()
                 .getSiteAccessor();
         BSONObject siteBson = ScmMetaSourceHelper.queryOne(assersor,
                 new BasicBSONObject(FieldName.FIELD_CLSITE_NAME, siteName));
@@ -379,7 +335,7 @@ public class ScmBizConf {
             if (rootSiteId == -1 && site.isRootSite()) {
                 rootSiteId = site.getId();
                 // create root site, init strategy mgr
-                List<BSONObject> strategyList = ScmContentServer.getInstance().getMetaService()
+                List<BSONObject> strategyList = ScmContentModule.getInstance().getMetaService()
                         .getAllStrategyInfo();
                 ScmStrategyMgr.getInstance().init(strategyList, rootSiteId);
             }
@@ -456,12 +412,6 @@ public class ScmBizConf {
             serverMapByName.put(nodeName, nodeInfo);
             serverMap.put(nodeInfo.getId(), nodeInfo);
 
-            // // reload loacl server node
-            // if (ScmSystemUtils.isLocalHost(nodeInfo.getHostName())
-            // && nodeInfo.getPort() == PropertiesUtils.getServerPort()) {
-            // myServer = nodeInfo;
-            // }
-
             // reload server node in site
             int siteId = nodeInfo.getSite().getId();
             Map<String, ScmContentServerInfo> serverNodeMap = serverMapBySiteId.get(siteId);
@@ -526,7 +476,7 @@ public class ScmBizConf {
     }
 
     private BSONObject queryOneSreverNode(String nodeName) throws ScmServerException {
-        MetaAccessor assersor = ScmContentServer.getInstance().getMetaService().getMetaSource()
+        MetaAccessor assersor = ScmContentModule.getInstance().getMetaService().getMetaSource()
                 .getServerAccessor();
         BSONObject nodeBson = ScmMetaSourceHelper.queryOne(assersor,
                 new BasicBSONObject(FieldName.FIELD_CLCONTENTSERVER_NAME, nodeName));

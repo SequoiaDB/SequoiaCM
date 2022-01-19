@@ -4,7 +4,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
     }
 
     public void startTask() throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().startTask(getTaskId(), new Date(),
+        ScmContentModule.getInstance().getMetaService().startTask(getTaskId(), new Date(),
                 getEstimateCount(), getActualCount());
     }
 
@@ -52,7 +52,7 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
     }
 
     public static void startCancelTask(String taskId, String detail) throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().cancelTask(taskId, detail);
+        ScmContentModule.getInstance().getMetaService().cancelTask(taskId, detail);
     }
 
     public void finishTaskAndAsyncRedo(String taskId, long successCount, long failedCount) {

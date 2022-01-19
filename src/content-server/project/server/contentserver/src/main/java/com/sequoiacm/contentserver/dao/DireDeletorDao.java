@@ -9,7 +9,7 @@ import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 
 public class DireDeletorDao {
@@ -20,11 +20,11 @@ public class DireDeletorDao {
     private DirOperator dirOperator;
 
     public DireDeletorDao(String wsName, String dirId, String path) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
         this.id = dirId;
         this.path = path;
-        this.ws = contentServer.getWorkspaceInfoChecked(wsName);
-        this.metaService = contentServer.getMetaService();
+        this.ws = contentModule.getWorkspaceInfoChecked(wsName);
+        this.metaService = contentModule.getMetaService();
         this.dirOperator = DirOperator.getInstance();
     }
 

@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.bizconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
@@ -36,10 +36,10 @@ public class SiteConfSubscriber implements ScmConfSubscriber {
         SiteNotifyOption option = (SiteNotifyOption) notification;
         String siteName = option.getSiteName();
         if (notification.getEventType() == EventType.DELTE) {
-            ScmContentServer.getInstance().removeSite(siteName);
+            ScmContentModule.getInstance().removeSite(siteName);
             return;
         }
-        ScmContentServer.getInstance().reloadSite(siteName);
+        ScmContentModule.getInstance().reloadSite(siteName);
     }
 
     @Override

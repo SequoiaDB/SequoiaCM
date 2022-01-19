@@ -13,7 +13,7 @@ import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.model.*;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
@@ -1260,7 +1260,7 @@ public class ScmMetaService {
         BreakpointFile file = breakpointFileBsonConverter.convert(fileObj);
         file.setWorkspaceName(workspaceName);
 
-        ScmSite site = ScmContentServer.getInstance().getSiteInfo(file.getSiteId());
+        ScmSite site = ScmContentModule.getInstance().getSiteInfo(file.getSiteId());
         file.setSiteName(site.getName());
         return file;
     }
@@ -1271,7 +1271,7 @@ public class ScmMetaService {
         MetaBreakpointFileAccessor accessor = metasource.getBreakpointFileAccessor(workspaceName,
                 null);
 
-        ScmSite site = ScmContentServer.getInstance().getLocalSiteInfo();
+        ScmSite site = ScmContentModule.getInstance().getLocalSiteInfo();
 
         BreakpointFile file = new BreakpointFile();
         file.setWorkspaceName(workspaceName).setFileName(fileName).setChecksumType(checksumType)
@@ -1588,11 +1588,11 @@ public class ScmMetaService {
         // BasicBSONObject fileMatcher = new
         // BasicBSONObject(FieldName.FIELD_CLFILE_BATCH_ID, oldBatchId);
         if (null == context) {
-            updateFileInfo(ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName), fileId,
+            updateFileInfo(ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName), fileId,
                     -1, -1, updator);
         }
         else {
-            updateFileInfo(ScmContentServer.getInstance().getWorkspaceInfoChecked(wsName), fileId,
+            updateFileInfo(ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName), fileId,
                     -1, -1, updator, null, context);
         }
     }
@@ -2058,7 +2058,7 @@ public class ScmMetaService {
         BasicBSONObject rec = new BasicBSONObject();
         rec.put(FieldName.DataTableNameHistory.WORKSPACE_NAME, wsName);
         rec.put(FieldName.DataTableNameHistory.SITE_NAME,
-                ScmContentServer.getInstance().getLocalSiteInfo().getName());
+                ScmContentModule.getInstance().getLocalSiteInfo().getName());
         rec.put(FieldName.DataTableNameHistory.TABLE_CREATE_TIME, System.currentTimeMillis());
         rec.put(FieldName.DataTableNameHistory.TABLE_NAME, tableName);
         rec.put(FieldName.DataTableNameHistory.WORKSPACE_IS_DELETED, false);

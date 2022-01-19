@@ -11,9 +11,8 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
@@ -31,7 +30,7 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
         ScmDataWriter fileWriter = null;
         try {
             ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
-                    wsInfo.getName(), ScmContentServer.getInstance().getLocalSiteInfo().getName(),
+                    wsInfo.getName(), ScmContentModule.getInstance().getLocalSiteInfo().getName(),
                     dataInfo.getId());
             ScmLockPath fileReadLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(),
                     fileId);
@@ -118,7 +117,7 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
                     wsInfo.getName(), wsInfo.getDataLocation(),
-                    ScmContentServer.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
         }
         catch (ScmDatasourceException e) {
             ScmError errorCode = e.getScmError(ScmError.DATA_WRITE_ERROR);
@@ -158,7 +157,7 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
                     wsInfo.getName(), wsInfo.getDataLocation(),
-                    ScmContentServer.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
         }
         catch (Exception e) {
             logger.warn("create lob in local site failed:siteId={},wsName={},lobId={}",

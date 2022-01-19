@@ -1,42 +1,41 @@
 package com.sequoiacm.contentserver.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.hdfs.HdfsDataLocation;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class WorkspaceCreator {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceCreator.class);
     private WorkspaceConfig wsConfig;
     private List<BSONObject> hdfsDataTableNameHistoryRecs = new ArrayList<>();
-    private ScmContentServer contentserver;
+    private ScmContentModule contentModule;
 
     public WorkspaceCreator(String wsName, String createUser, BSONObject clientWsConfObj)
             throws ScmServerException {
-        contentserver = ScmContentServer.getInstance();
+        contentModule = ScmContentModule.getInstance();
         wsConfig = formate(wsName, createUser, clientWsConfObj);
     }
 
@@ -53,7 +52,7 @@ public class WorkspaceCreator {
             return;
         }
         try {
-            MetaAccessor accessor = contentserver.getMetaService().getMetaSource()
+            MetaAccessor accessor =contentModule.getMetaService().getMetaSource()
                     .getDataTableNameHistoryAccessor();
             for (BSONObject rec : hdfsDataTableNameHistoryRecs) {
                 accessor.insert(rec);
@@ -85,7 +84,7 @@ public class WorkspaceCreator {
                     "failed to create workspace, metalocation missing site name:wsName=" + wsName
                             + ",metaLocation=" + metaLocationObj);
         }
-        ScmSite metaSiteInfo = contentserver.getSiteInfo(metaSiteName);
+        ScmSite metaSiteInfo =contentModule.getSiteInfo(metaSiteName);
         if (metaSiteInfo == null) {
             throw new ScmInvalidArgumentException("failed to create workspace, no such site:wsName="
                     + wsName + ",metalocation=" + metaLocationObj);
@@ -114,7 +113,7 @@ public class WorkspaceCreator {
             BSONObject dataLocationObj = (BSONObject) obj;
             String siteName = (String) dataLocationObj
                     .get(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
-            ScmSite siteInfo = contentserver.getSiteInfo(siteName);
+            ScmSite siteInfo =contentModule.getSiteInfo(siteName);
             if (siteInfo == null) {
                 throw new ScmInvalidArgumentException(
                         "failed to create workspace, no such site:wsName=" + wsName + ",siteName="
@@ -221,7 +220,7 @@ public class WorkspaceCreator {
             rootPath = rootPath + "/";
         }
         rootPath += wsName;
-        ScmSite site = contentserver.getSiteInfo(siteId);
+        ScmSite site =contentModule.getSiteInfo(siteId);
 
         DataTableNameHistoryInfo record = new DataTableNameHistoryInfo();
         record.setSiteName(site.getName());

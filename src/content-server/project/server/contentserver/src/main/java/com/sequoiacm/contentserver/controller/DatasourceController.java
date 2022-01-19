@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
@@ -83,11 +83,11 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
             HttpServletResponse response) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        int localSiteId = contentServer.getLocalSite();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        int localSiteId = contentModule.getLocalSite();
         int dataLocationSiteId = localSiteId;
         if (siteName != null) {
-            ScmSite siteInfo = contentServer.getSiteInfo(siteName);
+            ScmSite siteInfo = contentModule.getSiteInfo(siteName);
             if (null == siteInfo) {
                 throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
                         "site is not exist:siteName=" + siteName);

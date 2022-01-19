@@ -9,7 +9,7 @@ import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.service.ISystemService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmContentServerInfo;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
@@ -44,15 +44,15 @@ public class SystemServiceImpl implements ISystemService {
 
     private List<ScmContentServerInfo> getOtherContentServers(int siteId)
             throws ScmServerException {
-        List<ScmContentServerInfo> contentServerList = ScmContentServer.getInstance()
+        List<ScmContentServerInfo> contentServerList = ScmContentModule.getInstance()
                 .getContentServerList(siteId);
-        if (siteId != ScmContentServer.getInstance().getLocalSite()) {
+        if (siteId != ScmContentModule.getInstance().getLocalSite()) {
             return contentServerList;
         }
         Iterator<ScmContentServerInfo> it = contentServerList.iterator();
         while (it.hasNext()) {
-            ScmContentServerInfo cs = it.next();
-            if (cs.getId() == ScmServer.getInstance().getContentServerInfo().getId()) {
+            ScmContentServerInfo scmContentServerInfo = it.next();
+            if (scmContentServerInfo.getId() == ScmServer.getInstance().getContentServerInfo().getId()) {
                 it.remove();
                 break;
             }
@@ -61,11 +61,11 @@ public class SystemServiceImpl implements ISystemService {
     }
 
     private List<ScmContentServerInfo> getOtherContentServers() throws ScmServerException {
-        List<ScmContentServerInfo> contentServerList = ScmContentServer.getInstance().getContentServerList();
+        List<ScmContentServerInfo> contentServerList = ScmContentModule.getInstance().getContentServerList();
         Iterator<ScmContentServerInfo> it = contentServerList.iterator();
         while (it.hasNext()) {
-            ScmContentServerInfo cs = it.next();
-            if (cs.getId() == ScmServer.getInstance().getContentServerInfo().getId()) {
+            ScmContentServerInfo scmContentServerInfo = it.next();
+            if (scmContentServerInfo.getId() == ScmServer.getInstance().getContentServerInfo().getId()) {
                 it.remove();
                 break;
             }
@@ -76,15 +76,15 @@ public class SystemServiceImpl implements ISystemService {
     @Override
     public BSONObject reloadSiteBizConf(int siteId, boolean isMetadataOnly)
             throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
 
-        ScmSite siteInfo = contentServer.getSiteInfo(siteId);
+        ScmSite siteInfo = contentModule.getSiteInfo(siteId);
         if (siteInfo == null) {
             throw new ScmServerException(ScmError.SITE_NOT_EXIST,
                     "site not exist:serverId=" + siteId);
         }
-        if (contentServer.getServerConnectionList(siteId).size() > 0) {
-            if (contentServer.getLocalSite() == siteId) {
+        if (contentModule.getServerConnectionList(siteId).size() > 0) {
+            if (contentModule.getLocalSite() == siteId) {
                 BasicBSONList resultList = new BasicBSONList();
                 List<ScmContentServerInfo> otherServers = getOtherContentServers(siteId);
                 reloadMyself(resultList, isMetadataOnly);
@@ -93,13 +93,13 @@ public class SystemServiceImpl implements ISystemService {
             }
             else {
                 int remoteSite;
-                if (contentServer.getLocalSite() == contentServer.getMainSite()) {
+                if (contentModule.getLocalSite() == contentModule.getMainSite()) {
                     remoteSite = siteId;
                 }
                 else {
-                    remoteSite = contentServer.getMainSite();
+                    remoteSite = contentModule.getMainSite();
                 }
-                return forwardToRemoteSite(contentServer.getSiteInfo(remoteSite).getName(),
+                return forwardToRemoteSite(contentModule.getSiteInfo(remoteSite).getName(),
                         CommonDefine.NodeScope.SCM_NODESCOPE_CENTER, siteId, isMetadataOnly);
             }
         }
@@ -110,25 +110,25 @@ public class SystemServiceImpl implements ISystemService {
     @Override
     public BSONObject reloadNodeBizConf(int nodeId, boolean isMetadataOnly)
             throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
         int serverId = nodeId;
-        ScmContentServerInfo info = contentServer.getServerInfo(serverId);
+        ScmContentServerInfo info = contentModule.getServerInfo(serverId);
         if (info == null) {
             throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
                     "server not exist:serverId=" + serverId);
         }
-        int mainSiteId = contentServer.getMainSite();
+        int mainSiteId = contentModule.getMainSite();
         if (ScmServer.getInstance().getContentServerInfo().getId() == serverId) {
             BasicBSONList resultList = new BasicBSONList();
             reloadMyself(resultList, isMetadataOnly);
             return resultList;
         }
-        else if (contentServer.getLocalSite() == mainSiteId
-                || info.getSite().getId() == contentServer.getLocalSite()) {
+        else if (contentModule.getLocalSite() == mainSiteId
+                || info.getSite().getId() == contentModule.getLocalSite()) {
             return reloadRemoteBizConf(info, false, isMetadataOnly);
         }
         else {
-            BSONObject res = forwardToRemoteSite(contentServer.getSiteInfo(mainSiteId).getName(),
+            BSONObject res = forwardToRemoteSite(contentModule.getSiteInfo(mainSiteId).getName(),
                     CommonDefine.NodeScope.SCM_NODESCOPE_NODE, serverId, isMetadataOnly);
             return res;
         }
@@ -136,9 +136,9 @@ public class SystemServiceImpl implements ISystemService {
 
     @Override
     public BSONObject reloadAllNodeBizConf(boolean isMetadataOnly) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        int mainSiteId = contentServer.getMainSite();
-        if (contentServer.getLocalSite() == mainSiteId) {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        int mainSiteId = contentModule.getMainSite();
+        if (contentModule.getLocalSite() == mainSiteId) {
             BasicBSONList resultList = new BasicBSONList();
             List<ScmContentServerInfo> otherServers = getOtherContentServers();
             reloadMyself(resultList, isMetadataOnly);
@@ -146,7 +146,7 @@ public class SystemServiceImpl implements ISystemService {
             return resultList;
         }
         else {
-            BSONObject res = forwardToRemoteSite(contentServer.getSiteInfo(mainSiteId).getName(),
+            BSONObject res = forwardToRemoteSite(contentModule.getSiteInfo(mainSiteId).getName(),
                     CommonDefine.NodeScope.SCM_NODESCOPE_ALL, 0, isMetadataOnly);
             return res;
         }
@@ -205,7 +205,7 @@ public class SystemServiceImpl implements ISystemService {
             MetaDataManager.reload();
         }
         else {
-            ScmContentServer.reload();
+            ScmContentModule.reload();
         }
         ScmContentServerInfo info = ScmServer.getInstance().getContentServerInfo();
         ReloadBizConfResult result = new ReloadBizConfResult(info.getId(), info.getSite().getId(),
@@ -223,7 +223,7 @@ public class SystemServiceImpl implements ISystemService {
 
     @Override
     public MetaCursor getNodeList(BSONObject condition) throws ScmServerException {
-        MetaAccessor serverAccessor = ScmContentServer.getInstance().getMetaService()
+        MetaAccessor serverAccessor = ScmContentModule.getInstance().getMetaService()
                 .getMetaSource().getServerAccessor();
         try {
             return serverAccessor.query(condition, null, null);

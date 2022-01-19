@@ -8,7 +8,7 @@ import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
@@ -73,7 +73,7 @@ public class BreakpointFileUploader {
         try {
             dataWriter = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
                     workspaceInfo.getDataLocation(),
-                    ScmContentServer.getInstance().getDataService(), file.getWorkspaceName(),
+                    ScmContentModule.getInstance().getDataService(), file.getWorkspaceName(),
                     file.getFileName(), file.getDataId(), new Date(file.getCreateTime()),
                     createData, file.getUploadSize(), file.getExtraContext());
         }
@@ -174,7 +174,7 @@ public class BreakpointFileUploader {
                     file.setUploadSize(newUploadSize);
                     file.setChecksum(checksum.getValue());
                     dirty = true;
-                    ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+                    ScmContentModule.getInstance().getMetaService().updateBreakpointFile(file);
                     dirty = false;
                     flushSize = 0;
                 }
@@ -193,7 +193,7 @@ public class BreakpointFileUploader {
                     file.setMd5(md5);
                 }
                 dirty = true;
-                ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+                ScmContentModule.getInstance().getMetaService().updateBreakpointFile(file);
                 dirty = false;
             }
         }
@@ -220,7 +220,7 @@ public class BreakpointFileUploader {
         closeDataWriter();
 
         if (dirty) {
-            ScmContentServer.getInstance().getMetaService().updateBreakpointFile(file);
+            ScmContentModule.getInstance().getMetaService().updateBreakpointFile(file);
         }
 
         return file;

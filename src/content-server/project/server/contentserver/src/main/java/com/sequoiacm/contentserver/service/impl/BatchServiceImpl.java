@@ -14,7 +14,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBatchService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -79,7 +79,7 @@ public class BatchServiceImpl implements IBatchService {
                 for (Object obj : fileIds) {
                     BSONObject file = (BSONObject) obj;
                     String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
-                    BSONObject fileInfo = ScmContentServer.getInstance().getCurrentFileInfo(wsInfo,
+                    BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo,
                             fileId);
                     // if the file is unexist, skip.
                     if (null == fileInfo) {
@@ -268,7 +268,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
-            BSONObject fileInfo = ScmContentServer.getInstance().getCurrentFileInfo(wsInfo, fileId);
+            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId);
             // file unexist
             if (null == fileInfo) {
                 throw new ScmFileNotFoundException("attachFile failed, file is unexist: workspace="
@@ -279,7 +279,7 @@ public class BatchServiceImpl implements IBatchService {
             if (isFileInBatch(batch, fileId)) {
                 if (StringUtils.isEmpty(batchIdInFile)) {
                     // update file's batch_id
-                    ScmContentServer.getInstance().getMetaService().updateBatchIdOfFile(
+                    ScmContentModule.getInstance().getMetaService().updateBatchIdOfFile(
                             workspaceName, batchId, fileId, user.getUsername(), null);
                 }
                 throw new ScmServerException(ScmError.FILE_IN_SPECIFIED_BATCH,
@@ -352,7 +352,7 @@ public class BatchServiceImpl implements IBatchService {
 
             // condition= {id: {$in: [id1, id2]}, create_month:{$in:
             // ["202001"]}, name: "fileName"}
-            long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
+            long sameNameFileCount = ScmContentModule.getInstance().getMetaService()
                     .getCurrentFileCount(wsInfo, condition);
             if (sameNameFileCount > 0) {
                 throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
@@ -394,7 +394,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
-            BSONObject fileInfo = ScmContentServer.getInstance().getCurrentFileInfo(wsInfo, fileId);
+            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId);
             String batchIdInFile = null;
             if (null != fileInfo) {
                 batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
@@ -496,7 +496,7 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     private ScmWorkspaceInfo getWorkspace(String workspaceName) throws ScmServerException {
-        return ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName);
+        return ScmContentModule.getInstance().getWorkspaceInfoChecked(workspaceName);
     }
 
     @Override
@@ -504,7 +504,7 @@ public class BatchServiceImpl implements IBatchService {
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName,
                 ScmPrivilegeDefine.LOW_LEVEL_READ, "count directory");
-        long ret = ScmContentServer.getInstance().getMetaService().getBatchCount(wsName, condition);
+        long ret = ScmContentModule.getInstance().getMetaService().getBatchCount(wsName, condition);
         String message = "count batch";
         if (null != condition) {
             message += " by condition=" + condition.toString();

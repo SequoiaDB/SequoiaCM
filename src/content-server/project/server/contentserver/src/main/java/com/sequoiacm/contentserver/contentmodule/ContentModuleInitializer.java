@@ -7,7 +7,7 @@ import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
@@ -41,8 +41,8 @@ public class ContentModuleInitializer {
     }
 
     public void initBizComponent() throws Exception {
-        ScmContentServer.bindSite(bindingSite);
-        ScmContentServer.metaSourceHandler(metaSouceHandler);
+        ScmContentModule.bindSite(bindingSite);
+        ScmContentModule.metaSourceHandler(metaSouceHandler);
         String jarDir = ScmSystemUtils.getMyDir(ScmServer.class);
         logger.info("jarDir=" + jarDir);
         PropertiesUtils.setJarPath(jarDir);
@@ -72,9 +72,9 @@ public class ContentModuleInitializer {
                 new NodeConfSubscriber(serviceName, PropertiesUtils.getNodeVersionHeartbeat()));
 
         logger.info("init strategy");
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        List<BSONObject> strategyList = contentServer.getMetaService().getAllStrategyInfo();
-        ScmStrategyMgr.getInstance().init(strategyList, contentServer.getMainSite());
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        List<BSONObject> strategyList = contentModule.getMetaService().getAllStrategyInfo();
+        ScmStrategyMgr.getInstance().init(strategyList, contentModule.getMainSite());
 
         logger.info("init metaData into sys memory...");
         // init metaData into sys memory

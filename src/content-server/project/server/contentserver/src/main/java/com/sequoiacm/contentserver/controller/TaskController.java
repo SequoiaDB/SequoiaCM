@@ -7,7 +7,7 @@ import com.sequoiacm.contentserver.exception.ScmMissingArgumentException;
 import com.sequoiacm.contentserver.service.ITaskService;
 import com.sequoiacm.contentserver.service.IWorkspaceService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -88,7 +88,7 @@ public class TaskController {
 
         if (taskType == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE && null == targetSite) {
             if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR) {
-                targetSite = ScmContentServer.getInstance().getMainSiteName();
+                targetSite = ScmContentModule.getInstance().getMainSiteName();
             }
             else {
                 throw new ScmMissingArgumentException(
@@ -118,7 +118,7 @@ public class TaskController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
-        BSONObject taskInfo = ScmContentServer.getInstance().getTaskInfo(matcher);
+        BSONObject taskInfo = ScmContentModule.getInstance().getTaskInfo(matcher);
         if (null == taskInfo) {
             throw new ScmServerException(ScmError.TASK_NOT_EXIST,
                     "task is inexistent:taskId=" + taskId);

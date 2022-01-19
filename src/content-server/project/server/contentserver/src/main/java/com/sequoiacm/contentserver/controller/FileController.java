@@ -12,7 +12,7 @@ import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -314,8 +314,8 @@ public class FileController {
 
     public ScmStatisticsFileMeta createStatisticsFileMeta(BSONObject fileInfo, String workspace,
             String userName, long trafficSize, String breakpointFileName) {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        String mySiteName = contentServer.getSiteInfo(contentServer.getLocalSite()).getName();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        String mySiteName = contentModule.getSiteInfo(contentModule.getLocalSite()).getName();
         String mimeType = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
         String batchId = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_BATCH_ID);
         String versionStr = BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MAJOR_VERSION)

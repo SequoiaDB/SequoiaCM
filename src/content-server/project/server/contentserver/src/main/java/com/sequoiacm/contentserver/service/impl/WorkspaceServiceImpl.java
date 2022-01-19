@@ -17,7 +17,7 @@ import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IPrivilegeService;
 import com.sequoiacm.contentserver.service.IWorkspaceService;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
@@ -68,15 +68,15 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
         audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
                 "get workspace by workspaceName=" + workspaceName);
-        ScmWorkspaceInfo ws = ScmContentServer.getInstance().getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(workspaceName);
         return ws.getBSONObject();
     }
 
     @Override
     public MetaCursor getWorkspaceList(ScmUser user, BSONObject condition, BSONObject orderBy,
             long skip, long limit) throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        MetaAccessor accessor = contentServer.getMetaService().getMetaSource()
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        MetaAccessor accessor = contentModule.getMetaService().getMetaSource()
                 .getWorkspaceAccessor();
         try {
             MetaCursor ret = accessor.query(condition, null, orderBy, skip, limit);
@@ -116,10 +116,10 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             throw new ScmOperationUnauthorizedException(
                     "permission denied:user=" + user.getUsername());
         }
-        final ScmContentServer contentserver = ScmContentServer.getInstance();
-        if (!contentserver.isInMainSite()) {
+        final ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (!contentModule.isInMainSite()) {
             ContentServerClient client = ContentServerClientFactory
-                    .getFeignClientByServiceName(contentserver.getMainSiteName());
+                    .getFeignClientByServiceName(contentModule.getMainSiteName());
             client.deleteWorkspace(sessionId, token, wsName, isEnforced);
 
             audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
@@ -128,9 +128,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
 
         if (!isEnforced) {
-            ScmWorkspaceInfo ws = contentserver.getWorkspaceInfo(wsName);
+            ScmWorkspaceInfo ws =contentModule.getWorkspaceInfo(wsName);
             if (ws != null) {
-                long fileCount = contentserver.getMetaService().getCurrentFileCount(ws, null);
+                long fileCount =contentModule.getMetaService().getCurrentFileCount(ws, null);
                 if (fileCount > 0) {
                     throw new ScmServerException(ScmError.WORKSPACE_NOT_EMPTY,
                             "workspace is not empty:wsName=" + wsName);
@@ -148,7 +148,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         AsyncUtils.execute(new Runnable() {
             @Override
             public void run() {
-                deleteDataTable(contentserver, wsName);
+                deleteDataTable(contentModule, wsName);
             }
         });
 
@@ -205,7 +205,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
     }
 
-    private void deleteDataTable(ScmContentServer coontentserver, String wsName) {
+    private void deleteDataTable(ScmContentModule coontentserver, String wsName) {
         // siteName map dataTableName list
         Map<String, List<String>> tableNameMap = new HashMap<>();
 
@@ -290,8 +290,8 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     @Override
     public long countWorkspace(ScmUser user, BSONObject condition) throws ScmServerException {
         try {
-            ScmContentServer contentServer = ScmContentServer.getInstance();
-            MetaAccessor accessor = contentServer.getMetaService().getMetaSource()
+            ScmContentModule contentModule = ScmContentModule.getInstance();
+            MetaAccessor accessor = contentModule.getMetaService().getMetaSource()
                     .getWorkspaceAccessor();
             long ret = accessor.count(condition);
             String message = "count workspace";
@@ -310,11 +310,11 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
 
     private WorkspaceUpdator validateUpdator(String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException {
-        ScmContentServer contentserver = ScmContentServer.getInstance();
-        ScmWorkspaceInfo wsInfo = contentserver.getWorkspaceInfoChecked(wsName);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfoChecked(wsName);
 
         WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
-                contentserver.getWorkspaceInfoChecked(wsName).getBSONObject());
+                contentModule.getWorkspaceInfoChecked(wsName).getBSONObject());
 
         confUpdator.setNewDesc(updator.getDescription());
 
@@ -322,7 +322,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 .get(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION);
         ClientLocationOutline addDataLocation = updator.getAddDataLocation();
         if (addDataLocation != null) {
-            ScmSite addSite = contentserver.getSiteInfo(addDataLocation.getSiteName());
+            ScmSite addSite =contentModule.getSiteInfo(addDataLocation.getSiteName());
             if (addSite == null) {
                 throw new ScmInvalidArgumentException(
                         "unknown data location:siteName=" + addDataLocation.getSiteName());
@@ -352,7 +352,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         String removeDataLocationSiteName = updator.getRemoveDataLocation();
         ScmSite removeSite = null;
         if (removeDataLocationSiteName != null) {
-            removeSite = contentserver.getSiteInfo(removeDataLocationSiteName);
+            removeSite =contentModule.getSiteInfo(removeDataLocationSiteName);
             if (removeSite == null) {
                 throw new ScmInvalidArgumentException(
                         "unknown data location:siteName=" + removeDataLocationSiteName);

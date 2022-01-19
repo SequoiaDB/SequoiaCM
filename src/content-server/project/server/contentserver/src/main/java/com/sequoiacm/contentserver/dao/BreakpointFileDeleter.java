@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.dao;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
@@ -28,7 +28,7 @@ public class BreakpointFileDeleter {
     }
 
     public void delete() throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().deleteBreakpointFile(file);
+        ScmContentModule.getInstance().getMetaService().deleteBreakpointFile(file);
         if (!StringUtils.hasText(file.getDataId())) {
             return;
         }
@@ -60,7 +60,7 @@ public class BreakpointFileDeleter {
 
     private void abortBreakpointFile() throws ScmServerException, ScmDatasourceException {
         ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
-                workspaceInfo.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                workspaceInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                 workspaceInfo.getName(), file.getFileName(), file.getDataId(),
                 new Date(file.getCreateTime()), false, file.getUploadSize(),
                 file.getExtraContext());
@@ -80,9 +80,9 @@ public class BreakpointFileDeleter {
         ScmDataDeletor dataDeleter;
         try {
             dataDeleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                    ScmContentServer.getInstance().getLocalSite(), file.getWorkspaceName(),
+                    ScmContentModule.getInstance().getLocalSite(), file.getWorkspaceName(),
                     workspaceInfo.getDataLocation(),
-                    ScmContentServer.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
             dataDeleter.delete();
         }
         catch (ScmDatasourceException e) {

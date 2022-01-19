@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
@@ -37,7 +37,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
     private DoFileRes cleanFile(String fileId, int majorVersion, int minorVersion,
             int dataInOtherSiteId) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo();
-        BSONObject file = ScmContentServer.getInstance().getMetaService().getFileInfo(
+        BSONObject file = ScmContentModule.getInstance().getMetaService().getFileInfo(
                 wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion, minorVersion);
         if (file == null) {
             logger.warn("skip, file is not exist: workspace={}, fileId={},version={}.{}",
@@ -50,7 +50,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(sites);
 
-        if (!fileDataSiteIdList.contains(ScmContentServer.getInstance().getLocalSite())) {
+        if (!fileDataSiteIdList.contains(ScmContentModule.getInstance().getLocalSite())) {
             logger.warn(
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
@@ -73,8 +73,8 @@ public class ScmTaskCleanFile extends ScmTaskFile {
                     getLocalSiteId());
             try {
                 ScmDataDeletor deleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                        ScmContentServer.getInstance().getLocalSite(), ws.getName(),
-                        ws.getDataLocation(), ScmContentServer.getInstance().getDataService(),
+                        ScmContentModule.getInstance().getLocalSite(), ws.getName(),
+                        ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                         dataInfo);
                 deleter.delete();
             }
@@ -101,7 +101,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
     private ScmLock tryLockFileContent(int siteId, String dataId) throws ScmServerException {
         ScmLockPath localFileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
                 getWorkspaceInfo().getName(),
-                ScmContentServer.getInstance().getSiteInfo(siteId).getName(), dataId);
+                ScmContentModule.getInstance().getSiteInfo(siteId).getName(), dataId);
         return ScmLockManager.getInstance().tryAcquiresLock(localFileContentLockPath);
     }
 
@@ -118,7 +118,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
         int majorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
         int minorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
 
-        int localSiteId = ScmContentServer.getInstance().getLocalSite();
+        int localSiteId = ScmContentModule.getInstance().getLocalSite();
 
         BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfoNotInLock,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
@@ -194,7 +194,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
             BasicBSONList matcherList = new BasicBSONList();
             BSONObject taskMatcher = getTaskContent();
             BSONObject mySiteFileMatcher = ScmMetaSourceHelper
-                    .dollarSiteInList(ScmContentServer.getInstance().getLocalSite());
+                    .dollarSiteInList(ScmContentModule.getInstance().getLocalSite());
             matcherList.add(taskMatcher);
             matcherList.add(mySiteFileMatcher);
 

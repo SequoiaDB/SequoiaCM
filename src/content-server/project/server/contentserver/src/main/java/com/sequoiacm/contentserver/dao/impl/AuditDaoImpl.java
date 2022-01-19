@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.contentserver.dao.IAuditDao;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.metasource.MetaCursor;
 
 @Repository
@@ -17,7 +17,7 @@ public class AuditDaoImpl implements IAuditDao {
     @Override
     public MetaCursor query(BSONObject matcher) throws ScmServerException {
         try {
-            MetaCursor cursor = ScmContentServer.getInstance().getMetaService()
+            MetaCursor cursor = ScmContentModule.getInstance().getMetaService()
                     .getAuditList(matcher);
 
             return cursor;

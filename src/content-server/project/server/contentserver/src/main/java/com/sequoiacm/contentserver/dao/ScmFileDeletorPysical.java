@@ -28,7 +28,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
@@ -40,7 +40,7 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 
 public class ScmFileDeletorPysical implements ScmFileDeletor {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileDeletorPysical.class);
-    ScmContentServer contentServer = ScmContentServer.getInstance();
+    ScmContentModule contentModule = ScmContentModule.getInstance();
     private ScmWorkspaceInfo wsInfo;
     private String fileId;
     private int majorVersion;
@@ -64,7 +64,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
 
     @Override
     public void delete() throws ScmServerException {
-        if (contentServer.getMainSite() != contentServer.getLocalSite()) {
+        if (contentModule.getMainSite() != contentModule.getLocalSite()) {
             Assert.notNull(sessionId, "sessionIdis null, forward mainSite failed");
             Assert.notNull(userDetail, "userDetail is null, forward mainSite failed");
             forwardToMainSite();
@@ -84,8 +84,8 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
     }
 
     private void forwardToMainSite() throws ScmServerException {
-        ScmContentServer contentServer = ScmContentServer.getInstance();
-        String remoteSiteName = contentServer.getMainSiteName();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        String remoteSiteName = contentModule.getMainSiteName();
         try {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(remoteSiteName);
@@ -104,7 +104,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
     }
 
     private void deleteInMainSite() throws ScmServerException {
-        BSONObject currentFile = contentServer.getCurrentFileInfo(wsInfo, fileId);
+        BSONObject currentFile = contentModule.getCurrentFileInfo(wsInfo, fileId);
         if (null == currentFile) {
             throw new ScmFileNotFoundException("file is unexist:workspace=" + wsInfo.getName()
                     + ",file=" + fileId + ",version="
@@ -129,7 +129,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         }
 
         // delete file meta
-        contentServer.getMetaService().deleteFile(wsInfo, fileId);
+        contentModule.getMetaService().deleteFile(wsInfo, fileId);
 
         // delete file data async
         AsyncUtils.execute(new Runnable() {
@@ -150,11 +150,11 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         CommonHelper.getFileLocationList(sites, siteList);
         for (ScmFileLocation info : siteList) {
             try {
-                if (info.getSiteId() == contentServer.getLocalSite()) {
+                if (info.getSiteId() == contentModule.getLocalSite()) {
                     // local
                     ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                            contentServer.getLocalSite(), wsInfo.getName(),
-                            wsInfo.getDataLocation(), contentServer.getDataService(), dataInfo);
+                            contentModule.getLocalSite(), wsInfo.getName(),
+                            wsInfo.getDataLocation(), contentModule.getDataService(), dataInfo);
                     deletor.delete();
                 }
                 else {
@@ -179,7 +179,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         matcher.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH,
                 currentFile.get(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH));
 
-        MetaFileHistoryAccessor historyAccessor = contentServer.getMetaService().getMetaSource()
+        MetaFileHistoryAccessor historyAccessor = contentModule.getMetaService().getMetaSource()
                 .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
         MetaCursor cursor = null;
         try {

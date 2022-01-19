@@ -3,7 +3,7 @@ package com.sequoiacm.contentserver.job;
 import java.util.Date;
 
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 
 public class TaskStopTimeUpdator implements TaskUpdator {
 
@@ -21,7 +21,7 @@ public class TaskStopTimeUpdator implements TaskUpdator {
 
     @Override
     public void doUpdate() throws ScmServerException {
-        ScmContentServer.getInstance().getMetaService().updateTaskStopTimeIfEmpty(taskId,
+        ScmContentModule.getInstance().getMetaService().updateTaskStopTimeIfEmpty(taskId,
                 new Date(), progress, successCount, failCount);
     }
 

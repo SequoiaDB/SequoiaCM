@@ -27,7 +27,7 @@ import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.site.ScmContentServer;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
@@ -53,7 +53,7 @@ public class FileInfoUpdatorDao {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
         this.user = user;
-        this.metaService = ScmContentServer.getInstance().getMetaService();
+        this.metaService = ScmContentModule.getInstance().getMetaService();
         this.latestFileInfo = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
                 fileId);
         if (latestFileInfo == null) {
@@ -190,7 +190,7 @@ public class FileInfoUpdatorDao {
             condition.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, dollarInCreateMonths);
 
             condition.put(FieldName.FIELD_CLFILE_NAME, newFileName);
-            long sameNameFileCount = ScmContentServer.getInstance().getMetaService()
+            long sameNameFileCount = ScmContentModule.getInstance().getMetaService()
                     .getCurrentFileCount(ws, condition);
             if (sameNameFileCount > 0) {
                 throw new ScmServerException(ScmError.BATCH_FILE_SAME_NAME,
