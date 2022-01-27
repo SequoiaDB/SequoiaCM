@@ -37,12 +37,16 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |ribbon.MaxAutoRetries|num|对同一个实例请求的最大重试次数（不包括第一次），默认值：0|
 |ribbon.MaxAutoRetriesNextServer|num|请求失败时，更换下一个实例进行重试，该参数表示最大更换次数（不包含第一个实例），默认值：1|
 |ribbon.OkToRetryOnAllOperations|boolean|是否所有请求都进行重试，默认值：false|
-|ribbon.ConnectTimeout|num|使用Ribbon时的连接建立超时时间，默认值：2000，单位：ms|
-|ribbon.ReadTimeout|num|使用Ribbon时的读超时，默认值：5000，单位：ms|
-|hystrix.command.default.execution.timeout.enabled|boolean|设置HystrixCommand.run()的执行是否有超时限制，默认值：true
-|hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds|num|调用者等待命令执行的超时时间，超过此时间，HystrixCommand被标记为TIMEOUT，并执行fallback逻辑，默认值：1000，单位：ms|
-|scm.feign.connectTimeout|num|使用Feign调用远程服务的连接建立超时时间，默认值：10000，单位：ms|
-|scm.feign.readTimeout|num|使用Feign调用远程服务的读超时，默认值：60000，单位：ms|
+|ribbon.ConnectTimeout|num|使用Ribbon时的连接建立超时时间，默认值：10000，单位：ms|
+|ribbon.ReadTimeout|num|使用Ribbon时的读超时，默认值：30000，单位：ms|
+|scm.feign.connectTimeout|num|使用Feign调用远程服务的连接建立超时时间，单位：ms。如果不设置，默认会使用ribbon.ConnectTimeout的值。|
+|scm.feign.readTimeout|num|使用Feign调用远程服务的读超时，单位：ms。如果不设置，默认会使用ribbon.ReadTimeout的值。|
+|hystrix.command.default.execution.isolation.semaphore.maxConcurrentRequests|num|配置分配给单个下游服务的信号量资源。调用下游服务前，会先获取信号量，调用结束后归还信号量，如获取不到，则调用会被拒绝。此配置限制了调用某个下游服务的最大并发数量。|
+|hystrix.command.default.circuitBreaker.enabled|boolean|是否开启熔断保护，默认值：true。|
+|hystrix.command.default.circuitBreaker.requestVolumeThreshold|num|熔断计算的最小样本数，只有在时间窗口（10s）内，调用某个服务的数量达到了该值，才会进行熔断判断，默认值：20。|
+|hystrix.command.default.circuitBreaker.errorThresholdPercentage|num|触发熔断的失败率，当在时间窗口内调用某个服务的数量达到样本数，且失败率大于等于此值时，熔断器打开，后续对该服务的调用直接返回失败，默认值：50。|
+|hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds|num|熔断器休眠窗口，当触发熔断一段时间后，尝试放行一个调用请求，根据该请求是否成功，来决定是继续熔断还是恢复正常，单位：ms，默认值：5000。|
+|scm.hystrix.enabled|boolean|是否开启熔断与隔离能力，默认值：true。关闭后，该节点的熔断与隔离能力将失效，所有hystrix开头的配置项将不起作用。此配置在网关节点暂不生效。|
 
 ##公共配置举例##
 

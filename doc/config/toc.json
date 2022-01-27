@@ -992,6 +992,12 @@
                 "file": "om",
                 "cn": "OM管理服务",
                 "en": "Om Manager"
+            },
+            {
+                "id": 1640326131,
+                "file": "reliability_config",
+                "cn": "可靠性配置",
+                "en": "Reliability Config"
             }]
         },
         {
