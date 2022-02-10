@@ -27,10 +27,8 @@ class ScmOutputStreamImpl extends ScmHttpOutputStreamBase {
         String respFile = readStringFromStream(getConnection().getInputStream());
 
         BSONObject resp = (BSONObject) JSON.parse(respFile);
-        String fileId = (String) ((BSONObject) resp.get("file")).get("id");
+        BSONObject fileInfo = (BSONObject) resp.get("file");
 
-        BasicBSONObject fileInfo = (BasicBSONObject) session.getDispatcher()
-                .getFileInfo(scmFile.getWorkspaceName(), fileId, null, -1, -1);
         scmFile.refresh(fileInfo);
         scmFile.setExist(true);
     }
