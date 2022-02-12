@@ -36,7 +36,7 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
-    private int updateThreadStatus = 0;
+    private int updateThreadSuccessNum = 0;
     private boolean runSuccess = false;
     private String fileName = "versionfile1688";
     private String authorName = "author1688";
@@ -63,13 +63,23 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
         int updateSize2 = 1024 * 1024;
         byte[] updateData1 = new byte[ updateSize1 ];
         byte[] updateData2 = new byte[ updateSize2 ];
+        UpdateFileThread updateFileThread1 = new UpdateFileThread(
+                updateData1 );
+        UpdateFileThread updateFileThread2 = new UpdateFileThread(
+                updateData2 );
         ThreadExecutor es = new ThreadExecutor();
-        es.addWorker( new UpdateFileThread( updateData1 ) );
-        es.addWorker( new UpdateFileThread( updateData2 ) );
+        es.addWorker( updateFileThread1 );
+        es.addWorker( updateFileThread2 );
         es.run();
-        if ( updateThreadStatus == 2 ) {
+        if ( updateThreadSuccessNum == 2 ) {
             checkAllUpdateContentResult( wsM, updateData1, updateData2 );
-        } else if ( updateThreadStatus == 0 ) {
+        } else if ( updateFileThread1.getRetCode() == 0
+                && updateFileThread2.getRetCode() != 0 ) {
+            checkUpdateContentResult( wsM, updateData1 );
+        } else if ( updateFileThread1.getRetCode() != 0
+                && updateFileThread2.getRetCode() == 0 ) {
+            checkUpdateContentResult( wsM, updateData2 );
+        } else if ( updateThreadSuccessNum == 0 ) {
             Assert.fail( "Only One thread is expected to succeed" );
         }
         runSuccess = true;
@@ -137,19 +147,18 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() throws Exception {
+        private void exec() {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 VersionUtils.updateContentByStream( ws, fileId, fileData );
-                checkUpdateContentResult( wsM, fileData );
-                updateThreadStatus++;
+                updateThreadSuccessNum++;
             } catch ( ScmException e ) {
                 if ( e.getErrorCode() != ScmError.FILE_VERSION_MISMATCHING
                         .getErrorCode() ) {
-                   throw e;
+                    saveResult( e.getErrorCode(), e );
                 }
             } finally {
                 if ( session != null ) {
