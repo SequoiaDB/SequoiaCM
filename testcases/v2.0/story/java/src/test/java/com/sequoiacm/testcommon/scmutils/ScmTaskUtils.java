@@ -99,7 +99,9 @@ public class ScmTaskUtils extends TestScmBase {
             if ( size == expSiteNum ) {
                 break;
             } else if ( retryTimes >= maxRetryTimes ) {
-                throw new Exception( "wait async task, retry failed." );
+                throw new Exception(
+                        "wait async task, retry failed. the file location = "
+                                + file.getLocationList() );
             }
             Thread.sleep( sleepTime );
             retryTimes++;
