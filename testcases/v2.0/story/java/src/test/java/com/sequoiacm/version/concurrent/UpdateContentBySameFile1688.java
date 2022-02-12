@@ -147,7 +147,7 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() {
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branSite );
@@ -156,9 +156,10 @@ public class UpdateContentBySameFile1688 extends TestScmBase {
                 VersionUtils.updateContentByStream( ws, fileId, fileData );
                 updateThreadSuccessNum++;
             } catch ( ScmException e ) {
+                saveResult( e.getErrorCode(), e );
                 if ( e.getErrorCode() != ScmError.FILE_VERSION_MISMATCHING
                         .getErrorCode() ) {
-                    saveResult( e.getErrorCode(), e );
+                    throw e;
                 }
             } finally {
                 if ( session != null ) {
