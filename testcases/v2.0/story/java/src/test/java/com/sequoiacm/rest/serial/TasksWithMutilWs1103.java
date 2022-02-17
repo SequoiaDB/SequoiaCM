@@ -136,10 +136,13 @@ public class TasksWithMutilWs1103 extends TestScmBase {
 
     private void transferAndCheck() {
         JSONObject options = new JSONObject();
-        options.put( "filter", new JSONObject().put( "author", author ) );
+        JSONObject option = new JSONObject();
+        option.put( "author", author );
+        options.put( "filter", option );
         String response1 = rest2.setApi( "tasks" )
                 .setRequestMethod( HttpMethod.POST )
                 .setParameter( "task_type", "1" )
+                .setParameter( "target_site", rootSite.getSiteName() )
                 .setParameter( "workspace_name", wsList.get( 1 ).getName() )
                 .setParameter( "options", options.toString() )
                 .setResponseType( String.class ).exec().getBody().toString();
