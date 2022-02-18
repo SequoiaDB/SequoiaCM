@@ -13,9 +13,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * @Descreption SCM-3280:并发head查询和删除相同桶
- * @Author YiPan
- * @Date 2021/3/6
+ * @descreption SCM-3280:并发head查询和删除相同桶
+ * @author YiPan
+ * @date 2021/3/6
+ * @updateUser YiPan
+ * @updateDate 2022/2/18
+ * @updateRemark 优化了校验逻辑
+ * @version 1.0
  */
 public class HeadAndDropBucket3280 extends TestScmBase {
     private AmazonS3 s3Client = null;
@@ -32,18 +36,14 @@ public class HeadAndDropBucket3280 extends TestScmBase {
     @Test
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor( 10000 );
-        GetBucket t1 = new GetBucket();
-        DropBucket t2 = new DropBucket();
-        te.addWorker( t1 );
-        te.addWorker( t2 );
+        GetBucket getBucket = new GetBucket();
+        DropBucket dropBucket = new DropBucket();
+        te.addWorker( getBucket );
+        te.addWorker( dropBucket );
         te.run();
-        // a.查询成功，删除成功 b.查询失败，删除成功
-        if ( ( t1.result + t2.result ).equals( "" )
-                || ( t1.result + t2.result ).equals( "404" ) ) {
-            Assert.assertFalse( s3Client.doesBucketExistV2( bucketName ) );
-        } else {
-            Assert.fail( "t1:" + t1.result + "t2:" + t2.result );
-        }
+        // 删除必定成功
+        Assert.assertFalse( s3Client.doesBucketExistV2( bucketName ) );
+
         runSuccess = true;
     }
 
@@ -55,8 +55,7 @@ public class HeadAndDropBucket3280 extends TestScmBase {
         s3Client.shutdown();
     }
 
-    class GetBucket {
-        public String result = "";
+    private class GetBucket {
 
         @ExecuteOrder(step = 1)
         public void run() {
@@ -65,24 +64,21 @@ public class HeadAndDropBucket3280 extends TestScmBase {
             try {
                 amazonS3.headBucket( request );
             } catch ( AmazonS3Exception e ) {
-                result = e.getErrorCode();
+                // 查询可能出现404 not found异常
+                if ( !( e.getErrorCode().contains( "404" ) ) ) {
+                    throw e;
+                }
             } finally {
                 amazonS3.shutdown();
             }
         }
     }
 
-    class DropBucket {
-        public String result = "";
-
+    private class DropBucket {
         @ExecuteOrder(step = 1)
         public void run() {
-            try {
-                AmazonS3 amazonS3 = S3Utils.buildS3Client();
-                amazonS3.deleteBucket( bucketName );
-            } catch ( AmazonS3Exception e ) {
-                result = e.getErrorCode();
-            }
+            AmazonS3 amazonS3 = S3Utils.buildS3Client();
+            amazonS3.deleteBucket( bucketName );
         }
     }
 }
