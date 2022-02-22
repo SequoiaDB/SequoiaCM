@@ -63,8 +63,10 @@ class ContentModuleInitRunner {
         initializer.initBizComponent();
         String instance = localService.getHost() + localService.getPort();
         int instanceHash = instance.hashCode();
-        // id generator 只使用低16位，这里做一次异或扰乱低16位
+        // id generator 只使用低 16 位，这里做一次异或扰乱低16位
         short instanceHashShort = (short) ((instanceHash >>> 16) ^ instanceHash);
+        // id 不接受负数, 取一个绝对值
+        instanceHashShort = (short) Math.abs(instanceHashShort);
         logger.info("init id generator: instance={}, serverId(hashCode)={}", instance,
                 instanceHashShort);
         initializer.initIdGenerator(instanceHashShort);
