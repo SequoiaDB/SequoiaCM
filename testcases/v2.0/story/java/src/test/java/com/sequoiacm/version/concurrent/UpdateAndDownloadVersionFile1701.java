@@ -64,13 +64,12 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
     }
 
-    @Test(groups = { "twoSite","fourSite" })
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new DownloadFileThread() );
         es.addWorker( new UpdateFileThread() );
         es.run();
-        VersionUtils.assertByteArrayEqual( filedata, downloadData );
         VersionUtils.CheckFileContentByStream( wsA, fileName, 2, updatedata );
         runSuccess = true;
     }
@@ -103,6 +102,10 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 file.getContent( outputStream );
                 downloadData = outputStream.toByteArray();
+                int majorVersion = file.getMajorVersion();
+                if ( majorVersion == 1 ) {
+                    VersionUtils.assertByteArrayEqual( filedata, downloadData );
+                }
                 outputStream.close();
             } finally {
                 if ( session != null ) {
