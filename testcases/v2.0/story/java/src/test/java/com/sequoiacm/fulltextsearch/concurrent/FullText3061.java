@@ -86,6 +86,7 @@ public class FullText3061 extends TestScmBase {
         threadExec.addWorker( new Inspect() );
         threadExec.run();
         // 全文检索
+        FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
         FullTextUtils.waitFilesStatus( ws, ScmFileFulltextStatus.CREATED,
                 rootDirFileIdList.size() * 2 );
         FullTextUtils.searchAndCheckResults( ws, ScmType.ScopeType.SCOPE_ALL,
