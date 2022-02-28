@@ -1,11 +1,10 @@
 package com.sequoiacm.task;
 
 import java.io.File;
-import java.util.Date;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -59,6 +58,7 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
     private String authorName = "CreateMultiTasks409";
     private ScmId fileId = null;
     private BSONObject cond = null;
+    private List< ScmId > taskIdList = new ArrayList<>();
 
     private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
@@ -93,9 +93,10 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() throws ScmException {
+    private void test() throws Exception {
         startTask();
         waitTaskStop();
+        getSuccessTask();
         checkTaskAttribute();
         runSuccess = true;
     }
@@ -105,7 +106,9 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
-                TestSdbTools.Task.deleteMeta( taskId );
+                for ( ScmId taskID : taskIdList ) {
+                    TestSdbTools.Task.deleteMeta( taskID );
+                }
                 ScmFileUtils.cleanFile( ws_T, cond );
             }
         } catch ( Exception e ) {
@@ -130,13 +133,11 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
 
     private void startTask() throws ScmException {
         try {
-            taskId = ScmSystem.Task.startTransferTask( ws, cond,
-                    ScmType.ScopeType.SCOPE_CURRENT,
-                    ScmInfo.getRootSite().getSiteName() );
-            for ( int i = 0; i < 5; i++ ) {
-                ScmSystem.Task.startTransferTask( ws, cond,
+            for ( int i = 0; i < 6; i++ ) {
+                ScmId taskID = ScmSystem.Task.startTransferTask( ws, cond,
                         ScmType.ScopeType.SCOPE_CURRENT,
                         ScmInfo.getRootSite().getSiteName() );
+                taskIdList.add( taskID );
             }
         } catch ( ScmException e ) {
             if ( ScmError.TASK_DUPLICATE != e.getError() ) {
@@ -146,10 +147,18 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
         }
     }
 
-    private void waitTaskStop() throws ScmException {
-        Date stopTime = null;
-        while ( stopTime == null ) {
-            stopTime = ScmSystem.Task.getTask( sessionA, taskId ).getStopTime();
+    private void waitTaskStop() throws Exception {
+        for ( ScmId taskID : taskIdList ) {
+            ScmTaskUtils.waitTaskStop( sessionA, taskID );
+        }
+    }
+
+    private void getSuccessTask() throws Exception {
+        for ( ScmId taskID : taskIdList ) {
+            ScmTask task = ScmSystem.Task.getTask( sessionA, taskID );
+            if ( task.getSuccessCount() == 1 ) {
+                taskId = task.getId();
+            }
         }
     }
 
