@@ -283,6 +283,9 @@ public class ScmDeployInfoMgr {
         checkZkNode(zknodes, portsOnHost);
         this.zkUrls = concatZkUrl(zknodes);
 
+        checkManagementPortConflict(serviceNodes, portsOnHost);
+        checkManagementPortConflict(sitenodes, portsOnHost);
+
         serviceNodes.addAll(sitenodes);
         serviceNodes.addAll(zknodes);
         for (NodeInfo node : serviceNodes) {
@@ -337,6 +340,35 @@ public class ScmDeployInfoMgr {
                 if (nodes == null || nodes.size() == 0) {
                     throw new IllegalArgumentException("missing required service node:" + service);
                 }
+            }
+        }
+    }
+
+    private void checkManagementPortConflict(List<NodeInfo> nodes,
+            Map<String, List<Integer>> portsOnHost) {
+        for (NodeInfo node : nodes) {
+            Integer managementPort = node.getManagementPort();
+            if (managementPort == null) {
+                managementPort = node.getPort() + 1;
+            }
+            else if (managementPort.equals(node.getPort())) {
+                if (node.getServiceType() == ServiceType.S3_SERVER) {
+                    throw new IllegalArgumentException(
+                            "the management port and service port of S3-Server must be different: managementPort="
+                                    + managementPort + ", servicePort=" + node.getPort());
+                }
+                else {
+                    continue;
+                }
+            }
+            List<Integer> ports = portsOnHost.get(node.getHostName());
+            if (ports.contains(managementPort)) {
+                throw new IllegalArgumentException(
+                        "management port conflict:host=" + node.getHostName() + ", service="
+                                + node.getServiceType() + ", management port=" + managementPort);
+            }
+            else {
+                ports.add(managementPort);
             }
         }
     }

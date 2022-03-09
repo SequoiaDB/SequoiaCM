@@ -189,6 +189,9 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
         basicBSON.put(DeployJsonDefine.REGION, commonConfig.getRegionName());
         basicBSON.put(DeployJsonDefine.SERVER_PORT, node.getPort() + "");
         basicBSON.put(DeployJsonDefine.ZONE, node.getZone());
+        if (node.getManagementPort() != null) {
+            basicBSON.put(DeployJsonDefine.MANAGEMENT_PORT, node.getManagementPort() + "");
+        }
         for (String zone : zones) {
             List<String> url = confMgr.getServiceCenterUrlByZone(zone);
             basicBSON.put(DeployJsonDefine.ZONE_URL_PREFIX + zone, CommonUtils.toString(url, ","));

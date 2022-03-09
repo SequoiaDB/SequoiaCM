@@ -6,6 +6,7 @@
         <el-col :span="9">
           <el-input
             id="input_schedule_search_scheduleName"
+            maxlength="50"
             size="small"
             placeholder="调度任务名称"
             v-model="searchParams.name"
@@ -622,11 +623,11 @@ export default {
       let filter = {}
       if (this.searchParams.name) {
         filter['name'] = {
-          $regex: this.searchParams.name
+          $regex: this.$util.escapeStr(this.searchParams.name)
         }
       }
       if (this.searchParams.workspace) {
-        filter['workspace'] = this.searchParams.workspace
+        filter['workspace'] = this.$util.escapeStr(this.searchParams.workspace)
       }
       this.filter = {...filter}
       this.pagination.current = 1

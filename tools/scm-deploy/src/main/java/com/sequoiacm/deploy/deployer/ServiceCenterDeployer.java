@@ -1,5 +1,7 @@
 package com.sequoiacm.deploy.deployer;
 
+import com.sequoiacm.deploy.core.ScmPasswordFileSender;
+import com.sequoiacm.deploy.module.HostInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -12,12 +14,23 @@ import com.sequoiacm.deploy.module.ServiceType;
 @Deployer
 public class ServiceCenterDeployer extends ServiceDeployerBase {
 
+    private ScmPasswordFileSender pwdFileSender = ScmPasswordFileSender.getInstance();
+
     public ServiceCenterDeployer() {
         super(ServiceType.SERVICE_CENTER);
     }
 
     @Override
-    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node) throws Exception {
+    protected void beforeDeploy(NodeInfo node) throws Exception {
+        super.beforeDeploy(node);
+        HostInfo hostInfo = super.getDeployInfoMgr().getHostInfoWithCheck(node.getHostName());
+        pwdFileSender.sendMetasourcePasswdFile(hostInfo, getDeployInfoMgr().getMetasourceInfo());
+        pwdFileSender.sendAuditSourcePasswdFile(hostInfo, getDeployInfoMgr().getAuditsourceInfo());
+    }
+
+    @Override
+    protected BSONObject decorateTemplateDeployJson(BSONObject templateBson, NodeInfo node)
+            throws Exception {
         BasicBSONList templateBSONArray = BsonUtils.getArrayChecked(templateBson,
                 DeployJsonDefine.SERVICE_CENTER);
         BSONObject templateServerBson = (BSONObject) templateBSONArray.get(0);
@@ -26,10 +39,23 @@ public class ServiceCenterDeployer extends ServiceDeployerBase {
         BasicBSONObject decoratedBSON = new BasicBSONObject();
         decoratedBSON.putAll(templateServerBson);
         decoratedBSON.putAll(super.genBaseDeployJson(node, false));
-
+        decoratedBSON.put(DeployJsonDefine.STORE_SDB_URL,
+                getDeployInfoMgr().getMetasourceInfo().getUrl());
+        decoratedBSON.put(DeployJsonDefine.STORE_SDB_USER,
+                getDeployInfoMgr().getMetasourceInfo().getUser());
+        decoratedBSON.put(DeployJsonDefine.STORE_SDB_PASSWORD,
+                pwdFileSender.getMetasourcePasswdFilePath());
         decoratedArrayBson.add(decoratedBSON);
+        
+        BSONObject auditBSON = BsonUtils.getBSONObject(templateBson, DeployJsonDefine.AUDIT);
+        auditBSON.put(DeployJsonDefine.AUDIT_URL, getDeployInfoMgr().getAuditsourceInfo().getUrl());
+        auditBSON.put(DeployJsonDefine.AUDIT_USER,
+                getDeployInfoMgr().getAuditsourceInfo().getUser());
+        auditBSON.put(DeployJsonDefine.AUDIT_PASSWORD,
+                pwdFileSender.getAuditsourcePasswdFilePath());
+
         return new BasicBSONObject().append(DeployJsonDefine.SERVICE_CENTER, decoratedArrayBson)
-                .append(DeployJsonDefine.AUDIT, templateBson.get(DeployJsonDefine.AUDIT));
+                .append(DeployJsonDefine.AUDIT, auditBSON);
     }
 
     @Override

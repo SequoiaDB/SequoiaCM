@@ -6,6 +6,7 @@
         <el-col :span="14">
           <el-input
             id="input_workspace_search_name"
+            maxlength="50"
             size="small"
             placeholder="工作区名称"
             v-model="searchParams.workspaceName"
@@ -136,9 +137,9 @@ export default {
     doSearch() {
       this.pagination.current = 1
       let filter = {}
-       if (this.searchParams.workspaceName) {
+      if (this.searchParams.workspaceName) {
         filter['name'] = {
-          $regex: this.searchParams.workspaceName
+          $regex: this.$util.escapeStr(this.searchParams.workspaceName)
         }
       }
       this.filter = {...filter}

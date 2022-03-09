@@ -22,7 +22,7 @@ public class ScmAdmin {
         nodeTypes.add(new ScmNodeType("1", "service-center", "sequoiacm-cloud-servicecenter-",
                 ScmServerScriptEnum.SERVICECENTER, false));
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup1 = ScmNodeRequiredParamGroup.newBuilder()
-                .addServerPortParam(8800).addCloudParam().get();
+                .addServerPortParam(8800).addSdbParam().addCloudParam().get();
         nodeProperties.put("1", scmNodeRequiredParamGroup1);
 
         nodeTypes.add(new ScmNodeType("2", "gateway", "sequoiacm-cloud-gateway-",ScmServerScriptEnum.GATEWAY));

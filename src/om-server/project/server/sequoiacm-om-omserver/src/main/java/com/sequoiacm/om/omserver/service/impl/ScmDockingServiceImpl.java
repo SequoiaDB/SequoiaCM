@@ -55,11 +55,11 @@ public class ScmDockingServiceImpl implements ScmDockingService {
             throw new ScmOmServerException(ScmOmServerError.UNSUPPORT_OPERATION,
                     "this om already bind to a scm cluster");
         }
-        sessionFactory.reinit(gatewayList, ScmOmServerConfig.DEFAULT_READ_TIEMOUT, region, zone);
+        sessionFactory.reinit(gatewayList, ScmOmServerConfig.DEFAULT_READ_TIMEOUT, region, zone);
         ScmOmSession session = sessionFactory.createSession(username, password);
         try {
             sessionMgr.saveSession(session);
-            saveConfig(gatewayList, ScmOmServerConfig.DEFAULT_READ_TIEMOUT, region, zone);
+            saveConfig(gatewayList, ScmOmServerConfig.DEFAULT_READ_TIMEOUT, region, zone);
             isDockedToScm = true;
             appContext.publishEvent(new ScmDockedEvent());
         }

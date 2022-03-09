@@ -66,5 +66,11 @@ export const TASK_STATUS = [
   }
 ]
 
+export const INSTANCE_STATUS = {
+  UP: 'UP',
+  DOWN: 'DOWN',
+  STOPPED: 'STOPPED'
+}
+
 // 列表查询时在响应头里的数据总条数标识
 export const X_RECORD_COUNT = "x-record-count"

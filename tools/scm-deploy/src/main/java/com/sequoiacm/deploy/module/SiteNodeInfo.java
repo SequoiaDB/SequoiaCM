@@ -26,6 +26,10 @@ public class SiteNodeInfo extends NodeInfo {
         setCustomNodeConf((BSONObject) JSON
                 .parse(BsonUtils.getString(bson, ConfFileDefine.NODE_CUSTOM_CONF)));
         this.siteName = BsonUtils.getStringChecked(bson, ConfFileDefine.NODE_SITE_NAME);
+        String managementPortStr = BsonUtils.getString(bson, ConfFileDefine.NODE_MANAGEMENT_PORT);
+        if (managementPortStr != null && !managementPortStr.isEmpty()) {
+            setManagementPort(Integer.parseInt(managementPortStr));
+        }
     }
 
     public String getSiteName() {

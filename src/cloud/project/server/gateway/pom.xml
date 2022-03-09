@@ -83,6 +83,11 @@
             <artifactId>sequoiacm-infrastructure-statistics-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-server-common</artifactId>
+        </dependency>
+
 
     </dependencies>
 

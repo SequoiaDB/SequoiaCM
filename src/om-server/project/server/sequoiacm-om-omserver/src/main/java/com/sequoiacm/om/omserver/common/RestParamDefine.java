@@ -60,4 +60,7 @@ public class RestParamDefine {
 
     // action
     public static final String ACTION_STOP_TASK = "stop_task";
+
+    public static final String IP_ADDR = "ip_addr";
+    public static final String PORT = "port";
 }

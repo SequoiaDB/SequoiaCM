@@ -8,7 +8,7 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.Sequoiadb;
 
 class AuthServerTableCleaner extends AuthServerTableProcessor implements ScmSysTableCleaner {
-    private final static Logger logger = LoggerFactory.getLogger(AuthServerTableCreator.class);
+    private final static Logger logger = LoggerFactory.getLogger(AuthServerTableCleaner.class);
 
     AuthServerTableCleaner(String sdbUrl, String sdbUser, String sdbPwdFile)
             throws ScmToolsException {

@@ -16,9 +16,11 @@ public final class ScmSysTableProcessorFactory {
         String name = nodeType.getName();
         if (type.equals("3") || name.equals("auth-server")) {
             return new AuthServerTableCreator(properties);
-        } else if (type.equals("21") || name.equals("admin-server")) {
+        }
+        else if (type.equals("21") || name.equals("admin-server")) {
             return new AdminServerTableCreator(properties);
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -29,9 +31,14 @@ public final class ScmSysTableProcessorFactory {
         String name = nodeType.getName();
         if (type.equals("3") || name.equals("auth-server")) {
             return new AuthServerTableCleaner(sdbUrl, sdbUser, sdbPwdFile);
-        } else if (type.equals("21") || name.equals("admin-server")) {
+        }
+        else if (type.equals("21") || name.equals("admin-server")) {
             return new AdminServerTableCleaner(sdbUrl, sdbUser, sdbPwdFile);
-        } else {
+        }
+        else if (type.equals("1") || name.equals("service-center")) {
+            return new ServiceCenterTableCleaner(sdbUrl, sdbUser, sdbPwdFile);
+        }
+        else {
             return null;
         }
     }

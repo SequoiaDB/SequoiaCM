@@ -116,6 +116,17 @@ public class SequoiadbTemplate {
             update(matcher, modifier, null);
         }
 
+        public void upsert(BSONObject matcher, BSONObject modifier) {
+            Sequoiadb sdb = getSequoiadb(null);
+            try {
+                sdb.getCollectionSpace(collectionSpace).getCollection(collection).upsert(matcher,
+                        modifier, null);
+            }
+            finally {
+                releaseSequoiadb(sdb, null);
+            }
+        }
+
         // return an matching record, and update all matching records.
         public BSONObject queryAndUpdate(BSONObject matcher, BSONObject selector,
                 BSONObject modifier, boolean returnNew, SequoiadbTransaction context) {

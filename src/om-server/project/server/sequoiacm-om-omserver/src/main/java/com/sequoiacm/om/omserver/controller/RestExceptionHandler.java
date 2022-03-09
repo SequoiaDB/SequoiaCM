@@ -28,7 +28,8 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
             ScmOmServerException scmOmServerException = (ScmOmServerException) srcException;
             return new ExceptionBody(scmOmServerException.getError().getErrorCode(),
                     scmOmServerException.getError().getErrorDescription(),
-                    scmOmServerException.getMessage());
+                    scmOmServerException.getMessage(),
+                    !scmOmServerException.getMessage().contains("sessionId="));
         }
 
         if (srcException instanceof BindException) {

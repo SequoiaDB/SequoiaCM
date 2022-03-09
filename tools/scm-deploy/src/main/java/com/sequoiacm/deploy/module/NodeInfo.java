@@ -11,6 +11,7 @@ public class NodeInfo {
     private String zone;
     private String hostName;
     private int port;
+    private Integer managementPort; // can be null
     private BSONObject customNodeConf;
     private ServiceType serviceType;
 
@@ -38,6 +39,10 @@ public class NodeInfo {
         }
         hostName = BsonUtils.getStringChecked(bson, ConfFileDefine.NODE_HOSTR_NAME);
         port = Integer.valueOf(BsonUtils.getStringChecked(bson, ConfFileDefine.NODE_PORT));
+        String managementPortStr = BsonUtils.getString(bson, ConfFileDefine.NODE_MANAGEMENT_PORT);
+        if (managementPortStr != null && !managementPortStr.isEmpty()) {
+            managementPort = Integer.parseInt(managementPortStr);
+        }
         String customNodeConfStr = BsonUtils.getString(bson, ConfFileDefine.NODE_CUSTOM_CONF);
         customNodeConf = (BSONObject) JSON.parse(customNodeConfStr);
     }
@@ -62,6 +67,10 @@ public class NodeInfo {
         return serviceType;
     }
 
+    public Integer getManagementPort() {
+        return managementPort;
+    }
+
     protected void setZone(String zone) {
         this.zone = zone;
     }
@@ -80,6 +89,10 @@ public class NodeInfo {
 
     protected void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
+    }
+
+    protected void setManagementPort(Integer managementPort) {
+        this.managementPort = managementPort;
     }
 
     @Override

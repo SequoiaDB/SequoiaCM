@@ -163,20 +163,20 @@ export function isJsonStr (str) {
 }
 
 /**
- * @param {object} obj  
+ * @param {object} obj
  */
  export function isObject(obj){
   return Object.prototype.toString.call(obj)==='[object Object]';
 };
 /**
-* @param {Array} arr 
+* @param {Array} arr
 */
 export function isArray(arr){
   return Object.prototype.toString.call(arr)==='[object Array]';
 };
 /**
-* @param {object} oldData 
-* @param {object} newData 
+* @param {object} oldData
+* @param {object} newData
 */
  export function equalsObj(oldData, newData){
    if(oldData === newData){
@@ -199,4 +199,23 @@ export function isArray(arr){
       return false
    }
    return true
+}
+
+/**
+ *
+ * @param {string} str
+ */
+export function escapeStr(str) {
+  const specialChars = '$^*()+|\\{}[].?'
+  str = str + ''
+  let newStr = ''
+  for (let i=0; i < str.length; i++) {
+    let c = str.charAt(i)
+    if (specialChars.indexOf(c) != -1) {
+      newStr += '\\' + c
+    } else {
+      newStr += c
+    }
+  }
+  return newStr
 }

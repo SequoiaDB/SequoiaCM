@@ -7,6 +7,7 @@
           <el-input
             id="input_task_search_id"
             size="small"
+            maxlength="50"
             placeholder="任务ID"
             v-model="searchParams.task_id"
             @keyup.enter.native="doSearch"
@@ -208,10 +209,10 @@ export default {
       this.pagination.current = 1
       let filter = {}
       if (this.searchParams.task_id) {
-        filter['id'] = this.searchParams.task_id
+        filter['id'] = this.$util.escapeStr(this.searchParams.task_id)
       }
       if (this.searchParams.status) {
-        filter['running_flag'] = this.searchParams.status
+        filter['running_flag'] = parseInt(this.$util.escapeStr(this.searchParams.status))
       }
       this.filter = {...filter}
       this.queryTableData()

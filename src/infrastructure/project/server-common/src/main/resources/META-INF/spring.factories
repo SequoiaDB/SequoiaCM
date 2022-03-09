@@ -1,2 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.sequoiacm.infrastructure.config.ApplicationPropertyInjection
+com.sequoiacm.infrastructure.config.ApplicationPropertyInjection,\
+com.sequoiacm.infrastructure.monitor.OmMonitorAutoConfig
+
+
+org.springframework.context.ApplicationListener=\
+com.sequoiacm.infrastructure.config.ScmPropertySourceConfig

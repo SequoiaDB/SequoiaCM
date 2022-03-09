@@ -45,6 +45,7 @@ public class ConfFileDefine {
     public static final String NODE_SERVICE_TYPE = "ServiceType";
     public static final String NODE_HOSTR_NAME = "HostName";
     public static final String NODE_PORT = "Port";
+    public static final String NODE_MANAGEMENT_PORT = "ManagementPort";
     public static final String NODE_CUSTOM_CONF = "CustomNodeConf";
     public static final String NODE_SITE_NAME = "SiteName";
 

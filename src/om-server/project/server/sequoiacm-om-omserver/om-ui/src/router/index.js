@@ -46,8 +46,31 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/workspace/table',
+    redirect: '/dashboard',
 
+  },
+
+  {
+    path: '/dashboard',
+    component: Layout,
+    name: 'Dashboard',
+    redirect: '/dashboard/index',
+    meta: { title: 'Dashboard', icon: 'el-icon-monitor' },
+    children: [
+      {
+        path: 'index',
+        name: 'Table',
+        component: () => import('@/views/dashboard/index'),
+        meta: { title: '系统监控', keepAlive: true }
+      },
+      {
+        path: 'instance/:id',
+        name: 'Instance',
+        hidden: true,
+        component: () => import('@/views/dashboard/instance'),
+        meta: { title: '节点状态' }
+      }
+    ]
   },
 
   {

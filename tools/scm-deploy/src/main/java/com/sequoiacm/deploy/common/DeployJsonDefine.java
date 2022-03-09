@@ -20,6 +20,7 @@ public class DeployJsonDefine {
     public static final String HOSTNAME = "hostname";
     public static final String SERVER_PORT = "server.port";
     public static final String ZONE = "eureka.instance.metadata-map.zone";
+    public static final String MANAGEMENT_PORT = "management.port";
     public static final String REGION = "eureka.client.region";
     public static final String AVAILABILITY_ZONES_PREFIX = "eureka.client.availability-zones.";
     public static final String ZONE_URL_PREFIX = "eureka.client.service-url.";

@@ -8,18 +8,26 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "scm.omserver")
 public class ScmOmServerConfig {
-    public static final int DEFAULT_READ_TIEMOUT = 20000;
+    public static final int DEFAULT_READ_TIMEOUT = 20000;
+    public static final int DEFAULT_CONNECT_TIMEOUT = 5000;
 
     private String region = "DEFAULT_REGION";
     private String zone = "DEFAULT_ZONE";
 
     private List<String> gateway;
-    private int readTimeout = DEFAULT_READ_TIEMOUT; // ms
+    private int readTimeout = DEFAULT_READ_TIMEOUT; // ms
+    private int connectTimeout = DEFAULT_CONNECT_TIMEOUT; // ms
 
     private boolean onlyConnectLocalRegionServer = false;
     private int sessionKeepAliveTime = 900; // second
 
     private int cacheRefreshInterval = 120; // second
+
+    private int healthCheckInterval = 10; // second
+
+    private int instanceUpdateInterval = 30; // second
+
+    private int serviceCenterUrlsUpdateInterval = 60; // second
 
     public int getCacheRefreshInterval() {
         return cacheRefreshInterval;
@@ -81,4 +89,35 @@ public class ScmOmServerConfig {
         this.onlyConnectLocalRegionServer = onlyConnectLocalRegionServer;
     }
 
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getHealthCheckInterval() {
+        return healthCheckInterval;
+    }
+
+    public void setHealthCheckInterval(int healthCheckInterval) {
+        this.healthCheckInterval = healthCheckInterval;
+    }
+
+    public int getInstanceUpdateInterval() {
+        return instanceUpdateInterval;
+    }
+
+    public void setInstanceUpdateInterval(int instanceUpdateInterval) {
+        this.instanceUpdateInterval = instanceUpdateInterval;
+    }
+
+    public int getServiceCenterUrlsUpdateInterval() {
+        return serviceCenterUrlsUpdateInterval;
+    }
+
+    public void setServiceCenterUrlsUpdateInterval(int serviceCenterUrlsUpdateInterval) {
+        this.serviceCenterUrlsUpdateInterval = serviceCenterUrlsUpdateInterval;
+    }
 }

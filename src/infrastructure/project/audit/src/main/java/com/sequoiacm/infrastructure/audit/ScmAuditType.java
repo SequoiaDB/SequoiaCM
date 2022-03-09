@@ -64,6 +64,10 @@ class ScmAuditTopLevel {
     //meta_attr_dql
     public static int META_ATTR_DQL_FLAG       = 0x08000000;
 
+    //monitor
+    public static int MONITOR_FLAG             = 0x10000000;
+
+
     public static int ALL_FLAG                 = 0xFFFFFF00;
 }
 
@@ -155,6 +159,9 @@ public enum ScmAuditType {
 
     //meta_data dql
     META_ATTR_DQL(ScmAuditTopLevel.META_ATTR_DQL_FLAG, "META_ATTR_DQL"),
+
+    // monitor flag
+    MONITOR_DELETE_INSTANCE(ScmAuditTopLevel.MONITOR_FLAG ^ 1, "DELETE_INSTANCE"),
 
     //all
     ALL(ScmAuditTopLevel.ALL_FLAG,"ALL");

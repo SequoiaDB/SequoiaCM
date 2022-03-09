@@ -8,7 +8,7 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.Sequoiadb;
 
 class AdminServerTableCleaner extends AdminServerTableProcessor implements ScmSysTableCleaner {
-    private final static Logger logger = LoggerFactory.getLogger(AdminServerTableCreator.class);
+    private final static Logger logger = LoggerFactory.getLogger(AdminServerTableCleaner.class);
 
     AdminServerTableCleaner(String sdbUrl, String username, String passwordFile)
             throws ScmToolsException {
