@@ -46,6 +46,20 @@ SequoiaCM 配置
 
 |配置项| 类型| 说明|
 |------|-----|-----|
+|scm.store.sequoiadb.urls|str|认证服务信息存储在 SequoiaDB 的协调节点服务地址。例如：192.168.20.56:11810,192.168.20.57:11810|
+|scm.store.sequoiadb.username|str|登录 SequoiaDB 的用户名。例如：sdbadmin，默认用户名为空|
+|scm.store.sequoiadb.password|str|登录 SequoiaDB 的密码文件。例如：/opt/scm-cloud/sdb.passwd，默认密码为空|
+|scm.store.sequoiadb.connectTimeout|num|连接超时时间，默认值：10000，单位：毫秒|
+|scm.store.sequoiadb.maxAutoConnectRetryTime|num|最大重连间隔，默认值：15000，单位：毫秒|
+|scm.store.sequoiadb.socketTimeout|num|socket 超时时间，默认值：0（不检测超时），单位：毫秒|
+|scm.store.sequoiadb.useNagle|bool|是否开启 Nagle，默认值：false|
+|scm.store.sequoiadb.useSSL|bool|是否使用 SSL 安全连接，默认值：false|
+|scm.store.sequoiadb.maxConnectionNum|num|SequoiaDB 连接池最大连接数，默认值：500|
+|scm.store.sequoiadb.deltaIncCount|num|当需要新增连接时，一次新增的连接数，默认值：10|
+|scm.store.sequoiadb.maxIdleNum|num|最大空闲连接数，默认值：2|
+|scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|
+|scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：30000，单位：毫秒|
+|scm.store.sequoiadb.validateConnection|bool|出池时是否检查连接有效性，默认值：true|
 |scm.jvm.options|str|配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
 
 

@@ -334,6 +334,12 @@
                 "en": "Login"
             },
             {
+                "id": 1632359322,
+                "file": "monitor",
+                "cn": "系统监控",
+                "en": "Monitor"
+            },
+            {
                 "id": 1632359326,
                 "file": "workspace",
                 "cn": "工作区管理",

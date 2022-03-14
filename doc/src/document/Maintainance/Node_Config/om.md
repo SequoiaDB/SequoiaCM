@@ -12,6 +12,8 @@ om-server 配置
 |scm.omserver.onlyConnectLocalRegionServer|boolean    |只连接与web服务同一个region的scm服务，默认值false|
 |scm.omserver.readTimeOut            |num    |WEB服务节点与网关通信的读超时（毫秒），默认值20000|
 |scm.omserver.cacheRefreshInterval |num |配置缓存的刷新时间（秒），默认值120|
+|scm.omserver.healthCheckInterval |num |配置节点健康状态的检查频率（秒），默认值10|
+|scm.omserver.instanceUpdateInterval |num |配置节点列表的更新频率（秒），默认值30|
 
 
 

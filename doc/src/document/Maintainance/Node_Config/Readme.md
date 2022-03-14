@@ -47,6 +47,7 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |hystrix.command.default.circuitBreaker.errorThresholdPercentage|num|触发熔断的失败率，当在时间窗口内调用某个服务的数量达到样本数，且失败率大于等于此值时，熔断器打开，后续对该服务的调用直接返回失败，默认值：50。|
 |hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds|num|熔断器休眠窗口，当触发熔断一段时间后，尝试放行一个调用请求，根据该请求是否成功，来决定是继续熔断还是恢复正常，单位：ms，默认值：5000。|
 |scm.hystrix.enabled|boolean|是否开启熔断与隔离能力，默认值：true。关闭后，该节点的熔断与隔离能力将失效，所有hystrix开头的配置项将不起作用。此配置在网关节点暂不生效。|
+|management.port|num|配置节点的管理端口，用于系统状态监控。不配置时，默认为 server.port + 1，除 s3-server 外的其它服务均支持将 management.port 设为与 server.port 一致。|
 
 ##公共配置举例##
 
