@@ -17,6 +17,7 @@
         <vue.project.root>${basedir}/om-ui</vue.project.root>
         <vue.dist.dir>${basedir}/om-ui/dist</vue.dist.dir>
         <vue.modules.dir>${basedir}/om-ui/node_modules</vue.modules.dir>
+        <skipWebCompile>false</skipWebCompile>
     </properties>
 
     <dependencies>
@@ -96,6 +97,9 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
+                <configuration>
+                    <skip>${skipWebCompile}</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <id>exec-npm-set-registry</id>
@@ -166,6 +170,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
+                    <skip>${skipWebCompile}</skip>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
                 <executions>

@@ -34,7 +34,7 @@ execCMD('mvn clean -f ' + superParentPom)
 execCMD('python ' + genVerScriptPath)
 
 #install project before javadoc
-execCMD("mvn install -Dmaven.test.skip=true -f " + superParentPom)
+execCMD("mvn install -Dmaven.test.skip=true -DskipWebCompile=true -f " + superParentPom)
 
 os.chdir(TOOLS_PATH)
 
