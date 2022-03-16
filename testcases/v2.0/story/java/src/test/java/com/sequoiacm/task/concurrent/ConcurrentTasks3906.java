@@ -75,8 +75,7 @@ public class ConcurrentTasks3906 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    // SEQUOIACM-743
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         // 分站点1创建文件缓存至主站点
         ScmId fileId = ScmFileUtils.create( branchSite1Ws, fileName, filePath );
@@ -95,24 +94,11 @@ public class ConcurrentTasks3906 extends TestScmBase {
         t.run();
 
         // 校验文件元数据
-        SiteWrapper[] expSite;
-        System.err.println( cleanTask.taskInfo.getSuccessCount() );
-        System.err.println( transTask.taskInfo.getSuccessCount() );
-        if ( cleanTask.taskInfo.getSuccessCount() == 1
-                && transTask.taskInfo.getSuccessCount() == 1 ) {
-            expSite = new SiteWrapper[] { branchSite1, branchSite2 };
-        } else if ( cleanTask.taskInfo.getSuccessCount() == 1
-                && transTask.taskInfo.getSuccessCount() == 0 ) {
-            expSite = new SiteWrapper[] { branchSite1 };
-        } else if ( cleanTask.taskInfo.getSuccessCount() == 0
-                && transTask.taskInfo.getSuccessCount() == 1 ) {
-            expSite = new SiteWrapper[] { rootSite, branchSite1, branchSite2 };
-        } else {
-            throw new Exception( "clean task successCount: "
-                    + cleanTask.taskInfo.getSuccessCount()
-                    + ",trans task successCount:"
-                    + transTask.taskInfo.getSuccessCount() );
-        }
+        Assert.assertEquals( cleanTask.taskInfo.getSuccessCount(), 1,
+                cleanTask.taskInfo.toString() );
+        Assert.assertEquals( transTask.taskInfo.getSuccessCount(), 1,
+                transTask.taskInfo.toString() );
+        SiteWrapper[] expSite = { branchSite1, branchSite2 };
         ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         runSuccess = true;
     }
