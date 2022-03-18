@@ -64,14 +64,27 @@ public class MetaDataController {
         return classObj;
     }
 
+    @RequestMapping(value = "/metadatas/classes", method = RequestMethod.HEAD)
+    public void countClass(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.METADATA_FILTER, required = false) BSONObject condition,
+            HttpServletResponse response, Authentication auth) throws ScmServerException {
+        RestUtils.checkWorkspaceName(workspaceName);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        long count = metadataService.countClass(user, workspaceName, condition);
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+    }
+
     @GetMapping({ "/metadatas/classes" })
     public List<MetadataClass> listClass(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @RequestParam(value = CommonDefine.RestArg.METADATA_FILTER, required = false) BSONObject filter,
+            @RequestParam(value = CommonDefine.RestArg.FILE_LIMIT, required = false, defaultValue = "-1") int limit,
+            @RequestParam(value = CommonDefine.RestArg.FILE_SKIP, required = false, defaultValue = "0") int skip,
+            @RequestParam(value = CommonDefine.RestArg.FILE_ORDERBY, required = false) BSONObject orderBy,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspaceName);
         ScmUser user = (ScmUser) auth.getPrincipal();
-        return this.metadataService.listClass(user, workspaceName, filter);
+        return this.metadataService.listClass(user, workspaceName, filter, orderBy, skip, limit);
     }
 
     @RequestMapping(value = { "/metadatas/classes/{class_id}" }, method = { RequestMethod.GET })

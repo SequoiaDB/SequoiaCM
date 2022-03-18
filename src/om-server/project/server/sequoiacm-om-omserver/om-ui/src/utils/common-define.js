@@ -10,18 +10,21 @@ export const TASK_TYPES = [
   }
 ]
 
+export const FILE_SCOPE_VAL_CURRENT = 1
+export const FILE_SCOPE_VAL_HISTORY = 2
+export const FILE_SCOPE_VAL_ALL = 3
 // 文件范围
 export const FILE_SCOPE_TYPES = [
   {
-    value: 1,
+    value: FILE_SCOPE_VAL_CURRENT,
     label: 'CURRENT'
   },
   {
-    value: 2,
+    value: FILE_SCOPE_VAL_HISTORY,
     label: 'HISTORY'
   },
   {
-    value: 3,
+    value: FILE_SCOPE_VAL_ALL,
     label: 'ALL'
   }
 ]

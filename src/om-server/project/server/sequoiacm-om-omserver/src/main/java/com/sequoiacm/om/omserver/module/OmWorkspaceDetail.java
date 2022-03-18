@@ -20,6 +20,9 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
     @JsonProperty("meta_options")
     private BSONObject metaOption;
 
+    @JsonProperty("enable_directory")
+    private Boolean enableDirectory;
+
     public String getUpdateUser() {
         return updateUser;
     }
@@ -52,4 +55,11 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
         this.metaOption = metaOption;
     }
 
+    public Boolean getEnableDirectory() {
+        return enableDirectory;
+    }
+
+    public void setEnableDirectory(Boolean enableDirectory) {
+        this.enableDirectory = enableDirectory;
+    }
 }

@@ -6,12 +6,11 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.common.UriUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,8 +20,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 
 class RestUtils {
-
-    private static final String CHARSET_UTF8 = "UTF-8";
 
     static PrintWriter getWriter(HttpServletResponse response) throws ScmServerException {
         try {
@@ -63,7 +60,7 @@ class RestUtils {
 
     static String urlEncode(String s) throws ScmServerException {
         try {
-            return URLEncoder.encode(s, CHARSET_UTF8);
+            return UriUtil.encode(s);
         }
         catch (UnsupportedEncodingException e) {
             throw new ScmSystemException("Encoding is not supported", e);
@@ -75,7 +72,7 @@ class RestUtils {
 
     static String urlDecode(String s) throws ScmServerException {
         try {
-            return URLDecoder.decode(s, CHARSET_UTF8);
+            return UriUtil.decode(s);
         }
         catch (UnsupportedEncodingException e) {
             throw new ScmSystemException("Encoding is not supported", e);

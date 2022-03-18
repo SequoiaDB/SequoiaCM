@@ -1726,10 +1726,10 @@ public class ScmMetaService {
         }
     }
 
-    public List<MetadataClass> listClassInfo(String wsName, BSONObject filter)
-            throws ScmServerException {
+    public List<MetadataClass> listClassInfo(String wsName, BSONObject filter, BSONObject orderBy,
+            int skip, int limit) throws ScmServerException {
         MetaClassAccessor classAccessor = metasource.getClassAccessor(wsName, null);
-        try (MetaCursor cursor = classAccessor.query(filter, null, null)) {
+        try (MetaCursor cursor = classAccessor.query(filter, null, orderBy, skip, limit)) {
             List<MetadataClass> list = new ArrayList<>();
             while (cursor.hasNext()) {
                 BSONObject classObj = cursor.getNext();
@@ -2104,6 +2104,21 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException("update md5 failed:fileId=" + fileId + ",majorVersion="
                     + majorVersion + ",minorVersion=" + minorVersion + ",md5=" + md5, e);
+        }
+    }
+
+    public long getClassCount(String wsName, BSONObject matcher) throws ScmServerException {
+        try {
+            MetaClassAccessor accessor = metasource.getClassAccessor(wsName, null);
+            return accessor.count(matcher);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "count class failed:siteId=" + siteId + ",matcher=" + matcher, e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException(
+                    "count class failed:siteId=" + siteId + ",matcher=" + matcher, e);
         }
     }
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
@@ -23,6 +24,7 @@ import com.sequoiacm.om.omserver.factory.*;
 import com.sequoiacm.om.omserver.module.*;
 import com.sequoiacm.om.omserver.service.ScmSiteService;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,12 +91,12 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         String prefreSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         try {
             session.resetServiceEndpoint(prefreSite);
-            wsDetailWithStatistics
-                    .setFileCount(fileDaoFactory.createFileDao(session).countFile(workspaceName));
+            wsDetailWithStatistics.setFileCount(fileDaoFactory.createFileDao(session).countFile(
+                    workspaceName, ScopeType.SCOPE_CURRENT.getScope(), new BasicBSONObject()));
             wsDetailWithStatistics.setBatchCount(
                     batchDaoFactory.createScmBatchDao(session).countBatch(workspaceName));
-            wsDetailWithStatistics.setDirectoryCount(
-                    dirDaoFactory.createScmDirDao(session).countDir(workspaceName));
+            wsDetailWithStatistics.setDirectoryCount(dirDaoFactory.createScmDirDao(session)
+                    .countDir(workspaceName, new BasicBSONObject()));
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -106,13 +108,13 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
 
     @Override
     public List<OmWorkspaceBasicInfo> getUserRelatedWsList(ScmOmSession session,
-            BSONObject condition, BSONObject orderby, long skip, int limit)
+            BSONObject condition, BSONObject orderby, long skip, int limit, Boolean isStrictMode)
             throws ScmInternalException, ScmOmServerException {
         String preferSite = siteChooser.chooseFromAllSite();
         ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
         try {
             session.resetServiceEndpoint(preferSite);
-            condition = filterWsByUser(session, condition);
+            condition = filterWsByUser(session, condition, isStrictMode);
             List<ScmWorkspaceInfo> workspaceList = workspaceDao.getWorkspaceList(condition, orderby,
                     skip, limit);
             return transformToOmWsList(session, workspaceList);
@@ -159,12 +161,12 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         return siteList;
     }
 
-    private BSONObject filterWsByUser(ScmOmSession session, BSONObject condition)
-            throws ScmInternalException {
+    private BSONObject filterWsByUser(ScmOmSession session, BSONObject condition,
+            Boolean isStrictMode) throws ScmInternalException {
         try {
             String username = session.getUser();
             OmUserInfo user = userDaoFactory.createUserDao(session).getUser(username);
-            if (user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            if (!isStrictMode && user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
                 return condition;
             }
             Set<String> userAccessibleWs = null;
@@ -188,13 +190,13 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     }
 
     @Override
-    public long getWorkspaceCount(ScmOmSession session, BSONObject condition)
+    public long getWorkspaceCount(ScmOmSession session, BSONObject condition, Boolean strictMode)
             throws ScmInternalException, ScmOmServerException {
         String preferSite = siteChooser.chooseFromAllSite();
         ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
         try {
             session.resetServiceEndpoint(preferSite);
-            condition = filterWsByUser(session, condition);
+            condition = filterWsByUser(session, condition, strictMode);
             return workspaceDao.getWorkspaceCount(condition);
         }
         catch (ScmInternalException e) {
@@ -239,6 +241,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         ret.setCreateUser(ws.getCreateUser());
         ret.setDescription(ws.getDescription());
         ret.setName(ws.getName());
+        ret.setEnableDirectory(ws.isEnableDirectory());
         ret.setUpdateTime(ws.getUpdateTime());
         ret.setUpdateUser(ws.getUpdateUser());
 

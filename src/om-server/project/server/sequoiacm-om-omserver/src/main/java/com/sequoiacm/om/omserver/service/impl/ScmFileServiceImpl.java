@@ -1,9 +1,11 @@
 package com.sequoiacm.om.omserver.service.impl;
 
+import java.io.InputStream;
 import java.util.List;
 
 import com.sequoiacm.om.omserver.dao.ScmFileDao;
 import com.sequoiacm.om.omserver.factory.ScmFileDaoFactory;
+import com.sequoiacm.om.omserver.module.*;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,11 +13,6 @@ import org.springframework.stereotype.Component;
 import com.sequoiacm.om.omserver.core.ScmSiteChooser;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
-import com.sequoiacm.om.omserver.module.OmFileBasic;
-import com.sequoiacm.om.omserver.module.OmFileContent;
-import com.sequoiacm.om.omserver.module.OmFileDataSiteInfo;
-import com.sequoiacm.om.omserver.module.OmFileDetail;
-import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
 import com.sequoiacm.om.omserver.service.ScmFileService;
 import com.sequoiacm.om.omserver.service.ScmSiteService;
 import com.sequoiacm.om.omserver.service.ScmWorkspaceService;
@@ -36,14 +33,14 @@ public class ScmFileServiceImpl implements ScmFileService {
     private ScmFileDaoFactory scmFileDaoFactory;
 
     @Override
-    public OmFileDetail getFileDetail(ScmOmSession session, String ws, String id, int majorVersion,
-            int minorVersion) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
+    public OmFileDetail getFileDetail(ScmOmSession session, String wsName, String id,
+            int majorVersion, int minorVersion) throws ScmInternalException, ScmOmServerException {
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
             session.resetServiceEndpoint(preferSite);
-            OmFileDetail fileDetail = fileDao.getFileDetail(ws, id, majorVersion, minorVersion);
+            OmFileDetail fileDetail = fileDao.getFileDetail(wsName, id, majorVersion, minorVersion);
             // reset site list, replace site id to site name
             for (OmFileDataSiteInfo site : fileDetail.getSites()) {
                 site.setSiteName(siteService.getSiteById(session, site.getSiteId()));
@@ -57,14 +54,13 @@ public class ScmFileServiceImpl implements ScmFileService {
     }
 
     @Override
-    public List<OmFileBasic> getFileList(ScmOmSession session, String ws, BSONObject condition,
-            long skip, long limit) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
-        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+    public void uploadFile(ScmOmSession session, String wsName, String siteName,
+            OmFileInfo fileInfo, BSONObject uploadConf, InputStream is)
+            throws ScmInternalException, ScmOmServerException {
         ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
-            session.resetServiceEndpoint(preferSite);
-            return fileDao.getFileList(ws, condition, skip, limit);
+            session.resetServiceEndpoint(siteName);
+            fileDao.uploadFile(wsName, fileInfo, uploadConf, is);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -73,14 +69,76 @@ public class ScmFileServiceImpl implements ScmFileService {
     }
 
     @Override
-    public OmFileContent downloadFile(ScmOmSession session, String ws, String id, int majorVersion,
-            int minorVersion) throws ScmInternalException, ScmOmServerException {
-        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, ws);
+    public List<OmFileBasic> getFileList(ScmOmSession session, String wsName, int scope,
+            BSONObject condition, BSONObject orderBy, long skip, long limit)
+            throws ScmInternalException, ScmOmServerException {
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
         String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
         try {
             session.resetServiceEndpoint(preferSite);
-            return fileDao.downloadFile(ws, id, majorVersion, minorVersion);
+            return fileDao.getFileList(wsName, scope, condition, orderBy, skip, limit);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public long getFileCount(ScmOmSession session, String wsName, int scope, BSONObject condition)
+            throws ScmOmServerException, ScmInternalException {
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            return fileDao.countFile(wsName, scope, condition);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void deleteFiles(ScmOmSession session, String wsName, List<String> fileIdList)
+            throws ScmInternalException, ScmOmServerException {
+        String preferSite = siteChooser.getRootSite();
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            fileDao.deleteFiles(wsName, fileIdList);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void updateFileContent(ScmOmSession session, String wsName, String id, String siteName,
+            BSONObject updateContentOption, InputStream newFileContent)
+            throws ScmOmServerException, ScmInternalException {
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
+        try {
+            session.resetServiceEndpoint(siteName);
+            fileDao.updateFileContent(wsName, id, updateContentOption, newFileContent);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public OmFileContent downloadFile(ScmOmSession session, String wsName, String siteName,
+            String id, int majorVersion, int minorVersion)
+            throws ScmInternalException, ScmOmServerException {
+        ScmFileDao fileDao = scmFileDaoFactory.createFileDao(session);
+        try {
+            session.resetServiceEndpoint(siteName);
+            return fileDao.downloadFile(wsName, id, majorVersion, minorVersion);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);

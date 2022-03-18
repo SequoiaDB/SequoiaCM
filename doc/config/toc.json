@@ -350,6 +350,12 @@
                 "file": "schedule",
                 "cn": "调度任务管理",
                 "en": "Schedule"
+            },
+            {
+                "id": 1646032853,
+                "file": "file",
+                "cn": "文件管理",
+                "en": "File"
             }]
         }]
     },

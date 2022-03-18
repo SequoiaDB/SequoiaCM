@@ -133,7 +133,7 @@ public class ScmFactory {
         /**
          * Acquires an object of the ScmFile class by between the specified
          * workspace and the specified filePath.
-         * 
+         *
          * @param ws
          *            The ScmWorkspace object for the workspace in which this
          *            class instance is to be located.
@@ -791,11 +791,39 @@ public class ScmFactory {
          */
         public static ScmCursor<ScmDirectory> listInstance(final ScmWorkspace ws,
                 BSONObject condition) throws ScmException {
+            return listInstance(ws, condition, null, 0, -1);
+        }
+
+        /**
+         * List directory with specified condition.
+         *
+         * @param ws
+         *            workspace.
+         * @param condition
+         *            The condition of query directories.
+         * @param orderby
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Directory}, value is -1(descending) or
+         *            1(ascending)
+         * @param skip
+         *            skip the the specified amount of directories, never skip if this
+         *            parameter is 0.
+         * @param limit
+         *            return the specified amount of directories, when limit is -1,
+         *            return all the directories.
+         * @return cursor.
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2
+         */
+        public static ScmCursor<ScmDirectory> listInstance(final ScmWorkspace ws,
+                BSONObject condition, BSONObject orderby, int skip, int limit) throws ScmException {
             checkArgNotNull("workspace", ws);
             if (null == condition) {
                 condition = new BasicBSONObject();
             }
-            BsonReader reader = ws.getSession().getDispatcher().getDirList(ws.getName(), condition);
+            BsonReader reader = ws.getSession().getDispatcher().getDirList(ws.getName(), condition,
+                    orderby, skip, limit);
             ScmCursor<ScmDirectory> c = new ScmBsonCursor<ScmDirectory>(reader,
                     new BsonConverter<ScmDirectory>() {
                         @Override
@@ -2314,7 +2342,7 @@ public class ScmFactory {
 
         /**
          * Acquires workspace count which matches the query condition.
-         * 
+         *
          * @param ss
          *            session.
          * @param condition
@@ -2367,7 +2395,7 @@ public class ScmFactory {
 
         /**
          * Acquire site strategy
-         * 
+         *
          * @param ss
          *            session object.
          * @return SiteStrategyType
@@ -2447,6 +2475,32 @@ public class ScmFactory {
      */
     public static class Class {
         private Class() {
+        }
+
+        /**
+         * Acquires ScmClass instance's count which matches between the
+         * specified workspace and query condition.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this
+         *            class instance is to be located.
+         * @param condition
+         *            The condition of query class.
+         * @return count of instance
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2
+         */
+        public static long countInstance(ScmWorkspace ws, BSONObject condition)
+                throws ScmException {
+            checkArgNotNull("workspace", ws);
+
+            if (null == condition) {
+                throw new ScmInvalidArgumentException("condition is null");
+            }
+
+            ScmSession conn = ws.getSession();
+            return conn.getDispatcher().countClass(ws.getName(), condition);
         }
 
         /**
@@ -2534,10 +2588,39 @@ public class ScmFactory {
          */
         public static ScmCursor<ScmClassBasicInfo> listInstance(ScmWorkspace ws, BSONObject filter)
                 throws ScmException {
+            return listInstance(ws, filter, null, 0, -1);
+        }
+
+        /**
+         * Acquires ScmClass instance set which matches between the specified workspace.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
+         * @param filter
+         *            the query filter
+         * @param orderby
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Class}, value is -1(descending) or
+         *            1(ascending)
+         * @param skip
+         *            skip the the specified amount of classes, never skip if this
+         *            parameter is 0.
+         * @param limit
+         *            return the specified amount of classes, when limit is -1, return
+         *            all the classes.
+         * @return A cursor to traverse
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2
+         */
+        public static ScmCursor<ScmClassBasicInfo> listInstance(ScmWorkspace ws, BSONObject filter,
+                BSONObject orderby, int skip, int limit) throws ScmException {
             checkArgNotNull("workspace", ws);
             checkArgNotNull("filter", filter);
 
-            BsonReader reader = ws.getSession().getDispatcher().getClassList(ws.getName(), filter);
+            BsonReader reader = ws.getSession().getDispatcher().getClassList(ws.getName(), filter,
+                    orderby, skip, limit);
             ScmCursor<ScmClassBasicInfo> classCursor = new ScmBsonCursor<ScmClassBasicInfo>(reader,
                     new BsonConverter<ScmClassBasicInfo>() {
                         @Override
@@ -2692,7 +2775,7 @@ public class ScmFactory {
 
         /**
          * Create fulltext index in the specified workspace.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param option
@@ -2710,7 +2793,7 @@ public class ScmFactory {
 
         /**
          * Drop fultext index in the specified workspace.
-         * 
+         *
          * @param ws
          *            workspace.
          * @throws ScmException
@@ -2723,7 +2806,7 @@ public class ScmFactory {
 
         /**
          * Inspect fultext index in the specified workspace.
-         * 
+         *
          * @param ws
          *            workspace
          * @throws ScmException
@@ -2736,7 +2819,7 @@ public class ScmFactory {
 
         /**
          * Alter fulltext index option for the specified workspace.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param modifiler
@@ -2754,7 +2837,7 @@ public class ScmFactory {
 
         /**
          * Get the specified workspace fulltext info.
-         * 
+         *
          * @param ws
          *            workspace name
          * @return fulltext info.
@@ -2768,7 +2851,7 @@ public class ScmFactory {
 
         /**
          * Create an instance of fulltext searcher.
-         * 
+         *
          * @param ws
          *            workspace.
          * @return simple searcher.
@@ -2783,7 +2866,7 @@ public class ScmFactory {
 
         /**
          * Create an instance of fulltext searcher.
-         * 
+         *
          * @param ws
          *            workspace
          * @return custom searcher.
@@ -2798,7 +2881,7 @@ public class ScmFactory {
 
         /**
          * Rebuild the fulltext index in the specified file.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param fileId
@@ -2814,7 +2897,7 @@ public class ScmFactory {
 
         /**
          * Get the fulltext index info in the specified file.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param fileId
@@ -2838,7 +2921,7 @@ public class ScmFactory {
 
         /**
          * Get the fulltext index info in the specified file.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param fileId
@@ -2855,7 +2938,7 @@ public class ScmFactory {
         /**
          * Get the file fulltext index info with specified index status, only
          * return the files that match workspace fulltext matcher.
-         * 
+         *
          * @param ws
          *            workspace.
          * @param status

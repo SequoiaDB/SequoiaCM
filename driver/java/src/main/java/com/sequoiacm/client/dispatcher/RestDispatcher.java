@@ -1057,11 +1057,12 @@ public class RestDispatcher implements MessageDispatcher {
      * Get class list
      */
     @Override
-    public BsonReader getClassList(String workspaceName, BSONObject filter) throws ScmException {
-        String s = encodeCondition(filter);
+    public BsonReader getClassList(String workspaceName, BSONObject filter, BSONObject orderby,
+            int skip, int limit) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + METADATA_CLASSES + "?"
                 + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(workspaceName) + "&"
-                + CommonDefine.RestArg.METADATA_FILTER + "=" + s;
+                + CommonDefine.RestArg.METADATA_FILTER + "=" + encodeCondition(filter) + "&skip="
+                + skip + "&limit=" + limit + "&orderby=" + encodeCondition(orderby);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1256,10 +1257,11 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BsonReader getDirList(String workspaceName, BSONObject condition) throws ScmException {
-        String s = encodeCondition(condition);
+    public BsonReader getDirList(String workspaceName, BSONObject condition, BSONObject orderby,
+            int skip, int limit) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + DIRECTORIES + "?workspace_name="
-                + encode(workspaceName) + "&filter=" + s;
+                + encode(workspaceName) + "&filter=" + encodeCondition(condition) + "&skip=" + skip
+                + "&limit=" + limit + "&orderby=" + encodeCondition(orderby);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1996,6 +1998,17 @@ public class RestDispatcher implements MessageDispatcher {
     public long countTask(BSONObject condition) throws ScmException {
         String filter = encodeCondition(condition);
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?&filter=" + filter;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
+    public long countClass(String workspaceName, BSONObject condition) throws ScmException {
+        String filter = encodeCondition(condition);
+        String uri = URL_PREFIX + url + API_VERSION + METADATA_CLASSES + "?workspace_name="
+                + encode(workspaceName) + "&filter=" + filter;
         HttpHead request = new HttpHead(uri);
         String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
                 X_SCM_COUNT);

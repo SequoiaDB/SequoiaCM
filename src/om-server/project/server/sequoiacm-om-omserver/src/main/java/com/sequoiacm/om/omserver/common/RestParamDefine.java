@@ -8,6 +8,7 @@ public class RestParamDefine {
     public static final String REGION = "region";
     public static final String ZONE = "zone";
     public static final String SITE_ID = "site_id";
+    public static final String SITE_NAME = "site_name";
     public static final String DATA_URL = "data_url";
 
     public static final String X_AUTH_TOKEN = "x-auth-token";
@@ -21,6 +22,9 @@ public class RestParamDefine {
     public static final String FILE = "file";
     public static final String FILTER = "filter";
     public static final String ORDERBY = "orderby";
+
+    // workspace
+    public static final String STRICT_MODE = "strict_mode";
 
     // user role
     public static final String USER_TYPE = "user_type";
@@ -37,6 +41,15 @@ public class RestParamDefine {
     // file
     public static final String MAJOR_VERSION = "major_version";
     public static final String MINOR_VERSION = "minor_version";
+    public static final String FILE_LIST_SCOPE = "scope";
+    public static final String FILE_DESCRIPTION = "description";
+    public static final String FILE_UPLOAD_CONFIG = "upload_config";
+    public static final String FILE_UPDATE_CONTENT_OPTION = "update_content_option";
+    public static final String FILE_ID_LIST = "file_id_list";
+
+    // directory
+    public static final String DIRECTORY_TYPE_PATH = "path";
+    public static final String DIRECTORY_TYPE_ID = "id";
 
     // schedule
     public static final String SCHEDULE_ID = "schedule_id";

@@ -7,16 +7,18 @@ const BASE_API = '/api/v1'
  * @param {number} page 
  * @param {number} size 
  * @param {object} filter 
+ * @param {boolean} isStrictMode
  * @returns 
  */
-export function queryWorkspaceList(page, size, filter) {
+export function queryWorkspaceList(page, size, filter, isStrictMode) {
   return request({
     url: BASE_API+'/workspaces',
     method: 'get',
     params: {
       skip: (page-1)*size,
       limit: size,
-      filter: filter
+      filter: filter,
+      strict_mode: isStrictMode
     }
   })
 }

@@ -1,24 +1,33 @@
 package com.sequoiacm.om.omserver.dao;
 
+import java.io.InputStream;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.*;
 import org.bson.BSONObject;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
-import com.sequoiacm.om.omserver.module.OmFileBasic;
-import com.sequoiacm.om.omserver.module.OmFileContent;
-import com.sequoiacm.om.omserver.module.OmFileDetail;
 
 public interface ScmFileDao {
-    public long countFile(String ws) throws ScmInternalException;
 
-    public OmFileDetail getFileDetail(String ws, String fileId, int majorVersion, int minorVersion)
+    long countFile(String wsName, int scope, BSONObject condition) throws ScmInternalException;
+
+    OmFileDetail getFileDetail(String wsName, String fileId, int majorVersion, int minorVersion)
             throws ScmInternalException, ScmOmServerException;
 
-    public List<OmFileBasic> getFileList(String ws, BSONObject condition, long skip, long limit)
-            throws ScmInternalException;
+    List<OmFileBasic> getFileList(String wsName, int scope, BSONObject condition,
+            BSONObject orderBy, long skip, long limit) throws ScmInternalException;
 
-    public OmFileContent downloadFile(String ws, String fileId, int majorVersion, int minorVersion)
+    void uploadFile(String wsName, OmFileInfo fileInfo, BSONObject uploadConf,
+            InputStream inputStream) throws ScmInternalException;
+
+    OmFileContent downloadFile(String wsName, String fileId, int majorVersion, int minorVersion)
             throws ScmInternalException, ScmOmServerException;
+
+    void deleteFiles(String wsName, List<String> fileIdList)
+            throws ScmInternalException, ScmOmServerException;
+
+    void updateFileContent(String wsName, String id, BSONObject updateContentOption,
+            InputStream newFileContent) throws ScmInternalException;
 }

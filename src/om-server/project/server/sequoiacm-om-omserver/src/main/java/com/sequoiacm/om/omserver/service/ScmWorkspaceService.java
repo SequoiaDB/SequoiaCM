@@ -12,16 +12,16 @@ import org.bson.BSONObject;
 
 public interface ScmWorkspaceService {
     public OmWorkspaceInfoWithStatistics getWorksapceDetailWithStatistics(ScmOmSession session,
-            String workspaceName) throws ScmInternalException, ScmOmServerException;
+            String wsName) throws ScmInternalException, ScmOmServerException;
 
-    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName)
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String wsName)
             throws ScmInternalException, ScmOmServerException;
 
     public List<OmWorkspaceBasicInfo> getUserRelatedWsList(ScmOmSession session, BSONObject filter,
-            BSONObject orderby, long skip, int limit)
+            BSONObject orderby, long skip, int limit, Boolean isStrictMode)
             throws ScmInternalException, ScmOmServerException;
 
-    public long getWorkspaceCount(ScmOmSession session, BSONObject condition)
+    public long getWorkspaceCount(ScmOmSession session, BSONObject condition, Boolean strictMode)
             throws ScmInternalException, ScmOmServerException;
 
     public void removeWorkspaceCache(String user);

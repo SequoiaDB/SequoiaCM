@@ -10,7 +10,10 @@ import java.util.List;
 
 public interface IMetaDataService {
 
-    List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter)
+    List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter,
+            BSONObject orderBy, int skip, int limit) throws ScmServerException;
+
+    long countClass(ScmUser user, String workspaceName, BSONObject condition)
             throws ScmServerException;
 
     MetadataClass getClassInfoWithAttr(ScmUser user, String wsName, String classId)

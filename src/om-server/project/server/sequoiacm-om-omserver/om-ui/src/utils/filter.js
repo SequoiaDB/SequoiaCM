@@ -1,5 +1,5 @@
 import Vue  from 'vue'
-import {parseTime} from '@/utils/index'
+import {convertFileSize, parseTime} from '@/utils/index'
 
 
 Vue.filter('parseTime',(time, format)=>{
@@ -14,4 +14,8 @@ Vue.filter('arrayJoin',(arr, separate)=>{
     return arr.join(separate)
   }
   return arr
+})
+
+Vue.filter('convertFileSize', (val)=>{
+  return convertFileSize(val)
 })

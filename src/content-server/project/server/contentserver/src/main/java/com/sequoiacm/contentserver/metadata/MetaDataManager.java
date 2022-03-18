@@ -86,7 +86,7 @@ public class MetaDataManager {
 
     private WSClassInfo queryWorkspaceClassInfo(ScmMetaService metaService, String wsName)
             throws ScmServerException {
-        List<MetadataClass> classList = metaService.listClassInfo(wsName, null);
+        List<MetadataClass> classList = metaService.listClassInfo(wsName, null, null, 0, -1);
         WSClassInfo wsClassInfo = new WSClassInfo();
         for (MetadataClass metaClass : classList) {
             ClassInfo classInfo = new ClassInfo(metaClass.getId());

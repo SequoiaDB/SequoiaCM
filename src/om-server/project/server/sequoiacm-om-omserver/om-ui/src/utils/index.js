@@ -101,9 +101,9 @@ export function param2Obj(url) {
   }
   const obj = {}
   const searchArr = search.split('&')
-  searchArr.forEach(v => {
+  searchArr.forEach(v => { 
     const index = v.indexOf('=')
-    if (index !== -1) {
+    if (index !== -1) { 
       const name = v.substring(0, index)
       const val = v.substring(index + 1, v.length)
       obj[name] = val
@@ -124,6 +124,18 @@ export function randomStr(len) {
     res = res + chars.charAt(Math.floor(Math.random() * maxPos))
   }
   return res
+}
+
+/**
+ * @param {Map} map 
+ * @returns {Object} 
+ */
+export function mapToObject(map) {
+  let obj = Object.create(null)
+  for (let[k,v] of map) {
+    obj[k] = v
+  }
+  return obj
 }
 
 /**
@@ -201,6 +213,18 @@ export function isArray(arr){
    return true
 }
 
+/**
+ * Convert file size
+ * @param {long} fileSize 
+ * @returns 
+ */
+export function convertFileSize(val) {
+  if (val == 0) return "0 B";
+  var k = 1024;
+  var sizes = ["B", "KB", "MB", "GB", "TB", "PB"],
+  i = Math.floor(Math.log(val) / Math.log(k));
+  return (val / Math.pow(k, i)).toPrecision(3) + " " + sizes[i];
+}
 /**
  *
  * @param {string} str

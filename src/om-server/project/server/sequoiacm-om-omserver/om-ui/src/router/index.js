@@ -118,7 +118,20 @@ export const constantRoutes = [
     ]
   },
 
-
+  {
+    path: '/file',
+    component: Layout,
+    meta: { title: '文件', icon: 'el-icon-time' },
+    redirect: '/file/table',
+    children: [
+      {
+        path: 'table',
+        name: 'Table',
+        component: () => import('@/views/file/index'),
+        meta: { title: '文件管理', icon: 'el-icon-files', keepAlive:true }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

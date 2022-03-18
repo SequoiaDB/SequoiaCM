@@ -24,7 +24,6 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
 
     private ScmOmSession session;
     private Map<String, OmWorkspaceDetail> workspaceCache = new ConcurrentHashMap<>();
-    
 
     public ScmWorkspaceDaoImpl(ScmOmSession session) {
         this.session = session;
@@ -105,9 +104,6 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
         return workspaces;
     }
 
-
-
-    
     @Override
     public ScmWorkspace getWorkspaceDetail(String wsName) throws ScmInternalException {
         ScmSession connection = session.getConnection();
@@ -123,15 +119,15 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
     }
 
     @Override
-    public long getWorkspaceCount(BSONObject condition) throws ScmOmServerException, ScmInternalException {
+    public long getWorkspaceCount(BSONObject condition)
+            throws ScmOmServerException, ScmInternalException {
         try {
             return ScmFactory.Workspace.count(session.getConnection(), condition);
-        } catch (ScmException e) {
+        }
+        catch (ScmException e) {
             throw new ScmInternalException(e.getError(),
                     "failed to get workspace count, " + e.getMessage(), e);
         }
     }
-
-
 
 }

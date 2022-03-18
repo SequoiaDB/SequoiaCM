@@ -147,7 +147,8 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getClassInfo(String name, String className) throws ScmException;
 
-    BsonReader getClassList(String workspaceName, BSONObject filter) throws ScmException;
+    BsonReader getClassList(String workspaceName, BSONObject filter, BSONObject orderby, int skip,
+            int limit) throws ScmException;
 
     void deleteClass(String workspaceName, ScmId classId) throws ScmException;
 
@@ -178,7 +179,8 @@ public interface MessageDispatcher extends Closeable {
 
     void deleteDir(String workspaceName, String dirId, String path) throws ScmException;
 
-    BsonReader getDirList(String workspaceName, BSONObject condition) throws ScmException;
+    BsonReader getDirList(String workspaceName, BSONObject condition, BSONObject orderby, int skip,
+            int limit) throws ScmException;
 
     long moveDir(String workspaceName, String dirId, String newParentId) throws ScmException;
 
@@ -303,4 +305,6 @@ public interface MessageDispatcher extends Closeable {
     BSONObject getSiteStrategy() throws ScmException;
 
     long countTask(BSONObject condition) throws ScmException;
+
+    long countClass(String name, BSONObject condition) throws ScmException;
 }

@@ -17,6 +17,9 @@ public class OmFileBasic {
     @JsonProperty("id")
     private String id;
 
+    @JsonProperty("size")
+    private long size;
+
     @JsonProperty("major_version")
     private int majorVersion;
 
@@ -25,6 +28,9 @@ public class OmFileBasic {
 
     @JsonProperty("create_time")
     private Date createTime;
+
+    @JsonProperty("update_time")
+    private Date updateTime;
 
     public String getName() {
         return name;
@@ -82,4 +88,19 @@ public class OmFileBasic {
         this.createTime = createTime;
     }
 
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }

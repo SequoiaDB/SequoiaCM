@@ -14,20 +14,29 @@ public class OmFileDetail extends OmFileBasic {
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("class_id")
-    private String classId;
+    @JsonProperty("update_user")
+    private String updateUser;
 
     @JsonProperty("directory_id")
     private String directoryId;
 
-    @JsonProperty("class_properties")
-    private Map<String, Object> classProperties;
-
-    @JsonProperty("tags")
-    private Set<String> tags;
+    @JsonProperty("directory_path")
+    private String directoryPath;
 
     @JsonProperty("batch_id")
     private String batchId;
+
+    @JsonProperty("batch_name")
+    private String batchName;
+
+    @JsonProperty("md5")
+    private String md5;
+
+    @JsonProperty("mime_type")
+    private String mimeType;
+
+    @JsonProperty("sites")
+    private List<OmFileDataSiteInfo> sites;
 
     @JsonProperty("data_id")
     private String dataId;
@@ -35,17 +44,17 @@ public class OmFileDetail extends OmFileBasic {
     @JsonProperty("data_create_time")
     private Date dataCreateTime;
 
-    @JsonProperty("sites")
-    private List<OmFileDataSiteInfo> sites;
+    @JsonProperty("tags")
+    private Set<String> tags;
 
-    @JsonProperty("update_time")
-    private Date updateTime;
+    @JsonProperty("class_id")
+    private String classId;
 
-    @JsonProperty("update_user")
-    private String updateUser;
+    @JsonProperty("class_name")
+    private String className;
 
-    @JsonProperty("size")
-    private long size;
+    @JsonProperty("class_properties")
+    private Map<String, Object> classProperties;
 
     public OmFileDetail() {
     }
@@ -130,14 +139,6 @@ public class OmFileDetail extends OmFileBasic {
         this.sites = sites;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
     public String getUpdateUser() {
         return updateUser;
     }
@@ -146,12 +147,43 @@ public class OmFileDetail extends OmFileBasic {
         this.updateUser = updateUser;
     }
 
-    public long getSize() {
-        return size;
+    public String getDirectoryPath() {
+        return directoryPath;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setDirectoryPath(String directoryPath) {
+        this.directoryPath = directoryPath;
     }
 
+    public String getBatchName() {
+        return batchName;
+    }
+
+    public void setBatchName(String batchName) {
+        this.batchName = batchName;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 }

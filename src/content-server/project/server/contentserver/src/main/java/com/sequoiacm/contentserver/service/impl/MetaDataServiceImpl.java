@@ -51,19 +51,34 @@ public class MetaDataServiceImpl implements IMetaDataService {
      */
 
     @Override
-    public List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter)
-            throws ScmServerException {
+    public List<MetadataClass> listClass(ScmUser user, String wsName, BSONObject filter,
+            BSONObject orderBy, int skip, int limit) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.READ,
                 "list class info");
         ScmContentModule contentModule = ScmContentModule.getInstance();
         contentModule.getWorkspaceInfoChecked(wsName);
-        List<MetadataClass> ret = contentModule.getMetaService().listClassInfo(wsName, filter);
+        List<MetadataClass> ret = contentModule.getMetaService().listClassInfo(wsName, filter,
+                orderBy, skip, limit);
         String message = "list meta data class info";
         if (filter != null) {
             message += " by filter=" + filter.toString();
         }
         audit.info(ScmAuditType.META_CLASS_DQL, user, wsName, 0, message);
         return ret;
+    }
+
+    @Override
+    public long countClass(ScmUser user, String wsName, BSONObject condition)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, wsName,
+                ScmPrivilegeDefine.LOW_LEVEL_READ, "count class");
+        String message = "count class";
+        if (null != condition) {
+            message += " by condition=" + condition.toString();
+        }
+        audit.info(ScmAuditType.META_CLASS_DQL, user, wsName, 0, message);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        return contentModule.getMetaService().getClassCount(wsName, condition);
     }
 
     @Override

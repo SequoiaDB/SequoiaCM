@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,19 +46,16 @@ public class ScmWorkspaceController {
     public List<OmWorkspaceBasicInfo> getWorkspaceList(ScmOmSession session,
             @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
-            @RequestParam(value = RestParamDefine.FILTER, required = false) BSONObject filter,
-            @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderby,
-            HttpServletResponse response)
-            throws ScmInternalException, ScmOmServerException {
-        if (null == filter) {
-            filter = new BasicBSONObject();
-        }
-        long workspaceCount = service.getWorkspaceCount(session, filter);
+            @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
+            @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
+            @RequestParam(value = RestParamDefine.STRICT_MODE, required = false, defaultValue = "false") Boolean isStrictMode,
+            HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
+        long workspaceCount = service.getWorkspaceCount(session, filter, isStrictMode);
         response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(workspaceCount));
         if (workspaceCount <= 0) {
             return Collections.emptyList();
         }
-        return service.getUserRelatedWsList(session, filter, orderby, skip, limit);
+        return service.getUserRelatedWsList(session, filter, orderBy, skip, limit, isStrictMode);
     }
 
     @RequestMapping(value = "/workspaces/{workspace_name}", method = RequestMethod.HEAD)
