@@ -2,6 +2,7 @@ package com.sequoiacm.infrastructure.monitor;
 
 import com.sequoiacm.infrastructure.monitor.core.ApplicationClosedListener;
 import com.sequoiacm.infrastructure.monitor.core.DefaultOmMonitorConfigure;
+import com.sequoiacm.infrastructure.monitor.core.ActuatorEndpointFilter;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmProcessInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmThreadInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmTomcatConnectInfoEndpoint;
@@ -9,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.ApplicationContext;
@@ -19,9 +20,12 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Objects;
 
 // AutoConfig by resources/META-INF/spring.factories
 @Configuration
@@ -56,6 +60,12 @@ public class OmMonitorAutoConfig {
         return new ApplicationClosedListener();
     }
 
+    @Bean
+    @Conditional(ServerPortNotEqualsManagementPort.class)
+    public ActuatorEndpointFilter actuatorEndpointFilter(List<AbstractEndpoint<?>> endpoints,
+            DefaultOmMonitorConfigure omMonitorConfigure) {
+        return new ActuatorEndpointFilter(endpoints, omMonitorConfigure);
+    }
 
     @Component
     public static class OmMonitorConfigureHandler {
@@ -96,6 +106,23 @@ public class OmMonitorAutoConfig {
             return managementServerProperties.getPort();
         }
 
+    }
+
+    private static class ServerPortNotEqualsManagementPort implements Condition {
+
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            Environment environment = context.getEnvironment();
+            String serverPort = environment.getProperty("server.port");
+            String managementPort = environment.getProperty("management.port");
+            if (serverPort == null) {
+                serverPort = String.valueOf(DEFAULT_SERVER_PORT);
+            }
+            if (managementPort == null) {
+                managementPort = serverPort;
+            }
+            return !Objects.equals(serverPort, managementPort);
+        }
     }
 
 }
