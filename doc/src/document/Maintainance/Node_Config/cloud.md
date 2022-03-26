@@ -86,8 +86,8 @@ SequoiaCM 配置
 |scm.store.sequoiadb.maxConnectionNum|num|SequoiaDB 连接池最大连接数，默认值：500|
 |scm.store.sequoiadb.deltaIncCount|num|当需要新增连接时，一次新增的连接数，默认值：10|
 |scm.store.sequoiadb.maxIdleNum|num|最大空闲连接数，默认值：10|
-|scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：0（不清除空闲连接），单位：毫秒|
-|scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：60000，单位：毫秒|
+|scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|
+|scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：30000，单位：毫秒|
 |scm.store.sequoiadb.validateConnection|bool|出池时是否检查连接有效性，默认值：true|
 |scm.jvm.options|str|配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
 |scm.auth.token.enabled|bool|是否开启token用户登录，默认值：false|
@@ -130,8 +130,8 @@ SequoiaCM 配置
 |scm.store.sequoiadb.maxConnectionNum|num|SequoiaDB 连接池最大连接数，默认值：500|
 |scm.store.sequoiadb.deltaIncCount|num|当需要新增连接时，一次新增的连接数，默认值：10|
 |scm.store.sequoiadb.maxIdleNum|num|最大空闲连接数，默认值：10|
-|scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：0（不清除空闲连接），单位：毫秒|
-|scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：60000，单位：毫秒|
+|scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|
+|scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：30000，单位：毫秒|
 |scm.store.sequoiadb.validateConnection|bool|出池时是否检查连接有效性。默认值：true|
 |scm.statistics.job.firstTime|str|监控服务节点启动后，首次执行统计任务的时间。默认值：00:00:00，格式：HH:mm:ss|
 |scm.statistics.job.period|str|执行统计任务的间隔时间。默认值：1d（一天，只支持按天统计）|

@@ -34,8 +34,8 @@ SequoiaCM 配置
 |scm.sdb.maxConnectionNum       |num    |内容服务节点的sdb连接池的最大连接数，默认值：500|
 |scm.sdb.deltaIncCount          |num    |内容服务节点的sdb连接池的每次增长的连接数，默认值：10|
 |scm.sdb.maxIdleNum             |num    |内容服务节点的sdb连接池的最大空闲连接数，默认值：10|
-|scm.sdb.keepAliveTime          |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：0（不清除空闲连接），单位：毫秒|
-|scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：60000，单位：毫秒|
+|scm.sdb.keepAliveTime          |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|
+|scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|
 |scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
 |scm.zookeeper.cleanJobPeriod|num|内容服务节点清理zookeeper残留节点的任务周期，默认值：120000 (2min)，单位：毫秒|
