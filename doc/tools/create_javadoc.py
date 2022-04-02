@@ -38,7 +38,7 @@ execCMD("mvn install -Dmaven.test.skip=true -DskipWebCompile=true -f " + superPa
 
 os.chdir(TOOLS_PATH)
 
-execCMD('mvn javadoc:javadoc -f ' + javaDriverPath + os.sep + 'pom.xml')
+execCMD('mvn javadoc:javadoc -DskipWebCompile=true -f ' + javaDriverPath + os.sep + 'pom.xml')
 
 apidocs=javaDriverPath + os.sep + 'target' + os.sep + 'site' + os.sep + 'apidocs'
 apiDir = TOOLS_PATH + os.sep + '..' + os.sep + 'build' + os.sep + 'output' + os.sep + 'api' + os.sep + "java"
