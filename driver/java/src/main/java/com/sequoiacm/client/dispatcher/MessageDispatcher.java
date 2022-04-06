@@ -17,6 +17,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
+import org.bson.types.BasicBSONList;
 
 public interface MessageDispatcher extends Closeable {
 
@@ -307,4 +308,7 @@ public interface MessageDispatcher extends Closeable {
     long countTask(BSONObject condition) throws ScmException;
 
     long countClass(String name, BSONObject condition) throws ScmException;
+
+    BasicBSONList getContentLocations(String workspaceName, String fileId, int majorVersion,
+            int minorVersion) throws ScmException;
 }

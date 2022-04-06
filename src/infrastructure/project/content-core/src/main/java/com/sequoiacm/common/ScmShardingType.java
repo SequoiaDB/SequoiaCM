@@ -1,7 +1,11 @@
 package com.sequoiacm.common;
 
 public enum ScmShardingType {
-    NONE("none", 0), MONTH("month", 1), YEAR("year", 2), QUARTER("quarter", 3);
+    NONE("none", 0),
+    MONTH("month", 1),
+    YEAR("year", 2),
+    QUARTER("quarter", 3),
+    DAY("day", 4);
 
     private String name;
     private int type;
@@ -20,8 +24,8 @@ public enum ScmShardingType {
     }
 
     public static ScmShardingType getShardingType(String type) {
-        for(ScmShardingType value:ScmShardingType.values()) {
-            if(value.getName().equals(type)) {
+        for (ScmShardingType value : ScmShardingType.values()) {
+            if (value.getName().equals(type)) {
                 return value;
             }
         }

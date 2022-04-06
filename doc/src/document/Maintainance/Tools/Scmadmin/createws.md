@@ -79,8 +79,10 @@ Ceph_S3 数据站点：
 |Key            |Value Type |描述                                                                                    |是否必填|
 |---------------|-----------|----------------------------------------------------------------------------------------|--------|
 |site           |str        |站点的名字                                                                              |是      |
-|data_sharding_type|str     |指定数据的 Sharding 策略，默认 Sharding 策略为 'month'                                  |否      |
+|data_sharding_type|str     |指定数据分桶的 Sharding 策略，默认 Sharding 策略为 'month'                                  |否      |
 |container_prefix|str       |指定桶名前缀（注意定义的前缀需要符合 S3 的桶名规范），默认前缀：workspaceName-scmfile（workspace 名字中的大写字母会被转成小写，'_' 会被转为 '-'）|否|
+|bucket_name|str            |指定一个已存在的桶用于对象存储，该参数配置后会忽略 data_sharding_type 与 container_prefix|否|
+|object_sharding_type|str   |指定桶内对象的分目录策略（默认不分目录），例如当指定 Sharding 策略为 'month' 时， objectId 为：[ws_name]/202202/[data_id]|否|
 
 sharding 类型说明：
 

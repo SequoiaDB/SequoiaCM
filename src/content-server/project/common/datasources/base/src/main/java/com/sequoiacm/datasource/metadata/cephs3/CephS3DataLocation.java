@@ -16,6 +16,8 @@ public class CephS3DataLocation extends ScmLocation {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataLocation.class);
     private ScmShardingType shardingType = ScmShardingType.MONTH;
     private String prefixBucketName;
+    private String bucketName;
+    private ScmShardingType objectShardingType;
 
     public CephS3DataLocation(BSONObject record) throws ScmDatasourceException {
         super(record);
@@ -24,7 +26,12 @@ public class CephS3DataLocation extends ScmLocation {
             if (tmp != null) {
                 shardingType = getShardingType((String) tmp);
             }
+            tmp = record.get(FieldName.FIELD_CLWORKSPACE_OBJECT_SHARDING_TYPE);
+            if (tmp != null) {
+                objectShardingType = getShardingType((String) tmp);
+            }
             prefixBucketName = (String) record.get(FieldName.FIELD_CLWORKSPACE_CONTAINER_PREFIX);
+            bucketName = (String) record.get(FieldName.FIELD_CLWORKSPACE_BUCKET_NAME);
         }
         catch (Exception e) {
             logger.error("parse data location failed:location=" + record.toString());
@@ -48,6 +55,9 @@ public class CephS3DataLocation extends ScmLocation {
      * Bucket names cannot contain uppercase characters
      **/
     public String getBucketName(String wsName, Date createDate) {
+        if (bucketName != null && !bucketName.isEmpty()) {
+            return bucketName;
+        }
         StringBuilder sb = new StringBuilder();
         if (prefixBucketName == null) {
             // use default prefix
@@ -65,5 +75,18 @@ public class CephS3DataLocation extends ScmLocation {
             sb.append(getShardingStr(shardingType, createDate).toLowerCase());
         }
         return sb.toString();
+    }
+
+    public String getObjectId(String dataId, String wsName, Date createTime) {
+        if (objectShardingType != null && objectShardingType != ScmShardingType.NONE) {
+            return wsName + "/" + getShardingStr(objectShardingType, createTime) + "/" + dataId;
+        }
+        else {
+            return dataId;
+        }
+    }
+
+    public String getUserBucketName() {
+        return bucketName;
     }
 }

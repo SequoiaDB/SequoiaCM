@@ -51,6 +51,7 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_ID = "id"; // int, 1
     public static final String FIELD_CLWORKSPACE_META_SHARDING_TYPE = "meta_sharding_type";
     public static final String FIELD_CLWORKSPACE_DATA_SHARDING_TYPE = "data_sharding_type";
+    public static final String FIELD_CLWORKSPACE_OBJECT_SHARDING_TYPE = "object_sharding_type";
     public static final String FIELD_CLWORKSPACE_DATA_CS = "collection_space";
     public static final String FIELD_CLWORKSPACE_DATA_CL = "collection";
     public static final String FIELD_CLWORKSPACE_META_CS = "collection_space";
@@ -64,7 +65,7 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE = "batch_file_name_unique";
     public static final String FIELD_CLWORKSPACE_ENABLE_DIRECTORY = "enable_directory";
     public static final String FIELD_CLWORKSPACE_CONTAINER_PREFIX = "container_prefix"; // only
-                                                                                        // in
+    public static final String FIELD_CLWORKSPACE_BUCKET_NAME = "bucket_name";           // in
                                                                                         // s3
                                                                                         // location
                                                                                         // now
@@ -449,5 +450,21 @@ public class FieldName {
         public static final String FIELD_COUNT_DELTA = "count_delta";
         public static final String FIELD_SIZE_DELTA = "size_delta";
         public static final String FIELD_RECORD_TIME = "record_time";
+    }
+
+    public static final class ContentLocation {
+        private ContentLocation(){}
+        public static final String FIELD_TYPE = "type";
+        public static final String FIELD_SITE = "site";
+        public static final String FIELD_CL = "cl";
+        public static final String FIELD_CS = "cs";
+        public static final String FIELD_LOB_ID = "lob_id";
+        public static final String FIELD_URLS = "urls";
+        public static final String FIELD_OBJECT_ID = "object_id";
+        public static final String FIELD_BUCKET = "bucket";
+        public static final String FIELD_CONTAINER = "container";
+        public static final String FIELD_TABLE_NAME = "table_name";
+        public static final String FIELD_DIRECTORY = "directory";
+        public static final String FIELD_FILE_NAME = "file_name";
     }
 }

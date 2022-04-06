@@ -1,10 +1,7 @@
 package com.sequoiacm.contentserver.service.impl;
 
 import com.sequoiacm.common.*;
-import com.sequoiacm.contentserver.common.ScmArgumentChecker;
-import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.common.ServiceDefine;
+import com.sequoiacm.contentserver.common.*;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.*;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
@@ -33,6 +30,7 @@ import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -60,6 +58,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FileServiceImpl implements IFileService {
@@ -1027,5 +1026,37 @@ public class FileServiceImpl implements IFileService {
                 .getWorkspaceInfoChecked(workspaceName);
         ScmContentModule.getInstance().getMetaService().updateFileExternalData(wsInfo, matcher,
                 externalData);
+    }
+
+    @Override
+    public BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo,
+            String workspaceName) throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName, dirService,
+                (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID), ScmPrivilegeDefine.READ,
+                "get file content locations");
+        BasicBSONList result = new BasicBSONList();
+        ScmContentModule contentServer = ScmContentModule.getInstance();
+        ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoChecked(workspaceName);
+        Map<Integer, ScmLocation> wsDataLocations = ws.getDataLocations();
+        BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
+                FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        Date createTime = new Date(
+                CommonHelper.toLongValue(fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
+        String dataId = BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID);
+
+        for (Object siteObj : siteList) {
+            BasicBSONObject siteBson = (BasicBSONObject) siteObj;
+            Integer siteId = BsonUtils.getIntegerChecked(siteBson,
+                    FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID);
+            ScmLocation scmLocation = wsDataLocations.get(siteId);
+            BSONObject contentLocation = ScmContentLocationResolver
+                    .getResolver(scmLocation.getType())
+                    .resolve(siteId, ws, contentServer.getAllSiteInfo(), createTime, dataId);
+            result.add(contentLocation);
+        }
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
+                "get file content locations, file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
+                        + ", fileName=" + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        return result;
     }
 }

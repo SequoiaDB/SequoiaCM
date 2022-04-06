@@ -3,6 +3,11 @@ package com.sequoiacm.contentserver.datasourcemgr;
 import com.sequoiacm.common.CommonDefine;
 
 public enum ScmDataSourceType {
+    /**
+     * 新增 ScmDataSourceType 后需要在添加对应的Resolver
+     *
+     * @see com.sequoiacm.contentserver.common.ScmContentLocationResolver
+     */
     SEQUOIADB(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR, CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB),
     HBASE(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR, CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HBASE),
     CEPH_S3(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR, CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3),

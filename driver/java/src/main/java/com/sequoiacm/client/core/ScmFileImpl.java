@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sequoiacm.client.dispatcher.InputStreamWrapper;
+import com.sequoiacm.client.element.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -23,10 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.client.common.ClientDefine;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
-import com.sequoiacm.client.element.ScmClassProperties;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
@@ -1112,6 +1109,40 @@ class ScmFileImpl extends ScmFile {
 
         md5 = ws.getSession().getDispatcher().calcScmFileMd5(ws.getName(), getFileId().get(),
                 getMajorVersion(), getMinorVersion());
+    }
+
+    @Override
+    public List<ScmContentLocation> getContentLocations() throws ScmException {
+        List<ScmContentLocation> list = new ArrayList<ScmContentLocation>();
+        BasicBSONList contentLocations = ws.getSession().getDispatcher().getContentLocations(
+                getWorkspaceName(), getFileId().get(), getMajorVersion(), getMinorVersion());
+        for (Object contentLocation : contentLocations) {
+            BSONObject locationBson = (BSONObject) contentLocation;
+            ScmContentLocation location = null;
+            String type = BsonUtils.getStringChecked(locationBson,
+                    FieldName.ContentLocation.FIELD_TYPE);
+            ScmType.DatasourceType datasourceType = ScmType.DatasourceType.getDatasourceType(type);
+            if (datasourceType == ScmType.DatasourceType.SEQUOIADB) {
+                location = new ScmSdbLobLocation(locationBson);
+            }
+            else if (datasourceType == ScmType.DatasourceType.CEPH_S3) {
+                location = new ScmS3ObjLocation(locationBson);
+            }
+            else if (datasourceType == ScmType.DatasourceType.CEPH_SWIFT) {
+                location = new ScmSwiftObjLocation(locationBson);
+            }
+            else if (datasourceType == ScmType.DatasourceType.HDFS) {
+                location = new ScmHdfsFileLocation(locationBson);
+            }
+            else if (datasourceType == ScmType.DatasourceType.HBASE) {
+                location = new ScmHbaseFileLocation(locationBson);
+            }
+            else {
+                location = new ScmContentLocation(locationBson);
+            }
+            list.add(location);
+        }
+        return list;
     }
 
 }

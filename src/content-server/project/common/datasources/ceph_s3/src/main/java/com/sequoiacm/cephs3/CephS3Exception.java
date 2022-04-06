@@ -38,6 +38,14 @@ public class CephS3Exception extends ScmDatasourceException {
         setScmError();
     }
 
+    public CephS3Exception(int status, String errorCode, String message, ScmError scmError,
+            Throwable cause) {
+        super(message, cause);
+        this.status = status;
+        this.errorCode = errorCode;
+        this.scmError = scmError;
+    }
+
     public CephS3Exception(String message, Throwable cause) {
         super(message, cause);
     }

@@ -47,6 +47,14 @@ public class HdfsDataLocation extends ScmLocation {
 
     public String getFileDir(String wsName, Date createDate, String fileName) {
         StringBuilder sb = new StringBuilder();
+        sb.append(getDirectory(wsName, createDate));
+        sb.append(File.separator);
+        sb.append(fileName);
+        return sb.toString();
+    }
+
+    public String getDirectory(String wsName, Date createDate) {
+        StringBuilder sb = new StringBuilder();
         if (!rootPath.startsWith(File.separator)) {
             sb.append(File.separator);
         }
@@ -59,8 +67,6 @@ public class HdfsDataLocation extends ScmLocation {
             sb.append(File.separator);
             sb.append(getShardingStr(shardingType, createDate));
         }
-        sb.append(File.separator);
-        sb.append(fileName);
         return sb.toString();
     }
 

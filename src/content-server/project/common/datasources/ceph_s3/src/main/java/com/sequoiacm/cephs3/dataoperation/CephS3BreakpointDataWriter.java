@@ -12,9 +12,10 @@ public class CephS3BreakpointDataWriter implements ScmBreakpointDataWriter {
     private final CephS3MultipartUploader uploader;
 
     public CephS3BreakpointDataWriter(String bucketName, String key,
-            CephS3BreakpointFileContext context, ScmService service, long writeDataOffSet) throws CephS3Exception {
+            CephS3BreakpointFileContext context, ScmService service, long writeDataOffSet,
+            boolean createBucketIfNotExist) throws CephS3Exception {
         this.uploader = new CephS3MultipartUploader(service, bucketName, key, context.getUploadId(),
-                writeDataOffSet);
+                writeDataOffSet, createBucketIfNotExist);
     }
 
     @Override

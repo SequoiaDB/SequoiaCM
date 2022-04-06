@@ -11,7 +11,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.TransactionContext;
 import org.bson.BSONObject;
-
+import org.bson.types.BasicBSONList;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -106,4 +106,6 @@ public interface IFileService {
             ScmDataInfoDetail dataInfoDetail, TransactionCallback callback)
             throws ScmServerException;
 
+    BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo, String workspaceName)
+            throws ScmServerException;
 }

@@ -31,8 +31,8 @@ public class ScmConfClientFactory {
     }
 
     public ScmConfClient getClientByService(String serviceName) {
-        if (urlMapClient.containsKey(serviceName)) {
-            return urlMapClient.get(serviceName);
+        if (serviceMapClient.containsKey(serviceName)) {
+            return serviceMapClient.get(serviceName);
         }
 
         ScmConfClient client = scmFeignClient.builder().exceptionConverter(exceptionConvertor)

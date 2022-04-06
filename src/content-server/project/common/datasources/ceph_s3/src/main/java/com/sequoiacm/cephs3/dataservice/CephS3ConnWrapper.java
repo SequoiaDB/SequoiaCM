@@ -76,6 +76,16 @@ public class CephS3ConnWrapper {
         }
         catch (AmazonServiceException e) {
             checkFatalError(e);
+            if (e.getStatusCode() == CephS3Exception.STATUS_NOT_FOUND
+                    && (e.getErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
+                            // nautilus ceph s3 会抛出这个异常表示 bucket 不存在
+                            || e.getErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_KEY))) {
+                throw new CephS3Exception(e.getStatusCode(),
+                        CephS3Exception.ERR_CODE_NO_SUCH_BUCKET,
+                        "bucket is not exist:siteId=" + conn.getSiteId() + ", bucket="
+                                + req.getBucketName() + ", key=" + req.getKey(),
+                        e);
+            }
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "initiate multipart upload failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),

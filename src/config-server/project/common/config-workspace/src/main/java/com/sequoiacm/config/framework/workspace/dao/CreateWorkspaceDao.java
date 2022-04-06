@@ -2,6 +2,7 @@ package com.sequoiacm.config.framework.workspace.dao;
 
 import java.util.Date;
 
+import com.sequoiacm.config.framework.workspace.checker.DataLocationConfigChecker;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -43,7 +44,12 @@ public class CreateWorkspaceDao {
     @Autowired
     private DefaultVersionDao versionDao;
 
+
+    @Autowired
+    private DataLocationConfigChecker dataLocationConfigChecker;
+
     public ScmConfOperateResult create(WorkspaceConfig wsConfig) throws ScmConfigException {
+        dataLocationConfigChecker.check(wsConfig.getDataLocations());
         logger.info("start to create workspace:{}", wsConfig.getWsName());
         WorkspaceConfig wsRespConfig = createWorkspace(wsConfig);
         logger.info("create workspace success:{}", wsRespConfig.getWsName());

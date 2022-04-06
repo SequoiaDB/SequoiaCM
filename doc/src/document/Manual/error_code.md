@@ -56,6 +56,7 @@
 | DATA_CORRUPTED | -409 | 文件内容已损坏 |
 | DATA_BREAKPOINT_WRITE_ERROR | -410 | 断点文件写操作失败 |
 | DATA_IS_IN_USE | -411 | 文件内容正在使用 |
+| STORE_SPACE_IS_NOT_EXIST | -412 | 数据源的存储空间（如 CephS3 的 bucket）不存在 |
 | METADATA_CHECK_ERROR | -501 | 元数据参数校验错误 |
 | METADATA_CLASS_EXIST | -502 | 元数据模型已存在 |
 | METADATA_CLASS_NOT_EXIST | -503 | 元数据模型不存在 |

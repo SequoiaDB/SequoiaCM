@@ -77,6 +77,7 @@ public enum ScmError {
     DATA_CORRUPTED(-409, "Data is corrupted"),
     DATA_BREAKPOINT_WRITE_ERROR(-410, "Write breakpoint file data error"),
     DATA_IS_IN_USE(-411, "Data is in use"),
+    STORE_SPACE_IS_NOT_EXIST(-412, "Store space is not exist"),
 
     // metadata error 5xx
     METADATA_CHECK_ERROR(-501, "Properties check error"),

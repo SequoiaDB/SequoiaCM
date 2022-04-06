@@ -28,20 +28,23 @@ public class CephS3MultipartUploader {
     private int fileSize;
     private List<PartETag> eTags = new ArrayList<>();
     private ScmPoolWrapper poolWrapper;
+    private boolean createBucketIfNotExist = true;
 
-    public CephS3MultipartUploader(ScmService service, String bucketName, String key)
-            throws CephS3Exception {
-        this(service, bucketName, key, null, 0);
+    public CephS3MultipartUploader(ScmService service, String bucketName, String key,
+            boolean createBucketIfNotExist) throws CephS3Exception {
+        this(service, bucketName, key, null, 0, createBucketIfNotExist);
     }
 
     public CephS3MultipartUploader(ScmService service, String bucketName, String key,
-            String uploadId, long writeOffset) throws CephS3Exception {
+            String uploadId, long writeOffset, boolean createBucketIfNotExist)
+            throws CephS3Exception {
         this.bucketName = bucketName;
         this.key = key;
         this.uploadId = uploadId;
         this.writeOffset = writeOffset;
         this.dataService = (CephS3DataService) service;
         this.conn = dataService.getConn();
+        this.createBucketIfNotExist = createBucketIfNotExist;
         if (conn == null) {
             throw new CephS3Exception(
                     "construct CephS3MultipartUploader failed, cephs3 is down:bucketName="
@@ -59,6 +62,12 @@ public class CephS3MultipartUploader {
             init(bucketName, key, uploadId);
         }
         catch (Exception e) {
+            if (e instanceof CephS3Exception) {
+                if (((CephS3Exception) e).getS3ErrorCode()
+                        .equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)) {
+                    throw e;
+                }
+            }
             conn = dataService.releaseAndTryGetAnotherConn(conn);
             if (conn == null) {
                 releaseResource();
@@ -85,10 +94,8 @@ public class CephS3MultipartUploader {
                 parts = new ArrayList<>();
             }
             catch (CephS3Exception e) {
-                if (e.getS3StatusCode() == CephS3Exception.STATUS_NOT_FOUND && (e.getS3ErrorCode()
-                        .equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
-                        // nautilus ceph s3 会抛出这个异常表示 bucket 不存在
-                        || e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_KEY))) {
+                if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
+                        && createBucketIfNotExist) {
                     conn.createBucket(bucketName);
                     init(bucketName, key, null);
                     return;

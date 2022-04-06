@@ -1,8 +1,6 @@
 package com.sequoiacm.contentserver.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -42,6 +40,7 @@ public class ScmWorkspaceInfo {
     private String updateUser;
     private MetaSourceLocation metaLocation;
     private ScmLocation dataLocation;
+    private Map<Integer, ScmLocation> dataLocations = new HashMap<>();
     private Map<Integer, BSONObject> dataInfoMap = new LinkedHashMap<>();
     private BSONObject wsBson;
     private ScmDirCache dirCache;
@@ -77,6 +76,7 @@ public class ScmWorkspaceInfo {
                 dataInfoMap.put(siteId, dataLocationObj);
                 ScmLocation location = createDataLocation(bizConf, dataLocationObj,
                         wsObj.getDataShardingType(), wsObj.getDataOption());
+                dataLocations.put(location.getSiteId(), location);
                 if (bizConf.getLocateSiteId() == siteId) {
                     this.dataLocation = location;
                 }
@@ -268,5 +268,9 @@ public class ScmWorkspaceInfo {
 
     public boolean isEnableDirectory() {
         return enableDirectory;
+    }
+
+    public Map<Integer, ScmLocation> getDataLocations() {
+        return dataLocations;
     }
 }

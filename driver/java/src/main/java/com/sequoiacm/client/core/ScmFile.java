@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.element.ScmContentLocation;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType;
@@ -632,6 +633,14 @@ public abstract class ScmFile {
      * Calculate the md5 of the file. 
      */
     public abstract void calcMd5() throws ScmException;
+
+    /**
+     * Get the file's content location list
+     *
+     * @return the content locations of file
+     * @since 3.1
+     */
+    public abstract List<ScmContentLocation> getContentLocations() throws ScmException;
 
     abstract void setSize(long size);
 

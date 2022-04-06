@@ -28,6 +28,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -510,5 +511,23 @@ public class FileController {
                 majorVersion, minorVersion);
 
         return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+    }
+
+    @RequestMapping(value = "/files/{file_id}", params = "action="
+            + CommonDefine.RestArg.ACTION_GET_CONTENT_LOCATION, method = RequestMethod.GET)
+    public ResponseEntity<BasicBSONList> getFileContentLocations(
+            @PathVariable("file_id") String fileId,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
+            Authentication auth) throws ScmServerException {
+        ScmVersion version = new ScmVersion(majorVersion, minorVersion);
+        BSONObject file = fileService.getFileInfoById(workspaceName, fileId,
+                version.getMajorVersion(), version.getMinorVersion());
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
+        BasicBSONList result = fileService.getFileContentLocations(user, file, workspaceName);
+        ResponseEntity.BodyBuilder e = ResponseEntity.ok();
+        return e.body(result);
     }
 }

@@ -16,12 +16,12 @@ public abstract class ScmLocation {
 
     public ScmLocation(BSONObject record) throws ScmDatasourceException {
         try {
-            siteId = (int)record.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
+            siteId = (int) record.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
         }
         catch (Exception e) {
             throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,
-                    "get site id failed:fieldName="
-                            + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, e);
+                    "get site id failed:fieldName=" + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID,
+                    e);
         }
     }
 
@@ -38,9 +38,12 @@ public abstract class ScmLocation {
         else if (shardingType.equals(ScmShardingType.QUARTER.getName())) {
             return ScmShardingType.QUARTER;
         }
+        else if (shardingType.equals(ScmShardingType.DAY.getName())) {
+            return ScmShardingType.DAY;
+        }
         else {
             throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,
-                    "unreconigzed shardingType:type=" + shardingType);
+                    "unrecognized shardingType:type=" + shardingType);
         }
     }
 
@@ -59,6 +62,10 @@ public abstract class ScmLocation {
                 sb.append(CommonHelper.getCurrentYear(createDate));
                 String month = CommonHelper.getCurrentMonth(createDate);
                 sb.append(CommonHelper.getQuarter(month));
+                break;
+
+            case DAY:
+                sb.append(CommonHelper.getCurrentDay(createDate));
                 break;
 
             default:
@@ -87,7 +94,7 @@ public abstract class ScmLocation {
             return false;
         }
 
-        ScmLocation r = (ScmLocation)right;
+        ScmLocation r = (ScmLocation) right;
         return siteId == r.siteId;
     }
 }

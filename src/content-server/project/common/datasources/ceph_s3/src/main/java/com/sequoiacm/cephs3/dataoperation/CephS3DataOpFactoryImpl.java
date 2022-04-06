@@ -7,6 +7,7 @@ import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.cephs3.CephS3DataLocation;
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +21,22 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
     @Override
     public ScmDataWriter createWriter(int siteId, String wsName, ScmLocation location,
             ScmService service, ScmDataInfo dataInfo) throws CephS3Exception {
+        CephS3DataLocation dataLocation = (CephS3DataLocation) location;
+        String bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime());
         try {
-            CephS3DataLocation dataLocation = (CephS3DataLocation) location;
-
-            return new CephS3DataWriterImpl(
-                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
-                    service);
+            boolean createBucketIfNotExist = dataLocation.getUserBucketName() == null
+                    || dataLocation.getUserBucketName().isEmpty();
+            return new CephS3DataWriterImpl(bucketName,
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    service, createBucketIfNotExist);
         }
         catch (CephS3Exception e) {
             logger.error("build ceph s3 writer failed:siteId=" + siteId + ",wsName=" + wsName
                     + ",fileId=" + dataInfo.getId());
+            if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)) {
+                throw new CephS3Exception(e.getS3StatusCode(), e.getS3ErrorCode(),
+                        "bucket is not exist:" + bucketName, ScmError.STORE_SPACE_IS_NOT_EXIST, e);
+            }
             throw e;
         }
         catch (Exception e) {
@@ -46,7 +53,8 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephS3DataLocation dataLocation = (CephS3DataLocation) location;
             return new CephS3DataReaderImpl(
-                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
+                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
                     service);
         }
         catch (CephS3Exception e) {
@@ -68,7 +76,8 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephS3DataLocation dataLocation = (CephS3DataLocation) location;
             return new CephS3DataDeletorImpl(
-                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
+                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
                     service);
         }
         catch (CephS3Exception e) {
@@ -89,8 +98,12 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
             String wsName, String fileName, String dataId, Date createTime, boolean createData,
             long writeOffset, BSONObject extraContext) throws CephS3Exception {
         CephS3DataLocation dataLocation = (CephS3DataLocation) location;
+        boolean createBucketIfNotExist = dataLocation.getUserBucketName() == null
+                || dataLocation.getUserBucketName().isEmpty();
         return new CephS3BreakpointDataWriter(dataLocation.getBucketName(wsName, createTime),
-                dataId, new CephS3BreakpointFileContext(extraContext), service, writeOffset);
+                dataLocation.getObjectId(dataId, wsName, createTime),
+                new CephS3BreakpointFileContext(extraContext), service, writeOffset,
+                createBucketIfNotExist);
     }
 
     @Override

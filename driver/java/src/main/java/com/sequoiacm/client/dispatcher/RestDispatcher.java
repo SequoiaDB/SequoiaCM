@@ -2014,4 +2014,19 @@ public class RestDispatcher implements MessageDispatcher {
                 X_SCM_COUNT);
         return Long.parseLong(count);
     }
+
+    @Override
+    public BasicBSONList getContentLocations(String workspaceName, String fileId, int majorVersion,
+            int minorVersion) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + FILE + fileId;
+
+        String arg = String.format("?action=%s&%s=%s&%s=%s&%s=%s",
+                CommonDefine.RestArg.ACTION_GET_CONTENT_LOCATION,
+                CommonDefine.RestArg.WORKSPACE_NAME, encode(workspaceName),
+                CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
+                CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion);
+        HttpGet request = new HttpGet(uri + arg);
+        return (BasicBSONList) RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+    }
 }

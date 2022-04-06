@@ -7,9 +7,9 @@ import com.sequoiacm.datasource.dataservice.ScmService;
 public class CephS3DataWriterImpl extends ScmDataWriter {
     private final CephS3MultipartUploader uploader;
 
-    public CephS3DataWriterImpl(String bucketName, String key, ScmService service)
-            throws CephS3Exception {
-        uploader = new CephS3MultipartUploader(service, bucketName, key);
+    public CephS3DataWriterImpl(String bucketName, String key, ScmService service,
+            boolean createBucketIfNotExist) throws CephS3Exception {
+        uploader = new CephS3MultipartUploader(service, bucketName, key, createBucketIfNotExist);
     }
 
     @Override
