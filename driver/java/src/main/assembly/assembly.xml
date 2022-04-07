@@ -10,6 +10,14 @@
     </formats>
 
     <includeBaseDirectory>true</includeBaseDirectory>
+	
+	<files>
+		<file>
+			<source>${project.basedir}/target/sequoiacm-driver-${project.version}-javadoc.jar</source>
+			<outputDirectory>javadoc</outputDirectory>
+		</file>
+	</files>
+
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>
