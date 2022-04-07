@@ -52,8 +52,14 @@ public class TestConcurrentSchedule extends ScmTestMultiCenterBase {
         fileForClean = ScmTestTools.createScmFile(wsSite1Session, 30 * 1024 * 1024).getFileId();
         ScmFactory.File.getInstance(wsSite2Session, fileForClean)
                 .getContent(new NullOutputStream());
+        ScmFile latestFileForClean = ScmFactory.File.getInstance(wsSite2Session, fileForClean);
+        logger.info("file for clean: " + latestFileForClean.getFileId().get() + ", siteList: "
+                + latestFileForClean.getLocationList());
 
-        fileForTransfer = ScmTestTools.createScmFile(wsSite2Session, 30 * 1024 * 1024).getFileId();
+        ScmFile fileForTransferObj = ScmTestTools.createScmFile(wsSite2Session, 30 * 1024 * 1024);
+        fileForTransfer = fileForTransferObj.getFileId();
+        logger.info("file for transfer: " + fileForTransferObj.getFileId().get() + ", siteList: "
+                + fileForTransferObj.getLocationList());
     }
 
     @Test
@@ -71,6 +77,7 @@ public class TestConcurrentSchedule extends ScmTestMultiCenterBase {
                     getWorkspaceName(), ScheduleType.COPY_FILE, "s1", "desc", copyFileContent,
                     cron);
             copyScheduleId = copySch.getId();
+            logger.info("copy schedule: " + copySch);
 
             ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent(
                     site2.getName(), "0d",
@@ -78,6 +85,7 @@ public class TestConcurrentSchedule extends ScmTestMultiCenterBase {
             ScmSchedule cleanSch = ScmSystem.Schedule.create(site1RootSiteSession,
                     getWorkspaceName(), ScheduleType.CLEAN_FILE, "s2", "desc", cleanContent, cron);
             cleanScheduleId = cleanSch.getId();
+            logger.info("clean schedule: " + cleanSch);
 
             ScmTask cleanTask;
             ScmTask transferTask;
