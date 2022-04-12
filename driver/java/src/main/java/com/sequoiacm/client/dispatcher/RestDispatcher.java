@@ -7,10 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -51,10 +51,12 @@ import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.common.FultextRestCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 
 public class RestDispatcher implements MessageDispatcher {
 
@@ -96,6 +98,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String CONFIG_SERVER = "/config-server";
     private static final String FULLTEXT_SERVER = "/fulltext-server";
     private static final String FULLTEXT = "fulltext";
+    private static final String BUCKETS = "buckets/";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
 
@@ -685,25 +688,22 @@ public class RestDispatcher implements MessageDispatcher {
         return file;
     }
 
-    @Override
-    public HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo,
-            BSONObject uploadConf) throws ScmException {
+    public HttpURLConnection createHttpUrlConnection(String requestMethod, String urlStr,
+            Map<String, String> reqProperties) throws ScmException {
         HttpURLConnection connection;
-
         try {
-            URL url = new URL(URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl
-                    + API_VERSION + FILE + "?workspace_name=" + encode(workspaceName)
-                    + "&upload_config=" + encode(uploadConf.toString()));
+            URL url = new URL(urlStr);
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setChunkedStreamingMode(4096);
             connection.setUseCaches(false);
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod(requestMethod);
             connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("Content-Type", CONTENT_TYPE_BINARY);
-            connection.setRequestProperty(CommonDefine.RestArg.FILE_DESCRIPTION,
-                    encode(fileInfo.toString()));
+
+            for (Map.Entry<String, String> entry : reqProperties.entrySet()) {
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
             if (!sessionId.equals(NO_AUTH_SESSION_ID)) {
                 connection.setRequestProperty(AUTHORIZATION, sessionId);
             }
@@ -715,6 +715,18 @@ public class RestDispatcher implements MessageDispatcher {
             throw new ScmException(ScmError.NETWORK_IO,
                     "an error occurs during the http connection");
         }
+    }
+
+    @Override
+    public HttpURLConnection getFileUploadConnection(String workspaceName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException {
+        String reqUrl = URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl + API_VERSION
+                + FILE + "?workspace_name=" + encode(workspaceName) + "&upload_config="
+                + encode(uploadConf.toString());
+        Map<String, String> reqProps = new HashMap<String, String>();
+        reqProps.put("Content-Type", CONTENT_TYPE_BINARY);
+        reqProps.put(CommonDefine.RestArg.FILE_DESCRIPTION, encode(fileInfo.toString()));
+        return createHttpUrlConnection("POST", reqUrl, reqProps);
     }
 
     @Override
@@ -792,12 +804,8 @@ public class RestDispatcher implements MessageDispatcher {
         String conditionStr = encodeCondition(condition);
         String orderbyStr = encodeCondition(orderby);
         String selectorStr = encodeCondition(selector);
-        String uri = URL_PREFIX + url + API_VERSION + TASK
-                + "?filter=" + conditionStr
-                + "&orderby=" + orderbyStr
-                + "&selector=" + selectorStr
-                + "&skip=" + skip
-                + "&limit=" + limit;
+        String uri = URL_PREFIX + url + API_VERSION + TASK + "?filter=" + conditionStr + "&orderby="
+                + orderbyStr + "&selector=" + selectorStr + "&skip=" + skip + "&limit=" + limit;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1323,7 +1331,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
-            BSONObject content, String cron, boolean enable, String preferredRegion, String preferredZone) throws ScmException {
+            BSONObject content, String cron, boolean enable, String preferredRegion,
+            String preferredZone) throws ScmException {
         String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE;
         HttpPost request = new HttpPost(uri);
 
@@ -1346,12 +1355,10 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BsonReader getScheduleList(BSONObject condition, BSONObject orderby, long skip,
-                                      long limit) throws ScmException {
-        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE
-                + "?filter=" + encodeCondition(condition)
-                + "&skip=" + skip
-                + "&limit=" + limit
-                + "&orderby=" + encodeCondition(orderby);
+            long limit) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + SCHEDULE + "?filter="
+                + encodeCondition(condition) + "&skip=" + skip + "&limit=" + limit + "&orderby="
+                + encodeCondition(orderby);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
@@ -1604,27 +1611,9 @@ public class RestDispatcher implements MessageDispatcher {
         String arg = String.format("?%s=%s&%s=%s&%s=%s", CommonDefine.RestArg.WORKSPACE_NAME,
                 encode(workspaceName), CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion,
                 CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion);
-        try {
-            URL url = new URL(uri + arg);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setChunkedStreamingMode(4096);
-            connection.setUseCaches(false);
-            connection.setRequestMethod("PUT");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("Content-Type", CONTENT_TYPE_BINARY);
-            if (!sessionId.equals(NO_AUTH_SESSION_ID)) {
-                connection.setRequestProperty(AUTHORIZATION, sessionId);
-            }
-            connection.connect();
-            return connection;
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ScmException(ScmError.NETWORK_IO,
-                    "an error occurs during the http connection");
-        }
+        Map<String, String> reqProps = new HashMap<String, String>();
+        reqProps.put("Content-Type", CONTENT_TYPE_BINARY);
+        return createHttpUrlConnection("PUT", uri + arg, reqProps);
     }
 
     @Override
@@ -1790,6 +1779,11 @@ public class RestDispatcher implements MessageDispatcher {
         else {
             url = pureUrl;
         }
+    }
+
+    @Override
+    public String getRemainUrl() {
+        return remainUrl;
     }
 
     @Override
@@ -2028,5 +2022,170 @@ public class RestDispatcher implements MessageDispatcher {
         HttpGet request = new HttpGet(uri + arg);
         return (BasicBSONList) RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request);
+    }
+
+    @Override
+    public BSONObject createBucket(String wsName, String name) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name) + "?"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(wsName);
+        HttpPost request = new HttpPost(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getBucket(String name) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name);
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void deleteBucket(String name) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name);
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BsonReader listBucket(BSONObject condition, BSONObject orderby, long skip, long limit)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + "?" + CommonDefine.RestArg.FILTER
+                + "=" + encodeCondition(condition) + "&" + CommonDefine.RestArg.ORDER_BY + "="
+                + encodeCondition(orderby) + "&" + CommonDefine.RestArg.SKIP + "=" + skip + "&"
+                + CommonDefine.RestArg.LIMIT + "=" + limit;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject createFileInBucket(String bucketName, InputStream is, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl + API_VERSION
+                + BUCKETS + encode(bucketName) + "/files?action=create_file&upload_config="
+                + encode(uploadConf.toString());
+        HttpPost request = new HttpPost(uri);
+        request.addHeader(CommonDefine.RestArg.FILE_DESCRIPTION, encode(fileInfo.toString()));
+        if (is != null) {
+            InputStreamEntity isEntity = new InputStreamEntity(is);
+            isEntity.setContentType(CONTENT_TYPE_BINARY);
+            isEntity.setChunked(true);
+            request.setEntity(isEntity);
+        }
+
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public HttpURLConnection createFileInBucketConn(String bucketName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + LARGE_FILE_UPLOAD_PATH + remainUrl + API_VERSION
+                + BUCKETS + encode(bucketName) + "/files?action=create_file&upload_config="
+                + encode(uploadConf.toString());
+        Map<String, String> reqProps = new HashMap<String, String>();
+        reqProps.put(CommonDefine.RestArg.FILE_DESCRIPTION, encode(fileInfo.toString()));
+        reqProps.put("Content-Type", CONTENT_TYPE_BINARY);
+        return createHttpUrlConnection("POST", uri, reqProps);
+    }
+
+    @Override
+    public BSONObject createFileInBucket(String bucketName, String breakpointFileName,
+            BSONObject fileInfo, BSONObject uploadConf) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=create_file&upload_config=" + encode(uploadConf.toString());
+        HttpPost request = new HttpPost(uri);
+        request.addHeader(CommonDefine.RestArg.FILE_DESCRIPTION, encode(fileInfo.toString()));
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.FILE_BREAKPOINT_FILE,
+                breakpointFileName));
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public List<BSONObject> bucketAttachFile(String bucketName, List<String> fileId,
+            ScmBucketAttachKeyType type) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=attach_file";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.FILE_ID_LIST,
+                Strings.join(fileId, ",")));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.ATTACH_KEY_TYPE, type.name()));
+
+        BasicBSONList ret = (BasicBSONList) RestClient.sendRequestWithJsonResponse(getHttpClient(),
+                sessionId, request, params);
+        List<BSONObject> bsonObjects = new ArrayList<BSONObject>();
+        for (Object b : ret) {
+            bsonObjects.add((BSONObject) b);
+        }
+        return bsonObjects;
+    }
+
+    @Override
+    public void bucketDetachFile(String bucketName, String fileName) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=detach_file";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.FILE_NAME, fileName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject bucketGetFile(String bucketName, String fileName) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=get_file&" + CommonDefine.RestArg.FILE_NAME + "="
+                + encode(fileName);
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,
+            long skip, long limit) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=list_file&" + CommonDefine.RestArg.FILTER + "="
+                + encodeCondition(condition) + "&" + CommonDefine.RestArg.ORDER_BY + "="
+                + encodeCondition(orderby) + "&" + CommonDefine.RestArg.SKIP + "=" + skip + "&"
+                + CommonDefine.RestArg.LIMIT + "=" + limit;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long bucketCountFile(String bucketName, BSONObject condition) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=count_file&" + CommonDefine.RestArg.FILTER + "="
+                + encodeCondition(condition);
+        HttpGet request = new HttpGet(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
+    public long countBucket(BSONObject condition) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + "?action=count_bucket&"
+                + CommonDefine.RestArg.FILTER + "=" + encodeCondition(condition);
+        HttpGet request = new HttpGet(uri);
+        String countHeader = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId,
+                request, CommonDefine.RestArg.X_SCM_COUNT);
+        return Long.parseLong(countHeader);
+    }
+
+    @Override
+    public void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName
+                + "/region?Action=SetDefaultRegion&workspace=" + encode(wsName);
+        HttpPut request = new HttpPut(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public String getDefaultRegion(String s3ServiceName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName + "/region?Action=GetDefaultRegion";
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                "default-region");
     }
 }

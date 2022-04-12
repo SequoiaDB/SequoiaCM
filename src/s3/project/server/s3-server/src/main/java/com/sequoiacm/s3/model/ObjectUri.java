@@ -4,15 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import com.sequoiacm.s3.common.RestParamDefine;
-import com.sequoiacm.s3.core.ObjectMeta;
+import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 
 public class ObjectUri {
     private String bucketName;
     private String objectName;
-    private boolean isNoVersion = true;
-    private long versionId = -1;
+    private String versionId;
 
     public ObjectUri(String uri) throws S3ServerException {
         String decodeUri;
@@ -48,45 +47,16 @@ public class ObjectUri {
         }
         else {
             this.objectName = decodeUri.substring(beginObject + 1, beginVersionId);
-            String version = decodeUri
+            versionId = decodeUri
                     .substring(beginVersionId + RestParamDefine.REST_SOURCE_VERSIONID.length());
-            convertVersionId(version);
+            if(versionId.equals(S3CommonDefine.NULL_VERSION_ID)){
+                versionId = null;
+            }
         }
 
         if (this.objectName.length() == 0) {
             throw new S3ServerException(S3Error.OBJECT_COPY_INVALID_SOURCE,
                     "Invalid source. source url = " + uri);
-        }
-    }
-
-    public ObjectUri(String bucketName, String objectName, String versionId)
-            throws S3ServerException {
-        this.bucketName = bucketName;
-        this.objectName = objectName;
-
-        if (versionId != null) {
-            this.isNoVersion = false;
-            convertVersionId(versionId);
-        }
-    }
-
-    private void convertVersionId(String versionId) throws S3ServerException {
-        try {
-            if (versionId.equals(ObjectMeta.NULL_VERSION_ID)) {
-                this.isNoVersion = true;
-            }
-            else {
-                this.isNoVersion = false;
-                this.versionId = Long.parseLong(versionId);
-            }
-        }
-        catch (NumberFormatException e) {
-            throw new S3ServerException(S3Error.OBJECT_INVALID_VERSION,
-                    "version id is invalid. version id=" + versionId);
-        }
-        catch (Exception e) {
-            throw new S3ServerException(S3Error.OBJECT_INVALID_VERSION,
-                    "versionId is invalid. versionId=" + versionId + ",e:" + e.getMessage());
         }
     }
 
@@ -98,11 +68,8 @@ public class ObjectUri {
         return objectName;
     }
 
-    public boolean isNoVersion() {
-        return isNoVersion;
-    }
 
-    public long getVersionId() {
+    public String getVersionId() {
         return versionId;
     }
 }

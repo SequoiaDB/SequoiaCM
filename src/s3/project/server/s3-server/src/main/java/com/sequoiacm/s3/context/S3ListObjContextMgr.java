@@ -1,45 +1,32 @@
 package com.sequoiacm.s3.context;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.PreDestroy;
-
+import com.sequoiacm.contentserver.service.MetaSourceService;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.timer.ScmTimer;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import com.sequoiacm.metasource.MetaAccessor;
+import com.sequoiacm.metasource.ScmMetasourceException;
+import com.sequoiacm.s3.common.S3CommonDefine;
+import com.sequoiacm.s3.config.ContextConfig;
+import com.sequoiacm.s3.exception.S3Error;
+import com.sequoiacm.s3.exception.S3ServerException;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sequoiacm.infrastructure.common.timer.ScmTimer;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
-import com.sequoiacm.s3.authoriztion.ScmSession;
-import com.sequoiacm.s3.common.S3CommonDefine;
-import com.sequoiacm.s3.config.ContextConfig;
-import com.sequoiacm.s3.exception.S3Error;
-import com.sequoiacm.s3.exception.S3ServerException;
-import com.sequoiacm.s3.remote.ScmClientFactory;
-import com.sequoiacm.s3.remote.ScmContentServerClient;
-import com.sequoiadb.infrastructure.map.ScmMapError;
-import com.sequoiadb.infrastructure.map.ScmMapServerException;
-import com.sequoiadb.infrastructure.map.client.core.ScmMapFactory;
-import com.sequoiadb.infrastructure.map.client.service.MapFeignClient;
-import com.sequoiadb.infrastructure.map.client.service.MapFeignClientFactory;
+import javax.annotation.PreDestroy;
 
 @Component
 public class S3ListObjContextMgr {
-    @Autowired
-    private ScmClientFactory clientFactory;
-
-    @Autowired
-    private MapFeignClientFactory mapClientFactory;
-
-    private Map<String, S3ListObjContextMeta> contextMetas;
-
     private ScmTimer timer;
-
     private ContextConfig contextConfig;
+
+    @Autowired
+    private MetaSourceService metaSourceService;
 
     @Autowired
     public S3ListObjContextMgr(ContextConfig contextConfig) {
@@ -47,92 +34,89 @@ public class S3ListObjContextMgr {
         this.contextConfig = contextConfig;
         timer.schedule(new ContextCleaner(this), contextConfig.getCleanPeriod(),
                 contextConfig.getCleanPeriod());
-
-    }
-
-    private Map<String, S3ListObjContextMeta> getContextMetas() throws S3ServerException {
-        initMap();
-        return contextMetas;
-    }
-
-    private void initMap() throws S3ServerException {
-        if (contextMetas != null) {
-            return;
-        }
-        MapFeignClient client = mapClientFactory
-                .getFeignClientByServiceName(clientFactory.getRootSite());
-        try {
-            contextMetas = ScmMapFactory.getGroupMap(client, S3CommonDefine.S3_MAP_GROUP_NAME)
-                    .createMap(S3CommonDefine.S3_MAP_LIST_CONTEXT_META_NAME, String.class,
-                            S3ListObjContextMeta.class);
-        }
-        catch (ScmMapServerException e) {
-            if (e.getError().equals(ScmMapError.MAP_TABLE_ALREADY_EXIST)) {
-                try {
-                    contextMetas = ScmMapFactory
-                            .getGroupMap(client, S3CommonDefine.S3_MAP_GROUP_NAME)
-                            .getMap(S3CommonDefine.S3_MAP_LIST_CONTEXT_META_NAME);
-                    return;
-                }
-                catch (ScmMapServerException e1) {
-                    throw new S3ServerException(S3Error.SYSTEM_ERROR,
-                            "failed to init list_context_meta map", e1);
-                }
-            }
-            throw new S3ServerException(S3Error.SYSTEM_ERROR,
-                    "failed to init list_context_meta map", e);
-        }
-        catch (Exception e) {
-            throw new S3ServerException(S3Error.SYSTEM_ERROR,
-                    "failed to init list_context_meta map", e);
-        }
     }
 
     @PreDestroy
-    public void destory() {
+    public void destroy() {
         timer.cancel();
     }
 
-    public S3ListObjContext createContext(ScmSession ss, String bucketName, String ws,
-            String bucketDir, String prefix, String startAfter, String delimiter)
-            throws S3ServerException {
-        S3ListObjContextMeta meta = new S3ListObjContextMeta(UUID.randomUUID().toString(),
-                bucketName, ws, bucketDir, prefix, startAfter, delimiter, startAfter);
-        ScmContentServerClient client = clientFactory.getContentServerClient(ss, meta.getWs());
-        S3ListObjContext ret = new S3ListObjContext(client, this, meta);
-        ret.setNewContext(true);
-        return ret;
+    public S3ListObjectContext createContext(String prefix, String startAfter, String delimiter,
+            String bucketName) throws S3ServerException {
+        S3ListObjectContext context = new S3ListObjectContext(prefix, startAfter, delimiter,
+                bucketName, false, this);
+        return context;
     }
 
-    public S3ListObjContext getContext(ScmSession session, String id) throws S3ServerException {
-        S3ListObjContextMeta meta = getContextMetas().get(id);
-        if (meta == null) {
-            throw new S3ServerException(S3Error.OBJECT_INVALID_TOKEN,
-                    "The continuation token provided is incorrect.token:" + id);
-        }
-        ScmContentServerClient client = clientFactory.getContentServerClient(session, meta.getWs());
-        S3ListObjContext ret = new S3ListObjContext(client, this, meta);
-        ret.setNewContext(false);
-        return ret;
-    }
-
-    void updateContextMeta(S3ListObjContextMeta meta) throws S3ServerException {
-        getContextMetas().put(meta.getId(), meta);
-    }
-
-    public void remove(String meta) throws S3ServerException {
-        getContextMetas().remove(meta);
-    }
-
-    void cleanExpireContext() throws S3ServerException {
-        long now = System.currentTimeMillis();
-        Set<String> keyset = getContextMetas().keySet();
-        for (String key : keyset) {
-            S3ListObjContextMeta meta = getContextMetas().get(key);
-            if (meta != null && now - meta.getUpdateTime() > contextConfig.getKeepaliveTime()) {
-                getContextMetas().remove(key);
+    public S3ListObjectContext getContext(String token) throws S3ServerException {
+        try {
+            MetaAccessor accessor = metaSourceService.getMetaSource()
+                    .createMetaAccessor(S3CommonDefine.LIST_OBJECT_CONTEXT_TABLE_NAME);
+            BSONObject record = accessor.queryOne(
+                    new BasicBSONObject(S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_TOKEN, token),
+                    null, null);
+            if (record == null) {
+                throw new S3ServerException(S3Error.OBJECT_INVALID_TOKEN,
+                        "The continuation token provided is incorrect.token:" + token);
             }
+            return new S3ListObjectContext(record, true, this);
         }
+        catch (ScmMetasourceException | ScmServerException e) {
+            throw new S3ServerException(S3Error.METASOUCE_ERROR,
+                    "failed to get context: token=" + token, e);
+        }
+    }
+
+    void save(S3ListObjectContext context) throws S3ServerException {
+        try {
+            MetaAccessor accessor = metaSourceService.getMetaSource()
+                    .createMetaAccessor(S3CommonDefine.LIST_OBJECT_CONTEXT_TABLE_NAME);
+            if (context.isPersistence()) {
+                BasicBSONObject matcher = new BasicBSONObject(
+                        S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_TOKEN, context.getToken());
+
+                BasicBSONObject newValue = new BasicBSONObject();
+                newValue.put(S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_LAST_MARKER,
+                        context.getLastMarker());
+                newValue.put(S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_LAST_ACCESS_TIME,
+                        context.getLastAccessTime());
+
+                BasicBSONObject updater = new BasicBSONObject("$set", newValue);
+                accessor.update(matcher, updater);
+                return;
+            }
+            accessor.insert(context.toBSON());
+        }
+        catch (ScmMetasourceException | ScmServerException e) {
+            throw new S3ServerException(S3Error.METASOUCE_ERROR,
+                    "failed to save context:" + context, e);
+        }
+
+    }
+
+    public void remove(String token) throws S3ServerException {
+        try {
+            MetaAccessor accessor = metaSourceService.getMetaSource()
+                    .createMetaAccessor(S3CommonDefine.LIST_OBJECT_CONTEXT_TABLE_NAME);
+            BasicBSONObject matcher = new BasicBSONObject(
+                    S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_TOKEN, token);
+            accessor.delete(matcher);
+        }
+        catch (ScmMetasourceException | ScmServerException e) {
+            throw new S3ServerException(S3Error.METASOUCE_ERROR,
+                    "failed to remove context: token=" + token, e);
+        }
+    }
+
+    void cleanExpireContext() throws Exception {
+        long now = System.currentTimeMillis();
+        long timeForClean = now - contextConfig.getKeepaliveTime();
+        MetaAccessor accessor = metaSourceService.getMetaSource()
+                .createMetaAccessor(S3CommonDefine.LIST_OBJECT_CONTEXT_TABLE_NAME);
+        BasicBSONObject matcher = new BasicBSONObject(
+                S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_LAST_ACCESS_TIME,
+                new BasicBSONObject("$lt", timeForClean));
+        accessor.delete(matcher);
     }
 
 }
@@ -150,7 +134,7 @@ class ContextCleaner extends ScmTimerTask {
         try {
             mgr.cleanExpireContext();
         }
-        catch (S3ServerException e) {
+        catch (Exception e) {
             logger.warn("failed to clean context", e);
         }
     }

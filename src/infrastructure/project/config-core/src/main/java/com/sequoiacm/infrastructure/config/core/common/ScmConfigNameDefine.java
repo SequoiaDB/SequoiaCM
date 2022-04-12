@@ -5,4 +5,5 @@ public class ScmConfigNameDefine {
     public static final String META_DATA = "meta_data";
     public static final String SITE = "site";
     public static final String NODE = "node";
+    public static final String BUCKET = "bucket";
 }

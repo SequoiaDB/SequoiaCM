@@ -1,13 +1,13 @@
-<assembly 
-    xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+<assembly
+        xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
-     <id>${project.version}-release</id>
+    <id>${project.version}-release</id>
     <formats>
         <format>dir</format>
         <format>tar.gz</format>
-    </formats>  
+    </formats>
 
     <includeBaseDirectory>true</includeBaseDirectory>
     <fileSets>
@@ -17,6 +17,51 @@
             <outputDirectory>bin</outputDirectory>
         </fileSet>
 
+        <!-- copy lib/hbase -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../../content-server/project/common/datasources/hbase/target/sequoiacm-content-datasource-hbase-${project.version}-release/sequoiacm-content-datasource-hbase-${project.version}/hbase
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/hbase</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_s3 -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../../content-server/project/common/datasources/ceph_s3/target/sequoiacm-content-datasource-ceph-s3-${project.version}-release/sequoiacm-content-datasource-ceph-s3-${project.version}/ceph_s3
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/ceph_s3</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_swift -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../../content-server/project/common/datasources/ceph_swift/target/sequoiacm-content-datasource-ceph-swift-${project.version}-release/sequoiacm-content-datasource-ceph-swift-${project.version}/ceph_swift
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/ceph_swift</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/hdfs -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../../content-server/project/common/datasources/hdfs/target/sequoiacm-content-datasource-hdfs-${project.version}-release/sequoiacm-content-datasource-hdfs-${project.version}/hdfs
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/hdfs</outputDirectory>
+        </fileSet>
+
+
         <fileSet>
             <directory>${project.basedir}/../../script/</directory>
             <includes>
@@ -25,14 +70,17 @@
             </includes>
             <outputDirectory>.</outputDirectory>
         </fileSet>
-        
+
     </fileSets>
-    
+
     <dependencySets>
         <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
             <outputDirectory>jars</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>com.sequoiadb:sequoiacm-s3-tools</include>
+                <include>com.sequoiadb:sequoiacm-s3-server</include>
+            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

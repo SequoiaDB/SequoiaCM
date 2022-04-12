@@ -33,8 +33,7 @@ class ScmUpdateFileContentOsImpl extends ScmHttpOutputStreamBase {
 
     @Override
     protected HttpURLConnection createHttpUrlConnection() throws ScmException {
-        return session.getDispatcher().getUpdateFileContentConn(scmFile.getWorkspaceName(),
-                scmFile.getFileId().get(), scmFile.getMajorVersion(), scmFile.getMinorVersion());
+        return scmFile.httpURLConnectionForUpdateContent();
     }
 
     @Override

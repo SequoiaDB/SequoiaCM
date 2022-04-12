@@ -1,5 +1,7 @@
 package com.sequoiacm.client.util;
 
+import java.util.List;
+
 public final class Strings {
     private Strings() {
     }
@@ -24,5 +26,16 @@ public final class Strings {
             }
         }
         return false;
+    }
+
+    public static String join(List<String> list, String delimiter) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s).append(delimiter);
+        }
+        return sb.substring(0, sb.length() - 1);
     }
 }

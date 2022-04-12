@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
 
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
@@ -35,8 +34,7 @@ class ScmOutputStreamImpl extends ScmHttpOutputStreamBase {
 
     @Override
     protected HttpURLConnection createHttpUrlConnection() throws ScmException {
-        return session.getDispatcher().getFileUploadConnection(scmFile.getWorkspaceName(),
-                scmFile.toBSONObject(), conf.toBsonObject());
+        return scmFile.httpURLConnectionForSave(conf);
     }
 
     @Override

@@ -8,10 +8,13 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+
 public class SignUtil {
 
     public static String sign(String algorithm, String secretKey, List<String> stringToSign,
-            String signatrueEncoder) {
+                              String signatrueEncoder) {
         if (stringToSign == null) {
             throw new RuntimeException("failed to caculate signature, stringToSign is null");
         }
@@ -73,6 +76,19 @@ public class SignUtil {
         }
     }
 
+    public static String toHex(String base64Str) {
+        return Hex.encodeHexString(Base64.decodeBase64(base64Str));
+    }
+
+    public static String toBase64(String hexStr) {
+        try {
+            return Base64.encodeBase64String(Hex.decodeHex(hexStr.toCharArray()));
+        }
+        catch (Exception e) {
+            throw new RuntimeException("failed to decode string:" + hexStr, e);
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println(SignUtil.toHex(hash("PUT\n" + "/s3/bucket1/ExampleObject.txt\n" + "\n"
                 + "content-length:857\n" + "host:192.168.10.95:8080\n"
@@ -80,16 +96,11 @@ public class SignUtil {
                 + "x-amz-date:20200407T023705Z\n" + "x-amz-storage-class:REDUCED_REDUNDANCY\n"
                 + "\n" + "content-length;host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n"
                 + "8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887")));
-        System.out.println(SignUtil.toHex(hash("PUT\n" + 
-                "/s3/bucket1/ExampleObject.txt\n" + 
-                "\n" + 
-                "content-length:857\n" + 
-                "host:192.168.10.95\n" + 
-                "x-amz-content-sha256:8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887\n" + 
-                "x-amz-date:20200407T023705Z\n" + 
-                "x-amz-storage-class:REDUCED_REDUNDANCY\n" + 
-                "\n" + 
-                "content-length;host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n" + 
-                "8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887")));
+        System.out.println(SignUtil.toHex(hash("PUT\n" + "/s3/bucket1/ExampleObject.txt\n" + "\n"
+                + "content-length:857\n" + "host:192.168.10.95\n"
+                + "x-amz-content-sha256:8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887\n"
+                + "x-amz-date:20200407T023705Z\n" + "x-amz-storage-class:REDUCED_REDUNDANCY\n"
+                + "\n" + "content-length;host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n"
+                + "8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887")));
     }
 }

@@ -12,10 +12,10 @@ public class CopyObjectResult {
     private String lastModified;
 
     @JsonIgnore
-    private Long versionId;
+    private String versionId;
 
     @JsonIgnore
-    private Long sourceVersionId;
+    private String sourceVersionId;
 
     public void seteTag(String eTag) {
         this.eTag = eTag;
@@ -33,19 +33,19 @@ public class CopyObjectResult {
         return lastModified;
     }
 
-    public void setVersionId(Long versionId) {
-        this.versionId = versionId;
+    public String getSourceVersionId() {
+        return sourceVersionId;
     }
 
-    public Long getVersionId() {
+    public String getVersionId() {
         return versionId;
     }
 
-    public void setSourceVersionId(Long sourceVersionId) {
+    public void setSourceVersionId(String sourceVersionId) {
         this.sourceVersionId = sourceVersionId;
     }
 
-    public Long getSourceVersionId() {
-        return sourceVersionId;
+    public void setVersionId(String versionId) {
+        this.versionId = versionId;
     }
 }

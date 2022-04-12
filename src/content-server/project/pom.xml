@@ -26,6 +26,7 @@
         <module>./common/datasources/hdfs</module>
         <module>../../../driver/java/</module>
         <module>./common/tools</module>
+		<module>./common/content-module</module>
         <module>./server/contentserver</module>
         <module>./assembly</module>
     </modules>

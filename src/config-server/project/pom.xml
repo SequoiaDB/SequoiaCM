@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sequoiacm-config</artifactId>
@@ -9,7 +9,6 @@
 
     <name>SequoiaCM Config Parent</name>
     <description>SequoiaCM Config Parent</description>
-
 
 
     <parent>
@@ -27,6 +26,7 @@
         <module>./common/config-metadata</module>
         <module>./common/config-site</module>
         <module>./common/config-node</module>
+        <module>./common/config-bucket</module>
         <module>./server/config-server</module>
         <module>./assembly</module>
     </modules>
@@ -102,7 +102,11 @@
                 <artifactId>sequoiacm-config-site</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-config-bucket</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-config-node</artifactId>

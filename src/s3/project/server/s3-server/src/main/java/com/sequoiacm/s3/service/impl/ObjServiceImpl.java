@@ -1,50 +1,69 @@
 package com.sequoiacm.s3.service.impl;
 
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.dao.FileReaderDao;
+import com.sequoiacm.contentserver.model.OverwriteOption;
+import com.sequoiacm.contentserver.model.ScmBucket;
+import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.contentserver.service.IDatasourceService;
+import com.sequoiacm.contentserver.service.IFileService;
+import com.sequoiacm.contentserver.service.IScmBucketService;
+import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.security.sign.SignUtil;
+import com.sequoiacm.metasource.MetaAccessor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.s3.authoriztion.ScmSession;
+import com.sequoiacm.s3.common.FileMappingUtil;
 import com.sequoiacm.s3.common.RestParamDefine;
-import com.sequoiacm.s3.context.S3ListObjContext;
-import com.sequoiacm.s3.context.S3ListObjContextMeta;
+import com.sequoiacm.s3.common.S3Codec;
+import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.context.S3ListObjContextMgr;
+import com.sequoiacm.s3.context.S3ListObjectContext;
 import com.sequoiacm.s3.core.Bucket;
-import com.sequoiacm.s3.core.ObjectMeta;
+import com.sequoiacm.s3.core.CopyObjectRequest;
 import com.sequoiacm.s3.core.Range;
+import com.sequoiacm.s3.core.S3BasicObjectMeta;
+import com.sequoiacm.s3.core.S3ObjectMeta;
+import com.sequoiacm.s3.core.S3PutObjectRequest;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
-import com.sequoiacm.s3.model.Batch;
 import com.sequoiacm.s3.model.CopyObjectResult;
-import com.sequoiacm.s3.model.GetResult;
-import com.sequoiacm.s3.model.InputStreamWithCalc;
-import com.sequoiacm.s3.model.ListObjRecord;
+import com.sequoiacm.s3.model.DeleteObjectResult;
+import com.sequoiacm.s3.model.GetObjectResult;
+import com.sequoiacm.s3.model.ListObjVersion;
+import com.sequoiacm.s3.model.ListObjectCommonPrefix;
 import com.sequoiacm.s3.model.ListObjectsResult;
 import com.sequoiacm.s3.model.ListObjectsResultV1;
 import com.sequoiacm.s3.model.ListVersionsResult;
 import com.sequoiacm.s3.model.ObjectMatcher;
-import com.sequoiacm.s3.model.ObjectUri;
-import com.sequoiacm.s3.model.PutDeleteResult;
-import com.sequoiacm.s3.model.ScmDirPath;
-import com.sequoiacm.s3.model.Version;
-import com.sequoiacm.s3.remote.ScmClientFactory;
-import com.sequoiacm.s3.remote.ScmContentServerClient;
-import com.sequoiacm.s3.remote.ScmFileInfo;
+import com.sequoiacm.s3.model.PutObjectResult;
+import com.sequoiacm.s3.scan.BasicS3ScanCommonPrefixParser;
+import com.sequoiacm.s3.scan.BasicS3ScanMatcher;
+import com.sequoiacm.s3.scan.BasicS3ScanOffset;
+import com.sequoiacm.s3.scan.S3ResourceScanner;
+import com.sequoiacm.s3.scan.S3ScanResult;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.CommonUtil;
 import com.sequoiacm.s3.utils.DataFormatUtils;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 @Component
 public class ObjServiceImpl implements ObjectService {
@@ -56,108 +75,130 @@ public class ObjServiceImpl implements ObjectService {
     private BucketService bucketService;
 
     @Autowired
-    private ScmClientFactory clientFactory;
+    private IDatasourceService datasourceService;
+
+    @Autowired
+    private IScmBucketService scmBucketService;
+
+    @Autowired
+    private IFileService fileService;
+
+    @Autowired
+    private ScmAudit audit;
+
+    @Autowired
+    private MetaSourceService metaSourceService;
 
     @Override
-    public PutDeleteResult putObject(ScmSession session, ObjectMeta meta, InputStream inputStream)
+    public PutObjectResult putObject(ScmSession session, S3PutObjectRequest req)
             throws S3ServerException {
-        CommonUtil.checkKey(meta.getKey());
-        Bucket bucket = bucketService.getBucket(session, meta.getBucketName());
-        ScmContentServerClient client = clientFactory.getContentServerClient(session,
-                bucket.getWorkspace());
-        InputStreamWithCalc is = new InputStreamWithCalc(inputStream);
-        String breakFileName = UUID.randomUUID().toString();
-        logger.debug("creating scm breakpointfile() for object()", breakFileName, meta.getKey());
-        client.createBreakpointFile(breakFileName, is);
+        ScmDataInfoDetail dataDetail = null;
+        Bucket s3Bucket = null;
         try {
-            if (null != meta.getMd5() && !meta.getMd5().equals(is.getMd5())) {
-                throw new S3ServerException(S3Error.OBJECT_BAD_DIGEST,
-                        "The Content-MD5 you specified does not match what we received.");
+            s3Bucket = bucketService.getBucket(session, req.getObjectMeta().getBucket());
+            long objCreateTime = req.getObjectCreateTime() <= -1 ? System.currentTimeMillis()
+                    : req.getObjectCreateTime();
+            dataDetail = datasourceService.createData(s3Bucket.getRegion(), req.getObjectData(),
+                    objCreateTime);
+
+            if (req.getMd5() != null) {
+                if (req.getMd5().length() % 4 != 0) {
+                    throw new S3ServerException(S3Error.OBJECT_INVALID_DIGEST,
+                            "decode md5 failed, contentMd5:" + req.getMd5());
+                }
+                if (!dataDetail.getMd5().equals(req.getMd5())) {
+                    throw new S3ServerException(S3Error.OBJECT_BAD_DIGEST,
+                            "The Content-MD5 you specified does not match what we received.");
+                }
             }
-            meta.setEtag(is.getEtag());
-            if (meta.getSize() != is.getLength()) {
-                throw new S3ServerException(S3Error.OBJECT_INCOMPLETE_BODY, "content length is "
-                        + meta.getSize() + " and receive " + is.getLength() + " bytes");
+            if (req.getObjectMeta().getSize() != -1
+                    && dataDetail.getSize() != req.getObjectMeta().getSize()) {
+                throw new S3ServerException(S3Error.OBJECT_INCOMPLETE_BODY,
+                        "content length is " + req.getObjectMeta().getSize() + " and receive "
+                                + dataDetail.getSize() + " bytes");
             }
 
-            // 使用断点文件上传除了要计算MD5外， 还有就是创建SCM文件需要重试（目录不存在） 
-            try {
-                client.createScmFileWithOverwrite(breakFileName, bucket.getBucketDir(), meta);
+            BSONObject fileInfo = FileMappingUtil.buildFileInfo(req.getObjectMeta());
+            fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, objCreateTime);
+
+            scmBucketService.createFile(session.getUser(), s3Bucket.getBucketName(), fileInfo,
+                    dataDetail, null,
+                    new OverwriteOption(session.getSessionId(), session.getUserDetail()));
+            audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
+                    "get s3 object meta: bucket=" + s3Bucket.getBucketName() + ", key="
+                            + req.getObjectMeta().getKey());
+        }
+        catch (ScmServerException e) {
+            if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
+                deleteDataSilence(s3Bucket, dataDetail);
             }
-            catch (ScmFeignException e) {
-                throw new S3ServerException(S3Error.OBJECT_PUT_FAILED,
-                        "failed to create scm file: obj=" + meta.getKey() + ", bucket="
-                                + bucket.getBucketName(),
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "bucket not exist:" + req.getObjectMeta().getBucket(), e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = "
+                                + req.getObjectMeta().getBucket(),
                         e);
             }
+            throw new S3ServerException(S3Error.OBJECT_PUT_FAILED,
+                    "failed to put object: bucket=" + req.getObjectMeta().getBucket()
+                            + ", objectKey=" + req.getObjectMeta().getKey(),
+                    e);
         }
         catch (Exception e) {
-
-            client.deleteBreakpointFileSilence(breakFileName);
+            deleteDataSilence(s3Bucket, dataDetail);
             throw e;
         }
-        PutDeleteResult res = new PutDeleteResult();
-        res.seteTag(is.getEtag());
-        res.setVersionId(ObjectMeta.NULL_VERSION_ID);
+
+        PutObjectResult res = new PutObjectResult();
+        res.seteTag(SignUtil.toHex(dataDetail.getMd5()));
+        res.setVersionId(null);
         return res;
     }
 
-    public ObjectMeta getObjectMeta(ScmSession session, Bucket bucket, String objectName,
-            Long versionId, boolean isNoVersion, ObjectMatcher matchers) throws S3ServerException {
+    private void deleteDataSilence(Bucket s3Bucket, ScmDataInfoDetail dataDetail) {
+        if (s3Bucket == null || dataDetail == null) {
+            return;
+        }
         try {
-            CommonUtil.checkKey(objectName);
+            datasourceService.deleteData(s3Bucket.getRegion(), dataDetail.getDataInfo().getId(),
+                    dataDetail.getDataInfo().getType(),
+                    dataDetail.getDataInfo().getCreateTime().getTime(), dataDetail.getSiteId());
         }
         catch (Exception e) {
-            throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
-                    "no such key. objectName:" + objectName, e);
+            logger.warn("failed to delete data: ws={}, dataId={}, siteId={}", s3Bucket.getRegion(),
+                    dataDetail.getDataInfo().getId(), dataDetail.getSiteId(), e);
         }
-        ScmContentServerClient client = clientFactory.getContentServerClient(session,
-                bucket.getRegion());
-        String scmFilePath = CommonUtil.concatPath(bucket.getBucketDir(), objectName);
-        ScmFileInfo scmFile = null;
-        try {
-            scmFile = client.getFile(scmFilePath);
-        }
-        catch (ScmFeignException e) {
-            if (e.getStatus() == ScmError.DIR_NOT_FOUND.getErrorCode()
-                    || e.getStatus() == ScmError.FILE_NOT_FOUND.getErrorCode()) {
-                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
-                        "no such key. objectName:" + objectName, e);
-            }
-            throw new S3ServerException(S3Error.OBJECT_GET_FAILED,
-                    "failed to get scm file:ws=" + bucket.getRegion() + ", file=" + scmFilePath, e);
-        }
-        if (!isNoVersion) {
-            throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
-                    "no such version. objectName:" + objectName + ",version:" + versionId);
-        }
-        ObjectMeta ret = new ObjectMeta();
-        ret.setScmFileId(scmFile.getId());
-        ret.setBucketName(bucket.getBucketName());
-        ret.setCacheControl(scmFile.getCustomMetaCacheControl());
-        ret.setContentDisposition(scmFile.getCustomMetaContentDisposition());
-        ret.setContentEncoding(scmFile.getCustomMetaEnconde());
-        ret.setContentLanguage(scmFile.getCustomMetaContentLanguage());
-        ret.setContentType(scmFile.getMimeType());
-        ret.setDeleteMarker(false);
-        ret.setEtag(scmFile.getCustomMetaEtag());
-        ret.setExpires(scmFile.getCustomMetaExpires());
-        ret.setKey(objectName);
-        ret.setLastModified(scmFile.getUpdateTime());
-        ret.setMetaList(scmFile.getCustomMetaMetaList());
-        ret.setNoVersionFlag(true);
-        ret.setSize(scmFile.getSize());
-
-        match(matchers, ret);
-
-        return ret;
     }
 
     @Override
-    public ObjectMeta getObjectMeta(ScmSession session, String bucketName, String objectName,
-            Long versionId, boolean isNoVersion, ObjectMatcher matchers) throws S3ServerException {
-        Bucket bucket = bucketService.getBucket(session, bucketName);
-        return getObjectMeta(session, bucket, objectName, versionId, isNoVersion, matchers);
+    public S3ObjectMeta getObjectMeta(ScmSession session, String bucket, String objectName,
+            String versionId, ObjectMatcher matchers) throws S3ServerException {
+        try {
+            Bucket s3Bucket = bucketService.getBucket(session, bucket);
+
+            BSONObject fileInfo = scmBucketService.getFile(session.getUser(), bucket, objectName);
+            if (versionId != null) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
+                        "no such version. objectName:" + objectName + ",version:" + versionId);
+            }
+            S3ObjectMeta objectMeta = FileMappingUtil.buildS3ObjectMeta(bucket, fileInfo);
+            match(matchers, objectMeta);
+
+            audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
+                    "get s3 object meta: bucket=" + bucket + ", key=" + objectName);
+            return objectMeta;
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "object not exist: bucket=" + bucket + ", object=" + objectName, e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_GET_FAILED,
+                    "failed to get object: bucket=" + bucket + ", object=" + objectName, e);
+        }
     }
 
     private String trimQuotes(String str) {
@@ -177,7 +218,7 @@ public class ObjServiceImpl implements ObjectService {
         return str;
     }
 
-    public static Date parseDate(String dateString) throws S3ServerException {
+    private static Date parseDate(String dateString) throws S3ServerException {
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                     "EEE, dd MMM yyyy HH:mm:ss ZZZ", Locale.ENGLISH);
@@ -193,8 +234,8 @@ public class ObjServiceImpl implements ObjectService {
         return millionSecond / 1000;
     }
 
-    private void match(ObjectMatcher matchers, ObjectMeta objectMeta) throws S3ServerException {
-        String eTag = objectMeta.geteTag();
+    private void match(ObjectMatcher matchers, S3ObjectMeta objectMeta) throws S3ServerException {
+        String eTag = objectMeta.getEtag();
         long lastModifiedTime = objectMeta.getLastModified();
         boolean isMatch = false;
         boolean isNoneMatch = false;
@@ -204,18 +245,17 @@ public class ObjServiceImpl implements ObjectService {
             String matchEtagString = trimQuotes(matchEtag);
             if (!matchEtagString.equals(eTag)) {
                 throw new S3ServerException(S3Error.OBJECT_IF_MATCH_FAILED,
-                        "if-match failed: if-match value:" + matchEtag.toString()
+                        "if-match failed: if-match value:" + matchEtag
                                 + ", current object eTag:" + eTag);
             }
             isMatch = true;
         }
-
         String noneMatchEtag = matchers.getIfNoneMatch();
         if (null != noneMatchEtag) {
             String noneMatchEtagString = trimQuotes(noneMatchEtag);
             if (noneMatchEtagString.equals(eTag)) {
                 throw new S3ServerException(S3Error.OBJECT_IF_NONE_MATCH_FAILED,
-                        "if-none-match failed: if-none-match value:" + noneMatchEtag.toString()
+                        "if-none-match failed: if-none-match value:" + noneMatchEtag
                                 + ", current object eTag:" + eTag);
             }
             isNoneMatch = true;
@@ -228,21 +268,21 @@ public class ObjServiceImpl implements ObjectService {
                 if (!isMatch) {
                     throw new S3ServerException(S3Error.OBJECT_IF_UNMODIFIED_SINCE_FAILED,
                             "if-unmodified-since failed: if-unmodified-since value:"
-                                    + unModifiedSince.toString()
+                                    + unModifiedSince
                                     + ", current object lastModifiedTime:"
                                     + new Date(lastModifiedTime));
                 }
             }
         }
 
-        Object modifiedSince = matchers.getIfModifiedSince();
+        String modifiedSince = matchers.getIfModifiedSince();
         if (null != modifiedSince) {
-            Date date = parseDate(modifiedSince.toString());
+            Date date = parseDate(modifiedSince);
             if (getSecondTime(date.getTime()) >= getSecondTime(lastModifiedTime)) {
                 if (!isNoneMatch) {
                     throw new S3ServerException(S3Error.OBJECT_IF_MODIFIED_SINCE_FAILED,
                             "if-modified-since failed: if-modified-since value:"
-                                    + modifiedSince.toString()
+                                    + modifiedSince
                                     + ", current object lastModifiedTime:"
                                     + new Date(lastModifiedTime));
                 }
@@ -251,262 +291,323 @@ public class ObjServiceImpl implements ObjectService {
     }
 
     @Override
-    public GetResult getObject(ScmSession session, String bucketName, String objectName,
-            Long versionId, boolean isNoVersion, ObjectMatcher matcher, Range range)
-            throws S3ServerException {
-        Bucket bucket = bucketService.getBucket(session, bucketName);
-        ObjectMeta obj = getObjectMeta(session, bucket, objectName, versionId, isNoVersion,
-                matcher);
-        ScmContentServerClient client = clientFactory.getContentServerClient(session,
-                bucket.getRegion());
-
+    public GetObjectResult getObject(ScmSession session, String bucketName, String objectName,
+            String versionId, ObjectMatcher matcher, Range range) throws S3ServerException {
         try {
-            InputStream is = null;
-            if (range == null) {
-                is = client.downloadScmFile(obj.getScmFileId(), 0,
-                        CommonDefine.File.UNTIL_END_OF_FILE);
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+            BSONObject fileInfo = scmBucketService.getFile(session.getUser(), bucketName,
+                    objectName);
+            if (versionId != null) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
+                        "no such version. objectName:" + objectName + ",version:" + versionId);
+            }
+            S3ObjectMeta s3ObjectMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, fileInfo);
+            match(matcher, s3ObjectMeta);
+            InputStream objectData;
+            if (range != null) {
+                CommonUtil.analyseRangeWithFileSize(range, s3ObjectMeta.getSize());
+                objectData = new ScmFileInputStreamAdapter(session, fileService, s3Bucket.getRegion(),
+                        fileInfo, range.getStart(), range.getContentLength());
             }
             else {
-                CommonUtil.analyseRangeWithFileSize(range, obj.getSize());
-                is = client.downloadScmFile(obj.getScmFileId(), range.getStart(),
-                        range.getContentLength());
+                objectData = new ScmFileInputStreamAdapter(session, fileService, s3Bucket.getRegion(),
+                        fileInfo, 0, Long.MAX_VALUE);
             }
-            return new GetResult(obj, is);
+            audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
+                    "get s3 object: bucket=" + bucketName + ", key=" + objectName);
+            return new GetObjectResult(s3ObjectMeta, objectData);
         }
-        catch (ScmFeignException e) {
-            if (e.getStatus() == ScmError.FILE_NOT_FOUND.getErrorCode()) {
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
                 throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
-                        "no such key. objectName:" + objectName, e);
+                        "object not exist: bucket=" + bucketName + ", object=" + objectName, e);
             }
-            throw new S3ServerException(S3Error.OBJECT_GET_FAILED, "failed to get scm file:ws="
-                    + bucket.getRegion() + ", file=" + obj.getScmFileId(), e);
+            throw new S3ServerException(S3Error.OBJECT_GET_FAILED,
+                    "failed to get object: bucket=" + bucketName + ", object=" + objectName, e);
+
         }
     }
 
     @Override
-    public CopyObjectResult copyObject(ScmSession session, ObjectMeta dest, ObjectUri sourceUri,
-            ObjectMatcher matcher, boolean directiveCopy) throws S3ServerException {
-        CommonUtil.checkKey(dest.getKey());
-        Bucket bucket = bucketService.getBucket(session, dest.getBucketName());
-        CopyObjectResult copyObjectResult = new CopyObjectResult();
+    public CopyObjectResult copyObject(ScmSession session, CopyObjectRequest request)
+            throws S3ServerException {
+        try {
+            Bucket srcBucket = bucketService.getBucket(session, request.getSourceObjectBucket());
+            BSONObject fileInfo = scmBucketService.getFile(session.getUser(),
+                    request.getSourceObjectBucket(), request.getSourceObjectKey());
+            if (request.getSourceObjectVersion() != null) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
+                        "no such version. bucket=:" + request.getSourceObjectBucket()
+                                + ", objectKey=" + request.getSourceObjectKey() + ",version:"
+                                + request.getSourceObjectVersion());
+            }
 
-        // get source object meta
-        ObjectMeta sourceMeta = getObjectMeta(session, sourceUri.getBucketName(),
-                sourceUri.getObjectName(), sourceUri.getVersionId(), sourceUri.isNoVersion(),
-                matcher);
+            S3ObjectMeta sourceObjectMeta = FileMappingUtil
+                    .buildS3ObjectMeta(request.getSourceObjectBucket(), fileInfo);
+            checkIsValidCopy(request, sourceObjectMeta);
+            S3BasicObjectMeta destObjectMeta = buildDestObjectMeta(request, sourceObjectMeta);
+            ScmFileInputStreamAdapter fileReader = new ScmFileInputStreamAdapter(session, fileService,
+                    srcBucket.getRegion(), fileInfo, 0, Long.MAX_VALUE);
+            PutObjectResult result;
+            try {
+                result = putObject(session,
+                        new S3PutObjectRequest(destObjectMeta,
+                                BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_MD5),
+                                fileReader));
+            }
+            finally {
+                fileReader.close();
+            }
+            CopyObjectResult copyObjectResult = new CopyObjectResult();
+            copyObjectResult.seteTag(result.geteTag());
+            copyObjectResult.setLastModified(
+                    DataFormatUtils.formatDate(sourceObjectMeta.getLastModified()));
+            copyObjectResult.setVersionId(null);
+            copyObjectResult.setSourceVersionId(null);
+            audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), "null", 0,
+                    "copy s3 bucket: srcBucket=" + request.getSourceObjectBucket() + ", srcObject="
+                            + request.getSourceObjectKey() + ", destBucket="
+                            + request.getDestObjectMeta().getBucket() + ", destObject="
+                            + request.getDestObjectMeta().getKey());
+            return copyObjectResult;
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "failed to copy object, object not exist: bucket="
+                                + request.getSourceObjectBucket() + ", object="
+                                + request.getSourceObjectKey(),
+                        e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_COPY_FAILED,
+                    "failed to copy object: req=" + request, e);
+        }
+    }
 
+    private S3BasicObjectMeta buildDestObjectMeta(CopyObjectRequest request,
+            S3ObjectMeta sourceObjectMeta) {
+        if (request.isUseSourceObjectMeta()) {
+            S3BasicObjectMeta ret = new S3BasicObjectMeta(sourceObjectMeta);
+            ret.setBucket(request.getDestObjectMeta().getBucket());
+            ret.setKey(request.getDestObjectMeta().getKey());
+            return ret;
+        }
+        request.getDestObjectMeta().setSize(sourceObjectMeta.getSize());
+        return request.getDestObjectMeta();
+    }
+
+    private void checkIsValidCopy(CopyObjectRequest request, S3ObjectMeta objectMeta)
+            throws S3ServerException {
+        match(request.getSourceObjectMatcher(), objectMeta);
         // check if itself change, 参照s3顺序，先判断对象合法存在
-        if (dest.getBucketName().equals(sourceUri.getBucketName())
-                && dest.getKey().equals(sourceUri.getObjectName()) && sourceUri.isNoVersion()) {
-            if (directiveCopy) {
+        if (request.getDestObjectMeta().getBucket().equals(request.getSourceObjectBucket())
+                && request.getDestObjectMeta().getKey().equals(request.getSourceObjectKey())
+                && request.getSourceObjectVersion() == null) {
+            if (request.isUseSourceObjectMeta()) {
                 throw new S3ServerException(S3Error.OBJECT_COPY_WITHOUT_CHANGE,
                         "copy an object to itself without changing the object's metadata.");
             }
         }
-
-        if (!directiveCopy) {
-            if (dest.getMetaListlength() > RestParamDefine.X_AMZ_META_LENGTH) {
+        if (!request.isUseSourceObjectMeta()) {
+            if (request.getDestObjectMeta()
+                    .getMetaListLength() > RestParamDefine.X_AMZ_META_LENGTH) {
                 throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
-                        "metadata headers exceed the maximum. xMeta:" + sourceMeta.getMetaList());
+                        "metadata headers exceed the maximum. xMeta:"
+                                + request.getDestObjectMeta().getMetaList());
             }
-            dest.setEtag(sourceMeta.geteTag());
         }
-        else {
-            sourceMeta.setBucketName(dest.getBucketName());
-            sourceMeta.setKey(dest.getKey());
-            dest = sourceMeta;
-        }
-
-        ScmContentServerClient client = clientFactory.getContentServerClient(session,
-                bucket.getWorkspace());
-        InputStream is = null;
-        ScmFileInfo scmFile = null;
-        String breakFileName = null;
-        try {
-            is = client.downloadScmFile(sourceMeta.getScmFileId(), 0,
-                    CommonDefine.File.UNTIL_END_OF_FILE);
-            breakFileName = UUID.randomUUID().toString();
-            logger.debug("creating scm breakpointfile() for object()", breakFileName,
-                    dest.getKey());
-            client.createBreakpointFile(breakFileName, is);
-            scmFile = client.createScmFileWithOverwrite(breakFileName, bucket.getBucketDir(), dest);
-        }
-        catch (Exception e) {
-            client.deleteBreakpointFileSilence(breakFileName);
-            throw new S3ServerException(S3Error.OBJECT_COPY_FAILED,
-                    "failed to create scm file: obj=" + dest.getKey() + ", bucket="
-                            + bucket.getBucketName(),
-                    e);
-        }
-        finally {
-            CommonUtil.closeResource(is);
-        }
-        copyObjectResult.seteTag(sourceMeta.geteTag());
-        copyObjectResult.setLastModified(DataFormatUtils.formatDate(scmFile.getUpdateTime()));
-        return copyObjectResult;
     }
 
     @Override
-    public PutDeleteResult deleteObject(ScmSession session, String bucketName, String objectName)
-            throws S3ServerException {
-        try {
-            CommonUtil.checkKey(objectName);
-        }
-        catch (Exception e) {
-            logger.info("invalid object key, assume not exist:" + objectName, e);
+    public DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectKey,
+            String versionId) throws S3ServerException {
+        if (versionId != null) {
             return null;
         }
-
-        Bucket bucket = bucketService.getBucket(session, bucketName);
-        ScmContentServerClient client = clientFactory.getContentServerClient(session,
-                bucket.getWorkspace());
         try {
-            ScmFileInfo file = client
-                    .deleteFile(CommonUtil.concatPath(bucket.getBucketDir(), objectName));
-            if (file != null) {
-                try {
-                    removeEmptyParentDir(bucket, client, objectName);
-                }
-                catch (Exception e) {
-                    logger.warn("failed to remove obj parent dir:obj={}" + objectName, e);
-                }
-            }
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+            String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectKey);
+            fileService.deleteFile(session.getSessionId(), session.getUserDetail(),
+                    session.getUser(), s3Bucket.getRegion(), fileId, -1, -1, true);
+            audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
+                    "delete s3 object: bucket=" + bucketName + ", key=" + objectKey);
+            // obj no version, return null
+            return null;
         }
-        catch (ScmFeignException e) {
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                return null;
+            }
             throw new S3ServerException(S3Error.OBJECT_DELETE_FAILED,
-                    "failed to delete obj:bucket=" + bucketName + ", obj=" + objectName, e);
+                    "failed to delete object: bucket=" + bucketName + ", objectKey=" + objectKey,
+                    e);
         }
-        // obj no version, return null
-        return null;
 
-    }
-
-    private void removeEmptyParentDir(Bucket bucket, ScmContentServerClient client,
-            String objectName) throws ScmFeignException, S3ServerException {
-        ScmDirPath subPathInBucket = new ScmDirPath(objectName);
-        for (int i = subPathInBucket.getLevel() - 1; i >= 2; i--) {
-            boolean deleted = client.deleteDirIfEmpty(CommonUtil.concatPath(bucket.getBucketDir(),
-                    subPathInBucket.getPathByLevel(i)));
-            if (!deleted) {
-                break;
-            }
-        }
-    }
-
-    @Override
-    public PutDeleteResult deleteObject(ScmSession session, String bucketName, String objectName,
-            Long versionId, boolean isNoVersion) throws S3ServerException {
-        if (isNoVersion) {
-            deleteObject(session, bucketName, objectName);
-        }
-        return null;
     }
 
     @Override
     public ListObjectsResultV1 listObjectsV1(ScmSession session, String bucketName, String prefix,
-            String delimiter, String startAfter, Integer maxKeys, String encodingType)
+            String delimiter, String startAfter, int maxKeys, String encodingType)
             throws S3ServerException {
-        CommonUtil.checkStartAfter(startAfter);
         ListObjectsResultV1 listObjectsResult = new ListObjectsResultV1(bucketName, maxKeys,
                 encodingType, prefix, startAfter, delimiter);
-        if (maxKeys == 0) {
+        if (maxKeys <= 0) {
             return listObjectsResult;
         }
 
-        if (!CommonUtil.isValidPrefix(prefix)) {
-            return listObjectsResult;
+        Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+        S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, startAfter, delimiter);
+        for (BSONObject content : scanResult.getContent()) {
+            listObjectsResult
+                    .addContent(FileMappingUtil.buildListObjContent(content, encodingType));
         }
-        Bucket bucket = bucketService.getBucket(session, bucketName);
-        S3ListObjContext context = contextMgr.createContext(session, bucketName,
-                bucket.getWorkspace(), bucket.getBucketDir(), prefix, startAfter, delimiter);
-        Batch batch = context.query(maxKeys, true, encodingType);
-        listObjectsResult.setCommonPrefixList(batch.getCmPrefix());
-        listObjectsResult.setContentList(batch.getContent());
-        if (context.hasMore()) {
-            listObjectsResult.setIsTruncated(true);
-            listObjectsResult.setNextMarker(context.getLastMarker());
+        for (String commonPrefix : scanResult.getCommonPrefixSet()) {
+            listObjectsResult.addCommonPrefix(
+                    new ListObjectCommonPrefix((S3Codec.encode(commonPrefix, encodingType))));
         }
+        listObjectsResult.setIsTruncated(scanResult.isTruncated());
+        if (listObjectsResult.getIsTruncated()) {
+            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+            String nextKeyMarker = nextOffset.getCommonPrefix() == null
+                    ? nextOffset.getMajorKeyStartAfter()
+                    : nextOffset.getCommonPrefix();
+            listObjectsResult.setNextMarker(
+                    S3Codec.encode(nextKeyMarker, encodingType));
+        }
+        audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
+                "list s3 object v1: bucket=" + bucketName + ", prefix=" + prefix + ", delimiter="
+                        + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType);
         return listObjectsResult;
     }
 
     @Override
     public ListVersionsResult listVersions(ScmSession session, String bucketName, String prefix,
-            String delimiter, String keyMarker, String versionIdMarker, Integer maxKeys,
+            String delimiter, String keyMarker, String versionIdMarker, int maxKeys,
             String encodingType) throws S3ServerException {
-        CommonUtil.checkStartAfter(keyMarker);
-        ;
-        Bucket bucket = bucketService.getBucket(session, bucketName);
+
         ListVersionsResult listVersionsResult = new ListVersionsResult(bucketName, maxKeys,
                 encodingType, prefix, delimiter, keyMarker, versionIdMarker);
         if (maxKeys == 0) {
             return listVersionsResult;
         }
-        if (!CommonUtil.isValidPrefix(prefix)) {
-            return listVersionsResult;
-        }
 
-        S3ListObjContext context = contextMgr.createContext(session, bucketName,
-                bucket.getWorkspace(), bucket.getBucketDir(), prefix, keyMarker, delimiter);
-        Batch batch = context.query(maxKeys, true, encodingType);
-        listVersionsResult.setCommonPrefixList(batch.getCmPrefix());
-        if (context.hasMore()) {
-            listVersionsResult.setIsTruncated(true);
-            listVersionsResult.setNextKeyMarker(context.getLastMarker());
+        Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+        S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, keyMarker, delimiter);
+        for (BSONObject content : scanResult.getContent()) {
+            listVersionsResult.addVersion(
+                    new ListObjVersion(FileMappingUtil.buildListObjContent(content, encodingType)));
+        }
+        for (String commonPrefix : scanResult.getCommonPrefixSet()) {
+            listVersionsResult.addCommonPrefix(
+                    new ListObjectCommonPrefix(S3Codec.encode(commonPrefix, encodingType)));
+        }
+        listVersionsResult.setIsTruncated(scanResult.isTruncated());
+        if (scanResult.isTruncated()) {
+            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+            String nextKeyMarker = nextOffset.getCommonPrefix() == null
+                    ? nextOffset.getMajorKeyStartAfter()
+                    : nextOffset.getCommonPrefix();
+            listVersionsResult.setNextKeyMarker(S3Codec.encode(nextKeyMarker, encodingType));
             listVersionsResult.setNextVersionIdMarker(null);
         }
-        List<ListObjRecord> contents = batch.getContent();
-        List<Version> versions = new ArrayList<>();
-        for (ListObjRecord content : contents) {
-            versions.add(new Version(content));
-        }
-        listVersionsResult.setVersionList(versions);
-
+        audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
+                "list s3 object versions: bucket=" + bucketName + ", prefix=" + prefix
+                        + ", delimiter=" + delimiter + ", keyMarker=" + keyMarker
+                        + ", versionIdMarker=" + versionIdMarker + ",encodeType=" + encodingType);
         return listVersionsResult;
     }
 
     @Override
     public ListObjectsResult listObjectsV2(ScmSession session, String bucketName, String prefix,
-            String delimiter, String startAfter, Integer maxKeys, String continueToken,
+            String delimiter, String startAfter, int maxKeys, String continueToken,
             String encodingType, boolean fetchOwner) throws S3ServerException {
-        CommonUtil.checkStartAfter(startAfter);
         ListObjectsResult listObjectsResult = new ListObjectsResult(bucketName, maxKeys,
                 encodingType, prefix, startAfter, delimiter, continueToken);
         if (maxKeys == 0) {
             return listObjectsResult;
         }
-        if (!CommonUtil.isValidPrefix(prefix)) {
-            return listObjectsResult;
-        }
-        S3ListObjContext context = null;
+
+        S3ListObjectContext context = null;
         if (continueToken != null) {
-            context = contextMgr.getContext(session, continueToken);
+            context = contextMgr.getContext(continueToken);
             if (!isContextMatch(context, prefix, startAfter, delimiter)) {
                 context = null;
             }
         }
         if (context == null) {
-            Bucket bucket = bucketService.getBucket(session, bucketName);
-            context = contextMgr.createContext(session, bucketName, bucket.getWorkspace(),
-                    bucket.getBucketDir(), prefix, startAfter, delimiter);
+            context = contextMgr.createContext(prefix, startAfter, delimiter, bucketName);
         }
-        Batch batch = context.query(maxKeys, fetchOwner, encodingType);
-        listObjectsResult.setKeyCount(batch.getCount());
-        listObjectsResult.setCommonPrefixList(batch.getCmPrefix());
-        listObjectsResult.setContentList(batch.getContent());
-        if (context.hasMore()) {
-            listObjectsResult.setIsTruncated(true);
-            listObjectsResult.setNextContinueToken(context.getMeta().getId());
+        Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+        S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, context.getLastMarker(),
+                delimiter);
+        for (BSONObject content : scanResult.getContent()) {
+            listObjectsResult
+                    .addContent(FileMappingUtil.buildListObjContent(content, encodingType));
+        }
+        for (String commonPrefix : scanResult.getCommonPrefixSet()) {
+            listObjectsResult.addCommonPrefix(
+                    new ListObjectCommonPrefix(S3Codec.encode(commonPrefix, encodingType)));
+        }
+        listObjectsResult.setIsTruncated(scanResult.isTruncated());
+        if (scanResult.isTruncated()) {
+            listObjectsResult.setNextContinueToken(context.getToken());
+            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+            context.setLastMarker(nextOffset.getMajorKeyStartAfter());
             context.save();
         }
-        else if (!context.isNewContext()) {
+        else {
             context.release();
         }
+        listObjectsResult.setKeyCount(scanResult.getSize());
+        audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
+                "list s3 object v2: bucket=" + bucketName + ", prefix=" + prefix + ", delimiter="
+                        + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType
+                        + ", continueToken=" + continueToken);
         return listObjectsResult;
     }
 
-    private boolean isContextMatch(S3ListObjContext context, String prefix, String startAfter,
-            String delimiter) {
-        S3ListObjContextMeta contextMeta = context.getMeta();
+    private S3ScanResult scan(String bucketName, int maxKeys, String prefix, String startAfter,
+            String delimiter) throws S3ServerException {
+        try {
+            BasicS3ScanMatcher scanMatcher = new BasicS3ScanMatcher(FieldName.BucketFile.FILE_NAME,
+                    prefix, null);
+            BasicS3ScanCommonPrefixParser scanDelimiter = new BasicS3ScanCommonPrefixParser(
+                    FieldName.BucketFile.FILE_NAME, delimiter, prefix);
+            BasicS3ScanOffset scanOffset = new BasicS3ScanOffset(FieldName.BucketFile.FILE_NAME,
+                    startAfter, scanDelimiter.getCommonPrefix(startAfter));
+
+            ScmBucket scmbucket = scmBucketService.getBucket(bucketName);
+            MetaAccessor accessor = scmbucket.getFileTableAccessor(null);
+            S3ResourceScanner scanner = new S3ResourceScanner(accessor, scanMatcher, scanOffset,
+                    scanDelimiter, maxKeys);
+            return scanner.doScan();
+
+        }
+        catch (ScmMetasourceException e) {
+            throw new S3ServerException(S3Error.OBJECT_LIST_FAILED,
+                    "failed to list object: bucket=" + bucketName + ", prefix=" + prefix
+                            + ", startAfter=" + startAfter + ", delimiter=" + delimiter,
+                    e);
+
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "failed to list object, bucket not exist:  bucket=" + bucketName
+                                + ", prefix=" + prefix + ", startAfter=" + startAfter
+                                + ", delimiter=" + delimiter,
+                        e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_LIST_FAILED,
+                    "failed to list object:  bucket=" + bucketName + ", prefix=" + prefix
+                            + ", startAfter=" + startAfter + ", delimiter=" + delimiter,
+                    e);
+        }
+
+    }
+
+    private boolean isContextMatch(S3ListObjectContext contextMeta, String prefix,
+            String startAfter, String delimiter) {
         if (contextMeta.getDelimiter() != null) {
             if (!(contextMeta.getDelimiter().equals(delimiter))) {
                 return false;
@@ -537,11 +638,65 @@ public class ObjServiceImpl implements ObjectService {
         return true;
     }
 
-    @Override
-    public boolean isEmptyBucket(ScmSession session, Bucket bucket) throws S3ServerException {
-        ListObjectsResultV1 result = listObjectsV1(session, bucket.getBucketName(), null, null,
-                null, 1, null);
-        return result.getCommonPrefixList().size() + result.getContentList().size() <= 0;
+}
+
+class ScmFileInputStreamAdapter extends InputStream {
+
+    private final BSONObject fileInfo;
+    private FileReaderDao reader;
+    private long readLen = 0;
+    private long maxReadLen;
+
+    public ScmFileInputStreamAdapter(ScmSession session, IFileService fileService, String ws,
+                                     BSONObject fileInfo, long start, long len) throws ScmServerException {
+        int readFlag = 0;
+        maxReadLen = len;
+        this.fileInfo = fileInfo;
+        if (start > 0) {
+            readFlag = CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK;
+        }
+        reader = fileService.downloadFile(session.getSessionId(), session.getUserDetail(), ws,
+                fileInfo, readFlag);
+        reader.seek(start);
     }
 
+    @Override
+    public int read() throws IOException {
+        throw new IOException("unsupported");
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        long remain = maxReadLen - readLen;
+        if (remain <= 0) {
+            return -1;
+        }
+        int currentReadLen;
+        if (len > remain) {
+            currentReadLen = (int) remain;
+        }
+        else {
+            currentReadLen = len;
+        }
+
+        try {
+            int ret = reader.read(b, off, currentReadLen);
+            readLen += ret;
+            return ret;
+        }
+        catch (ScmServerException e) {
+            throw new IOException(
+                    "failed to read data: ws= " + reader.getWsName() + ", fileInfo=" + fileInfo, e);
+        }
+    }
+
+    @Override
+    public void close() {
+        reader.close();
+    }
 }

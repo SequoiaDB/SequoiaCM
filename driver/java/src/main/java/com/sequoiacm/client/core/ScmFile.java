@@ -1,12 +1,8 @@
 package com.sequoiacm.client.core;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
+
 
 import com.sequoiacm.client.element.ScmContentLocation;
-import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmClassProperties;
@@ -17,6 +13,14 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.common.ScmUpdateContentOption;
+import org.bson.BSONObject;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The interface of ScmFile.
@@ -122,8 +126,8 @@ public abstract class ScmFile {
      * @param name
      *            File name.
      *            <dl>
-     *            <dt>name can't be null,empty string,or dot(.).
-     *                also,name can't contain special characters like / \\ % ; : * ? &quot; &lt; &gt; |
+     *            <dt>name can't be null,empty string,or dot(.). also,name can't
+     *            contain special characters like / \\ % ; : * ? &quot; &lt; &gt; |
      *            </dt>
      *            </dl>
      * @throws ScmException
@@ -358,16 +362,16 @@ public abstract class ScmFile {
      * Obtains file content and saves into output stream.
      *
      * @param os
-     *            An output stream to storage file content. It should  be valid.
+     *            An output stream to storage file content. It should be valid.
      * @param readFlag
-     *            the read flags. Please see the description of follow flags for more detail,
-     *            and can also specify 0 to not configure.
+     *            the read flags. Please see the description of follow flags for
+     *            more detail, and can also specify 0 to not configure.
      *            <dl>
-     *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
-     *            :do not cache when reading file across sites
+     *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE :do not
+     *            cache when reading file across sites
      *            </dl>
      * @throws ScmException
-     *            If error happens
+     *             If error happens
      * @since 3.1.2
      */
     public abstract void getContent(OutputStream os, int readFlag) throws ScmException;
@@ -516,8 +520,8 @@ public abstract class ScmFile {
     public abstract Date getDataCreateTime();
 
     /**
-     * Obtains file content and saves into output path. only get content from
-     * local site
+     * Obtains file content and saves into output path. only get content from local
+     * site
      *
      * @param outputPath
      *            A system full path to storage file content. It should be not
@@ -552,12 +556,13 @@ public abstract class ScmFile {
 
     /**
      * Create a new version scm file content from input stream.
+     * 
      * @param is
-     *              an input stream to read file content. It should be valid.
+     *            an input stream to read file content. It should be valid.
      * @param option
-     *              option for update content.
+     *            option for update content.
      * @throws ScmException
-     *            if error happens.
+     *             if error happens.
      */
     public abstract void updateContent(InputStream is, ScmUpdateContentOption option)
             throws ScmException;
@@ -585,12 +590,13 @@ public abstract class ScmFile {
 
     /**
      * Creates a new version scm file content from breakpoint file.
+     * 
      * @param breakpointFile
-     *          breakpoint file to transfer to file.
+     *            breakpoint file to transfer to file.
      * @param option
-     *          option for update content.
+     *            option for update content.
      * @throws ScmException
-     *          if error happens.
+     *             if error happens.
      */
     public abstract void updateContent(ScmBreakpointFile breakpointFile,
             ScmUpdateContentOption option) throws ScmException;
@@ -604,6 +610,30 @@ public abstract class ScmFile {
      *             if error happens.
      */
     public abstract void setCreateTime(Date date) throws ScmException;
+
+    /**
+     * Sets file custom metadata.
+     * 
+     * @param customMetadata
+     *            custom metadata.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void setCustomMetadata(Map<String, String> customMetadata) throws ScmException;
+
+    /**
+     * Return the custom metadata of file.
+     * 
+     * @return custom metadata.
+     */
+    public abstract Map<String, String> getCustomMetadata();
+
+    /**
+     * Return the bucket id of file.
+     *
+     * @return bucket id. null if file not in bucket.
+     */
+    public abstract Long getBucketId();
 
     /**
      * Judges whether current file is exist.
@@ -625,12 +655,13 @@ public abstract class ScmFile {
 
     /**
      * Get the md5 of the file.
+     * 
      * @return return null if the file has no md5.
      */
     public abstract String getMd5();
 
     /**
-     * Calculate the md5 of the file. 
+     * Calculate the md5 of the file.
      */
     public abstract void calcMd5() throws ScmException;
 
@@ -641,6 +672,18 @@ public abstract class ScmFile {
      * @since 3.1
      */
     public abstract List<ScmContentLocation> getContentLocations() throws ScmException;
+
+    /**
+     * Return the file name before attach to bucket(when attach type is
+     * ScmBucketAttachKeyType.FILE_ID, the file will be renamed, this method return
+     * origin file name)
+     * 
+     * @return file name, null if the file did not attach bucket with
+     *         ScmBucketAttachKeyType.FILE_ID.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract String getNameBeforeAttach() throws ScmException;
 
     abstract void setSize(long size);
 
@@ -667,4 +710,8 @@ public abstract class ScmFile {
     abstract BSONObject toBSONObject() throws ScmException;
 
     abstract void refresh(BSONObject newFileBSON) throws ScmException;
+
+    abstract HttpURLConnection httpURLConnectionForSave(ScmUploadConf conf) throws ScmException;
+
+    abstract HttpURLConnection httpURLConnectionForUpdateContent() throws ScmException;
 }

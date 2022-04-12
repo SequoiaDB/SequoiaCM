@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
+import feign.Response;
+
 @RequestMapping("/internal/v1")
 public interface ScmConfFeignClient {
 
@@ -40,6 +42,15 @@ public interface ScmConfFeignClient {
     @GetMapping("/config/{conf_name}")
     public BSONObject getConf(@PathVariable("conf_name") String confName,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
+
+    @GetMapping("/config/{conf_name}?action=list_conf")
+    public Response listConf(@PathVariable("conf_name") String confName,
+                             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
+
+    @GetMapping("/config/{conf_name}?action=count_conf")
+    public Response countConf(@PathVariable("conf_name") String confName,
+                             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
+
 
     @PutMapping("/config/{conf_name}")
     public BSONObject updateConf(@PathVariable("conf_name") String confName,

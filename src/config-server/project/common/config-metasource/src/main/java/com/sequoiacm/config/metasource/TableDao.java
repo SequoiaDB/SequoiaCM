@@ -21,6 +21,9 @@ public interface TableDao {
     public MetaCursor query(BSONObject matcher, BSONObject seletor, BSONObject orderBy)
             throws MetasourceException;
 
+    public MetaCursor query(BSONObject matcher, BSONObject seletor, BSONObject orderBy, long skip, long limit)
+            throws MetasourceException;
+
     public BSONObject queryOne(BSONObject matcher, BSONObject seletor, BSONObject orderBy)
             throws MetasourceException;
 

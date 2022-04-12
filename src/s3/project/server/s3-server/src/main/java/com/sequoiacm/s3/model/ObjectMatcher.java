@@ -1,9 +1,5 @@
 package com.sequoiacm.s3.model;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.sequoiacm.s3.common.RestParamDefine;
-
 public class ObjectMatcher {
 
     private String ifMatch;
@@ -35,4 +31,10 @@ public class ObjectMatcher {
         return ifUnmodifiedSince;
     }
 
+    @Override
+    public String toString() {
+        return "ObjectMatcher{" + "ifMatch='" + ifMatch + '\'' + ", ifNoneMatch='" + ifNoneMatch
+                + '\'' + ", ifModifiedSince='" + ifModifiedSince + '\'' + ", ifUnmodifiedSince='"
+                + ifUnmodifiedSince + '\'' + '}';
+    }
 }

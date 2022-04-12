@@ -43,8 +43,12 @@ def load_config(conf_file):
         f.close()
 
 
-def create_node(type, config):
+def create_node(type, config, auditconf):
     cmd = 'createnode --type ' + type
+    adurl = auditconf['auditurl']
+    aduser = auditconf['audituser']
+    adpasswd = auditconf['auditpassword']
+    cmd += ' --adurl ' + adurl + " --aduser " + aduser + " --adpasswd " + adpasswd
     for key in config:
         cmd += ' -D'+key+'='+config[key]
     scm_admin(cmd)
@@ -57,12 +61,12 @@ def hostAdaptor(hostname):
     else:
         return False
 
-def create_nodes(type, config):
+def create_nodes(type, config, auditconf):
     global node_has_create
     for ele in config:
         if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
             node_has_create = True
-            create_node(type, ele)
+            create_node(type, ele, auditconf)
 
 def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
     global BIN_PATH
@@ -71,7 +75,7 @@ def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
     if bin_path is not None:
         BIN_PATH = bin_path
     if 's3-server' in config:
-        create_nodes('s3-server', config['s3-server'])
+        create_nodes('s3-server', config['s3-server'], config['audit'])
 
 
 def print_help(name):

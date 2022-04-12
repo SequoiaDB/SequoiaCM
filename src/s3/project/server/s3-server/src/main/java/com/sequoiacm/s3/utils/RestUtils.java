@@ -189,7 +189,7 @@ public class RestUtils {
         return status;
     }
 
-    public int getXMetaLength(Map<String, String> xMeta) {
+    public static int getXMetaLength(Map<String, String> xMeta) {
         if (xMeta == null) {
             return 0;
         }

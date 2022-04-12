@@ -2,12 +2,19 @@ package com.sequoiacm.client.core;
 
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.common.ScmType.BreakpointFileType;
 import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.common.ScmType.BreakpointFileType;
 import com.sequoiacm.client.dispatcher.BsonReader;
-import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.element.ScmBreakpointFileOption;
+import com.sequoiacm.client.element.ScmClassBasicInfo;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmNodeInfo;
+import com.sequoiacm.client.element.ScmServiceInstance;
+import com.sequoiacm.client.element.ScmSiteInfo;
+import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.fulltext.ScmFileFulltextInfo;
@@ -22,10 +29,14 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
 import com.sequoiacm.client.util.BsonConverter;
+import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.common.module.ScmBucketAttachFailure;
+import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
@@ -35,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -60,12 +72,12 @@ public class ScmFactory {
         }
 
         /**
-         * Constructs a new instance of the subclassable ScmFile class to be
-         * persisted in the specified ScmWorkspace.
+         * Constructs a new instance of the subclassable ScmFile class to be persisted
+         * in the specified ScmWorkspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @return An object reference to a new instance of this class.
          * @throws ScmException
          *             If error happens.
@@ -80,12 +92,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmFile class by between the specified
-         * fileId from the specified workspace and the latest version.
+         * Acquires an object of the ScmFile class by between the specified fileId from
+         * the specified workspace and the latest version.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param fileId
          *            The ID(GUID) of the file instance.
          * @return An object of the ScmFile type.
@@ -99,12 +111,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmFile class by between the specified
-         * fileId from the specified workspace and the specified version.
+         * Acquires an object of the ScmFile class by between the specified fileId from
+         * the specified workspace and the specified version.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param fileId
          *            The ID(GUID) of the file instance.
          * @param majorVersion
@@ -131,12 +143,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmFile class by between the specified
-         * workspace and the specified filePath.
+         * Acquires an object of the ScmFile class by between the specified workspace
+         * and the specified filePath.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param filePath
          *            The path of the file.
          * @return An object of the ScmFile type.
@@ -151,12 +163,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmFile class by between the specified
-         * filePath from the specified workspace and the specified version.
+         * Acquires an object of the ScmFile class by between the specified filePath
+         * from the specified workspace and the specified version.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param filePath
          *            The path of the file.
          * @param majorVersion
@@ -212,8 +224,8 @@ public class ScmFactory {
          * delete a file.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param fileId
          *            The ID(GUID) of the file instance.
          * @param majorVersion
@@ -240,8 +252,8 @@ public class ScmFactory {
          * delete a file.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param fileId
          *            The ID(GUID) of the file instance.
          * @param isPhysical
@@ -256,12 +268,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmFileBasicInfo instance set which matches between the
-         * specified workspace, scope type and query condition.
+         * Acquires ScmFileBasicInfo instance set which matches between the specified
+         * workspace, scope type and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param scope
          *            The scope of file version.
          * @param fileCondition
@@ -277,12 +289,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmFileBasicInfo instance set which matches between the
-         * specified workspace, scope type and query condition.
+         * Acquires ScmFileBasicInfo instance set which matches between the specified
+         * workspace, scope type and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param scope
          *            The scope of file version.
          * @param fileCondition
@@ -295,8 +307,8 @@ public class ScmFactory {
          *            skip the the specified amount of files, never skip if this
          *            parameter is 0.
          * @param limit
-         *            return the specified amount of files, when limit is -1,
-         *            return all the files.
+         *            return the specified amount of files, when limit is -1, return all
+         *            the files.
          * @return A cursor to traverse
          * @throws ScmException
          *             if error happens
@@ -341,12 +353,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires instance's count which matches between the specified
-         * workspace, scope type and query condition.
+         * Acquires instance's count which matches between the specified workspace,
+         * scope type and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param scope
          *            The scope of file version.
          * @param fileCondition
@@ -410,7 +422,8 @@ public class ScmFactory {
          *             if error happens.
          * @since 3.1
          */
-        public static void asyncTransfer(ScmWorkspace ws, ScmId fileId, String targetSite) throws ScmException {
+        public static void asyncTransfer(ScmWorkspace ws, ScmId fileId, String targetSite)
+                throws ScmException {
             _asyncTransfer(ws, fileId, -1, -1, targetSite);
         }
 
@@ -473,8 +486,8 @@ public class ScmFactory {
             }
 
             ScmSession conn = ws.getSession();
-            conn.getDispatcher().asyncTransferFile(ws.getName(), fileId, majorVersion,
-                    minorVersion, targetSite);
+            conn.getDispatcher().asyncTransferFile(ws.getName(), fileId, majorVersion, minorVersion,
+                    targetSite);
         }
 
         /**
@@ -581,25 +594,26 @@ public class ScmFactory {
          * @param scmFile
          *            the file to be opened for reading
          * @param readFlag
-         *            the read flags. Please see the description of follow flags for more detail,
-         *            and can also specify 0 to not configure.
+         *            the read flags. Please see the description of follow flags for
+         *            more detail, and can also specify 0 to not configure.
          *            <dl>
-         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK
-         *            :create a seekable instance of ScmInputStream
-         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE
-         *            :do not cache when reading file across sites
+         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK :create a
+         *            seekable instance of ScmInputStream
+         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE :do not
+         *            cache when reading file across sites
          *            </dl>
          * @return ScmInputStream
          * @throws ScmException
-         *            if error happens
+         *             if error happens
          * @since 3.1.2
          */
         public static ScmInputStream createInputStream(ScmFile scmFile, int readFlag)
                 throws ScmException {
             if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                     | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE)) > 0) {
-                throw new ScmException(ScmError.INVALID_ARGUMENT, "readFlag cannot contain SCM_READ_FILE_WITHDATA or"
-                        + " SCM_READ_FILE_LOCALSITE, readFlag=" + readFlag);
+                throw new ScmException(ScmError.INVALID_ARGUMENT,
+                        "readFlag cannot contain SCM_READ_FILE_WITHDATA or"
+                                + " SCM_READ_FILE_LOCALSITE, readFlag=" + readFlag);
             }
             if ((readFlag & CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK) > 0) {
                 return new ScmInputStreamImplSeekable(scmFile, readFlag);
@@ -690,9 +704,8 @@ public class ScmFactory {
          *            directory path.
          *            <dl>
          *            <dt>directory name can't be null,empty string,or dot(.).
-         *                also,directory name can't contain special characters
-         *                like / \\ % ; : * ? &quot; &lt; &gt; |
-         *            </dt>
+         *            also,directory name can't contain special characters like / \\ % ;
+         *            : * ? &quot; &lt; &gt; |</dt>
          *            </dl>
          * @return instance of directory.
          * @throws ScmException
@@ -835,12 +848,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmDirectory instance's count which matches between the
-         * specified workspace and query condition.
+         * Acquires ScmDirectory instance's count which matches between the specified
+         * workspace and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param condition
          *            The condition of query directory.
          * @return count of instance
@@ -870,12 +883,12 @@ public class ScmFactory {
         }
 
         /**
-         * Constructs a new instance of the subclassable ScmBatch class to be
-         * persisted in the specified ScmWorkspace.
+         * Constructs a new instance of the subclassable ScmBatch class to be persisted
+         * in the specified ScmWorkspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @return An object reference to a new instance of this class.
          * @throws ScmException
          *             If error happens.
@@ -885,12 +898,12 @@ public class ScmFactory {
         }
 
         /**
-         * Constructs a new instance of the subclassable ScmBatch class to be
-         * persisted in the specified ScmWorkspace.
+         * Constructs a new instance of the subclassable ScmBatch class to be persisted
+         * in the specified ScmWorkspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param batchId
          *            batch id.
          * @return An object reference to a new instance of this class.
@@ -908,12 +921,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmBatch class by between the specified
-         * batchId from the specified workspace.
+         * Acquires an object of the ScmBatch class by between the specified batchId
+         * from the specified workspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param id
          *            The ID(GUID) of the batch instance.
          * @return An object of the ScmBatch type.
@@ -935,12 +948,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmBatchInfo instance set which matches between the
-         * specified workspace and query condition.
+         * Acquires ScmBatchInfo instance set which matches between the specified
+         * workspace and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param condition
          *            The condition of query batches.
          * @return A cursor to traverse
@@ -953,12 +966,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmBatchInfo instance set which matches between the
-         * specified workspace and query condition.
+         * Acquires ScmBatchInfo instance set which matches between the specified
+         * workspace and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param condition
          *            The condition of query batches.
          * @param orderBy
@@ -968,8 +981,8 @@ public class ScmFactory {
          * @param skip
          *            skip to the first number record
          * @param limit
-         *            return the total records of query, when value is -1,
-         *            return all records
+         *            return the total records of query, when value is -1, return all
+         *            records
          * @return A cursor to traverse
          * @throws ScmException
          *             if error happens
@@ -997,8 +1010,8 @@ public class ScmFactory {
          * Delete a batch.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param id
          *            The ID(GUID) of the batch instance.
          * @throws ScmException
@@ -1011,12 +1024,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmBatchInfo instance's count which matches between the
-         * specified workspace and query condition.
+         * Acquires ScmBatchInfo instance's count which matches between the specified
+         * workspace and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param condition
          *            The condition of query batch.
          * @return count of instance
@@ -1099,8 +1112,8 @@ public class ScmFactory {
             checkArgNotNull("workspace", workspace);
             checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("checksumType", checksumType);
-            return new ScmBreakpointFileImpl(workspace, fileName,
-                    new ScmBreakpointFileOption(checksumType, ScmBreakpointFileOption.DEFAULT_BREAKPOINT_SIZE, false));
+            return new ScmBreakpointFileImpl(workspace, fileName, new ScmBreakpointFileOption(
+                    checksumType, ScmBreakpointFileOption.DEFAULT_BREAKPOINT_SIZE, false));
         }
 
         /**
@@ -1160,13 +1173,13 @@ public class ScmFactory {
          *            the breakpoint file name
          * @param option
          *            the breakpoint file option
-         * @see  BreakpointFileType
+         * @see BreakpointFileType
          * @return the breakpoint file
          * @throws ScmException
          *             if error happens
          */
         public static ScmBreakpointFile createInstance(ScmWorkspace workspace, String fileName,
-                                                       ScmBreakpointFileOption option, BreakpointFileType type) throws ScmException {
+                ScmBreakpointFileOption option, BreakpointFileType type) throws ScmException {
             checkArgNotNull("workspace", workspace);
             checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("option", option);
@@ -1236,10 +1249,10 @@ public class ScmFactory {
          * @see BreakpointFileType
          * @return the breakpoint file
          * @throws ScmException
-         *            if error happens
+         *             if error happens
          */
         public static ScmBreakpointFile getInstance(ScmWorkspace workspace, String fileName,
-                                                    int breakpointSize, BreakpointFileType type) throws ScmException {
+                int breakpointSize, BreakpointFileType type) throws ScmException {
             checkArgNotNull("workspace", workspace);
             checkArgInUriPath("breakfileName", fileName);
             checkArgNotNull("type", type);
@@ -1547,8 +1560,8 @@ public class ScmFactory {
         }
 
         /**
-         * Delete the specified session. Note: Only the authentication
-         * administrator can delete session.
+         * Delete the specified session. Note: Only the authentication administrator can
+         * delete session.
          *
          * @param session
          *            session
@@ -1812,8 +1825,8 @@ public class ScmFactory {
          * @param skip
          *            skip to the first number record
          * @param limit
-         *            return the total records of query, when value is -1,
-         *            return all records
+         *            return the total records of query, when value is -1, return all
+         *            records
          * @return ScmCursor cursor
          * @throws ScmException
          *             If error happens
@@ -2089,8 +2102,7 @@ public class ScmFactory {
          * @param session
          *            the session
          * @param filter
-         *            the condition for query, include:
-         *            password_type,enabled,has_role
+         *            the condition for query, include: password_type,enabled,has_role
          * @return ScmCursor
          * @throws ScmException
          *             If error happens
@@ -2106,13 +2118,12 @@ public class ScmFactory {
          * @param session
          *            the session
          * @param filter
-         *            the condition for query, include:
-         *            password_type,enabled,has_role
+         *            the condition for query, include: password_type,enabled,has_role
          * @param skip
          *            skip to the first number Record
          * @param limit
-         *            return the total records of query, when value is -1,
-         *            return all records
+         *            return the total records of query, when value is -1, return all
+         *            records
          * @return ScmCursor
          * @throws ScmException
          *             If error happens
@@ -2246,13 +2257,13 @@ public class ScmFactory {
          *            session object
          * @param orderBy
          *            the condition for sort, include: key is a property of
-         *            {@link ScmAttributeName.Workspace}, value is
-         *            -1(descending) or 1(ascending)
+         *            {@link ScmAttributeName.Workspace}, value is -1(descending) or
+         *            1(ascending)
          * @param skip
          *            skip to the first number Record
          * @param limit
-         *            return the total records of query, when value is -1,
-         *            return all records
+         *            return the total records of query, when value is -1, return all
+         *            records
          * @return A cursor to traverse
          * @throws ScmException
          *             if errors happens
@@ -2284,8 +2295,8 @@ public class ScmFactory {
          *             if errors happens
          * @since 3.1
          */
-        public static ScmCursor<ScmWorkspaceInfo> listWorkspace(ScmSession ss, BSONObject condition,  BSONObject orderBy,
-                                                                long skip, long limit) throws ScmException {
+        public static ScmCursor<ScmWorkspaceInfo> listWorkspace(ScmSession ss, BSONObject condition,
+                BSONObject orderBy, long skip, long limit) throws ScmException {
             if (null == ss) {
                 throw new ScmInvalidArgumentException("session is null");
             }
@@ -2294,8 +2305,8 @@ public class ScmFactory {
             }
             checkSkip(skip);
             checkLimit(limit);
-            BsonReader reader = ss.getDispatcher().getWorkspaceList(condition, orderBy,
-                    skip, limit);
+            BsonReader reader = ss.getDispatcher().getWorkspaceList(condition, orderBy, skip,
+                    limit);
             ScmCursor<ScmWorkspaceInfo> cusor = new ScmBsonCursor<ScmWorkspaceInfo>(reader,
                     new BsonConverter<ScmWorkspaceInfo>() {
                         @Override
@@ -2478,12 +2489,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmClass instance's count which matches between the
-         * specified workspace and query condition.
+         * Acquires ScmClass instance's count which matches between the specified
+         * workspace and query condition.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param condition
          *            The condition of query class.
          * @return count of instance
@@ -2534,8 +2545,8 @@ public class ScmFactory {
          * specified workspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param classId
          *            The ID of the Class instance.
          * @return An object of the ScmClass type.
@@ -2551,12 +2562,12 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires an object of the ScmClass by the specified className from
-         * the specified workspace.
+         * Acquires an object of the ScmClass by the specified className from the
+         * specified workspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param className
          *            The name of the Class instance.
          * @return An object of the ScmClass type.
@@ -2574,12 +2585,11 @@ public class ScmFactory {
         }
 
         /**
-         * Acquires ScmClass instance set which matches between the specified
-         * workspace.
+         * Acquires ScmClass instance set which matches between the specified workspace.
          *
          * @param ws
-         *            The ScmWorkspace object for the workspace in which this
-         *            class instance is to be located.
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
          * @param filter
          *            the query filter
          * @return A cursor to traverse
@@ -2936,8 +2946,8 @@ public class ScmFactory {
         }
 
         /**
-         * Get the file fulltext index info with specified index status, only
-         * return the files that match workspace fulltext matcher.
+         * Get the file fulltext index info with specified index status, only return the
+         * files that match workspace fulltext matcher.
          *
          * @param ws
          *            workspace.
@@ -2963,8 +2973,8 @@ public class ScmFactory {
         }
 
         /**
-         * Get the file count with specified fulltext index status, only count
-         * the files that match workspace fulltext matcher.
+         * Get the file count with specified fulltext index status, only count the files
+         * that match workspace fulltext matcher.
          * 
          * @param ws
          *            workspace.
@@ -2980,6 +2990,360 @@ public class ScmFactory {
             checkArgNotNull("status", status);
             return ws.getSession().getDispatcher().countFileWithFileIdxStatus(ws.getName(),
                     status.name());
+        }
+    }
+
+    public static class S3 {
+        private static final Logger logger = LoggerFactory.getLogger(S3.class);
+
+        private S3() {
+
+        }
+
+        private static String getRootSiteName(List<ScmServiceInstance> serviceInstances)
+                throws ScmException {
+            for (ScmServiceInstance i : serviceInstances) {
+                if (i.isContentServer() && i.isRootSite()) {
+                    return i.getServiceName();
+                }
+            }
+            return null;
+        }
+
+        private static String chooseS3Service(ScmSession ss) throws ScmException {
+            List<ScmServiceInstance> serviceInstances = ScmSystem.ServiceCenter
+                    .getServiceInstanceList(ss, null);
+            String rootSiteName = getRootSiteName(serviceInstances);
+            String rootSiteS3ServiceName = null;
+            String localSiteS3ServiceName = null;
+            List<String> allS3ServiceName = new ArrayList<String>();
+            for (ScmServiceInstance i : serviceInstances) {
+                if (i.getMetadata() == null) {
+                    continue;
+                }
+                String isS3Server = BsonUtils.getStringOrElse(i.getMetadata(), "isS3Server",
+                        "false");
+                if (!Boolean.parseBoolean(isS3Server)) {
+                    continue;
+                }
+                allS3ServiceName.add(i.getServiceName());
+                String bindingSite = (String) i.getMetadata().get("bindingSite");
+                if (bindingSite == null) {
+                    continue;
+                }
+                if (bindingSite.equalsIgnoreCase(rootSiteName)) {
+                    rootSiteS3ServiceName = i.getServiceName();
+                }
+                if (bindingSite.equalsIgnoreCase(ss.getSiteName())) {
+                    localSiteS3ServiceName = i.getServiceName();
+                    break;
+                }
+            }
+            if (localSiteS3ServiceName != null) {
+                return localSiteS3ServiceName;
+            }
+            if (rootSiteS3ServiceName != null) {
+                return rootSiteS3ServiceName;
+            }
+            if (allS3ServiceName.size() <= 0) {
+                throw new ScmException(ScmError.OPERATION_UNSUPPORTED, "s3 service not found");
+            }
+            return allS3ServiceName.get(new Random().nextInt(allS3ServiceName.size()));
+        }
+
+        /**
+         * Sets the s3 default region.
+         * 
+         * @param ss
+         *            session.
+         * @param workspaceName
+         *            workspace name.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void setDefaultRegion(ScmSession ss, String workspaceName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("ws", workspaceName);
+            String s3Service = chooseS3Service(ss);
+            try {
+                ss.getDispatcher().setDefaultRegion(s3Service, workspaceName);
+            }
+            catch (ScmException e) {
+                logger.error("failed to set default region, s3 service name:{}", s3Service);
+                throw e;
+            }
+        }
+
+        /**
+         * Return the default s3 region.
+         * 
+         * @param ss
+         * @return region.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static String getDefaultRegion(ScmSession ss) throws ScmException {
+            checkArgNotNull("session", ss);
+            String s3Service = chooseS3Service(ss);
+            try {
+                return ss.getDispatcher().getDefaultRegion(s3Service);
+            }
+            catch (ScmException e) {
+                logger.error("failed to set default region, s3 service name:{}", s3Service);
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Utility for operating bucket.
+     */
+    public static class Bucket {
+        private Bucket() {
+        }
+
+        /**
+         * Create a Bucket with specified name and workspace.
+         * 
+         * @param ws
+         *            workspace.
+         * @param bucketName
+         *            bucket name.
+         * @return bucket object.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmBucket createBucket(ScmWorkspace ws, String bucketName)
+                throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("bucketName", bucketName);
+            BSONObject resp = ws.getSession().getDispatcher().createBucket(ws.getName(),
+                    bucketName);
+            return new ScmBucketImpl(ws, resp);
+        }
+
+        /**
+         * Get a Bucket with specified name.
+         * 
+         * @param session
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @return bucket object.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmBucket getBucket(ScmSession session, String bucketName)
+                throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("bucketName", bucketName);
+            BSONObject resp = session.getDispatcher().getBucket(bucketName);
+            return new ScmBucketImpl(session, resp);
+        }
+
+        /**
+         * Delete the specified bucket.
+         * 
+         * @param session
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void deleteBucket(ScmSession session, String bucketName) throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("bucketName", bucketName);
+            session.getDispatcher().deleteBucket(bucketName);
+        }
+
+        /**
+         * List buckets by condition.
+         * 
+         * @param session
+         *            session.
+         * @param condition
+         *            condition.
+         * @param orderby
+         *            order by.
+         * @param skip
+         *            skip to the first number Record
+         * @param limit
+         *            return the total records of query, when value is -1, return all
+         *            records
+         * @return ScmCursor.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmCursor<ScmBucket> listBucket(final ScmSession session,
+                BSONObject condition, BSONObject orderby, long skip, long limit)
+                throws ScmException {
+            checkArgNotNull("session", session);
+            BsonReader bsonReader = session.getDispatcher().listBucket(condition, orderby, skip,
+                    limit);
+            ScmBsonCursor<ScmBucket> cursor = new ScmBsonCursor<ScmBucket>(bsonReader,
+                    new BsonConverter<ScmBucket>() {
+                        @Override
+                        public ScmBucket convert(BSONObject obj) throws ScmException {
+                            return new ScmBucketImpl(session, obj);
+                        }
+                    });
+            return cursor;
+        }
+
+        /**
+         * List buckets by specified workspace and user.
+         * 
+         * @param ss
+         *            session.
+         * @param workspace
+         *            workspace name, match all workspace when value is null .
+         * @param userName
+         *            username, match all user when value is null.
+         * @return ScmCursor.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmCursor<ScmBucket> listBucket(ScmSession ss, String workspace,
+                String userName) throws ScmException {
+            BSONObject condition = new BasicBSONObject();
+            if (workspace != null) {
+                condition.put(FieldName.Bucket.WORKSPACE, workspace);
+            }
+            if (userName != null) {
+                condition.put(FieldName.Bucket.CREATE_USER, userName);
+            }
+            return listBucket(ss, condition, null, 0, -1);
+        }
+
+        /**
+         * Detach the specified file from bucket.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @param fileName
+         *            file name.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void detachFile(ScmSession ss, String bucketName, String fileName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("bucketName", bucketName);
+            checkArgNotNull("fileName", fileName);
+            ss.getDispatcher().bucketDetachFile(bucketName, fileName);
+        }
+
+        /**
+         * Attach the specified files to the bucket.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @param fileIdList
+         *            file id list.
+         * @param type
+         *            attach type.
+         * @return the file list attach failure.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmBucketAttachFailure> attachFile(ScmSession ss, String bucketName,
+                List<ScmId> fileIdList, ScmBucketAttachKeyType type) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("bucketName", bucketName);
+            checkArgNotNull("fileIdList", fileIdList);
+            type = type == null ? ScmBucketAttachKeyType.FILE_NAME : type;
+            List<String> idStrList = new ArrayList<String>();
+            for (ScmId fileId : fileIdList) {
+                idStrList.add(fileId.get());
+            }
+            List<BSONObject> resp = ss.getDispatcher().bucketAttachFile(bucketName, idStrList,
+                    type);
+            List<ScmBucketAttachFailure> ret = new ArrayList<ScmBucketAttachFailure>();
+            for (BSONObject b : resp) {
+                String fileId = BsonUtils.getStringChecked(b,
+                        CommonDefine.RestArg.ATTACH_FAILURE_FILE_ID);
+                int errorCode = BsonUtils.getIntegerChecked(b,
+                        CommonDefine.RestArg.ATTACH_FAILURE_ERROR_CODE);
+                String errorMsg = BsonUtils.getString(b,
+                        CommonDefine.RestArg.ATTACH_FAILURE_ERROR_MSG);
+                BSONObject extInfo = BsonUtils.getBSONObject(b,
+                        CommonDefine.RestArg.ATTACH_FAILURE_EXT_INFO);
+                ret.add(new ScmBucketAttachFailure(fileId, ScmError.getScmError(errorCode),
+                        errorMsg, extInfo));
+            }
+            return ret;
+
+        }
+
+
+        /**
+         * Attach the specified file to the bucket.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @param fileId
+         *            file id.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void attachFile(ScmSession ss, String bucketName, ScmId fileId)
+                throws ScmException {
+            checkArgNotNull("fileId", fileId);
+            List<ScmBucketAttachFailure> ret = attachFile(ss, bucketName,
+                    Collections.singletonList(fileId), ScmBucketAttachKeyType.FILE_NAME);
+            if (ret.size() > 0) {
+                ScmBucketAttachFailure error = ret.get(0);
+                throw new ScmException(error.getError(), ss.getSessionId() + ":"
+                        + error.getMessage() + ", extInfo=" + error.getExternalInfo());
+            }
+        }
+
+        /**
+         * Return the bucket count.
+         * 
+         * @param ss
+         *            session.
+         * @param condition
+         *            bucket condition.
+         * @return bucket count.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static long countBucket(ScmSession ss, BSONObject condition) throws ScmException {
+            checkArgNotNull("session", ss);
+            return ss.getDispatcher().countBucket(condition);
+        }
+
+        /**
+         * Return the bucket count.
+         * 
+         * @param ss
+         *            session.
+         * @param ws
+         *            workspace name, match all workspace when value is null .
+         * @param user
+         *            username, match all user when value is null.
+         * @return bucket count.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static long countBucket(ScmSession ss, String ws, String user) throws ScmException {
+            BSONObject condition = new BasicBSONObject();
+            if (ws != null) {
+                condition.put(FieldName.Bucket.WORKSPACE, ws);
+            }
+            if (user != null) {
+                condition.put(FieldName.Bucket.CREATE_USER, user);
+            }
+            return ss.getDispatcher().countBucket(condition);
         }
     }
 

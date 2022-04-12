@@ -1,7 +1,5 @@
 package com.sequoiacm.s3.model;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +46,7 @@ public class ListVersionsResult {
 
     @JacksonXmlElementWrapper(localName = "Version", useWrapping = false)
     @JsonProperty("Version")
-    private List<Version> versionList = new ArrayList<>();
+    private List<ListObjVersion> versionList = new ArrayList<>();
 
     @JacksonXmlElementWrapper(localName = "DeleteMarker", useWrapping = false)
     @JsonProperty("DeleteMarker")
@@ -56,7 +54,7 @@ public class ListVersionsResult {
 
     @JacksonXmlElementWrapper(localName = "CommonPrefixes", useWrapping = false)
     @JsonProperty("CommonPrefixes")
-    private List<ListObjRecord> commonPrefixList = new ArrayList<>();
+    private List<ListObjectCommonPrefix> commonPrefixList = new ArrayList<>();
 
     public ListVersionsResult(String bucketName, Integer maxKeys, String encodingType,
             String prefix, String delimiter, String keyMarker, String versionIdMarker)
@@ -70,13 +68,13 @@ public class ListVersionsResult {
         this.keyMarker = S3Codec.encode(keyMarker, encodingType);
     }
 
-    public void setCommonPrefixList(List<ListObjRecord> commonPrefixList) {
+    public void setCommonPrefixList(List<ListObjectCommonPrefix> commonPrefixList) {
         if (commonPrefixList != null) {
             this.commonPrefixList = commonPrefixList;
         }
     }
 
-    public List<ListObjRecord> getCommonPrefixList() {
+    public List<ListObjectCommonPrefix> getCommonPrefixList() {
         return commonPrefixList;
     }
 
@@ -90,13 +88,13 @@ public class ListVersionsResult {
         return deleteMarkerList;
     }
 
-    public void setVersionList(List<Version> versionList) {
+    public void setVersionList(List<ListObjVersion> versionList) {
         if (versionList != null) {
             this.versionList = versionList;
         }
     }
 
-    public List<Version> getVersionList() {
+    public List<ListObjVersion> getVersionList() {
         return versionList;
     }
 
@@ -122,5 +120,13 @@ public class ListVersionsResult {
 
     public String getNextVersionIdMarker() {
         return nextVersionIdMarker;
+    }
+
+    public void addVersion(ListObjVersion content) {
+        versionList.add(content);
+    }
+
+    public void addCommonPrefix(ListObjectCommonPrefix prefix) {
+        commonPrefixList.add(prefix);
     }
 }

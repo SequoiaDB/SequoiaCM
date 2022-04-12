@@ -25,6 +25,29 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-s3-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-datasource-hbase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-datasource-hdfs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-datasource-ceph-swift</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-datasource-ceph-s3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

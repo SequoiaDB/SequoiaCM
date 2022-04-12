@@ -85,8 +85,7 @@ public class CommonDefine {
         public static final int SCM_FILE_SEEK_SET = 0;
 
         /**
-         * A constants representing that measured in bytes from current
-         * position.
+         * A constants representing that measured in bytes from current position.
          *
          * @since 2.1
          */
@@ -376,6 +375,21 @@ public class CommonDefine {
         public static final String SITE_STRATEGY = "strategy";
 
         public static final String X_SCM_COUNT = "X-SCM-Count";
+
+        public static final String FILTER = "filter";
+        public static final String ORDER_BY = "order_by";
+        public static final String SKIP = "skip";
+        public static final String LIMIT = "limit";
+        public static final String BUCKET_NAME = "bucket_name";
+        public static final String FILE_NAME = "file_name";
+        public static final String FILE_ID_LIST = "file_id_list";
+        public static final String ATTACH_KEY_TYPE = "key_type";
+        public static final String ATTACH_FAILURE_FILE_ID = "file_id";
+        public static final String ATTACH_FAILURE_ERROR_CODE = "error_code";
+        public static final String ATTACH_FAILURE_ERROR_MSG = "error_msg";
+        public static final String ATTACH_FAILURE_EXT_INFO = "external_info";
+        public static final String ATTACH_FAILURE_EXT_INFO_BUCKET_NAME = "bucket_name";
+
     }
 
     public static class Directory {

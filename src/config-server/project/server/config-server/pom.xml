@@ -37,6 +37,11 @@
 
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-config-bucket</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-config-node</artifactId>
         </dependency>
 

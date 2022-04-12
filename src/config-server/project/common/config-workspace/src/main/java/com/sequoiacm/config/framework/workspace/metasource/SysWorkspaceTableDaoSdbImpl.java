@@ -41,7 +41,7 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION + "." + SequoiadbHelper.DOLLAR0, "");
         BasicBSONObject unsetObj = new BasicBSONObject(SequoiadbHelper.DOLLAR_UNSET, unsetValue);
 
-        BSONObject updatedRecord = _updateAndCheck(andMatcher, unsetObj);
+        BSONObject updatedRecord = updateAndReturnNew(andMatcher, unsetObj);
         if (updatedRecord == null) {
             return updatedRecord;
         }
@@ -58,14 +58,14 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION, location);
         BasicBSONObject pushObj = new BasicBSONObject(SequoiadbHelper.DOLLAR_PUSH, locationInfo);
 
-        return _updateAndCheck(oldWsRecord, pushObj);
+        return updateAndReturnNew(oldWsRecord, pushObj);
     }
 
     private BSONObject deleteNullDataLocation(BSONObject matcher) throws MetasourceException {
         BSONObject nullInList = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION,
                 null);
         BSONObject pull = new BasicBSONObject(SequoiadbHelper.DOLLAR_PULL, nullInList);
-        return _updateAndCheck(matcher, pull);
+        return updateAndReturnNew(matcher, pull);
     }
 
     @Override

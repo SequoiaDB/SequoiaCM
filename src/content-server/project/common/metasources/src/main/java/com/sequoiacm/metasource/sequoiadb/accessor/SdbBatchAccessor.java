@@ -13,7 +13,6 @@ import com.sequoiacm.common.ScmMonthRange;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaBatchAccessor;
-import com.sequoiacm.metasource.MetaSourceDefine;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
@@ -31,7 +30,7 @@ public class SdbBatchAccessor extends SdbMetaAccessor implements MetaBatchAccess
     }
 
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
         }

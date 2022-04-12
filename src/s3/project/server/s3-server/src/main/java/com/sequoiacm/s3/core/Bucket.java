@@ -2,6 +2,7 @@ package com.sequoiacm.s3.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.s3.utils.DataFormatUtils;
 
 public class Bucket {
     public static final String BUCKET_NAME = "Name";
@@ -12,23 +13,32 @@ public class Bucket {
     @JsonProperty(BUCKET_CREATETIME)
     private String createDate;
     @JsonIgnore
-    private String workspace;
+    private String user;
     @JsonIgnore
-    private String bucketDir;
+    private String region;
 
-    @JsonIgnore
-    private String userId;
-
-    public String getUserId() {
-        return userId;
+    public Bucket() {
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public Bucket(String bucketName, long createDateL, String user, String region) {
+        this.bucketName = bucketName;
+        this.createDate = DataFormatUtils.formatDate(createDateL);
+        this.region = region;
+        this.user = user;
     }
 
-    public String getBucketDir() {
-        return bucketDir;
+    @Override
+    public String toString() {
+        return "Bucket{" + "bucketName='" + bucketName + '\'' + ", createDate='" + createDate + '\''
+                + ", user='" + user + '\'' + ", region='" + region + '\'' + '}';
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 
     public String getCreateDate() {
@@ -39,28 +49,19 @@ public class Bucket {
         this.createDate = createDate;
     }
 
-    public String getWorkspace() {
-        return workspace;
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public String getRegion() {
-        return getWorkspace();
+        return region;
     }
 
-    public void setWorkspace(String workspace) {
-        this.workspace = workspace;
+    public void setRegion(String region) {
+        this.region = region;
     }
-
-    public void setBucketDir(String bucketDir) {
-        this.bucketDir = bucketDir;
-    }
-
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public String getBucketName() {
-        return this.bucketName;
-    }
-
 }

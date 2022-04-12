@@ -12,7 +12,6 @@ public class MetaSourceDefine {
         public static final String CL_DATA_TABLE_NAME_HISTORY = "DATA_TABLE_NAME_HISTORY";
         public static final String CL_CONF_VERSION = "CONF_VERSION";
         public static final String CL_SUBSCRIBERS = "SUBSCRIBERS";
-        
 
         public static final String CL_FILE = "FILE";
         public static final String CL_FILE_HISTORY = "FILE_HISTORY";
@@ -24,5 +23,7 @@ public class MetaSourceDefine {
         public static final String CL_CLASS = "CLASS";
         public static final String CL_ATTRIBUTE = "ATTRIBUTE";
         public static final String CL_CLASS_ATTR_REL = "CLASS_ATTR_REL";
+        public static final String CL_BUCKET = "BUCKET";
+        public static final String CL_ID_GEN = "ID_GENERATOR";
     }
 }

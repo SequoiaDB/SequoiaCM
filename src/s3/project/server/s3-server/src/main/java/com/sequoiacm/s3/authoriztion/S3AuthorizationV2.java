@@ -1,5 +1,8 @@
 package com.sequoiacm.s3.authoriztion;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 
 public class S3AuthorizationV2 extends S3Authorization {
+    private static final Logger logger = LoggerFactory.getLogger(S3AuthorizationV2.class);
     public static final String AMAZON_PREFIX = "x-amz-";
     public static final String ALTERNATE_DATE = "x-amz-date";
     private static final List<String> SIGNED_PARAMETERS = Arrays.asList(new String[] { "acl",
@@ -40,7 +44,7 @@ public class S3AuthorizationV2 extends S3Authorization {
 
         accesskey = accesskeyAndSignature[0];
         signature = accesskeyAndSignature[1];
-// gateway:8080/s3/bucket/obj
+        // gateway:8080/s3/bucket/obj
         
         String canonicalStr = makeS3CanonicalString(req.getMethod(),
                 getForwardPrefix(req) + req.getRequestURI(), req);
@@ -48,15 +52,7 @@ public class S3AuthorizationV2 extends S3Authorization {
 
         String dateTimeStamp = req.getHeader(AMZ_DATE_HEADER);
         if (dateTimeStamp != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat(ISO8601BasicFormat);
-            sdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
-            try {
-                signDate = sdf.parse(dateTimeStamp);
-            }
-            catch (ParseException e) {
-                throw new IllegalArgumentException(
-                        "failed to parse " + AMZ_DATE_HEADER + ":" + dateTimeStamp);
-            }
+            signDate = parseAmzDate(dateTimeStamp);
         }
         else {
             long date = req.getDateHeader("date");
@@ -67,6 +63,32 @@ public class S3AuthorizationV2 extends S3Authorization {
             signDate = new Date(date);
         }
 
+    }
+
+    private Date parseAmzDate(String amzDateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat(ISO8601BasicFormat);
+        sdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
+        try {
+            return sdf.parse(amzDateStr);
+        }
+        catch (ParseException e) {
+            logger.debug("failed parse amz date: dateStr={}, format={}", amzDateStr,
+                    ISO8601BasicFormat, e);
+            sdf = new SimpleDateFormat(RFC1123Format, Locale.US);
+            sdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
+            try {
+                return sdf.parse(amzDateStr);
+            }
+            catch (ParseException ex) {
+                // 两种时间格式都解析失败了，将两次解析的堆栈进行打印
+                logger.error("failed parse amz date: dateStr={}, format={}", amzDateStr,
+                        ISO8601BasicFormat, e);
+                logger.error("failed parse amz date: dateStr={}, format={}", amzDateStr,
+                        RFC1123Format, ex);
+            }
+            throw new IllegalArgumentException(
+                    "failed to parse " + AMZ_DATE_HEADER + ":" + amzDateStr, e);
+        }
     }
 
     private String makeS3CanonicalString(String method, String resource,
@@ -137,6 +159,7 @@ public class S3AuthorizationV2 extends S3Authorization {
             buf.append("\n");
         }
 
+        String queryString = request.getQueryString();
         // Add all the interesting parameters
         buf.append(resource);
         String[] parameterNames = request.getParameterMap().keySet()
@@ -144,16 +167,9 @@ public class S3AuthorizationV2 extends S3Authorization {
         Arrays.sort(parameterNames);
         char separator = '?';
         for (String parameterName : parameterNames) {
-
-            // if (!SIGNED_PARAMETERS.contains(parameterName) &&
-            // (additionalQueryParamsToSign == null
-            // || !additionalQueryParamsToSign.contains(parameterName))) {
-            // continue;
-            // }
             if (!SIGNED_PARAMETERS.contains(parameterName)) {
                 continue;
             }
-
             buf.append(separator);
             buf.append(parameterName);
             String[] parameterValue = request.getParameterValues(parameterName);
@@ -162,7 +178,15 @@ public class S3AuthorizationV2 extends S3Authorization {
                     throw new IllegalArgumentException("parameter only support one value:"
                             + parameterName + "=" + Arrays.toString(parameterValue));
                 }
-                buf.append("=").append(parameterValue[0]);
+                if (parameterValue[0].isEmpty()) {
+                    // 这个 parameter 时没有值的, 这里需要识别这个 parameter 在 url 中的形式
+                    // 1. path?parameter
+                    // 2. path?parameter=
+                    // 通过回查 queryString 确定是否需要拼接 =
+                    if (queryString.contains(parameterName + "=")) {
+                        buf.append("=").append(parameterValue[0]);
+                    }
+                }
             }
 
             separator = '&';
@@ -206,4 +230,11 @@ public class S3AuthorizationV2 extends S3Authorization {
         return "base64";
     }
 
+    @Override
+    public String toString() {
+        return "S3AuthorizationV2{" + "accesskey='" + accesskey + '\'' + ", signature='" + signature
+                + '\'' + ", algorithm='" + algorithm + '\'' + ", secretkeyPrefix='"
+                + secretkeyPrefix + '\'' + ", signDate=" + signDate + ", stringToSign="
+                + stringToSign + '}';
+    }
 }

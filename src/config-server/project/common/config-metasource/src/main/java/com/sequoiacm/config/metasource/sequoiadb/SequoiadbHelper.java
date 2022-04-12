@@ -11,6 +11,7 @@ public class SequoiadbHelper {
     public static final String DOLLAR_AND = "$and";
     public static final String DOLLAR_PULL = "$pull";
     public static final String DOLLAR_SET = "$set";
+    public static final String DOLLAR_INC = "$inc";
 
     public static DBCollection getCL(String csName, String clName, Sequoiadb db) {
         CollectionSpace cs = db.getCollectionSpace(csName);

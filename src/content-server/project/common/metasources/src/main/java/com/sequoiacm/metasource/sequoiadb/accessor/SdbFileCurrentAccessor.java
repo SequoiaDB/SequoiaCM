@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaFileAccessor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
@@ -24,7 +25,7 @@ public class SdbFileCurrentAccessor extends SdbFileBaseAccessor implements MetaF
     }
 
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
         }

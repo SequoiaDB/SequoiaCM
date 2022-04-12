@@ -26,13 +26,13 @@ public class ScmRestArgDefine {
     public static final String WORKSPACE_CONF_REMOVE_DATALOCATION = "remove_site";
     public static final String WORKSPACE_CONF_OLD_WS = "old_workspace";
     public static final String WORKSPACE_CONF_EXTERNAL_DATA = "external_data";
-    
+
     public static final String SITE_CONF_SITENAME = "name";
     public static final String SITE_CONF_SITEVERSION = "site_version";
-    
+
     public static final String NODE_CONF_NODENAME = "name";
-    public static final String NODE_CONF_NODEHOSTNAME="host_name";
-    public static final String NODE_CONF_NODEPORT="port";
+    public static final String NODE_CONF_NODEHOSTNAME = "host_name";
+    public static final String NODE_CONF_NODEPORT = "port";
     public static final String NODE_CONF_NODEVERSION = "node_version";
 
     public static final String META_DATA_CONF_TYPE_CLASS = "config_class";
@@ -54,6 +54,7 @@ public class ScmRestArgDefine {
     public static final String CONF_VERSION_BUSINESS_TYPE = "business_type";
     public static final String CONF_VERSION_BUSINESS_NAME = "business_name";
     public static final String CONF_VERSION_BUSINESS_VERSION = "business_version";
+    public static final String CONF_VERSION_LIMIT = "limit";
 
     public static final String CONF_PROPS_TARGET_TYPE = "target_type";
     public static final String CONF_PROPS_TARGETS = "targets";
@@ -66,4 +67,15 @@ public class ScmRestArgDefine {
     public static final String CONF_PROPS_RES_SERVICE = "service";
     public static final String CONF_PROPS_RES_INSTANCE = "instance";
     public static final String CONF_PROPS_RES_MESSAGE = "message";
+
+    public static final String BUCKET_CONF_VERSION = "bucket_version";
+    public static final String BUCKET_CONF_GLOBAL_VERSION = "bucket_global_version";
+    public static final String BUCKET_CONF_FILTER_TYPE = "type";
+    public static final String BUCKET_CONF_FILTER_NAME = "name";
+    public static final String BUCKET_CONF_FILTER_MATCHER = "matcher";
+    public static final String BUCKET_CONF_FILTER_ORDERBY = "orderby";
+    public static final String BUCKET_CONF_FILTER_SKIP = "skip";
+    public static final String BUCKET_CONF_FILTER_LIMIT = "limit";
+
+    public static final String COUNT_HEADER = "X-SCM-Count";
 }

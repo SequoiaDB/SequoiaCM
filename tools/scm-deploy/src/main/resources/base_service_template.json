@@ -183,8 +183,13 @@
         {
             "hostname": "localhost",
             "server.port": "8002",
-            "eureka.client.prefer-same-zone-eureka": "true",
-            "scm.s3.region.defaultRegion": "ws_default"
+            "spring.application.name": "xx-site-s3",
+            "scm.content-module.site": "xx-site",
+            "scm.rootsite.meta.url": "192.168.16.69:11810",
+            "scm.rootsite.meta.user": "sdbadmin",
+            "scm.rootsite.meta.password": "/opt/sequoiacm/secret/metasource.pwd",
+            "scm.zookeeper.urls": "192.168.16.69:2981",
+            "eureka.client.prefer-same-zone-eureka": "true"
         }
     ],    "audit": {
         "auditurl":"localhost:11810",

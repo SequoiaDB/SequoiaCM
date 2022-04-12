@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public abstract class S3Authorization {
     public static final String ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'";
+    public static   String RFC1123Format = "EEE, dd MMM yyyy HH:mm:ss z";
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AMZ_DATE_HEADER = "x-amz-date";
 

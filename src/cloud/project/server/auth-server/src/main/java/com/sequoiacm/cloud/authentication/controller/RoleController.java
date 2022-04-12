@@ -1,18 +1,5 @@
 package com.sequoiacm.cloud.authentication.controller;
 
-import java.util.List;
-
-import org.bson.BSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.sequoiacm.cloud.authentication.exception.BadRequestException;
 import com.sequoiacm.cloud.authentication.exception.ForbiddenException;
 import com.sequoiacm.cloud.authentication.exception.NotFoundException;
@@ -21,6 +8,12 @@ import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import org.bson.BSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/api/v1")
 @RestController
@@ -88,7 +81,7 @@ public class RoleController {
         if (limit < -1) {
             throw new BadRequestException("limit can not be less than -1");
         }
-        audit.info(ScmAuditType.ROLE_DQL, auth, null, 0, "find all roles");
+        audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find all roles");
         return repository.findAllRoles(orderBy, skip, limit);
     }
 
@@ -103,7 +96,7 @@ public class RoleController {
         if (role == null) {
             throw new NotFoundException("Role is not found: " + roleName);
         }
-        audit.info(ScmAuditType.ROLE_DQL, auth, null, 0, "find role by roleName=" + roleName);
+        audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find role by roleName=" + roleName);
         return role;
     }
 
@@ -113,7 +106,7 @@ public class RoleController {
         if (role == null) {
             throw new NotFoundException("Role id not found by id: " + roleId);
         }
-        audit.info(ScmAuditType.ROLE_DQL, auth, null, 0, "find role by roleId=" + roleId);
+        audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find role by roleId=" + roleId);
         return role;
     }
 }

@@ -1,7 +1,5 @@
 package com.sequoiacm.s3.model;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.sequoiacm.s3.common.S3Codec;
-import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 
 @JacksonXmlRootElement(localName = "ListBucketResult")
@@ -42,11 +39,11 @@ public class ListObjectsResultV1 {
 
     @JacksonXmlElementWrapper(localName = "Contents", useWrapping = false)
     @JsonProperty("Contents")
-    private List<ListObjRecord> contentList;
+    private List<ListObjContent> contentList;
 
     @JacksonXmlElementWrapper(localName = "CommonPrefixes", useWrapping = false)
     @JsonProperty("CommonPrefixes")
-    private List<ListObjRecord> commonPrefixList;
+    private List<ListObjectCommonPrefix> commonPrefixList;
 
     public ListObjectsResultV1(String bucketName, Integer maxKeys, String encodingType,
             String prefix, String startAfter, String delimiter) throws S3ServerException {
@@ -124,23 +121,31 @@ public class ListObjectsResultV1 {
         return nextMarker;
     }
 
-    public void setContentList(List<ListObjRecord> contentList) {
+    public void setContentList(List<ListObjContent> contentList) {
         if (contentList != null) {
             this.contentList = contentList;
         }
     }
 
-    public List<ListObjRecord> getContentList() {
+    public List<ListObjContent> getContentList() {
         return contentList;
     }
 
-    public void setCommonPrefixList(List<ListObjRecord> commonPrefixList) {
+    public void setCommonPrefixList(List<ListObjectCommonPrefix> commonPrefixList) {
         if (commonPrefixList != null) {
             this.commonPrefixList = commonPrefixList;
         }
     }
 
-    public List<ListObjRecord> getCommonPrefixList() {
+    public List<ListObjectCommonPrefix> getCommonPrefixList() {
         return commonPrefixList;
+    }
+
+    public void addContent(ListObjContent content) {
+        contentList.add(content);
+    }
+
+    public void addCommonPrefix(ListObjectCommonPrefix prefix) {
+        commonPrefixList.add(prefix);
     }
 }

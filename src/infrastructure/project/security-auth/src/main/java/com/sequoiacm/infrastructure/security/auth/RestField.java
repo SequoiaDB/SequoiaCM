@@ -11,6 +11,7 @@ public final class RestField {
     public static final String USER_ATTRIBUTE = "x-auth-user";
     public static final String USER_ATTRIBUTE_USER_NAME = "x-auth-user-name";
     public static final String USER_DETAILS = "user_details";
+    public static final String USER_INFO_WRAPPER = "user_info_wrapper";
 
     public static final String ACCESSKEY = "accesskey";
     public static final String SECRETKEY = "secretkey";

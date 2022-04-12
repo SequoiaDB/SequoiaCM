@@ -22,7 +22,7 @@ public class SdbAttrAccessor extends SdbMetaAccessor implements MetaAttrAccessor
     }
 
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
         }

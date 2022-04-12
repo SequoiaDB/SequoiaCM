@@ -5,6 +5,7 @@ import java.util.List;
 import org.bson.BSONObject;
 
 import com.sequoiacm.config.framework.subscriber.ScmConfSubscriber;
+import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
@@ -20,6 +21,10 @@ public interface ScmConfService {
             throws ScmConfigException;
 
     List<Config> getConf(String configName, BSONObject option) throws ScmConfigException;
+
+    long countConf(String configName, BSONObject option) throws ScmConfigException;
+
+    MetaCursor listConf(String configName, BSONObject option) throws ScmConfigException;
 
     List<Version> getConfVersion(String configName, BSONObject option) throws ScmConfigException;
 

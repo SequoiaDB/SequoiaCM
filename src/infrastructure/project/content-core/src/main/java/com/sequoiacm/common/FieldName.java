@@ -92,6 +92,8 @@ public class FieldName {
     // hdfs location
     public static final String FIELD_CLWORKSPACE_HDFS_DFS_ROOT_PATH = "hdfs_file_root_path";
 
+    public static final String FIELD_CLWORKSPACE_EXTRA_META_CS = "extra_meta_cs";
+
     // CL_USER
     public static final String FIELD_CLUSER_USERNAME = "user"; // string, user1
     public static final String FIELD_CLUSER_PASSWORD = "password"; // string,
@@ -168,8 +170,12 @@ public class FieldName {
     public static final String FIELD_CLFILE_FILE_MIME_TYPE = "mime_type"; // string,
 
     public static final String FIELD_CLFILE_FILE_MD5 = "md5";
+    public static final String FIELD_CLFILE_FILE_ETAG = "etag";
+    public static final String FIELD_CLFILE_FILE_BUCKET_ID = "bucket_id";
 
     public static final String FIELD_CLFILE_FILE_EXTERNAL_DATA = "external_data";
+    public static final String FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH = "file_name_before_attach";
+    public static final String FIELD_CLFILE_CUSTOM_METADATA = "custom_metadata";
 
     // CL_FILE only(file & document)
     public static final String FIELD_CLFILE_EXTRA_STATUS = "status"; // int, 0
@@ -238,6 +244,7 @@ public class FieldName {
     public static final String FIELD_CLVERSION_BUSINESS_TYPE = "business_type";
     public static final String FIELD_CLVERSION_BUSINESS_NAME = "business_name";
     public static final String FIELD_CLVERSION_BUSINESS_VERSION = "business_version";
+
     public static class Task {
         public static final String FIELD_ID = "id";
         public static final String FIELD_TYPE = "type";
@@ -466,5 +473,28 @@ public class FieldName {
         public static final String FIELD_TABLE_NAME = "table_name";
         public static final String FIELD_DIRECTORY = "directory";
         public static final String FIELD_FILE_NAME = "file_name";
+    }
+
+    public static final class Bucket {
+        public static final String ID = "id";
+        public static final String NAME = "name";
+        public static final String FILE_TABLE = "file_table";
+        public static final String CREATE_USER = "create_user";
+        public static final String CREATE_TIME = "create_time";
+        public static final String WORKSPACE = "workspace";
+
+    }
+
+    public static final class BucketFile {
+        public static final String FILE_ID = "id";
+        public static final String FILE_NAME = "name";
+        public static final String FILE_ETAG = "etag";
+        public static final String FILE_MAJOR_VERSION = "major_version";
+        public static final String FILE_MINOR_VERSION = "minor_version";
+        public static final String FILE_UPDATE_TIME = "update_time";
+        public static final String FILE_CREATE_USER = "create_user";
+        public static final String FILE_MIME_TYPE = "mime_type";
+        public static final String FILE_SIZE = "size";
+        public static final String FILE_CREATE_TIME = "create_time";
     }
 }

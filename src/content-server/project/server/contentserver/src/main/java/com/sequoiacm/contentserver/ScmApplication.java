@@ -1,7 +1,9 @@
 package com.sequoiacm.contentserver;
 
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
+import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
@@ -53,6 +55,11 @@ public class ScmApplication implements ApplicationRunner {
     @Value("${spring.application.name}")
     private String siteName;
 
+    @Autowired
+    private BucketInfoManager bucketInfoManager;
+    @Autowired
+    private IDirService dirService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         start(args);
@@ -72,7 +79,7 @@ public class ScmApplication implements ApplicationRunner {
             confClient.setConfFilePaht(confRelativePath);
 
             ScmServer ss = ScmServer.getInstance();
-            ss.init(privClient, confClient, siteName);
+            ss.init(privClient, confClient, siteName, bucketInfoManager, dirService);
         }
         catch (Exception e) {
             logger.error("server exit with error", e);

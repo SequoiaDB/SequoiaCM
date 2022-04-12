@@ -80,6 +80,11 @@ abstract class ScmRestSession extends ScmSession {
     }
 
     @Override
+    String getSiteName() {
+        return dispatcher.getRemainUrl();
+    }
+
+    @Override
     public String getPreferredRegion() {
         return preferredRegion;
     }

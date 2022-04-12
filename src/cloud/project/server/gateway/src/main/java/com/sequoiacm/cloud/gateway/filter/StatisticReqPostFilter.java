@@ -9,6 +9,7 @@ import com.netflix.zuul.exception.ZuulException;
 import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.infrastructure.monitor.ReqRecorder;
 import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,16 +57,17 @@ public class StatisticReqPostFilter extends ZuulFilter {
         if (statisticsType == null) {
             return null;
         }
-        String userName = (String) ctx.getRequest()
-                .getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
+        ScmUserWrapper userWrapper = (ScmUserWrapper) ctx.getRequest()
+                .getAttribute(RestField.USER_INFO_WRAPPER);
+        String username = userWrapper == null ? null : userWrapper.getUser().getUsername();
         if (ctx.getResponseStatusCode() >= 200 && ctx.getResponseStatusCode() < 300) {
             String extraStatistics = (String) ctx.getRequest()
                     .getAttribute(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
-            reporter.report(true, statisticsType, userName, preTime, time, extraStatistics);
+            reporter.report(true, statisticsType, username, preTime, time, extraStatistics);
         }
         else {
             String defaultExtra = ScmStatisticsDefaultExtraGenerator.generate(statisticsType, req);
-            reporter.report(false, statisticsType, userName, preTime, time, defaultExtra);
+            reporter.report(false, statisticsType, username, preTime, time, defaultExtra);
         }
         return null;
     }

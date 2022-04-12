@@ -1,11 +1,26 @@
 package com.sequoiacm.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
 import com.sequoiacm.client.dispatcher.BsonReader;
-import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.element.ScmConfigProperties;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmProcessInfo;
+import com.sequoiacm.client.element.ScmScheduleBasicInfo;
+import com.sequoiacm.client.element.ScmScheduleContent;
+import com.sequoiacm.client.element.ScmServiceInstance;
+import com.sequoiacm.client.element.ScmTask;
+import com.sequoiacm.client.element.ScmTaskBasicInfo;
+import com.sequoiacm.client.element.ScmUpdateConfResultSet;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.BsonConverter;
@@ -14,12 +29,6 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.common.ScmArgChecker;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provide ScmSystem operations.
@@ -1102,7 +1111,7 @@ public class ScmSystem {
                 boolean isRooSiteInstance = Boolean.valueOf(BsonUtils
                         .getObjectOrElse(metaDataObj, "isRootSiteInstance", "false").toString());
                 serverList.add(new ScmServiceInstance(serviceName, region, zone, ip, port, status,
-                        isContentServer, isRooSiteInstance));
+                        isContentServer, isRooSiteInstance, metaDataObj));
             }
         }
     }

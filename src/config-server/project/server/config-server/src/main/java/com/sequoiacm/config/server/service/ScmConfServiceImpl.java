@@ -14,6 +14,7 @@ import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
 import com.sequoiacm.config.framework.operator.ScmConfOperator;
 import com.sequoiacm.config.framework.subscriber.ScmConfSubscriber;
+import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.server.core.ScmConfFrameworkMgr;
 import com.sequoiacm.config.server.core.ScmConfigEventMgr;
@@ -82,6 +83,22 @@ public class ScmConfServiceImpl implements ScmConfService {
         ConfigFilter filter = convertorMgr.getMsgConverter(configName)
                 .convertToConfigFilter(filterObj);
         return op.getConf(filter);
+    }
+
+    @Override
+    public long countConf(String configName, BSONObject filterObj) throws ScmConfigException {
+        ScmConfOperator op = frameworkMgr.getConfOperator(configName);
+        ConfigFilter filter = convertorMgr.getMsgConverter(configName)
+                .convertToConfigFilter(filterObj);
+        return op.countConf(filter);
+    }
+
+    @Override
+    public MetaCursor listConf(String configName, BSONObject filterObj) throws ScmConfigException {
+        ScmConfOperator op = frameworkMgr.getConfOperator(configName);
+        ConfigFilter filter = convertorMgr.getMsgConverter(configName)
+                .convertToConfigFilter(filterObj);
+        return op.listConf(filter);
     }
 
     @Override

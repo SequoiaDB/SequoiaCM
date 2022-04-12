@@ -1,5 +1,6 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 
 /**
@@ -841,5 +842,53 @@ public class ScmAttributeName {
          * Record time.
          */
         public static final String RECORD_TIME = FieldName.FileDelta.FIELD_RECORD_TIME;
+    }
+
+    /**
+     * Attribute of bucket.
+     *
+     */
+    public static class Bucket {
+        private Bucket() {
+        }
+
+        /**
+         * Bucket name.
+         */
+        public static final String NAME = FieldName.Bucket.NAME;
+
+        /**
+         * Bucket id.
+         */
+        public static final String ID = FieldName.Bucket.ID;
+
+        /**
+         * Bucket workspace.
+         */
+        public static final String WORKSPACE = FieldName.Bucket.WORKSPACE;
+
+        /**
+         * Bucket creation user.
+         */
+        public static final String CREATE_USER = FieldName.Bucket.CREATE_USER;
+
+        /**
+         * Bucket creation time.
+         */
+        public static final String CREATE_TIME = FieldName.Bucket.CREATE_TIME;
+    }
+
+    /**
+     * Attribute of bucket attach failure external info.
+     *
+     */
+    public static class BucketAttachFailureExt {
+        private BucketAttachFailureExt() {
+        }
+
+        /**
+         * Bucket name.
+         */
+        public static final String BUCKET_NAME = CommonDefine.RestArg.ATTACH_FAILURE_EXT_INFO_BUCKET_NAME;
     }
 }

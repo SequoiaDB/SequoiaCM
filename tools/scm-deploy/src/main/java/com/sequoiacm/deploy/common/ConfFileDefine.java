@@ -39,10 +39,14 @@ public class ConfFileDefine {
     public static final String INSTALLCONFIG_PASSWORD = "InstallUserPassword";
     public static final String INSTALLCONFIG_USER_GROUP = "InstallUserGroup";
 
+    public static final String SEACTION_S3_NODE = "s3node";
+    public static final String S3_NODE_SERVICE_NAME = "ServiceName";
+    public static final String S3_NODE_BINDING_SITE = "BindingSite";
     public static final String SEACTION_SERVICE_NODE = "servicenode";
     public static final String SEACTION_SITE_NODE = "sitenode";
     public static final String NODE_ZONE = "ZoneName";
     public static final String NODE_SERVICE_TYPE = "ServiceType";
+
     public static final String NODE_HOSTR_NAME = "HostName";
     public static final String NODE_PORT = "Port";
     public static final String NODE_MANAGEMENT_PORT = "ManagementPort";
@@ -58,9 +62,9 @@ public class ConfFileDefine {
 
     public static final String SEACTION_ZONE = "zone";
     public static final String ZONE_NAME = "Name";
-    
+
     public static final String SEACTION_SITE_STRATEGY = "sitestrategy";
-    public static final String SITE_STRATEGY= "Strategy";
+    public static final String SITE_STRATEGY = "Strategy";
 
     public static final String SEACTION_DAEMON = "daemon";
     public static final String DAEMON_ENABLE = "EnableDaemon";

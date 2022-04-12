@@ -1,8 +1,10 @@
 package com.sequoiacm.infrastructure.common;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,13 +15,31 @@ public class ConcurrentLruMapFactory {
         }
         return new EmptyConcurrentLruMapImpl<K, V>();
     }
+
+    public static void main(String[] args) {
+        ConcurrentLruMap<String, String> map = create(3);
+        map.put("1","1");
+        map.put("2","2");
+        map.put("3","3");
+        Pair<String> pair = map.putWithReturnPair("1", "1");
+System.out.println(pair);
+    pair = map.putWithReturnPair("4", "4");
+        System.out.println(pair);
+
+    }
 }
+
 
 class EmptyConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
 
     @Override
     public V put(K key, V value) {
         return null;
+    }
+
+    @Override
+    public Pair<V> putWithReturnPair(K key, V value) {
+        return new Pair<V>(null, null);
     }
 
     @Override
@@ -42,10 +62,15 @@ class EmptyConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
     public void clear() {
     }
 
+    @Override
+    public List<V> getValuesCopy() {
+        return Collections.EMPTY_LIST;
+    }
+
 }
 
 class ConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
-    private Map<K, V> innerMap;
+    private LruMap<K, V> innerMap;
 
     public ConcurrentLruMapImpl(int size) {
         this.innerMap = new LruMap<K, V>(size);
@@ -54,6 +79,13 @@ class ConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
     @Override
     public synchronized V put(K key, V value) {
         return innerMap.put(key, value);
+    }
+
+    @Override
+    public synchronized Pair<V> putWithReturnPair(K key, V value) {
+        V oldValue = innerMap.put(key, value);
+        V overflowValue = innerMap.getLastOverflowValue();
+        return new Pair<V>(oldValue, overflowValue);
     }
 
     @Override
@@ -77,6 +109,11 @@ class ConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
     }
 
     @Override
+    public synchronized List<V> getValuesCopy() {
+        return new ArrayList<V>(innerMap.values());
+    }
+
+    @Override
     public synchronized String toString() {
         return innerMap.toString();
     }
@@ -85,17 +122,24 @@ class ConcurrentLruMapImpl<K, V> implements ConcurrentLruMap<K, V> {
 class LruMap<K, V> extends LinkedHashMap<K, V> {
     private static final long serialVersionUID = 4721231572273075883L;
     private int maxSize;
+    private volatile V lastOverflowValue;
 
     public LruMap(int size) {
         super(size, 0.75f, true);
         this.maxSize = size;
+
     }
 
     @Override
     protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
         if (size() > maxSize) {
+            lastOverflowValue = eldest.getValue();
             return true;
         }
         return false;
+    }
+
+    public V getLastOverflowValue() {
+        return lastOverflowValue;
     }
 }

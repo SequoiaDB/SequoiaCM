@@ -7,6 +7,11 @@ public class ScmLockPathFactory {
         return new ScmLockPath(lockPath);
     }
 
+    public static ScmLockPath createWorkspaceExtraCsLockPath() {
+        String[] lockPath = { ScmLockPathDefine.WORKSPACES_CREATE_EXTRA_CS_MUTEX };
+        return new ScmLockPath(lockPath);
+    }
+
     public static ScmLockPath createSiteConfOpLockPath() {
         String[] lockPath = { ScmLockPathDefine.SITE_CONF_OP_MUTEX };
         return new ScmLockPath(lockPath);

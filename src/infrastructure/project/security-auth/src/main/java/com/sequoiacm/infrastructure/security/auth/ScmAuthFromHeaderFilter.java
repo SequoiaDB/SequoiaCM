@@ -41,8 +41,7 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
         boolean isLogoutReq = isLogoutRequest(request);
@@ -59,7 +58,8 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Get user from header user details");
                 }
-            } else {
+            }
+            else {
                 logger.warn("user header not found, get user from auth server");
                 try {
                     ScmUserWrapper userWrapper = sessionMgr.getUserBySessionId(sessionId);
@@ -79,13 +79,14 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
                 }
             }
             request.setAttribute(RestField.USER_ATTRIBUTE, userDetails);
-            request.setAttribute(RestField.USER_ATTRIBUTE_USER_NAME, user.getUsername());
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            user, null, user.getAuthorities());
+            request.setAttribute(RestField.USER_INFO_WRAPPER,
+                    new ScmUserWrapper(user, userDetails));
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user, null, user.getAuthorities());
             authentication.eraseCredentials();
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        }else if(StringUtils.hasText(sessionId) && isLogoutReq) {
+        }
+        else if (StringUtils.hasText(sessionId) && isLogoutReq) {
             sessionMgr.markSessionLogout(sessionId);
         }
 

@@ -24,7 +24,7 @@ public class SdbClassAttrRelAccessor  extends SdbMetaAccessor implements MetaCla
     }
     
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
         }

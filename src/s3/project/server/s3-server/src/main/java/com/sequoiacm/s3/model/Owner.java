@@ -11,6 +11,14 @@ public class Owner {
     @JsonProperty(JSON_KEY_USERID)
     private String userId;
 
+    public Owner() {
+    }
+
+    public Owner(String userName, String userId) {
+        this.userId = userId;
+        this.userName = userName;
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
     }

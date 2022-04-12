@@ -1,20 +1,19 @@
 package com.sequoiacm.s3.common;
 
 public class S3CommonDefine {
-    public static final String SCM_DIR_SEP = "/";
-    public static final char SCM_DIR_SEP_CHAR = '/';
 
-    public static final String S3_CUSTOM_CLASS_NAME = "S3MetaClass";
-    public static final String S3_CUSTOM_META_CONENT_ENCODE = "ContentEncoding";
-    public static final String S3_CUSTOM_META_META_LIST = "MetaList";
-    public static final String S3_CUSTOM_META_ETAG = "Etag";
-    public static final String S3_CUSTOM_META_CACHE_CONTROL = "CacheControl";
-    public static final String S3_CUSTOM_META_EXPIRES = "Expires";
-    public static final String S3_CUSTOM_META_CONTENT_LANGUAGE = "ContentLanguage";
-    public static final String S3_CUSTOM_META_CONTENT_DISPOSITION = "ContentDisposition";
+    public static final String NULL_VERSION_ID = "null";
 
-    public static final String S3_MAP_GROUP_NAME = "S3";
-    public static final String S3_MAP_BURKET_NAME = "bucket";
-    public static final String S3_MAP_LIST_CONTEXT_META_NAME = "list_conetext_meta";
+    public static final String LIST_OBJECT_CONTEXT_TABLE_NAME = "SCMSYSTEM.S3_LIST_OBJECT_CONTEXT";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_TOKEN = "token";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_BUCKET_NAME = "bucket_name";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_PREFIX = "prefix";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_START_AFTER = "start_after";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_DELIMITER = "delimiter";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_LAST_ACCESS_TIME = "last_access_time";
+    public static final String LIST_OBJECT_CONTEXT_FIELD_LAST_MARKER = "last_marker";
+
+    public static final String DEFAULT_REGION_TABLE_NAME = "SCMSYSTEM.DEFAULT_REGION";
+    public static final String DEFAULT_REGION_FIELD_WORKSPACE = "workspace";
 
 }

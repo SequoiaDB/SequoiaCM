@@ -20,6 +20,7 @@ public enum ScmConfError {
     // workspace related
     WORKSPACE_EXIST(-500, "workspace exist"),
     CLIENT_WROKSPACE_CACHE_EXPIRE(-501, "client workspace cache is expire"),
+    WORKSPACE_NOT_EXIST(-502, "workspace not exist"),
 
     // metadata related
     CLASS_EXIST(-600, "class exist"),
@@ -37,8 +38,11 @@ public enum ScmConfError {
 
     // node related
     NODE_EXIST(-800, "node exist"),
-    NODE_NOT_EXIST(-801, "node not exist");
+    NODE_NOT_EXIST(-801, "node not exist"),
 
+    BUCKET_EXIST(-900, "bucket exist"),
+
+    BUCKET_NOT_EXIST(-901, "bucket not exist");
     private int errorCode;
     private String desc;
 

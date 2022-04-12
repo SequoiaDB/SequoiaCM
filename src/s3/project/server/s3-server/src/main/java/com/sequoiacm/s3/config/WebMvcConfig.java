@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.filter.HttpPutFormContentFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -24,6 +26,17 @@ import com.sequoiacm.s3.model.CreateBucketConfiguration;
 @Configuration
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
+
+    @Bean
+    public HttpFirewall httpFirewall() {
+        StrictHttpFirewall ret = new StrictHttpFirewall();
+        ret.setAllowSemicolon(true);
+        ret.setAllowUrlEncodedSlash(true);
+        ret.setAllowBackSlash(true);
+        ret.setAllowUrlEncodedPercent(true);
+        ret.setAllowUrlEncodedPeriod(true);
+        return ret;
+    }
 
     @Bean
     public HttpPutFormContentFilter httpPutFormContentFilter() {
@@ -61,13 +74,13 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     }
 
+
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         super.addArgumentResolvers(argumentResolvers);
         argumentResolvers.add(new ScmSessionArgResolver());
         argumentResolvers.add(new HeadObjArgResolver());
         argumentResolvers.add(new CopyObjArgResolver());
-        argumentResolvers.add(new ObjMatcherArgResolver());
     }
 
 }

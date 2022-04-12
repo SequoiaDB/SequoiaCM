@@ -31,7 +31,7 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
     }
 
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
         }catch (SdbMetasourceException e) {

@@ -6,23 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "scm.s3.bucket")
 public class BucketConfig {
-    private String bucketDir = "/#S3_BUCKETS#/";
+    private boolean allowReput = false;
 
-    private boolean allowreput = false;
-
-    public boolean getAllowreput() {
-        return allowreput;
+    public boolean isAllowReput() {
+        return allowReput;
     }
 
-    public void setAllowreput(boolean allowreput) {
-        this.allowreput = allowreput;
-    }
-
-    public String getBucketDir() {
-        return bucketDir;
-    }
-
-    public void setBucketDir(String bucketDir) {
-        this.bucketDir = bucketDir;
+    public void setAllowReput(boolean allowReput) {
+        this.allowReput = allowReput;
     }
 }

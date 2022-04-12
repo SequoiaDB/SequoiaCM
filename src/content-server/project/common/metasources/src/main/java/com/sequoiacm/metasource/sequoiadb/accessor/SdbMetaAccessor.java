@@ -1,24 +1,36 @@
 package com.sequoiacm.metasource.sequoiadb.accessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
-import com.sequoiacm.metasource.sequoiadb.*;
-import com.sequoiadb.base.*;
+import com.sequoiacm.metasource.sequoiadb.SdbMetaCursor;
+import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
+import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
+import com.sequoiacm.metasource.sequoiadb.SdbTransactionContext;
+import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
+import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.DBQuery;
+import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SdbMetaAccessor implements MetaAccessor {
     private SdbMetaSource metasource;
     private String csName;
     private String clName;
     private SdbTransactionContext context;
+    private Logger logger = LoggerFactory.getLogger(SdbMetaAccessor.class);
 
     public SdbMetaAccessor(SdbMetaSource metasource, String csName, String clName,
             TransactionContext context) {
@@ -62,7 +74,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
-    public void insert(BSONObject insertor) throws SdbMetasourceException {
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
         Sequoiadb sdb = null;
         try {
             sdb = getConnection();
@@ -102,7 +114,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     // return an matching record (old), and delete all matching records.
-    BSONObject queryAndDelete(BSONObject deletor) throws SdbMetasourceException {
+    public BSONObject queryAndDelete(BSONObject deletor) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
         try {
@@ -139,7 +151,7 @@ public class SdbMetaAccessor implements MetaAccessor {
         }
     }
 
-    void delete(BSONObject deletor) throws SdbMetasourceException {
+    public void delete(BSONObject deletor) throws SdbMetasourceException {
         delete(deletor, null);
     }
 
@@ -172,7 +184,8 @@ public class SdbMetaAccessor implements MetaAccessor {
         }
     }
 
-    void update(BSONObject matcher, BSONObject updater) throws SdbMetasourceException {
+    @Override
+    public void update(BSONObject matcher, BSONObject updater) throws SdbMetasourceException {
         update(matcher, updater, null);
     }
 
@@ -348,13 +361,13 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     // return an matching record (old), and update all matching records.
-    BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint)
+    public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint)
             throws SdbMetasourceException {
         return queryAndUpdate(matcher, updator, hint, false);
     }
 
     // return an matching record (old|new), and update all matching records.
-    BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
+    public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
             boolean returnNew) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
@@ -390,6 +403,109 @@ public class SdbMetaAccessor implements MetaAccessor {
         finally {
             SequoiadbHelper.closeCursor(cursor);
             releaseConnection(sdb);
+        }
+    }
+
+    @Override
+    public void ensureTable(List<String> indexFields, List<String> uniqueIndexField)
+            throws ScmMetasourceException {
+        ensureCollection();
+        if (indexFields != null) {
+            for (String idxField : indexFields) {
+                ensureIndex("idx_" + idxField, new BasicBSONObject(idxField, 1), false);
+            }
+        }
+        if (uniqueIndexField != null) {
+            for (String idxField : uniqueIndexField) {
+                ensureIndex("idx_" + idxField, new BasicBSONObject(idxField, 1), true);
+            }
+        }
+    }
+
+    @Override
+    public void upsert(BSONObject matcher, BSONObject updator) throws ScmMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+            DBCollection cl = cs.getCollection(getClName());
+            if (null == cl) {
+                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
+                        "getCollection failed:cl=" + getCsName() + "." + getClName());
+            }
+            cl.upsert(matcher, updator, null);
+        }
+        catch (BaseException e) {
+            throw new SdbMetasourceException(e.getErrorCode(), "upsert failed:table=" + csName + "."
+                    + clName + ",matcher=" + matcher + ", updater=" + updator, e);
+        }
+        catch (SdbMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(), "upsert failed:table="
+                    + csName + "." + clName + ",matcher=" + matcher + ", updater=" + updator, e);
+        }
+        finally {
+            releaseConnection(sdb);
+        }
+    }
+
+    private void ensureIndex(String idxName, BSONObject indexDefinition, boolean isUnique)
+            throws SdbMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            DBCursor cursor = cl.getIndex(idxName);
+            if (cursor != null) {
+                try {
+                    if (cursor.hasNext()) {
+                        cursor.close();
+                        return;
+                    }
+                }
+                finally {
+                    cursor.close();
+                }
+            }
+            cl.createIndex(idxName, indexDefinition, isUnique, false);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() != SDBError.SDB_IXM_EXIST.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()) {
+                throw new SdbMetasourceException(e.getErrorCode(),
+                        "failed to create cl index:" + csName + "." + clName + ", idxName="
+                                + idxName + ", idxDef=" + indexDefinition + ", isUnique="
+                                + isUnique,
+                        e);
+            }
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    private void ensureCollection() throws SdbMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            if (cs.isCollectionExist(clName)) {
+                return;
+            }
+            cs.createCollection(clName);
+            logger.info("create collection:{}.{}, option={}", csName, clName);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_EXIST.getErrorCode()) {
+                return;
+            }
+            throw new SdbMetasourceException(e.getErrorCode(),
+                    "failed to create cl:" + csName + "." + clName, e);
+        }
+        finally {
+            releaseConnection(db);
         }
     }
 

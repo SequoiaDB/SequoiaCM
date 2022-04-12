@@ -36,22 +36,11 @@ public class ScmArgChecker {
             if (name.length() <= 0) {
                 return false;
             }
-
-            if (name.contains("/") || name.contains("\\") || name.contains("%")
-                    || name.contains(";") || name.contains(":") || name.contains("*")
-                    || name.contains("?") || name.contains("\"") || name.contains("<")
-                    || name.contains(">") || name.contains("|")) {
-                return false;
-            }
-
-            if (name.equals(".")) {
-                return false;
-            }
-
             return true;
         }
 
-        public static void checkHistoryFileFields(BSONObject fields) throws InvalidArgumentException {
+        public static void checkHistoryFileFields(BSONObject fields)
+                throws InvalidArgumentException {
             if (fields == null) {
                 return;
             }
@@ -72,8 +61,7 @@ public class ScmArgChecker {
                         if (isSiteListDollerNum(key)) {
                             continue;
                         }
-                        throw new InvalidArgumentException(
-                                "invalid key:key=" + key);
+                        throw new InvalidArgumentException("invalid key:key=" + key);
                     }
                     Object value = fields.get(key);
                     if (value instanceof BSONObject) {
@@ -149,7 +137,8 @@ public class ScmArgChecker {
                 checkHistoryFileFields(orderby);
             }
             catch (InvalidArgumentException e) {
-                throw new InvalidArgumentException("the orderby parameter contains an invalid key: " + e.getMessage(), e);
+                throw new InvalidArgumentException(
+                        "the orderby parameter contains an invalid key: " + e.getMessage(), e);
             }
         }
 
@@ -159,14 +148,38 @@ public class ScmArgChecker {
                 checkHistoryFileFields(fileMatcher);
             }
             catch (InvalidArgumentException e) {
-                throw new InvalidArgumentException("the matcher parameter contains an invalid key: " + e.getMessage(), e);
+                throw new InvalidArgumentException(
+                        "the matcher parameter contains an invalid key: " + e.getMessage(), e);
             }
+        }
+    }
+
+    public static class Bucket {
+        public static boolean checkBucketName(String name) {
+            return Directory.checkDirectoryName(name);
         }
     }
 
     public static class Directory {
         public static boolean checkDirectoryName(String name) {
-            return File.checkFileName(name);
+            if (name == null) {
+                return false;
+            }
+            if (name.length() <= 0) {
+                return false;
+            }
+
+            if (name.contains("/") || name.contains("\\") || name.contains("%")
+                    || name.contains(";") || name.contains(":") || name.contains("*")
+                    || name.contains("?") || name.contains("\"") || name.contains("<")
+                    || name.contains(">") || name.contains("|")) {
+                return false;
+            }
+
+            if (name.equals(".")) {
+                return false;
+            }
+            return true;
         }
     }
 

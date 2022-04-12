@@ -15,6 +15,7 @@ import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import org.bson.types.BasicBSONList;
@@ -105,11 +106,11 @@ public interface MessageDispatcher extends Closeable {
 
     BsonReader getTaskList(BSONObject condition) throws ScmException;
 
-    BsonReader getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector,
-            long skip, long limit) throws ScmException;
+    BsonReader getTaskList(BSONObject condition, BSONObject orderby, BSONObject selector, long skip,
+            long limit) throws ScmException;
 
     ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime, String targetSite) throws ScmException;
+                               long maxExecTime, String targetSite) throws ScmException;
 
     ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope, long maxExecTime)
             throws ScmException;
@@ -190,7 +191,8 @@ public interface MessageDispatcher extends Closeable {
     String getPath(String workspaceName, String dirId) throws ScmException;
 
     BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
-            BSONObject content, String cron, boolean enable, String preferredRegion, String preferredZone) throws ScmException;
+                              BSONObject content, String cron, boolean enable, String preferredRegion,
+                              String preferredZone) throws ScmException;
 
     BsonReader getScheduleList(BSONObject condition, BSONObject orderby, long skip, long limit)
             throws ScmException;
@@ -202,8 +204,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject updateSchedule(String scheduleId, BSONObject newValue) throws ScmException;
 
     BSONObject createBreakpointFile(String workspaceName, String fileName, long createTime,
-            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
-            boolean isNeedMd5) throws ScmException;
+                                    ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
+                                    boolean isNeedMd5) throws ScmException;
 
     BSONObject uploadBreakpointFile(String workspaceName, String fileName, InputStream fileStream,
             long offset, boolean isLastContent) throws ScmException;
@@ -267,6 +269,8 @@ public interface MessageDispatcher extends Closeable {
 
     void resetRemainUrl(String remainUrl);
 
+    String getRemainUrl();
+
     long countDir(String workspaceName, BSONObject condition) throws ScmException;
 
     long countBatch(String workspaceName, BSONObject condition) throws ScmException;
@@ -311,4 +315,39 @@ public interface MessageDispatcher extends Closeable {
 
     BasicBSONList getContentLocations(String workspaceName, String fileId, int majorVersion,
             int minorVersion) throws ScmException;
+
+    BSONObject createBucket(String wsName, String name) throws ScmException;
+
+    BSONObject getBucket(String name) throws ScmException;
+
+    void deleteBucket(String name) throws ScmException;
+
+    BsonReader listBucket(BSONObject condition, BSONObject orderby, long skip, long limit)
+            throws ScmException;
+
+    long countBucket(BSONObject condition) throws ScmException;
+
+    BSONObject createFileInBucket(String bucketName, InputStream is, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException;
+
+    HttpURLConnection createFileInBucketConn(String bucketName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException;
+
+    BSONObject createFileInBucket(String bucketName, String breakpointFileName, BSONObject fileInfo,
+            BSONObject uploadConf) throws ScmException;
+
+    List<BSONObject> bucketAttachFile(String bucketName, List<String> fileId,
+            ScmBucketAttachKeyType type) throws ScmException;
+
+    void bucketDetachFile(String bucketName, String fileName) throws ScmException;
+
+    BSONObject bucketGetFile(String bucketName, String fileName) throws ScmException;
+
+    BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,
+            long skip, long limit) throws ScmException;
+
+    long bucketCountFile(String bucketName, BSONObject condition) throws ScmException;
+
+    void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
+    String getDefaultRegion(String s3ServiceName) throws ScmException;
 }

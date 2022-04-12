@@ -35,6 +35,10 @@ public enum ScmError {
     WORKSPACE_NOT_EMPTY(-207, "Workspace not empty"),
     WORKSPACE_EXIST(-208, "Workspace already exist"),
 
+    METASOURCE_RECORD_EXIST(-209, "record exist"),
+
+    METASOURCE_TABLE_NOT_EXIST(-210, "table not exist"),
+
     TASK_DUPLICATE(-220, "Task is duplicate"),
     TASK_NOT_EXIST(-221, "Task is not exist"),
     EXCEED_MAX_CONCURRENT_TASK(-222, "Exceed max concurrent task"),
@@ -58,9 +62,11 @@ public enum ScmError {
     FILE_NOT_IN_BATCH(-267, "File does not exist in the batch"),
     FILE_CLASS_UNDEFINED(-268, "File class is Undefined"),
     BATCH_CLASS_UNDEFINED(-269, "Batch class is Undefined"),
+    FILE_IN_ANOTHER_BUCKET(-270, "File already exists for another bucket"),
 
     PRIVILEGE_GRANT_FAILED(-280, "Grant privilege failed"),
     PRIVILEGE_REVOKE_FAILED(-281, "Revoke privilege failed"),
+
 
     // error 3xx
     // unused
@@ -104,12 +110,20 @@ public enum ScmError {
     CONFIG_SERVER_ERROR(-700, "Config server error"),
     WORKSPACE_CACHE_EXPIRE(-701, "Workspace cache is expire"),
 
+    // -800 already use in hengfeng branch
+
+    BUCKET_EXISTS(-850, "Bucket already exists"),
+    BUCKET_NOT_EXISTS(-851, "Bucket is not exist"),
+    BUCKET_NOT_EMPTY(-852, "Bucket is not empty"),
+
     FULL_TEXT_INDEX_ALREADY_CREATED(-900, "full text index already created"),
     FULL_TEXT_INDEX_IS_DELETING(-901, "full text index is deleting"),
     FULL_TEXT_INDEX_IS_CREATING(-902, "full text index is creating"),
     FILE_NOT_MEET_WORKSPACE_INDEX_MATCHER(-903, "scm file not meet the matcher of workspace fulltext"),
     FULL_TEXT_INDEX_DISABLE(-904, "full text index is disable"),
     FULL_TEXT_INDEX_CREATE_ERROR(-905, "failed to create full text index"),
+
+    S3_REGION_NOT_EXIST(-950, "region not exist"),
 
     // http related error
     HTTP_BAD_REQUEST(400, "Bad Request"),

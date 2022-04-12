@@ -1,5 +1,6 @@
 package com.sequoiacm.config.framework.workspace.operator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,8 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
     @Autowired
     private DefaultVersionDao versionDao;
 
+    private List<ScmWorkspaceListener> workspaceListeners = new ArrayList<>();
+
     @Override
     public List<Config> getConf(ConfigFilter filter) throws ScmConfigException {
         return wsFinder.getWorkspace((WorkspaceFilter) filter);
@@ -59,7 +62,12 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
 
     @Override
     public ScmConfOperateResult deleteConf(ConfigFilter filter) throws ScmConfigException {
-        return wsDeleter.delete((WorkspaceFilter) filter);
+        WorkspaceFilter wsFilter = (WorkspaceFilter) filter;
+        ScmConfOperateResult ret = wsDeleter.delete(wsFilter);
+        for (ScmWorkspaceListener l : workspaceListeners) {
+            l.afterWorkspaceDelete(wsFilter.getWsName());
+        }
+        return ret;
     }
 
     @Override
@@ -67,4 +75,7 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
         return wsCreater.create((WorkspaceConfig) config);
     }
 
+    public void registerWorkspaceListener(ScmWorkspaceListener l) {
+        workspaceListeners.add(l);
+    }
 }

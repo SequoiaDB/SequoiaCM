@@ -37,6 +37,19 @@ public class ScmResourceFactory {
     }
 
     /**
+     * Create a bucket resource with specified workspace name and path.
+     *
+     * @param workspaceName
+     *            workspace name.
+     * @param bucketName
+     *            bucket name. path.
+     * @return bucket resource.
+     */
+    public static ScmResource createBucketResource(String workspaceName, String bucketName) {
+        return new ScmBucketResource(bucketName, workspaceName);
+    }
+
+    /**
      * Create a all workspace resource.
      *
      * @return all workspace resource.

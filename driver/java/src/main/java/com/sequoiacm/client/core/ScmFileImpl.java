@@ -1,29 +1,19 @@
 package com.sequoiacm.client.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.sequoiacm.client.dispatcher.InputStreamWrapper;
-import com.sequoiacm.client.element.*;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sequoiacm.client.common.ClientDefine;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
+import com.sequoiacm.client.dispatcher.InputStreamWrapper;
+import com.sequoiacm.client.element.ScmClassProperties;
+import com.sequoiacm.client.element.ScmContentLocation;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.client.element.ScmHbaseFileLocation;
+import com.sequoiacm.client.element.ScmHdfsFileLocation;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmS3ObjLocation;
+import com.sequoiacm.client.element.ScmSdbLobLocation;
+import com.sequoiacm.client.element.ScmSwiftObjLocation;
+import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
@@ -37,7 +27,28 @@ import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.exception.ScmError;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import java.net.HttpURLConnection;
 /**
  * The implement of ScmFile.
  */
@@ -67,17 +78,20 @@ class ScmFileImpl extends ScmFile {
     private Date dataCreateTime;
 
     private long size;
-    private ScmWorkspace ws;
+    protected ScmWorkspace ws;
 
     private boolean exist;
     private boolean isDeleted = false;
 
     private String inputPath = null;
     private InputStream inputStream = null;
-    private ScmBreakpointFile breakpointFile;
+    protected ScmBreakpointFile breakpointFile;
     private String md5;
+    private Map<String, String> customMetadata = Collections.emptyMap();
 
     private static final Logger logger = LoggerFactory.getLogger(ScmFileImpl.class);
+    private Long bucketId;
+    private BSONObject fileExternalData;
 
     public ScmFileImpl() {
         basicInfo = new ScmFileBasicInfo();
@@ -121,10 +135,10 @@ class ScmFileImpl extends ScmFile {
      *
      * @Override public PropertyType getPropertyType() { return propertyType; }
      *
-     * @Override public void setPropertyType(PropertyType type) throws
-     * ScmException { if (isExist()) { BSONObject fileInfo = new
-     * BasicBSONObject(); fileInfo.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID,
-     * type.getNum()); updateFileInfo(fileInfo); } this.propertyType = type; }
+     * @Override public void setPropertyType(PropertyType type) throws ScmException
+     * { if (isExist()) { BSONObject fileInfo = new BasicBSONObject();
+     * fileInfo.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, type.getNum());
+     * updateFileInfo(fileInfo); } this.propertyType = type; }
      */
 
     @Override
@@ -351,6 +365,28 @@ class ScmFileImpl extends ScmFile {
     }
 
     @Override
+    public void setCustomMetadata(Map<String, String> customMetadata) throws ScmException {
+        customMetadata = customMetadata == null ? Collections.<String, String> emptyMap()
+                : customMetadata;
+        if (isExist()) {
+            BSONObject fileInfo = new BasicBSONObject();
+            fileInfo.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMetadata);
+            updateFileInfo(fileInfo);
+        }
+        this.customMetadata = customMetadata;
+    }
+
+    @Override
+    public Map<String, String> getCustomMetadata() {
+        return customMetadata;
+    }
+
+    @Override
+    public Long getBucketId() {
+        return bucketId;
+    }
+
+    @Override
     public String getUpdateUser() {
         return updateUser;
     }
@@ -475,9 +511,10 @@ class ScmFileImpl extends ScmFile {
         if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
                 | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE
                 | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK)) > 0) {
-            throw new ScmException(ScmError.INVALID_ARGUMENT, "readFlag cannot contain the following: "
-                    + "SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE, "
-                    + "readFlag=" + readFlag);
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "readFlag cannot contain the following: "
+                            + "SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE, "
+                            + "readFlag=" + readFlag);
         }
         internalGetContent(os, readFlag);
     }
@@ -584,6 +621,18 @@ class ScmFileImpl extends ScmFile {
         return getFileId();
     }
 
+    protected BSONObject sendUploadFileRequest(InputStream data, ScmUploadConf conf)
+            throws ScmException {
+        return ws.getSession().getDispatcher().uploadFile(ws.getName(), data, toBSONObject(),
+                conf.toBsonObject());
+    }
+
+    protected BSONObject sendTransformBreakpointFileRequest(ScmUploadConf conf)
+            throws ScmException {
+        return ws.getSession().getDispatcher().uploadFile(ws.getName(),
+                breakpointFile.getFileName(), toBSONObject(), conf.toBsonObject());
+    }
+
     private BSONObject uploadFile(ScmUploadConf uploadConf) throws ScmException {
         InputStream is = null;
 
@@ -596,8 +645,7 @@ class ScmFileImpl extends ScmFile {
         }
 
         try {
-            return ws.getSession().getDispatcher().uploadFile(ws.getName(), is, toBSONObject(),
-                    uploadConf.toBsonObject());
+            return sendUploadFileRequest(is, uploadConf);
         }
         finally {
             ScmHelper.closeStream(is);
@@ -631,8 +679,7 @@ class ScmFileImpl extends ScmFile {
             throw new ScmInvalidArgumentException("BreakpointFile is uncompleted");
         }
 
-        return ws.getSession().getDispatcher().uploadFile(ws.getName(),
-                breakpointFile.getFileName(), toBSONObject(), uploadConf.toBsonObject());
+        return sendTransformBreakpointFileRequest(uploadConf);
     }
 
     @Override
@@ -749,8 +796,7 @@ class ScmFileImpl extends ScmFile {
 
         /*
          * TODO propertyType? if (null != propertyType) {
-         * fileInfo.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID,
-         * propertyType.getNum()); }
+         * fileInfo.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, propertyType.getNum()); }
          */
 
         // optional
@@ -774,6 +820,10 @@ class ScmFileImpl extends ScmFile {
         else {
             author = "";
             fileInfo.put(FieldName.FIELD_CLFILE_FILE_AUTHOR, author);
+        }
+
+        if (null != customMetadata && !customMetadata.isEmpty()) {
+            fileInfo.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMetadata);
         }
 
         return fileInfo;
@@ -1049,6 +1099,35 @@ class ScmFileImpl extends ScmFile {
         }
 
         md5 = BsonUtils.getString(fileBSON, FieldName.FIELD_CLFILE_FILE_MD5);
+
+        BSONObject customMetadataObj = BsonUtils.getBSONObject(fileBSON,
+                FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        if (null != customMetadataObj) {
+            this.customMetadata = new HashMap<String, String>();
+            for (String key : customMetadataObj.keySet()) {
+                customMetadata.put(key, (String) customMetadataObj.get(key));
+            }
+        }
+
+        Number bucketIdNumber = (Number) fileBSON.get(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (bucketIdNumber != null) {
+            bucketId = bucketIdNumber.longValue();
+        }
+
+        fileExternalData = BsonUtils.getBSONObject(fileBSON,
+                FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+    }
+
+    @Override
+    HttpURLConnection httpURLConnectionForSave(ScmUploadConf conf) throws ScmException {
+        return ws.getSession().getDispatcher().getFileUploadConnection(ws.getName(), toBSONObject(),
+                conf.toBsonObject());
+    }
+
+    @Override
+    HttpURLConnection httpURLConnectionForUpdateContent() throws ScmException {
+        return ws.getSession().getDispatcher().getUpdateFileContentConn(ws.getName(),
+                getFileId().get(), getMajorVersion(), getMinorVersion());
     }
 
     @Override
@@ -1143,6 +1222,19 @@ class ScmFileImpl extends ScmFile {
             list.add(location);
         }
         return list;
+    }
+
+    @Override
+    public String getNameBeforeAttach() throws ScmException {
+        if (fileExternalData == null) {
+            return null;
+        }
+        return BsonUtils.getString(fileExternalData,
+                FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH);
+    }
+
+    protected void setBucketId(long bucketId) {
+        this.bucketId = bucketId;
     }
 
 }

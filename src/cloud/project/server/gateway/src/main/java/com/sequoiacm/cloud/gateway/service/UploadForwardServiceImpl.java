@@ -18,6 +18,7 @@ import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGe
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
 import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
+import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Header;
@@ -163,18 +164,19 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             EntityUtils.consume(forwardResp.getEntity());
 
             long duration = System.currentTimeMillis() - requestStartTime;
-            String userName = (String) clientReq.getAttribute(RestField.USER_ATTRIBUTE_USER_NAME);
+            ScmUserWrapper userWrapper = (ScmUserWrapper) clientReq.getAttribute(RestField.USER_INFO_WRAPPER);
+            String username = userWrapper == null ? null : userWrapper.getUser().getUsername();
             if (statisticsDecideResult.isNeedStatistics() && isSuccessResponse) {
                 Header extraHeader = forwardResp
                         .getFirstHeader(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
                 statisticsRawDataReporter.report(true, statisticsDecideResult.getStatisticsType(),
-                        userName, requestStartTime, duration, extraHeader.getValue());
+                        username, requestStartTime, duration, extraHeader.getValue());
             }
             else if (statisticsDecideResult.isNeedStatistics()) {
                 String defaultExtra = ScmStatisticsDefaultExtraGenerator
                         .generate(statisticsDecideResult.getStatisticsType(), clientReq);
                 statisticsRawDataReporter.report(false, statisticsDecideResult.getStatisticsType(),
-                        userName, requestStartTime, duration, defaultExtra);
+                        username, requestStartTime, duration, defaultExtra);
             }
         }
         catch (Exception e) {

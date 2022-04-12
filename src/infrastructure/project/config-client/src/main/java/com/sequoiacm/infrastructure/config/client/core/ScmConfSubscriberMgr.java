@@ -1,5 +1,22 @@
 package com.sequoiacm.infrastructure.config.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.PreDestroy;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Component;
+
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -10,21 +27,6 @@ import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class ScmConfSubscriberMgr {
@@ -38,7 +40,8 @@ public class ScmConfSubscriberMgr {
     private Map<String, ConfVersionChecker> confVersionTasks = new ConcurrentHashMap<>();
     private ReentrantLock notifyLock = new ReentrantLock();
 
-    public void addSubscriber(ScmConfSubscriber subscriber, ScmConfClient client) throws ScmConfigException {
+    public void addSubscriber(ScmConfSubscriber subscriber, ScmConfClient client)
+            throws ScmConfigException {
         subscribers.put(subscriber.subscribeConfigName(), subscriber);
 
         ConfVersionChecker checker = new ConfVersionChecker(subscriber, client, notifyLock);
@@ -64,14 +67,18 @@ public class ScmConfSubscriberMgr {
             if (p == null) {
                 logger.error("no such notify processer:configName={},notify={}", configName,
                         notify);
-                new AsyncResult<>(null);
+                return new AsyncResult<>(null);
             }
 
             notifyLock.lock();
             try {
                 p.processNotify(notify);
-                confVersionTasks.get(configName).updateVersion(notify.getEventType(),
-                        notify.getVersion());
+
+                // 有些配置发生变动（bucket增加删除）不会修改版本号
+                if (notify.getVersion() != null) {
+                    confVersionTasks.get(configName).updateVersion(notify.getEventType(),
+                            notify.getVersion());
+                }
             }
             finally {
                 notifyLock.unlock();
@@ -79,8 +86,9 @@ public class ScmConfSubscriberMgr {
 
         }
         catch (Exception e) {
-            logger.error("failed to process notification:configName={},notification={}", configName,
-                    notification, e);
+            logger.error(
+                    "failed to process notification:configName={},notification={}, eventType={}",
+                    configName, notification, type, e);
         }
         return new AsyncResult<>(null);
     }

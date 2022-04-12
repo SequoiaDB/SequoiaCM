@@ -26,6 +26,7 @@ public class DefaultVersionFilter implements VersionFilter {
                 addBussinessName((String) bussinessName);
             }
         }
+
     }
 
     public DefaultVersionFilter(String bussinessType) {

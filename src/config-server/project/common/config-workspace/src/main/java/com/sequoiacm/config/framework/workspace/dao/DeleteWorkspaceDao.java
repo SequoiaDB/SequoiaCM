@@ -74,7 +74,7 @@ public class DeleteWorkspaceDao {
         modifyDataTableNameHistory(filter);
 
         try {
-            workspaceMetaservice.deleteWorkspaceMetaTable(filter.getWsName());
+            workspaceMetaservice.deleteWorkspaceMetaTable(oldWsRec);
         }
         catch (Exception e) {
             logger.warn("failed to delete workspace meta table:ws={}", filter.getWsName(), e);

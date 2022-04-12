@@ -28,14 +28,9 @@ class ScmAuditTopLevel {
     //user_dql
     public static int USER_DQL_FLAG            = 0x00008000;
 
-    //role_dml(create/delete/update)
-    public static int ROLE_DML_FLAG            = 0x00010000;
-
-    //role_dql
-    public static int ROLE_DQL_FLAG            = 0x00020000;
-
-    //grant
-    public static int GRANT_FLAG               = 0x00040000;
+    public static int S3_BUCKET_DML_FLAG       = 0x00010000;
+    public static int S3_OBJECT_DQL_FLAG       = 0x00020000;
+    public static int S3_OBJECT_DML_FLAG       = 0x00040000;
 
     //login
     public static int LOGIN_FLAG               = 0x00080000;
@@ -58,15 +53,10 @@ class ScmAuditTopLevel {
     //meta_class_dql
     public static int META_CLASS_DQL_FLAG      = 0x02000000;
 
-    //meta_attr_dml
-    public static int META_ATTR_DML_FLAG       = 0x04000000;
-
-    //meta_attr_dql
-    public static int META_ATTR_DQL_FLAG       = 0x08000000;
-
     //monitor
     public static int MONITOR_FLAG             = 0x10000000;
 
+    public static int SCM_BUCKET_DML_FLAG           = 0x40000000;
 
     public static int ALL_FLAG                 = 0xFFFFFF00;
 }
@@ -99,27 +89,22 @@ public enum ScmAuditType {
     //dir dql
     DIR_DQL(ScmAuditTopLevel.DIR_DQL_FLAG,"DIR_DQL"),
 
+    // USER_DML | ROLE_DML
     //user dml
     USER_DML(ScmAuditTopLevel.USER_DML_FLAG,"USER_DML"),
     CREATE_USER(ScmAuditTopLevel.USER_DML_FLAG ^ 1, "CREATE_USER"),
     DELETE_USER(ScmAuditTopLevel.USER_DML_FLAG ^ 2, "DELETE_USER"),
     UPDATE_USER(ScmAuditTopLevel.USER_DML_FLAG ^ 3, "UPDATE_USER"),
 
-    //user dql
+    CREATE_ROLE(ScmAuditTopLevel.USER_DML_FLAG ^ 4, "CREATE_ROLE"),
+    DELETE_ROLE(ScmAuditTopLevel.USER_DML_FLAG ^ 5, "DELETE_ROLE"),
+    UPDATE_ROLE(ScmAuditTopLevel.USER_DML_FLAG ^ 6, "UPDATE_ROLE"),
+    GRANT(ScmAuditTopLevel.USER_DML_FLAG ^ 7, "GRANT"),
+    REVOKE(ScmAuditTopLevel.USER_DML_FLAG ^ 8, "REVOKE"),
+
+    //user ( role ) dql
     USER_DQL(ScmAuditTopLevel.USER_DQL_FLAG, "USER_DQL"),
 
-    //role dml
-    ROLE_DML(ScmAuditTopLevel.ROLE_DML_FLAG,"ROLE_DML"),
-    CREATE_ROLE(ScmAuditTopLevel.ROLE_DML_FLAG ^ 1, "CREATE_ROLE"),
-    DELETE_ROLE(ScmAuditTopLevel.ROLE_DML_FLAG ^ 2, "DELETE_ROLE"),
-    UPDATE_ROLE(ScmAuditTopLevel.ROLE_DML_FLAG ^ 3, "UPDATE_ROLE"),
-
-    //role dql
-    ROLE_DQL(ScmAuditTopLevel.ROLE_DQL_FLAG, "ROLE_DQL"),
-
-    //GRANT_FLAG
-    GRANT(ScmAuditTopLevel.GRANT_FLAG, "GRANT"),
-    REVOKE(ScmAuditTopLevel.GRANT_FLAG ^ 1, "REVOKE"),
     //login
     LOGIN(ScmAuditTopLevel.LOGIN_FLAG,"LOGIN"),
     LOGOUT(ScmAuditTopLevel.LOGIN_FLAG ^ 1,"LOGOUT"),
@@ -147,26 +132,35 @@ public enum ScmAuditType {
     CREATE_META_CLASS(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 1, "CREATE_META_CLASS"),
     DELETE_META_CLASS(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 2, "DELETE_META_CLASS"),
     UPDATE_META_CLASS(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 3, "UPDATE_META_CLASS"),
+    CREATE_META_ATTR(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 4, "CREATE_META_ATTR"),
+    DELETE_META_ATTR(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 5, "DELETE_META_ATTR"),
+    UPDATE_META_ATTR(ScmAuditTopLevel.META_CLASS_DML_FLAG ^ 6, "UPDATE_META_ATTR"),
 
     //meta_data dql
     META_CLASS_DQL(ScmAuditTopLevel.META_CLASS_DQL_FLAG, "META_CLASS_DQL"),
 
-  //meta_data dml
-    META_ATTR_DML(ScmAuditTopLevel.META_ATTR_DML_FLAG, "META_ATTR_DML"),
-    CREATE_META_ATTR(ScmAuditTopLevel.META_ATTR_DML_FLAG ^ 1, "CREATE_META_ATTR"),
-    DELETE_META_ATTR(ScmAuditTopLevel.META_ATTR_DML_FLAG ^ 2, "DELETE_META_ATTR"),
-    UPDATE_META_ATTR(ScmAuditTopLevel.META_ATTR_DML_FLAG ^ 3, "UPDATE_META_ATTR"),
-
-    //meta_data dql
-    META_ATTR_DQL(ScmAuditTopLevel.META_ATTR_DQL_FLAG, "META_ATTR_DQL"),
-
     // monitor flag
     MONITOR_DELETE_INSTANCE(ScmAuditTopLevel.MONITOR_FLAG ^ 1, "DELETE_INSTANCE"),
 
+    // SCM Bucket
+    SCM_BUCKET_DML(ScmAuditTopLevel.SCM_BUCKET_DML_FLAG, "SCM_BUCKET_DML"),
+    CREATE_SCM_BUCKET(ScmAuditTopLevel.SCM_BUCKET_DML_FLAG ^ 1, "CREATE_SCM_BUCKET"),
+    DELETE_SCM_BUCKET(ScmAuditTopLevel.SCM_BUCKET_DML_FLAG ^ 2, "DELETE_SCM_BUCKET"),
+    UPDATE_SCM_BUCKET(ScmAuditTopLevel.SCM_BUCKET_DML_FLAG ^ 3, "UPDATE_SCM_BUCKET"),
+
+    // S3 Bucket
+    S3_BUCKET_DML(ScmAuditTopLevel.S3_BUCKET_DML_FLAG, "S3_BUCKET_DML"),
+    CREATE_S3_BUCKET(ScmAuditTopLevel.S3_BUCKET_DML_FLAG ^ 1, "CREATE_S3_BUCKET"),
+    DELETE_S3_BUCKET(ScmAuditTopLevel.S3_BUCKET_DML_FLAG ^ 2, "DELETE_S3_BUCKET"),
+    UPDATE_S3_BUCKET(ScmAuditTopLevel.S3_BUCKET_DML_FLAG ^ 3, "UPDATE_S3_BUCKET"),
+
+    S3_OBJECT_DML(ScmAuditTopLevel.S3_OBJECT_DML_FLAG, "S3_OBJECT_DML"),
+    CREATE_S3_OBJECT(ScmAuditTopLevel.S3_OBJECT_DML_FLAG ^ 1, "CREATE_S3_OBJECT"),
+    UPDATE_S3_OBJECT(ScmAuditTopLevel.S3_OBJECT_DML_FLAG ^ 2, "UPDATE_S3_OBJECT"),
+    DELETE_S3_OBJECT(ScmAuditTopLevel.S3_OBJECT_DML_FLAG ^ 3, "DELETE_S3_OBJECT"),
+    S3_OBJECT_DQL(ScmAuditTopLevel.S3_OBJECT_DQL_FLAG, "S3_OBJECT_DQL"),
     //all
     ALL(ScmAuditTopLevel.ALL_FLAG,"ALL");
-
-
     private boolean isTopLevel = false;
     private int type;
     private String name;

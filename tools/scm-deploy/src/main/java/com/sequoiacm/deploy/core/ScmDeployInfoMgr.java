@@ -1,20 +1,41 @@
 package com.sequoiacm.deploy.core;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.sequoiacm.deploy.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
+import com.sequoiacm.deploy.common.BsonUtils;
 import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.ConfFileDefine;
 import com.sequoiacm.deploy.common.SdbTools;
 import com.sequoiacm.deploy.config.CommonConfig;
-import com.sequoiacm.deploy.module.*;
+import com.sequoiacm.deploy.module.AuditSourceInfo;
+import com.sequoiacm.deploy.module.DaemonInfo;
+import com.sequoiacm.deploy.module.DataSourceInfo;
+import com.sequoiacm.deploy.module.HostInfo;
+import com.sequoiacm.deploy.module.InstallConfig;
+import com.sequoiacm.deploy.module.InstallPackType;
+import com.sequoiacm.deploy.module.JavaVersion;
+import com.sequoiacm.deploy.module.MetaSourceInfo;
+import com.sequoiacm.deploy.module.NodeInfo;
+import com.sequoiacm.deploy.module.S3NodeInfo;
+import com.sequoiacm.deploy.module.ServiceType;
+import com.sequoiacm.deploy.module.SiteInfo;
+import com.sequoiacm.deploy.module.SiteNodeInfo;
+import com.sequoiacm.deploy.module.SiteStrategyInfo;
+import com.sequoiacm.deploy.module.ZkNodeInfo;
+import com.sequoiacm.deploy.module.ZoneInfo;
 import com.sequoiacm.deploy.parser.ScmDeployConfParser;
 import com.sequoiacm.deploy.ssh.Ssh;
 import com.sequoiacm.deploy.ssh.SshExecRes;
@@ -106,8 +127,7 @@ public class ScmDeployInfoMgr {
     }
 
     private void initHystrixConfig() throws Exception {
-        BSONObject bsonObject = CommonUtils
-                .parseJsonFile(commonConf.getHystrixConfigPath());
+        BSONObject bsonObject = CommonUtils.parseJsonFile(commonConf.getHystrixConfigPath());
         BSONObject rootSiteHystrixConf = BsonUtils.getBSONObjectChecked(bsonObject, "rootSite");
         SiteInfo rootSite = getRootSite();
         for (String configKey : rootSiteHystrixConf.keySet()) {
@@ -208,7 +228,8 @@ public class ScmDeployInfoMgr {
                     }
                     catch (Exception e) {
                         // 如果执行的命令报错，就直接跳过，报错的原因：1.该命令不属于检测该系统crontab服务状态的命令；2.该系统没有开启crontab服务。
-                        logger.debug("failed to exec command to check crontab status, command={}", command, e);
+                        logger.debug("failed to exec command to check crontab status, command={}",
+                                command, e);
                     }
                 }
                 if (!isCrontabRunning) {
@@ -278,6 +299,11 @@ public class ScmDeployInfoMgr {
                 SiteNodeInfo.CONVERTER);
         checkSiteNode(sitenodes, portsOnHost);
 
+        List<NodeInfo> s3Nodes = parser.getSeaction(ConfFileDefine.SEACTION_S3_NODE,
+                S3NodeInfo.CONVERTER);
+        s3Nodes = s3Nodes == null ? Collections.<NodeInfo> emptyList() : s3Nodes;
+        checkS3Node(s3Nodes, portsOnHost);
+
         List<NodeInfo> zknodes = parser.getSeactionWithCheck(ConfFileDefine.SEACTION_ZOOKEEPER,
                 ZkNodeInfo.CONVERTER);
         checkZkNode(zknodes, portsOnHost);
@@ -285,9 +311,11 @@ public class ScmDeployInfoMgr {
 
         checkManagementPortConflict(serviceNodes, portsOnHost);
         checkManagementPortConflict(sitenodes, portsOnHost);
+        checkManagementPortConflict(s3Nodes, portsOnHost);
 
         serviceNodes.addAll(sitenodes);
         serviceNodes.addAll(zknodes);
+        serviceNodes.addAll(s3Nodes);
         for (NodeInfo node : serviceNodes) {
             ServiceType serviceType = node.getServiceType();
 
@@ -344,6 +372,42 @@ public class ScmDeployInfoMgr {
         }
     }
 
+    private void checkS3Node(List<NodeInfo> s3Nodes, Map<String, List<Integer>> portsOnHost) {
+        for (NodeInfo node : s3Nodes) {
+            S3NodeInfo s3Node = (S3NodeInfo) node;
+            if (!siteNameToSiteInfos.containsKey(s3Node.getBindingSite())) {
+                throw new IllegalArgumentException("invalid s3 node, unrecognized binding site:"
+                        + s3Node.getBindingSite() + ", node=" + s3Node.toString());
+            }
+
+            if (!hostInfoMap.containsKey(s3Node.getHostName())) {
+                throw new IllegalArgumentException(
+                        "invalid s3 node, unrecognized hostname:" + s3Node.toString());
+            }
+            if (!zoneNames.contains(node.getZone())) {
+                throw new IllegalArgumentException("invalid s3 node, unrecognized zoneName:"
+                        + node.getZone() + ", node=" + node);
+            }
+
+            if (siteNameToSiteInfos.containsKey(s3Node.getServiceName())) {
+                throw new IllegalArgumentException(
+                        "invalid s3 node, the service name conflict : " + node);
+            }
+
+            for (ServiceType serviceType : ServiceType.values()) {
+                if (serviceType == ServiceType.S3_SERVER) {
+                    continue;
+                }
+                if (s3Node.getServiceName().equalsIgnoreCase(serviceType.getType())) {
+                    throw new IllegalArgumentException(
+                            "invalid s3 node, the service name conflict : " + node);
+                }
+            }
+
+            checkPortConflict(portsOnHost, s3Node.getHostName(), s3Node.getPort());
+        }
+    }
+
     private void checkManagementPortConflict(List<NodeInfo> nodes,
             Map<String, List<Integer>> portsOnHost) {
         for (NodeInfo node : nodes) {
@@ -379,6 +443,9 @@ public class ScmDeployInfoMgr {
             if (!zoneNames.contains(node.getZone())) {
                 throw new IllegalArgumentException("invalid service node, unregnized zoneName:"
                         + node.getZone() + ", node=" + node);
+            }
+            if (node.getServiceType() == ServiceType.S3_SERVER) {
+                throw new IllegalArgumentException("invalid service type: node=" + node);
             }
             checkPortConflict(portsOnHost, node.getHostName(), node.getPort());
         }

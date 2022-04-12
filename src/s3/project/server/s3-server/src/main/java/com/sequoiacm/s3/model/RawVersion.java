@@ -2,16 +2,6 @@ package com.sequoiacm.s3.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sequoiacm.s3.core.ObjectMeta;
-import com.sequoiacm.s3.exception.S3Error;
-import com.sequoiacm.s3.exception.S3ServerException;
-
-import org.bson.BSONObject;
-
-import static com.sequoiacm.s3.utils.DataFormatUtils.formatDate;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 public class RawVersion {
     @JsonProperty("Key")
@@ -27,28 +17,6 @@ public class RawVersion {
 
     @JsonIgnore
     private Boolean noVersionFlag;
-
-    public RawVersion(BSONObject bsonObject, String encodingType, Boolean isLatest, Owner owner)
-            throws S3ServerException {
-        try{
-            if (null != encodingType) {
-                this.key = URLEncoder.encode(bsonObject.get(ObjectMeta.META_KEY_NAME).toString(), "UTF-8");
-            } else {
-                this.key = bsonObject.get(ObjectMeta.META_KEY_NAME).toString();
-            }
-            this.lastModified = formatDate((long) bsonObject.get(ObjectMeta.META_LAST_MODIFIED));
-            if ((Boolean)bsonObject.get(ObjectMeta.META_NO_VERSION_FLAG)) {
-                this.versionId = ObjectMeta.NULL_VERSION_ID;
-            }else{
-                this.versionId = bsonObject.get(ObjectMeta.META_VERSION_ID).toString();
-            }
-
-            this.isLatest = isLatest;
-        }catch (UnsupportedEncodingException e){
-            throw new S3ServerException(S3Error.INTERNAL_ERROR,
-                    "encode object name failed."+e.getMessage(), e);
-        }
-    }
 
     public void setKey(String key) {
         this.key = key;

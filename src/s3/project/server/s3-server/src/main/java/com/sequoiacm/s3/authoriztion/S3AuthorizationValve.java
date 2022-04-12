@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import com.sequoiacm.s3.exception.S3ServerException;
 
 @Component
 public class S3AuthorizationValve extends S3ContextValveBase {
+    private static final Logger logger = LoggerFactory.getLogger(S3AuthorizationValve.class);
     @Autowired
     private ScmSessionMgr sessionMgr;
 
@@ -24,12 +27,9 @@ public class S3AuthorizationValve extends S3ContextValveBase {
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
-        if (!authConfig.isCheck()) {
-            invokeNext(request, response);
-            return;
-        }
         try {
             S3Authorization auth = S3AuthorizationFactory.createAuthentication(request);
+            logger.debug("s3 authorization: {}", auth);
             if (auth == null) {
                 invokeNext(request, response);
                 return;

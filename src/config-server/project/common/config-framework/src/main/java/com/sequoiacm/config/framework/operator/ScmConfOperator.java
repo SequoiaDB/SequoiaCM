@@ -2,6 +2,8 @@ package com.sequoiacm.config.framework.operator;
 
 import java.util.List;
 
+import com.sequoiacm.config.metasource.MetaCursor;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
@@ -20,4 +22,12 @@ public interface ScmConfOperator {
     ScmConfOperateResult deleteConf(ConfigFilter config) throws ScmConfigException;
 
     ScmConfOperateResult createConf(Config config) throws ScmConfigException;
+
+    default MetaCursor listConf(ConfigFilter filter) throws ScmConfigException {
+        throw new ScmConfigException(ScmConfError.SYSTEM_ERROR, "not implemented");
+    }
+
+    default long countConf(ConfigFilter filter) throws ScmConfigException {
+        throw new ScmConfigException(ScmConfError.SYSTEM_ERROR, "not implemented");
+    }
 }

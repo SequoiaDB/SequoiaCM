@@ -1,9 +1,12 @@
 package com.sequoiacm.client.element;
 
+import org.bson.BSONObject;
+
 /**
  * Scm service instance.
  */
 public class ScmServiceInstance {
+    private BSONObject metadata;
     private int port;
     private String serviceName;
     private String ip;
@@ -66,6 +69,12 @@ public class ScmServiceInstance {
         this.status = status;
         this.isContentServer = isContentServer;
         this.isRootSite = isRootSite;
+    }
+
+    public ScmServiceInstance(String serviceName, String region, String zone, String ip, int port,
+            String status, boolean isContentServer, boolean isRootSite, BSONObject metadata) {
+        this(serviceName, region, zone, ip, port, status, isContentServer, isRootSite);
+        this.metadata = metadata;
     }
 
     /**
@@ -132,8 +141,8 @@ public class ScmServiceInstance {
     }
 
     /**
-     * Returns true if the service instance is content server and belong to an
-     * root site.
+     * Returns true if the service instance is content server and belong to an root
+     * site.
      *
      * @return true or false.
      */
@@ -147,4 +156,12 @@ public class ScmServiceInstance {
                 + ", region=" + region + ", zone=" + zone + "]";
     }
 
+    /**
+     * Returns instance metadata
+     *
+     * @return instance metadata.
+     */
+    public BSONObject getMetadata() {
+        return metadata;
+    }
 }

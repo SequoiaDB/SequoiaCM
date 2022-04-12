@@ -4,13 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.s3.authoriztion.ScmSession;
 import com.sequoiacm.s3.common.RestParamDefine;
-import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.service.RegionService;
 
 @RestController
@@ -21,15 +24,20 @@ public class RegionController {
     @Autowired
     RegionService regionService;
 
-    @PostMapping(params = RestParamDefine.RegionPara.INIT_REGION, produces = MediaType.APPLICATION_XML_VALUE)
-    public void initRegion(@RequestParam(RestParamDefine.RegionPara.REGION_NAME) String regionName,
-            @RequestParam(RestParamDefine.USERNAME) String userName,
-            @RequestParam(RestParamDefine.PASSWORD) String encryptPassword)
-            throws S3ServerException {
-        logger.info("put region. regionName:{}", regionName.toLowerCase());
-        regionService.initWorkspaceS3Meta(userName, encryptPassword, regionName);
+    @PutMapping(params = RestParamDefine.RegionPara.SET_DEFAULT_REGION)
+    public ResponseEntity setDefault(
+            @RequestParam(RestParamDefine.RegionPara.WORKSPACE_NAME) String ws, ScmSession session)
+            throws ScmServerException {
+        regionService.setDefaultRegion(ws);
+        return ResponseEntity.ok().header(RestParamDefine.RegionPara.HEADER_DEFAULT_REGION, ws)
+                .build();
     }
-    
-    
+
+    @GetMapping(params = RestParamDefine.RegionPara.GET_DEFAULT_REGION, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getDefaultRegion(ScmSession session) throws ScmServerException {
+        String defaultRegion = regionService.getDefaultRegionForScm();
+        return ResponseEntity.ok()
+                .header(RestParamDefine.RegionPara.HEADER_DEFAULT_REGION, defaultRegion).build();
+    }
 
 }

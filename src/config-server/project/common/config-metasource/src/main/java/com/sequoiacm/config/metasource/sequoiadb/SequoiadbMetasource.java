@@ -1,13 +1,5 @@
 package com.sequoiacm.config.metasource.sequoiadb;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.MetasourceType;
@@ -16,10 +8,23 @@ import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
+import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.ConfigOptions;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.datasource.SequoiadbDatasource;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class SequoiadbMetasource implements Metasource {
@@ -78,6 +83,82 @@ public class SequoiadbMetasource implements Metasource {
         }
     }
 
+    public void ensureIndex(String csName, String clName, String idxName,
+            BSONObject indexDefinition, boolean isUnique) throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            DBCursor cursor = cl.getIndex(idxName);
+            if (cursor != null) {
+                try {
+                    if (cursor.hasNext()) {
+                        cursor.close();
+                        return;
+                    }
+                }
+                finally {
+                    cursor.close();
+                }
+            }
+
+            cl.createIndex(idxName, indexDefinition, isUnique, false);
+
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() != SDBError.SDB_IXM_EXIST.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()) {
+                throw new MetasourceException("failed to create cl index:" + csName + "." + clName
+                        + ", idxName=" + idxName + ", idxDef=" + indexDefinition + ", isUnique="
+                        + isUnique, e);
+            }
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    public void ensureCollection(String csName, String clName, BSONObject clOption)
+            throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            if (cs.isCollectionExist(clName)) {
+                return;
+            }
+            cs.createCollection(clName, clOption);
+            logger.info("create collection:{}.{}, option={}", csName, clName, clOption);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_EXIST.getErrorCode()) {
+                return;
+            }
+            throw new MetasourceException(
+                    "failed to create cl:" + csName + "." + clName + ", option=" + clOption, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    public void dropCollection(String csName, String clName) throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            cs.dropCollection(clName);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
+                return;
+            }
+            throw new MetasourceException("failed to drop cl:" + csName + "." + clName, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
     @Override
     public Transaction createTransaction() throws MetasourceException {
         return new SequoiadbTransaction(this);
@@ -106,11 +187,11 @@ public class SequoiadbMetasource implements Metasource {
                 MetaSourceDefine.SequoiadbTableName.CL_SUBSCRIBERS);
     }
 
-    public TableDao getCollection(String csName, String clName) {
+    public SequoiadbTableDao getCollection(String csName, String clName) {
         return new SequoiadbTableDao(this, csName, clName);
     }
 
-    public TableDao getCollection(Transaction transaction, String csName, String clName) {
+    public SequoiadbTableDao getCollection(Transaction transaction, String csName, String clName) {
         return new SequoiadbTableDao(transaction, csName, clName);
     }
 

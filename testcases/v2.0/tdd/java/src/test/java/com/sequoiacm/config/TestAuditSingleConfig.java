@@ -116,6 +116,8 @@ public class TestAuditSingleConfig extends TestAuditConfigBase {
         auditTypes.add("BATCH_DQL");
         auditTypes.add("CREATE_META_CLASS");
         auditTypes.add("DELETE_META_CLASS");
+        auditTypes.add("CREATE_META_ATTR");
+        auditTypes.add("DELETE_META_ATTR");
         Assert.assertEquals(judgeAudit(session, logger,auditTypes, username, "LOCAL"), true);
         // user配置 （TOKEN） 
         user = ScmFactory.User.getUser(session, username);

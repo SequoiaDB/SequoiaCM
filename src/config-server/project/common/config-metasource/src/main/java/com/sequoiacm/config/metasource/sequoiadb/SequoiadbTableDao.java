@@ -109,10 +109,16 @@ public class SequoiadbTableDao extends TableDaoBase {
     @Override
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy)
             throws MetasourceException {
+        return query(matcher, selector, orderBy, 0, -1);
+    }
+
+    @Override
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
+            long limit) throws MetasourceException {
         Sequoiadb db = getConnection();
         try {
             DBCollection cl = SequoiadbHelper.getCL(csName, clName, db);
-            DBCursor c = cl.query(matcher, selector, orderBy, null);
+            DBCursor c = cl.query(matcher, selector, orderBy, null, skip, limit);
             return new SequoiadbMetaCursor(sdbMetasource, db, c);
         }
         catch (BaseException e) {
@@ -181,7 +187,7 @@ public class SequoiadbTableDao extends TableDaoBase {
         }
     }
 
-    protected BSONObject _updateAndCheck(BSONObject matcher, BSONObject updator)
+    public BSONObject updateAndReturnNew(BSONObject matcher, BSONObject updator)
             throws MetasourceException {
         DBCursor cursor = null;
         Sequoiadb db = getConnection();
@@ -237,7 +243,7 @@ public class SequoiadbTableDao extends TableDaoBase {
     public BSONObject updateAndCheck(BSONObject matcher, BSONObject updator)
             throws MetasourceException {
         updator = new BasicBSONObject(SequoiadbHelper.DOLLAR_SET, updator);
-        return _updateAndCheck(matcher, updator);
+        return updateAndReturnNew(matcher, updator);
     }
 
     @Override

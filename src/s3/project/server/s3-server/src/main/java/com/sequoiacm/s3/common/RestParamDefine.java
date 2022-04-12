@@ -43,11 +43,12 @@ public class RestParamDefine {
 
     public static class RegionPara {
         public static final String CREATE_REGION = "Action=CreateRegion";
-        public static final String INIT_REGION = "Action=InitRegion";
-        public static final String GET_REGION = "Action=GetRegion";
+        public static final String SET_DEFAULT_REGION = "Action=SetDefaultRegion";
+        public static final String GET_DEFAULT_REGION = "Action=GetDefaultRegion";
+        public static final String HEADER_DEFAULT_REGION = "default-region";
         public static final String HEAD_REGION = "Action=HeadRegion";
         public static final String DELETE_REGION = "Action=DeleteRegion";
-        public static final String REGION_NAME = "RegionName";
+        public static final String WORKSPACE_NAME = "workspace";
         public static final String LIST_REGIONS = "Action=ListRegions";
     }
 
@@ -91,6 +92,7 @@ public class RestParamDefine {
         public static final String CONTENT_DISPOSITION = "content-disposition";
         public static final String EXPIRES = "expires";
         public static final String CONTENT_LANGUAGE = "content-language";
+        public static final String X_SCM_OBJECT_CREATE_TIME = "x-scm-object-create-time";
     }
 
     public static class PutObjectResultHeader {

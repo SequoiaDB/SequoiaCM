@@ -1,5 +1,22 @@
 package com.sequoiacm.infrastructure.config.client;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PreDestroy;
+
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.sequoiacm.infrastructure.common.ScmJsonInputStreamCursor;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -8,24 +25,30 @@ import com.sequoiacm.infrastructure.config.client.core.ScmConfSubscriberMgr;
 import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDaoFactory;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClient;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClientFactory;
+import com.sequoiacm.infrastructure.config.client.remote.ScmConfServerExceptionConvertor;
+import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.*;
+import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
+import com.sequoiacm.infrastructure.config.core.msg.Config;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.EnableBsonConvertor;
+import com.sequoiacm.infrastructure.config.core.msg.Version;
+import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import com.sequoiacm.infrastructure.config.core.verifier.ScmConfigPropVerifier;
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.sequoiacm.infrastructure.feign.ScmFeignErrorDecoder;
 
-import java.util.ArrayList;
-import java.util.List;
+import feign.Response;
 
 @Component
 @EnableBsonConvertor
 public class ScmConfClient {
     private static Logger logger = LoggerFactory.getLogger(ScmConfClient.class);
+
+    private final static ScmFeignErrorDecoder errDecoder = new ScmFeignErrorDecoder(
+            new ScmConfServerExceptionConvertor());
+
     @Autowired
     private ScmConfSubscriberMgr subscriberMgr;
 
@@ -45,6 +68,11 @@ public class ScmConfClient {
     private ScmConfigPropsDaoFactory configPropsDaoFactory;
 
     private ScmTimer asyncSubscribeTimer;
+
+    @PreDestroy
+    public void destory() {
+        asyncSubscribeTimer.cancel();
+    }
 
     public void subscribeWithAsyncRetry(ScmConfSubscriber subscriber) throws ScmConfigException {
         subscriberMgr.addSubscriber(subscriber, this);
@@ -149,6 +177,58 @@ public class ScmConfClient {
             configs.add(config);
         }
         return configs;
+    }
+
+    private void checkResponse(String methodKey, Response response) throws ScmConfigException {
+        if (response.status() >= 200 && response.status() < 300) {
+            return;
+        }
+
+        Exception e = errDecoder.decode(methodKey, response);
+        if (e instanceof ScmConfigException) {
+            throw (ScmConfigException) e;
+        }
+        else {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR, e.getMessage(), e);
+        }
+    }
+
+    public long countConf(String configName, ConfigFilter filter) throws ScmConfigException {
+        Response resp = confFeignClientFactory.getClient().countConf(configName,
+                filter.toBSONObject());
+        checkResponse("count", resp);
+        Map<String, Collection<String>> headers = resp.headers();
+        Collection<String> countHeaders = headers.get(ScmRestArgDefine.COUNT_HEADER);
+        if (countHeaders == null || countHeaders.isEmpty()) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "failed to count conf, response missing count header:confName=" + configName
+                            + ", filter=" + filter);
+        }
+        return Long.parseLong(countHeaders.iterator().next());
+    }
+
+    public ScmJsonInputStreamCursor<Config> listConf(final String configName, ConfigFilter filter)
+            throws ScmConfigException {
+        Response resp = confFeignClientFactory.getClient().listConf(configName,
+                filter.toBSONObject());
+        checkResponse("listConf", resp);
+        InputStream is;
+        try {
+            is = resp.body().asInputStream();
+            return new ScmJsonInputStreamCursor<Config>(is) {
+                @Override
+                protected Config convert(BSONObject b) {
+                    Config config = converterMgr.getMsgConverter(configName)
+                            .convertToConfig((BSONObject) b);
+                    return config;
+                }
+            };
+        }
+        catch (IOException e) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "failed to list conf:configName=" + configName + ", filter=" + filter, e);
+        }
+
     }
 
     /**

@@ -117,6 +117,10 @@ public final class BsonUtils {
         return get(object, field);
     }
 
+    public static BSONObject getBSONOrElse(BSONObject object, String field, BSONObject defaultValue) {
+        return getOrElse(object, field, defaultValue);
+    }
+
     public static BSONObject getBSONChecked(BSONObject object, String field) {
         return getChecked(object, field);
     }

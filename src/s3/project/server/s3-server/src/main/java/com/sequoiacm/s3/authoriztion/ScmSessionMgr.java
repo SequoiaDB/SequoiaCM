@@ -127,7 +127,8 @@ public class ScmSessionMgr {
         if (signatureServerSide.equals(authentication.getSignature())) {
             return;
         }
-        logger.error("signature does not match, authorization=" + authentication);
+        logger.error("signature does not match, authorization=" + authentication
+                + ", signatureServerSide=" + signatureServerSide);
         throw new S3ServerException(S3Error.SIGNATURE_NOT_MATCH, "Signature does not match.");
     }
 

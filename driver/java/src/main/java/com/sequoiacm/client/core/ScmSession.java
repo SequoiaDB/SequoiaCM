@@ -1,8 +1,8 @@
 package com.sequoiacm.client.core;
 
-import com.sequoiacm.client.dispatcher.MessageDispatcher;
-
 import java.io.Closeable;
+
+import com.sequoiacm.client.dispatcher.MessageDispatcher;
 
 /**
  * SCM Session
@@ -41,6 +41,8 @@ public abstract class ScmSession implements Closeable {
     public abstract boolean isClosed();
 
     public abstract void resetSiteName(String siteName);
+
+    abstract String getSiteName();
 
     abstract MessageDispatcher getDispatcher();
 

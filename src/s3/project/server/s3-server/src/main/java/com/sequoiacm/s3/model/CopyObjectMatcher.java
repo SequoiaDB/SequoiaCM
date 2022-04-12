@@ -1,8 +1,8 @@
 package com.sequoiacm.s3.model;
 
-import com.sequoiacm.s3.common.RestParamDefine;
-
 import javax.servlet.http.HttpServletRequest;
+
+import com.sequoiacm.s3.common.RestParamDefine;
 
 public class CopyObjectMatcher extends ObjectMatcher {
 
@@ -13,4 +13,8 @@ public class CopyObjectMatcher extends ObjectMatcher {
                 req.getHeader(RestParamDefine.CopyObjectHeader.IF_UNMODIFIED_SINCE));
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

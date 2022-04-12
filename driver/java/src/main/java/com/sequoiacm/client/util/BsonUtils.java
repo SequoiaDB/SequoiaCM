@@ -124,6 +124,11 @@ public final class BsonUtils {
         return getChecked(object, field);
     }
 
+    public static BSONObject getBSONObject(BSONObject object, String field)
+            throws ScmException {
+        return get(object, field);
+    }
+
     public static Date getDateChecked(BSONObject object, String field) throws ScmException {
         return getChecked(object, field);
     }
