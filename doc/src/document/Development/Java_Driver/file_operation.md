@@ -16,15 +16,24 @@ ScmFile file = ScmFactory.File.createInstance(workspace);
 file.setFileName("testFile");
 file.setAuthor("SequoiaCM");
 file.setContent("E:\\test\\upload_file.txt");
-// 提交文件
-file.save();
+// 保存文件并获取文件 Id ，根据此文件 Id 可以进行获取文件、下载文件、删除文件等操作
+ScmId fileID = file.save();
 ```
+> ScmId 类表示全局唯一标识（GUID，Globally Unique Identifier）值的不可变类，其内部主要是由一个24个数字或字母组成的字符串构成。其作用是作为某一资源的唯一标识，比如通过 ScmId 获取文件、批次、元数据模型、任务调度等实例。
+>
+> 以获取文件实例为例：
+> 
+> 在需要获取文件实例时，通过执行 ScmFactory.File.getInstance 方法并传入指定的工作区和目标文件的 ScmId 来获取文件实例。
+> 
+> 补充：ScmId 在保存文件时获取
 
 * 获取文件
 
 ```lang-javascript 
-// 通过 fileID 获取文件实例
+// 通过 workspace 和 fileID 获取文件实例
 ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
+// 如果没有 fileID，可以通过 目录+文件名 的方式获取文件实例，对应的参数形式为“目录/文件名”，创建文件时不指定目录的情况下，文件默认所在的目录为根目录“/”
+// ScmFile file = ScmFactory.File.getInstanceByPath(workspace, "/testFile");
 System.out.println(file.toString());
 // 下载文件内容
 file.getContent("E:\\test\\download_file.txt");
@@ -51,7 +60,7 @@ while (cursor.hasNext()) {
 *	下载文件，跨站点读时不做缓存
 
 ```lang-javascript 
-// 通过 fileID 获取文件实例
+// 通过 workspace 和 fileID 获取文件实例
 ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
 OutputStream os = null;
 try {
@@ -73,7 +82,7 @@ finally {
 *	文件输入流下载文件
 
 ```lang-javascript
-//获取 ScmFile 实例
+//通过 workspace 和 fileID 获取文件实例
 ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
 //创建 ScmInputStream 实例
 ScmInputStream is = ScmFactory.File.createInputStream(InputStreamType.UNSEEKABLE, file);
@@ -174,7 +183,7 @@ while (cursor.hasNext()) {
 * 删除文件
 	
 ```lang-javascript 
-//通过 fileID 物理删除文件
+//通过 workspace 和 fileID 物理删除文件
 ScmFactory.File.deleteInstance(workspace, fileID, true);
 //通过 ScmFile 实例物理删除文件
 ScmFile file = ScmFactory.File.getInstance(workspace, fileID);

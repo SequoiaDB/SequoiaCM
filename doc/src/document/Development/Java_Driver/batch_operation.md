@@ -18,13 +18,14 @@ ScmTags tags = new ScmTags();
 tags.addTag("tagValue");
 batch.setName("Batch");
 batch.setTags(tags);
-batch.save();
+// 保存批次并获取批次 Id ，根据此批次 Id 可以进行获取批次、批次关联/解除文件、删除批次等操作
+ScmId batchID = batch.save();
 ```
 
 * 获取批次
 
 ```lang-javascript 
-// 通过 batchID 获取批次实例
+// 通过 workspace 和 batchID 获取批次实例
 ScmBatch batch = ScmFactory.Batch.getInstance(workspace, batchID);
 System.out.println(batch.getName());
 System.out.println(batch.getTags());
@@ -41,7 +42,7 @@ while (cursor.hasNext()) {
 * 批次关联/解除文件
 
 ```lang-javascript
-// 获取批次
+// 通过 workspace 和 batchID 获取批次实例
 ScmBatch batch = ScmFactory.Batch.getInstance(workspace, batchID);
 // 创建文件
 ScmFile file = ScmFactory.File.createInstance(workspace);
@@ -63,7 +64,7 @@ batch.detachFile(file.getFileId());
 * 删除批次
 
 ```lang-javascript 
-//通过 batchID 删除批次
+//通过 workspace 和 batchID 删除批次
 ScmFactory.Batch.deleteInstance(workspace, batchID);
 
 //通过 ScmBatch 实例删除批次
