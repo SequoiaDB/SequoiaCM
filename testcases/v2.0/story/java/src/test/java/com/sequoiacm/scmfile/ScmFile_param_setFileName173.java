@@ -28,11 +28,14 @@ import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
- * @Testcase: SCM-173:setFileName参数校验
+ * @descreption SCM-173:setFileName参数校验
  * @author huangxiaoni init
  * @date 2017.4.12
+ * @updateUser YiPan
+ * @updateDate 2022/4/12
+ * @updateRemark
+ * @version 1.0
  */
-
 public class ScmFile_param_setFileName173 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
@@ -104,9 +107,8 @@ public class ScmFile_param_setFileName173 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test3() throws ScmException {
-        String[] chars = { "/", "\\", "//", "*", "?", "<", ">", "|", "\"", ":",
-                "%", ";" };
-        for ( String c : chars ) {
+        String[] invalid = { "/", "//", };
+        for ( String c : invalid ) {
             try {
                 ScmFile file = ScmFactory.File.createInstance( ws );
                 file.setFileName( "file173" + c );
@@ -117,6 +119,22 @@ public class ScmFile_param_setFileName173 extends TestScmBase {
                     throw e;
                 }
             }
+        }
+
+        String[] valid = { "\\a", "*", "?", "<", ">", "|", "\"", ":", "%",
+                ";" };
+        try {
+            for ( String c : valid ) {
+                System.err.println( c );
+                ScmFile file = ScmFactory.File.createInstance( ws );
+                file.setFileName( "file173" + c );
+                file.setAuthor( author );
+                file.save();
+            }
+        } finally {
+            BSONObject query = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, query );
         }
     }
 

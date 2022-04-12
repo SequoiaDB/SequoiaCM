@@ -2,92 +2,92 @@
 <!--this xml is for ci, please don't modify it -->
 <!--testcase for function test, which can be excuted concurrently -->
 <suite name="scm_story_serial" verbose="1" parallel="classes" thread-count="1">
-   <parameter name="FORCECLEAR" value="false" />
-   <parameter name="DATADIR" value="/tmp/ci_cm" />
-   <parameter name="NTPSERVER" value="192.168.20.200" />
-   <parameter name="LOCALHOSTNAME" value="localhost" />
+    <parameter name="FORCECLEAR" value="false"/>
+    <parameter name="DATADIR" value="/tmp/ci_cm"/>
+    <parameter name="NTPSERVER" value="192.168.20.200"/>
+    <parameter name="LOCALHOSTNAME" value="localhost"/>
 
-   <parameter name="SSHUSER" value="root" />
-   <parameter name="SSHPASSWD" value="jenkins" />
+    <parameter name="SSHUSER" value="root"/>
+    <parameter name="SSHPASSWD" value="jenkins"/>
 
-   <parameter name="MAINSDBURL" value="mainSiteHostName:11810" />
-   <parameter name="SDBUSER" value="sdbadmin" />
-   <parameter name="SDBPASSWD" value="sequoiadb" />
+    <parameter name="MAINSDBURL" value="mainSiteHostName:11810"/>
+    <parameter name="SDBUSER" value="sdbadmin"/>
+    <parameter name="SDBPASSWD" value="sequoiadb"/>
 
-   <!-- 需要屏蔽的独有用例类型，网状模型下指定star，星状模型下指定net -->
-   <parameter name="IGNORE" value="${IGNORE}"/>
-   <parameter name="GATEWAYS" value="GATEWAYURLS"/>
-   <parameter name="ROOTSITESVCNAME" value="rootsite"/>
-   <parameter name="SCMUSER" value="admin" />
-   <parameter name="SCMPASSWD" value="admin" />
-   <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-    <parameter name="S3ACCESSKEYID" value="S3USER" />
-    <parameter name="S3SECRETKEY" value="S3PASSWORD" />
+    <!-- 需要屏蔽的独有用例类型，网状模型下指定star，星状模型下指定net -->
+    <parameter name="IGNORE" value="${IGNORE}"/>
+    <parameter name="GATEWAYS" value="GATEWAYURLS"/>
+    <parameter name="ROOTSITESVCNAME" value="rootsite"/>
+    <parameter name="SCMUSER" value="admin"/>
+    <parameter name="SCMPASSWD" value="admin"/>
+    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info"/>
+    <parameter name="S3ACCESSKEYID" value="S3USER"/>
+    <parameter name="S3SECRETKEY" value="S3PASSWORD"/>
     <parameter name="S3WOKERSPACES" value="ws_default"/>
 
-   <parameter name="LDAPUSER" value="ldapadmin" />
-   <parameter name="LDAPPASSWD" value="admin" />
-   <listeners>
-          <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
-   </listeners>
+    <parameter name="LDAPUSER" value="ldapadmin"/>
+    <parameter name="LDAPPASSWD" value="admin"/>
+    <listeners>
+        <listener class-name="com.sequoiacm.testcommon.TestScmListener"/>
+    </listeners>
 
-   <test name="parralclass" preserve-order="true">
-       <method-selectors>
-           <method-selector>
-               <script language="beanshell">
-               <![CDATA[
+    <test name="parralclass" preserve-order="true">
+        <method-selectors>
+            <method-selector>
+                <script language="beanshell">
+                    <![CDATA[
                (groups.containsKey("XXXX")&&(!groups.containsKey(testngMethod.getXmlTest().getParameter("IGNORE"))))
                ||groups.isEmpty();
                ]]>
-               </script>
-           </method-selector>
-       </method-selectors>
+                </script>
+            </method-selector>
+        </method-selectors>
 
-       <packages>
-           <package name="com.sequoiacm.autocreatelobcs.serial"/>
-           <package name="com.sequoiacm.reloadconf.serial"/>
-           <package name="com.sequoiacm.scmfile.serial"/>
-           <!--fulltext-->
-           <package name="com.sequoiacm.fulltextsearch"/>
-           <package name="com.sequoiacm.fulltextsearch.concurrent"/>
-           <package name="com.sequoiacm.fulltextsearch.serial"/>
-           <!--only one task is allowed under a ws -->
-           <!--task-->
-           <package name="com.sequoiacm.task"/>
-           <package name="com.sequoiacm.task.concurrent"/>
-           <package name="com.sequoiacm.scheduletask"/>
-           <package name="com.sequoiacm.scheduletask.concurrent"/>
-           <!--version-->
-           <package name="com.sequoiacm.version.serial"/>
-           <!--session-->
-           <package name="com.sequoiacm.session.serial"/>
-           <!--drivernetpool-->
-           <package name="com.sequoiacm.drivernetpool.serial"/>
-           <!--rest-->
-           <package name="com.sequoiacm.rest.serial"/>
-           <!--batch-->
-           <package name="com.sequoiacm.batch.serial"/>
-           <!--auth-->
-           <package name="com.sequoiacm.auth.serial"/>
-           <!--ws-->
-           <package name="com.sequoiacm.workspace.serial"/>
-           <!--monitor-->
-           <package name="com.sequoiacm.monitor"/>
-           <!--config-->
-           <package name="com.sequoiacm.config"/>
-           <package name="com.sequoiacm.config.concurrent"/>
-           <!--audit-->
-           <package name="com.sequoiacm.audit"/>
-           <!--big file-->
-           <!-- SEQUOIACM-770暂时屏蔽该用例       -->
-           <!-- <package name="com.sequoiacm.bigfile"/>-->
-           <!--directory -->
-           <package name="com.sequoiacm.directory.serial"/>
-           <!--s3-->
-           <package name="com.sequoiacm.s3.bucket.serial"/>
-           <!-- statistics -->
-           <package name="com.sequoiacm.statistics"/>
-       </packages>
-   </test>
+        <packages>
+            <package name="com.sequoiacm.autocreatelobcs.serial"/>
+            <package name="com.sequoiacm.reloadconf.serial"/>
+            <package name="com.sequoiacm.scmfile.serial"/>
+            <!--fulltext-->
+            <package name="com.sequoiacm.fulltextsearch"/>
+            <package name="com.sequoiacm.fulltextsearch.concurrent"/>
+            <package name="com.sequoiacm.fulltextsearch.serial"/>
+            <!--only one task is allowed under a ws -->
+            <!--task-->
+            <package name="com.sequoiacm.task"/>
+            <package name="com.sequoiacm.task.concurrent"/>
+            <package name="com.sequoiacm.scheduletask"/>
+            <package name="com.sequoiacm.scheduletask.concurrent"/>
+            <!--version-->
+            <package name="com.sequoiacm.version.serial"/>
+            <!--session-->
+            <package name="com.sequoiacm.session.serial"/>
+            <!--drivernetpool-->
+            <package name="com.sequoiacm.drivernetpool.serial"/>
+            <!--rest-->
+            <package name="com.sequoiacm.rest.serial"/>
+            <!--batch-->
+            <package name="com.sequoiacm.batch.serial"/>
+            <!--auth-->
+            <package name="com.sequoiacm.auth.serial"/>
+            <!--ws-->
+            <package name="com.sequoiacm.workspace.serial"/>
+            <!--monitor-->
+            <package name="com.sequoiacm.monitor"/>
+            <!--config-->
+            <package name="com.sequoiacm.config"/>
+            <package name="com.sequoiacm.config.concurrent"/>
+            <!--audit-->
+            <package name="com.sequoiacm.audit"/>
+            <!--big file-->
+            <!-- SEQUOIACM-770暂时屏蔽该用例       -->
+            <!-- <package name="com.sequoiacm.bigfile"/>-->
+            <!--directory -->
+            <package name="com.sequoiacm.directory.serial"/>
+            <!--s3重构中，暂时屏蔽-->
+            <!-- package name="com.sequoiacm.s3.bucket.serial"/>-->
+            <!-- statistics -->
+            <package name="com.sequoiacm.statistics"/>
+        </packages>
+    </test>
 
 </suite>
