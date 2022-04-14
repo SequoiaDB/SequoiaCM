@@ -1,0 +1,20 @@
+【工具介绍】
+nodejs 用于编译 om-server 的前端模块，在打包 SequoiaCM 时，需要依赖该组件。
+
+【安装说明】
+内网 Windows 机器上一般自带 nodejs，下面主要介绍 Linux 机器上 nodejs 的安装步骤：
+
+1. 上传压缩包 node-v10.0.0-linux-x64.tar.xz 到虚拟机上（假设上传到/opt目录）。
+
+2. 解压安装包：
+tar -xvf node-v10.0.0-linux-x64.tar.xz
+
+3. 改目录名（建议）
+mv /opt/node-v10.0.0-linux-x64 /opt/nodejs
+
+4. 配置环境变量：
+vi /etc/profile 加入：export PATH=$PATH:/opt/nodejs/bin
+source /etc/profile
+
+5. 验证是否安装成功：
+node -v

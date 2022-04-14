@@ -27,7 +27,7 @@ SequoiaCM 是一个基于 Spring Cloud 微服务架构的企业分布式内容�
 | jdk      | 1.8及以上   |
 | python   | 2.7.x版本   |
 | maven    | 3.3.9及以上 |
-| node.js    | 12.0及以上 |
+| node.js    | 10.0及以上 |
 
 ```xml
 <!-- maven需要在settings.xml配置私服 -->
