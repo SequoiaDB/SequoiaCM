@@ -46,7 +46,7 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
         sdbMetaSource.ensureCollection(MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,
                 MetaSourceDefine.SequoiadbTableName.CL_ID_GEN, clOption);
         sdbMetaSource.ensureIndex(MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,
-                MetaSourceDefine.SequoiadbTableName.CL_ID_GEN, "type_idx",
+                MetaSourceDefine.SequoiadbTableName.CL_ID_GEN, "idx_type",
                 new BasicBSONObject(ID_TABLE_FIELD_TYPE, 1), true);
         TableDao bucketIdTable = sdbMetaSource.getCollection(
                 MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,

@@ -112,6 +112,31 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws ScmDatasourceException {
+        try {
+            SdbDataLocation sdbLocation = (SdbDataLocation) location;
+            String csName = sdbLocation.getDataCsName(wsName, createTime);
+            String clName = sdbLocation.getDataClName(createTime);
+            return new SdbSeekableDataWriter(sdbLocation, (SdbDataService) service, csName, clName,
+                    dataId, createData, writeOffset);
+        }
+        catch (SequoiadbException e) {
+            logger.error("build sdb seekable writer failed:siteId={}, wsName={}, fileName={}",
+                    location.getSiteId(), wsName, fileName);
+            throw e;
+        }
+        catch (Exception e) {
+            String msg = String.format(
+                    "build sdb seekable writer failed:siteId=%d, wsName=%s, fileName=%s",
+                    location.getSiteId(), wsName, fileName);
+            logger.error(msg);
+            throw new SequoiadbException(msg, e);
+        }
+    }
+
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
         return new SdbTableDeletorImpl(tableNames, service);

@@ -82,7 +82,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         argumentResolvers.add(new HeadObjArgResolver());
         argumentResolvers.add(new CopyObjArgResolver());
     }
-
 }
 
 class MyXmlConverter extends MappingJackson2XmlHttpMessageConverter {

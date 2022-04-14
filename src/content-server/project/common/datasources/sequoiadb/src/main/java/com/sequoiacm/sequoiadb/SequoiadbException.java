@@ -57,5 +57,9 @@ public class SequoiadbException extends ScmDatasourceException {
         else if (dbError == SDBError.SDB_LOB_IS_IN_USE.getErrorCode()) {
             scmError = ScmError.DATA_IS_IN_USE;
         }
+
+        else if (dbError == SDBError.SDB_LOB_PIECESINFO_OVERFLOW.getErrorCode()) {
+            scmError = ScmError.DATA_PIECES_INFO_OVERFLOW;
+        }
     }
 }

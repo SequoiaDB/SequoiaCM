@@ -96,24 +96,6 @@ public class BucketController {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
     }
 
-    @RequestMapping(value = "/{bucketname:.+}", params = RestParamDefine.UPLOADID, produces = MediaType.APPLICATION_XML_VALUE)
-    public void bucketRejectUploadId(ScmSession session) throws S3ServerException {
-        throw new S3ServerException(S3Error.NEED_A_KEY, "need a key");
-        // TODO
-        // catch (Exception e) {
-        // try {
-        // if (httpServletRequest.getInputStream() != null) {
-        // httpServletRequest.getInputStream().skip(httpServletRequest.getContentLength());
-        // httpServletRequest.getInputStream().close();
-        // }
-        // }
-        // catch (Exception e2) {
-        // logger.error("skip content length fail");
-        // }
-        // throw e;
-        // }
-    }
-
     @RequestMapping(value = "/{bucketname:.+}", headers = RestParamDefine.CopyObjectHeader.X_AMZ_COPY_SOURCE, produces = MediaType.APPLICATION_XML_VALUE)
     public void bucketRejectCopy(ScmSession session) throws S3ServerException {
         throw new S3ServerException(S3Error.OBJECT_COPY_INVALID_DEST,

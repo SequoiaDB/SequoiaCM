@@ -145,21 +145,11 @@ public class ObjectController {
         catch (Exception e) {
             logger.error("put object failed. bucketName/objectName:"
                     + httpServletRequest.getRequestURI());
-            try {
-                httpServletRequest.getInputStream().skip(httpServletRequest.getContentLength());
-            }
-            catch (Exception e2) {
-                logger.warn("skip content length fail");
-            }
+            restUtils.skipInputStream(httpServletRequest);
             throw e;
         }
         finally {
-            try {
-                httpServletRequest.getInputStream().close();
-            }
-            catch (Exception e2) {
-                logger.warn("close inputStream failed", e2);
-            }
+            restUtils.closeInputStream(httpServletRequest);
         }
     }
 

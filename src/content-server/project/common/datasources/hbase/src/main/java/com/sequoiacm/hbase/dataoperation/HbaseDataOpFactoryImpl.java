@@ -90,6 +90,14 @@ public class HbaseDataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws HbaseException {
+        throw new HbaseException(HbaseException.HBASE_ERROR_OPERATION_UNSUPPORTED,
+                "do not support upload");
+    }
+
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
         return new HbaseDataTableDeletor(tableNames, service);

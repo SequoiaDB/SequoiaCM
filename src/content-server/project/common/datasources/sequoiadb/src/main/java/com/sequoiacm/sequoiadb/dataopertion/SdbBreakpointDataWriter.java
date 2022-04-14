@@ -71,12 +71,16 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
                     "Only support append data");
         }
+        seekWrite(data, offset, length);
+    }
+
+    protected void seekWrite(byte[] data, int offset, int length) throws SequoiadbException {
         try {
-            lob.seek(writeOffset, DBLob.SDB_LOB_SEEK_SET);
+            lob.lockAndSeek(writeOffset, length);
             lob.write(data, offset, length);
         }
         catch (BaseException e) {
-            throw new SequoiadbException(e.getErrorCode(), "Failed to write breakpoint data", e);
+            throw new SequoiadbException(e.getErrorCode(), "Failed to write lob", e);
         }
         writeOffset += length;
     }
@@ -222,5 +226,9 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     @Override
     public BSONObject getContext() {
         return null;
+    }
+
+    protected void seek(long size) throws ScmDatasourceException {
+        writeOffset = size;
     }
 }

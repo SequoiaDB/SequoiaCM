@@ -26,6 +26,9 @@ public class SequoiadbHelper {
     public static final String SEQUOIADB_MATCHER_ET = "$et";
     public static final String SEQUOIADB_MATCHER_NE = "$ne";
     public static final String SEQUOIADB_MATCHER_NOT = "$not";
+    public static final String SEQUOIADB_MATCHER_GTE  = "$gte";   //NOT SMALL
+    public static final String SEQUOIADB_MATCHER_GT = "$gt";    //GREATER
+    public static final String SEQUOIADB_MATCHER_LT = "$lt";    //LESS_THAN
 
     public static final String SEQUOIADB_MODIFIER_PUSH = "$push";
     public static final String SEQUOIADB_MODIFIER_PULL = "$pull";
@@ -36,6 +39,9 @@ public class SequoiadbHelper {
 
     public static final String SEQUOIADB_CATALOG_NAME_FIELD = "Name";
     public static final String SEQUOIADB_CATALOG_MAINCL_FIELD = "MainCLName";
+
+    private static final int SDB_IXM_CREATING = -387;         //DB error code
+    private static final int SDB_IXM_COVER_CREATING = -389;   //DB error code
 
     public static void closeCursor(DBCursor cursor) {
         try {
@@ -51,15 +57,14 @@ public class SequoiadbHelper {
     public static void createCL(Sequoiadb sdb, String csName, String clName, BSONObject options)
             throws SdbMetasourceException {
         try {
-            logger.info("creating cl:clName=" + csName + "." + clName + ",options="
-                    + options.toString());
+            logger.info("creating cl:clName=" + csName + "." + clName + ", options=" + options);
             CollectionSpace cs = sdb.getCollectionSpace(csName);
             cs.createCollection(clName, options);
         }
         catch (BaseException e) {
             if (e.getErrorCode() != SDBError.SDB_DMS_EXIST.getErrorCode()) {
                 throw new SdbMetasourceException(e.getErrorCode(),
-                        "csName=" + csName + ",clName=" + clName + ",options=" + options.toString(),
+                        "csName=" + csName + ",clName=" + clName + ",options=" + options,
                         e);
             }
             else {
@@ -68,7 +73,7 @@ public class SequoiadbHelper {
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(), "createcl failed:cs="
-                    + csName + ",cl=" + clName + ",options=" + options.toString(), e);
+                    + csName + ",cl=" + clName + ",options=" + options, e);
         }
     }
 
@@ -108,7 +113,10 @@ public class SequoiadbHelper {
             cl.createIndex(indexName, indexDef, isUnique, enforced);
         }
         catch (BaseException e) {
-            if (e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()) {
+            if (e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()
+                    && e.getErrorCode() != SDB_IXM_CREATING
+                    && e.getErrorCode() != SDB_IXM_COVER_CREATING) {
                 throw new SdbMetasourceException(e.getErrorCode(),
                         "create index failed:table=" + csName + "." + clName + ",indexName="
                                 + indexName + ",indexDef=" + indexDef,

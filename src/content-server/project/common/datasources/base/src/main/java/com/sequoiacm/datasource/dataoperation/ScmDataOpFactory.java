@@ -22,6 +22,10 @@ public interface ScmDataOpFactory {
             String wsName, String fileName, String dataId, Date createTime, boolean createData,
             long writeOffset, BSONObject extraContext) throws ScmDatasourceException;
 
+    ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws ScmDatasourceException;
+
     ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException;
 }

@@ -54,14 +54,14 @@ public class InputStreamWithCalc extends InputStream {
         src.close();
     }
 
-    public String getMd5() {
+    public String getbase64md5() {
         if (md5Bytes == null) {
             throw new RuntimeException("inputstream did not close");
         }
         return SignUtil.base64(md5Bytes);
     }
 
-    public String getEtag() {
+    public String gethexmd5() {
         if (md5Bytes == null) {
             throw new RuntimeException("inputstream did not close");
         }

@@ -1,8 +1,10 @@
 package com.sequoiacm.infrastructure.lock;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
+import com.sequoiacm.infrastructure.lock.exception.ScmLockTimeoutException;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,43 @@ public class ScmLockManager {
                     "failed to acquires writeLock: lockPath=" + Arrays.toString(lockPath.getPath()),
                     e);
         }
+    }
+
+    public ScmLock acquiresReadLock(ScmLockPath lockPath, long timeoutInMs)
+            throws ScmLockException, ScmLockTimeoutException {
+        try {
+            checkAndInit();
+            ScmLock readLock = innerFactory.createReadWriteLock(lockPath.getPath()).readLock();
+            if (readLock.lock(timeoutInMs, TimeUnit.MILLISECONDS)) {
+                return readLock;
+            }
+        }
+        catch (Exception e) {
+            throw new ScmLockException(
+                    "failed to acquires read lock. lockPath=" + Arrays.toString(lockPath.getPath()),
+                    e);
+        }
+
+        throw new ScmLockTimeoutException(
+                "acquire read lock timeout. lockPath=" + Arrays.toString(lockPath.getPath()));
+    }
+
+    public ScmLock acquiresWriteLock(ScmLockPath lockPath, long timeoutInMs)
+            throws ScmLockException, ScmLockTimeoutException {
+        try {
+            checkAndInit();
+            ScmLock writeLock = innerFactory.createReadWriteLock(lockPath.getPath()).writeLock();
+            if (writeLock.lock(timeoutInMs, TimeUnit.MILLISECONDS)) {
+                return writeLock;
+            }
+        }
+        catch (Exception e) {
+            throw new ScmLockException("failed to acquires write lock. lockPath="
+                    + Arrays.toString(lockPath.getPath()), e);
+        }
+
+        throw new ScmLockTimeoutException(
+                "acquire write lock timeout. lockPath=" + Arrays.toString(lockPath.getPath()));
     }
 
     public ScmLock acquiresLock(ScmLockPath lockPath) throws ScmLockException {

@@ -2,6 +2,9 @@ package com.sequoiacm.contentserver.service;
 
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 
@@ -24,6 +27,9 @@ public interface IDatasourceService {
     BSONObject getDataInfo(String workspaceName, String dataId, int dataType, long createTime)
             throws ScmServerException;
 
+    void createDataInLocal(String wsName, String dataId, int dataType, long createTime)
+            throws ScmServerException;
+
     void createDataInLocal(String wsName, String dataId, int dataType, long createTime, InputStream is)
             throws ScmServerException;
 
@@ -31,4 +37,10 @@ public interface IDatasourceService {
     ScmDataInfoDetail createData(String ws, InputStream data, long createTime) throws ScmServerException;
 
     void deleteDataTables(List<String> tableNames) throws ScmServerException;
+
+    ScmDataReader getScmDataReader(String wsName, String dataId, int dataType, long createTime)
+            throws ScmServerException, ScmDatasourceException;
+
+    ScmSeekableDataWriter getScmSeekableDataWriter(String wsName, String dataId, int dataType,
+            long createTime) throws ScmServerException;
 }

@@ -178,6 +178,12 @@ public class RestParamDefine {
         public static final String ENCODING_TYPE = "encoding-type";
     }
 
+    public static class CopyPartPara {
+        public static final String X_AMZ_COPY_SOURCE    = "x-amz-copy-source";
+        public static final String X_AMZ_COPY_SOURCE_RANGE = "x-amz-copy-source-range";
+    }
+
+
     public static class Acl {
         public static final String X_AMZ_ACL = "x-amz-acl";
 

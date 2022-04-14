@@ -92,6 +92,14 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws ScmDatasourceException {
+        throw new CephSwiftException(CephSwiftException.ERR_OPERATION_UNSUPPORTED,
+                "do not support seekable upload");
+    }
+
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
         return new CephSwiftDataTableDeletorImpl();

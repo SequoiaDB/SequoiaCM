@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.utils;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
@@ -91,6 +92,34 @@ public class RestUtils {
         }
     }
 
+    public void skipInputStream(HttpServletRequest request) {
+        try {
+            if (request != null) {
+                InputStream is = request.getInputStream();
+                if (is != null) {
+                    is.skip(request.getContentLength());
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.error("skip inputStream failed", e);
+        }
+    }
+
+    public void closeInputStream(HttpServletRequest request) {
+        try {
+            if (request != null) {
+                InputStream is = request.getInputStream();
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.error("close inputStream failed", e);
+        }
+    }
+
     public HttpStatus convertStatus(S3ServerException e) {
         HttpStatus status;
         switch (e.getError()) {
@@ -99,8 +128,6 @@ public class RestUtils {
                 status = HttpStatus.NOT_MODIFIED;
                 break;
             case INVALID_ARGUMENT:
-            case USER_CREATE_NAME_INVALID:
-            case USER_CREATE_ROLE_INVALID:
             case BUCKET_INVALID_BUCKETNAME:
             case BUCKET_TOO_MANY_BUCKETS:
             case BUCKET_INVALID_VERSIONING_STATUS:
@@ -112,15 +139,6 @@ public class RestUtils {
             case OBJECT_INVALID_DIGEST:
             case OBJECT_INVALID_VERSION:
             case OBJECT_INVALID_RANGE:
-            case REGION_INVALID_SHARDINGTYPE:
-            case REGION_INVALID_LOBPAGESIZE:
-            case REGION_INVALID_REPLSIZE:
-            case REGION_LOCATION_NULL:
-            case REGION_LOCATION_SAME:
-            case REGION_LOCATION_SPLIT:
-            case REGION_LOCATION_EXIST:
-            case REGION_INVALID_DOMAIN:
-            case REGION_INVALID_REGIONNAME:
             case PART_ENTITY_TOO_SMALL:
             case PART_ENTITY_TOO_LARGE:
             case PART_INVALID_PART:
@@ -131,9 +149,6 @@ public class RestUtils {
             case OBJECT_COPY_DELETE_MARKER:
             case OBJECT_COPY_INVALID_SOURCE:
             case OBJECT_INCOMPLETE_BODY:
-            case ACL_CONFLICT:
-            case ACL_INVALID_ID:
-            case ACL_INVALID_EMAIL:
             case MALFORMED_XML:
             case NEED_A_KEY:
             case OBJECT_INVALID_ENCODING_TYPE:
@@ -142,15 +157,12 @@ public class RestUtils {
                 status = HttpStatus.BAD_REQUEST;
                 break;
             case INVALID_ACCESSKEYID:
-            case INVALID_ADMINISTRATOR:
-            case USER_DELETE_INIT_ADMIN:
             case SIGNATURE_NOT_MATCH:
             case ACCESS_DENIED:
             case NO_CREDENTIALS:
             case INVALID_AUTHORIZATION:
                 status = HttpStatus.FORBIDDEN;
                 break;
-            case USER_NOT_EXIST:
             case BUCKET_NOT_EXIST:
             case OBJECT_NO_SUCH_KEY:
             case OBJECT_NO_SUCH_VERSION:
@@ -161,18 +173,10 @@ public class RestUtils {
             case METHOD_NOT_ALLOWED:
                 status = HttpStatus.METHOD_NOT_ALLOWED;
                 break;
-            case USER_CREATE_EXIST:
             case BUCKET_ALREADY_EXIST:
             case BUCKET_ALREADY_OWNED_BY_YOU:
             case BUCKET_NOT_EMPTY:
             case OBJECT_IS_IN_USE:
-            case REGION_NOT_EMPTY:
-            case REGION_CONFLICT_TYPE:
-            case REGION_CONFLICT_DOMAIN:
-            case REGION_CONFLICT_LOCATION:
-            case REGION_CONFLICT_LOBPAGESIZE:
-            case REGION_CONFLICT_REPLSIZE:
-            case BUCKET_DELIMITER_NOT_STABLE:
                 status = HttpStatus.CONFLICT;
                 break;
             case OBJECT_IF_MATCH_FAILED:

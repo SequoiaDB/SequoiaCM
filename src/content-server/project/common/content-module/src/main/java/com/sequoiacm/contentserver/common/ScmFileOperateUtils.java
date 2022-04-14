@@ -212,6 +212,9 @@ public class ScmFileOperateUtils {
             result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMeta);
         }
 
+        result.put(FieldName.FIELD_CLFILE_FILE_ETAG,
+                fileObj.get(FieldName.FIELD_CLFILE_FILE_ETAG));
+
         return result;
     }
 

@@ -3,15 +3,13 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.metasource.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaCursor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
@@ -31,6 +29,9 @@ public class SdbMetaAccessor implements MetaAccessor {
     private String clName;
     private SdbTransactionContext context;
     private Logger logger = LoggerFactory.getLogger(SdbMetaAccessor.class);
+
+    private static final int SDB_IXM_CREATING = -387;         //DB error code
+    private static final int SDB_IXM_COVER_CREATING = -389;   //DB error code
 
     public SdbMetaAccessor(SdbMetaSource metasource, String csName, String clName,
             TransactionContext context) {
@@ -75,17 +76,19 @@ public class SdbMetaAccessor implements MetaAccessor {
 
     @Override
     public void insert(BSONObject insertor) throws ScmMetasourceException {
+        insert(insertor, 0);
+    }
+    @Override
+    public void insert(BSONObject insertor, int flag) throws ScmMetasourceException {
         Sequoiadb sdb = null;
         try {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
-            cl.insert(insertor);
+            List<BSONObject> insertList = new ArrayList<>();
+            insertList.add(insertor);
+            cl.insert(insertList, flag);
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(),
@@ -121,10 +124,6 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             cursor = cl.queryAndRemove(deletor, null, null, null, 0, -1,
                     DBQuery.FLG_QUERY_WITH_RETURNDATA);
@@ -151,20 +150,18 @@ public class SdbMetaAccessor implements MetaAccessor {
         }
     }
 
+    @Override
     public void delete(BSONObject deletor) throws SdbMetasourceException {
         delete(deletor, null);
     }
 
-    void delete(BSONObject deletor, BSONObject hint) throws SdbMetasourceException {
+    @Override
+    public void delete(BSONObject deletor, BSONObject hint) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         try {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             cl.delete(deletor, hint);
         }
@@ -189,17 +186,14 @@ public class SdbMetaAccessor implements MetaAccessor {
         update(matcher, updater, null);
     }
 
-    void update(BSONObject matcher, BSONObject updater, BSONObject hint)
+    @Override
+    public void update(BSONObject matcher, BSONObject updater, BSONObject hint)
             throws SdbMetasourceException {
         Sequoiadb sdb = null;
         try {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             cl.update(matcher, updater, hint);
         }
@@ -254,10 +248,7 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
+
             cursor = cl.query(matcher, selector, orderBy, null, skip, limit, flag);
             sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
         }
@@ -288,10 +279,6 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             return cl.getCount(matcher);
         }
@@ -320,10 +307,6 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             BSONObject match = new BasicBSONObject("$match", matcher);
             BSONObject groupVal = new BasicBSONObject();
@@ -361,12 +344,14 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     // return an matching record (old), and update all matching records.
+    @Override
     public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint)
             throws SdbMetasourceException {
         return queryAndUpdate(matcher, updator, hint, false);
     }
 
     // return an matching record (old|new), and update all matching records.
+    @Override
     public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
             boolean returnNew) throws SdbMetasourceException {
         Sequoiadb sdb = null;
@@ -375,10 +360,7 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
+
             cursor = cl.queryAndUpdate(matcher, null, null, hint, updator, 0, -1,
                     DBQuery.FLG_QUERY_WITH_RETURNDATA, returnNew);
             BSONObject ret = null;
@@ -418,6 +400,24 @@ public class SdbMetaAccessor implements MetaAccessor {
         if (uniqueIndexField != null) {
             for (String idxField : uniqueIndexField) {
                 ensureIndex("idx_" + idxField, new BasicBSONObject(idxField, 1), true);
+            }
+        }
+    }
+
+    @Override
+    public void ensureTable(List<IndexDef> indexes) throws ScmMetasourceException {
+        ensureCollection();
+        if (indexes != null) {
+            for (IndexDef idxDef : indexes) {
+                StringBuilder idxName = new StringBuilder();
+                idxName.append("idx");
+                BSONObject indexKeys = new BasicBSONObject();
+                for (String idxField : idxDef.getUnionKeys()) {
+                    indexKeys.put(idxField, 1);
+                    idxName.append("_" + idxField);
+                }
+
+                ensureIndex(idxName.toString(), indexKeys, idxDef.isUnique());
             }
         }
     }
@@ -474,7 +474,9 @@ public class SdbMetaAccessor implements MetaAccessor {
         catch (BaseException e) {
             if (e.getErrorCode() != SDBError.SDB_IXM_EXIST.getErrorCode()
                     && e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()
-                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()) {
+                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()
+                    && e.getErrorCode() != SDB_IXM_CREATING
+                    && e.getErrorCode() != SDB_IXM_COVER_CREATING) {
                 throw new SdbMetasourceException(e.getErrorCode(),
                         "failed to create cl index:" + csName + "." + clName + ", idxName="
                                 + idxName + ", idxDef=" + indexDefinition + ", isUnique="
@@ -524,15 +526,8 @@ public class SdbMetaAccessor implements MetaAccessor {
             sdb = getConnection();
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
-            if (null == cl) {
-                throw new SdbMetasourceException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
-                        "getCollection failed:cl=" + getCsName() + "." + getClName());
-            }
 
             return cl.queryOne(matcher, selector, orderBy, null, DBQuery.FLG_QUERY_WITH_RETURNDATA);
-        }
-        catch (SdbMetasourceException e) {
-            throw e;
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(), "query failed:csName=" + getCsName()

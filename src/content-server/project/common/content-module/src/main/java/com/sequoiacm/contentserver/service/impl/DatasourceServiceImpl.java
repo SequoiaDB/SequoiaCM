@@ -48,8 +48,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
                     wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
-        }
-        catch (ScmDatasourceException e) {
+        } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_DELETE_ERROR),
                     "Failed to delete data", e);
         }
@@ -76,7 +75,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
 
     @Override
     public DatasourceReaderDao readData(String workspaceName, String dataId, int dataType,
-            long createTime, int readflag, OutputStream os) throws ScmServerException {
+                                        long createTime, int readflag, OutputStream os) throws ScmServerException {
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
@@ -88,7 +87,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
 
     @Override
     public BSONObject getDataInfo(String workspaceName, String dataId, int dataType,
-            long createTime) throws ScmServerException {
+                                  long createTime) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
                 .getWorkspaceInfoChecked(workspaceName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
@@ -98,8 +97,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
-        }
-        catch (ScmDatasourceException e) {
+        } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),
                     "Failed to create data reader", e);
         }
@@ -108,15 +106,19 @@ public class DatasourceServiceImpl implements IDatasourceService {
             BSONObject retInfo = new BasicBSONObject();
             retInfo.put(CommonDefine.RestArg.DATASOURCE_DATA_SIZE, size);
             return retInfo;
-        }
-        finally {
+        } finally {
             reader.close();
         }
     }
 
     @Override
+    public void createDataInLocal(String wsName, String dataId, int dataType, long createTime) throws ScmServerException {
+        createDataInLocal(wsName, dataId, dataType, createTime, null);
+    }
+
+    @Override
     public void createDataInLocal(String wsName, String dataId, int dataType, long createTime,
-            InputStream is) throws ScmServerException {
+                                  InputStream is) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
@@ -127,38 +129,34 @@ public class DatasourceServiceImpl implements IDatasourceService {
             writer = ScmDataOpFactoryAssit.getFactory().createWriter(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(), contentModule.getDataService(), dataInfo);
-        }
-        catch (ScmDatasourceException e) {
+        } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "Failed to create data writer", e);
         }
         try {
-            while (true) {
-                int actLen = is.read(buf, 0, Const.TRANSMISSION_LEN);
-                if (actLen == -1) {
-                    break;
+            if (is != null) {
+                while (true) {
+                    int actLen = is.read(buf, 0, Const.TRANSMISSION_LEN);
+                    if (actLen == -1) {
+                        break;
+                    }
+                    writer.write(buf, 0, actLen);
                 }
-                writer.write(buf, 0, actLen);
             }
             writer.close();
-            logger.info("inner write file finished:ws=" + wsName + ",dataInfo=" + dataInfo);
-        }
-        catch (ScmDatasourceException e) {
+        } catch (ScmDatasourceException e) {
             writer.cancel();
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "Failed to write data", e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             writer.cancel();
             throw new ScmServerException(ScmError.NETWORK_IO,
                     "create data failed:wsName=" + wsName + ",dataInfo=" + dataInfo, e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             writer.cancel();
             throw new ScmSystemException(
                     "create data failed:wsName=" + wsName + ",dataInfo=" + dataInfo, e);
-        }
-        finally {
+        } finally {
             FileCommonOperator.recordDataTableName(wsName, writer);
         }
     }
@@ -184,8 +182,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
                         inputStreamWithCalcMd5);
                 scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
                 scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
-            }
-            finally {
+            } finally {
                 ScmSystemUtils.closeResource(inputStreamWithCalcMd5);
             }
             scmDataInfoDetail.setSiteId(ScmContentModule.getInstance().getLocalSite());
@@ -213,17 +210,14 @@ public class DatasourceServiceImpl implements IDatasourceService {
             scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
             scmDataInfoDetail.setSiteId(contentModule.getMainSite());
             return scmDataInfoDetail;
-        }
-        catch (ScmServerException e) {
+        } catch (ScmServerException e) {
             writer.cancel();
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             writer.cancel();
             throw new ScmServerException(ScmError.DATA_WRITE_ERROR,
                     "failed to write data to main site: ws=" + ws + ", dataId=" + dataId, e);
-        }
-        finally {
+        } finally {
             ScmSystemUtils.closeResource(inputStreamWithCalcMd5);
         }
     }
@@ -236,10 +230,48 @@ public class DatasourceServiceImpl implements IDatasourceService {
             deletor = ScmDataOpFactoryAssit.getFactory().createDataTableDeletor(tableNames,
                     contentModule.getDataService());
             deletor.delete();
-        }
-        catch (ScmDatasourceException e) {
+        } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),
                     "Failed to delete data tables:" + tableNames, e);
+        }
+    }
+
+    @Override
+    public ScmDataReader getScmDataReader(String wsName, String dataId, int dataType,
+            long createTime) throws ScmServerException, ScmDatasourceException {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+        ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
+
+        ScmDataReader dataReader = null;
+        try {
+            dataReader = ScmDataOpFactoryAssit.getFactory().createReader(
+                    contentModule.getLocalSite(), wsName, wsInfo.getDataLocation(),
+                    contentModule.getDataService(), dataInfo);
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),
+                    "Failed to create data reader", e);
+        }
+        return dataReader;
+    }
+
+    @Override
+    public ScmSeekableDataWriter getScmSeekableDataWriter(String wsName, String dataId,
+            int dataType, long createTime) throws ScmServerException {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+
+        ScmSeekableDataWriter writer = null;
+        try {
+            writer = ScmDataOpFactoryAssit.getFactory().createSeekableDataWriter(
+                    wsInfo.getDataLocation(), contentModule.getDataService(), wsName, null, dataId,
+                    new Date(createTime), false, 0, null);
+            return writer;
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
+                    "Failed to create data writer", e);
         }
     }
 

@@ -107,6 +107,14 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws CephS3Exception {
+        throw new CephS3Exception(CephS3Exception.ERR_CODE_OPERATION_UNSUPPORTED,
+                "do not support seekable upload");
+    }
+
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
         return new CephS3DataTableDeletor();

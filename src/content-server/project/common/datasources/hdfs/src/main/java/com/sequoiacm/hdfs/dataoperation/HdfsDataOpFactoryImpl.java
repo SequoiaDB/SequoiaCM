@@ -79,6 +79,14 @@ public class HdfsDataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
+            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            long writeOffset, BSONObject extraContext) throws HdfsException {
+        throw new HdfsException(HdfsException.HDFS_ERROR_OPERATION_UNSUPPORTED,
+                "do not support seekable upload");
+    }
+
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
         return new HdfsDataTableDeletor(tableNames, service);

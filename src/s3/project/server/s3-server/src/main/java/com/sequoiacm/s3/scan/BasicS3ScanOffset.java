@@ -9,16 +9,19 @@ public class BasicS3ScanOffset implements S3ScanOffset {
     private String majorKeyField;
     private String majorKeyStartAfter;
     private String minorKeyField;
+    private boolean minorKeyAscendingOrder = true;
     private Comparable minorKeyStartAfter;
     private boolean hasReach = false;
     private String commonPrefix;
 
-    public BasicS3ScanOffset(String majorKeyField, String majorKeyStartAfter, String commonPrefix) throws S3ServerException {
-        this(majorKeyField, majorKeyStartAfter, null, null, commonPrefix);
+    public BasicS3ScanOffset(String majorKeyField, String majorKeyStartAfter, String commonPrefix)
+            throws S3ServerException {
+        this(majorKeyField, majorKeyStartAfter, null, null, commonPrefix, true);
     }
 
     public BasicS3ScanOffset(String majorKeyField, String majorKeyStartAfter, String minorKeyField,
-            Comparable minorKeyStartAfter, String commonPrefix) throws S3ServerException {
+            Comparable minorKeyStartAfter, String commonPrefix, boolean minorKeyAscendingOrder)
+            throws S3ServerException {
         this.majorKeyField = majorKeyField;
         if (majorKeyStartAfter != null && majorKeyStartAfter.length() <= 0) {
             majorKeyStartAfter = null;
@@ -29,9 +32,10 @@ public class BasicS3ScanOffset implements S3ScanOffset {
         this.commonPrefix = commonPrefix;
 
         if (commonPrefix != null) {
-            if(majorKeyStartAfter == null ){
+            if (majorKeyStartAfter == null) {
                 throw new S3ServerException(S3Error.SYSTEM_ERROR,
-                        "majorKeyStartAfter must be not null when commonPrefix is not null: commonPrefix=" + commonPrefix);
+                        "majorKeyStartAfter must be not null when commonPrefix is not null: commonPrefix="
+                                + commonPrefix);
             }
             if (!majorKeyStartAfter.startsWith(commonPrefix)) {
                 throw new S3ServerException(S3Error.SYSTEM_ERROR,
@@ -40,6 +44,7 @@ public class BasicS3ScanOffset implements S3ScanOffset {
             }
         }
 
+        this.minorKeyAscendingOrder = minorKeyAscendingOrder;
     }
 
     @Override
@@ -71,8 +76,16 @@ public class BasicS3ScanOffset implements S3ScanOffset {
         if (majorKeyCompareResult == 0) {
             if (hasSpecifyMinorKey()) {
                 Object minorKey = record.get(minorKeyField);
-                if (minorKeyStartAfter.compareTo(minorKey) >= 0) {
-                    return false;
+                int compare = minorKeyStartAfter.compareTo(minorKey);
+                if (minorKeyAscendingOrder) {
+                    if (compare >= 0) {
+                        return false;
+                    }
+                }
+                else {
+                    if (compare <= 0) {
+                        return false;
+                    }
                 }
                 hasReach = true;
                 return true;
@@ -88,7 +101,12 @@ public class BasicS3ScanOffset implements S3ScanOffset {
         BasicBSONObject orderBy = new BasicBSONObject();
         orderBy.put(majorKeyField, 1);
         if (minorKeyField != null) {
-            orderBy.put(minorKeyField, 1);
+            if (minorKeyAscendingOrder) {
+                orderBy.put(minorKeyField, 1);
+            }
+            else {
+                orderBy.put(minorKeyField, -1);
+            }
         }
         return orderBy;
     }
@@ -114,10 +132,12 @@ public class BasicS3ScanOffset implements S3ScanOffset {
     }
 
     @Override
-    public S3ScanOffset createOffsetByRecord(BSONObject b, String commonPrefix) throws S3ServerException {
+    public S3ScanOffset createOffsetByRecord(BSONObject b, String commonPrefix)
+            throws S3ServerException {
         if (minorKeyField != null) {
             return new BasicS3ScanOffset(majorKeyField, (String) b.get(majorKeyField),
-                    minorKeyField, (Comparable) b.get(minorKeyField), commonPrefix);
+                    minorKeyField, (Comparable) b.get(minorKeyField), commonPrefix,
+                    minorKeyAscendingOrder);
         }
         return new BasicS3ScanOffset(majorKeyField, (String) b.get(majorKeyField), commonPrefix);
     }

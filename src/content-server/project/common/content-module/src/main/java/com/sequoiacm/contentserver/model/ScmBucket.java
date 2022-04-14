@@ -4,10 +4,7 @@ import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
+import com.sequoiacm.metasource.*;
 import org.bson.BSONObject;
 
 import java.util.List;
@@ -132,6 +129,17 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
     }
 
     @Override
+    public void insert(BSONObject insertor, int flag) throws ScmMetasourceException {
+        try {
+            bucketFileMetaAccessor.insert(insertor, flag);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy)
             throws ScmMetasourceException {
         try {
@@ -213,6 +221,17 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
     }
 
     @Override
+    public void delete(BSONObject deletor, BSONObject hint) throws ScmMetasourceException {
+        try {
+            bucketFileMetaAccessor.delete(deletor, hint);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
     public BSONObject queryAndDelete(BSONObject deletor) throws ScmMetasourceException {
         try {
             return bucketFileMetaAccessor.queryAndDelete(deletor);
@@ -247,6 +266,17 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
     }
 
     @Override
+    public void update(BSONObject matcher, BSONObject updator, BSONObject hint) throws ScmMetasourceException {
+        try {
+            bucketFileMetaAccessor.update(matcher, updator, hint);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
     public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
                                      boolean returnNew) throws ScmMetasourceException {
         try {
@@ -262,6 +292,11 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
     public void ensureTable(List<String> indexFields, List<String> uniqueIndexField)
             throws ScmMetasourceException {
         bucketFileMetaAccessor.ensureTable(indexFields, uniqueIndexField);
+    }
+
+    @Override
+    public void ensureTable(List<IndexDef> indexes) throws ScmMetasourceException {
+        bucketFileMetaAccessor.ensureTable(indexes);
     }
 
     @Override
