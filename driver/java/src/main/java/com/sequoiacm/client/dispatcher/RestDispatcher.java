@@ -15,6 +15,9 @@ import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.NoHttpResponseException;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
+import org.apache.http.*;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
@@ -39,9 +42,6 @@ import com.sequoiacm.client.common.RestDefine;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
-import com.sequoiacm.client.core.ScmRequestConfig;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
@@ -155,6 +155,11 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     public RestDispatcher(String url, ScmRequestConfig requestConfig) {
+        this(url, requestConfig, null);
+    }
+
+    public RestDispatcher(String url, ScmRequestConfig requestConfig,
+            CloseableHttpClient httpClient) {
         if (null != requestConfig) {
             this.requestConfig = requestConfig;
         }
@@ -170,7 +175,12 @@ public class RestDispatcher implements MessageDispatcher {
             this.remainUrl = null;
         }
 
-        httpClient = createHttpClient();
+        if (httpClient == null) {
+            this.httpClient = createHttpClient();
+        }
+        else {
+            this.httpClient = httpClient;
+        }
         closed = false;
     }
 
@@ -180,7 +190,8 @@ public class RestDispatcher implements MessageDispatcher {
         connMgr.setDefaultMaxPerRoute(2);
 
         RequestConfig reqConf = RequestConfig.custom().setConnectionRequestTimeout(1)
-                .setSocketTimeout(requestConfig.getSocketTimeout()).build();
+                .setSocketTimeout(requestConfig.getSocketTimeout())
+                .setConnectTimeout(requestConfig.getConnectTimeout()).build();
 
         return HttpClients.custom().setConnectionManager(connMgr).setDefaultRequestConfig(reqConf)
                 .setRetryHandler(new HttpRequestRetryHandler() {
@@ -2188,4 +2199,18 @@ public class RestDispatcher implements MessageDispatcher {
         return RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
                 "default-region");
     }
+
+    @Override
+    public String getHealthStatus(String url, String healthPath) throws ScmException {
+        int idx = url.indexOf(URL_SEP);
+        if (-1 != idx) {
+            url = url.substring(0, idx);
+        }
+        String uri = URL_PREFIX + url + healthPath;
+        HttpGet request = new HttpGet(uri);
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return BsonUtils.getStringChecked(resp, "status");
+    }
+
 }

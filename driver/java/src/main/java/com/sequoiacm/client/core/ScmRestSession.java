@@ -14,7 +14,8 @@ abstract class ScmRestSession extends ScmSession {
 
     protected MessageDispatcher dispatcher;
     private String url;
-    private boolean closed;
+    private boolean customizedDispatcher = false;
+    protected boolean closed;
 
     /**
      *
@@ -33,19 +34,31 @@ abstract class ScmRestSession extends ScmSession {
         this.preferredZone = preferredZone;
     }
 
+    ScmRestSession(String url, String preferredRegion, String preferredZone,
+            RestDispatcher dispatcher) throws ScmException {
+        this.url = url;
+        this.dispatcher = dispatcher;
+        this.customizedDispatcher = true;
+        this.closed = false;
+        this.preferredRegion = preferredRegion;
+        this.preferredZone = preferredZone;
+    }
+
     @Override
     public void close() {
         if (closed) {
             return;
         }
 
-        try {
-            dispatcher.close();
+        if (!customizedDispatcher) {
+            try {
+                dispatcher.close();
+            }
+            catch (Exception e) {
+                logger.warn("close dispatcher failed", e);
+            }
+            closed = true;
         }
-        catch (Exception e) {
-            logger.warn("close dispatcher failed", e);
-        }
-        closed = true;
     }
 
     @Override

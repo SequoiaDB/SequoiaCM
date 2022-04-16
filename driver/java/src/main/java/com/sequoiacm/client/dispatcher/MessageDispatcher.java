@@ -350,4 +350,6 @@ public interface MessageDispatcher extends Closeable {
 
     void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
     String getDefaultRegion(String s3ServiceName) throws ScmException;
+
+    String getHealthStatus(String url, String healthPath) throws ScmException;
 }

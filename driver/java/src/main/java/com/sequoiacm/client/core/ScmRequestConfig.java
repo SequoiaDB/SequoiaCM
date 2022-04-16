@@ -7,8 +7,12 @@ public class ScmRequestConfig {
     // ms
     private int socketTimeout;
 
-    private ScmRequestConfig(int socketTimeout) {
+    // ms
+    private int connectTimeout;
+
+    private ScmRequestConfig(int socketTimeout, int connectTimeout) {
         this.socketTimeout = socketTimeout;
+        this.connectTimeout = connectTimeout;
     }
 
     /**
@@ -30,10 +34,20 @@ public class ScmRequestConfig {
     }
 
     /**
+     * Gets the connect timeout of the config.
+     *
+     * @return connect timeout.
+     */
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
      * For build ScmRequestConfig.
      */
     public static class Builder {
         private int socketTimeout = 1800000;
+        private int connectTimeout = 10000;
 
         /**
          * Sets socket timeout.
@@ -48,12 +62,24 @@ public class ScmRequestConfig {
         }
 
         /**
+         * Sets connect timeout.
+         *
+         * @param connectTimeout
+         *            connect timeout.
+         * @return current builder.
+         */
+        public Builder setConnectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        /**
          * Builds a instance of ScmRequestConfig.
          *
          * @return ScmRequestConfig.
          */
         public ScmRequestConfig build() {
-            return new ScmRequestConfig(socketTimeout);
+            return new ScmRequestConfig(socketTimeout, connectTimeout);
         }
     }
 }

@@ -1,5 +1,8 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.dispatcher.MessageDispatcher;
+
 import java.io.Closeable;
 
 import com.sequoiacm.client.dispatcher.MessageDispatcher;
@@ -49,4 +52,6 @@ public abstract class ScmSession implements Closeable {
     public abstract String getPreferredRegion();
 
     public abstract String getPreferredZone();
+
+    public abstract ScmType.SessionType getType();
 }

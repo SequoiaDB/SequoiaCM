@@ -21,6 +21,15 @@ public interface ScmSessionMgr extends Closeable {
     ScmSession getSession(SessionType type) throws ScmException;
 
     /**
+     * Gets a session of type AUTH_SESSION from the session manager.
+     *
+     * @return ScmSession.
+     * @throws ScmException
+     *             if error happens.
+     */
+    ScmSession getSession() throws ScmException;
+
+    /**
      * Close the session manager.
      */
     @Override

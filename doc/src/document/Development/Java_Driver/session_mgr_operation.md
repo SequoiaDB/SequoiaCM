@@ -5,28 +5,39 @@
 ##示例##
 
 ```lang-javascript
-ScmConfigOption config = new ScmConfigOption("scmserver:8080/sitename", "region1",
-        "zone1", "admin", "admin", null);
-// 创建 SessionMgr 实例，并指定同步最新网关地址列表的间隔：5min
-ScmSessionMgr sessionMgr = ScmFactory.Session.createSessionMgr(config, 5 * 60 * 1000);
+ScmConfigOption config = new ScmConfigOption("scmserver:8080/sitename", "DefaultRegion", "zone1",
+                "admin", "admin", null);
+// 创建会话池配置类
+ScmSessionPoolConf sessionPoolConf = ScmSessionPoolConf.builder()
+        .setSessionConfig(config)
+        .setMaxCacheSize(100) // 设置会话池缓存 session 的数量
+        .setMaxConnections(200)  // 设置访问 SequoiaCM 集群的最大连接数，一般为应用系统的最大并发数
+        .setKeepAliveTime(1200)  // 设置 session 的有效期，单位：秒，需要小于 auth-server 配置项 scm.session.maxInactiveInterval 指定的值
+        .setSynGatewayUrlsInterval(30 * 1000) // 设置从注册中心同步最新网关地址的间隔，单位：毫秒
+        .setCheckGatewayUrlsInterval(10 * 1000) // 设置检查网关地址健康状态的间隔，单位：毫秒
+        .setClearAbnormalSessionInterval(120 * 1000) // 设置清理不可用 session 的间隔，单位：毫秒
+        .get();
+ScmSessionMgr sessionMgr = ScmFactory.Session.createSessionMgr(sessionPoolConf);
 ScmSession session = null;
 try {
-    session = sessionMgr.getSession(SessionType.AUTH_SESSION);
+    session = sessionMgr.getSession();
     // ..使用session进行业务操作
 }
 finally {
     if (session != null) {
-        // 释放session
+        // session 回池
         session.close();
     }
-    // 释放sessionMgr
-    sessionMgr.close();
 }
+//  关闭 sessionMgr
+//  sessionMgr.close();
 ```
 >  **Note:**
 >
->  * ScmSessionMgr 主要提供了定时同步 SequoiaCM 集群中网关地址列表的能力，ScmSessionMgr 可以通过周期查询感知新的网关实例，并在随后的 getSession 操作中，创建绑定到新网关实例的 Session。
+>  * ScmSessionMgr 提供了定时同步 SequoiaCM 集群中网关地址列表的能力，ScmSessionMgr 可以通过周期查询感知新的网关实例，并在随后的 getSession 操作中，创建绑定到新网关实例的 Session。
 >   
->  * ScmSessionMgr 同步网关地址的周期时间不能小于1s。
+>  * ScmSessionMgr 一般作为单例使用，应用系统中创建一个 ScmSessionMgr 对象即可。
+> 
+>  * MaxConnections 参数限制了会话池中的 session 访问 SequoiaCM 集群的最大并发数量，请根据应用系统实际的并发数指定。
 
 [java_api]:api/java/html/index.html

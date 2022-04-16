@@ -1380,8 +1380,13 @@ public class ScmFactory {
             return priorityAccess(sessionType, option.getUrlConfig(), option);
         }
 
-        private static ScmSession priorityAccess(SessionType type, ScmUrlConfig urlConfig,
-                ScmConfigOption config) throws ScmException {
+        private static ScmSession priorityAccess(SessionType sessionType, ScmUrlConfig urlConfig,
+                ScmConfigOption option) throws ScmException {
+            return priorityAccess(sessionType, urlConfig, option, null);
+        }
+
+        static ScmSession priorityAccess(SessionType type, ScmUrlConfig urlConfig,
+                ScmConfigOption config, ScmSessionMgr sessionMgr) throws ScmException {
             String region = config.getRegion();
             String zone = config.getZone();
             ScmException lastException = null;
@@ -1390,7 +1395,7 @@ public class ScmFactory {
             List<String> urls = urlConfig.getUrl(region, zone);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config, region, zone);
+                    return randomAccess(type, urls, config, region, zone, sessionMgr);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1408,7 +1413,7 @@ public class ScmFactory {
             urls = urlConfig.getUrlsIncludeRegionExcludeZone(region, zone);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config, region, zone);
+                    return randomAccess(type, urls, config, region, zone, sessionMgr);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1426,7 +1431,7 @@ public class ScmFactory {
             urls = urlConfig.getUrlExclude(region);
             if (null != urls && !urls.isEmpty()) {
                 try {
-                    return randomAccess(type, urls, config, region, zone);
+                    return randomAccess(type, urls, config, region, zone, sessionMgr);
                 }
                 catch (ScmException e) {
                     if (e.getError() == ScmError.INVALID_ARGUMENT
@@ -1447,8 +1452,8 @@ public class ScmFactory {
         }
 
         private static ScmSession randomAccess(SessionType type, List<String> urls,
-                ScmConfigOption config, String preferredRegion, String preferredZone)
-                throws ScmException {
+                ScmConfigOption config, String preferredRegion, String preferredZone,
+                ScmSessionMgr sessionMgr) throws ScmException {
             List<String> urlsTmp = urls;
             boolean isNeedReplace = true;
             ScmException lastException = null;
@@ -1456,12 +1461,23 @@ public class ScmFactory {
                 int index = random.nextInt(urlsTmp.size());
                 try {
                     if (type == SessionType.AUTH_SESSION) {
-                        return new ScmSessionAuth(urlsTmp.get(index), config.getUser(),
+                        if (sessionMgr instanceof ScmPoolingSessionMgrImpl) {
+                            return new ScmPoolingRestSessionImpl(urlsTmp.get(index),
+                                    config.getUser(), config.getPasswd(), config.getRequestConfig(),
+                                    preferredRegion, preferredZone,
+                                    (ScmPoolingSessionMgrImpl) sessionMgr);
+                        }
+                        return new ScmRestSessionImpl(urlsTmp.get(index), config.getUser(),
                                 config.getPasswd(), config.getRequestConfig(), preferredRegion,
                                 preferredZone);
                     }
                     else {
-                        return new ScmSessionNotAuth(urlsTmp.get(index), config.getRequestConfig(),
+                        if (sessionMgr instanceof ScmPoolingSessionMgrImpl) {
+                            return new ScmPoolingRestSessionImpl(urlsTmp.get(index),
+                                    config.getRequestConfig(), preferredRegion, preferredZone,
+                                    (ScmPoolingSessionMgrImpl) sessionMgr);
+                        }
+                        return new ScmRestSessionImpl(urlsTmp.get(index), config.getRequestConfig(),
                                 preferredRegion, preferredZone);
                     }
                 }
@@ -1593,10 +1609,42 @@ public class ScmFactory {
             return countSessions;
         }
 
+        /**
+         * Create a session manager that can cache sessions.
+         * 
+         * @param config
+         *            session config
+         * @param syncGatewayAddrInterval
+         *            the interval of updating gateway urls from service-center (unit:
+         *            milliseconds).
+         * @return the session manager
+         * @throws ScmException
+         *             if error happens
+         * @since 3.1
+         */
         public static ScmSessionMgr createSessionMgr(ScmConfigOption config,
                 long syncGatewayAddrInterval) throws ScmException {
             checkConfigOption(config);
-            return new ScmSessionMgrImpl(config, syncGatewayAddrInterval);
+            ScmSessionPoolConf sessionPoolConf = new ScmSessionPoolConf();
+            sessionPoolConf.setSessionConfig(config);
+            sessionPoolConf.setSynGatewayUrlsInterval(syncGatewayAddrInterval);
+            return new ScmPoolingSessionMgrImpl(sessionPoolConf);
+        }
+
+        /**
+         * Create a session manager that can cache sessions.
+         * 
+         * @param conf
+         *            session pool config
+         * @return the session manager
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2
+         */
+        public static ScmSessionMgr createSessionMgr(ScmSessionPoolConf conf)
+                throws ScmException {
+            checkConfigOption(conf.getSessionConfig());
+            return new ScmPoolingSessionMgrImpl(conf);
         }
     }
 
