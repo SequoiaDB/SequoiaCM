@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import commands
 import json
 import os
 import sys
@@ -18,11 +17,9 @@ def command(cmd):
     print(cmd)
     if dry_run:
         return
-    (status, output) = commands.getstatusoutput(cmd)
-    if not len(output) == 0:
-        print(output)
-    if status != 0:
-        raise Exception("Failed to execute command: " % cmd)
+    ret = os.system(cmd)
+    if ret != 0:
+        raise Exception("Failed to exec cmd:" + cmd)
 
 
 def scm_admin(cmd):

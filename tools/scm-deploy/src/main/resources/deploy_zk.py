@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import commands
 import json
 import os
 import sys
@@ -24,7 +23,7 @@ def display_info(msg):
     print("========================================================================")
 
 def execCMD(cmd):
-    print "[INFO] " + cmd
+    print("[INFO] " + cmd)
     ret = os.system(cmd)
     if ret != 0:
         raise Exception("Failed to exec cmd:" + cmd)

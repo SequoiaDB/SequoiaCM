@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import commands
 import json
 import os
 import sys
@@ -23,12 +22,9 @@ def command(cmd):
     print(cmd)
     if dry_run == 1:
         return
-    
-    (status, output) = commands.getstatusoutput(cmd)
-    if not len(output) == 0:
-        print(output)
-    if status != 0:
-        raise Exception("Failed to execute command: %s" % cmd)
+    ret = os.system(cmd)
+    if ret != 0:
+        raise Exception("Failed to exec cmd:" + cmd)
 
 def scm_admin(cmd):
     command("%s%s%s %s" % (BIN_PATH, os.sep, SCM_ADMIN, cmd))
@@ -87,10 +83,9 @@ def main(argv):
     
     try:
         options, args = getopt.getopt(sys.argv[1:], "h", ["help", "bin=", "dryrun"])
-    except getopt.GetoptError, e:
-        print "Error:", e
-        sys.exit(-1)
-        
+    except getopt.GetoptError:
+        display(argv[0])
+        sys.exit(2)
     for name, value in options:
         if name in ("-h", "--help"):
             display(argv[0])
