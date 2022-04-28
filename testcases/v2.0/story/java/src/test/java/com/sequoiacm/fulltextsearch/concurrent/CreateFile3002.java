@@ -77,28 +77,34 @@ public class CreateFile3002 extends TestScmBase {
         threadExec.addWorker( updatefileCreateIndex );
         threadExec.run();
 
-        if ( updatefileNoIndex.getRetCode() == 0 ) {
-            Assert.assertEquals( updatefileCreateIndex.getRetCode(),
-                    ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
-                    "update file(" + fileId + ") with createIndex fail:"
-                            + updatefileCreateIndex.getThrowable()
-                                    .getMessage() );
-            inspectIndex();
-            FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.NONE,
-                    fileId );
+        if ( updatefileCreateIndex.getRetCode() == 0
+                && updatefileNoIndex.getRetCode() == 0 ) {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+            Assert.assertEquals( file.getMajorVersion(), 3 );
         } else {
-            Assert.assertEquals( updatefileCreateIndex.getRetCode(), 0 );
-            Assert.assertEquals( updatefileNoIndex.getRetCode(),
-                    ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
-                    "update file(" + fileId + ") fail:"
-                            + updatefileNoIndex.getThrowable().getMessage() );
-            inspectIndex();
-            FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
-                    fileId );
-            BSONObject matcher = new BasicBSONObject();
-            matcher.put( "title", newMatchCond );
-            FullTextUtils.searchAndCheckResults( ws, ScopeType.SCOPE_CURRENT,
-                    matcher, matcher );
+            if ( updatefileNoIndex.getRetCode() == 0 ) {
+                Assert.assertEquals( updatefileCreateIndex.getRetCode(),
+                        ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
+                        "update file(" + fileId + ") with createIndex fail:"
+                                + updatefileCreateIndex.getThrowable()
+                                        .getMessage() );
+                inspectIndex();
+                FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.NONE,
+                        fileId );
+            } else {
+                Assert.assertEquals( updatefileCreateIndex.getRetCode(), 0 );
+                Assert.assertEquals( updatefileNoIndex.getRetCode(),
+                        ScmError.FILE_VERSION_MISMATCHING.getErrorCode(),
+                        "update file(" + fileId + ") fail:" + updatefileNoIndex
+                                .getThrowable().getMessage() );
+                inspectIndex();
+                FullTextUtils.waitFileStatus( ws, ScmFileFulltextStatus.CREATED,
+                        fileId );
+                BSONObject matcher = new BasicBSONObject();
+                matcher.put( "title", newMatchCond );
+                FullTextUtils.searchAndCheckResults( ws,
+                        ScopeType.SCOPE_CURRENT, matcher, matcher );
+            }
         }
         runSuccess = true;
     }
