@@ -51,12 +51,14 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
             matcher.put(FieldName.FIELD_CLREL_FILENAME, fileName);
             matcher.put(FieldName.FIELD_CLREL_DIRECTORY_ID, dirId);
 
-            //the dirId is shardingKey, can not update it directly
-            if (newInfo.containsField(FieldName.FIELD_CLREL_DIRECTORY_ID)) {
-                // update dirId, we need transaction
+            // the dirId and fileName is shardingKey, can not update it directly
+            Object newDirId = newInfo.get(FieldName.FIELD_CLREL_DIRECTORY_ID);
+            Object newFileName = newInfo.get(FieldName.FIELD_CLREL_FILENAME);
+            if (newDirId != null || newFileName != null) {
+                // update dirId or fileName, we need transaction
                 if (!super.isInTransaction()) {
                     throw new ScmMetasourceException(
-                            "not in transaction,update directory id failed:fileId="
+                            "not in transaction,update directory id or fileName failed:fileId="
                                     + fileId + ",updator=" + newInfo);
                 }
 
@@ -73,8 +75,10 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
                 }
                 //this relRecord can not be modified until we commit the transaction.
 
-                if(!relRecord.get(FieldName.FIELD_CLREL_DIRECTORY_ID).
-                        equals(newInfo.get(FieldName.FIELD_CLREL_DIRECTORY_ID))) {
+                if ((newDirId != null
+                        && !relRecord.get(FieldName.FIELD_CLREL_DIRECTORY_ID).equals(newDirId))
+                        || (newFileName != null && !relRecord.get(FieldName.FIELD_CLREL_FILENAME)
+                                .equals(newFileName))) {
                     BSONObject newRelRecord = new BasicBSONObject();
                     newRelRecord.putAll(relRecord);
                     newRelRecord.putAll(newInfo);
