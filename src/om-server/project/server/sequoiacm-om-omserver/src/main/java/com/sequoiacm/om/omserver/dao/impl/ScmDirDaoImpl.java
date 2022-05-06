@@ -2,6 +2,7 @@ package com.sequoiacm.om.omserver.dao.impl;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.om.omserver.module.OmDirectoryBasic;
 import com.sequoiacm.om.omserver.module.OmDirectoryInfoWithSubDir;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
@@ -31,6 +32,9 @@ public class ScmDirDaoImpl implements ScmDirDao {
             return ScmFactory.Directory.countInstance(ws, condition);
         }
         catch (ScmException e) {
+            if (e.getError() == ScmError.DIR_FEATURE_DISABLE) {
+                return 0;
+            }
             throw new ScmInternalException(e.getError(), "failed to count dir, " + e.getMessage(),
                     e);
         }
