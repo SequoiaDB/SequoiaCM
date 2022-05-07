@@ -44,6 +44,7 @@
         <module>./s3/project</module>
         <module>./fulltext/project</module>
         <module>../tools/scm-deploy</module>
+        <module>../tools/scm-s3import</module>
         <module>./monitor-daemon/project</module>
     </modules>
 

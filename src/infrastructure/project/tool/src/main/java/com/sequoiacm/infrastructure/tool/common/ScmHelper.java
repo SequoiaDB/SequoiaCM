@@ -65,24 +65,29 @@ public class ScmHelper {
     public static void configToolsLog(String logFile) throws ScmToolsException {
         InputStream is = ScmHelper.class.getClassLoader().getResourceAsStream(logFile);
         try {
-            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-            JoranConfigurator configure = new JoranConfigurator();
-            configure.setContext(lc);
-            FixedWindowRollingPolicy f;
-            lc.reset();
-            configure.doConfigure(is);
-        }
-        catch (JoranException e) {
-            e.printStackTrace();
-            logger.error("config logback failed", e);
+            configToolsLog(is);
         }
         finally {
             try {
                 is.close();
             }
             catch (Exception e) {
-                logger.warn("close inpustream occur error", e);
+                logger.warn("close inputStream occur error", e);
             }
+        }
+    }
+
+    public static void configToolsLog(InputStream is) {
+        try {
+            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+            JoranConfigurator configure = new JoranConfigurator();
+            configure.setContext(lc);
+            lc.reset();
+            configure.doConfigure(is);
+        }
+        catch (JoranException e) {
+            e.printStackTrace();
+            logger.error("config logback failed", e);
         }
     }
 

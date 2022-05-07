@@ -1,0 +1,160 @@
+package com.sequoiacm.s3import.command;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.s3import.common.*;
+import com.sequoiacm.s3import.config.ImportPathConfig;
+import com.sequoiacm.s3import.config.ImportToolProps;
+import com.sequoiacm.s3import.exception.S3ImportExitCode;
+import com.sequoiacm.s3import.factory.S3ImportBatchFactory;
+import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
+import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
+import com.sequoiacm.s3import.module.S3Bucket;
+import com.sequoiacm.s3import.module.S3ImportBatch;
+import com.sequoiacm.s3import.module.S3ImportOptions;
+import com.sequoiacm.s3import.progress.Progress;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
+import java.io.File;
+import java.util.*;
+
+@Command
+public class MigrateCommand extends SubCommand {
+
+    public static final String NAME = "migrate";
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public String getDesc() {
+        return "migrate s3 data";
+    }
+
+    @Override
+    protected Options commandOptions() throws ScmToolsException {
+        Options ops = super.commandOptions();
+        ops.addOption(Option.builder().longOpt(CommonDefine.Option.BUCKET).hasArg(true)
+                .desc("buckets that need to migrate data").build());
+        return ops;
+    }
+
+    @Override
+    protected S3ImportOptions parseCommandLineArgs(CommandLine cl) throws ScmToolsException {
+        ArgUtils.checkRequiredOption(cl, CommonDefine.Option.BUCKET);
+
+        S3ImportOptions options = super.parseCommandLineArgs(cl);
+        String bucketStr = cl.getOptionValue(CommonDefine.Option.BUCKET);
+        options.setBucketList(ArgUtils.parseS3Bucket(bucketStr, NAME));
+        return options;
+    }
+
+    @Override
+    protected void checkAndInitBucketConf(List<S3Bucket> bucketList) throws ScmToolsException {
+        super.checkAndInitBucketConf(bucketList);
+
+        // 迁移进度文件不存在
+        String progressFilePath = ImportPathConfig.getInstance().getMigrateProgressFilePath();
+        File progressFile = new File(progressFilePath);
+        if (!progressFile.exists()) {
+            FileOperateUtils.updateProgress(progressFilePath, bucketList);
+            return;
+        }
+
+        List<S3Bucket> checkS3BucketList = new ArrayList<>();
+        S3ImportFileResource fileResource = S3ImportResourceFactory.getInstance()
+                .createFileResource(progressFile);
+        try {
+            JsonArray progresses = new JsonParser().parse(fileResource.readFile()).getAsJsonArray();
+            for (JsonElement progress : progresses) {
+                S3Bucket s3Bucket = new S3Bucket(progress.getAsJsonObject(), NAME);
+                checkS3BucketList.add(s3Bucket);
+            }
+        }
+        finally {
+            fileResource.release();
+        }
+
+        if (checkS3BucketList.size() != bucketList.size()) {
+            throw new ScmToolsException(
+                    "Is inconsistent with the bucket list of the last migration, bucketList="
+                            + CommonUtils.bucketListToStr(bucketList) + ", lastBucketList="
+                            + CommonUtils.bucketListToStr(checkS3BucketList),
+                    S3ImportExitCode.INVALID_ARG);
+        }
+        Collections.sort(bucketList);
+        Collections.sort(checkS3BucketList);
+        for (int i = 0; i < bucketList.size(); i++) {
+            S3Bucket s3Bucket = bucketList.get(i);
+            S3Bucket checkS3Bucket = checkS3BucketList.get(i);
+            if (!s3Bucket.equals(checkS3Bucket)) {
+                throw new ScmToolsException(
+                        "The bucket has not been migrate or the target bucket name is inconsistent, bucket="
+                                + s3Bucket.getName() + ", dest_bucket=" + s3Bucket.getDestName(),
+                        S3ImportExitCode.INVALID_ARG);
+            }
+            s3Bucket.setProgress(checkS3Bucket.getProgress());
+        }
+    }
+
+    @Override
+    protected void process(S3ImportOptions importOptions) throws ScmToolsException {
+        List<S3Bucket> bucketList = importOptions.getBucketList();
+        String progressFilePath = ImportPathConfig.getInstance().getMigrateProgressFilePath();
+
+        S3ImportBatchRunner batchRunner = null;
+        try {
+            batchRunner = new S3ImportBatchRunner();
+            S3ImportBatchFactory batchFactory = S3ImportBatchFactory.getInstance();
+            boolean isNeedOverwrite = true;
+
+            for (S3Bucket s3Bucket : bucketList) {
+                Progress progress = s3Bucket.getProgress();
+                if (progress.getStatus().equals(CommonDefine.ProgressStatus.FINISH)) {
+                    continue;
+                }
+
+                if (progress.getStatus().equals(CommonDefine.ProgressStatus.INIT)) {
+                    progress.setStatus(CommonDefine.ProgressStatus.RUNNING);
+                    FileOperateUtils.updateProgress(progressFilePath, bucketList);
+                    isNeedOverwrite = false;
+                }
+
+                S3ImportBatch batch;
+                while ((batch = batchFactory.getNextBatch(s3Bucket, isNeedOverwrite)) != null) {
+                    batchRunner.runAndWaitBatchFinish(batch);
+                    if (batch.hasAbortedTask()) {
+                        throw new ScmToolsException(
+                                "Incomplete migration objects exist and cannot be cleaned up, execution interrupt",
+                                S3ImportExitCode.SYSTEM_ERROR);
+                    }
+                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
+                    // 持久化失败列表、更新迁移进度
+                    FileOperateUtils.appendErrorKeyList(s3Bucket, batch.getErrorKeys());
+                    FileOperateUtils.updateProgress(progressFilePath, bucketList);
+                    // 校验执行时间，失败数
+                    CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
+                            batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
+                    CommonUtils.checkFailCount(batchRunner.getFailureCount(),
+                            ImportToolProps.getInstance().getMaxFailCount());
+
+                    isNeedOverwrite = false;
+                }
+                // 更新桶的迁移状态
+                progress.setStatus(CommonDefine.ProgressStatus.FINISH);
+                FileOperateUtils.updateProgress(progressFilePath, bucketList);
+            }
+        }
+        finally {
+            if (batchRunner != null) {
+                batchRunner.stop();
+            }
+        }
+    }
+}
