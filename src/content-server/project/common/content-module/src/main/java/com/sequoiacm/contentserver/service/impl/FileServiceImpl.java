@@ -42,6 +42,7 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.audit.ScmUserAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
@@ -81,6 +82,7 @@ public class FileServiceImpl implements IFileService {
     private BucketInfoManager bucketInfoMgr;
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId,
             int majorVersion, int minorVersion) throws ScmServerException {
         BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion);

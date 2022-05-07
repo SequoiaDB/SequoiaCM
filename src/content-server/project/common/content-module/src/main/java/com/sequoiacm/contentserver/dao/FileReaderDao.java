@@ -13,6 +13,7 @@ import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.strategy.common.StrategyDefine;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
@@ -39,6 +40,7 @@ public class FileReaderDao {
     ScmWorkspaceInfo wsInfo;
     boolean isNeedSeek = false;
 
+    @SlowLog(operation = "openReader")
     public FileReaderDao(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo,
             BSONObject fileRecord, int flag) throws ScmServerException {
         this.majorVersion = BsonUtils.getInteger(fileRecord, FieldName.FIELD_CLFILE_MAJOR_VERSION);
@@ -257,6 +259,7 @@ public class FileReaderDao {
         return false;
     }
 
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws ScmServerException {
         try {
             return fileReader.read(buff, offset, len);
@@ -290,6 +293,7 @@ public class FileReaderDao {
         return fileReader.isEof();
     }
 
+    @SlowLog(operation = "closeReader")
     public void close() {
         if (null != fileReader) {
             fileReader.close();
@@ -299,6 +303,7 @@ public class FileReaderDao {
         }
     }
 
+    @SlowLog(operation = "readData")
     public void seek(long size) throws ScmServerException {
         if (size == 0) {
             return;

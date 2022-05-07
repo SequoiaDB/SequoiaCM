@@ -3,6 +3,7 @@ package com.sequoiacm.cloud.gateway;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.cloud.gateway.config.ApacheHttpClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,11 @@ public class PostAccessFilter extends ZuulFilter {
             else {
                 HttpServletResponse response = ctx.getResponse();
                 target = response.getHeader(ERROR_RESPONSE_HOST_INFO);
+            }
+
+            if (target == null) {
+                target = String
+                        .valueOf(ctx.get(ApacheHttpClientConfiguration.HTTP_CLIENT_TARGET_HOST));
             }
 
             logger.error("send {} request {} from {}:{} to {} with session {} failed(status={})",

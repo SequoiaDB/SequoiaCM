@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sequoiacm.infrastructure.slowlog.filter.ScmSlowLogFilter
+
+org.springframework.context.ApplicationListener=\
+com.sequoiacm.infrastructure.slowlog.SlowLogManagerInitializer

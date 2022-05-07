@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.listener;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
+    @SlowLog(operation = "postCreate")
     public OperationCompleteCallback postCreate(ScmWorkspaceInfo ws, String fileId)
             throws ScmServerException {
         try {
@@ -41,6 +43,7 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
+    @SlowLog(operation = "preCreate")
     public void preCreate(ScmWorkspaceInfo ws, BSONObject file) throws ScmServerException {
         for (FileOperationListener l : listeners) {
             l.preCreate(ws, file);

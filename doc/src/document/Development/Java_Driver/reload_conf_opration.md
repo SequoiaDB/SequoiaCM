@@ -28,7 +28,7 @@ System.out.println(ret.getSuccesses());
 >
 >  * 动态修改配置的接口只允许拥有管理员角色的用户访问
 >
->  * 目前允许修改审计相关的参数，禁止修改其它 scm 配置项（'scm.*'），禁止修改节点注册相关的配置项（包括服务名、端口号、eureka等配置）
+>  * 目前允许修改审计、慢操作告警相关的参数，禁止修改其它 scm 配置项（'scm.*'），禁止修改节点注册相关的配置项（包括服务名、端口号、eureka等配置）
 
 >  * 上述规则以外的未识别配置项默认拒绝修改，可以通过 ScmConfigProperties.Builder.acceptUnknownProperties() 接口调整该行为
  

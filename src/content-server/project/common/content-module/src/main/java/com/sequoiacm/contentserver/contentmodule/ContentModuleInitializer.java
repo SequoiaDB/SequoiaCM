@@ -60,7 +60,8 @@ public class ContentModuleInitializer {
 
         // first register have higher priority.
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
+        confClient.registerConfigPropVerifier(
+                new PreventingModificationVerifier("scm.", "scm.slowlog"));
 
         ContenserverConfClient contentserverConfClient = ContenserverConfClient.getInstance()
                 .init(confClient, bucketInfoMgr);

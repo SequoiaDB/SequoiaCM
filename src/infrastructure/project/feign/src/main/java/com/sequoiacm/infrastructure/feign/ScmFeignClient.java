@@ -157,6 +157,15 @@ public class ScmFeignClient implements ApplicationRunner {
                     }
                 });
             }
+            else {
+                feignBuilder.invocationHandlerFactory(new InvocationHandlerFactory() {
+                    @Override
+                    public InvocationHandler create(Target target,
+                            Map<Method, MethodHandler> dispatch) {
+                        return new ScmFeignInvocationHandler(target, dispatch);
+                    }
+                });
+            }
             return innerBuild(feignBuilder, apiType, serviceName);
         }
 
@@ -172,6 +181,15 @@ public class ScmFeignClient implements ApplicationRunner {
                         return new ScmHystrixInvocationHandler(target, dispatch,
                                 service != null ? service : "unknown_service",
                                 NetUtil.getHostAndPort(instanceHostPort));
+                    }
+                });
+            }
+            else {
+                feignBuilder.invocationHandlerFactory(new InvocationHandlerFactory() {
+                    @Override
+                    public InvocationHandler create(Target target,
+                            Map<Method, MethodHandler> dispatch) {
+                        return new ScmFeignInvocationHandler(target, dispatch);
                     }
                 });
             }

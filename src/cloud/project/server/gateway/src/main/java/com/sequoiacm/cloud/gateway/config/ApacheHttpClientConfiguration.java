@@ -4,12 +4,15 @@ import java.io.IOException;
 
 import javax.annotation.PreDestroy;
 
-import org.apache.http.NoHttpResponseException;
+import com.netflix.zuul.context.RequestContext;
+import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
+import org.apache.http.protocol.HttpRequestExecutor;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +27,8 @@ import com.netflix.client.config.IClientConfig;
  */
 @Configuration
 public class ApacheHttpClientConfiguration {
+
+    public static final String HTTP_CLIENT_TARGET_HOST = "http_client_target_host";
     private CloseableHttpClient httpClient;
 
     @Bean
@@ -38,6 +43,7 @@ public class ApacheHttpClientConfiguration {
         this.httpClient = httpClientFactory.createBuilder()
                 .setDefaultRequestConfig(defaultRequestConfig)
                 .setRetryHandler(new ScmHttpClientRetryHandler())
+                .setRequestExecutor(new ScmHttpRequestExecutor())
                 .setConnectionManager(connectionManager).build();
         return httpClient;
     }
@@ -64,4 +70,18 @@ class ScmHttpClientRetryHandler extends DefaultHttpRequestRetryHandler {
         return canRetry;
     }
 
+}
+
+class ScmHttpRequestExecutor extends HttpRequestExecutor {
+
+    @Override
+    public HttpResponse execute(HttpRequest request, HttpClientConnection conn, HttpContext context)
+            throws IOException, HttpException {
+        String target = String.valueOf(context.getAttribute(HttpCoreContext.HTTP_TARGET_HOST));
+        RequestContext currentContext = RequestContext.getCurrentContext();
+        if (currentContext != null) {
+            currentContext.set(ApacheHttpClientConfiguration.HTTP_CLIENT_TARGET_HOST, target);
+        }
+        return super.execute(request, conn, context);
+    }
 }

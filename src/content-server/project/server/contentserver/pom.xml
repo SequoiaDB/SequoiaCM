@@ -177,6 +177,11 @@
             <artifactId>sequoiacm-content-module</artifactId>
 			<version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-slowlog</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

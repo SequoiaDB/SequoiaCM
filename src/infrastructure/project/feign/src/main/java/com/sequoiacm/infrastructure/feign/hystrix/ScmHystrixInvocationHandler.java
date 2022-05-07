@@ -9,7 +9,9 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
+import com.sequoiacm.infrastructure.slowlog.SlowLogManager;
 import feign.InvocationHandlerFactory.MethodHandler;
 import feign.Target;
 import org.slf4j.Logger;
@@ -41,6 +43,7 @@ public class ScmHystrixInvocationHandler implements InvocationHandler {
     }
 
     @Override
+    @SlowLog(operation = "feign")
     public Object invoke(final Object proxy, final Method method, final Object[] args)
             throws Throwable {
 
@@ -71,6 +74,7 @@ public class ScmHystrixInvocationHandler implements InvocationHandler {
          */
         if (!ScmFeignClient.isApplicationStarted) {
             try {
+                SlowLogManager.getCurrentContext().beginOperation(method.getName());
                 return dispatch.get(method).invoke(args);
             }
             catch (Exception e) {
@@ -79,10 +83,14 @@ public class ScmHystrixInvocationHandler implements InvocationHandler {
                 }
                 throw e;
             }
+            finally {
+                SlowLogManager.getCurrentContext().endOperation();
+            }
         }
 
         HystrixCommand<ScmHystrixExecuteResultWrapper> hystrixCommand = createCommand(method, args);
         try {
+            SlowLogManager.getCurrentContext().beginOperation(method.getName());
             ScmHystrixExecuteResultWrapper resultWrapper = hystrixCommand.execute();
             if (resultWrapper.isExecuteFailed()) {
                 throw resultWrapper.getError();
@@ -91,6 +99,9 @@ public class ScmHystrixInvocationHandler implements InvocationHandler {
         }
         catch (Exception e) {
             throw getRealException(e, hystrixCommand);
+        }
+        finally {
+            SlowLogManager.getCurrentContext().endOperation();
         }
 
     }

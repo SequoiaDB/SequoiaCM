@@ -59,6 +59,7 @@
         <module>./statistics-common</module>
         <module>./statistics-client</module>
         <module>./server-discovery</module>
+        <module>./slowlog</module>
     </modules>
 
     <dependencyManagement>
@@ -183,6 +184,12 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-server-discovery</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-slowlog</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

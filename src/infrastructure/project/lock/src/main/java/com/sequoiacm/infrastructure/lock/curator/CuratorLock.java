@@ -2,6 +2,8 @@ package com.sequoiacm.infrastructure.lock.curator;
 
 import java.util.concurrent.TimeUnit;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ class CuratorLock implements ScmLock {
     }
 
     @Override
+    @SlowLog(operation = "releaseLock")
     public void unlock() {
 
         try {
@@ -28,11 +31,12 @@ class CuratorLock implements ScmLock {
             }
         }
         catch (Exception e) {
-            logger.warn("Fail to relese curator mutex lock:lockPath={}", lockPath, e);
+            logger.warn("Fail to release curator mutex lock:lockPath={}", lockPath, e);
         }
     }
 
     @Override
+    @SlowLog(operation = "acquireLock", extras = @SlowLogExtra(name = "lockPath", data = "lockPath"))
     public void lock() throws Exception {
         try {
             this.lock.acquire();
@@ -44,6 +48,7 @@ class CuratorLock implements ScmLock {
     }
 
     @Override
+    @SlowLog(operation = "acquireLock", extras = @SlowLogExtra(name = "lockPath", data = "lockPath"))
     public boolean lock(long waitTime, TimeUnit unit) throws Exception {
         try {
             return lock.acquire(waitTime, unit);
@@ -56,12 +61,13 @@ class CuratorLock implements ScmLock {
     }
 
     @Override
+    @SlowLog(operation = "tryLock", extras = @SlowLogExtra(name = "tryLockPath", data = "lockPath"))
     public boolean tryLock() throws Exception {
         try {
             return lock.acquire(CuratorLockProperty.TRYLOCK_WAITTIME, TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
-            logger.error("Try to acquire curator mutex lock faild within the waitTime:lockPath={}",
+            logger.error("Try to acquire curator mutex lock failed within the waitTime:lockPath={}",
                     lockPath);
             throw e;
         }

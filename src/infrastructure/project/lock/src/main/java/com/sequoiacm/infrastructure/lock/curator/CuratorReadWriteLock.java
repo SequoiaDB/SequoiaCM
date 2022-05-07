@@ -8,18 +8,20 @@ import com.sequoiacm.infrastructure.lock.ScmReadWriteLock;
 
 class CuratorReadWriteLock implements ScmReadWriteLock {
     private InterProcessReadWriteLock readWriteLock;
+    private String lockPath;
 
     public CuratorReadWriteLock(CuratorFramework client, String lockPath) {
         readWriteLock = new InterProcessReadWriteLock(client, lockPath);
+        this.lockPath = lockPath;
     }
 
     @Override
     public ScmLock readLock() {
-        return new CuratorLockFromReadWrite(readWriteLock.readLock());
+        return new CuratorLockFromReadWrite(readWriteLock.readLock(), lockPath);
     }
 
     @Override
     public ScmLock writeLock() {
-        return new CuratorLockFromReadWrite(readWriteLock.writeLock());
+        return new CuratorLockFromReadWrite(readWriteLock.writeLock(), lockPath);
     }
 }

@@ -1028,7 +1028,20 @@
                 "file": "audit_log",
                 "cn": "审计日志",
                 "en": "Audit Log"
-            }]
+            },
+            {
+                "id": 1551231251,
+                "file": "slow_log",
+                "cn": "慢操作日志",
+                "en": "Slow Log"
+            },
+            {
+                "id": 1551231252,
+                "file": "syserror_log",
+                "cn": "系统错误日志",
+                "en": "SysError Log"
+            }
+            ]
         },
         {
             "id": 1639063516,
