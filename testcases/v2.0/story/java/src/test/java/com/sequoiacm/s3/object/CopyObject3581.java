@@ -33,7 +33,7 @@ public class CopyObject3581 extends TestScmBase {
     private long lastModifiedTime = 0;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

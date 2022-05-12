@@ -11,6 +11,9 @@ import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.sequoiacm.client.core.*;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.springframework.http.HttpEntity;
@@ -28,14 +31,6 @@ import org.testng.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.util.Base64;
-import com.sequoiacm.client.core.ScmDirectory;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmRole;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmUserPasswordType;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
@@ -345,6 +340,58 @@ public class ScmAuthUtils extends TestScmBase {
         ScmRole role = ScmFactory.Role.getRole( session, "ROLE_AUTH_ADMIN" );
         alterUser( session, wsName, user, role, ScmPrivilegeType.ALL );
         checkPriority( ScmInfo.getSite(), username, password, role, wsName );
+    }
+
+    /**
+     * @descreption 创建用户授权，不做校验
+     * @param session
+     * @param wsName
+     * @param username
+     * @param password
+     * @throws Exception
+     */
+    public static void createAdminUserGrant( ScmSession session, String wsName,
+            String username, String password ) throws Exception {
+        ScmUser user = createUser( session, username, password );
+        ScmRole role = ScmFactory.Role.getRole( session, "ROLE_AUTH_ADMIN" );
+        alterUser( session, wsName, user, role, ScmPrivilegeType.ALL );
+    }
+
+    /**
+     * @descreption S3需要关闭目录，无法使用原有的校验权限方法，新增S3使用的方法
+     * @param accessKeys
+     * @param wsName
+     * @throws Exception
+     */
+    public static void checkPriorityByS3( String[] accessKeys, String wsName )
+            throws Exception {
+        AmazonS3 s3Client = S3Utils.buildS3Client( accessKeys[ 0 ],
+                accessKeys[ 1 ] );
+        String bucketName = UUID.randomUUID().toString();
+        int times = 0;
+        try {
+            do {
+                try {
+                    s3Client.createBucket( bucketName );
+                    break;
+                } catch ( AmazonS3Exception e ) {
+                    if ( e.getErrorCode().equals( "CreateBucketFailed" ) ) {
+                        Thread.sleep( 500 );
+                        times++;
+                        if ( times * 500 > 30000 ) {
+                            throw new Exception( "check priority time out,ws:"
+                                    + wsName + "s3User:" + accessKeys );
+                        }
+                        continue;
+                    } else {
+                        throw e;
+                    }
+                }
+            } while ( true );
+        } finally {
+            S3Utils.clearBucket( s3Client, bucketName );
+            s3Client.shutdown();
+        }
     }
 
     /**

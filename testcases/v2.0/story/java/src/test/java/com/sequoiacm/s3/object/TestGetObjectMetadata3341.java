@@ -33,7 +33,7 @@ public class TestGetObjectMetadata3341 extends TestScmBase {
     private int fileSize = 1024 * 100;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localfile" + fileSize + ".txt";

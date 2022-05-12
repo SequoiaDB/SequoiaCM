@@ -22,7 +22,7 @@ public class DropBucket3277 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
@@ -53,7 +53,7 @@ public class DropBucket3277 extends TestScmBase {
         public String result = "";
 
         @ExecuteOrder(step = 1)
-        public void run() {
+        public void run() throws Exception {
             AmazonS3 s3 = S3Utils.buildS3Client();
             try {
                 s3.deleteBucket( bucketName );

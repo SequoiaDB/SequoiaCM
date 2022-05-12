@@ -82,7 +82,7 @@ public class UpdateObject3381 extends TestScmBase {
     private class UpdateObject {
 
         @ExecuteOrder(step = 1)
-        private void updateObject() {
+        private void updateObject() throws Exception {
             AmazonS3 s3Client = null;
             try {
                 s3Client = S3Utils.buildS3Client();

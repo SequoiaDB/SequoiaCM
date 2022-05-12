@@ -34,7 +34,7 @@ public class CreateObject3285 extends TestScmBase {
     private String updatePath = null;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -81,7 +81,7 @@ public class CreateObject3285 extends TestScmBase {
         PutObjectResult result = s3Client.putObject( bucketName, keyName,
                 new File( filePath ) );
         // check the versionId, should be null
-        Assert.assertEquals( result.getVersionId(), "null" );
+        Assert.assertEquals( result.getVersionId(), null );
 
         // check the modify date
         S3Object updateObject = s3Client.getObject( bucketName, keyName );
@@ -107,7 +107,7 @@ public class CreateObject3285 extends TestScmBase {
         PutObjectResult result = s3Client.putObject( bucketName, keyName,
                 new File( updatePath ) );
         // check the versionId, should be null
-        Assert.assertEquals( result.getVersionId(), "null" );
+        Assert.assertEquals( result.getVersionId(), null );
 
         // check the content
         String downfileMd5 = S3Utils.getMd5OfObject( s3Client, localPath,

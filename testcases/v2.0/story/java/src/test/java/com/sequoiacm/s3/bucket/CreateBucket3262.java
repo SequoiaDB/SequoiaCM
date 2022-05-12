@@ -36,10 +36,11 @@ public class CreateBucket3262 extends TestScmBase {
         s3A = S3Utils.buildS3Client();
         // 新建用户连接
         session = TestScmTools.createSession( ScmInfo.getSite() );
-        ScmAuthUtils.createAdminUser( session, s3WorkSpaces, username,
+        ScmAuthUtils.createAdminUserGrant( session, s3WorkSpaces, username,
                 password );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
+        ScmAuthUtils.checkPriorityByS3( accessKeys, s3WorkSpaces );
         s3B = S3Utils.buildS3Client( accessKeys[ 0 ], accessKeys[ 1 ] );
 
         S3Utils.clearBucket( s3A, bucketNameA );
@@ -55,6 +56,7 @@ public class CreateBucket3262 extends TestScmBase {
             s3B.createBucket( bucketNameA );
             Assert.fail( "expect fail but success" );
         } catch ( AmazonS3Exception e ) {
+            System.err.println( e.getMessage() );
             Assert.assertEquals( e.getErrorCode(), "BucketAlreadyExists" );
         }
         // 用户B创建桶C

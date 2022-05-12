@@ -30,7 +30,7 @@ public class GetObject3291 extends TestScmBase {
     private int fileSize = 1024 * 100;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath1 = localPath + File.separator + "localfileA" + fileSize

@@ -25,7 +25,7 @@ public class CreateBucket3261 extends TestScmBase {
     private String bucketNameC = "bucket3261c";
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketNameA );
         S3Utils.clearBucket( s3Client, bucketNameC );

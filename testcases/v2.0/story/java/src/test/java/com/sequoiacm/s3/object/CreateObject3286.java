@@ -38,7 +38,7 @@ public class CreateObject3286 extends TestScmBase {
     private File localPath = null;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
 

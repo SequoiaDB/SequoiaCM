@@ -35,7 +35,7 @@ public class ListObjects3368 extends TestScmBase {
     private List< String > matchDelimiterKeyList = new ArrayList<>();
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

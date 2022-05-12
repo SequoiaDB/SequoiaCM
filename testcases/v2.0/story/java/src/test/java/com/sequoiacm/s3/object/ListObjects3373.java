@@ -31,7 +31,7 @@ public class ListObjects3373 extends TestScmBase {
     private int objectNums = 20;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

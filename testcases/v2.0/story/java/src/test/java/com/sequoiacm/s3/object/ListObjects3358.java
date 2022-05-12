@@ -30,7 +30,7 @@ public class ListObjects3358 extends TestScmBase {
     private String prefix = "/dir_1/prefix/test3358";
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
     }

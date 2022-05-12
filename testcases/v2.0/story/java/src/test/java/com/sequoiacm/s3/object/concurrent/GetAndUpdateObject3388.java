@@ -95,7 +95,7 @@ public class GetAndUpdateObject3388 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() throws IOException {
+        private void exec() throws Exception {
             AmazonS3 s3Client = null;
             try {
                 s3Client = S3Utils.buildS3Client();

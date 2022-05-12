@@ -22,7 +22,7 @@ public class CreateAndDropBucket3278 extends TestScmBase {
     private String bucketName = "bucket3278";
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
     }
@@ -55,7 +55,7 @@ public class CreateAndDropBucket3278 extends TestScmBase {
         public String result = "";
 
         @ExecuteOrder(step = 1)
-        public void run() {
+        public void run() throws Exception {
             try {
                 AmazonS3 amazonS3 = S3Utils.buildS3Client();
                 amazonS3.createBucket( bucketName );
@@ -70,7 +70,7 @@ public class CreateAndDropBucket3278 extends TestScmBase {
         public String result = "";
 
         @ExecuteOrder(step = 1, desc = "删除")
-        public void run() {
+        public void run() throws Exception {
             AmazonS3 amazonS3 = S3Utils.buildS3Client();
             try {
                 amazonS3.deleteBucket( bucketName );

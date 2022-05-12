@@ -24,7 +24,7 @@ public class CreateBucket3260 extends TestScmBase {
     private String objectName = "3260f.txt";
 
     @BeforeClass
-    private void setUp() throws ScmException {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
     }

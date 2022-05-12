@@ -21,7 +21,7 @@ public class GetObject3310 extends TestScmBase {
     private AmazonS3 s3Client = null;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

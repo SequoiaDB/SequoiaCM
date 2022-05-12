@@ -32,7 +32,7 @@ public class GetObject3304 extends TestScmBase {
     private Calendar cal = Calendar.getInstance();
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

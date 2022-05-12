@@ -22,7 +22,7 @@ public class ListBucket3265 extends TestScmBase {
     private AmazonS3 s3Client = null;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         List< Bucket > existbuckets = s3Client.listBuckets();
         for ( Bucket s : existbuckets ) {

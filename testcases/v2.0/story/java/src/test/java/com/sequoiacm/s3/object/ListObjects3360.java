@@ -32,7 +32,7 @@ public class ListObjects3360 extends TestScmBase {
     private String delimiter = "/";
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

@@ -20,13 +20,12 @@ public class S3AuthServer3624 extends TestScmBase {
     private String secretKey = "test";
     private String bucketName = "bucket_3624";
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() {
     }
 
-    // S3重构暂时屏蔽
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
-    private void test() {
+    @Test(enabled = false)
+    private void test() throws Exception {
         amazonS3 = S3Utils.buildS3Client( accessKey, secretKey );
         try {
             amazonS3.doesBucketExistV2( bucketName );
@@ -37,7 +36,7 @@ public class S3AuthServer3624 extends TestScmBase {
         }
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() {
         amazonS3.shutdown();
     }

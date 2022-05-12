@@ -87,7 +87,7 @@ public class UpdateAndDeleteObject3386 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() {
+        private void exec() throws Exception {
             AmazonS3 s3Client = null;
             try {
                 s3Client = S3Utils.buildS3Client();

@@ -37,7 +37,7 @@ public class CopyObject3618 extends TestScmBase {
     private Map< String, String > expMeta = new HashMap<>();
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

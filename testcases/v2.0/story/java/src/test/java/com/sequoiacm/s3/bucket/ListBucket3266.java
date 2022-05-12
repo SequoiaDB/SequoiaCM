@@ -27,7 +27,7 @@ public class ListBucket3266 extends TestScmBase {
     private List< Bucket > existBuckets;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketNameA );
         S3Utils.clearBucket( s3Client, bucketNameB );

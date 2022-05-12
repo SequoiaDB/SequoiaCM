@@ -32,7 +32,7 @@ public class CopyObject3575 extends TestScmBase {
     private String hisVersionContent = "testContent";
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

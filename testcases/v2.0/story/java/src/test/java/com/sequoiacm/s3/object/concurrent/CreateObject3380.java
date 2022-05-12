@@ -103,7 +103,7 @@ public class CreateObject3380 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void createObject() {
+        private void createObject() throws Exception {
             AmazonS3 s3Client = null;
             try {
                 s3Client = S3Utils.buildS3Client();

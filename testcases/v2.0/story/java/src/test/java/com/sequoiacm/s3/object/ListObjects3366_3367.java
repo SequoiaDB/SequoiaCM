@@ -33,7 +33,7 @@ public class ListObjects3366_3367 extends TestScmBase {
     private List< String > matchKeyList = new ArrayList<>();
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
@@ -95,14 +95,25 @@ public class ListObjects3366_3367 extends TestScmBase {
         ListObjectsRequest request = new ListObjectsRequest()
                 .withBucketName( bucketName ).withMarker( matchMarker )
                 .withPrefix( matchPrefix ).withDelimiter( matchDelimiter );
-        try {
-            s3Client.listObjects( request );
-            Assert.fail( "exp failed but act success!!!" );
-        } catch ( AmazonS3Exception e ) {
-            if ( e.getStatusCode() != 400 ) {
-                throw e;
-            }
+        ObjectListing result = s3Client.listObjects( request );
+        List< String > actCommonPrefixes = result.getCommonPrefixes();
+        // no match key,the commonprefixes is 0
+        Assert.assertEquals( actCommonPrefixes.size(), 0 );
+
+        List< String > queryKeyList = new ArrayList<>();
+        List< S3ObjectSummary > objects = result.getObjectSummaries();
+        for ( S3ObjectSummary os : objects ) {
+            String key = os.getKey();
+            queryKeyList.add( key );
         }
+
+        // check the keyName
+        for ( int i = 0; i < startPosition + 1; i++ ) {
+            matchKeyList.remove( 0 );
+        }
+        Assert.assertEquals( queryKeyList, matchKeyList,
+                "queryKey=" + queryKeyList.toString() + "\nexpKeys:"
+                        + matchKeyList.toString() );
     }
 
     private void putObjects() {

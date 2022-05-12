@@ -32,7 +32,7 @@ public class CopyObject3586 extends TestScmBase {
     private long lastModifiedTime = 0;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

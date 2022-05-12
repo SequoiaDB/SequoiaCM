@@ -33,7 +33,7 @@ public class QueryBucket3273 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
     }

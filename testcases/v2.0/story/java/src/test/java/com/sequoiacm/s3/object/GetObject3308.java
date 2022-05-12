@@ -31,7 +31,7 @@ public class GetObject3308 extends TestScmBase {
     private int fileNum = 2;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

@@ -21,7 +21,7 @@ public class QueryAndDropBucket3279 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
@@ -50,7 +50,7 @@ public class QueryAndDropBucket3279 extends TestScmBase {
     class GetBucket {
 
         @ExecuteOrder(step = 1)
-        public void run() {
+        public void run() throws Exception {
             AmazonS3 amazonS3 = S3Utils.buildS3Client();
             amazonS3.listBuckets();
             amazonS3.shutdown();
@@ -59,7 +59,7 @@ public class QueryAndDropBucket3279 extends TestScmBase {
 
     class DropBucket {
         @ExecuteOrder(step = 1)
-        public void run() {
+        public void run() throws Exception {
             AmazonS3 amazonS3 = S3Utils.buildS3Client();
             amazonS3.deleteBucket( bucketName );
 

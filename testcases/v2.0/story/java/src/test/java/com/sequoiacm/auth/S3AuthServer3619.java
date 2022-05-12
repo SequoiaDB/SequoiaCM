@@ -13,6 +13,7 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -28,7 +29,6 @@ import org.testng.annotations.Test;
 public class S3AuthServer3619 extends TestScmBase {
     private boolean runSuccess = false;
     private SiteWrapper site = null;
-    private WsWrapper wsp = null;
     private ScmSession session = null;
     private String username = "user3619";
     private String password = "user3619123456";
@@ -36,19 +36,18 @@ public class S3AuthServer3619 extends TestScmBase {
     private AmazonS3 amazonS3 = null;
     private String[] accessKeys = null;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUser( session, wsp.getName(), username,
+        ScmAuthUtils.createAdminUserGrant( session, s3WorkSpaces, username,
                 password );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
+        ScmAuthUtils.checkPriorityByS3( accessKeys, s3WorkSpaces );
     }
 
-    // S3重构暂时屏蔽
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    @Test(enabled = false)
     private void test() throws Exception {
         // 计算签名
         String algorithm = "HmacSHA256";
@@ -79,7 +78,7 @@ public class S3AuthServer3619 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
@@ -93,13 +92,12 @@ public class S3AuthServer3619 extends TestScmBase {
     }
 
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
-            String version ) {
-        AmazonS3 s3Client = null;
+            String version ) throws Exception {
         String clientRegion = "us-east-1";
         AWSCredentials credentials = new BasicAWSCredentials( ACCESS_KEY,
                 SECRET_KEY );
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-                TestScmBase.s3ClientUrl, clientRegion );
+                S3Utils.getS3Url(), clientRegion );
         ClientConfiguration config = new ClientConfiguration();
         config.setUseExpectContinue( false );
         config.setSocketTimeout( 300000 );
@@ -107,7 +105,7 @@ public class S3AuthServer3619 extends TestScmBase {
             config.setProtocol( Protocol.HTTP );
             config.setSignerOverride( "S3SignerType" );
         }
-        s3Client = AmazonS3ClientBuilder.standard()
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration( endpointConfiguration )
                 .withClientConfiguration( config )
                 .withChunkedEncodingDisabled( true )

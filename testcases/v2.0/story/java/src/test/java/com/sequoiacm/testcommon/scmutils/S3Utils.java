@@ -10,6 +10,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.client.core.ScmCursor;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.element.ScmNodeInfo;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.TestScmTools;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -36,29 +45,57 @@ import com.sequoiacm.testcommon.TestTools;
 
 public class S3Utils extends TestScmBase {
     private static String clientRegion = "us-east-1";
+    private static String gateway = gateWayList.get( 0 );
 
     /**
-     * build S3 client by admin
-     *
-     * @param
-     * @return s3Client
+     * @descreption 随机连接一个s3节点
+     * @return
+     * @throws Exception
      */
-    public static AmazonS3 buildS3Client() {
+    public static AmazonS3 buildS3Client() throws Exception {
         return buildS3Client( TestScmBase.s3AccessKeyID,
-                TestScmBase.s3SecretKey );
+                TestScmBase.s3SecretKey, getS3Url() );
     }
 
-    public static AmazonS3 buildS3Client( String ACCESS_KEY,
-            String SECRET_KEY ) {
-        AmazonS3 s3Client = null;
+    /**
+     * @descreption 使用ACCESS_KEY和SECRET_KEY随机连接一个节点
+     * @param ACCESS_KEY
+     * @param SECRET_KEY
+     * @return
+     * @throws Exception
+     */
+    public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY )
+            throws Exception {
+        return buildS3Client( ACCESS_KEY, SECRET_KEY, getS3Url() );
+    }
+
+    /**
+     * @descreption 连接指定站点的s3节点
+     * @param siteName
+     * @return
+     */
+    public static AmazonS3 buildS3Client( String siteName ) {
+        return buildS3Client( TestScmBase.s3AccessKeyID,
+                TestScmBase.s3SecretKey, getS3UrlBySite( siteName ) );
+    }
+
+    /**
+     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
+     * @param ACCESS_KEY
+     * @param SECRET_KEY
+     * @param S3URL
+     * @return
+     */
+    public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
+            String S3URL ) {
         AWSCredentials credentials = new BasicAWSCredentials( ACCESS_KEY,
                 SECRET_KEY );
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-                TestScmBase.s3ClientUrl, clientRegion );
+                S3URL, clientRegion );
         ClientConfiguration config = new ClientConfiguration();
         config.setUseExpectContinue( false );
         config.setSocketTimeout( 300000 );
-        s3Client = AmazonS3ClientBuilder.standard()
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration( endpointConfiguration )
                 .withClientConfiguration( config )
                 .withChunkedEncodingDisabled( true )
@@ -67,6 +104,37 @@ public class S3Utils extends TestScmBase {
                         new AWSStaticCredentialsProvider( credentials ) )
                 .build();
         return s3Client;
+    }
+
+    /**
+     * @descreption 根据站点名生成s3协议url
+     * @param siteName
+     * @return
+     */
+    public static String getS3UrlBySite( String siteName ) {
+        return "http://" + gateway + "/" + siteName + "-s3";
+    }
+
+    /**
+     * @descreption 随机获取一个s3节点生成url
+     * @return
+     * @throws Exception
+     */
+    public static String getS3Url() throws Exception {
+        ScmSession session = TestScmTools
+                .createSession( ScmInfo.getRootSite() );
+        try {
+            List< String > serviceList = ScmSystem.ServiceCenter
+                    .getServiceList( session );
+            for ( String serviceName : serviceList ) {
+                if ( serviceName.contains( "-s3" ) ) {
+                    return "http://" + gateway + "/" + serviceName;
+                }
+            }
+        } finally {
+            session.close();
+        }
+        throw new Exception( "no s3 nodes available" );
     }
 
     /**

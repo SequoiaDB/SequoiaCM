@@ -28,7 +28,7 @@ public class CopyObject3576 extends TestScmBase {
     private String hisVersionContent1 = "hisVersionContent1";
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );

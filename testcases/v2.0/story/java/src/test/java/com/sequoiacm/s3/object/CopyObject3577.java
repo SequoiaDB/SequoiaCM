@@ -35,7 +35,7 @@ public class CopyObject3577 extends TestScmBase {
     private String filePath3 = null;
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath1 = localPath + File.separator + "localFile_" + fileSize

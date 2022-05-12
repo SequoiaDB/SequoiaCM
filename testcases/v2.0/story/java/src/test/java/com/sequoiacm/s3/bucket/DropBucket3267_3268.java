@@ -24,7 +24,7 @@ public class DropBucket3267_3268 extends TestScmBase {
     private String objectName = "object3267";
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
     }

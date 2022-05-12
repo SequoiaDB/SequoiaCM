@@ -36,7 +36,7 @@ public class ListObjects3370 extends TestScmBase {
     private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );

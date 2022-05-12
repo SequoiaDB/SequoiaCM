@@ -35,7 +35,7 @@ public class TestGetObjectMetadata3349 extends TestScmBase {
     private String delimiter = "/";
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localfile" + fileSize + ".txt";

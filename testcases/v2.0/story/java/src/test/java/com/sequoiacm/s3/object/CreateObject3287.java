@@ -25,7 +25,7 @@ public class CreateObject3287 extends TestScmBase {
     private String expContent = "file3287";
 
     @BeforeClass
-    private void setUp() throws IOException {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
     }
 

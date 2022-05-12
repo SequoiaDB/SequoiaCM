@@ -26,7 +26,7 @@ public class CreateBucket3264 extends TestScmBase {
     private int bucketNum = 101;
 
     @BeforeClass
-    private void setUp() {
+    private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
             S3Utils.clearBucket( s3Client, bucketName + i );
