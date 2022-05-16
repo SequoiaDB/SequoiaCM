@@ -1,5 +1,4 @@
 {
   "rootSite": {
-    "hystrix.command.$serverName.execution.isolation.semaphore.maxConcurrentRequests": "300"
   }
 }
