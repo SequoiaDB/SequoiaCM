@@ -34,8 +34,14 @@ public class S3NodeInfo extends NodeInfo {
         setCustomNodeConf((BSONObject) JSON
                 .parse(BsonUtils.getString(bson, ConfFileDefine.NODE_CUSTOM_CONF)));
         this.bindingSite = BsonUtils.getStringChecked(bson, ConfFileDefine.S3_NODE_BINDING_SITE);
+
+        String defaultS3ServiceName = bindingSite + "-s3";
         this.serviceName = BsonUtils.getStringOrElse(bson, ConfFileDefine.S3_NODE_SERVICE_NAME,
-                bindingSite + "-s3");
+                defaultS3ServiceName);
+        if (this.serviceName.trim().isEmpty()) {
+            this.serviceName = defaultS3ServiceName;
+        }
+
         String managementPortStr = BsonUtils.getString(bson, ConfFileDefine.NODE_MANAGEMENT_PORT);
         if (managementPortStr != null && !managementPortStr.isEmpty()) {
             setManagementPort(Integer.parseInt(managementPortStr));
