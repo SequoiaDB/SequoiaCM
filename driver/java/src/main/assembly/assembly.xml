@@ -35,6 +35,7 @@
                 <exclude>com.alibaba:fastjson</exclude>
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>commons-logging:commons-logging</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

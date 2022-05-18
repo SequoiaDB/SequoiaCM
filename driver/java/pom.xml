@@ -110,6 +110,7 @@
                                 <include>com.alibaba:fastjson</include>
                                 <include>commons-codec:commons-codec</include>
                                 <include>commons-logging:commons-logging</include>
+                                <include>com.google.code.gson:gson</include>
                             </includes>
                             <rules>
                                 <rule>
@@ -131,6 +132,10 @@
                                 <rule>
                                     <pattern>com.alibaba.fastjson.**</pattern>
                                     <result>com.sequoiacm.alibaba.fastjson.@1</result>
+                                </rule>
+                                <rule>
+                                    <pattern>com.google.gson.**</pattern>
+                                    <result>com.sequoiacm.google.gson.@1</result>
                                 </rule>
                             </rules>
                             <overwrite>true</overwrite>
