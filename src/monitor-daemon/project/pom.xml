@@ -17,7 +17,6 @@
     <properties>
         <sequoiacm-infrastructure.version>${project.version}</sequoiacm-infrastructure.version>
         <sequoiacm-daemon.version>${project.version}</sequoiacm-daemon.version>
-        <fastjson.version>1.2.73</fastjson.version>
         <logger.version>1.5.14.RELEASE</logger.version>
         <commons.version>2.6</commons.version>
     </properties>
@@ -43,11 +42,6 @@
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-daemon-tools</artifactId>
                 <version>${sequoiacm-daemon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>${fastjson.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>

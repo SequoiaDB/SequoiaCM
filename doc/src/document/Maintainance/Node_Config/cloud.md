@@ -139,6 +139,8 @@ SequoiaCM 配置
 |scm.statistics.timeGranularity|str|监控服务对网关上报的统计数据的处理粒度，可选值：DAY、HOUR，默认值：DAY，该粒度体现在用户按时间段检索统计数据时，时间段所允许的最大精度|
 |scm.statistics.job.breakpointFileCleanPeriod|num|清理断点文件上传时间临时记录表的周期。默认值：7d（每隔7天清理一次）|
 |scm.statistics.job.breakpointFileStayDays|num|断点文件上传时间记录在数据表中的最大遗留时间（当断点文件上传完成但未转换成普通文件时，表中会临时保存该文件的上传时间）。默认值：10d|
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 
 ##服务跟踪##
 
@@ -156,3 +158,4 @@ SequoiaCM 配置
 
 [public_config]:Maintainance/Node_Config/Readme.md
 [audit_log]:Maintainance/Diaglog/audit_log.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md

@@ -1,15 +1,17 @@
 package com.sequoiacm.tools.command;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sequoiacm.tools.common.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
@@ -203,7 +205,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
         Map<String, String> map = new HashMap<String, String>();
         if (cl.hasOption(OPT_LONG_DSCONF)) {
             String optionValue = cl.getOptionValue(OPT_LONG_DSCONF);
-            map = (Map<String, String>) JSON.parse(optionValue);
+            map = new Gson().fromJson(optionValue, new TypeToken<Map<String, String>>() {
+            }.getType());
         }
         else {
             throw new ScmToolsException("missing options:--" + OPT_LONG_DSCONF,

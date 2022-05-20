@@ -41,33 +41,38 @@ public class OmMonitorController {
     }
 
     @GetMapping(value = "/instances/{instance_id:.+}", params = "action=getConnectionInfo")
-    public OmConnectionInfo getConnectionInfo(@PathVariable("instance_id") String instanceId)
+    public OmConnectionInfo getConnectionInfo(@PathVariable("instance_id") String instanceId,
+            ScmOmSession session)
             throws ScmOmServerException {
-        return omMonitorService.getConnectionInfo(instanceId);
+        return omMonitorService.getConnectionInfo(instanceId, session);
     }
 
     @GetMapping(value = "/instances/{instance_id:.+}", params = "action=getHeapInfo")
-    public OmHeapInfo getHeapInfo(@PathVariable("instance_id") String instanceId)
+    public OmHeapInfo getHeapInfo(@PathVariable("instance_id") String instanceId,
+            ScmOmSession session)
             throws ScmOmServerException {
-        return omMonitorService.getHeapInfo(instanceId);
+        return omMonitorService.getHeapInfo(instanceId, session);
     }
 
     @GetMapping(value = "/instances/{instance_id:.+}", params = "action=getThreadInfo")
-    public OmThreadInfo getThreadInfo(@PathVariable("instance_id") String instanceId)
+    public OmThreadInfo getThreadInfo(@PathVariable("instance_id") String instanceId,
+            ScmOmSession session)
             throws ScmOmServerException {
-        return omMonitorService.getThreadInfo(instanceId);
+        return omMonitorService.getThreadInfo(instanceId, session);
     }
 
     @GetMapping(value = "/instances/{instance_id:.+}", params = "action=getProcessInfo")
-    public OmProcessInfo getProcessInfo(@PathVariable("instance_id") String instanceId)
+    public OmProcessInfo getProcessInfo(@PathVariable("instance_id") String instanceId,
+            ScmOmSession session)
             throws ScmOmServerException {
-        return omMonitorService.getProcessInfo(instanceId);
+        return omMonitorService.getProcessInfo(instanceId, session);
     }
 
     @GetMapping(value = "/instances/{instance_id:.+}", params = "action=getConfigInfo")
-    public Map<String, String> getConfigInfo(@PathVariable("instance_id") String instanceId)
+    public Map<String, String> getConfigInfo(@PathVariable("instance_id") String instanceId,
+            ScmOmSession session)
             throws ScmOmServerException {
-        return omMonitorService.getConfigInfo(instanceId);
+        return omMonitorService.getConfigInfo(instanceId, session);
     }
 
 }

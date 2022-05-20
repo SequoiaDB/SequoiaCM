@@ -26,6 +26,8 @@ SequoiaCM 配置
 |scm.fulltext.textualParser.fileSizeLimit|num|超过该大小的文件不允许建立全文索引，默认值：10485760（10m），单位：byte|
 |scm.fulltext.textualParser.pic.tessdataDir|str|图片识别引擎 Tesseract 数据目录，默认值：/usr/share/tesseract-ocr/tessdata/|
 |scm.fulltext.textualParser.pic.language|str|图片识别引擎 Tesseract 的识别语言，默认值：chi_sim|
-
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 
 [public_config]:Maintainance/Node_Config/Readme.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md

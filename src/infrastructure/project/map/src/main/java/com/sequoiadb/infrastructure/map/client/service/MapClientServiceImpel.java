@@ -3,9 +3,9 @@ package com.sequoiadb.infrastructure.map.client.service;
 import java.io.InputStream;
 import java.util.List;
 
+import com.google.gson.Gson;
 import org.bson.BSONObject;
 
-import com.alibaba.fastjson.JSONObject;
 import com.sequoiadb.infrastructure.map.ScmMapServerException;
 import com.sequoiadb.infrastructure.map.client.BsonReader;
 import com.sequoiadb.infrastructure.map.client.CloseableHttpResponseInputStream;
@@ -15,6 +15,7 @@ import com.sequoiadb.infrastructure.map.client.model.ScmEntry;
 import feign.Response;
 
 class MapClientServiceImpel implements IMapClientService {
+    private Gson gson = new Gson();
     private MapFeignClient client;
     private String groupName;
 
@@ -47,7 +48,7 @@ class MapClientServiceImpel implements IMapClientService {
 
     @Override
     public void putAll(String mapName, List<BSONObject> entryList) throws ScmMapServerException {
-        String entrys = JSONObject.toJSONString(entryList);
+        String entrys = gson.toJson(entryList);
         client.putEntryList(groupName, mapName, entrys);
     }
 

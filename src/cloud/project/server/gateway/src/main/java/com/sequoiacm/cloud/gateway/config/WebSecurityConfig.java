@@ -49,7 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**/internal/v1/config/site", "/**/internal/v1/config/node")
                 .hasRole("AUTH_ADMIN")
                 .antMatchers("/**/api/**/reload-bizconf/**", "/**/api/**/conf-properties/**",
-                        "/**/internal/v1/monitor_collector/**", "/**/internal/v1/config-props")
+                        "/**/internal/v1/monitor_collector/**", "/**/internal/v1/config-props",
+                        "/**/internal/v1/health", "/**/internal/v1/env", "/**/internal/v1/metrics")
                 .permitAll().antMatchers("/**/internal/**").denyAll().antMatchers("/**/api/**")
                 .authenticated().anyRequest().permitAll();
 

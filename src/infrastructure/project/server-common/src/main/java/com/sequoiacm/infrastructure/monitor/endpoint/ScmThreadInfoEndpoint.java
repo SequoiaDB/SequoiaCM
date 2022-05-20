@@ -20,7 +20,7 @@ public class ScmThreadInfoEndpoint implements Endpoint<ScmThreadInfo> {
 
     @Override
     public boolean isSensitive() {
-        return false;
+        return true;
     }
 
     @Override

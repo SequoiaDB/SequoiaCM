@@ -14,15 +14,20 @@ public interface OmMonitorDao {
     List<OmMonitorInstanceBasicInfo> getInstanceList(List<String> serviceCenterUrls)
             throws ScmOmServerException;
 
-    OmHeapInfo getHeapInfo(String managementUrl) throws ScmOmServerException;
+    OmHeapInfo getHeapInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException;
 
-    OmConnectionInfo getConnectionInfo(String managementUrl) throws ScmOmServerException;
+    OmConnectionInfo getConnectionInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException;
 
-    OmThreadInfo getThreadInfo(String managementUrl) throws ScmOmServerException;
+    OmThreadInfo getThreadInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException;
 
-    OmProcessInfo getProcessInfo(String managementUrl) throws ScmOmServerException;
+    OmProcessInfo getProcessInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException;
 
-    Map<String, String> getConfigInfo(String managementUrl) throws ScmOmServerException;
+    Map<String, String> getConfigInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException;
 
     void deleteInstances(List<String> serviceCenterUrlsCache, String ipAddr, int port,
             ScmOmSession session) throws ScmOmServerException, ScmInternalException;

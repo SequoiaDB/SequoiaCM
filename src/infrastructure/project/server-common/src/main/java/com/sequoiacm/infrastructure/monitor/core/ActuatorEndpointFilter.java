@@ -1,7 +1,13 @@
 package com.sequoiacm.infrastructure.monitor.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -18,21 +24,24 @@ public class ActuatorEndpointFilter extends OncePerRequestFilter {
 
     public static final String APPLICATION_JSON_UTF8 = "application/json;charset=utf-8";
 
-    private final Map<String, AbstractEndpoint<?>> urlEndpointMap = new HashMap<>();
+    private final Map<String, Endpoint<?>> urlEndpointMap = new HashMap<>();
 
     private final Map<String, String> paramsMap;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ActuatorEndpointFilter(List<AbstractEndpoint<?>> endpoints,
-            DefaultOmMonitorConfigure omMonitorConfigure) {
+    private final ManagementServerProperties managementServerProperties;
+
+    public ActuatorEndpointFilter(List<Endpoint<?>> endpoints,
+            DefaultOmMonitorConfigure omMonitorConfigure,
+            ManagementServerProperties managementServerProperties) {
         this.paramsMap = omMonitorConfigure.configureEndpointUrlParams();
         if (endpoints != null) {
-            for (AbstractEndpoint<?> endpoint : endpoints) {
+            for (Endpoint<?> endpoint : endpoints) {
                 this.urlEndpointMap.put("/" + endpoint.getId(), endpoint);
             }
         }
-
+        this.managementServerProperties = managementServerProperties;
     }
 
     @Override
@@ -40,12 +49,26 @@ public class ActuatorEndpointFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
-        AbstractEndpoint<?> endpoint = urlEndpointMap.get(requestURI);
+        Endpoint<?> endpoint = urlEndpointMap.get(requestURI);
         if (endpoint != null && endpoint.isEnabled() && isParamsMatch(request)) {
-            response.setContentType(APPLICATION_JSON_UTF8);
-            PrintWriter writer = response.getWriter();
-            writer.write(objectMapper.writeValueAsString(endpoint.invoke()));
-            writer.flush();
+            if (isUserAllowAccess(endpoint)) {
+                response.setContentType(APPLICATION_JSON_UTF8);
+                PrintWriter writer = response.getWriter();
+                writer.write(objectMapper.writeValueAsString(endpoint.invoke()));
+                writer.flush();
+            }
+            else {
+                if (request.getUserPrincipal() != null) {
+                    String roles = StringUtils.collectionToDelimitedString(
+                            this.managementServerProperties.getSecurity().getRoles(), " ");
+                    response.sendError(HttpStatus.FORBIDDEN.value(),
+                            "Access is denied. User must have one of the these roles: " + roles);
+                }
+                else {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value(),
+                            "Full authentication is required to access this resource.");
+                }
+            }
         }
         else {
             filterChain.doFilter(request, response);
@@ -63,5 +86,32 @@ public class ActuatorEndpointFilter extends OncePerRequestFilter {
             }
         }
         return true;
+    }
+
+    private boolean isUserAllowAccess(Endpoint<?> endpoint) {
+        if (!managementServerProperties.getSecurity().isEnabled() || !endpoint.isSensitive()) {
+            return true;
+        }
+        for (String role : managementServerProperties.getSecurity().getRoles()) {
+            if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role;
+            }
+            if (hasAuthority(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasAuthority(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                if (authority.getAuthority().equals(role)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

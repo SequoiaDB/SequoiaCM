@@ -1,7 +1,12 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.sequoiacm.infrastructure.config.ApplicationPropertyInjection,\
-com.sequoiacm.infrastructure.monitor.OmMonitorAutoConfig
+com.sequoiacm.infrastructure.monitor.OmMonitorAutoConfig,\
+com.sequoiacm.infrastructure.controller.InternalActuatorController
 
 
 org.springframework.context.ApplicationListener=\
 com.sequoiacm.infrastructure.config.ScmPropertySourceConfig
+
+## 在 Actuator 的管理端口上注册该 Bean
+org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration=\
+com.sequoiacm.infrastructure.controller.InternalActuatorController

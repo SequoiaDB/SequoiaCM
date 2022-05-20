@@ -63,10 +63,6 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-server-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
-        
+
     </dependencies>
 </project>

@@ -3,10 +3,10 @@ package com.sequoiacm.deploy.deployer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sequoiacm.deploy.common.BsonUtils;
 import com.sequoiacm.deploy.module.SiteInfo;
 import org.bson.BSONObject;
@@ -28,6 +28,8 @@ import com.sequoiacm.deploy.ssh.SshMgr;
 
 public abstract class ServiceDeployerBase implements ServiceDeployer {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDeployerBase.class);
+
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     protected ScmDeployInfoMgr confMgr = ScmDeployInfoMgr.getInstance();
 
@@ -72,7 +74,7 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
         FileOutputStream os = new FileOutputStream(
                 commonConfig.getTempPath() + File.separator + fileName);
         try {
-            String json = com.alibaba.fastjson.JSON.toJSONString(bson.toMap(), true);
+            String json = gson.toJson(bson.toMap());
             os.write(json.getBytes("utf-8"));
         }
         finally {

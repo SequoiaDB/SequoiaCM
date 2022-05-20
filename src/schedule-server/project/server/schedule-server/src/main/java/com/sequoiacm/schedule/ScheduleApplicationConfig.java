@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule;
 
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,6 +154,7 @@ class ConfigZookeeper {
     private int sessionTimeout;
     private int nodeLifeCycle;
     private int clearNodePeriod;
+    private ZkAcl acl = new ZkAcl();
 
     public String getUrls() {
         return urls;
@@ -188,6 +190,14 @@ class ConfigZookeeper {
 
     public int getClearNodePeriod() {
         return clearNodePeriod;
+    }
+
+    public ZkAcl getAcl() {
+        return acl;
+    }
+
+    public void setAcl(ZkAcl acl) {
+        this.acl = acl;
     }
 }
 
@@ -325,6 +335,10 @@ public class ScheduleApplicationConfig {
 
     public String getZookeeperUrl() {
         return zooConfig.getUrls();
+    }
+
+    public ZkAcl getZookeeperAcl(){
+        return zooConfig.getAcl();
     }
 
     public String getMetaUrl() {

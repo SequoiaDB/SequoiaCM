@@ -16,15 +16,18 @@ public interface OmMonitorService {
 
     OmMonitorInstanceInfo checkAndGetInstance(String instanceId) throws ScmOmServerException;
 
-    OmConnectionInfo getConnectionInfo(String instanceId) throws ScmOmServerException;
+    OmConnectionInfo getConnectionInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException;
 
-    OmHeapInfo getHeapInfo(String instanceId) throws ScmOmServerException;
+    OmHeapInfo getHeapInfo(String instanceId, ScmOmSession session) throws ScmOmServerException;
 
-    OmThreadInfo getThreadInfo(String instanceId) throws ScmOmServerException;
+    OmThreadInfo getThreadInfo(String instanceId, ScmOmSession session) throws ScmOmServerException;
 
-    OmProcessInfo getProcessInfo(String instanceId) throws ScmOmServerException;
+    OmProcessInfo getProcessInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException;
 
-    Map<String, String> getConfigInfo(String instanceId) throws ScmOmServerException;
+    Map<String, String> getConfigInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException;
 
     void deleteInstance(ScmOmSession session, String instanceId) throws ScmOmServerException, ScmInternalException;
 }

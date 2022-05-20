@@ -570,7 +570,7 @@ public class ConfUtil extends TestScmBase {
     }
 
     private static Map< String, String > getConfByRest( String addr ) {
-        String url = "http://" + addr + "/env";
+        String url = "http://" + addr + "/internal/v1/env";
         ResponseEntity< ? > resp = rest.getForEntity( url, String.class,
                 new HashMap< String, String >() );
         JSONObject json = ( JSONObject ) JSONObject

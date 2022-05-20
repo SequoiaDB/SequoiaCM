@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.authentication.config;
 
+import com.sequoiacm.cloud.authentication.filter.ActuatorRoleFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import com.sequoiacm.cloud.authentication.dao.SequoiadbScmUserRoleRepository;
@@ -122,5 +124,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
                 .antMatchers(HttpMethod.PUT, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
                 .antMatchers(HttpMethod.GET, "/api/**").authenticated().anyRequest().permitAll();
+
+        http.addFilterAfter(new ActuatorRoleFilter(), SwitchUserFilter.class);
     }
 }

@@ -23,7 +23,8 @@ public class S3Ctl {
         nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-server-", ScmServerScriptEnum.S3SERVER));
 
         try {
-            cmd.addTool(new ScmStartToolImpl(nodeTypes, "/health?action=actuator"));
+            cmd.addTool(new ScmStartToolImpl(nodeTypes, "/internal/v1/health?action=actuator",
+                    "/health?action=actuator"));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));
             cmd.addTool(new ScmListToolImpl(nodeTypes));
         }

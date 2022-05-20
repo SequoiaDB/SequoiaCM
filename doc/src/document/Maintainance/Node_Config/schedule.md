@@ -35,7 +35,8 @@ SequoiaCM 配置
 |scm.revote.initialInterval|num|节点当选主节点后初始化失败时，起始静默时间，默认值：100，单位：毫秒|
 |scm.revote.intervalMultiplier|num|节点连续当选主节点后初始化失败时，静默时间递增倍数，默认值：2|
 |scm.revote.maxInterval|num|节点当选主节点后初始化失败时，静默时间的上限，默认值：60000，单位：毫秒| 
-
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 
  > **Note:**
  >
@@ -48,3 +49,4 @@ SequoiaCM 配置
 
 [public_config]:Maintainance/Node_Config/Readme.md
 [audit_log]:Maintainance/Diaglog/audit_log.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md

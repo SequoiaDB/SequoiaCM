@@ -132,7 +132,7 @@ public class ScheduleApplication implements ApplicationRunner {
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao, discoveryClient);
         ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory, config, discoveryClient);
-        ScheduleElector.getInstance().init(config.getZookeeperUrl(),
+        ScheduleElector.getInstance().init(config.getZookeeperUrl(), config.getZookeeperAcl(),
                 ScheduleDefine.SCHEDULE_ELETOR_PATH,
                 ScheduleCommonTools.getHostName() + ":" + config.getServerPort(),
                 config.getRevoteInitialInterval(), config.getRevoteMaxInterval(),

@@ -1,9 +1,10 @@
 package com.sequoiacm.infrastructure.statistics.common;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
+import com.google.gson.Gson;
 
 public class ScmStatisticsFileMeta {
+
+    private static final Gson gson = new Gson();
     private long size;
     private String workspace;
     private String site;
@@ -115,7 +116,7 @@ public class ScmStatisticsFileMeta {
     }
 
     public String toJSON() {
-        return JSON.toJSONString(this);
+        return gson.toJson(this);
     }
 
     @Override
@@ -129,7 +130,7 @@ public class ScmStatisticsFileMeta {
     }
 
     public static ScmStatisticsFileMeta fromJSON(String json) {
-        return JSON.parseObject(json, ScmStatisticsFileMeta.class, Feature.IgnoreNotMatch);
+        return gson.fromJson(json, ScmStatisticsFileMeta.class);
     }
 
 }

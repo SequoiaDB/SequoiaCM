@@ -1,11 +1,12 @@
 package com.sequoiacm.infrastructure.statistics.common;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
+import com.google.gson.Gson;
 
 import java.util.Objects;
 
 public class ScmStatisticsBreakpointFileMeta {
+    private static final Gson gson = new Gson();
+
     private String fileName;
     private String workspaceName;
     private long createTime;
@@ -55,8 +56,7 @@ public class ScmStatisticsBreakpointFileMeta {
     }
 
     public static ScmStatisticsBreakpointFileMeta fromJSON(String json) {
-        return JSON.parseObject(json, ScmStatisticsBreakpointFileMeta.class,
-                Feature.IgnoreNotMatch);
+        return gson.fromJson(json, ScmStatisticsBreakpointFileMeta.class);
     }
 
     @Override
@@ -85,6 +85,6 @@ public class ScmStatisticsBreakpointFileMeta {
     }
 
     public String toJSON() {
-        return JSON.toJSONString(this);
+        return gson.toJson(this);
     }
 }

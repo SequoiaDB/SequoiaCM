@@ -46,7 +46,7 @@ public class ScmProcessInfoEndpoint implements Endpoint<ScmProcessInfo> {
 
     @Override
     public boolean isSensitive() {
-        return false;
+        return true;
     }
 
     @Override

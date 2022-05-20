@@ -1,8 +1,6 @@
 package com.sequoiacm.infrastructure.monitor;
 
-import com.sequoiacm.infrastructure.monitor.core.ApplicationClosedListener;
-import com.sequoiacm.infrastructure.monitor.core.DefaultOmMonitorConfigure;
-import com.sequoiacm.infrastructure.monitor.core.ActuatorEndpointFilter;
+import com.sequoiacm.infrastructure.monitor.core.*;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmProcessInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmThreadInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmTomcatConnectInfoEndpoint;
@@ -10,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -62,9 +59,11 @@ public class OmMonitorAutoConfig {
 
     @Bean
     @Conditional(ServerPortNotEqualsManagementPort.class)
-    public ActuatorEndpointFilter actuatorEndpointFilter(List<AbstractEndpoint<?>> endpoints,
-            DefaultOmMonitorConfigure omMonitorConfigure) {
-        return new ActuatorEndpointFilter(endpoints, omMonitorConfigure);
+    public ActuatorEndpointFilter actuatorEndpointFilter(List<Endpoint<?>> endpoints,
+            DefaultOmMonitorConfigure omMonitorConfigure,
+            ManagementServerProperties managementServerProperties) {
+        return new ActuatorEndpointFilter(endpoints, omMonitorConfigure,
+                managementServerProperties);
     }
 
     @Component

@@ -1,5 +1,11 @@
 巨杉企业内容管理软件（Sequoia Content Manager，简称：SequoiaCM）是新一代分布式企业内容管理软件，用于企业海量非结构化数据的存储和管理。SequoiaCM 基于SequoiaDB分布式数据库，支持灵活存储结构，支持多种非结构化数据存储引擎（SequoiaDB LOB、 HBase、 HDFS、 Ceph 等），低成本的高性能弹性扩展，完美解决了企业非结构化数据的统一管理难题。尤其是海量小文件所面临的技术挑战和痛点。同时 SequoiaCM 作为新一代分布式内容管理软件，也是传统企业内容管理产品（如IBM CM8和 Documentum）的强力换代选择。
 
+##SequoiaCM version 3.1.5 版本说明##
+
+**主要特性：**
+
+- 支持配置 Actuator、ZooKeeper 访问权限，提升系统安全性
+
 ##SequoiaCM version 3.1.4 版本说明##
 
 **主要特性：**

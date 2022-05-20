@@ -1093,6 +1093,36 @@
                 "cn": "版本兼容性",
                 "en": "Compatibility"
             }]
+        },
+        {
+            "id": 1648803144,
+            "dir": "Security",
+            "cn": "系统安全",
+            "en": "Security",
+            "contents": [{
+                "id": 1648803158,
+                "dir": "Security_Config",
+                "cn": "安全性配置",
+                "en": "Security_Config",
+                "contents": [{
+                    "id": 1648803168,
+                    "file": "overview",
+                    "cn": "概述",
+                    "en": "overview"
+                },
+                {
+                    "id": 1648803178,
+                    "file": "actuator",
+                    "cn": "Actuator 安全性配置",
+                    "en": "actuator"
+                },
+                {
+                    "id": 1648803189,
+                    "file": "zookeeper",
+                    "cn": "ZooKeeper 安全性配置",
+                    "en": "zookeeper"
+                }]
+            }]
         }]
     },
     {

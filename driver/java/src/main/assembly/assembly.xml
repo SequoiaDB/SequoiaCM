@@ -32,7 +32,7 @@
                 <exclude>com.sequoiadb:sequoiacm-infrastructure-crypto</exclude>
                 <exclude>org.apache.httpcomponents:httpclient</exclude>
                 <exclude>org.apache.httpcomponents:httpcore</exclude>
-                <exclude>com.alibaba:fastjson</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>commons-logging:commons-logging</exclude>
                 <exclude>com.google.code.gson:gson</exclude>

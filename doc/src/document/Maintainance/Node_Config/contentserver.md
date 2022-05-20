@@ -64,6 +64,8 @@ SequoiaCM 配置
 |scm.slowlog.request.xxx     |num        |单独配置某类请求的告警阈值，xxx 填写请求方式和地址，如：scm.slowlog.request.[POST/api/v1/files]=10000 配置文件上传请求的告警阈值为 10 秒，由于请求地址中包含特殊字符，需要用 [ ] 包裹 |
 |scm.slowlog.allOperation    |num        |配置全局内部操作的告警阈值，当某个内部操作的执行时间大于或等于此值时，会在日志文件中打印慢操作告警信息。 默认值：-1（负数表示无限大的告警阈值），单位：毫秒    |
 |scm.slowlog.operation.xxx   |num        |单独配置某个内部操作的告警阈值，xxx 填写具体的操作名称   |
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径。|
 
 
  > **Note:**
@@ -80,6 +82,7 @@ SequoiaCM 配置
 [public_config]:Maintainance/Node_Config/Readme.md
 [audit_log]:Maintainance/Diaglog/audit_log.md
 [slow_log]:Maintainance/Diaglog/slow_log.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md
 
 
 

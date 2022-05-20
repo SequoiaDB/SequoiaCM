@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -313,6 +314,10 @@ public class PropertiesUtils {
     // *********************** zoo keeper ******************************
     public static String getZKConnUrl() {
         return zkConfig.getUrls();
+    }
+
+    public static ZkAcl getZKAcl() {
+        return zkConfig.getAcl();
     }
 
     public static int getZkLockTimeout() {

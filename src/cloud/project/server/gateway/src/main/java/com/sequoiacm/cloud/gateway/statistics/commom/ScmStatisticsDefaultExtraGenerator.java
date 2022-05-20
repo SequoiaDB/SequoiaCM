@@ -1,6 +1,6 @@
 package com.sequoiacm.cloud.gateway.statistics.commom;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
@@ -8,6 +8,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 import javax.servlet.http.HttpServletRequest;
 
 public class ScmStatisticsDefaultExtraGenerator {
+    private static final Gson gson = new Gson();
 
     public static String generate(String type, HttpServletRequest request) {
         switch (type) {
@@ -32,6 +33,6 @@ public class ScmStatisticsDefaultExtraGenerator {
         }
         ScmStatisticsFileMeta defaultFileMeta = new ScmStatisticsFileMeta();
         defaultFileMeta.setWorkspace(workspace);
-        return JSON.toJSONString(defaultFileMeta);
+        return gson.toJson(defaultFileMeta);
     }
 }

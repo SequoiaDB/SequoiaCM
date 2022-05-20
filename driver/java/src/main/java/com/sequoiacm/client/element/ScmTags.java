@@ -3,7 +3,7 @@ package com.sequoiacm.client.element;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 
@@ -13,6 +13,7 @@ import com.sequoiacm.exception.ScmError;
  * @since 2.1
  */
 public class ScmTags {
+    private static final Gson gson = new Gson();
     private Set<String> tags = new HashSet<String>();
 
     /**
@@ -79,7 +80,7 @@ public class ScmTags {
 
     @Override
     public String toString() {
-        return JSON.toJSONString(tags);
+        return gson.toJson(tags);
     }
 
     private void checkTag(String tag) throws ScmException {

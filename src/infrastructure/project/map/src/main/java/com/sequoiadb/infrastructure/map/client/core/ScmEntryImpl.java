@@ -1,14 +1,15 @@
 package com.sequoiadb.infrastructure.map.client.core;
 
+import com.google.gson.Gson;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.sequoiadb.infrastructure.map.CommonDefine;
 import com.sequoiadb.infrastructure.map.client.model.ScmEntry;
+import org.bson.util.JSON;
 
 class ScmEntryImpl<K, V> implements ScmEntry<K, V> {
+    private Gson gson = new Gson();
     private K key;
     private V value;
     private Class<?> valueType;
@@ -25,7 +26,7 @@ class ScmEntryImpl<K, V> implements ScmEntry<K, V> {
                 this.value = (V) valueObj;
             }
             else {
-                this.value = (V) JSONObject.parseObject(bson.toString(), valueType);
+                this.value = (V) gson.fromJson(bson.toString(), valueType);
             }
         }
     }
@@ -56,7 +57,7 @@ class ScmEntryImpl<K, V> implements ScmEntry<K, V> {
             bson.put(CommonDefine.FieldName.VALUE, value);
         }
         else {
-            bson.put(CommonDefine.FieldName.VALUE, JSON.parse(JSONObject.toJSONString(value)));
+            bson.put(CommonDefine.FieldName.VALUE, JSON.parse(gson.toJson(value)));
         }
         return bson;
     }

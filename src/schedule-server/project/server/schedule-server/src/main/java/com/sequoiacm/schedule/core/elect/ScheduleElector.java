@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.elect;
 
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import com.sequoiacm.infrastructure.vote.ScmLeaderAction;
 import com.sequoiacm.infrastructure.vote.ScmNotLeaderAction;
 import com.sequoiacm.infrastructure.vote.ScmVote;
@@ -14,6 +15,7 @@ public class ScheduleElector {
     private String location;
     private ScmLeaderAction leaderAction;
     private ScmNotLeaderAction notLeaderAction;
+    private ZkAcl acl;
 
     private ScheduleElector() {
     }
@@ -22,18 +24,20 @@ public class ScheduleElector {
         return instance;
     }
 
-    public void init(String zookeeperUrl, String electPath, String location,
+    public void init(String zookeeperUrl, ZkAcl acl, String electPath, String location,
             long revoteInitialInterval, long revoteMaxInterval, double revoteIntervalMultiplier)
             throws Exception {
 
         this.zookeeperUrl = zookeeperUrl;
         this.electPath = electPath;
         this.location = location;
+        this.acl = acl;
         leaderAction = new ScheduleLeaderAction(this, revoteInitialInterval, revoteMaxInterval,
                 revoteIntervalMultiplier);
         notLeaderAction = new ScheduleNotLeaderAction(this);
 
-        vote = new ScmCuratorVote(zookeeperUrl, electPath, location, leaderAction, notLeaderAction);
+        vote = new ScmCuratorVote(zookeeperUrl, acl, electPath, location, leaderAction,
+                notLeaderAction);
         try {
             vote.startVote();
         }
@@ -60,7 +64,7 @@ public class ScheduleElector {
         }
 
         try {
-            vote = new ScmCuratorVote(zookeeperUrl, electPath, location, leaderAction,
+            vote = new ScmCuratorVote(zookeeperUrl, acl, electPath, location, leaderAction,
                     notLeaderAction);
             vote.startVote();
         }

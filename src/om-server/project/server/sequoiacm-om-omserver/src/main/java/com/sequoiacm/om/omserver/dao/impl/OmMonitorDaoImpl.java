@@ -7,7 +7,7 @@ import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.om.omserver.common.InstanceStatus;
 import com.sequoiacm.om.omserver.dao.OmMonitorDao;
 import com.sequoiacm.om.omserver.factory.ScmServiceCenterClientFactory;
-import com.sequoiacm.om.omserver.remote.OmMonitorFeignClient;
+import com.sequoiacm.om.omserver.remote.OmMonitorClient;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
@@ -62,15 +62,18 @@ public class OmMonitorDaoImpl implements OmMonitorDao {
     }
 
     @Override
-    public OmHeapInfo getHeapInfo(String managementUrl) throws ScmOmServerException {
-        OmMonitorFeignClient client = monitorClientFactory.getClient(managementUrl);
+    public OmHeapInfo getHeapInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException {
+        OmMonitorClient client = monitorClientFactory.getClient(instanceInfo, session);
         Map<String, Object> heapInfo = null;
         try {
             heapInfo = client.getHeapInfo();
         }
         catch (RetryableException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
-                    "failed to get heap info, node is unavailable, url:" + managementUrl, e);
+                    "failed to get heap info, node is unavailable, url:"
+                            + instanceInfo.getManagementUrl(),
+                    e);
         }
         catch (ScmFeignException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
@@ -87,14 +90,17 @@ public class OmMonitorDaoImpl implements OmMonitorDao {
     }
 
     @Override
-    public OmConnectionInfo getConnectionInfo(String managementUrl) throws ScmOmServerException {
-        OmMonitorFeignClient client = monitorClientFactory.getClient(managementUrl);
+    public OmConnectionInfo getConnectionInfo(OmMonitorInstanceInfo instanceInfo,
+            ScmOmSession session) throws ScmOmServerException {
+        OmMonitorClient client = monitorClientFactory.getClient(instanceInfo, session);
         try {
             return client.getConnectionInfo();
         }
         catch (RetryableException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
-                    "failed to get connection info, node is unavailable, url:" + managementUrl, e);
+                    "failed to get connection info, node is unavailable, url:"
+                            + instanceInfo.getManagementUrl(),
+                    e);
         }
         catch (ScmFeignException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
@@ -103,14 +109,17 @@ public class OmMonitorDaoImpl implements OmMonitorDao {
     }
 
     @Override
-    public OmThreadInfo getThreadInfo(String managementUrl) throws ScmOmServerException {
-        OmMonitorFeignClient client = monitorClientFactory.getClient(managementUrl);
+    public OmThreadInfo getThreadInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException {
+        OmMonitorClient client = monitorClientFactory.getClient(instanceInfo, session);
         try {
             return client.getThreadInfo();
         }
         catch (RetryableException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
-                    "failed to get thread info, node is unavailable, url:" + managementUrl, e);
+                    "failed to get thread info, node is unavailable, url:"
+                            + instanceInfo.getManagementUrl(),
+                    e);
         }
         catch (ScmFeignException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
@@ -119,14 +128,17 @@ public class OmMonitorDaoImpl implements OmMonitorDao {
     }
 
     @Override
-    public OmProcessInfo getProcessInfo(String managementUrl) throws ScmOmServerException {
-        OmMonitorFeignClient client = monitorClientFactory.getClient(managementUrl);
+    public OmProcessInfo getProcessInfo(OmMonitorInstanceInfo instanceInfo, ScmOmSession session)
+            throws ScmOmServerException {
+        OmMonitorClient client = monitorClientFactory.getClient(instanceInfo, session);
         try {
             return client.getProcessInfo();
         }
         catch (RetryableException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
-                    "failed to get process info, node is unavailable, url:" + managementUrl, e);
+                    "failed to get process info, node is unavailable, url:"
+                            + instanceInfo.getManagementUrl(),
+                    e);
         }
         catch (ScmFeignException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
@@ -135,15 +147,18 @@ public class OmMonitorDaoImpl implements OmMonitorDao {
     }
 
     @Override
-    public Map<String, String> getConfigInfo(String managementUrl) throws ScmOmServerException {
-        OmMonitorFeignClient client = monitorClientFactory.getClient(managementUrl);
+    public Map<String, String> getConfigInfo(OmMonitorInstanceInfo instanceInfo,
+            ScmOmSession session) throws ScmOmServerException {
+        OmMonitorClient client = monitorClientFactory.getClient(instanceInfo, session);
         Map<?, ?> environmentInfo = null;
         try {
             environmentInfo = client.getEnvironmentInfo();
         }
         catch (RetryableException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
-                    "failed to get config info, node is unavailable, url:" + managementUrl, e);
+                    "failed to get config info, node is unavailable, url:"
+                            + instanceInfo.getManagementUrl(),
+                    e);
         }
         catch (ScmFeignException e) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,

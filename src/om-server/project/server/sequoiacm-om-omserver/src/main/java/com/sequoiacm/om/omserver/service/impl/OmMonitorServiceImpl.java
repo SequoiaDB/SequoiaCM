@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -61,6 +62,19 @@ public class OmMonitorServiceImpl implements OmMonitorService {
         refreshInstances();
         checkInstancesHealth();
         startTask();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (serviceCenterUrlsRefreshTimer != null) {
+            serviceCenterUrlsRefreshTimer.cancel();
+        }
+        if (instancesRefreshTimer != null) {
+            instancesRefreshTimer.cancel();
+        }
+        if (instancesHealthCheckTimer != null) {
+            instancesHealthCheckTimer.cancel();
+        }
     }
 
     private void startTask() {
@@ -195,29 +209,34 @@ public class OmMonitorServiceImpl implements OmMonitorService {
                 "instance is not exist:" + instanceId);
     }
 
-    public OmHeapInfo getHeapInfo(String instanceId) throws ScmOmServerException {
+    public OmHeapInfo getHeapInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException {
         OmMonitorInstanceInfo instanceInfo = checkAndGetInstance(instanceId);
-        return omMonitorDao.getHeapInfo(instanceInfo.getManagementUrl());
+        return omMonitorDao.getHeapInfo(instanceInfo, session);
     }
 
-    public OmConnectionInfo getConnectionInfo(String instanceId) throws ScmOmServerException {
+    public OmConnectionInfo getConnectionInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException {
         OmMonitorInstanceInfo instanceInfo = checkAndGetInstance(instanceId);
-        return omMonitorDao.getConnectionInfo(instanceInfo.getManagementUrl());
+        return omMonitorDao.getConnectionInfo(instanceInfo, session);
     }
 
-    public OmThreadInfo getThreadInfo(String instanceId) throws ScmOmServerException {
+    public OmThreadInfo getThreadInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException {
         OmMonitorInstanceInfo instanceInfo = checkAndGetInstance(instanceId);
-        return omMonitorDao.getThreadInfo(instanceInfo.getManagementUrl());
+        return omMonitorDao.getThreadInfo(instanceInfo, session);
     }
 
-    public OmProcessInfo getProcessInfo(String instanceId) throws ScmOmServerException {
+    public OmProcessInfo getProcessInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException {
         OmMonitorInstanceInfo instanceInfo = checkAndGetInstance(instanceId);
-        return omMonitorDao.getProcessInfo(instanceInfo.getManagementUrl());
+        return omMonitorDao.getProcessInfo(instanceInfo, session);
     }
 
-    public Map<String, String> getConfigInfo(String instanceId) throws ScmOmServerException {
+    public Map<String, String> getConfigInfo(String instanceId, ScmOmSession session)
+            throws ScmOmServerException {
         OmMonitorInstanceInfo instanceInfo = checkAndGetInstance(instanceId);
-        return omMonitorDao.getConfigInfo(instanceInfo.getManagementUrl());
+        return omMonitorDao.getConfigInfo(instanceInfo, session);
     }
 
     @Override

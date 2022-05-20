@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.Gson;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import com.alibaba.fastjson.JSONObject;
 import com.sequoiadb.infrastructure.map.CommonDefine;
 import com.sequoiadb.infrastructure.map.ScmMapError;
 import com.sequoiadb.infrastructure.map.ScmMapRuntimeException;
@@ -23,6 +23,7 @@ import com.sequoiadb.infrastructure.map.client.model.ScmMap;
 import com.sequoiadb.infrastructure.map.client.service.IMapClientService;
 
 class ScmMapImpl<K, V> implements ScmMap<K, V> {
+    private Gson gson = new Gson();
     private String mapName;
     private Class<?> keyType;
     private Class<?> valueType;
@@ -58,7 +59,7 @@ class ScmMapImpl<K, V> implements ScmMap<K, V> {
                 this.valueType = Class.forName(valueTypeStr);
             }
             catch (ClassNotFoundException e) {
-                new RuntimeException("map key or value type not found", e);
+                throw new RuntimeException("map key or value type not found", e);
             }
         }
     }
@@ -138,7 +139,7 @@ class ScmMapImpl<K, V> implements ScmMap<K, V> {
                 return (V) valueBson.get(CommonDefine.FieldName.VALUE);
             }
             BSONObject bson = (BSONObject) valueBson.get(CommonDefine.FieldName.VALUE);
-            return (V) JSONObject.parseObject(bson.toString(), valueType);
+            return (V) gson.fromJson(bson.toString(), valueType);
         }
         return null;
     }

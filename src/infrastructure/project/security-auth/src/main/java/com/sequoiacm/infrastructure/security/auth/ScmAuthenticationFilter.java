@@ -75,7 +75,9 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(
                             user, null, user.getAuthorities());
             authentication.eraseCredentials();
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UsernamePasswordAuthenticationToken newAuth = ScmAuthenticationHelper
+                    .newAuthWithActuatorRole(authentication);
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
         }else if(StringUtils.hasText(sessionId) && isLogoutReq) {
             sessionMgr.markSessionLogout(sessionId);
         }

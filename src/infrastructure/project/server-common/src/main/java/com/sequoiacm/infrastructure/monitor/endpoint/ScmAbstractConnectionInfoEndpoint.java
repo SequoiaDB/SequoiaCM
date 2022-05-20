@@ -16,7 +16,7 @@ public abstract class ScmAbstractConnectionInfoEndpoint implements Endpoint<ScmC
 
     @Override
     public boolean isSensitive() {
-        return false;
+        return true;
     }
 
     @Override

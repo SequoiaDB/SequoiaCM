@@ -1,0 +1,3 @@
+## 在 Actuator 的管理端口上注册该 Bean
+org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration=\
+com.sequoiacm.s3.controller.InternalActuatorController

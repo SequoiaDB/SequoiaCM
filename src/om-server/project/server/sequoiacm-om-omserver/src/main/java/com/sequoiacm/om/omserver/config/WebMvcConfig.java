@@ -46,7 +46,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addInterceptors(InterceptorRegistry registry) {
         super.addInterceptors(registry);
         registry.addInterceptor(authInterceptor).excludePathPatterns("/login", "/dock",
-                "/**/error");
+                "/internal/v1/health", "/**/error");
     }
 
     @Override

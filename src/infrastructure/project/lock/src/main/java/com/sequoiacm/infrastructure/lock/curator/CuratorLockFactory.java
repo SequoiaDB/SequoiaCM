@@ -1,9 +1,6 @@
 package com.sequoiacm.infrastructure.lock.curator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +19,16 @@ public class CuratorLockFactory implements LockFactory {
     private ScmTimer t;
 
     public CuratorLockFactory(String zkUrl) throws Exception {
+       this(zkUrl, new ZkAcl());
+    }
+
+    public CuratorLockFactory(String zkUrl, ZkAcl acl) throws Exception {
         // SEQUOIACM-485:enableContainer is false, zk server version below 3.5
         enableContainer = ZKCompaticify.enableContainer(zkUrl);
         try {
             logger.info("start init zookeeper client: zkUrl={}, enableContainer={}",
                     zkUrl, enableContainer);
-            this.client = CuratorLockTools.createClient(zkUrl, enableContainer);
+            this.client = CuratorLockTools.createClient(zkUrl, enableContainer, acl);
         }
         catch (Exception e) {
             logger.error(

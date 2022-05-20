@@ -190,7 +190,7 @@ public class MonitorServiceImpl implements IMonitorService {
         String status = MonitorDefine.DEFAULT_SCM_SERVICE_STATUS;
         try {
             MonitorServerClient fc = MonitorServerClientFactory.getFeignClientByNodeUrl(node);
-            HealthInfo h = fc.getHeahth();
+            HealthInfo h = fc.getHealth();
             status = h.getStatus();
         }
         catch (Exception e) {

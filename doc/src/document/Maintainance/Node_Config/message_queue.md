@@ -31,10 +31,12 @@ SequoiaCM 配置
 |scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
 |scm.mq.msgCleaner.period|num|消息清理周期（仅清理被当前所有消费组消费过的消息），默认值：300000（5min），单位：毫秒|
 |scm.mq.msgCleaner.msgCountThreshold|num|主题小，消息数量超过多少条时允许消息被清理，默认值：200000|
-
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 
 > **Note:**
 >
 > * 节点配置文件路径：\<message-queue-server安装目录\>/conf/mq-server/\<节点端口号\>/application.properties
 
 [public_config]:Maintainance/Node_Config/Readme.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md

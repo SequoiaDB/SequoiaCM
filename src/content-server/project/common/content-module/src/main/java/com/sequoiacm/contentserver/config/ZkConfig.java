@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.config;
 
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,6 +20,7 @@ public class ZkConfig {
     private long cleanJobResidualTime = CommonDefine.DefaultValue.ZK_CLEANJOB_RESIDUAL;
     private int clenaJobChildThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_CHILDNUM_THRESHOLD;
     private int clenaJobCountThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_COUNT_THRESHOLD;
+    private ZkAcl acl = new ZkAcl();
 
     public long getCleanJobPeriod() {
         return cleanJobPeriod;
@@ -106,5 +108,13 @@ public class ZkConfig {
             return;
         }
         this.clenaJobCountThreshold = clenaJobCountThreshold;
+    }
+
+    public ZkAcl getAcl() {
+        return acl;
+    }
+
+    public void setAcl(ZkAcl acl) {
+        this.acl = acl;
     }
 }

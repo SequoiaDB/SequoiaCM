@@ -72,7 +72,7 @@ public class RestTools {
         Exception lastException = null;
         while (true) {
             try {
-                checkEurekaCache("http://" + url + "/health",
+                checkEurekaCache("http://" + url + "/internal/v1/health",
                         Arrays.asList(eurekaClientCacheServices));
                 break;
             }

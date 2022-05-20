@@ -1,7 +1,7 @@
 package com.sequoiacm.daemon.lock;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
 import com.sequoiacm.daemon.element.ScmNodeInfo;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScmFileResource {
+    private Gson gson = new Gson();
     private RandomAccessFile raf;
     private FileChannel channel;
     private File file;
@@ -91,8 +92,13 @@ public class ScmFileResource {
             }
 
             String jsonList = sb.toString();
-            return jsonList.length() == 0 ? new ArrayList<ScmNodeInfo>()
-                    : JSONObject.parseArray(jsonList, ScmNodeInfo.class);
+            if (jsonList.length() == 0) {
+                return new ArrayList<>();
+            }
+            else {
+                return gson.fromJson(jsonList, new TypeToken<ArrayList<ScmNodeInfo>>() {
+                }.getType());
+            }
         }
         catch (Exception e) {
             throw new ScmToolsException(
@@ -108,7 +114,7 @@ public class ScmFileResource {
         try {
             // 备份监控表
             backUpFile();
-            String json = JSON.toJSONString(nodeList);
+            String json = gson.toJson(nodeList);
             // 清空监控表的内容
             raf.setLength(0);
             ByteBuffer buffer = ByteBuffer.allocate(1024);

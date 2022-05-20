@@ -34,9 +34,9 @@ public class ScmStartToolImpl extends ScmTool {
     private Options options;
     private ScmNodeTypeList nodeTypes;
     private RestTemplate restTemplate;
-    private String healthEndpoint;
+    private List<String> healthEndpoints;
 
-    public ScmStartToolImpl(ScmNodeTypeList nodeTypes, String healthEndpoint)
+    public ScmStartToolImpl(ScmNodeTypeList nodeTypes, String... healthEndpoints)
             throws ScmToolsException {
         super("start");
         this.nodeTypes = nodeTypes;
@@ -57,11 +57,11 @@ public class ScmStartToolImpl extends ScmTool {
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(5000);
         restTemplate = new RestTemplate(factory);
-        this.healthEndpoint = healthEndpoint;
+        this.healthEndpoints = Arrays.asList(healthEndpoints);
     }
 
     public ScmStartToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        this(nodeTypes, "health");
+        this(nodeTypes, "internal/v1/health", "/health");
     }
 
     @Override
@@ -253,14 +253,22 @@ public class ScmStartToolImpl extends ScmTool {
 
     protected String getNodeRunningStatus(int port, RestTemplate restTemplate) {
         // return "OK";
-        try {
-            Map<?, ?> resp = restTemplate
-                    .getForObject("http://localhost:" + port + "/" + healthEndpoint, Map.class);
-            return resp.get("status").toString().trim();
+        Map<String,String> exceptionMsgMap = null;
+        for (String healthEndpoint : healthEndpoints) {
+            try {
+                Map<?, ?> resp = restTemplate
+                        .getForObject("http://localhost:" + port + "/" + healthEndpoint, Map.class);
+                return resp.get("status").toString().trim();
+            }
+            catch (Exception e) {
+                if (exceptionMsgMap == null) {
+                    exceptionMsgMap = new HashMap<>();
+                }
+                String msg = e.getMessage() + " " + Arrays.toString(e.getStackTrace());
+                exceptionMsgMap.put(healthEndpoint, msg);
+            }
         }
-        catch (Exception e) {
-            return e.getMessage() + " " + Arrays.toString(e.getStackTrace());
-        }
+        return exceptionMsgMap.toString();
     }
 
     @Override

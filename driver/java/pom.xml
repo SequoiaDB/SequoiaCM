@@ -41,8 +41,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -107,7 +107,7 @@
                                 <include>org.apache.httpcomponents:httpmime</include>
                                 <include>org.apache.httpcomponents:httpclient</include>
                                 <include>org.apache.httpcomponents:httpcore</include>
-                                <include>com.alibaba:fastjson</include>
+                                <include>com.google.code.gson:gson</include>
                                 <include>commons-codec:commons-codec</include>
                                 <include>commons-logging:commons-logging</include>
                                 <include>com.google.code.gson:gson</include>
@@ -130,8 +130,8 @@
                                     <result>com.sequoiacm.apache.commons.@1</result>
                                 </rule>
                                 <rule>
-                                    <pattern>com.alibaba.fastjson.**</pattern>
-                                    <result>com.sequoiacm.alibaba.fastjson.@1</result>
+                                    <pattern>com.google.gson.**</pattern>
+                                    <result>com.sequoiacm.google.gson.@1</result>
                                 </rule>
                                 <rule>
                                     <pattern>com.google.gson.**</pattern>

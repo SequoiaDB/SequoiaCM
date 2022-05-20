@@ -12,7 +12,7 @@ public interface MonitorServerClient {
 
     // ***************health***************//
     @GetMapping(value = "/health")
-    public HealthInfo getHeahth();
+    public HealthInfo getHealth();
 
     // ***************hostinfo****************//
     @GetMapping("/internal/v1/monitor_collector/host_info")

@@ -1,5 +1,6 @@
 package com.sequoiacm.config.framework.lock;
 
+import com.sequoiacm.infrastructure.common.ZkAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,6 +15,7 @@ public class LockConfig {
     private long cleanJobResidualTime = 180L * 1000L;
     private int clenaJobChildThreshold = 1000;
     private int clenaJobCountThreshold = 12 * 60;
+    private ZkAcl acl = new ZkAcl();
 
     public String getUrls() {
         return urls;
@@ -77,4 +79,11 @@ public class LockConfig {
         this.clenaJobCountThreshold = clenaJobCountThreshold;
     }
 
+    public ZkAcl getAcl() {
+        return acl;
+    }
+
+    public void setAcl(ZkAcl acl) {
+        this.acl = acl;
+    }
 }

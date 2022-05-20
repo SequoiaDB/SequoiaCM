@@ -29,9 +29,12 @@ SequoiaCM 配置
 |scm.zookeeper.urls|str|配置服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
 |scm.zookeeper.cleanJobPeriod|num|配置服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
 |scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
+|scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
+|scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 
 > **Note:**
 >
 > * 节点配置文件路径：\<config-server安装目录\>/conf/config-server/\<节点端口号\>/application.properties
 
 [public_config]:Maintainance/Node_Config/Readme.md
+[zookeeper_sercurity]:Maintainance/Security/Security_Config/zookeeper.md
