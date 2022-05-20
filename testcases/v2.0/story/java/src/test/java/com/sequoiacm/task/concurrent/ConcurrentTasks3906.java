@@ -96,10 +96,16 @@ public class ConcurrentTasks3906 extends TestScmBase {
         // 校验文件元数据
         Assert.assertEquals( cleanTask.taskInfo.getSuccessCount(), 1,
                 cleanTask.taskInfo.toString() );
-        Assert.assertEquals( transTask.taskInfo.getSuccessCount(), 1,
-                transTask.taskInfo.toString() );
-        SiteWrapper[] expSite = { branchSite1, branchSite2 };
-        ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
+        if ( transTask.taskInfo.getSuccessCount() == 1 ) {
+            SiteWrapper[] expSite = { branchSite1, branchSite2 };
+            ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
+        } else if ( transTask.taskInfo.getSuccessCount() == 0 ) {
+            SiteWrapper[] expSite = { branchSite1 };
+            ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
+        } else {
+            Assert.fail( "task successCount must equals '0' or '-1', taskInfo="
+                    + transTask.taskInfo.toString() );
+        }
         runSuccess = true;
     }
 
