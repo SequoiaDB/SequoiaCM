@@ -14,7 +14,7 @@ public class ScmUpdateConfPropsResultSet {
     private List<ScmUpdateConfPropsResult> failes = new ArrayList<>();
 
     public void addResult(ScmUpdateConfPropsResult result) {
-        if (result.getErrorMessage() != null) {
+        if (!result.isSuccess()) {
             failes.add(result);
         }
         else {

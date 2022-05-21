@@ -3,9 +3,12 @@ package com.sequoiacm.s3.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,19 +21,31 @@ import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.s3.core.Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.utils.RestUtils;
+import org.springframework.web.method.HandlerMethod;
 
 @ControllerAdvice
 public class RestExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
     private static final String ERROR_ATTRIBUTE = "X-S3-ERROR";
-
     @Autowired
     RestUtils restUtils;
 
-    @ExceptionHandler(S3ServerException.class)
-    @ResponseBody
-    public ResponseEntity s3ExceptionHandler(S3ServerException e, HttpServletRequest request,
-            HttpServletResponse response) {
+    private RestExceptionHandlerBase scmProxyExceptionHandler = new RestExceptionHandlerBase() {
+        @Override
+        protected ExceptionBody convertToExceptionBody(Exception srcException) {
+            if (srcException instanceof ScmServerException) {
+                ScmServerException scmServerException = (ScmServerException) srcException;
+                ExceptionBody body = new ExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR,
+                        scmServerException.getError().getErrorCode(),
+                        scmServerException.getError().getErrorDescription(),
+                        scmServerException.getMessage());
+                return body;
+            }
+            return null;
+        }
+    };
+
+    public ResponseEntity s3ServerException(S3ServerException e, HttpServletRequest request) {
         String msg = String.format("request=%s, errcode=%s, message=%s", request.getRequestURI(),
                 e.getError().getCode(), e.getMessage());
         logger.error(msg, e);
@@ -46,26 +61,23 @@ public class RestExceptionHandler {
         }
     }
 
-    @ExceptionHandler(ScmServerException.class)
-    public ResponseEntity<ExceptionBody> scmServerException(ScmServerException e,
-            HttpServletRequest request) {
-        String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
-        ExceptionBody body = new ExceptionBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                e.getError().getErrorCode(), e.getError().getErrorDescription(), e.getMessage());
-        String log = String.format("sessionId=%s, request=%s, errcode=%d, errcodeDesc=%s",
-                sessionId, request.getRequestURI(), body.getStatus(), body.getError());
-        logger.error(log, e);
-        return ResponseEntity.status(body.getHttpStatus()).body(body);
-    }
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity unexpectedExceptionHandler(Exception e, HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
+    public ResponseEntity exceptionHandle(Exception e, HttpServletRequest request,
+            HttpServletResponse response, HandlerMethod m) throws Exception {
+        S3Controller res = AnnotationUtils.findAnnotation(m.getBeanType(), S3Controller.class);
+        if (res == null) {
+            // 按 SCM 错误格式进行响应
+            return scmProxyExceptionHandler.serverExceptionHandler(e, request, response);
+        }
+        // 按 S3 错误格式进行响应
+        if (e instanceof S3ServerException) {
+            return s3ServerException((S3ServerException) e, request);
+        }
+
         String msg = String.format("request=%s", request.getRequestURI());
         logger.error(msg, e);
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
         Error exceptionBody = new Error(e, request.getRequestURI());
         if ("HEAD".equalsIgnoreCase(request.getMethod())) {
             String error = exceptionBody.toString();

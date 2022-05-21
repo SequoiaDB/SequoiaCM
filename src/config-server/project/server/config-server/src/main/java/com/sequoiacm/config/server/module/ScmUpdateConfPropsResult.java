@@ -10,17 +10,25 @@ public class ScmUpdateConfPropsResult {
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_MESSAGE)
     private String errorMessage;
 
+    private boolean isSuccess;
+
     public ScmUpdateConfPropsResult(String serviceName, String instance) {
         super();
         this.serviceName = serviceName;
         this.instanceUrl = instance;
+        this.isSuccess = true;
     }
 
-    public ScmUpdateConfPropsResult(String serviceName, String instance, String message) {
+    public ScmUpdateConfPropsResult(String serviceName, String instance, String errorMessage) {
         super();
         this.serviceName = serviceName;
         this.instanceUrl = instance;
-        this.errorMessage = message;
+        if (errorMessage == null) {
+            errorMessage = "unknown error";
+        }
+        this.errorMessage = errorMessage;
+
+        this.isSuccess = false;
     }
 
     public String getServiceName() {
@@ -51,6 +59,10 @@ public class ScmUpdateConfPropsResult {
     public String toString() {
         return "ScmUpdateConfPropsResult{" + "serviceName='" + serviceName + '\''
                 + ", instanceUrl='" + instanceUrl + '\'' + ", errorMessage='" + errorMessage + '\''
-                + '}';
+                + ", isSuccess=" + isSuccess + '}';
+    }
+
+    public boolean isSuccess() {
+        return isSuccess;
     }
 }

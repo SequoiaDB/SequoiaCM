@@ -53,7 +53,7 @@ import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.CommonUtil;
 import com.sequoiacm.s3.utils.RestUtils;
 
-@RestController
+@S3Controller
 public class ObjectController {
     private final Logger logger = LoggerFactory.getLogger(ObjectController.class);
 

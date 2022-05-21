@@ -1,8 +1,12 @@
 package com.sequoiacm.s3;
 
+import java.io.File;
 import java.util.Arrays;
+
+import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.contentmodule.EnableContentModule;
 import com.sequoiacm.contentserver.service.MetaSourceService;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.s3.common.S3CommonDefine;
@@ -13,6 +17,7 @@ import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.Banner;
@@ -42,6 +47,12 @@ public class SequoiacmS3Application implements ApplicationRunner {
     @Autowired
     PartDao partDao;
 
+    @Autowired
+    private ScmConfClient confClient;
+
+    @Value("${server.port}")
+    private int serverPort;
+
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SequoiacmS3Application.class);
         app.setBannerMode(Banner.Mode.OFF);
@@ -61,5 +72,9 @@ public class SequoiacmS3Application implements ApplicationRunner {
         idGeneratorDao.initIdGeneratorTable();
         uploadDao.initUploadMetaTable();
         partDao.initPartsTable();
+
+        String confRelativePath = ".." + File.separator + "conf" + File.separator + "s3-server"
+                + File.separator + serverPort + File.separator + "application.properties";
+        confClient.setConfFilePaht(confRelativePath);
     }
 }

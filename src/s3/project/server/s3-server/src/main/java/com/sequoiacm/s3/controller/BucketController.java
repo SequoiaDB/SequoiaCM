@@ -32,7 +32,7 @@ import com.sequoiacm.s3.model.ListBucketResult;
 import com.sequoiacm.s3.model.LocationConstraint;
 import com.sequoiacm.s3.service.BucketService;
 
-@RestController
+@S3Controller
 public class BucketController {
     private static final Logger logger = LoggerFactory.getLogger(BucketController.class);
 

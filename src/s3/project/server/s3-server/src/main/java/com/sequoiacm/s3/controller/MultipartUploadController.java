@@ -36,7 +36,7 @@ import java.util.Map;
 
 import static com.sequoiacm.s3.utils.DataFormatUtils.formatDate;
 
-@RestController
+@S3Controller
 public class MultipartUploadController {
     private final Logger logger = LoggerFactory.getLogger(MultipartUploadController.class);
 

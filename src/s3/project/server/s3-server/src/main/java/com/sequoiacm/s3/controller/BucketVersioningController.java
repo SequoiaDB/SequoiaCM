@@ -12,7 +12,7 @@ import com.sequoiacm.s3.common.VersioningStatusType;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 
-@RestController
+@S3Controller
 public class BucketVersioningController {
 
     @PutMapping(value = "/{bucketname:.+}", params = RestParamDefine.VERSIONING, produces = MediaType.APPLICATION_XML_VALUE)
