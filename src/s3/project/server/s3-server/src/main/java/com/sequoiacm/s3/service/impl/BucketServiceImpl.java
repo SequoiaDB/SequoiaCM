@@ -79,6 +79,10 @@ public class BucketServiceImpl implements BucketService {
                         "failed to create bucket, no such region. regionName=" + region
                                 + ", bucket=" + bucketName, e);
             }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not create the bucket. bucket name = " + bucketName, e);
+            }
             throw new S3ServerException(S3Error.BUCKET_CREATE_FAILED,
                     "failed to create bucket: bucketName=" + bucketName + ", region=" + region, e);
         }
@@ -99,6 +103,10 @@ public class BucketServiceImpl implements BucketService {
             if (e.getError() == ScmError.BUCKET_NOT_EMPTY) {
                 throw new S3ServerException(S3Error.BUCKET_NOT_EMPTY,
                         "The bucket you tried to delete is not empty. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = " + bucketName, e);
             }
             throw new S3ServerException(S3Error.BUCKET_DELETE_FAILED,
                     "Failed to delete bucket. bucket name = " + bucketName, e);
