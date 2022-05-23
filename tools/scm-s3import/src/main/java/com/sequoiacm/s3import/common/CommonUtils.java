@@ -4,21 +4,16 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.module.S3Bucket;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.channels.FileLock;
 import java.util.List;
 import java.util.Locale;
 
 public class CommonUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(CommonUtils.class);
 
     public static String readInputStream(InputStream is) throws IOException {
         StringBuilder content = new StringBuilder();
@@ -34,7 +29,7 @@ public class CommonUtils {
             return content.toString();
         }
         finally {
-            closeResource(isr, br);
+            ScmCommon.closeResource(isr, br);
         }
     }
 
@@ -90,20 +85,6 @@ public class CommonUtils {
         }
     }
 
-    public static void createDir(String dirPath) throws ScmToolsException {
-        File dir = new File(dirPath);
-        try {
-            if (dir.exists() && dir.isDirectory()) {
-                return;
-            }
-            FileUtils.forceMkdir(dir);
-        }
-        catch (IOException e) {
-            throw new ScmToolsException("Failed to create directory, path=" + dirPath,
-                    S3ImportExitCode.SYSTEM_ERROR);
-        }
-    }
-
     public static String getStandardFilePath(String filePath) {
         return filePath.endsWith(File.separator) ? filePath : filePath + File.separator;
     }
@@ -148,30 +129,6 @@ public class CommonUtils {
     public static void assertTrue(boolean f, String message) throws ScmToolsException {
         if (!f) {
             throw new ScmToolsException(message, S3ImportExitCode.INVALID_ARG);
-        }
-    }
-
-    public static void releaseLock(FileLock lock) {
-        if (lock != null) {
-            try {
-                lock.release();
-            }
-            catch (IOException e) {
-                logger.warn("Failed to release lock:{}", lock, e);
-            }
-        }
-    }
-
-    public static void closeResource(Closeable... closeables) {
-        for (Closeable c : closeables) {
-            if (c != null) {
-                try {
-                    c.close();
-                }
-                catch (Exception e) {
-                    logger.warn("Failed to close resource:{}", c, e);
-                }
-            }
         }
     }
 }

@@ -1,11 +1,8 @@
-package com.sequoiacm.s3import.fileoperation;
-
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.s3import.common.CommonUtils;
-import com.sequoiacm.s3import.exception.S3ImportExitCode;
+package com.sequoiacm.infrastructure.tool.fileoperation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -14,7 +11,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
-public class S3ImportFileResource {
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+
+public class ScmFileResource {
 
     private static final String ENCODE_TYPE = StandardCharsets.UTF_8.name();
     private static final int BUFFER_SIZE = 1024;
@@ -23,7 +24,7 @@ public class S3ImportFileResource {
     private FileChannel channel;
     private File file;
 
-    public S3ImportFileResource(File file) throws ScmToolsException {
+    public ScmFileResource(File file) throws ScmToolsException {
         try {
             this.file = file;
             this.raf = new RandomAccessFile(this.file, "rw");
@@ -31,11 +32,11 @@ public class S3ImportFileResource {
         }
         catch (FileNotFoundException e) {
             throw new ScmToolsException("Failed to find file,file:" + file.getAbsolutePath(),
-                    S3ImportExitCode.FILE_NOT_FIND, e);
+                    ScmBaseExitCode.FILE_NOT_FIND, e);
         }
         catch (Exception e) {
             throw new ScmToolsException("Failed init file resource,file:" + file.getAbsolutePath(),
-                    S3ImportExitCode.SYSTEM_ERROR, e);
+                    ScmBaseExitCode.SYSTEM_ERROR, e);
         }
     }
 
@@ -58,7 +59,7 @@ public class S3ImportFileResource {
             return sb.toString();
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to read file", S3ImportExitCode.SYSTEM_ERROR, e);
+            throw new ScmToolsException("Failed to read file", ScmBaseExitCode.SYSTEM_ERROR, e);
         }
     }
 
@@ -74,7 +75,7 @@ public class S3ImportFileResource {
             return new String(originalBytes, ENCODE_TYPE);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to read line", S3ImportExitCode.SYSTEM_ERROR, e);
+            throw new ScmToolsException("Failed to read line", ScmBaseExitCode.SYSTEM_ERROR, e);
         }
     }
 
@@ -109,16 +110,26 @@ public class S3ImportFileResource {
             channel.force(true);
         }
         catch (Exception e) {
-            throw new ScmToolsException("Failed to write file", S3ImportExitCode.SYSTEM_ERROR, e);
+            throw new ScmToolsException("Failed to write file", ScmBaseExitCode.SYSTEM_ERROR, e);
         }
     }
 
-    public S3ImportFileLock createLock() {
-        S3ImportFileLock lock = new S3ImportFileLock(channel);
+    public boolean isEof() throws ScmToolsException {
+        try {
+            return raf.getFilePointer() == file.length();
+        }
+        catch (IOException e) {
+            throw new ScmToolsException("Failed to get file pointer", ScmBaseExitCode.SYSTEM_ERROR,
+                    e);
+        }
+    }
+
+    public ScmFileLock createLock() {
+        ScmFileLock lock = new ScmFileLock(channel);
         return lock;
     }
 
     public void release() {
-        CommonUtils.closeResource(channel, raf);
+        ScmCommon.closeResource(channel, raf);
     }
 }

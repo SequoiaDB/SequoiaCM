@@ -11,6 +11,7 @@ public abstract class Progress {
     protected long totalCount;
     protected AtomicLong successCount = new AtomicLong(0);
     protected AtomicLong failureCount = new AtomicLong(0);
+    protected AtomicLong processCount = new AtomicLong(0);
 
     public static final String STATUS = "status";
     public static final String TOTAL_COUNT = "total_count";
@@ -33,14 +34,17 @@ public abstract class Progress {
 
     public void success() {
         successCount.incrementAndGet();
+        processCount.incrementAndGet();
     }
 
     public void success(String type) {
         successCount.incrementAndGet();
+        processCount.incrementAndGet();
     }
 
     public void failed() {
         failureCount.incrementAndGet();
+        processCount.incrementAndGet();
     }
 
     public String getStatus() {

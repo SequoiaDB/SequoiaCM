@@ -57,7 +57,7 @@ public class ImportPathConfig {
         this.logPath = workPath + "log" + File.separator;
         this.errorPath = workPath + "error" + File.separator;
         this.compareResultPath = workPath + "compare_result" + File.separator;
-        CommonUtils.createDir(this.workConfPath);
+        ScmCommon.createDir(this.workConfPath);
     }
 
     public String getConfPath() {
@@ -78,6 +78,10 @@ public class ImportPathConfig {
         // bucketName_destBucketName_error_key_list
         return errorPath + s3Bucket.getName() + "_" + s3Bucket.getDestName()
                 + "_error_key_list";
+    }
+
+    public String getWorkPath() {
+        return workPath;
     }
 
     public String getWorkEnvFilePath() {

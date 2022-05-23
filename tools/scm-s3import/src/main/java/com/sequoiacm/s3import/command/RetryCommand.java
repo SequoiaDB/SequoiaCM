@@ -1,13 +1,13 @@
 package com.sequoiacm.s3import.command;
 
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.common.*;
 import com.sequoiacm.s3import.config.ImportPathConfig;
 import com.sequoiacm.s3import.config.ImportToolProps;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.factory.S3ImportBatchFactory;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.S3Bucket;
 import com.sequoiacm.s3import.module.S3ImportBatch;
 import com.sequoiacm.s3import.module.S3ImportOptions;
@@ -60,7 +60,7 @@ public class RetryCommand extends SubCommand {
             File errorKeyFile = new File(pathConfig.getErrorKeyFilePath(s3Bucket));
             Queue<String> errorKeyList = new LinkedList<>();
             if (errorKeyFile.exists() && errorKeyFile.isFile()) {
-                S3ImportFileResource fileResource = S3ImportResourceFactory.getInstance()
+                ScmFileResource fileResource = ScmResourceFactory.getInstance()
                         .createFileResource(errorKeyFile);
                 String key;
                 while ((key = fileResource.readLine()) != null) {

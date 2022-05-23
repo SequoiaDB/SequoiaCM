@@ -51,6 +51,6 @@ public class MigrateProgress extends Progress {
     @Override
     public String toString() {
         return new StringBuilder().append("success:").append(successCount).append(", fail:")
-                .append(failureCount).toString();
+                .append(failureCount).append(", process:").append(processCount).toString();
     }
 }

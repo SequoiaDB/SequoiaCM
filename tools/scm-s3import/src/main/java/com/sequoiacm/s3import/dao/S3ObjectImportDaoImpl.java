@@ -2,10 +2,10 @@ package com.sequoiacm.s3import.dao;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3import.client.ScmS3Client;
 import com.sequoiacm.s3import.common.CommonDefine;
-import com.sequoiacm.s3import.common.CommonUtils;
 import com.sequoiacm.s3import.common.S3Utils;
 import com.sequoiacm.s3import.config.S3ClientManager;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
@@ -78,7 +78,7 @@ public class S3ObjectImportDaoImpl implements S3ObjectImportDao {
                         S3Utils.putObject(destClient, destBucket, srcObject);
                     }
                     finally {
-                        CommonUtils.closeResource(srcObject);
+                        ScmCommon.closeResource(srcObject);
                     }
                 }
             }
@@ -92,7 +92,7 @@ public class S3ObjectImportDaoImpl implements S3ObjectImportDao {
                 S3Utils.putObject(destClient, destBucket, srcObject);
             }
             finally {
-                CommonUtils.closeResource(srcObject);
+                ScmCommon.closeResource(srcObject);
             }
         }
         logger.info("Migrate object success, bucket={}, destBucket={}, key={}",

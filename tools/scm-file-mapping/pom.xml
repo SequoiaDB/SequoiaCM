@@ -2,42 +2,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>sequoiacm-s3import</artifactId>
-    <name>SequoiaCM S3Import</name>
-
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-parent</artifactId>
         <version>3.1.3</version>
         <relativePath>../../src/pom.xml</relativePath>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sequoiacm-file-mapping</artifactId>
+    <name>SequoiaCM File Mapping</name>
+
     <properties>
         <packageType>dev</packageType>
         <commons-cli.version>1.4</commons-cli.version>
-        <reflections.version>0.9.11</reflections.version>
-        <amazonaws.version>1.11.343</amazonaws.version>
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-classic.version>1.2.9</logback-classic.version>
         <sequoiadb.driver.version>3.2</sequoiadb.driver.version>
         <commons-io.version>2.6</commons-io.version>
+        <commons-logging.version>1.2</commons-logging.version>
         <gson.version>2.8.4</gson.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiadb-driver</artifactId>
@@ -45,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>com.sequoiadb</groupId>
-            <artifactId>sequoiacm-infrastructure-crypto</artifactId>
+            <artifactId>sequoiacm-driver</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -59,14 +46,9 @@
             <version>${commons-cli.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${amazonaws.version}</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -1,12 +1,13 @@
 package com.sequoiacm.s3import.common;
 
 import com.google.gson.JsonArray;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.command.SubCommand;
 import com.sequoiacm.s3import.config.ImportPathConfig;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.CompareResult;
 import com.sequoiacm.s3import.module.S3Bucket;
 import org.apache.commons.io.FileUtils;
@@ -20,7 +21,7 @@ import java.util.Queue;
 public class FileOperateUtils {
 
     public static void copyLogXml2WorkPath(File logConfFile) throws ScmToolsException {
-        S3ImportFileResource fileResource = S3ImportResourceFactory.getInstance()
+        ScmFileResource fileResource = ScmResourceFactory.getInstance()
                 .createFileResource(logConfFile);
         InputStream is = null;
         try {
@@ -39,7 +40,7 @@ public class FileOperateUtils {
                     S3ImportExitCode.SYSTEM_ERROR, e);
         }
         finally {
-            CommonUtils.closeResource(is);
+            ScmCommon.closeResource(is);
             fileResource.release();
         }
     }
@@ -47,7 +48,7 @@ public class FileOperateUtils {
     public static void updateProgress(String progressFilePath, List<S3Bucket> bucketList)
             throws ScmToolsException {
         File progressFile = new File(progressFilePath);
-        S3ImportFileResource resource = S3ImportResourceFactory.getInstance()
+        ScmFileResource resource = ScmResourceFactory.getInstance()
                 .createFileResource(progressFile);
         try {
             JsonArray progresses = new JsonArray();
@@ -86,7 +87,7 @@ public class FileOperateUtils {
         }
 
         File file = new File(ImportPathConfig.getInstance().getErrorKeyFilePath(s3Bucket));
-        S3ImportFileResource resource = S3ImportResourceFactory.getInstance()
+        ScmFileResource resource = ScmResourceFactory.getInstance()
                 .createFileResource(file);
         try {
             resource.writeFile(sb.toString(), isAppend);
@@ -118,7 +119,7 @@ public class FileOperateUtils {
         String resultPath = resultDirPath + File.separator + s3Bucket.getName() + "_"
                 + s3Bucket.getDestName();
         File file = new File(resultPath);
-        S3ImportFileResource resource = S3ImportResourceFactory.getInstance()
+        ScmFileResource resource = ScmResourceFactory.getInstance()
                 .createFileResource(file);
         try {
             resource.writeFile(sb.toString(), isAppend);

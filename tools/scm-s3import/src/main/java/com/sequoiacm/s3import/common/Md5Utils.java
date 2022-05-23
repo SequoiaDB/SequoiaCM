@@ -1,5 +1,6 @@
 package com.sequoiacm.s3import.common;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import org.apache.commons.codec.binary.Hex;
@@ -27,7 +28,7 @@ public class Md5Utils {
             throw new ScmToolsException("Failed to read stream", S3ImportExitCode.SYSTEM_ERROR, e);
         }
         finally {
-            CommonUtils.closeResource(inputStream);
+            ScmCommon.closeResource(inputStream);
         }
     }
 

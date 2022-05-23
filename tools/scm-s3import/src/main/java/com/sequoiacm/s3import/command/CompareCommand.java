@@ -5,14 +5,15 @@ import com.amazonaws.services.s3.model.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.common.*;
 import com.sequoiacm.s3import.config.ImportPathConfig;
 import com.sequoiacm.s3import.config.ImportToolProps;
 import com.sequoiacm.s3import.config.S3ClientManager;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.*;
 import com.sequoiacm.s3import.progress.CompareProgress;
 import org.apache.commons.cli.CommandLine;
@@ -74,7 +75,7 @@ public class CompareCommand extends SubCommand {
         }
 
         List<S3Bucket> checkS3BucketList = new ArrayList<>();
-        S3ImportFileResource fileResource = S3ImportResourceFactory.getInstance()
+        ScmFileResource fileResource = ScmResourceFactory.getInstance()
                 .createFileResource(progressFile);
         try {
             JsonArray progresses = new JsonParser().parse(fileResource.readFile()).getAsJsonArray();
@@ -119,7 +120,7 @@ public class CompareCommand extends SubCommand {
         ImportPathConfig pathConfig = ImportPathConfig.getInstance();
         String compareResultPath = pathConfig.getCompareResultPath();
         String progressFilePath = pathConfig.getCompareProgressFilePath();
-        CommonUtils.createDir(compareResultPath);
+        ScmCommon.createDir(compareResultPath);
         System.out.println("executing data comparison, result output path: " + compareResultPath);
         logger.info("executing data comparison, result output path: {}", compareResultPath);
 
@@ -227,7 +228,7 @@ public class CompareCommand extends SubCommand {
                                 progress.success(result.getDiffType());
                             }
                             catch (Exception e) {
-                                logger.error("Compare failed, cause by:", e);
+                                logger.error("Failed to get the comparison result", e);
                                 hasAbortTask = true;
                             }
                         }
@@ -330,7 +331,7 @@ class CompareTask implements Callable<CompareResult> {
                         }
                     }
                     finally {
-                        CommonUtils.closeResource(srcObject, destObject);
+                        ScmCommon.closeResource(srcObject, destObject);
                     }
                 }
                 else {
@@ -374,7 +375,7 @@ class CompareTask implements Callable<CompareResult> {
                     }
                 }
                 finally {
-                    CommonUtils.closeResource(srcObject, destObject);
+                    ScmCommon.closeResource(srcObject, destObject);
                 }
             }
 

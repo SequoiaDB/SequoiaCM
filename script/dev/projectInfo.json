@@ -106,6 +106,18 @@
 			}]
 		},
 		{
+			"name": "tools",
+			"type": "new_dir",
+			"childs": [{
+				"type": "copy",
+				"src": "../../tools/scm-file-mapping/target/sequoiacm-file-mapping"
+			},
+			{
+				"type": "copy",
+				"src": "../../tools/scm-s3import/target/sequoiacm-s3import"
+			}]
+		},
+		{
 			"type": "copy",
 			"src": "../../script/deploy/sequoiacm/scm.py"
 		},

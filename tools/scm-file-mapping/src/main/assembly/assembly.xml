@@ -3,12 +3,12 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
-    <id>s3import</id>
+    <id>file-mapping</id>
     <formats>
         <format>dir</format>
     </formats>
-
     <includeBaseDirectory>false</includeBaseDirectory>
+
     <fileSets>
         <fileSet>
             <directory>${project.basedir}</directory>
@@ -17,15 +17,9 @@
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
-        <!-- copy s3import.sh -->
         <fileSet>
             <directory>${project.basedir}/bin</directory>
             <outputDirectory>bin</outputDirectory>
-        </fileSet>
-        <!-- copy config file -->
-        <fileSet>
-            <directory>${project.basedir}/script</directory>
-            <outputDirectory>conf</outputDirectory>
         </fileSet>
     </fileSets>
 
@@ -34,7 +28,7 @@
             <useProjectArtifact>true</useProjectArtifact>
             <outputDirectory>jars/</outputDirectory>
             <includes>
-                <include>com.sequoiadb:sequoiacm-s3import</include>
+                <include>com.sequoiadb:sequoiacm-file-mapping</include>
             </includes>
         </dependencySet>
     </dependencySets>

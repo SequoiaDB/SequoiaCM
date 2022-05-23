@@ -2,12 +2,12 @@ package com.sequoiacm.s3import.module;
 
 import com.google.gson.JsonObject;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
 import com.sequoiacm.s3import.command.CompareCommand;
 import com.sequoiacm.s3import.command.MigrateCommand;
 import com.sequoiacm.s3import.command.RetryCommand;
 import com.sequoiacm.s3import.command.SyncCommand;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
 import com.sequoiacm.s3import.progress.*;
 
 import java.util.*;
@@ -20,7 +20,7 @@ public class S3Bucket implements Comparable<S3Bucket> {
     private boolean isEnableVersionControl;
     private Queue<String> errorKeyList;
     private String compareResultFilePath;
-    private S3ImportFileResource resultFileResource;
+    private ScmFileResource resultFileResource;
 
     public S3Bucket(String name, String destName, String commandType) throws ScmToolsException {
         this.name = name;
@@ -106,11 +106,11 @@ public class S3Bucket implements Comparable<S3Bucket> {
         this.compareResultFilePath = compareResultFilePath;
     }
 
-    public S3ImportFileResource getResultFileResource() {
+    public ScmFileResource getResultFileResource() {
         return resultFileResource;
     }
 
-    public void setResultFileResource(S3ImportFileResource resultFileResource) {
+    public void setResultFileResource(ScmFileResource resultFileResource) {
         this.resultFileResource = resultFileResource;
     }
 

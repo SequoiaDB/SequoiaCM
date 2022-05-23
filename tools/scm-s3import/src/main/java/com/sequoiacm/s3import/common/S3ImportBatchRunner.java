@@ -38,7 +38,7 @@ public class S3ImportBatchRunner {
                 future.get();
             }
             catch (Exception e) {
-                logger.error("Run task failed, cause by:", e);
+                logger.error("Failed to get task result", e);
                 batch.setHasAbortedTask(true);
             }
         }

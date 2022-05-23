@@ -2,6 +2,7 @@ package com.sequoiacm.s3import.config;
 
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3import.common.CommonUtils;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
@@ -64,7 +65,7 @@ public class ImportToolProps {
                         S3ImportExitCode.INVALID_ARG, e);
             }
             finally {
-                CommonUtils.closeResource(is);
+                ScmCommon.closeResource(is);
             }
         }
 

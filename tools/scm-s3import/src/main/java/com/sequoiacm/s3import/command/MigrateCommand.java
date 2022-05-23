@@ -4,13 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.common.*;
 import com.sequoiacm.s3import.config.ImportPathConfig;
 import com.sequoiacm.s3import.config.ImportToolProps;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.factory.S3ImportBatchFactory;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.S3Bucket;
 import com.sequoiacm.s3import.module.S3ImportBatch;
 import com.sequoiacm.s3import.module.S3ImportOptions;
@@ -68,7 +68,7 @@ public class MigrateCommand extends SubCommand {
         }
 
         List<S3Bucket> checkS3BucketList = new ArrayList<>();
-        S3ImportFileResource fileResource = S3ImportResourceFactory.getInstance()
+        ScmFileResource fileResource = ScmResourceFactory.getInstance()
                 .createFileResource(progressFile);
         try {
             JsonArray progresses = new JsonParser().parse(fileResource.readFile()).getAsJsonArray();

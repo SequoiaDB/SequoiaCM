@@ -2,6 +2,8 @@ package com.sequoiacm.s3import.factory;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.common.CommonDefine;
 import com.sequoiacm.s3import.common.ListContext;
 import com.sequoiacm.s3import.common.S3Utils;
@@ -9,8 +11,6 @@ import com.sequoiacm.s3import.config.ImportToolProps;
 import com.sequoiacm.s3import.config.S3ClientManager;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.module.S3ImportBatch;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.*;
 import com.sequoiacm.s3import.progress.MigrateProgress;
 import com.sequoiacm.s3import.task.*;
@@ -82,10 +82,10 @@ public class S3ImportBatchFactory {
     }
 
     public S3ImportBatch getNextBatchByCmpResult(S3Bucket s3Bucket) throws ScmToolsException {
-        S3ImportFileResource fileResource = s3Bucket.getResultFileResource();
+        ScmFileResource fileResource = s3Bucket.getResultFileResource();
         if (fileResource == null) {
             File compareResultFile = new File(s3Bucket.getCompareResultFilePath());
-            fileResource = S3ImportResourceFactory.getInstance()
+            fileResource = ScmResourceFactory.getInstance()
                     .createFileResource(compareResultFile);
             s3Bucket.setResultFileResource(fileResource);
         }

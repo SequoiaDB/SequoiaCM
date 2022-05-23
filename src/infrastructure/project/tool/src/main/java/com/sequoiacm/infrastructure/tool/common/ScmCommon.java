@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.tool.common;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -361,6 +362,19 @@ public class ScmCommon {
             logger.error("Could not determine the existence of file:" + filePath, e);
             throw new ScmToolsException("Could not determine the existence of file:" + filePath,
                     ScmBaseExitCode.PERMISSION_ERROR);
+        }
+    }
+
+    public static void closeResource(Closeable... closeables) {
+        for (Closeable c : closeables) {
+            if (c != null) {
+                try {
+                    c.close();
+                }
+                catch (Exception e) {
+                    logger.warn("Failed to close resource:{}", c, e);
+                }
+            }
         }
     }
 

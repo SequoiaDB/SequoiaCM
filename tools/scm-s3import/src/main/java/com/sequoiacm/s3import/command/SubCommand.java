@@ -1,25 +1,30 @@
 package com.sequoiacm.s3import.command;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileLock;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmFileResource;
+import com.sequoiacm.infrastructure.tool.fileoperation.ScmResourceFactory;
 import com.sequoiacm.s3import.common.*;
 import com.sequoiacm.s3import.config.ImportPathConfig;
 import com.sequoiacm.s3import.config.ImportToolProps;
 import com.sequoiacm.s3import.config.S3ClientManager;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileLock;
-import com.sequoiacm.s3import.fileoperation.S3ImportFileResource;
-import com.sequoiacm.s3import.fileoperation.S3ImportResourceFactory;
 import com.sequoiacm.s3import.module.S3Bucket;
 import com.sequoiacm.s3import.module.S3ImportOptions;
 import com.sequoiacm.s3import.module.WorkEnv;
 import org.apache.commons.cli.*;
 import org.apache.commons.codec.binary.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
 
 public abstract class SubCommand {
+
+    private static final Logger logger = LoggerFactory.getLogger(SubCommand.class);
 
     public abstract String getName();
 
@@ -43,14 +48,18 @@ public abstract class SubCommand {
         }
 
         File workEnvFile = new File(pathConfig.getWorkEnvFilePath());
-        S3ImportFileResource resource = S3ImportResourceFactory.getInstance()
+        ScmFileResource resource = ScmResourceFactory.getInstance()
                 .createFileResource(workEnvFile);
-        S3ImportFileLock lock = resource.createLock();
-        if (!lock.tryLock()) {
-            throw new ScmToolsException("The working path is being used by another process",
-                    S3ImportExitCode.WORK_PATH_CONFLICT);
-        }
+        ScmFileLock lock = null;
         try {
+            lock = resource.createLock();
+            if (!lock.tryLock()) {
+                throw new ScmToolsException("Failed to lock file " + workEnvFile.getName()
+                        + ", The working path may be in use by another process, work path="
+                        + pathConfig.getWorkPath()
+                        + ". Please check the usage status of the current working path, or change to another path.",
+                        S3ImportExitCode.WORK_PATH_CONFLICT);
+            }
             changeLogOutputFile(pathConfig);
             InitWorkEnv(resource);
             checkAndInitBucketConf(importOptions.getBucketList());
@@ -68,13 +77,14 @@ public abstract class SubCommand {
                     printer.join();
                 }
                 catch (InterruptedException e) {
-                    throw new ScmToolsException("Failed to join print thread",
-                            S3ImportExitCode.SYSTEM_ERROR);
+                    logger.warn("Progress printing may be incomplete", e);
                 }
             }
         }
         finally {
-            lock.unlock();
+            if (lock != null) {
+                lock.unlock();
+            }
             resource.release();
         }
     }
@@ -145,11 +155,11 @@ public abstract class SubCommand {
                     S3ImportExitCode.FILE_NOT_FIND, e);
         }
         finally {
-            CommonUtils.closeResource(is);
+            ScmCommon.closeResource(is);
         }
     }
 
-    private void InitWorkEnv(S3ImportFileResource fileResource) throws ScmToolsException {
+    private void InitWorkEnv(ScmFileResource fileResource) throws ScmToolsException {
         ImportToolProps toolProps = ImportToolProps.getInstance();
         WorkEnv lastWorkEnv = CommonUtils.parseJsonStr(fileResource.readFile(), WorkEnv.class);
         WorkEnv currentWorkEnv = new WorkEnv(toolProps.getSrcS3().getUrl(),
