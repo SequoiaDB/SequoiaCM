@@ -1,7 +1,8 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.sequoiacm.infrastructure.config.ApplicationPropertyInjection,\
 com.sequoiacm.infrastructure.monitor.OmMonitorAutoConfig,\
-com.sequoiacm.infrastructure.controller.InternalActuatorController
+com.sequoiacm.infrastructure.controller.InternalActuatorController,\
+com.sequoiacm.infrastructure.common.OutStreamFlushQueue
 
 
 org.springframework.context.ApplicationListener=\

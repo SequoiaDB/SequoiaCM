@@ -11,6 +11,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.common.OutStreamFlushQueue;
 import com.sequoiacm.s3.model.DeleteObjectResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import com.sequoiacm.s3.authoriztion.ScmSession;
 import com.sequoiacm.s3.common.RestParamDefine;
 import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.core.CopyObjectRequest;
-import com.sequoiacm.s3.core.OutStreamFlushQueue;
 import com.sequoiacm.s3.core.Range;
 import com.sequoiacm.s3.core.S3InputStreamReaderChunk;
 import com.sequoiacm.s3.core.S3ObjectMeta;
