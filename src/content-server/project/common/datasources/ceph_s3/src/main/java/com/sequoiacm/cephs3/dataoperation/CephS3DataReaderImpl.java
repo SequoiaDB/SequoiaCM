@@ -1,5 +1,6 @@
 package com.sequoiacm.cephs3.dataoperation;
 
+import com.sequoiacm.datasource.common.ScmInputStreamDataReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +19,9 @@ public class CephS3DataReaderImpl implements ScmDataReader {
     private String key;
     private String bucketName;
     private CephS3DataService dataService;
-    private S3ObjectInputStream objIs;
-    private boolean isEof;
+    private ScmInputStreamDataReader inputStreamDataReader;
     private long size;
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataReaderImpl.class);
-    private long currentPosition = 0;
     private S3Object obj;
 
     public CephS3DataReaderImpl(String bucketName, String key, ScmService service)
@@ -59,7 +58,7 @@ public class CephS3DataReaderImpl implements ScmDataReader {
                         "object not exist: bucket=" + bucketName + ", key=" + key);
             }
             this.size = obj.getObjectMetadata().getContentLength();
-            this.objIs = obj.getObjectContent();
+            this.inputStreamDataReader = new ScmInputStreamDataReader(obj.getObjectContent());
         }
         catch (Exception e) {
             close();
@@ -76,12 +75,7 @@ public class CephS3DataReaderImpl implements ScmDataReader {
     @Override
     public int read(byte[] buff, int offset, int len) throws CephS3Exception {
         try {
-            int readLen = objIs.read(buff, offset, len);
-            if (readLen == -1) {
-                this.isEof = true;
-            }
-            currentPosition += readLen;
-            return readLen;
+            return inputStreamDataReader.read(buff, offset, len);
         }
         catch (Exception e) {
             logger.error("failed to read data:bucketName=" + bucketName + ",key=" + key);
@@ -92,36 +86,8 @@ public class CephS3DataReaderImpl implements ScmDataReader {
 
     @Override
     public void seek(long size) throws CephS3Exception {
-        if (size < currentPosition) {
-            throw new CephS3Exception("can not seek back,currentPosition=" + currentPosition
-                    + ",seekSize=" + size + ",bucketName=" + bucketName + ",key=" + key);
-        }
-        else if (size == currentPosition) {
-            return;
-        }
         try {
-            long actualSize = objIs.skip(size - currentPosition);
-
-            if (actualSize == size - currentPosition) {
-                currentPosition += actualSize;
-            }
-            else if (actualSize < size - currentPosition) {
-                logger.debug("S3ObjectInputStream skip " + actualSize + "bytes,expect skip "
-                        + (size - currentPosition) + " bytes,currentPosition=" + currentPosition
-                        + ",seekSize=" + size + ",bucketName=" + bucketName + ",key=" + key
-                        + ",do seek again now");
-                currentPosition += actualSize;
-                seek(size);
-            }
-            else {
-                throw new CephS3Exception("seek failed,expect skip " + (size - currentPosition)
-                        + " bytes,actual skip " + actualSize + " bytes,bucketName=" + bucketName
-                        + ",key=" + key);
-            }
-        }
-        catch (CephS3Exception e) {
-            logger.error("seek data failed:bucketName=" + bucketName + ",key=" + key);
-            throw e;
+            inputStreamDataReader.seek(size);
         }
         catch (Exception e) {
             logger.error("seek data failed:bucketName=" + bucketName + ",key=" + key);
@@ -132,7 +98,7 @@ public class CephS3DataReaderImpl implements ScmDataReader {
 
     @Override
     public boolean isEof() {
-        return isEof;
+        return inputStreamDataReader.isEof();
     }
 
     @Override

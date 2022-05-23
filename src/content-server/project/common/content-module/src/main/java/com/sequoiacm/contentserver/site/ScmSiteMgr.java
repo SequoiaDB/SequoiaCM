@@ -146,10 +146,15 @@ public class ScmSiteMgr {
                     plugin = DataSourcePluginMgr.getInstance().initPlugin(pluginDir,
                             "com.sequoiacm.hdfs.HdfsPlugin");
                     opFactory = plugin.createDataOpFactory();
-                } else {
-                    logger.error("data source is unreconigzed:type={}", datasourceType);
+                } else if (datasourceType.equals(ScmDataSourceType.SFTP.getName())) {
+                    plugin = DataSourcePluginMgr.getInstance().initPlugin(pluginDir,
+                            "com.sequoiacm.sftp.SftpPlugin");
+                    opFactory = plugin.createDataOpFactory();
+                }
+                else {
+                    logger.error("data source is unrecognized:type={}", datasourceType);
                     throw new ScmSystemException(
-                            "data source is unreconigzed:type=" + datasourceType);
+                            "data source is unrecognized:type=" + datasourceType);
                 }
             }
         } catch (ScmDatasourceException e) {

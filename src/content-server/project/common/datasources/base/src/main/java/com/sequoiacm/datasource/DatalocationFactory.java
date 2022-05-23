@@ -1,5 +1,6 @@
 package com.sequoiacm.datasource;
 
+import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
 import org.bson.BSONObject;
 
 import com.sequoiacm.common.CommonDefine;
@@ -24,6 +25,8 @@ public class DatalocationFactory {
                 return new HbaseDataLocation(location);
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR:
                 return new HdfsDataLocation(location);
+            case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR:
+                return new SftpDataLocation(location);
             default:
                 throw new ScmDatasourceException("unknown datasource type:" + type);
         }

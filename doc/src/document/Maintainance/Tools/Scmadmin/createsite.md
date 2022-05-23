@@ -8,7 +8,7 @@ createsite 子命令提供创建站点的功能。
 |--dsurl    |     |新建站点的数据存储服务地址,仅数据源类型为非hdfs或hbase时有效，<br>格式为:'server1:11810,server2:11810'                   |否      |
 |--dsuser   |     |新建站点的数据存储服务用户名，不指定则用户名为空                                  |否      |
 |--dspasswd |     |新建站点的数据存储服务密码文件绝对路径，不指定则密码为空                          |否      |
-|--dstype   |     |新建站点的数据存储服务类型，可选参数:1（sequoiadb），2（hbase），<br>3（ceph_s3），4（ceph_swift），5（hdfs），不指定则类型为 1           |否      |
+|--dstype   |     |新建站点的数据存储服务类型，可选参数:1（sequoiadb），2（hbase），<br>3（ceph_s3），4（ceph_swift），5（hdfs），8（sftp），不指定则类型为 1           |否      |
 |--no-check-ds|    |创建站点时，不对数据源做可用性检查                                               |否      |
 |--root     |-r   |设置新建站点为主站点                                                              |否      |
 |--dsconf   |     |数据源参数配置, 仅数据源类型为hdfs或hbase时有效, <br>格式为:'{"fs.defaultFS":"hdfs://hostName1:port",...}'   |否      |
@@ -147,6 +147,49 @@ createsite 子命令提供创建站点的功能。
 >
 > * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810 ，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
 
+
+###5.Sftp###
+
+####示例
+
+创建分站点，并命名为 site5，数据存储服务类型指定为 Sftp
+
+```lang-javascript
+   $ scmadmin.sh createsite --name site5 --dstype 8 --dsurl 192.168.1.100:22 --dsuser root --dspasswd secretKeyFilePath --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server:8080 --user admin --passwd
+```
+
+> **Note:**
+> 
+> - dsurl、dsuser、dspasswd 分别指定 ssh 连接的服务器地址、用户名和密码文件路径。
+> 
+> - 由于 Linux 服务器一般会限制 ssh 连接的会话数量，因此文件操作的并发能力受到最大会话数量的限制（一般默认为 10），建议修改 ssh 的最大会话数量（修改完后需要重启该站点下的节点）。
+> 
+> - 由于每启动一个 Sftp 站点下的节点都会占用一个 ssh 连接，因此一个 Sftp 站点下可启动的节点数量受 Linux 服务器最大连接数的限制，一般为 10-60，建议调整 ssh 的最大连接数量。
+
+####调整 ssh 的最大会话数量####
+```lang-javascript
+   # 编辑 Linux 上的 ssh 配置文件
+   $ vi /etc/ssh/sshd_config
+   
+   # 修改 MaxSessions 为 1000，表示最高支持 1000 个对文件操作的并发
+   MaxSessions 1000
+   
+   # 重启 sshd
+   $ service sshd restart 或 /etc/init.d/sshd restart （不同 Linux 版本的重启方式会有所不同）
+```
+
+
+####调整 ssh 的最大连接数量####
+```lang-javascript
+   # 编辑 Linux 上的 ssh 配置文件
+   $ vi /etc/ssh/sshd_config
+   
+   # 修改 MaxStartups 为 100:30:200，表示初始最高支持 100 个连接，当连接数达到 100 后，有 30% 的几率拒绝，达到 200 后直接拒绝
+   MaxStartups 100:30:200
+   
+   # 重启 sshd
+   $ service sshd restart 或 /etc/init.d/sshd restart （不同 Linux 版本的重启方式会有所不同）
+```
 
 [encrypt_tool]:Maintainance/Tools/Scmadmin/encrypt.md
 [primary_standby_cephs3]:Architecture/data_storage.md

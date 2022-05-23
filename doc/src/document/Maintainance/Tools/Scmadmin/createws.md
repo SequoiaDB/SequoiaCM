@@ -84,6 +84,15 @@ Ceph_S3 数据站点：
 |bucket_name|str            |指定一个已存在的桶用于对象存储，该参数配置后会忽略 data_sharding_type 与 container_prefix|否|
 |object_sharding_type|str   |指定桶内对象的分目录策略（默认不分目录），例如当指定 Sharding 策略为 'month' 时， objectId 为：[ws_name]/202202/[data_id]|否|
 
+Sftp 数据站点：
+
+|Key            |Value Type |描述                                                                                    |是否必填|
+|---------------|-----------|----------------------------------------------------------------------------------------|--------|
+|site           |str        |站点的名字                                                                              |是      |
+|data_path|str     |指定数据的存储路径，不存在时会自动创建，请确保 Sftp 站点配置的 ssh 用户有该路径的读写权限，默认为 /scmfile                                  |否      |
+|data_sharding_type|str   |指定数据的分目录规则，例如当指定 Sharding 策略为 'day' 时，文件数据的存放路径为：[data_path]/[ws_name]/20220201/[data_id]，默认 Sharding 策略为：'day' |否|
+
+
 sharding 类型说明：
 
 |类型  |描述                 |例子                    |
@@ -91,6 +100,7 @@ sharding 类型说明：
 |year  |按年分集合空间/集合  |workspaceName_LOB_2017  |
 |quarter|按季度分集合空间/集合|workspaceName_LOB_2017Q3|
 |month |按月分集合空间/集合  |workspaceName_LOB_201707|
+|day |按天分文件内容的存储路径（适用于 Ceph_S3、Sftp 站点）  |[data_path]/[ws_name]/20220201/[data_id]|
 |none  |不分表               |workspaceName_LOB       |
 
 ###示例###

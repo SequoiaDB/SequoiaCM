@@ -103,6 +103,17 @@
             </excludes>
             <outputDirectory>lib/hdfs</outputDirectory>
         </fileSet>
+
+        <!-- copy lib/sftp -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/datasources/sftp/target/sequoiacm-content-datasource-sftp-${project.version}-release/sequoiacm-content-datasource-sftp-${project.version}/sftp
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>lib/sftp</outputDirectory>
+        </fileSet>
         
          <fileSet>
             <directory>${project.basedir}/../../script/</directory>

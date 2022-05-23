@@ -4,16 +4,7 @@ import com.sequoiacm.client.common.ClientDefine;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
 import com.sequoiacm.client.dispatcher.InputStreamWrapper;
-import com.sequoiacm.client.element.ScmClassProperties;
-import com.sequoiacm.client.element.ScmContentLocation;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
-import com.sequoiacm.client.element.ScmHbaseFileLocation;
-import com.sequoiacm.client.element.ScmHdfsFileLocation;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmS3ObjLocation;
-import com.sequoiacm.client.element.ScmSdbLobLocation;
-import com.sequoiacm.client.element.ScmSwiftObjLocation;
-import com.sequoiacm.client.element.ScmTags;
+import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
@@ -1215,6 +1206,9 @@ class ScmFileImpl extends ScmFile {
             }
             else if (datasourceType == ScmType.DatasourceType.HBASE) {
                 location = new ScmHbaseFileLocation(locationBson);
+            }
+            else if (datasourceType == ScmType.DatasourceType.SFTP) {
+                location = new ScmSftpFileLocation(locationBson);
             }
             else {
                 location = new ScmContentLocation(locationBson);

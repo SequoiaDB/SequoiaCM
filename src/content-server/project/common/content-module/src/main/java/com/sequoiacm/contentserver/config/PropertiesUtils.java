@@ -46,6 +46,7 @@ public class PropertiesUtils {
     private static ConfVersionConfig versionConfig;
     private static DirCacheConfig dirCacheConfig;
     private static CephS3DatasourceConfig cephS3Config;
+    private static SftpDatasourceConfig sftpDatasourceConfig;
 
     @Autowired
     public void setRootSiteMetaConfig(RootSiteMetaConfig rootSiteMetaConfig) {
@@ -90,6 +91,11 @@ public class PropertiesUtils {
     @Autowired
     public void setCephS3Config(CephS3DatasourceConfig conf) {
         PropertiesUtils.cephS3Config = conf;
+    }
+
+    @Autowired
+    public void setSftpDatasourceConfig(SftpDatasourceConfig conf) {
+        PropertiesUtils.sftpDatasourceConfig = conf;
     }
 
 
@@ -412,4 +418,9 @@ public class PropertiesUtils {
     public static CephS3DatasourceConfig getCephS3Config() {
         return cephS3Config;
     }
+
+    public static SftpDatasourceConfig getSftpDatasourceConfig() {
+        return sftpDatasourceConfig;
+    }
+
 }

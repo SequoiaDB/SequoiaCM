@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.client.element.bizconf.*;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +22,6 @@ import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
-import com.sequoiacm.client.element.bizconf.ScmCephSwiftDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmHbaseDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine;
@@ -569,6 +564,8 @@ public class ScmContentCommon {
                 return new ScmCephS3DataLocation(dataLocationBSON);
             case CEPH_SWIFT:
                 return new ScmCephSwiftDataLocation(dataLocationBSON);
+            case SFTP:
+                return new ScmSftpDataLocation(dataLocationBSON);
             default:
                 throw new ScmToolsException(
                         "unknown siteType:siteName=" + siteName + ",type=" + dataType,

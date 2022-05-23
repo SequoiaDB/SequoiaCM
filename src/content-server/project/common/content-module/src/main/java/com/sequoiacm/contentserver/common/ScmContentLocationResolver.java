@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -135,6 +136,27 @@ public class ScmContentLocationResolver {
                 contentLocation.put(FieldName.ContentLocation.FIELD_FILE_NAME, dataId);
                 HadoopSiteUrl siteUrl = (HadoopSiteUrl) allSite.get(siteId).getDataUrl();
                 String urls = siteUrl.getDataConf().get("fs.defaultFS");
+                contentLocation.put(FieldName.ContentLocation.FIELD_URLS, toBsonList(urls));
+                return contentLocation;
+            }
+        });
+
+        // sftp
+        resolverMap.put(ScmDataSourceType.SFTP, new Resolver() {
+            @Override
+            public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId) {
+                BasicBSONObject contentLocation = new BasicBSONObject();
+                contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
+                contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
+                        ScmDataSourceType.SFTP.getName());
+
+                ScmLocation scmLocation = wsInfo.getDataLocations().get(siteId);
+                SftpDataLocation sftpDataLocation = (SftpDataLocation) scmLocation;
+                String filePath = sftpDataLocation.getFilePath(wsInfo.getName(), createTime,
+                        dataId);
+                contentLocation.put(FieldName.ContentLocation.FIELD_FILE_PATH, filePath);
+                List<String> urls = allSite.get(siteId).getDataUrl().getUrls();
                 contentLocation.put(FieldName.ContentLocation.FIELD_URLS, toBsonList(urls));
                 return contentLocation;
             }

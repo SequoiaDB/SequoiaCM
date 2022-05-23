@@ -59,6 +59,9 @@ SequoiaCM 配置
 |scm.cephs3.detectClient.connTTL            |num  |内容服务节点探测宕机的cephs3是否恢复时，cephs3连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒 |
 |scm.cephs3.detectClient.maxConns     |num  |内容服务节点探测宕机的cephs3是否恢复时，允许同时与cephs3打开的最大连接数，默认值：1|
 |scm.cephs3.detectClient.signerOverride|str  |内容服务节点探测宕机的cephs3是否恢复时的签名配置，默认值： S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
+|scm.sftp.connectTimeout       |num  |配置 sftp 站点 ssh 建立连接超时时长，默认值：30000，单位：毫秒|
+|scm.sftp.socketTimeout       |num   |配置 sftp 站点 ssh socket 连接超时时长，默认值：30000，单位：毫秒|
+|scm.sftp.serverAliveInterval |num   |配置 sftp 站点 ssh 连接的心跳保持频率，默认值：2000，单位：毫秒|
 |scm.slowlog.enabled         |boolean    |是否开启慢操作日志告警功能，默认值：false，详情请见：[慢操作日志][slow_log]      |
 |scm.slowlog.allRequest      |num        |配置全局所有请求的告警阈值，当某个请求的处理时间大于或等于此值时，会在日志文件中打印慢操作告警信息。 默认值：-1（负数表示无限大的告警阈值），单位：毫秒      |
 |scm.slowlog.request.xxx     |num        |单独配置某类请求的告警阈值，xxx 填写请求方式和地址，如：scm.slowlog.request.[POST/api/v1/files]=10000 配置文件上传请求的告警阈值为 10 秒，由于请求地址中包含特殊字符，需要用 [ ] 包裹 |

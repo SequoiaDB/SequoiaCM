@@ -19,6 +19,7 @@
         <module>./common/common</module>
         <module>./common/metasources</module>
         <module>./common/datasources/sequoiadb</module>
+        <module>./common/datasources/sftp</module>
         <module>./common/datasources/base</module>
         <module>./common/datasources/hbase</module>
         <module>./common/datasources/ceph_s3</module>
@@ -70,6 +71,7 @@
         <httpclient.version>4.5.5</httpclient.version>
         <httpmime.version>4.5.5</httpmime.version>
         <hadoop-hdfs.version>2.5.2</hadoop-hdfs.version>
+        <jsch.version>0.1.54</jsch.version>
         <scm-infrastructure.version>${project.version}</scm-infrastructure.version>
         <jcl-over-slf4j.version>1.7.5</jcl-over-slf4j.version>
         <scm-cloud.version>${project.version}</scm-cloud.version>
@@ -211,6 +213,12 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
                 <version>${hadoop-hdfs.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
             </dependency>
 
             <dependency>

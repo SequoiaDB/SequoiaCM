@@ -242,6 +242,13 @@ public class ScmType {
          */
         HDFS(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR),
 
+        /**
+         * A constants representing the type of sftp datasource.
+         *
+         * @since 3.1
+         */
+        SFTP(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR),
+
 
         /**
          * A constants representing the type of unknown datasource.

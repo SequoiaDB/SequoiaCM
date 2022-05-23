@@ -61,6 +61,17 @@
             <outputDirectory>jars/hdfs</outputDirectory>
         </fileSet>
 
+        <!-- copy lib/sftp -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../../content-server/project/common/datasources/sftp/target/sequoiacm-content-datasource-sftp-${project.version}-release/sequoiacm-content-datasource-sftp-${project.version}/sftp
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/sftp</outputDirectory>
+        </fileSet>
+
 
         <fileSet>
             <directory>${project.basedir}/../../script/</directory>

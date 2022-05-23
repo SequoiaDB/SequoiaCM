@@ -240,12 +240,14 @@ public class CommonDefine {
         public static final int SCM_DATASOURCE_TYPE_CEPHS3 = 3;
         public static final int SCM_DATASOURCE_TYPE_CEPHSWIFT = 4;
         public static final int SCM_DATASOURCE_TYPE_HDFS = 5;
+        public static final int SCM_DATASOURCE_TYPE_SFTP = 8;
 
         public static final String SCM_DATASOURCE_TYPE_SEQUOIADB_STR = "sequoiadb";
         public static final String SCM_DATASOURCE_TYPE_HBASE_STR = "hbase";
         public static final String SCM_DATASOURCE_TYPE_CEPHS3_STR = "ceph_s3";
         public static final String SCM_DATASOURCE_TYPE_CEPHSWIFT_STR = "ceph_swift";
         public static final String SCM_DATASOURCE_TYPE_HDFS_STR = "hdfs";
+        public static final String SCM_DATASOURCE_TYPE_SFTP_STR = "sftp";
     }
 
     /**

@@ -85,6 +85,10 @@ public class ScmSite {
                 return new ScmSiteUrlWithConf(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd(),
                         PropertiesUtils.getCephS3Config().getCephs3NotNull());
+            case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR:
+                return new ScmSiteUrlWithConf(siteObj.getDataType(), siteObj.getDataUrlList(),
+                        siteObj.getDataUser(), siteObj.getDataPasswd(),
+                        PropertiesUtils.getSftpDatasourceConfig().toMap());
             default:
                 return new ScmSiteUrl(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd());

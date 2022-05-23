@@ -71,30 +71,6 @@ public class ScmSiteInfo {
         }
     }
 
-    private DatasourceType convert2Enum(String dataType) {
-        if (dataType == null) {
-            return null;
-        }
-        if (CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR.equals(dataType)) {
-            return DatasourceType.SEQUOIADB;
-        }
-        else if (CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR.equals(dataType)) {
-            return DatasourceType.HBASE;
-        }
-        else if (CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR.equals(dataType)) {
-            return DatasourceType.CEPH_S3;
-        }
-        else if (CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHSWIFT_STR.equals(dataType)) {
-            return DatasourceType.CEPH_SWIFT;
-        }
-        else if (CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR.equals(dataType)) {
-            return DatasourceType.HDFS;
-        }
-        else {
-            return DatasourceType.UNKNOWN;
-        }
-    }
-
     /**
      * Get site id.
      *

@@ -84,7 +84,8 @@ def get_ds_type(s):
         'ceph_swift': 4,
         'hdfs': 5,
         'hbase_transwarp' :6,
-        'hdfs_transwarp' :7
+        'hdfs_transwarp' :7,
+        'sftp' : 8
     }
     return m.get(s, 1)
 

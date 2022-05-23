@@ -35,6 +35,8 @@ public class ScmDatasourceUtil {
                 "com.sequoiacm.hbase.HbasePlugin");
         pluginFullNames.put(DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR,
                 "com.sequoiacm.hdfs.HdfsPlugin");
+        pluginFullNames.put(DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR,
+                "com.sequoiacm.sftp.SftpPlugin");
     }
 
     public static void validateDatasourceUrl(ScmSiteInfo siteInfo) throws ScmToolsException {
@@ -127,6 +129,9 @@ public class ScmDatasourceUtil {
                 tmpHdfsConf.put("dfs.client.failover.sleep.max.millis", "1000");
                 return new HadoopSiteUrl(siteInfo.getDataType(), siteInfo.getDataUrl(),
                         siteInfo.getDataUser(), siteInfo.getDataPasswd(), tmpHdfsConf);
+            case DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR:
+                return new ScmSiteUrlWithConf(siteInfo.getDataType(), siteInfo.getDataUrl(),
+                        siteInfo.getDataUser(), siteInfo.getDataPasswd(), null);
             default:
                 logger.error("Unknow DataType=" + siteInfo.getDataType() + ",siteName="
                         + siteInfo.getName());

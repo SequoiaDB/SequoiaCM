@@ -69,6 +69,7 @@ public class FieldName {
                                                                                         // s3
                                                                                         // location
                                                                                         // now
+    public static final String FIELD_CLWORKSPACE_DATA_PATH = "data_path"; // sftp
     public static final String FIELD_CLWORKSPACE_DESCRIPTION = "description";
     public static final String FIELD_CLWORKSPACE_CREATEUSER = "create_user";
     public static final String FIELD_CLWORKSPACE_CREATETIME = "create_time";
@@ -473,6 +474,7 @@ public class FieldName {
         public static final String FIELD_TABLE_NAME = "table_name";
         public static final String FIELD_DIRECTORY = "directory";
         public static final String FIELD_FILE_NAME = "file_name";
+        public static final String FIELD_FILE_PATH = "file_path";
     }
 
     public static final class Bucket {

@@ -13,15 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine.DataSourceType;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
-import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -70,7 +66,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 false, false, true));
 
         options.addOption(hp.createOpt(null, OPT_LONG_DSTYPE,
-                "data datasource type of new site, arg:[ 1 | 2 | 3 | 4 | 5 ],\n1:sequoiadb, 2:hbase, 3:ceph-s3, 4:ceph-swift, 5:hdfs, default:1.",
+                "data datasource type of new site, arg:[ 1 | 2 | 3 | 4 | 5 | 8 ],\n1:sequoiadb, 2:hbase, 3:ceph-s3, 4:ceph-swift, 5:hdfs, 8:sftp, default:1.",
                 false, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_DSURL,
                 "data datasource url of new sdb site, eg:'hostName1:port1,\nhostName2:port2'.\n",
@@ -231,6 +227,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 return DatasourceType.CEPH_SWIFT;
             case "5":
                 return DatasourceType.HDFS;
+            case "8":
+                return DatasourceType.SFTP;
             default:
                 throw new ScmToolsException("Unknown datasource type:" + optionValue,
                         ScmExitCode.INVALID_ARG);
@@ -288,6 +286,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                     return true;
                 case "7":
                     return true;
+                case "8":
+                    return false;
                 default:
                     throw new ScmToolsException("Unknown datasource type:" + dsType,
                             ScmExitCode.INVALID_ARG);

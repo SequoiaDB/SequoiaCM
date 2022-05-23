@@ -2,6 +2,7 @@ package com.sequoiacm.cephswift.dataoperation;
 
 import java.io.InputStream;
 
+import com.sequoiacm.datasource.common.ScmInputStreamDataReader;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
@@ -19,9 +20,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     private String objectName;
     private CephSwiftDataService dataService;
     private long size = 0;
-    private InputStream inputStream;
-    private boolean isEof;
-    private long currentPosition;
+    private ScmInputStreamDataReader inputStreamDataReader;
 
     public CephSwiftDataReaderImpl(String containerName, String objectName, ScmService service)
             throws CephSwiftException {
@@ -33,7 +32,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
             Container container = dataService.getContainer(account, containerName);
             this.size = dataService.getObjectSize(container, objectName);
             StoredObject obj = dataService.getObject(container, objectName);
-            inputStream = obj.downloadObjectAsInputStream();
+            inputStreamDataReader = new ScmInputStreamDataReader(obj.downloadObjectAsInputStream());
         }
         catch (CephSwiftException e) {
             logger.error("construct CephSwiftDataReaderImpl failed:container=" + containerName
@@ -52,7 +51,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     @Override
     public void close() {
         try {
-            inputStream.close();
+            inputStreamDataReader.close();
         }
         catch (Exception e) {
             logger.warn("close inputStream failed:container=" + containerName + ",object="
@@ -63,17 +62,15 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     @Override
     public int read(byte[] buff, int offset, int len) throws CephSwiftException {
         try {
-            int readLen = inputStream.read(buff, offset, len);
+            int readLen = inputStreamDataReader.read(buff, offset, len);
             if (readLen == -1) {
-                if (currentPosition != size) {
+                if (inputStreamDataReader.getCurrentPosition() != size) {
                     throw new CephSwiftException(CephSwiftException.ERR_ENTITY_IS_CORRUPTED,
                             "failed read data,data size is inconsistent:container=" + containerName
                             + ",object=" + objectName + ",expectSize=" + size
-                            + ",actualSize=" + currentPosition);
+                                    + ",actualSize=" + inputStreamDataReader.getCurrentPosition());
                 }
-                this.isEof = true;
             }
-            currentPosition += readLen;
             return readLen;
         }
         catch (CephSwiftException e) {
@@ -90,45 +87,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     @Override
     public void seek(long size) throws CephSwiftException {
         try {
-            if (size < currentPosition) {
-                throw new CephSwiftException(
-                        "can not seek back,currentPosition=" + currentPosition + ",seekSize="
-                                + size + ",container=" + containerName + ",object=" + objectName);
-            }
-            else if (size == currentPosition) {
-                return;
-            }
-
-            long actualSize = inputStream.skip(size - currentPosition);
-
-            if (actualSize == size - currentPosition) {
-                currentPosition += actualSize;
-            }
-            else if (actualSize < size - currentPosition) {
-                if (actualSize == 0 && inputStream.read(new byte[0]) == -1) {
-                    throw new CephSwiftException(CephSwiftException.ERR_ENTITY_IS_CORRUPTED,
-                            "skip failed,stream is at the end of file:container=" + containerName
-                            + ",object=" + objectName + ",currentPosition="
-                            + currentPosition + ",seekSize=" + size);
-                }
-
-                logger.debug("inputstream skip " + actualSize + "bytes,expect skip "
-                        + (size - currentPosition) + " bytes,currentPosition=" + currentPosition
-                        + ",seekSize=" + size + ",container=" + containerName + ",object="
-                        + objectName + ",do seek again now");
-                currentPosition += actualSize;
-                seek(size);
-            }
-            else {
-                throw new CephSwiftException(
-                        "seek failed,expect skip " + (size - currentPosition)
-                        + " bytes,actual skip " + actualSize + " bytes,container="
-                        + containerName + ",object=" + objectName);
-            }
-        }
-        catch (CephSwiftException e) {
-            logger.error("seek data failed:container=" + containerName + ",object=" + objectName);
-            throw e;
+            inputStreamDataReader.seek(size);
         }
         catch (Exception e) {
             logger.error("seek data failed:container=" + containerName + ",object=" + objectName);
@@ -139,7 +98,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
 
     @Override
     public boolean isEof() {
-        return isEof;
+        return inputStreamDataReader.isEof();
     }
 
     @Override

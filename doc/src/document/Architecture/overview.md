@@ -42,7 +42,7 @@ cloud 组件服务包括： 网关服务、注册中心、认证服务、监控�
 
 1. 元数据服务 （Meta Source） 主要负责存储各个微服务的元数据信息、配置信息，以及文件的元数据信息等。目前仅支持 SequoiaDB 做为元数据服务
 
-2. 数据服务 （Data Source） 隶属于某一个站点，主要负责存储实际文件内容。目前支持存储服务为：SequoiaDB、Hdfs、Hbase、Ceph
+2. 数据服务 （Data Source） 隶属于某一个站点，主要负责存储实际文件内容。目前支持存储服务为：SequoiaDB、Hdfs、Hbase、Ceph、Sftp
 
 ##依赖服务##
 
