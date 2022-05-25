@@ -2,17 +2,15 @@ package com.sequoiacm.testcommon.scmutils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
+import com.amazonaws.services.s3.model.ListBucketsRequest;
 import com.sequoiacm.client.core.*;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
@@ -372,15 +370,16 @@ public class ScmAuthUtils extends TestScmBase {
         try {
             do {
                 try {
-                    s3Client.createBucket( bucketName );
+                    s3Client.createBucket( bucketName, wsName );
                     break;
                 } catch ( AmazonS3Exception e ) {
-                    if ( e.getErrorCode().equals( "CreateBucketFailed" ) ) {
+                    if ( e.getErrorCode().equals( "AccessDenied" ) ) {
                         Thread.sleep( 500 );
                         times++;
                         if ( times * 500 > 30000 ) {
                             throw new Exception( "check priority time out,ws:"
-                                    + wsName + "s3User:" + accessKeys );
+                                    + wsName + " s3User:"
+                                    + Arrays.toString( accessKeys ) );
                         }
                         continue;
                     } else {
@@ -391,6 +390,82 @@ public class ScmAuthUtils extends TestScmBase {
         } finally {
             S3Utils.clearBucket( s3Client, bucketName );
             s3Client.shutdown();
+        }
+    }
+
+    /**
+     * @descreption 校验桶级别的权限
+     * @param accessKeys
+     * @param bucketName
+     * @throws Exception
+     */
+    public static void checkBucketPriorityByS3( String[] accessKeys,
+            String bucketName ) throws Exception {
+        AmazonS3 s3Client = S3Utils.buildS3Client( accessKeys[ 0 ],
+                accessKeys[ 1 ] );
+        String ObjcetName = UUID.randomUUID().toString();
+        int times = 0;
+        try {
+            do {
+                try {
+                    s3Client.putObject( bucketName, ObjcetName, "test" );
+                    break;
+                } catch ( AmazonS3Exception e ) {
+                    if ( e.getErrorCode().equals( "AccessDenied" ) ) {
+                        Thread.sleep( 500 );
+                        times++;
+                        if ( times * 500 > 30000 ) {
+                            throw new Exception(
+                                    "check priority time out,bucket:"
+                                            + bucketName + " s3User:"
+                                            + Arrays.toString( accessKeys ) );
+                        }
+                        continue;
+                    } else {
+                        throw e;
+                    }
+                }
+            } while ( true );
+        } finally {
+            s3Client.deleteObject( bucketName, "test" );
+            s3Client.shutdown();
+        }
+    }
+
+    /**
+     * @descreption 使用SCM API校验ws权限
+     * @param session
+     * @param wsName
+     * @throws Exception
+     */
+    public static void checkPriorityByS3( ScmSession session, String wsName )
+            throws Exception {
+        String bucketName = UUID.randomUUID().toString();
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
+        int times = 0;
+        try {
+            do {
+                try {
+                    ScmFactory.Bucket.createBucket( ws, bucketName );
+                    break;
+                } catch ( ScmException e ) {
+                    if ( e.getError()
+                            .equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
+                        Thread.sleep( 500 );
+                        times++;
+                        if ( times * 500 > 30000 ) {
+                            throw new Exception( "check priority time out,ws:"
+                                    + wsName + " session User:"
+                                    + session.getUser() );
+                        }
+                        continue;
+                    } else {
+                        throw e;
+                    }
+                }
+            } while ( true );
+        } finally {
+            ScmFactory.Bucket.deleteBucket( session, bucketName );
         }
     }
 

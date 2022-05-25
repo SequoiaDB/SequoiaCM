@@ -1,0 +1,98 @@
+package com.sequoiacm.s3.object;
+
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.File;
+
+/**
+ * @Descreption SCM-4265:创建SCM文件，重复关联文件
+ * @Author YiPan
+ * @CreateDate 2022/5/17
+ * @UpdateUser
+ * @UpdateDate
+ * @UpdateRemark
+ * @Version
+ */
+public class Object4265 extends TestScmBase {
+    private final String bucketNameA = "bucket4265a";
+    private final String bucketNameB = "bucket4265b";
+    private final String objectKey = "object4265";
+    private ScmSession session;
+    private ScmWorkspace ws;
+    private ScmId fileId;
+    private final int fileSize = 1024 * 300;
+    private File localPath = null;
+    private String filePath = null;
+    private boolean runSuccess = false;
+
+    @BeforeClass
+    public void setUp() throws Exception {
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
+        // 清理环境
+        S3Utils.clearBucket( session, bucketNameA );
+        S3Utils.clearBucket( session, bucketNameB );
+    }
+
+    @Test
+    public void test() throws Exception {
+        ScmFactory.Bucket.createBucket( ws, bucketNameA );
+        ScmFactory.Bucket.createBucket( ws, bucketNameB );
+        // 创建文件关联到桶A
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( objectKey );
+        file.setContent( filePath );
+        fileId = file.save();
+        ScmFactory.Bucket.attachFile( session, bucketNameA, fileId );
+
+        // 重复关联到桶A
+        try {
+            ScmFactory.Bucket.attachFile( session, bucketNameA, fileId );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.METASOURCE_RECORD_EXIST ) ) {
+                throw e;
+            }
+        }
+        // 重复关联到桶B
+        try {
+            ScmFactory.Bucket.attachFile( session, bucketNameB, fileId );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.FILE_IN_ANOTHER_BUCKET ) ) {
+                throw e;
+            }
+        }
+
+        runSuccess = true;
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        try {
+            if ( runSuccess ) {
+                TestTools.LocalFile.removeFile( localPath );
+                S3Utils.clearBucket( session, bucketNameA );
+                S3Utils.clearBucket( session, bucketNameB );
+            }
+        } finally {
+            session.close();
+        }
+    }
+}

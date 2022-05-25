@@ -10,15 +10,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.element.ScmNodeInfo;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmTools;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.bson.BSONObject;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -402,5 +402,92 @@ public class S3Utils extends TestScmBase {
             Assert.assertEquals( objectSummaries.get( i ).getKey(),
                     expresultList.get( i ), "keyName is wrong" );
         }
+    }
+
+    /**
+     * @descreption objectKey映射fileName时，根据object查询映射scm文件的ID
+     * @param ws
+     * @param objectKey
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId queryS3Object( ScmWorkspace ws, String objectKey )
+            throws ScmException {
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( objectKey ).get();
+        ScmCursor< ScmFileBasicInfo > scmFileBasicInfoScmCursor = ScmFactory.File
+                .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, cond );
+        ScmId fileId = null;
+        while ( scmFileBasicInfoScmCursor.hasNext() ) {
+            fileId = scmFileBasicInfoScmCursor.getNext().getFileId();
+        }
+        scmFileBasicInfoScmCursor.close();
+        return fileId;
+    }
+
+    public static void checkBucketList(
+            ScmCursor< ScmBucket > scmBucketScmCursor,
+            List< String > expBucketNames, boolean sort ) throws ScmException {
+        List< String > actBucketNames = new ArrayList<>();
+        while ( scmBucketScmCursor.hasNext() ) {
+            actBucketNames.add( scmBucketScmCursor.getNext().getName() );
+        }
+        if ( sort ) {
+            Assert.assertEquals( actBucketNames, expBucketNames );
+        } else {
+            Assert.assertEqualsNoOrder( actBucketNames.toArray(),
+                    expBucketNames.toArray() );
+        }
+    }
+
+    /**
+     * @descreption 使用scm api清理桶
+     * @param session
+     * @param bucketName
+     * @throws ScmException
+     */
+    public static void clearBucket( ScmSession session, String bucketName )
+            throws ScmException {
+        clearBucket( session, s3WorkSpaces, bucketName );
+    }
+
+    public static void clearBucket( ScmSession session, String wsName,
+            String bucketName ) throws ScmException {
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                    bucketName );
+            ScmCursor< ScmFileBasicInfo > scmFileBasicInfoScmCursor = bucket
+                    .listFile( null, null, 0, -1 );
+            while ( scmFileBasicInfoScmCursor.hasNext() ) {
+                ScmId fileId = scmFileBasicInfoScmCursor.getNext().getFileId();
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }
+            ScmFactory.Bucket.deleteBucket( session, bucketName );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.BUCKET_NOT_EXISTS ) ) {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * @Descreption 获取所有s3节点名
+     * @param session
+     * @return
+     * @throws ScmException
+     */
+    public static List< String > getS3ServiceName( ScmSession session )
+            throws ScmException {
+        List< String > s3ServcieNames = new ArrayList<>();
+        List< String > serviceList = ScmSystem.ServiceCenter
+                .getServiceList( session );
+        for ( String serviceName : serviceList ) {
+            if ( serviceName.contains( "-s3" ) ) {
+                s3ServcieNames.add( serviceName );
+            }
+        }
+        return s3ServcieNames;
     }
 }

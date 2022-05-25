@@ -58,6 +58,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 public class ConfUtil extends TestScmBase {
     public static final String GATEWAY_SERVICE_NAME = "gateway";
     public static final String ADMINSERVER_SERVICE_NAME = "admin-server";
+    public static final String AUTH_SERVER_SERVICE_NAME = "auth-server";
     private static RestTemplate rest = null;
 
     static {
@@ -149,6 +150,39 @@ public class ConfUtil extends TestScmBase {
     }
 
     /**
+     * @descreption deleteAuditConf()接口的s3版本（s3端口号需要+1才能访问）
+     * @param serviceName
+     * @throws ScmException
+     */
+    public static void deleteS3AuditConf( String serviceName )
+            throws ScmException {
+        SiteWrapper site = ScmInfo.getSite();
+        ScmSession session = null;
+        try {
+            session = TestScmTools.createSession( site );
+            List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
+                    .getServiceInstanceList( session, serviceName );
+            Set< String > keySet = new HashSet< String >();
+            for ( ScmServiceInstance instance : instances ) {
+                // s3节点暴露端口号+1
+                int port = instance.getPort() + 1;
+                Map< String, String > map = ConfUtil
+                        .getConfByRest( instance.getIp() + ":" + port );
+                for ( String key : map.keySet() ) {
+                    if ( key.contains( "scm.audit" ) ) {
+                        keySet.add( key );
+                    }
+                }
+            }
+            deleteConf( session, serviceName, keySet );
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    /**
      * 删除网关统计相关配置
      * 
      * @throws ScmException
@@ -186,17 +220,20 @@ public class ConfUtil extends TestScmBase {
         for ( String gateway : TestScmBase.gateWayList ) {
             ScmSession session1 = null;
             try {
-                ScmConfigOption scOpt = new ScmConfigOption( gateway + "/" + site.getSiteServiceName(),
+                ScmConfigOption scOpt = new ScmConfigOption(
+                        gateway + "/" + site.getSiteServiceName(),
                         TestScmBase.scmUserName, TestScmBase.scmPassword );
-                session1 = ScmFactory.Session.createSession( ScmType.SessionType.AUTH_SESSION, scOpt );
+                session1 = ScmFactory.Session.createSession(
+                        ScmType.SessionType.AUTH_SESSION, scOpt );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session1 );
                 ScmFile file = ScmFactory.File.createInstance( ws );
-                file.setFileName( "deleteGateWayStaticConf_" + UUID.randomUUID() );
+                file.setFileName(
+                        "deleteGateWayStaticConf_" + UUID.randomUUID() );
                 ScmId fileId = file.save();
                 ScmFactory.File.deleteInstance( ws, fileId, true );
-            }finally {
-                if(session1 != null){
+            } finally {
+                if ( session1 != null ) {
                     session1.close();
                 }
 
@@ -593,6 +630,32 @@ public class ConfUtil extends TestScmBase {
             if ( entry.getKey().contains( "scm.audit" ) ) {
                 System.out.println( entry.getKey() + ":" + entry.getValue() );
             }
+        }
+    }
+
+    /**
+     * @descreption 校验审计日志的方法，更加轻量级
+     * @param session
+     * @param type
+     * @param message
+     * @throws ScmException
+     */
+    public static void checkAuditByType( ScmSession session, String type,
+            String message ) throws ScmException {
+        ScmCursor< ScmAuditInfo > scmAuditInfoScmCursor = ScmFactory.Audit
+                .listInstance( session, new BasicBSONObject(
+                        ScmAttributeName.Audit.TYPE, type ) );
+        boolean flag = false;
+        while ( scmAuditInfoScmCursor.hasNext() ) {
+            if ( scmAuditInfoScmCursor.getNext().getMessage()
+                    .contains( message ) ) {
+                flag = true;
+                break;
+            }
+        }
+        scmAuditInfoScmCursor.close();
+        if ( !flag ) {
+            org.junit.Assert.fail( message + " is not logged" );
         }
     }
 }
