@@ -34,7 +34,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
     private List< NodeWrapper > nodes = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() throws ScmException, InterruptedException {
+    private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         nodes = site.getNodes( site.getNodeNum() );
@@ -126,7 +126,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // TODO:SEQUOIACM-858 暂时屏蔽该测试点
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testListInstance1() throws ScmException {
         try {
             List< String > instances = new ArrayList< String >();
