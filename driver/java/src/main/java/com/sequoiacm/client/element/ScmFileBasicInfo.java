@@ -23,7 +23,7 @@ public class ScmFileBasicInfo {
     private String user;
     private Date createDate;
     private boolean isDeleteMarker;
-    private boolean hasNullMarker;
+    private boolean isNullMarker;
 
     /**
      * Create a instance of ScmFileBasicInfo.
@@ -44,7 +44,7 @@ public class ScmFileBasicInfo {
         user = (String) bson.get(FieldName.FIELD_CLFILE_INNER_USER);
         createDate = new Date(
                 CommonHelper.toLongValue(bson.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
-        hasNullMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_NULL_MARKER, false);
+        isNullMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_NULL_MARKER, false);
         isDeleteMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_DELETE_MARKER,
                 false);
     }
@@ -221,23 +221,23 @@ public class ScmFileBasicInfo {
         buf.append("user : " + user + " , ");
         buf.append("createDate : " + createDate + " , ");
         buf.append("mimeType : " + mimeType + " , ");
-        buf.append("null_marker : " + hasNullMarker + " , ");
+        buf.append("null_marker : " + isNullMarker + " , ");
         buf.append("delete_marker : " + isDeleteMarker);
         buf.append("}");
         return buf.toString();
     }
 
     /**
-     * Return the file has null marker or not
+     * Return the file is null marker or not
      *
-     * @return return true if has null marker.
+     * @return return true if is null marker.
      */
-    public boolean hasNullMarker() {
-        return hasNullMarker;
+    public boolean isNullMarker() {
+        return isNullMarker;
     }
 
-    public void setHasNullMarker(boolean hasNullMarker) {
-        this.hasNullMarker = hasNullMarker;
+    public void setNullMarker(boolean isNullMarker) {
+        this.isNullMarker = isNullMarker;
     }
 
     /**

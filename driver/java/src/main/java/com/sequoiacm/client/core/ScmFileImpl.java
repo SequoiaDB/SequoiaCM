@@ -1125,7 +1125,7 @@ class ScmFileImpl extends ScmFile {
         fileExternalData = BsonUtils.getBSONObject(fileBSON,
                 FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
 
-        basicInfo.setHasNullMarker(
+        basicInfo.setNullMarker(
                 BsonUtils.getBooleanOrElse(fileBSON, FieldName.FIELD_CLFILE_NULL_MARKER, false));
     }
 
@@ -1249,7 +1249,7 @@ class ScmFileImpl extends ScmFile {
 
     @Override
     public boolean isNullMarker() {
-        return basicInfo.hasNullMarker();
+        return basicInfo.isNullMarker();
     }
 
     protected void setBucketId(long bucketId) {
