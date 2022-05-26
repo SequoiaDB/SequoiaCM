@@ -25,9 +25,13 @@ public class BucketBsonConverter implements BsonConverter {
         bucketConfig.setName(BsonUtils.getStringChecked(config, FieldName.Bucket.NAME));
         bucketConfig.setCreateTime(
                 BsonUtils.getNumberOrElse(config, FieldName.Bucket.CREATE_TIME, -1).longValue());
+        bucketConfig.setUpdateTime(
+                BsonUtils.getNumberOrElse(config, FieldName.Bucket.UPDATE_TIME, -1).longValue());
         bucketConfig.setCreateUser(BsonUtils.getString(config, FieldName.Bucket.CREATE_USER));
+        bucketConfig.setUpdateUser(BsonUtils.getString(config, FieldName.Bucket.UPDATE_USER));
         bucketConfig.setWorkspace(BsonUtils.getStringChecked(config, FieldName.Bucket.WORKSPACE));
         bucketConfig.setFileTable(BsonUtils.getString(config, FieldName.Bucket.FILE_TABLE));
+        bucketConfig.setVersionStatus(BsonUtils.getString(config, FieldName.Bucket.VERSION_STATUS));
         return bucketConfig;
     }
 
@@ -67,7 +71,10 @@ public class BucketBsonConverter implements BsonConverter {
 
     @Override
     public ConfigUpdator convertToConfigUpdator(BSONObject configUpdator) {
-        throw new IllegalArgumentException("unsupported update bucket info:" + configUpdator);
+        return new BucketConfigUpdater(
+                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.NAME),
+                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.VERSION_STATUS),
+                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.UPDATE_USER));
     }
 
     @Override

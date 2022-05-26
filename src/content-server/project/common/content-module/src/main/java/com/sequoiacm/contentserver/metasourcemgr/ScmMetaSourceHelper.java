@@ -6,7 +6,9 @@ import com.sequoiacm.contentserver.site.ScmContentServerMapping;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
+import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
@@ -57,20 +59,34 @@ public class ScmMetaSourceHelper {
                 FieldName.FIELD_CLREL_FILE_SIZE);
         FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE,
                 FieldName.FIELD_CLREL_FILE_MIME_TYPE);
+        FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_NULL_MARKER,
+                FieldName.FIELD_CLREL_FILE_NULL_MARKER);
+        FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_DELETE_MARKER,
+                FieldName.FIELD_CLREL_FILE_DELETE_MARKER);
     }
 
     public static final Map<String, String> BUCKET_FILE_REL_FIELD = new HashMap<>();
     static {
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_NAME, FieldName.FIELD_CLFILE_NAME);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_ID, FieldName.FIELD_CLFILE_ID);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_CREATE_TIME, FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_SIZE, FieldName.FIELD_CLFILE_FILE_SIZE);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_MINOR_VERSION, FieldName.FIELD_CLFILE_MINOR_VERSION);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_MAJOR_VERSION, FieldName.FIELD_CLFILE_MAJOR_VERSION);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_MIME_TYPE, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_UPDATE_TIME, FieldName.FIELD_CLFILE_INNER_UPDATE_TIME);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_CREATE_USER, FieldName.FIELD_CLFILE_INNER_USER);
-        BUCKET_FILE_REL_FIELD.put(FieldName.BucketFile.FILE_ETAG, FieldName.FIELD_CLFILE_FILE_MD5);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_NAME, FieldName.BucketFile.FILE_NAME);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_ID, FieldName.BucketFile.FILE_ID);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME,
+                FieldName.BucketFile.FILE_CREATE_TIME);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_SIZE, FieldName.BucketFile.FILE_SIZE);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
+                FieldName.BucketFile.FILE_MINOR_VERSION);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
+                FieldName.BucketFile.FILE_MAJOR_VERSION);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE,
+                FieldName.BucketFile.FILE_MIME_TYPE);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME,
+                FieldName.BucketFile.FILE_UPDATE_TIME);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_INNER_USER,
+                FieldName.BucketFile.FILE_CREATE_USER);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_ETAG, FieldName.BucketFile.FILE_ETAG);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_NULL_MARKER,
+                FieldName.BucketFile.FILE_NULL_MARKER);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_DELETE_MARKER,
+                FieldName.BucketFile.FILE_DELETE_MARKER);
     }
 
     public static void closeCursor(MetaCursor cursor) {
@@ -175,6 +191,17 @@ public class ScmMetaSourceHelper {
         matcher.put(FieldName.FIELD_CLFILE_ID, fileId);
         matcher.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, idParser.getMonth());
         return matcher;
+    }
+
+    public static BSONObject notDeleteMarkerMatcher() {
+        BasicBSONObject deleteMarkerIsFalse = new BasicBSONObject(
+                FieldName.FIELD_CLFILE_DELETE_MARKER, false);
+        BasicBSONObject deleteMarkerNotExist = new BasicBSONObject(
+                FieldName.FIELD_CLFILE_DELETE_MARKER, new BasicBSONObject("$exists", 0));
+        BasicBSONList orArr = new BasicBSONList();
+        orArr.add(deleteMarkerIsFalse);
+        orArr.add(deleteMarkerNotExist);
+        return new BasicBSONObject("$or", orArr);
     }
 
     public static BSONObject queryOne(MetaAccessor accessor, BSONObject matcher)
@@ -282,6 +309,13 @@ public class ScmMetaSourceHelper {
                 bucketFileUpdator.put(BUCKET_FILE_REL_FIELD.get(key), fileUpdator.get(key));
             }
         }
+        String md5 = BsonUtils.getString(fileUpdator, FieldName.FIELD_CLFILE_FILE_MD5);
+        if (md5 != null) {
+            String newEtag = BsonUtils.getString(bucketFileUpdator, FieldName.BucketFile.FILE_ETAG);
+            if (newEtag == null || newEtag.length() <= 0) {
+                bucketFileUpdator.put(FieldName.BucketFile.FILE_ETAG, SignUtil.toHex(md5));
+            }
+        }
         return bucketFileUpdator;
     }
 
@@ -308,6 +342,10 @@ public class ScmMetaSourceHelper {
                 fileInsertor.get(FieldName.FIELD_CLFILE_INNER_USER));
         relInsertor.put(FieldName.FIELD_CLREL_FILE_MIME_TYPE,
                 fileInsertor.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE));
+        relInsertor.put(FieldName.FIELD_CLREL_FILE_NULL_MARKER, BsonUtils
+                .getBooleanOrElse(fileInsertor, FieldName.FIELD_CLFILE_NULL_MARKER, false));
+        relInsertor.put(FieldName.FIELD_CLREL_FILE_DELETE_MARKER, BsonUtils
+                .getBooleanOrElse(fileInsertor, FieldName.FIELD_CLFILE_DELETE_MARKER, false));
         return relInsertor;
     }
 

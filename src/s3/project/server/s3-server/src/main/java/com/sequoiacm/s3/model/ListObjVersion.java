@@ -2,6 +2,7 @@ package com.sequoiacm.s3.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.s3.common.S3CommonDefine;
+import com.sequoiacm.s3.core.S3ObjectMeta;
 import com.sequoiacm.s3.exception.S3ServerException;
 
 public class ListObjVersion {
@@ -21,13 +22,15 @@ public class ListObjVersion {
     @JsonProperty("Size")
     private long size;
 
-    public ListObjVersion(ListObjContent obj) throws S3ServerException {
-        key = obj.getKey();
-        lastModified = obj.getLastModified();
-        versionId = S3CommonDefine.NULL_VERSION_ID;
-        eTag = obj.geteTag();
-        size = obj.getSize();
-        isLatest = true;
+    public ListObjVersion(String key, String versionId, Boolean isLatest, String lastModified,
+            String user, String eTag, long size) {
+        this.key = key;
+        this.versionId = versionId;
+        this.isLatest = isLatest;
+        this.lastModified = lastModified;
+        this.owner = new Owner(user, user);
+        this.eTag = eTag;
+        this.size = size;
     }
 
     public void setKey(String key) {

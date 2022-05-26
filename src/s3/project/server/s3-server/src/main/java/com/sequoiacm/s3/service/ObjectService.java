@@ -27,6 +27,8 @@ public interface ObjectService {
     CopyObjectResult copyObject(ScmSession session, CopyObjectRequest request)
             throws S3ServerException;
 
+    DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectName) throws S3ServerException;
+
     DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectName,
                                     String versionId) throws S3ServerException;
 

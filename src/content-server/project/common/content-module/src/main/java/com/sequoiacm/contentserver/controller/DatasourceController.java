@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.controller;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
@@ -12,6 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +42,16 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime)
             throws ScmServerException {
         datasourceService.deleteDataLocal(wsName, dataId, type, createTime);
+    }
+
+    @DeleteMapping(path = "/datasource/{data_id}", params = "action=delete_data_in_site_list")
+    public void deleteDataInSiteList(@PathVariable("data_id") String dataId,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST) List<Integer> siteList)
+            throws ScmServerException {
+        datasourceService.deleteDataInSiteList(wsName, dataId, type, createTime, siteList);
     }
 
     @GetMapping("/datasource/{data_id}")

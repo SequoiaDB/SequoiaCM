@@ -17,6 +17,7 @@ import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -72,8 +73,7 @@ public class ScmBucketConfOperator implements ScmConfOperator {
 
     @Override
     public ScmConfOperateResult updateConf(ConfigUpdator updator) throws ScmConfigException {
-        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
-                "unsupport to update bucket info");
+        return  bucketDao.updateBucket((BucketConfigUpdater) updator);
     }
 
 }

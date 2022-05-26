@@ -34,6 +34,9 @@ public class BucketGsonTypeAdapter extends ScmGsonTypeAdapter<String, ScmBucket>
         out.name(FieldName.Bucket.CREATE_USER).value(value.getCreateUser());
         out.name(FieldName.Bucket.WORKSPACE).value(value.getWorkspace());
         out.name(FieldName.Bucket.CREATE_TIME).value(value.getCreateTime());
+        out.name(FieldName.Bucket.VERSION_STATUS).value(value.getVersionStatus().name());
+        out.name(FieldName.Bucket.UPDATE_USER).value(value.getUpdateUser());
+        out.name(FieldName.Bucket.UPDATE_TIME).value(value.getUpdateTime());
         out.endObject();
     }
 

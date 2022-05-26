@@ -7,6 +7,7 @@ import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,7 +18,7 @@ public interface IDatasourceService {
     void deleteDataLocal(String wsName, String dataId, int dataType, long createTime)
             throws ScmServerException;
 
-    // 删除指定站点数据，目前只支持删除本地站点和主站点
+    // 删除指定站点数据
     void deleteData(String wsName, String dataId, int dataType, long createTime, int siteId)
             throws ScmServerException;
 
@@ -43,4 +44,7 @@ public interface IDatasourceService {
 
     ScmSeekableDataWriter getScmSeekableDataWriter(String wsName, String dataId, int dataType,
             long createTime) throws ScmServerException;
+
+    void deleteDataInSiteList(String wsName, String dataId, int type, long createTime,
+            List<Integer> siteList) throws ScmServerException;
 }

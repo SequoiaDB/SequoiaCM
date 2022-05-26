@@ -96,7 +96,7 @@ public class TaskServiceImpl implements ITaskService {
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.UPDATE,
                 "start task");
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         String taskId = "";
 
         ScmContentServerInfo serverInfo = contentModule.getServerInfo(serverId);

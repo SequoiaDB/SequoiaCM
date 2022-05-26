@@ -94,7 +94,6 @@ public class ScmServer {
 
         // start background job
         ScmJobManager.getInstance().startLogResourceJob();
-        ScmJobManager.getInstance().startRollbackJob();
 
         loadConfiguration();
         loadVersionAndStatus();

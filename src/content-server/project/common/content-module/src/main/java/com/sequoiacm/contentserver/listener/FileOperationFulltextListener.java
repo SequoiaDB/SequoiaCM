@@ -50,9 +50,26 @@ public class FileOperationFulltextListener implements FileOperationListener {
     private ServerConfig serverConfig;
 
     @Override
-    public OperationCompleteCallback postUpdateContent(ScmWorkspaceInfo ws, String fileId)
+    public OperationCompleteCallback postAddVersion(ScmWorkspaceInfo ws, String fileId)
             throws ScmServerException {
         return postCreate(ws, fileId);
+    }
+
+    @Override
+    public void postDeleteVersion(ScmWorkspaceInfo ws, BSONObject deletedVersion)
+            throws ScmServerException {
+        ScmWorkspaceFulltextExtData fulltextExt = ws.getFulltextExtData();
+
+        if (!fulltextExt.isEnabled()) {
+            return;
+        }
+
+        ScmFileFulltextExtData fileExtData = new ScmFileFulltextExtData(
+                BsonUtils.getBSON(deletedVersion, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
+        if (fileExtData.getIdxStatus() == ScmFileFulltextStatus.CREATED) {
+            String fileId = BsonUtils.getStringChecked(deletedVersion, FieldName.FIELD_CLFILE_ID);
+            putDropIndexMsg(fulltextExt, fileId, fileExtData.getIdxDocumentId());
+        }
     }
 
     @Override
@@ -107,7 +124,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
                     BsonUtils.getBSON(f, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
             if (fileExtData.getIdxStatus() == ScmFileFulltextStatus.CREATED) {
                 String fileId = BsonUtils.getStringChecked(f, FieldName.FIELD_CLFILE_ID);
-                putDropIndexMsgForDeleteFile(fulltextExt, fileId);
+                putDropIndexMsgForDeleteFileSilence(fulltextExt, fileId);
                 return;
             }
         }
@@ -168,8 +185,8 @@ public class FileOperationFulltextListener implements FileOperationListener {
         }
     }
 
-    private void putDropIndexMsgForDeleteFile(ScmWorkspaceFulltextExtData fulltextExt,
-            String fileId) throws ScmServerException {
+    private void putDropIndexMsgForDeleteFileSilence(ScmWorkspaceFulltextExtData fulltextExt,
+            String fileId) {
         FileFulltextOperation msg = new FileFulltextOperation();
         msg.setFileId(fileId);
         msg.setIndexLocation(fulltextExt.getIndexDataLocation());
@@ -183,6 +200,28 @@ public class FileOperationFulltextListener implements FileOperationListener {
         catch (Exception e) {
             logger.warn("failed to put fulltext msg to  mq-server:topic={}, msg={}",
                     FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC, msg, e);
+        }
+    }
+
+    private void putDropIndexMsg(ScmWorkspaceFulltextExtData fulltextExt, String fileId,
+            String indexDocId) throws ScmServerException {
+        FileFulltextOperation msg = new FileFulltextOperation();
+        msg.setFileId(fileId);
+        msg.setIndexDocId(indexDocId);
+        msg.setIndexLocation(fulltextExt.getIndexDataLocation());
+        msg.setOperationType(OperationType.DROP_SPECIFY_IDX_ONLY);
+        msg.setWsName(fulltextExt.getWsName());
+
+        try {
+            producerClient.putMsg(FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC,
+                    fulltextExt.getWsName() + "-" + fileId, new FulltextMsgWrapper(msg));
+            logger.debug("put fulltext msg to mq-server:" + msg);
+        }
+        catch (Exception e) {
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "failed to put fulltext msg to  mq-server:topic="
+                            + FulltextCommonDefine.FILE_FULLTEXT_OP_TOPIC + ", msg=" + msg,
+                    e);
         }
     }
 
@@ -217,11 +256,11 @@ public class FileOperationFulltextListener implements FileOperationListener {
         BasicBSONList andArr = new BasicBSONList();
         andArr.add(fileCondition);
         andArr.add(fulltextFileMatcher);
-
         BasicBSONObject condition = new BasicBSONObject("$and", andArr);
         MetaCursor cursor = null;
         try {
-            cursor = ScmContentModule.getInstance().getMetaService().queryCurrentFile(wsInfo,
+            cursor = ScmContentModule.getInstance().getMetaService()
+                    .queryCurrentFileIgnoreDeleteMarker(wsInfo,
                     condition, null, null, 0, 1);
             return cursor.getNext();
         }
@@ -249,7 +288,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
     }
 
     @Override
-    public void preUpdateContent(ScmWorkspaceInfo ws, BSONObject newVersionFile)
+    public void preAddVersion(ScmWorkspaceInfo ws, BSONObject newVersionFile)
             throws ScmServerException {
         preCreate(ws, newVersionFile);
     }

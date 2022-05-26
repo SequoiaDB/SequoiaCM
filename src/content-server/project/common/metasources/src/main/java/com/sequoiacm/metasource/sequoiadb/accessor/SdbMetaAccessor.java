@@ -89,6 +89,7 @@ public class SdbMetaAccessor implements MetaAccessor {
             List<BSONObject> insertList = new ArrayList<>();
             insertList.add(insertor);
             cl.insert(insertList, flag);
+            insertor.removeField("_id");
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(),
@@ -118,6 +119,12 @@ public class SdbMetaAccessor implements MetaAccessor {
 
     // return an matching record (old), and delete all matching records.
     public BSONObject queryAndDelete(BSONObject deletor) throws SdbMetasourceException {
+        return queryAndDelete(deletor, null);
+    }
+
+    // return an matching record (old), and delete all matching records.
+    public BSONObject queryAndDelete(BSONObject deletor, BSONObject orderby)
+            throws SdbMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
         try {
@@ -125,11 +132,14 @@ public class SdbMetaAccessor implements MetaAccessor {
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
 
-            cursor = cl.queryAndRemove(deletor, null, null, null, 0, -1,
+            cursor = cl.queryAndRemove(deletor, null, orderby, null, 0, -1,
                     DBQuery.FLG_QUERY_WITH_RETURNDATA);
             BSONObject ret = null;
             while (cursor.hasNext()) {
                 ret = cursor.getNext();
+            }
+            if (ret != null) {
+                ret.removeField("_id");
             }
             return ret;
         }
@@ -367,6 +377,9 @@ public class SdbMetaAccessor implements MetaAccessor {
             while (cursor.hasNext()) {
                 ret = cursor.getNext();
             }
+            if (ret != null) {
+                ret.removeField("_id");
+            }
             return ret;
         }
         catch (BaseException e) {
@@ -527,7 +540,12 @@ public class SdbMetaAccessor implements MetaAccessor {
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
 
-            return cl.queryOne(matcher, selector, orderBy, null, DBQuery.FLG_QUERY_WITH_RETURNDATA);
+            BSONObject ret = cl.queryOne(matcher, selector, orderBy, null,
+                    DBQuery.FLG_QUERY_WITH_RETURNDATA);
+            if (ret != null) {
+                ret.removeField("_id");
+            }
+            return ret;
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(), "query failed:csName=" + getCsName()

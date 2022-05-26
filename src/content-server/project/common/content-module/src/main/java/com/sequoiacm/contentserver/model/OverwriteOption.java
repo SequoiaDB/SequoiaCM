@@ -1,19 +1,33 @@
 package com.sequoiacm.contentserver.model;
 
 public class OverwriteOption {
-    private String sessionId;
-    private String userDetail;
 
-    public OverwriteOption(String sessionId, String userDetail) {
-        this.sessionId = sessionId;
-        this.userDetail = userDetail;
+
+    private boolean isOverwrite;
+    private SessionInfoWrapper sessionInfoWrapper;
+
+    private OverwriteOption() {
+
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public static OverwriteOption doOverwrite(String sessionId, String userDetail) {
+        OverwriteOption op = new OverwriteOption();
+        op.isOverwrite = true;
+        op.sessionInfoWrapper = new SessionInfoWrapper(sessionId, userDetail);
+        return op;
     }
 
-    public String getUserDetail() {
-        return userDetail;
+    public static OverwriteOption doNotOverwrite() {
+        OverwriteOption op = new OverwriteOption();
+        op.isOverwrite = false;
+        return op;
+    }
+
+    public boolean isOverwrite() {
+        return isOverwrite;
+    }
+
+    public SessionInfoWrapper getSessionInfoWrapper() {
+        return sessionInfoWrapper;
     }
 }

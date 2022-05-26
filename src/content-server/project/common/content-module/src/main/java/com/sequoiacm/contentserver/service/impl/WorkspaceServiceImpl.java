@@ -68,7 +68,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
         audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
                 "get workspace by workspaceName=" + workspaceName);
-        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName);
         return ws.getBSONObject();
     }
 
@@ -311,10 +311,10 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     private WorkspaceUpdator validateUpdator(String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfoCheckLocalSite(wsName);
 
         WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
-                contentModule.getWorkspaceInfoChecked(wsName).getBSONObject());
+                contentModule.getWorkspaceInfoCheckLocalSite(wsName).getBSONObject());
 
         confUpdator.setNewDesc(updator.getDescription());
 

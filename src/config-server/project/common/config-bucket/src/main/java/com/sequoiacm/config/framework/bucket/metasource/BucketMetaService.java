@@ -12,5 +12,5 @@ public interface BucketMetaService {
 
     long genBucketId() throws MetasourceException;
 
-    void dropBucketFileTableSilence(String tableName) throws MetasourceException;
+    void dropBucketFileTableSilence(String tableName);
 }

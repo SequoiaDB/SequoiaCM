@@ -4,7 +4,7 @@ import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 
-public class ScmVersion {
+public class ScmVersion implements Comparable<ScmVersion> {
     private int majorVersion = -1;
     private int minorVersion = -1;
 
@@ -22,6 +22,14 @@ public class ScmVersion {
                     "invlid version:majorVersion=" + majorVersion + ",minorVersion="
                             + minorVersion);
         }
+    }
+
+    public ScmVersion(int majorVersion, int minorVersion) {
+        this.majorVersion = majorVersion;
+        this.minorVersion = minorVersion;
+    }
+
+    public ScmVersion() {
     }
 
     public int getMajorVersion() {
@@ -55,4 +63,22 @@ public class ScmVersion {
         return "null";
     }
 
+    @Override
+    public int compareTo(ScmVersion o) {
+        if (majorVersion > o.majorVersion) {
+            return 1;
+        }
+        if (majorVersion < o.majorVersion) {
+            return -1;
+        }
+
+        if (minorVersion > o.minorVersion) {
+            return 1;
+        }
+        if (minorVersion < o.minorVersion) {
+            return -1;
+        }
+
+        return 0;
+    }
 }

@@ -28,7 +28,7 @@ public class DirUpdatorDao {
     public DirUpdatorDao(String user, String wsName, BSONObject newDirInfo)
             throws ScmServerException {
         this.user = user;
-        this.ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
+        this.ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
         this.updator = newDirInfo;
         this.dirOperator = DirOperator.getInstance();
     }

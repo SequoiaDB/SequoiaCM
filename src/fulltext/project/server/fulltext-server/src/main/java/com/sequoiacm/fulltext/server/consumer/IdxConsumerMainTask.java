@@ -203,6 +203,7 @@ class FileFulltextOperationsDeserializer implements MessageDeserializer<FileFull
         }
         ret.setSyncSaveIndex(isSyncSaveIndex);
         ret.setReindex(BsonUtils.getBooleanOrElse(m, FileFulltextOperation.KEY_REINDEX, false));
+        ret.setIndexDocId(BsonUtils.getString(m, FileFulltextOperation.KEY_INDEX_DOC_ID));
         return ret;
     }
 }

@@ -68,19 +68,32 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
-    public OperationCompleteCallback postUpdateContent(ScmWorkspaceInfo ws, String fileId)
+    public OperationCompleteCallback postAddVersion(ScmWorkspaceInfo ws, String fileId)
             throws ScmServerException {
         try {
             CallbackList ret = new CallbackList();
             for (FileOperationListener l : listeners) {
-                ret.add(l.postUpdateContent(ws, fileId));
+                ret.add(l.postAddVersion(ws, fileId));
             }
             return ret;
         }
         catch (Exception e) {
-            logger.warn("failed to do post udpate content:ws=" + ws.getName() + ", file=" + fileId,
+            logger.warn("failed to do post add version: ws=" + ws.getName() + ", file=" + fileId,
                     e);
             return OperationCompleteCallback.EMPTY_CALLBACK;
+        }
+    }
+
+    @Override
+    public void postDeleteVersion(ScmWorkspaceInfo ws, BSONObject deletedVersion) {
+        try {
+            for (FileOperationListener l : listeners) {
+                l.postDeleteVersion(ws, deletedVersion);
+            }
+        }
+        catch (Exception e) {
+            logger.warn("failed to do post delete version: ws=" + ws.getName() + ", deletedVersion="
+                    + deletedVersion, e);
         }
     }
 
@@ -100,10 +113,10 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
-    public void preUpdateContent(ScmWorkspaceInfo ws, BSONObject newVersionFile)
+    public void preAddVersion(ScmWorkspaceInfo ws, BSONObject newVersionFile)
             throws ScmServerException {
         for (FileOperationListener l : listeners) {
-            l.preUpdateContent(ws, newVersionFile);
+            l.preAddVersion(ws, newVersionFile);
         }
     }
 }

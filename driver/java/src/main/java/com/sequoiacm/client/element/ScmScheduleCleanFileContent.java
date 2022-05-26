@@ -124,15 +124,6 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         if (null != temp) {
             this.scope = ScopeType.getScopeType((Integer) temp);
         }
-
-        if (scope != ScopeType.SCOPE_CURRENT) {
-            try {
-                ScmArgChecker.File.checkHistoryFileMatcher(extraCondition);
-            }
-            catch (InvalidArgumentException e) {
-                throw new ScmInvalidArgumentException("invalid condition", e);
-            }
-        }
     }
 
     /**

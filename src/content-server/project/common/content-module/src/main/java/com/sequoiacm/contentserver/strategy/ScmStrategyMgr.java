@@ -145,7 +145,7 @@ public class ScmStrategyMgr {
             throw new ScmOperationUnsupportedException(e.getMessage(), e);
         }
     }
-    
+
     private List<Integer> getWsLocationSites(ScmWorkspaceInfo wsInfo) {
         Set<Integer> siteIds = wsInfo.getDataSiteIds();
         return new ArrayList<Integer>(siteIds);

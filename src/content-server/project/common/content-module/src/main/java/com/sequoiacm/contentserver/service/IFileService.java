@@ -80,13 +80,14 @@ public interface IFileService {
             int minorVersion) throws ScmServerException;
 
     BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId, int majorVersion,
-            int minorVersion) throws ScmServerException;
-    
+            int minorVersion, boolean acceptDeleteMarker) throws ScmServerException;
+
     BSONObject getFileInfoById(String workspaceName, String fileId, int majorVersion,
-            int minorVersion) throws ScmServerException;
+            int minorVersion, boolean acceptDeleteMarker) throws ScmServerException;
 
     BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
-            int majoVersion, int minorVersion) throws ScmServerException;
+            int majoVersion, int minorVersion, boolean acceptDeleteMarker)
+            throws ScmServerException;
 
     BSONObject uploadFile(ScmUser user, String workspaceName, InputStream is, BSONObject fileInfo,
             String sessionId, String userDetail, ScmUserPasswordType passwordType,
@@ -108,4 +109,8 @@ public interface IFileService {
 
     BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo, String workspaceName)
             throws ScmServerException;
+
+    BSONObject deleteVersion(ScmUser user, String bucket, String fileName, int majorVersion,
+            int minorVersion) throws ScmServerException;
+
 }

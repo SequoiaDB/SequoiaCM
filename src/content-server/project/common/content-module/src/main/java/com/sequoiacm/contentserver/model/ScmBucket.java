@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.model;
 
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -17,9 +18,13 @@ public class ScmBucket {
     private String createUser;
     private String workspace;
     private String fileTable;
+    private ScmBucketVersionStatus versionStatus;
+    private String updateUser;
+    private long updateTime;
 
     public ScmBucket(String name, long id, long createTime, String createUser, String workspace,
-            String fileTable, BucketInfoManager bucketInfoManager) {
+            String fileTable, ScmBucketVersionStatus versionStatus, String updateUser,
+            long updateTime, BucketInfoManager bucketInfoManager) {
         this.name = name;
         this.id = id;
         this.createTime = createTime;
@@ -27,13 +32,49 @@ public class ScmBucket {
         this.workspace = workspace;
         this.fileTable = fileTable;
         this.bucketInfoMgr = bucketInfoManager;
+        this.versionStatus = versionStatus;
+        this.updateTime = updateTime;
+        this.updateUser = updateUser;
     }
 
     @Override
     public String toString() {
-        return "ScmBucket{" + "name='" + name + '\'' + ", id='" + id + '\'' + ", createTime="
-                + createTime + ", createUser='" + createUser + '\'' + ", workspace='" + workspace
-                + '\'' + ", fileTable='" + fileTable + '\'' + '}';
+        return "ScmBucket{" +
+                "bucketInfoMgr=" + bucketInfoMgr +
+                ", name='" + name + '\'' +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", createUser='" + createUser + '\'' +
+                ", workspace='" + workspace + '\'' +
+                ", fileTable='" + fileTable + '\'' +
+                ", versionStatus=" + versionStatus +
+                ", updateUser='" + updateUser + '\'' +
+                ", updateTime=" + updateTime +
+                '}';
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public ScmBucketVersionStatus getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(ScmBucketVersionStatus versionStatus) {
+        this.versionStatus = versionStatus;
     }
 
     public void setFileTable(String fileTable) {

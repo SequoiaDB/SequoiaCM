@@ -415,7 +415,7 @@ public class ScmContentModule {
         }
     }
 
-    public ScmWorkspaceInfo getWorkspaceInfoChecked(int workspaceId) throws ScmServerException {
+    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(int workspaceId) throws ScmServerException {
         int localSiteId = getLocalSite();
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo(workspaceId);
         if (null == wsInfo) {
@@ -453,13 +453,19 @@ public class ScmContentModule {
         }
     }
 
-    public ScmWorkspaceInfo getWorkspaceInfoChecked(String wsName) throws ScmServerException {
-        int localSiteId = getLocalSite();
+    public ScmWorkspaceInfo getWorkspaceInfoCheckExist(String wsName) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo(wsName);
         if (null == wsInfo) {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     "workspace is not exist:name=" + wsName);
         }
+
+        return wsInfo;
+    }
+
+    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(String wsName) throws ScmServerException {
+        int localSiteId = getLocalSite();
+        ScmWorkspaceInfo wsInfo = getWorkspaceInfoCheckExist(wsName);
 
         boolean isServerInWorkspace = isSiteInWorkspace(wsInfo, localSiteId);
 
@@ -491,10 +497,11 @@ public class ScmContentModule {
         return bizConf.getServerInfo(serverId);
     }
 
-    public BSONObject getCurrentFileInfo(ScmWorkspaceInfo wsInfo, String fileID)
-            throws ScmServerException {
+    public BSONObject getCurrentFileInfo(ScmWorkspaceInfo wsInfo, String fileID,
+            boolean acceptDeleteMarker) throws ScmServerException {
         ScmMetaService ss = getMetaService();
-        return ss.getCurrentFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileID);
+        return ss.getCurrentFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileID,
+                acceptDeleteMarker);
     }
 
     public void insertTransLog(String workspaceName, BSONObject transRecord)

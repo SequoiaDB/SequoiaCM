@@ -330,9 +330,8 @@ public class ScmFileServicePriv {
         if (hasWsPriority(user.getUsername(), wsName, op.getFlag(), opDesc)) {
             return;
         }
-
-        BSONObject fileInfo = fileService.getFileInfoById(wsName, fileId, majorVerion,
-                minorVersion);
+        BSONObject fileInfo = fileService.getFileInfoById(wsName, fileId, majorVerion, minorVersion,
+                true);
         checkFilePriority(user, wsName, fileInfo, op, opDesc);
     }
 

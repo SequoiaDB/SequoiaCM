@@ -18,7 +18,6 @@ public class ScmJobManager {
     private static final Logger logger = LoggerFactory.getLogger(ScmJobManager.class);
 
     private ScheduledExecutorService jobTimer = Executors.newScheduledThreadPool(10);
-    private ScmRollbackJob rollbackJob = new ScmRollbackJob();
     private ScmLogResourceJob logResourceJob = new ScmLogResourceJob();
     private static ScmJobManager jobManager = null;
 
@@ -41,16 +40,8 @@ public class ScmJobManager {
         jobTimer.shutdown();
     }
 
-    public void startRollbackJob() throws ScmServerException {
-        schedule(rollbackJob, ServiceDefine.Job.TRANS_ROLLBACK_TASK_DELAY);
-    }
-
     public void startLogResourceJob() throws ScmServerException {
         schedule(logResourceJob, ServiceDefine.Job.TRANS_LOG_RESOURCE_DELAY);
-    }
-
-    public void addRollbackID(int siteID, String workspaceName, String transID) {
-        rollbackJob.addTransID(siteID, workspaceName, transID);
     }
 
     /*

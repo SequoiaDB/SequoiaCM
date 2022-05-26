@@ -2,6 +2,7 @@ package com.sequoiacm.client.element;
 
 import java.util.Date;
 
+import com.sequoiacm.client.util.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.exception.ScmException;
@@ -14,7 +15,6 @@ import com.sequoiacm.common.FieldName;
  * @since 2.1
  */
 public class ScmFileBasicInfo {
-
     private String fileName;
     private ScmId fileId;
     private int majorVersion;
@@ -22,6 +22,8 @@ public class ScmFileBasicInfo {
     private String mimeType;
     private String user;
     private Date createDate;
+    private boolean isDeleteMarker;
+    private boolean hasNullMarker;
 
     /**
      * Create a instance of ScmFileBasicInfo.
@@ -42,6 +44,9 @@ public class ScmFileBasicInfo {
         user = (String) bson.get(FieldName.FIELD_CLFILE_INNER_USER);
         createDate = new Date(
                 CommonHelper.toLongValue(bson.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
+        hasNullMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_NULL_MARKER, false);
+        isDeleteMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_DELETE_MARKER,
+                false);
     }
 
     /**
@@ -215,8 +220,32 @@ public class ScmFileBasicInfo {
         buf.append("minorVersion : " + minorVersion + " , ");
         buf.append("user : " + user + " , ");
         buf.append("createDate : " + createDate + " , ");
-        buf.append("mimeType : " + mimeType);
+        buf.append("mimeType : " + mimeType + " , ");
+        buf.append("null_marker : " + hasNullMarker + " , ");
+        buf.append("delete_marker : " + isDeleteMarker);
         buf.append("}");
         return buf.toString();
+    }
+
+    /**
+     * Return the file has null marker or not
+     *
+     * @return return true if has null marker.
+     */
+    public boolean hasNullMarker() {
+        return hasNullMarker;
+    }
+
+    public void setHasNullMarker(boolean hasNullMarker) {
+        this.hasNullMarker = hasNullMarker;
+    }
+
+    /**
+     * Judges whether current file is delete marker.
+     *
+     * @return return is delete marker ot not.
+     */
+    public boolean isDeleteMarker() {
+        return isDeleteMarker;
     }
 }

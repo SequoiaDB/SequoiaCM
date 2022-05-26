@@ -23,7 +23,7 @@ public class DireDeletorDao {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         this.id = dirId;
         this.path = path;
-        this.ws = contentModule.getWorkspaceInfoChecked(wsName);
+        this.ws = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         this.metaService = contentModule.getMetaService();
         this.dirOperator = DirOperator.getInstance();
     }

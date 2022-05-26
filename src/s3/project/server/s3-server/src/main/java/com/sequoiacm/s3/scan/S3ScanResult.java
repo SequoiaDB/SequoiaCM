@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import org.bson.BSONObject;
 
 public class S3ScanResult {
-    private List<BSONObject> content = new ArrayList<>();
+    private List<RecordWrapper> content = new ArrayList<>();
     private TreeSet<String> commonPrefixSet = new TreeSet<>();
     private boolean isTruncated = false;
 
@@ -18,7 +18,7 @@ public class S3ScanResult {
         return content.size() + commonPrefixSet.size();
     }
 
-    void addContent(BSONObject r) {
+    void addContent(RecordWrapper r) {
         content.add(r);
     }
 
@@ -42,7 +42,7 @@ public class S3ScanResult {
         this.nextScanOffset = nextScanOffset;
     }
 
-    public List<BSONObject> getContent() {
+    public List<RecordWrapper> getContent() {
         return content;
     }
 

@@ -53,7 +53,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.READ, "find breakpoint file");
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        contentModule.getWorkspaceInfoChecked(workspaceName);
+        contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
@@ -89,7 +89,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         try {
             ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory()
                     .createBreakpointWriter(
-                            contentModule.getWorkspaceInfoChecked(file.getWorkspaceName())
+                            contentModule.getWorkspaceInfoCheckLocalSite(file.getWorkspaceName())
                                     .getDataLocation(),
                             ScmContentModule.getInstance().getDataService(),
                             file.getWorkspaceName(), file.getFileName(), file.getDataId(),
@@ -113,7 +113,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.READ, "list breakpoint files");
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        contentModule.getWorkspaceInfoChecked(workspaceName);
+        contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
         List<BreakpointFile> ret = contentModule.getMetaService().listBreakpointFiles(workspaceName,
                 filter);
         String message = "list breakpoint files";
@@ -138,7 +138,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
 
-        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
@@ -179,7 +179,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
 
-        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {
@@ -269,7 +269,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                                 workspaceName, fileName, file.getSiteName()));
             }
 
-            ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
+            ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
             BreakpointFileDeleter fileDeleter = new BreakpointFileDeleter(workspaceInfo, file);
             fileDeleter.delete();
 
@@ -293,7 +293,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.UPDATE, "calculate breakpoint file md5");
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         ScmLock lock = xlock(workspaceName, fileName);
         try {

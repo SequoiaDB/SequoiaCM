@@ -21,6 +21,7 @@ import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigDefine;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilterType;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketNotifyOption;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -148,6 +149,7 @@ public class BucketDao {
         String tableName = metaService.createBucketFileTable(config.getWorkspace(), bucketId);
         config.setId(bucketId);
         config.setCreateTime(createTime.getTime());
+        config.setUpdateTime(createTime.getTime());
         config.setFileTable(tableName);
         Transaction trans = metasource.createTransaction();
         try {
@@ -159,7 +161,14 @@ public class BucketDao {
         }
         catch (Exception e) {
             trans.rollback();
+            // 这张表的表名是由桶ID而不是表名构成，即便当前这个异常是相同桶已存在，注意这里依然要drop掉它（因为它不是已存在桶的表）
             metaService.dropBucketFileTableSilence(tableName);
+            if (e instanceof ScmConfigException) {
+                if (((ScmConfigException) e).getError() == ScmConfError.METASOURCE_RECORD_EXIST) {
+                    throw new ScmConfigException(ScmConfError.BUCKET_EXIST,
+                            "bucket exist:" + config.getName());
+                }
+            }
             throw e;
         }
         finally {
@@ -212,8 +221,44 @@ public class BucketDao {
         return table.count(new BasicBSONObject(FieldName.Bucket.NAME, filter.getBucketName()));
     }
 
-    public void updateBucket(BucketConfig newBucket) throws Exception {
+    public ScmConfOperateResult updateBucket(BucketConfigUpdater bucketConfigUpdater)
+            throws ScmConfigException {
         // 实现 updateBucket ，在更新特定 bucket 版本时，也要更新全局版本 ALL_BUCKET_VERSION！
-        throw new Exception("unsupported now");
+        Transaction transaction = metasource.createTransaction();
+        try {
+            transaction.begin();
+            TableDao bucketTable = metaService.getBucketTable(transaction);
+            BSONObject newRecord = bucketTable.updateAndCheck(
+                    new BasicBSONObject(FieldName.Bucket.NAME, bucketConfigUpdater.getBucketName()),
+                    new BasicBSONObject(FieldName.Bucket.VERSION_STATUS,
+                            bucketConfigUpdater.getVersionStatus())
+                                    .append(FieldName.Bucket.UPDATE_USER,
+                                            bucketConfigUpdater.getUpdateUser())
+                                    .append(FieldName.Bucket.UPDATE_TIME,
+                                            System.currentTimeMillis()));
+            if (newRecord == null) {
+                throw new ScmConfigException(ScmConfError.BUCKET_NOT_EXIST,
+                        "bucket not exist:" + bucketConfigUpdater.getBucketName());
+            }
+            Integer bucketVersion = versionDao.increaseVersion(ScmConfigNameDefine.BUCKET,
+                    bucketConfigUpdater.getBucketName(), transaction);
+            Integer globalVersion = versionDao.increaseVersion(ScmConfigNameDefine.BUCKET,
+                    BucketConfigDefine.ALL_BUCKET_VERSION, transaction);
+            transaction.commit();
+
+            BucketNotifyOption notifyOption = new BucketNotifyOption(
+                    bucketConfigUpdater.getBucketName(), bucketVersion, EventType.UPDATE,
+                    globalVersion);
+            ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.BUCKET, notifyOption);
+            return new ScmConfOperateResult(converter.convertToConfig(newRecord), event);
+        }
+        catch (Exception e) {
+            transaction.rollback();
+            throw e;
+        }
+        finally {
+            transaction.close();
+        }
+
     }
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.s3.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.exception.ScmError;
@@ -193,6 +194,17 @@ public class MultipartUploadController {
 
             sourceObject = objectService.getObject(session, sourceUri.getBucketName(),
                     sourceUri.getObjectName(), sourceUri.getVersionId(), matcher, range);
+            if (sourceObject.getMeta().isDeleteMarker()) {
+                if (sourceUri.getVersionId() == null) {
+                    throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                            "object is delete marker: bucket=" + sourceUri.getBucketName()
+                                    + ", key=" + sourceUri.getObjectName());
+                }
+                throw new S3ServerException(S3Error.OBJECT_COPY_DELETE_MARKER,
+                        "object is delete marker: bucket=" + sourceUri.getBucketName() + ", key="
+                                + sourceUri.getObjectName() + ", version="
+                                + sourceUri.getVersionId());
+            }
 
             long contentLength = getCopyContentLength(range, sourceObject);
 
@@ -209,11 +221,11 @@ public class MultipartUploadController {
             copyResult.seteTag(newPart.getEtag());
             copyResult.setLastModified(formatDate(newPart.getLastModified()));
             HttpHeaders headers = new HttpHeaders();
-            // TODO:for versioning
-            // if (!(sourceObject.getMeta().getNoVersionFlag())) {
-            // headers.add(RestParamDefine.CopyObjectResultHeader.SOURCE_VERSION_ID,
-            // String.valueOf(sourceObject.getMeta().getVersionId()));
-            // }
+
+            if (sourceUri.getVersionId() != null) {
+                headers.add(RestParamDefine.CopyObjectResultHeader.SOURCE_VERSION_ID,
+                        sourceUri.getVersionId());
+            }
 
             logger.debug(
                     "upload part copy success. bucketName={}, objectName={}, uploadId={}, partNumber={}, source={}, range={}",

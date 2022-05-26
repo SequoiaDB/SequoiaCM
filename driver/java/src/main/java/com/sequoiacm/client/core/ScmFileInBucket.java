@@ -11,12 +11,12 @@ import java.net.HttpURLConnection;
 
 class ScmFileInBucket extends ScmFileImpl {
 
-    private final ScmBucket bucket;
+    private final String bucket;
 
-    ScmFileInBucket(ScmBucket bucket, String fileName) throws ScmException {
+    ScmFileInBucket(String bucket, long bucketId, String fileName) throws ScmException {
         super();
         setFileName(fileName);
-        setBucketId(bucket.getId());
+        setBucketId(bucketId);
         this.bucket = bucket;
     }
 
@@ -41,20 +41,35 @@ class ScmFileInBucket extends ScmFileImpl {
     @Override
     protected BSONObject sendTransformBreakpointFileRequest(ScmUploadConf conf)
             throws ScmException {
-        return ws.getSession().getDispatcher().createFileInBucket(bucket.getName(),
+        return ws.getSession().getDispatcher().createFileInBucket(bucket,
                 breakpointFile.getFileName(), toBSONObject(), conf.toBsonObject());
     }
 
     @Override
     protected BSONObject sendUploadFileRequest(InputStream data, ScmUploadConf conf)
             throws ScmException {
-        return ws.getSession().getDispatcher().createFileInBucket(bucket.getName(), data,
+        return ws.getSession().getDispatcher().createFileInBucket(bucket, data,
                 toBSONObject(), conf.toBsonObject());
     }
 
     @Override
     HttpURLConnection httpURLConnectionForSave(ScmUploadConf conf) throws ScmException {
-        return ws.getSession().getDispatcher().createFileInBucketConn(bucket.getName(),
+        return ws.getSession().getDispatcher().createFileInBucketConn(bucket,
                 toBSONObject(), conf.toBsonObject());
+    }
+
+    @Override
+    public void delete(boolean isPhysical) throws ScmException {
+        if (isExist()) {
+            ScmSession conn;
+            conn = ws.getSession();
+            conn.getDispatcher().bucketDeleteFile(bucket, getFileName(), isPhysical);
+            setIsDeleted(true);
+        }
+    }
+
+    @Override
+    public void delete() throws ScmException {
+        delete(false);
     }
 }

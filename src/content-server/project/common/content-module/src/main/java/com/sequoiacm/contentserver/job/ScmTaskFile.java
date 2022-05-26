@@ -70,7 +70,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                 scope = (int) info.get(FieldName.Task.FIELD_SCOPE);
             }
             ScmContentModule contentModule = ScmContentModule.getInstance();
-            wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+            wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
             mainSiteId = contentModule.getMainSite();
             localSiteId = contentModule.getLocalSite();
 
@@ -141,7 +141,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     protected MetaCursor getCursor(ScmMetaService sms) throws ScmServerException {
         switch (scope) {
             case CommonDefine.Scope.SCOPE_CURRENT:
-                return sms.queryCurrentFile(wsInfo, actualMatcher, null, null, 0, -1);
+                return sms.queryCurrentFileIgnoreDeleteMarker(wsInfo, actualMatcher, null, null, 0, -1);
             case CommonDefine.Scope.SCOPE_ALL:
                 return sms.queryAllFile(wsInfo, actualMatcher, null);
             case CommonDefine.Scope.SCOPE_HISTORY:

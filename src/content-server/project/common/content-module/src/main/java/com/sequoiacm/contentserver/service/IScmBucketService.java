@@ -2,7 +2,9 @@ package com.sequoiacm.contentserver.service;
 
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
+import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
@@ -41,7 +43,13 @@ public interface IScmBucketService {
                           ScmDataInfoDetail data, TransactionCallback transactionCallback,
                           OverwriteOption overwriteOption) throws ScmServerException;
 
-    BSONObject getFile(ScmUser user, String bucket, String fileName) throws ScmServerException;
+    BSONObject getFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
+            int minorVersion) throws ScmServerException;
+
+    BSONObject getFileNullMarkerVersion(ScmUser user, String bucket, String fileName)
+            throws ScmServerException;
+
+    BSONObject getFileNullMarkerVersion(String bucket, String fileName) throws ScmServerException;
 
     MetaCursor listFile(ScmUser user, String bucketName, BSONObject condition, BSONObject selector,
             BSONObject orderBy, long skip, long limit) throws ScmServerException;
@@ -52,4 +60,18 @@ public interface IScmBucketService {
             ScmBucketAttachKeyType type) throws ScmServerException;
 
     void detachFile(ScmUser user, String bucket, String fileName) throws ScmServerException;
+
+    ScmBucket updateBucketVersionStatus(ScmUser user, String bucketName,
+            ScmBucketVersionStatus bucketVersionStatus) throws ScmServerException;
+
+    // 删除文件若发生了新增版本（deleteMarker），则返回这个新增的版本，否则返回null
+    BSONObject deleteFile(ScmUser user, String bucket, String fileName, boolean isPhysical,
+            SessionInfoWrapper sessionInfoWrapper) throws ScmServerException;
+
+    // 返回被删除的版本
+    BSONObject deleteFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
+            int minorVersion) throws ScmServerException;
+
+    BSONObject deleteFileVersionNullMarker(ScmUser user, String bucket, String fileName)
+            throws ScmServerException;
 }

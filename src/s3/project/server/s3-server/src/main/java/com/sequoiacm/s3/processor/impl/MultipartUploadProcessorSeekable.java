@@ -308,9 +308,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
             scmBucketService.createFile(session.getUser(), bucketName, file, dataInfoDetail,
                     callbackUpload,
-                    new OverwriteOption(session.getSessionId(), session.getUserDetail()));
+                    OverwriteOption.doNotOverwrite());
 
-            // TODO:add object version to result
+            // TODO:add object version to result 前面已经发过空格了，这里setVersionId希望发个响应头给客户端，客户端已经不能处理了
 
             // response.setVersionId(objectMeta.getVersionId());
 

@@ -39,7 +39,7 @@ public class BreakpointFileMetaCorrector {
 
     public boolean canCorrect() throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoChecked(file.getWorkspaceName());
+        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(file.getWorkspaceName());
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
@@ -65,7 +65,7 @@ public class BreakpointFileMetaCorrector {
 
     public BreakpointFile correct() throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoChecked(file.getWorkspaceName());
+        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(file.getWorkspaceName());
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),

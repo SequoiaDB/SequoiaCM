@@ -49,9 +49,6 @@ public class ObjectUri {
             this.objectName = decodeUri.substring(beginObject + 1, beginVersionId);
             versionId = decodeUri
                     .substring(beginVersionId + RestParamDefine.REST_SOURCE_VERSIONID.length());
-            if(versionId.equals(S3CommonDefine.NULL_VERSION_ID)){
-                versionId = null;
-            }
         }
 
         if (this.objectName.length() == 0) {

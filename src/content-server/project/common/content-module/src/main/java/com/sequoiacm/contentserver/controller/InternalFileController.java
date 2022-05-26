@@ -97,7 +97,7 @@ public class InternalFileController {
             @RequestParam(name = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") int minorVersion)
             throws ScmServerException {
         BSONObject file = fileService.getFileInfoById(workspaceName, fileId, majorVersion,
-                minorVersion);
+                minorVersion, false);
         return file;
     }
 
@@ -124,7 +124,7 @@ public class InternalFileController {
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
         BSONObject fileInfo = fileService.getFileInfoById(workspace_name, fileId,
-                version.getMajorVersion(), version.getMinorVersion());
+                version.getMajorVersion(), version.getMinorVersion(), false);
         response.setHeader("Content-Type",
                 String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE)));
         response.setHeader("Content-Disposition",

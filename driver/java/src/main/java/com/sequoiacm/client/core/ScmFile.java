@@ -467,10 +467,12 @@ public abstract class ScmFile {
     public abstract ScmId save(ScmUploadConf config) throws ScmException;
 
     /**
-     * Deletes a file.
+     * Deletes a file, specify true to delete the file physically (delete all
+     * versions of the file), specify false to delete the file in version
+     * control(see {@link ScmFile#delete()})
      *
      * @param isPhysical
-     *            is physical or logical
+     *            delete file physically or in version control.
      * @throws ScmException
      *             If error happens
      * @since 2.1
@@ -478,13 +480,46 @@ public abstract class ScmFile {
     public abstract void delete(boolean isPhysical) throws ScmException;
 
     /**
-     * Deletes a file logically.
+     * Deletes current file version.
+     * 
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void deleteVersion() throws ScmException;
+
+    /**
+     * Deletes the specify file version.
+     * 
+     * @param majorVersion
+     *            major version.
+     * @param minorVersion
+     *            minor version.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void deleteVersion(int majorVersion, int minorVersion) throws ScmException;
+
+    /**
+     * Deletes a file in version control, this operation can only be performed when
+     * the file in a bucket, this method behaves differently in different bucket
+     * version status:<br>
      *
+     * {@link com.sequoiacm.common.module.ScmBucketVersionStatus#Disabled}:
+     * delete the file physically(delete all the file version), like specify true to
+     * use {@link ScmFile#delete(boolean)}<br>
+     *
+     * {@link com.sequoiacm.common.module.ScmBucketVersionStatus#Enabled}:
+     * create a delete marker version for the file, the file history version can
+     * still be accessed<br>
+     *
+     * {@link com.sequoiacm.common.module.ScmBucketVersionStatus#Suspended}:
+     * create a delete marker version for the file, and delete a file version with
+     * null-marker if exist, the file history version can still be accessed<br>
+     * 
      * @throws ScmException
      *             If error happens
      * @since 2.1
      */
-    @Deprecated
     public abstract void delete() throws ScmException;
 
     /**
@@ -684,6 +719,13 @@ public abstract class ScmFile {
      *             if error happens.
      */
     public abstract String getNameBeforeAttach() throws ScmException;
+
+    /**
+     * Return the file is null marker or not
+     * 
+     * @return return true if is null marker.
+     */
+    public abstract boolean isNullMarker();
 
     abstract void setSize(long size);
 

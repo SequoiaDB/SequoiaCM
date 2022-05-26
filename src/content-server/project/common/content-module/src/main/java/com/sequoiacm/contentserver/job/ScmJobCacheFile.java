@@ -67,7 +67,7 @@ public final class ScmJobCacheFile extends ScmBackgroundJob {
                     .getInstance()
                     .getMetaService()
                     .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion,
-                            minorVersion);
+                            minorVersion, false);
             if (null == file) {
                 throw new ScmFileNotFoundException("file is not exist:fileId=" + fileId);
             }

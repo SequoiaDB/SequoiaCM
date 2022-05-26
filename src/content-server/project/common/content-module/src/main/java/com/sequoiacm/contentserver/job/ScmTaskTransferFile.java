@@ -68,7 +68,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
         try {
             ScmWorkspaceInfo ws = getWorkspaceInfo();
             file = ScmContentModule.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
-                    ws.getName(), fileId, majorVersion, minorVersion);
+                    ws.getName(), fileId, majorVersion, minorVersion, false);
             if (file == null) {
                 logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}",
                         fileId, majorVersion, minorVersion, dataId);

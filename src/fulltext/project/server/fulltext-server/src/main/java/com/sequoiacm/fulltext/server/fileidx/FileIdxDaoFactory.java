@@ -35,6 +35,9 @@ public class FileIdxDaoFactory {
             case DROP_IDX_ONLY:
                 return new DropOnlyFileIdxDao(op.getWsName(), op.getFileId(), op.getIndexLocation(),
                         esClient);
+            case DROP_SPECIFY_IDX_ONLY:
+                return new DropSpecifyIdxDao(op.getWsName(), op.getFileId(), op.getIndexLocation(),
+                        esClient, op.getIndexDocId());
             default:
                 throw new FullTextException(ScmError.SYSTEM_ERROR,
                         "no such FileIdxDao:" + op.getOperationType());

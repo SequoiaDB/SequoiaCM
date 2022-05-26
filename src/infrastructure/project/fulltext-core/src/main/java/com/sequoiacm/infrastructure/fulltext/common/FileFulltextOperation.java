@@ -10,11 +10,15 @@ public class FileFulltextOperation {
     public static final String KEY_FILE_ID = "file_id";
     public static final String KEY_SYNC_SAVE_INDEX = "sync_save_index";
     public static final String KEY_REINDEX = "reindex";
+    public static final String KEY_INDEX_DOC_ID = "index_doc_id";
 
     private OperationType operationType;
     private String wsName;
     private String indexLocation;
     private String fileId;
+
+    // DROP_SPECIFY_IDX_ONLY 有效，删除指定版本索引
+    private String indexDocId;
 
     // operationType == CREATE_IDX 有效
     private boolean syncSaveIndex;
@@ -29,6 +33,14 @@ public class FileFulltextOperation {
 
     public void setOperationType(OperationType operationType) {
         this.operationType = operationType;
+    }
+
+    public String getIndexDocId() {
+        return indexDocId;
+    }
+
+    public void setIndexDocId(String indexDocId) {
+        this.indexDocId = indexDocId;
     }
 
     public String getWsName() {
@@ -57,8 +69,10 @@ public class FileFulltextOperation {
 
     @Override
     public String toString() {
-        return "FulltextOperation [operationType=" + operationType + ", wsName=" + wsName
-                + ", indexLocation=" + indexLocation + ", fileId=" + fileId + ", ]";
+        return "FileFulltextOperation{" + "operationType=" + operationType + ", wsName='" + wsName
+                + '\'' + ", indexLocation='" + indexLocation + '\'' + ", fileId='" + fileId + '\''
+                + ", indexDocId='" + indexDocId + '\'' + ", syncSaveIndex=" + syncSaveIndex
+                + ", reindex=" + reindex + '}';
     }
 
     public boolean isSyncSaveIndex() {
@@ -85,6 +99,7 @@ public class FileFulltextOperation {
         ret.put(FileFulltextOperation.KEY_WS_NAME, this.getWsName());
         ret.put(FileFulltextOperation.KEY_SYNC_SAVE_INDEX, this.isSyncSaveIndex());
         ret.put(FileFulltextOperation.KEY_REINDEX, this.isReindex());
+        ret.put(FileFulltextOperation.KEY_INDEX_DOC_ID, this.getIndexDocId());
         return ret;
     }
 
@@ -94,7 +109,9 @@ public class FileFulltextOperation {
         // 删除索引并更新文件的索引状态
         DROP_IDX_AND_UPDATE_FILE,
         // 删除索引，不用更新文件索引状态（文件删除）
-        DROP_IDX_ONLY
+        DROP_IDX_ONLY,
+        // 删除指定文件版本的索引，不用更新文件索引状态（文件版本删除）
+        DROP_SPECIFY_IDX_ONLY
     }
 
 }

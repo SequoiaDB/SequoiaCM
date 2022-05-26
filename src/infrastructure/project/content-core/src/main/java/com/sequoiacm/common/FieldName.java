@@ -170,13 +170,17 @@ public class FieldName {
                                                                     // author1
     public static final String FIELD_CLFILE_FILE_MIME_TYPE = "mime_type"; // string,
 
+    // md5 的 base64 编码字符串
     public static final String FIELD_CLFILE_FILE_MD5 = "md5";
+    // 存储 md5 的 hex 编码字符串，增加这个字段主要给 s3 使用，避免需要转换 md5
     public static final String FIELD_CLFILE_FILE_ETAG = "etag";
     public static final String FIELD_CLFILE_FILE_BUCKET_ID = "bucket_id";
 
     public static final String FIELD_CLFILE_FILE_EXTERNAL_DATA = "external_data";
     public static final String FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH = "file_name_before_attach";
     public static final String FIELD_CLFILE_CUSTOM_METADATA = "custom_metadata";
+    public static final String FIELD_CLFILE_NULL_MARKER = "null_marker";
+    public static final String FIELD_CLFILE_DELETE_MARKER = "delete_marker";
 
     // CL_FILE only(file & document)
     public static final String FIELD_CLFILE_EXTRA_STATUS = "status"; // int, 0
@@ -218,6 +222,8 @@ public class FieldName {
     public static final String FIELD_CLREL_MAJOR_VERSION = FIELD_CLFILE_MAJOR_VERSION;
     public static final String FIELD_CLREL_MINOR_VERSION = FIELD_CLFILE_MINOR_VERSION;
     public static final String FIELD_CLREL_FILE_MIME_TYPE = FIELD_CLFILE_FILE_MIME_TYPE;
+    public static final String FIELD_CLREL_FILE_NULL_MARKER = FIELD_CLFILE_NULL_MARKER;
+    public static final String FIELD_CLREL_FILE_DELETE_MARKER = FIELD_CLFILE_DELETE_MARKER;
 
     public static final String FIELD_CLDIR_ID = "id";
     public static final String FIELD_CLDIR_NAME = "name";
@@ -484,19 +490,23 @@ public class FieldName {
         public static final String CREATE_USER = "create_user";
         public static final String CREATE_TIME = "create_time";
         public static final String WORKSPACE = "workspace";
-
+        public static final String VERSION_STATUS = "version_control_status";
+        public static final String UPDATE_TIME = "update_time";
+        public static final String UPDATE_USER = "update_user";
     }
 
     public static final class BucketFile {
-        public static final String FILE_ID = "id";
-        public static final String FILE_NAME = "name";
-        public static final String FILE_ETAG = "etag";
-        public static final String FILE_MAJOR_VERSION = "major_version";
-        public static final String FILE_MINOR_VERSION = "minor_version";
-        public static final String FILE_UPDATE_TIME = "update_time";
-        public static final String FILE_CREATE_USER = "create_user";
-        public static final String FILE_MIME_TYPE = "mime_type";
-        public static final String FILE_SIZE = "size";
-        public static final String FILE_CREATE_TIME = "create_time";
+        public static final String FILE_ID = FieldName.FIELD_CLFILE_ID;
+        public static final String FILE_NAME = FieldName.FIELD_CLFILE_NAME;
+        public static final String FILE_ETAG = FieldName.FIELD_CLFILE_FILE_ETAG;
+        public static final String FILE_MAJOR_VERSION = FieldName.FIELD_CLFILE_MAJOR_VERSION;
+        public static final String FILE_MINOR_VERSION = FieldName.FIELD_CLFILE_MINOR_VERSION;
+        public static final String FILE_UPDATE_TIME = FieldName.FIELD_CLFILE_INNER_UPDATE_TIME;
+        public static final String FILE_CREATE_USER = FieldName.FIELD_CLFILE_INNER_USER;
+        public static final String FILE_MIME_TYPE = FieldName.FIELD_CLFILE_FILE_MIME_TYPE;
+        public static final String FILE_SIZE = FieldName.FIELD_CLFILE_FILE_SIZE;
+        public static final String FILE_CREATE_TIME = FieldName.FIELD_CLFILE_INNER_CREATE_TIME;
+        public static final String FILE_NULL_MARKER = FieldName.FIELD_CLFILE_NULL_MARKER;
+        public static final String FILE_DELETE_MARKER = FieldName.FIELD_CLFILE_DELETE_MARKER;
     }
 }

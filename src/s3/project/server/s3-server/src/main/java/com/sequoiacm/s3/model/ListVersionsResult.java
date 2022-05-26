@@ -50,7 +50,7 @@ public class ListVersionsResult {
 
     @JacksonXmlElementWrapper(localName = "DeleteMarker", useWrapping = false)
     @JsonProperty("DeleteMarker")
-    private LinkedHashSet<RawVersion> deleteMarkerList = new LinkedHashSet<>();
+    private LinkedHashSet<ListDeleteMarker> deleteMarkerList = new LinkedHashSet<>();
 
     @JacksonXmlElementWrapper(localName = "CommonPrefixes", useWrapping = false)
     @JsonProperty("CommonPrefixes")
@@ -78,13 +78,13 @@ public class ListVersionsResult {
         return commonPrefixList;
     }
 
-    public void setDeleteMarkerList(LinkedHashSet<RawVersion> deleteMarkerList) {
+    public void setDeleteMarkerList(LinkedHashSet<ListDeleteMarker> deleteMarkerList) {
         if (deleteMarkerList != null) {
             this.deleteMarkerList = deleteMarkerList;
         }
     }
 
-    public LinkedHashSet<RawVersion> getDeleteMarkerList() {
+    public LinkedHashSet<ListDeleteMarker> getDeleteMarkerList() {
         return deleteMarkerList;
     }
 
@@ -128,5 +128,9 @@ public class ListVersionsResult {
 
     public void addCommonPrefix(ListObjectCommonPrefix prefix) {
         commonPrefixList.add(prefix);
+    }
+
+    public void addDeleteMarker(ListDeleteMarker deleteMarker) {
+        deleteMarkerList.add(deleteMarker);
     }
 }

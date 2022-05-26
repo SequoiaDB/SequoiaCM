@@ -123,7 +123,8 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     @Override
     public MetaFileHistoryAccessor getFileHistoryAccessor(MetaSourceLocation location,
             String wsName, TransactionContext context) {
-        return new SdbFileHistoryAccessor((SdbMetaSourceLocation) location, this, wsName + "_META",
+        return new SdbFileHistoryAccessor((SdbMetaSourceLocation) location, wsName, this,
+                wsName + "_META",
                 MetaSourceDefine.WorkspaceCLName.CL_FILE_HISTORY, context);
     }
 

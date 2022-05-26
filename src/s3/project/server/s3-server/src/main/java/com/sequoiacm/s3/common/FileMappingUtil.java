@@ -7,7 +7,9 @@ import com.sequoiacm.s3.core.S3BasicObjectMeta;
 import com.sequoiacm.s3.core.S3ObjectMeta;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.ListObjContent;
+import com.sequoiacm.s3.model.ListObjVersion;
 import com.sequoiacm.s3.model.Owner;
+import com.sequoiacm.s3.model.ListDeleteMarker;
 import com.sequoiacm.s3.utils.DataFormatUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -51,11 +53,46 @@ public class FileMappingUtil {
                 new Owner(user, user));
     }
 
+    public static ListObjContent buildListObjContent(S3ObjectMeta content, String encodeType)
+            throws S3ServerException {
+        String key = content.getKey();
+        key = S3Codec.encode(key, encodeType);
+        return new ListObjContent(key, DataFormatUtils.formatDate(content.getLastModified()),
+                content.getEtag(), content.getSize(),
+                new Owner(content.getUser(), content.getUser()));
+    }
+
+    public static ListDeleteMarker buildListDeleteMarker(S3ObjectMeta content, String encodeType,
+            boolean isLatest) throws S3ServerException {
+        String key = content.getKey();
+        key = S3Codec.encode(key, encodeType);
+        return new ListDeleteMarker(key, content.getVersionId(), isLatest,
+                DataFormatUtils.formatDate(content.getLastModified()), content.getUser());
+    }
+
+    public static ListObjVersion buildListObjVersion(S3ObjectMeta content, String encodeType,
+            boolean isLatest) throws S3ServerException {
+        String key = content.getKey();
+        key = S3Codec.encode(key, encodeType);
+        return new ListObjVersion(key, content.getVersionId(), isLatest,
+                DataFormatUtils.formatDate(content.getLastModified()), content.getUser(),
+                content.getEtag(), content.getSize());
+    }
+
     public static S3ObjectMeta buildS3ObjectMeta(String bucket, BSONObject fileInfo) {
         S3ObjectMeta ret = new S3ObjectMeta();
+        ret.setUser(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_INNER_USER));
         ret.setBucket(bucket);
         ret.setKey(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_NAME));
-        ret.setVersionId(null);
+        if (BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_NULL_MARKER, false)) {
+            ret.setVersionId("null");
+        }
+        else {
+            ret.setVersionId(fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION) + "."
+                    + fileInfo.get(FieldName.FIELD_CLFILE_MINOR_VERSION));
+        }
+        ret.setDeleteMarker(
+                BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_DELETE_MARKER, false));
         ret.setSize(
                 BsonUtils.getNumberChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_SIZE).longValue());
 

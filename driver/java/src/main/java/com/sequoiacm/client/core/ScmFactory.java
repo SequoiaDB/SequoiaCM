@@ -198,7 +198,6 @@ public class ScmFactory {
                 int majorVersion, int minorVersion) throws ScmException {
             checkArgNotNull("workspace", ws);
 
-            ScmFileImpl file;
             BSONObject fileInfo;
             ScmSession session;
 
@@ -213,8 +212,19 @@ public class ScmFactory {
                                 + ",majorVersion=" + majorVersion + ",minorVersion="
                                 + minorVersion);
             }
-            // assembly
-            file = ScmFileImpl.getInstanceByBSONObject(fileInfo);
+
+            String bucketName = BsonUtils.getString(fileInfo, CommonDefine.RestArg.BUCKET_NAME);
+            ScmFileImpl file;
+            if (bucketName != null) {
+                file = new ScmFileInBucket(bucketName,
+                        BsonUtils.getNumberChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_BUCKET_ID)
+                                .longValue(),
+                        BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_NAME));
+                file.refresh(fileInfo);
+            }
+            else {
+                file = ScmFileImpl.getInstanceByBSONObject(fileInfo);
+            }
             file.setWorkspace(ws);
             file.setExist(true);
             return file;
@@ -332,14 +342,6 @@ public class ScmFactory {
                 throw new ScmInvalidArgumentException(
                         "limit must be greater than or equals to -1:limit=" + limit);
             }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(fileCondition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invlid condition", e);
-                }
-            }
             BsonReader reader = ws.getSession().getDispatcher().getFileList(ws.getName(),
                     scope.getScope(), fileCondition, orderby, skip, limit);
             ScmCursor<ScmFileBasicInfo> fbiCursor = new ScmBsonCursor<ScmFileBasicInfo>(reader,
@@ -379,7 +381,6 @@ public class ScmFactory {
             if (null == fileCondition) {
                 throw new ScmInvalidArgumentException("fileCondition is null");
             }
-
             if (scope != ScopeType.SCOPE_CURRENT) {
                 try {
                     ScmArgChecker.File.checkHistoryFileMatcher(fileCondition);

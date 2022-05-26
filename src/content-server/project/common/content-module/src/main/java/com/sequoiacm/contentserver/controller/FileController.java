@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.controller;
 
 import com.sequoiacm.common.*;
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
@@ -8,6 +9,7 @@ import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
+import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
@@ -19,6 +21,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
@@ -58,6 +61,9 @@ public class FileController {
     private final DropwizardMetricServices metricServices;
 
     @Autowired
+    private BucketInfoManager bucketInfoManager;
+
+    @Autowired
     private ScmAudit audit;
 
     @Autowired
@@ -83,19 +89,29 @@ public class FileController {
             String filePath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             filePath = ScmSystemUtils.formatFilePath(filePath);
             file = fileService.getFileInfoByPath(user, workspaceName, filePath,
-                    version.getMajorVersion(), version.getMinorVersion());
+                    version.getMajorVersion(), version.getMinorVersion(), false);
         }
         else if (type.equals("id")) {
             String ignoreStr = "/api/v1/files/id/";
             String fileId = request.getRequestURI().substring(ignoreStr.length());
             file = fileService.getFileInfoById(user, workspaceName, fileId,
-                    version.getMajorVersion(), version.getMinorVersion());
+                    version.getMajorVersion(), version.getMinorVersion(), false);
         }
         else {
             throw new ScmInvalidArgumentException("unknown type:type=" + type);
         }
 
         file.removeField("_id");
+        Number bucketId = BsonUtils.getNumber(file, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (bucketId != null) {
+            ScmBucket bucket = bucketInfoManager.getBucketById(bucketId.longValue());
+            if (bucket != null) {
+                file.put(CommonDefine.RestArg.BUCKET_NAME, bucket.getName());
+            }
+            else {
+                file.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null);
+            }
+        }
         String fileInfo = RestUtils.urlEncode(file.toString());
         response.setHeader(CommonDefine.RestArg.FILE_RESP_FILE_INFO, fileInfo);
         return ResponseEntity.ok("");
@@ -342,7 +358,7 @@ public class FileController {
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
         BSONObject fileInfo = fileService.getFileInfoById(user, workspace_name, fileId,
-                version.getMajorVersion(), version.getMinorVersion());
+                version.getMajorVersion(), version.getMinorVersion(), false);
 
         response.setHeader("Content-Type",
                 String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE)));
@@ -503,11 +519,24 @@ public class FileController {
             Authentication auth) throws ScmServerException {
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
         BSONObject file = fileService.getFileInfoById(workspaceName, fileId,
-                version.getMajorVersion(), version.getMinorVersion());
+                version.getMajorVersion(), version.getMinorVersion(), false);
         ScmUser user = (ScmUser) auth.getPrincipal();
 
         BasicBSONList result = fileService.getFileContentLocations(user, file, workspaceName);
         ResponseEntity.BodyBuilder e = ResponseEntity.ok();
         return e.body(result);
+    }
+
+    @DeleteMapping(value = "/files/{file_id}", params = "action="
+            + CommonDefine.RestArg.ACTION_DELETE_VERSION)
+    public void deleteVersion(@PathVariable("file_id") String fileId,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
+            Authentication auth) throws ScmServerException {
+        ScmVersion version = new ScmVersion(majorVersion, minorVersion);
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        fileService.deleteVersion(user, workspaceName, fileId, version.getMajorVersion(),
+                version.getMinorVersion());
     }
 }

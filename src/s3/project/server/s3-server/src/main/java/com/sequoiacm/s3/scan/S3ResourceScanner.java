@@ -4,9 +4,7 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.s3.exception.S3ServerException;
 
@@ -15,11 +13,20 @@ public class S3ResourceScanner {
     private final S3ScanOffset offset;
     private final S3ScanCommonPrefixParser delimiter;
     private final int limit;
-    private final MetaAccessor metaAccessor;
+    private final S3ScanRecordCursorProvider cursorProvider;
 
     public S3ResourceScanner(MetaAccessor metaAccessor,
                              S3ScanMatcher matcher, S3ScanOffset offset, S3ScanCommonPrefixParser delimiter, int limit) {
-        this.metaAccessor = metaAccessor;
+        this.cursorProvider = new BasicS3ScanRecordCursorProvider(metaAccessor);
+        this.matcher = matcher;
+        this.offset = offset;
+        this.delimiter = delimiter;
+        this.limit = limit;
+    }
+
+    public S3ResourceScanner(S3ScanRecordCursorProvider cursorProvider, S3ScanMatcher matcher,
+                             S3ScanOffset offset, S3ScanCommonPrefixParser delimiter, int limit) {
+        this.cursorProvider = cursorProvider;
         this.matcher = matcher;
         this.offset = offset;
         this.delimiter = delimiter;
@@ -27,21 +34,21 @@ public class S3ResourceScanner {
     }
 
     public S3ScanResult doScan()
-            throws S3ServerException, ScmServerException, ScmMetasourceException {
+            throws S3ServerException, ScmMetasourceException {
         S3ScanResult result = new S3ScanResult();
         BasicBSONObject queryMatcher = buildQueryMatcher();
-        MetaCursor cursor = null;
+        RecordWrapperCursor<? extends RecordWrapper> cursor = null;
         try {
-            cursor = metaAccessor.query(queryMatcher, null, offset.getOrderBy(), 0, -1);
-            BSONObject lastRecord = null;
+            cursor = cursorProvider.createRecordCursor(queryMatcher, offset.getOrderBy());
+            RecordWrapper lastRecordWrapper = null;
             while (cursor.hasNext() && result.getSize() < limit + 1) {
-                BSONObject record = cursor.getNext();
-                if (!offset.isReach(record)) {
+                RecordWrapper recordWrapper = cursor.getNext();
+                if (!offset.isReach(recordWrapper.getRecord())) {
                     continue;
                 }
                 if (result.getSize() == limit) {
                     // 第 limit + 1 条不做为结果集，只用于置位 isTruncate
-                    String commonPrefix = delimiter.getCommonPrefix(record);
+                    String commonPrefix = delimiter.getCommonPrefix(recordWrapper.getRecord());
                     if (commonPrefix != null && commonPrefix.equals(result.getLastCommonPrefix())) {
                         // 这条记录是 commonPrefix，并且已经存在于结果集中，所以需要继续查看下一条记录，来确定是否置位 isTruncate
                         continue;
@@ -50,26 +57,26 @@ public class S3ResourceScanner {
                     break;
                 }
 
-                lastRecord = record;
-                String commonPrefix = delimiter.getCommonPrefix(record);
+                lastRecordWrapper = recordWrapper;
+                String commonPrefix = delimiter.getCommonPrefix(recordWrapper.getRecord());
                 if (commonPrefix != null) {
                     result.addCommonPrefix(commonPrefix);
                     continue;
                 }
-                result.addContent(record);
+                result.addContent(recordWrapper);
             }
             if (!result.isTruncated()) {
                 return result;
             }
 
 
-            if (lastRecord == null) {
+            if (lastRecordWrapper == null) {
                 // isTruncated 是true，lastRecord又是null，说明给的 limit == 0
                 result.setNextScanOffset(offset);
             }
             else {
-                result.setNextScanOffset(offset.createOffsetByRecord(lastRecord,
-                        delimiter.getCommonPrefix(lastRecord)));
+                result.setNextScanOffset(offset.createOffsetByRecord(lastRecordWrapper.getRecord(),
+                        delimiter.getCommonPrefix(lastRecordWrapper.getRecord())));
             }
             return result;
         }

@@ -153,6 +153,13 @@ public class ObjectController {
         }
     }
 
+    private void buildDeleteMarkerResponseHeader(S3ObjectMeta objectMeta,
+            HttpServletResponse response) {
+        response.addHeader(RestParamDefine.GetObjectResHeader.DELETE_MARKER, "true");
+        response.addHeader(RestParamDefine.GetObjectResHeader.VERSION_ID,
+                objectMeta.getVersionId());
+    }
+
     @GetMapping(value = "/{bucketname:.+}/**", produces = MediaType.APPLICATION_XML_VALUE)
     public void getObject(@PathVariable("bucketname") String bucketName, ScmSession session,
             @RequestParam(value = RestParamDefine.VERSION_ID, required = false) String versionId,
@@ -167,16 +174,25 @@ public class ObjectController {
             if (rangeHeader != null) {
                 range = restUtils.getRange(rangeHeader);
             }
-
-            if (versionId != null && versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
-                versionId = null;
-            }
-
             GetObjectResult result = objectService.getObject(session, bucketName, objectName,
                     versionId, matcher, range);
+
             try {
-                buildHeadersForGetObject(result.getMeta(), httpServletRequest, range, response);
-                transfer(response.getOutputStream(), result.getData());
+                if (result.getMeta().isDeleteMarker()) {
+                    buildDeleteMarkerResponseHeader(result.getMeta(), response);
+                    if (null == versionId) {
+                        throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                                "no object. object:" + objectName);
+                    }
+                    else {
+                        throw new S3ServerException(S3Error.METHOD_NOT_ALLOWED,
+                                "no object. object:" + objectName);
+                    }
+                }
+                else {
+                    buildHeadersForGetObject(result.getMeta(), httpServletRequest, range, response);
+                    transfer(response.getOutputStream(), result.getData());
+                }
             }
             finally {
                 result.close();
@@ -208,8 +224,7 @@ public class ObjectController {
         try {
             String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
             logger.debug("delete object. bucketName={}, objectName={}", bucketName, objectName);
-            DeleteObjectResult result = objectService.deleteObject(session, bucketName, objectName,
-                    null);
+            DeleteObjectResult result = objectService.deleteObject(session, bucketName, objectName);
             HttpHeaders headers = new HttpHeaders();
             if (result != null) {
                 if (result.isDeleteMarker()) {
@@ -243,19 +258,12 @@ public class ObjectController {
                     bucketName, objectName, versionId);
             HttpHeaders headers = new HttpHeaders();
             headers.add(RestParamDefine.DeleteObjectResultHeader.VERSION_ID, versionId);
-
-            if (versionId != null && versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
-                versionId = null;
-            }
-
             DeleteObjectResult result = objectService.deleteObject(session, bucketName, objectName,
                     versionId);
-
             if (result != null) {
                 headers.add(RestParamDefine.DeleteObjectResultHeader.DELETE_MARKER,
                         String.valueOf(result.isDeleteMarker()));
             }
-
             logger.debug(
                     "delete object with version id success. bucketName={}, objectName={}, versionId={}",
                     bucketName, objectName, versionId);
@@ -403,15 +411,15 @@ public class ObjectController {
                 range = restUtils.getRange(rangeHeader);
             }
 
-            if (versionId != null && versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
-                versionId = null;
-            }
-
             S3ObjectMeta meta = objectService.getObjectMeta(session, bucketName, objectName,
                     versionId, matcher);
 
             if (range != null) {
                 CommonUtil.analyseRangeWithFileSize(range, meta.getSize());
+            }
+            if (meta.isDeleteMarker()) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "no object. object:" + objectName);
             }
             buildHeadersForGetObject(meta, httpServletRequest, range, response);
 

@@ -78,7 +78,7 @@ public class FileCreatorDao implements IFileCreatorDao {
         }
     }
 
-    public void writeData(InputStream is) throws ScmServerException {
+    private void writeData(InputStream is) throws ScmServerException {
         byte[] buf = new byte[Const.TRANSMISSION_LEN];
         try {
             while (true) {
@@ -94,7 +94,6 @@ public class FileCreatorDao implements IFileCreatorDao {
                 }
             }
             writeFinish();
-            updateFileInfo();
             FileCommonOperator.recordDataTableName(wsInfo.getName(), fileWriter);
         }
         catch (IOException e) {
@@ -110,13 +109,16 @@ public class FileCreatorDao implements IFileCreatorDao {
     public void write(InputStream is) throws ScmServerException {
         if (!isNeedMd5) {
             writeData(is);
+            ScmFileOperateUtils.addDataInfo(fileInfo, dataInfo.getId(), dataInfo.getCreateTime(),
+                    ScmContentModule.getInstance().getLocalSite(), fileWriter.getSize(), null);
             return;
         }
         InputStreamWithCalcMd5 md5Is = new InputStreamWithCalcMd5(is, false);
         try {
             writeData(md5Is);
             String md5 = md5Is.calcMd5();
-            fileInfo.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+            ScmFileOperateUtils.addDataInfo(fileInfo, dataInfo.getId(), dataInfo.getCreateTime(),
+                    ScmContentModule.getInstance().getLocalSite(), fileWriter.getSize(), md5);
         }
         finally {
             ScmSystemUtils.closeResource(md5Is);
@@ -131,11 +133,6 @@ public class FileCreatorDao implements IFileCreatorDao {
     public void rollback() {
         FileCommonOperator.cancelWriter(fileWriter);
         FileCommonOperator.recordDataTableName(wsInfo.getName(), fileWriter);
-    }
-
-    private void updateFileInfo() throws ScmServerException {
-        fileInfo.put(FieldName.FIELD_CLFILE_FILE_SIZE, fileWriter.getSize());
-        fileInfo.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, fileWriter.getType());
     }
 
     @Override

@@ -13,6 +13,28 @@ public class BucketConfig implements Config {
     private long createTime;
     private String createUser;
     private String workspace;
+    private String versionStatus;
+    private long updateTime;
+    private String updateUser;
+
+    public BucketConfig() {
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
 
     public String getName() {
         return name;
@@ -62,6 +84,14 @@ public class BucketConfig implements Config {
         this.workspace = workspace;
     }
 
+    public String getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(String versionStatus) {
+        this.versionStatus = versionStatus;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BasicBSONObject ret = new BasicBSONObject();
@@ -71,13 +101,17 @@ public class BucketConfig implements Config {
         ret.put(FieldName.Bucket.CREATE_TIME, createTime);
         ret.put(FieldName.Bucket.CREATE_USER, createUser);
         ret.put(FieldName.Bucket.FILE_TABLE, fileTable);
+        ret.put(FieldName.Bucket.VERSION_STATUS, versionStatus);
+        ret.put(FieldName.Bucket.UPDATE_TIME, updateTime);
+        ret.put(FieldName.Bucket.UPDATE_USER, updateUser);
         return ret;
     }
 
     @Override
     public String toString() {
-        return "BucketConfig{" + "name='" + name + '\'' + ", id='" + id + '\'' + ", fileTable='"
-                + fileTable + '\'' + ", createTime=" + createTime + ", createUser='" + createUser
-                + '\'' + ", workspace='" + workspace + '\'' + '}';
+        return "BucketConfig{" + "name='" + name + '\'' + ", id=" + id + ", fileTable='" + fileTable
+                + '\'' + ", createTime=" + createTime + ", createUser='" + createUser + '\''
+                + ", workspace='" + workspace + '\'' + ", versionStatus='" + versionStatus + '\''
+                + ", updateTime=" + updateTime + ", updateUser='" + updateUser + '\'' + '}';
     }
 }

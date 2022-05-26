@@ -7,6 +7,7 @@ import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
+import com.sequoiacm.contentserver.dao.ScmFileDataDeleter;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
@@ -39,7 +40,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     @Override
     public void deleteDataLocal(String wsName, String dataId, int dataType, long createTime)
             throws ScmServerException {
-        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
 
         try {
@@ -67,18 +68,17 @@ public class DatasourceServiceImpl implements IDatasourceService {
                     "only support delete local site or root site data: site=" + siteId);
         }
 
-        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
         ScmInnerRemoteDataDeletor deleter = new ScmInnerRemoteDataDeletor(siteId, wsInfo, dataInfo);
         deleter.delete();
     }
-
     @Override
     public DatasourceReaderDao readData(String workspaceName, String dataId, int dataType,
                                         long createTime, int readflag, OutputStream os) throws ScmServerException {
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(workspaceName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         // readflag no need process in current version
 
@@ -89,7 +89,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     public BSONObject getDataInfo(String workspaceName, String dataId, int dataType,
                                   long createTime) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfoChecked(workspaceName);
+                .getWorkspaceInfoCheckLocalSite(workspaceName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
         ScmDataReader reader = null;
         try {
@@ -120,7 +120,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     public void createDataInLocal(String wsName, String dataId, int dataType, long createTime,
                                   InputStream is) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
 
         byte[] buf = new byte[Const.TRANSMISSION_LEN];
@@ -240,7 +240,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     public ScmDataReader getScmDataReader(String wsName, String dataId, int dataType,
             long createTime) throws ScmServerException, ScmDatasourceException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
 
         ScmDataReader dataReader = null;
@@ -260,7 +260,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     public ScmSeekableDataWriter getScmSeekableDataWriter(String wsName, String dataId,
             int dataType, long createTime) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoChecked(wsName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
 
         ScmSeekableDataWriter writer = null;
         try {
@@ -275,4 +275,12 @@ public class DatasourceServiceImpl implements IDatasourceService {
         }
     }
 
+    @Override
+    public void deleteDataInSiteList(String wsName, String dataId, int type, long createTime,
+            List<Integer> siteList) throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
+        ScmDataInfo dataInfo = new ScmDataInfo(type, dataId, new Date(createTime));
+        ScmFileDataDeleter fileDataDeleter = new ScmFileDataDeleter(siteList, wsInfo, dataInfo);
+        fileDataDeleter.deleteData();
+    }
 }

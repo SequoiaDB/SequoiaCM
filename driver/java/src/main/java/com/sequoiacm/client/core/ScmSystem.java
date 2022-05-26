@@ -453,14 +453,6 @@ public class ScmSystem {
             if (null == scope) {
                 throw new ScmInvalidArgumentException("scope is null");
             }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invlid condition", e);
-                }
-            }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartCleanTask(ws.getName(), condition, scope.getScope(),
                     maxExecTime);

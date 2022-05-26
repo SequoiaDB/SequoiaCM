@@ -38,7 +38,7 @@ public class ScmTaskCleanFile extends ScmTaskFile {
             int dataInOtherSiteId) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo();
         BSONObject file = ScmContentModule.getInstance().getMetaService().getFileInfo(
-                wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion, minorVersion);
+                wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion, minorVersion, false);
         if (file == null) {
             logger.warn("skip, file is not exist: workspace={}, fileId={},version={}.{}",
                     wsInfo.getName(), fileId, majorVersion, minorVersion);

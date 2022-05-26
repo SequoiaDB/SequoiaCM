@@ -80,7 +80,7 @@ public class BatchServiceImpl implements IBatchService {
                     BSONObject file = (BSONObject) obj;
                     String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
                     BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo,
-                            fileId);
+                            fileId, false);
                     // if the file is unexist, skip.
                     if (null == fileInfo) {
                         continue;
@@ -268,7 +268,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
-            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId);
+            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId, false);
             // file unexist
             if (null == fileInfo) {
                 throw new ScmFileNotFoundException("attachFile failed, file is unexist: workspace="
@@ -394,7 +394,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
-            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId);
+            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId, false);
             String batchIdInFile = null;
             if (null != fileInfo) {
                 batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
@@ -496,7 +496,7 @@ public class BatchServiceImpl implements IBatchService {
     }
 
     private ScmWorkspaceInfo getWorkspace(String workspaceName) throws ScmServerException {
-        return ScmContentModule.getInstance().getWorkspaceInfoChecked(workspaceName);
+        return ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName);
     }
 
     @Override

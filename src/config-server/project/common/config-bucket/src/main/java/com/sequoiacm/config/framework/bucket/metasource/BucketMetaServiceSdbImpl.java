@@ -14,6 +14,8 @@ import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +23,7 @@ import javax.annotation.PostConstruct;
 
 @Repository
 public class BucketMetaServiceSdbImpl implements BucketMetaService {
+    private static final Logger logger = LoggerFactory.getLogger(BucketMetaServiceSdbImpl.class);
     @Autowired
     private SequoiadbMetasource sdbMetaSource;
 
@@ -116,8 +119,13 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
     }
 
     @Override
-    public void dropBucketFileTableSilence(String bucketFileTable) throws MetasourceException {
-        String[] csClArr = bucketFileTable.split("\\.");
-        sdbMetaSource.dropCollection(csClArr[0], csClArr[1]);
+    public void dropBucketFileTableSilence(String bucketFileTable) {
+        try {
+            String[] csClArr = bucketFileTable.split("\\.");
+            sdbMetaSource.dropCollection(csClArr[0], csClArr[1]);
+        }
+        catch (Exception e) {
+            logger.warn("failed to drop bucket file table: name={}", bucketFileTable, e);
+        }
     }
 }

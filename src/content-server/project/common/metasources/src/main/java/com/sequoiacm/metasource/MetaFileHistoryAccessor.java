@@ -2,10 +2,11 @@
 package com.sequoiacm.metasource;
 
 import java.util.Date;
+import java.util.List;
 
 import org.bson.BSONObject;
 
-public interface MetaFileHistoryAccessor extends MetaAccessor {
+public interface MetaFileHistoryAccessor {
     public BSONObject delete(String fileId, int majorVersion, int minorVersion)
             throws ScmMetasourceException;
 
@@ -32,7 +33,27 @@ public interface MetaFileHistoryAccessor extends MetaAccessor {
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo) throws ScmMetasourceException;
 
-
     public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
             throws ScmMetasourceException;
+
+    public BSONObject queryAndDelete(BSONObject matcher, BSONObject orderby,
+            BSONObject latestVersion) throws ScmMetasourceException;
+
+    public void insert(BSONObject insertor) throws ScmMetasourceException;
+
+    public MetaCursor query(BSONObject matcher, BSONObject orderBy, long skip,
+            long limit) throws ScmMetasourceException;
+
+    public MetaCursor query(BSONObject matcher, BSONObject orderBy) throws ScmMetasourceException;
+
+    public BSONObject queryOne(BSONObject matcher, BSONObject orderBy)
+            throws ScmMetasourceException;
+
+    public void delete(BSONObject deletor) throws ScmMetasourceException;
+
+    BSONObject updateAndReturnNew(BSONObject matcher, BSONObject updator) throws ScmMetasourceException;
+
+    public long count(BSONObject matcher) throws ScmMetasourceException;
+
+    public double sum(BSONObject matcher, String field) throws ScmMetasourceException;
 }

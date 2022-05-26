@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.service.impl;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.exception.ScmError;
@@ -16,6 +17,8 @@ import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.ListBucketResult;
 import com.sequoiacm.s3.model.LocationConstraint;
 import com.sequoiacm.s3.model.Owner;
+import com.sequoiacm.s3.model.VersioningConfiguration;
+import com.sequoiacm.s3.model.VersioningConfigurationBase;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.RegionService;
 import org.bson.BasicBSONObject;
@@ -126,7 +129,8 @@ public class BucketServiceImpl implements BucketService {
             while (cursor.hasNext()) {
                 ScmBucket scmBucket = cursor.getNext();
                 bucketList.add(new Bucket(scmBucket.getName(), scmBucket.getCreateTime(),
-                        scmBucket.getCreateUser(), scmBucket.getWorkspace()));
+                        scmBucket.getCreateUser(), scmBucket.getWorkspace(),
+                        scmBucket.getVersionStatus().name()));
             }
         }
         catch (Exception e) {
@@ -148,7 +152,8 @@ public class BucketServiceImpl implements BucketService {
         try {
             ScmBucket scmBucket = scmBucketService.getBucket(session.getUser(), bucketName);
             return new Bucket(scmBucket.getName(), scmBucket.getCreateTime(),
-                    scmBucket.getCreateUser(), scmBucket.getWorkspace());
+                    scmBucket.getCreateUser(), scmBucket.getWorkspace(),
+                    scmBucket.getVersionStatus().name());
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
@@ -169,5 +174,64 @@ public class BucketServiceImpl implements BucketService {
             throws S3ServerException {
         Bucket bucket = getBucket(session, bucketName);
         return new LocationConstraint(bucket.getRegion());
+    }
+
+    @Override
+    public void setBucketVersionStatus(ScmSession session, String bucketName, String status)
+            throws S3ServerException {
+        try {
+            ScmBucketVersionStatus versionStatus = ScmBucketVersionStatus.parse(status);
+            if (versionStatus == null) {
+                throw new S3ServerException(S3Error.BUCKET_INVALID_VERSIONING_STATUS,
+                        "invalid status=" + status);
+            }
+            scmBucketService.updateBucketVersionStatus(session.getUser(), bucketName,
+                    versionStatus);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "The specified bucket does not exist. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = " + bucketName, e);
+            }
+            throw new S3ServerException(S3Error.BUCKET_VERSIONING_SET_FAILED,
+                    "put bucket versioning failed. bucketname=" + bucketName + ",status=" + status,
+                    e);
+        }
+        catch (S3ServerException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.BUCKET_VERSIONING_SET_FAILED,
+                    "put bucket versioning failed. bucketname=" + bucketName + ",status=" + status,
+                    e);
+        }
+    }
+
+    @Override
+    public VersioningConfigurationBase getBucketVersionStatus(ScmSession session, String bucketName)
+            throws S3ServerException {
+        try {
+            Bucket s3Bucket = getBucket(session, bucketName);
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                VersioningConfiguration versioningCfg = new VersioningConfiguration();
+                versioningCfg.setStatus(s3Bucket.getVersionStatus());
+                return versioningCfg;
+            }
+            else {
+                return new VersioningConfigurationBase();
+            }
+        }
+        catch (S3ServerException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.BUCKET_VERSIONING_GET_FAILED,
+                    "get bucket versioning failed. bucketname=" + bucketName, e);
+        }
+
     }
 }

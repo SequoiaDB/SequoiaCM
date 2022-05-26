@@ -3,7 +3,7 @@ package com.sequoiacm.s3.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RawVersion {
+public class ListDeleteMarker {
     @JsonProperty("Key")
     private String key;
     @JsonProperty("VersionId")
@@ -15,8 +15,17 @@ public class RawVersion {
     @JsonProperty("Owner")
     private Owner owner;
 
-    @JsonIgnore
-    private Boolean noVersionFlag;
+    public ListDeleteMarker() {
+    }
+
+    public ListDeleteMarker(String key, String versionId, Boolean isLatest, String lastModified,
+                            String user) {
+        this.key = key;
+        this.versionId = versionId;
+        this.isLatest = isLatest;
+        this.lastModified = lastModified;
+        this.owner = new Owner(user, user);
+    }
 
     public void setKey(String key) {
         this.key = key;
@@ -56,13 +65,5 @@ public class RawVersion {
 
     public Owner getOwner() {
         return owner;
-    }
-
-    public void setNoVersionFlag(Boolean noVersionFlag) {
-        this.noVersionFlag = noVersionFlag;
-    }
-
-    public Boolean getNoVersionFlag() {
-        return noVersionFlag;
     }
 }

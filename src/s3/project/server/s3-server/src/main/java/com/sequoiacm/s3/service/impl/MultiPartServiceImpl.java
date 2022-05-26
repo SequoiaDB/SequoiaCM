@@ -1,7 +1,6 @@
 package com.sequoiacm.s3.service.impl;
 
 import com.sequoiacm.contentserver.model.ScmBucket;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
@@ -15,7 +14,6 @@ import com.sequoiacm.infrastructure.lock.ScmLockPath;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockTimeoutException;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.MetaSourceDefine;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.s3.authoriztion.ScmSession;
 import com.sequoiacm.s3.common.RestParamDefine;
@@ -80,7 +78,7 @@ public class MultiPartServiceImpl implements MultiPartService {
             UploadMeta uploadMeta) throws S3ServerException {
         try {
             ScmBucket bucket = getBucket(session.getUser(), bucketName);
-            ScmContentModule.getInstance().getWorkspaceInfoChecked(bucket.getWorkspace());
+            ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
             ScmSite siteInfo = ScmContentModule.getInstance().getLocalSiteInfo();
 
             Long uploadId = idGeneratorDao.getNewId(S3CommonDefine.IdType.TYPE_UPLOAD);
@@ -307,23 +305,24 @@ public class MultiPartServiceImpl implements MultiPartService {
 
             S3ScanResult scanResult = scanUpload(bucket.getId(), maxNumber, prefix, keyMarker,
                     uploadIdMarker, delimiter);
-            for (BSONObject content : scanResult.getContent()) {
-                result.getUploadList().add(new Upload(content, encodingType, owner));
+            for (RecordWrapper content : scanResult.getContent()) {
+                result.getUploadList().add(new Upload(content.getRecord(), encodingType, owner));
             }
             for (String commonPrefix : scanResult.getCommonPrefixSet()) {
                 result.getCommonPrefixList().add(new CommonPrefix(commonPrefix, encodingType));
             }
             result.setIsTruncated(scanResult.isTruncated());
             if (result.getIsTruncated()) {
-                BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+                ListMultipartScanOffset nextOffset = (ListMultipartScanOffset) scanResult
+                        .getNextScanOffset();
                 if (nextOffset.getCommonPrefix() != null) {
                     result.setNextKeyMarker(
                             S3Codec.encode(nextOffset.getCommonPrefix(), encodingType));
                 }
                 else {
                     result.setNextKeyMarker(
-                            S3Codec.encode(nextOffset.getMajorKeyStartAfter(), encodingType));
-                    result.setNextUploadIdMarker((long) nextOffset.getMinorKeyStartAfter());
+                            S3Codec.encode(nextOffset.getObjKeyStartAfter(), encodingType));
+                    result.setNextUploadIdMarker(nextOffset.getUploadIdStartAfter());
                 }
             }
 
@@ -384,9 +383,8 @@ public class MultiPartServiceImpl implements MultiPartService {
                     prefix, additionMatcher);
             BasicS3ScanCommonPrefixParser scanDelimiter = new BasicS3ScanCommonPrefixParser(
                     UploadMeta.META_KEY_NAME, delimiter, prefix);
-            BasicS3ScanOffset scanOffset = new BasicS3ScanOffset(UploadMeta.META_KEY_NAME,
-                    startAfter, UploadMeta.META_UPLOAD_ID, uploadIdMarker,
-                    scanDelimiter.getCommonPrefix(startAfter), true);
+            S3ScanOffset scanOffset = new ListMultipartScanOffset(startAfter, uploadIdMarker,
+                    scanDelimiter.getCommonPrefix(startAfter));
 
             MetaAccessor accessor = metaSourceService.getMetaSource()
                     .createMetaAccessor(S3CommonDefine.UPLOAD_META_TABLE_NAME);

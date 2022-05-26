@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -2143,9 +2144,21 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BSONObject bucketGetFile(String bucketName, String fileName) throws ScmException {
+    public BSONObject bucketGetFile(String bucketName, String fileName, int majorVersion,
+            int minorVersion) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
                 + "/files?action=get_file&" + CommonDefine.RestArg.FILE_NAME + "="
+                + encode(fileName) + "&" + CommonDefine.RestArg.FILE_MAJOR_VERSION + "="
+                + majorVersion + "&" + CommonDefine.RestArg.FILE_MINOR_VERSION + "=" + minorVersion;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject bucketGetFileWithNullMarker(String bucketName, String fileName)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=get_null_marker_file&" + CommonDefine.RestArg.FILE_NAME + "="
                 + encode(fileName);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
@@ -2175,6 +2188,27 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public void bucketDeleteFile(String bucketName, String fileName, boolean isPhysical)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=delete_file&" + CommonDefine.RestArg.FILE_IS_PHYSICAL + "="
+                + isPhysical + "&" + CommonDefine.RestArg.FILE_NAME + "=" + encode(fileName);
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void bucketDeleteFileVersion(String bucketName, String fileName, int majorVersion,
+            int minorVersion) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "/files?action=delete_file_version&" + CommonDefine.RestArg.FILE_NAME + "="
+                + encode(fileName) + "&" + CommonDefine.RestArg.FILE_MAJOR_VERSION + "="
+                + majorVersion + "&" + CommonDefine.RestArg.FILE_MINOR_VERSION + "=" + minorVersion;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
     public long countBucket(BSONObject condition) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + "?action=count_bucket&"
                 + CommonDefine.RestArg.FILTER + "=" + encodeCondition(condition);
@@ -2185,10 +2219,29 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public void setBucketVersionStatus(String bucketName, ScmBucketVersionStatus status)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
+                + "?action=update_version_status&" + CommonDefine.RestArg.BUCKET_VERSION_STATUS
+                + "=" + status.name();
+        HttpPut request = new HttpPut(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
     public void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException {
         String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName
                 + "/region?Action=SetDefaultRegion&workspace=" + encode(wsName);
         HttpPut request = new HttpPut(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void deleteFileVersion(String wsName, String fileId, int majorVersion, int minorVersion)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + FILE + fileId + "?workspace_name="
+                + encode(wsName) + "&action=" + CommonDefine.RestArg.ACTION_DELETE_VERSION;
+        HttpDelete request = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }
 

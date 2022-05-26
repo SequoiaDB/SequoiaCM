@@ -699,6 +699,23 @@ class ScmFileImpl extends ScmFile {
         }
     }
 
+
+
+    @Override
+    public void deleteVersion() throws ScmException {
+        if (isExist()) {
+            ws.getSession().getDispatcher().deleteFileVersion(ws.getName(),
+                    basicInfo.getFileId().get(), basicInfo.getMajorVersion(),
+                    basicInfo.getMinorVersion());
+        }
+    }
+
+    @Override
+    public void deleteVersion(int majorVersion, int minorVersion) throws ScmException {
+        ws.getSession().getDispatcher().deleteFileVersion(ws.getName(), basicInfo.getFileId().get(),
+                majorVersion, minorVersion);
+    }
+
     @Override
     public void delete() throws ScmException {
         delete(false);
@@ -1107,6 +1124,9 @@ class ScmFileImpl extends ScmFile {
 
         fileExternalData = BsonUtils.getBSONObject(fileBSON,
                 FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+
+        basicInfo.setHasNullMarker(
+                BsonUtils.getBooleanOrElse(fileBSON, FieldName.FIELD_CLFILE_NULL_MARKER, false));
     }
 
     @Override
@@ -1225,6 +1245,11 @@ class ScmFileImpl extends ScmFile {
         }
         return BsonUtils.getString(fileExternalData,
                 FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH);
+    }
+
+    @Override
+    public boolean isNullMarker() {
+        return basicInfo.hasNullMarker();
     }
 
     protected void setBucketId(long bucketId) {

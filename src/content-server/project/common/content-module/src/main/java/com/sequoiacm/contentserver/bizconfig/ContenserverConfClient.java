@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.bizconfig;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.exception.ScmError;
@@ -17,6 +18,7 @@ import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import com.sequoiacm.infrastructure.config.core.msg.metadata.*;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
@@ -293,6 +295,8 @@ public class ContenserverConfClient {
         bucketConfig.setCreateUser(user);
         bucketConfig.setWorkspace(ws);
         bucketConfig.setName(bucketName);
+        bucketConfig.setVersionStatus(ScmBucketVersionStatus.Disabled.name());
+        bucketConfig.setUpdateUser(user);
         try {
             BucketConfig ret = (BucketConfig) client.createConf(ScmConfigNameDefine.BUCKET,
                     bucketConfig, false);
@@ -305,6 +309,25 @@ public class ContenserverConfClient {
             }
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
                     "failed to create bucket:ws=" + ws + ", bucket=" + bucketName, e);
+        }
+    }
+
+    public ScmBucket updateBucketVersionStatus(String user, String bucketName,
+            ScmBucketVersionStatus status) throws ScmServerException {
+        BucketConfigUpdater bucketConfigUpdater = new BucketConfigUpdater(bucketName, status.name(),
+                user);
+        try {
+            BucketConfig ret = (BucketConfig) client.updateConfig(ScmConfigNameDefine.BUCKET,
+                    bucketConfigUpdater, false);
+            return convertBucketConf(ret);
+        }
+        catch (ScmConfigException e) {
+            if (e.getError() == ScmConfError.BUCKET_NOT_EXIST) {
+                throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS,
+                        "bucket not exists: bucketName=" + bucketName, e);
+            }
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to update bucket: bucket=" + bucketName, e);
         }
     }
 
@@ -323,7 +346,12 @@ public class ContenserverConfClient {
     }
 
     private ScmBucket convertBucketConf(BucketConfig ret) {
+        ScmBucketVersionStatus versionStatus = ScmBucketVersionStatus.parse(ret.getVersionStatus());
+        if (versionStatus == null) {
+            throw new IllegalArgumentException("invalid version status:" + ret.toString());
+        }
         return new ScmBucket(ret.getName(), ret.getId(), ret.getCreateTime(), ret.getCreateUser(),
-                ret.getWorkspace(), ret.getFileTable(), bucketInfoMgr);
+                ret.getWorkspace(), ret.getFileTable(), versionStatus, ret.getUpdateUser(),
+                ret.getUpdateTime(), bucketInfoMgr);
     }
 }

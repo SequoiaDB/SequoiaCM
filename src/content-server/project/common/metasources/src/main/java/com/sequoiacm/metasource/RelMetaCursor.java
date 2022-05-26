@@ -31,6 +31,10 @@ public class RelMetaCursor implements MetaCursor {
                 FieldName.FIELD_CLFILE_FILE_SIZE);
         REL_FIELD_MAP_FILE_FIELD.put(FieldName.FIELD_CLREL_FILE_MIME_TYPE,
                 FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+        REL_FIELD_MAP_FILE_FIELD.put(FieldName.FIELD_CLREL_FILE_NULL_MARKER,
+                FieldName.FIELD_CLFILE_NULL_MARKER);
+        REL_FIELD_MAP_FILE_FIELD.put(FieldName.FIELD_CLREL_FILE_DELETE_MARKER,
+                FieldName.FIELD_CLFILE_DELETE_MARKER);
     }
 
     private MetaCursor innerCursor;

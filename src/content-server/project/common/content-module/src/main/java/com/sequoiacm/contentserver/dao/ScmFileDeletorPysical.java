@@ -1,12 +1,8 @@
 package com.sequoiacm.contentserver.dao;
 
-import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.AsyncUtils;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
@@ -16,12 +12,10 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
-import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ExceptionUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
@@ -29,7 +23,6 @@ import com.sequoiacm.metasource.MetaFileHistoryAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -44,31 +37,26 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
     ScmContentModule contentModule = ScmContentModule.getInstance();
     private ScmWorkspaceInfo wsInfo;
     private String fileId;
-    private int majorVersion;
-    private int minorVersion;
 
     private String sessionId;
     private String userDetail;
     private FileOperationListenerMgr listenerMgr;
 
     public ScmFileDeletorPysical(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo,
-            String fileId, int majorVersion, int minorVersion, FileOperationListenerMgr listenerMgr,
+            String fileId, FileOperationListenerMgr listenerMgr,
             BucketInfoManager bucketInfoManager) {
         this.wsInfo = wsInfo;
         this.fileId = fileId;
-        this.majorVersion = majorVersion;
-        this.minorVersion = minorVersion;
         this.sessionId = sessionId;
         this.userDetail = userDetail;
         this.listenerMgr = listenerMgr;
         this.bucketInfoMgr = bucketInfoManager;
     }
 
+
     @Override
-    public void delete() throws ScmServerException {
+    public BSONObject delete() throws ScmServerException {
         if (contentModule.getMainSite() != contentModule.getLocalSite()) {
-            Assert.notNull(sessionId, "sessionIdis null, forward mainSite failed");
-            Assert.notNull(userDetail, "userDetail is null, forward mainSite failed");
             forwardToMainSite();
         }
         else {
@@ -83,16 +71,28 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
                 wLock.unlock();
             }
         }
+        return null;
+    }
+
+    public BSONObject deleteNoLock() throws ScmServerException {
+        if (contentModule.getMainSite() != contentModule.getLocalSite()) {
+            forwardToMainSite();
+        }
+        else {
+            deleteInMainSite();
+        }
+        return null;
     }
 
     private void forwardToMainSite() throws ScmServerException {
+        Assert.notNull(sessionId, "sessionIdis null, forward mainSite failed");
+        Assert.notNull(userDetail, "userDetail is null, forward mainSite failed");
         ScmContentModule contentModule = ScmContentModule.getInstance();
         String remoteSiteName = contentModule.getMainSiteName();
         try {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(remoteSiteName);
-            client.deleteFile(sessionId, userDetail, wsInfo.getName(), fileId, majorVersion,
-                    minorVersion, true);
+            client.deleteFile(sessionId, userDetail, wsInfo.getName(), fileId, -1, -1, true);
         }
         catch (ScmServerException e) {
             throw e;
@@ -107,11 +107,11 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
     }
 
     private void deleteInMainSite() throws ScmServerException {
-        BSONObject currentFile = contentModule.getCurrentFileInfo(wsInfo, fileId);
+        BSONObject currentFile = contentModule.getMetaService()
+                .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, -1, -1);
         if (null == currentFile) {
             throw new ScmFileNotFoundException("file is unexist:workspace=" + wsInfo.getName()
-                    + ",file=" + fileId + ",version="
-                    + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+                    + ",file=" + fileId);
         }
 
         // if the file belongs to a batch, the relationship needs to be detached
@@ -120,8 +120,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         if (!StringUtils.isEmpty(batchId)) {
             throw new ScmServerException(ScmError.FILE_IN_ANOTHER_BATCH,
                     "file belongs to a batch, detach the relationship before deleting it:"
-                            + "workspace=" + wsInfo.getName() + ",file=" + fileId + ",version="
-                            + ScmSystemUtils.getVersionStr(majorVersion, minorVersion) + ",batch="
+                            + "workspace=" + wsInfo.getName() + ",file=" + fileId + ",batch="
                             + batchId);
         }
 
@@ -139,7 +138,10 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
             @Override
             public void run() {
                 for (BSONObject fileRecord : allVersionFile) {
-                    deleteData(fileRecord);
+                    if (!BsonUtils.getBooleanOrElse(fileRecord,
+                            FieldName.FIELD_CLFILE_DELETE_MARKER, false)) {
+                        deleteData(fileRecord);
+                    }
                 }
             }
         });
@@ -147,32 +149,8 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
     }
 
     private void deleteData(BSONObject file) {
-        ScmDataInfo dataInfo = new ScmDataInfo(file);
-        BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-        List<ScmFileLocation> siteList = new ArrayList<>();
-        CommonHelper.getFileLocationList(sites, siteList);
-        for (ScmFileLocation info : siteList) {
-            try {
-                if (info.getSiteId() == contentModule.getLocalSite()) {
-                    // local
-                    ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
-                            contentModule.getLocalSite(), wsInfo.getName(),
-                            wsInfo.getDataLocation(), contentModule.getDataService(), dataInfo);
-                    deletor.delete();
-                }
-                else {
-                    // remote
-                    ScmInnerRemoteDataDeletor rDeletor = new ScmInnerRemoteDataDeletor(
-                            info.getSiteId(), wsInfo, dataInfo);
-                    rDeletor.delete();
-                }
-            }
-            catch (Exception e) {
-                logger.warn("remove file data failed:siteId={},fileId={},version={}.{},dataInfo={}",
-                        info.getSiteId(), fileId, file.get(FieldName.FIELD_CLFILE_MAJOR_VERSION),
-                        file.get(FieldName.FIELD_CLFILE_MINOR_VERSION), dataInfo, e);
-            }
-        }
+        ScmFileDataDeleterWrapper fileDataDeleterWrapper = new ScmFileDataDeleterWrapper(wsInfo, file);
+        fileDataDeleterWrapper.deleteDataSilence();
     }
 
     private void addHistoryVersionRecord(List<BSONObject> allVersionFile, BSONObject currentFile)
@@ -186,7 +164,7 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
                 .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
         MetaCursor cursor = null;
         try {
-            cursor = historyAccessor.query(matcher, null, null);
+            cursor = historyAccessor.query(matcher, null);
             while (cursor.hasNext()) {
                 allVersionFile.add(cursor.getNext());
             }

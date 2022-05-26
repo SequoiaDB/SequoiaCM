@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,6 +46,7 @@ public class FileInfoUpdatorDao {
     public FileInfoUpdatorDao(String user, ScmWorkspaceInfo ws, String fileId, int majorVersion,
             int minorVersion, BSONObject updator) throws ScmServerException {
         this.ws = ws;
+        checkUpdateInfoObj(updator);
         this.updator = updator;
         this.fileId = fileId;
         this.majorVersion = majorVersion;
@@ -54,7 +54,7 @@ public class FileInfoUpdatorDao {
         this.user = user;
         this.metaService = ScmContentModule.getInstance().getMetaService();
         this.latestFileInfo = metaService.getCurrentFileInfo(ws.getMetaLocation(), ws.getName(),
-                fileId);
+                fileId, false);
         if (latestFileInfo == null) {
             throw new ScmFileNotFoundException("file not exist:id=" + fileId + ",majorVersion="
                     + majorVersion + ",minorVersion=" + minorVersion);
@@ -66,14 +66,7 @@ public class FileInfoUpdatorDao {
     }
 
     public BSONObject updateInfo() throws ScmServerException {
-        checkUpdateInfoObj(updator);
-
-        // add modify user and time
-        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
-        Date updateTime = new Date();
-        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, updateTime.getTime());
-
-        logger.info("updating file:wsName=" + ws.getName() + ",fileId=" + fileId + ",version="
+        logger.debug("updating file:wsName=" + ws.getName() + ",fileId=" + fileId + ",version="
                 + ScmSystemUtils.getVersionStr(majorVersion, minorVersion) + ",new="
                 + updator.toString());
 
@@ -110,7 +103,7 @@ public class FileInfoUpdatorDao {
         }
         else {
             // update other property
-            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            updateFileInfo();
         }
         return updator;
     }
@@ -121,7 +114,13 @@ public class FileInfoUpdatorDao {
         String classId = (String) latestFileInfo.get(classIdKey);
         MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updator, classIdKey,
                 propertiesKey, classId);
-        metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+        updateFileInfo();
+    }
+
+    private void updateFileInfo() throws ScmServerException {
+        FileInfoUpdater fileInfoUpdater = FileInfoUpdaterFactory.create(updator);
+        fileInfoUpdater.update(ws, fileId, majorVersion, minorVersion, updator,
+                user);
     }
 
     private void rename() throws ScmServerException {
@@ -140,19 +139,19 @@ public class FileInfoUpdatorDao {
             return;
         }
 
-        metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+        updateFileInfo();
     }
 
     private void checkBatchFileNameUniqueAndUpdate(String newFileName) throws ScmServerException {
         String oldFileName = (String) latestFileInfo.get(FieldName.FIELD_CLFILE_NAME);
         if (newFileName.equals(oldFileName)) {
-            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            updateFileInfo();
             return;
         }
 
         String batchId = (String) latestFileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
         if (batchId == null || batchId.length() <= 0) {
-            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            updateFileInfo();
             return;
         }
 
@@ -168,12 +167,12 @@ public class FileInfoUpdatorDao {
             String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(ws, batchId);
             BSONObject batch = metaService.getBatchInfo(ws, batchId, batchCreateMonth);
             if (batch == null) {
-                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+                updateFileInfo();
                 return;
             }
             BasicBSONList files = BsonUtils.getArray(batch, FieldName.Batch.FIELD_FILES);
             if (files == null || files.size() <= 1) {
-                metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+                updateFileInfo();
                 return;
             }
             BasicBSONObject condition = new BasicBSONObject();
@@ -202,7 +201,7 @@ public class FileInfoUpdatorDao {
                                 + ws.getName() + ", batch=" + batchId + ", fileName="
                                 + newFileName);
             }
-            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            updateFileInfo();
         }
         finally {
             batchLock.unlock();
@@ -238,7 +237,7 @@ public class FileInfoUpdatorDao {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "parent directory not exist:id=" + parentDirId);
             }
-            metaService.updateFileInfo(ws, fileId, majorVersion, minorVersion, updator);
+            updateFileInfo();
         }
         finally {
             unlock(rLock, lockPath);

@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScheduleType;
@@ -341,12 +342,28 @@ public interface MessageDispatcher extends Closeable {
 
     void bucketDetachFile(String bucketName, String fileName) throws ScmException;
 
-    BSONObject bucketGetFile(String bucketName, String fileName) throws ScmException;
+    BSONObject bucketGetFile(String bucketName, String fileName, int majorVersion, int minorVersion)
+            throws ScmException;
+
+    BSONObject bucketGetFileWithNullMarker(String bucketName, String fileName)
+            throws ScmException;
 
     BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,
             long skip, long limit) throws ScmException;
 
     long bucketCountFile(String bucketName, BSONObject condition) throws ScmException;
+
+    void bucketDeleteFile(String bucketName, String fileName, boolean isPhysical)
+            throws ScmException;
+
+    void bucketDeleteFileVersion(String bucketName, String fileName, int majorVersion,
+            int minorVersion) throws ScmException;
+
+    void setBucketVersionStatus(String bucketName, ScmBucketVersionStatus status)
+            throws ScmException;
+
+    void deleteFileVersion(String wsName, String fileId, int majorVersion, int minorVersion)
+            throws ScmException;
 
     void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
     String getDefaultRegion(String s3ServiceName) throws ScmException;

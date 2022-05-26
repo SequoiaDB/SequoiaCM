@@ -2,14 +2,15 @@ package com.sequoiacm.contentserver.dao;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmUpdateContentOption;
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
-import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
@@ -25,6 +26,9 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.metasource.MetaBreakpointFileAccessor;
+import com.sequoiacm.metasource.ScmMetasourceException;
+import com.sequoiacm.metasource.TransactionContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -37,6 +41,7 @@ import java.util.Date;
 
 public class FileContentUpdateDao {
     private static final Logger logger = LoggerFactory.getLogger(FileContentUpdateDao.class);
+    private final BucketInfoManager bucketInfoMgr;
 
     private String user;
     private String fileId;
@@ -48,15 +53,17 @@ public class FileContentUpdateDao {
     private FileOperationListenerMgr listenerMgr;
 
     public FileContentUpdateDao(String user, String wsName, String fileId, int majorVersion,
-            int minorVersion, ScmUpdateContentOption option, FileOperationListenerMgr listenerMgr)
+            int minorVersion, ScmUpdateContentOption option, FileOperationListenerMgr listenerMgr,
+            BucketInfoManager bucketInfoMgr)
             throws ScmServerException {
         this.user = user;
         this.fileId = fileId;
         this.clientMajorVersion = majorVersion;
         this.clientMinorVersion = minorVersion;
         this.option = option;
-        this.ws =contentModule.getWorkspaceInfoChecked(wsName);
+        this.ws =contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         this.listenerMgr = listenerMgr;
+        this.bucketInfoMgr = bucketInfoMgr;
     }
 
     public BSONObject updateContent(String breakpointFileName) throws ScmServerException {
@@ -201,45 +208,36 @@ public class FileContentUpdateDao {
     // insert historyRec, update currentFileRec, delete breakFileRec, return
     // updated info
     private BSONObject updateMeta(long createTime, String dataId, long dataSize, int siteId,
-            String breakFileName, String md5) throws ScmServerException {
-        BSONObject newVersionUpdator;
-        OperationCompleteCallback onCompleteCallback;
-        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
-        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
-        try {
-            BSONObject currentFile = getCurrentFileAndCheckVersion();
-            BSONObject historyRec = createHistoryRecord(currentFile);
-            newVersionUpdator = createNewVersionUpdator(currentFile, dataId, siteId, dataSize,
-                    createTime, md5);
-            listenerMgr.preUpdateContent(ws, newVersionUpdator);
-            if (breakFileName == null) {
-                contentModule.getMetaService().addNewFileVersion(ws, fileId, historyRec,
-                        newVersionUpdator);
-            }
-            else {
-                contentModule.getMetaService().breakpointFileToNewVersionFile(ws, breakFileName, fileId, historyRec, newVersionUpdator);
-            }
-            onCompleteCallback = listenerMgr.postUpdateContent(ws, fileId);
+            final String breakFileName, String md5) throws ScmServerException {
+        BSONObject newVersion = createNewVersion(dataId, siteId, dataSize, createTime, md5);
+        TransactionCallback transactionCallback = null;
+        if (breakFileName != null) {
+            transactionCallback = new TransactionCallback() {
+                @Override
+                public void beforeTransactionCommit(TransactionContext context)
+                        throws ScmServerException, ScmMetasourceException {
+                    MetaBreakpointFileAccessor breakpointAccessor = contentModule.getMetaService()
+                            .getMetaSource().getBreakpointFileAccessor(ws.getName(), context);
+                    breakpointAccessor.delete(breakFileName);
+                }
+            };
         }
-        finally {
-            writeLock.unlock();
-        }
-        onCompleteCallback.onComplete();
-        return newVersionUpdator;
+        FileAddVersionDao fileAddVersionDao = new FileAddVersionDao(ws, fileId,
+                transactionCallback, bucketInfoMgr, listenerMgr);
+        FileInfoAndOpCompleteCallback ret = fileAddVersionDao
+                .addVersion(FileAddVersionDao.Context.standard(newVersion));
+        ret.getCallback().onComplete();
+        return ret.getFileInfo();
     }
 
-    private BSONObject createNewVersionUpdator(BSONObject currentFile, String dataId, int siteId,
-            long size, long createTime, String md5) {
-        BSONObject newVersionUpdator = new BasicBSONObject();
+    private BSONObject createNewVersion(String dataId, int siteId, long size, long createTime,
+            String md5) {
+        BSONObject newVersion = new BasicBSONObject();
         // id
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
-
-        // version
-        int currentMajorVersion = (int) currentFile.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, currentMajorVersion + 1);
+        newVersion.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
 
         // size
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_SIZE, size);
+        newVersion.put(FieldName.FIELD_CLFILE_FILE_SIZE, size);
 
         // siteList
         BSONObject sites = new BasicBSONList();
@@ -248,22 +246,49 @@ public class FileContentUpdateDao {
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, createTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, createTime);
         sites.put("0", oneSite);
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST, sites);
+        newVersion.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST, sites);
 
         // data create time
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, createTime);
+        newVersion.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, createTime);
 
         // update user
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
+        newVersion.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
 
         // update time
-        newVersionUpdator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, createTime);
+        newVersion.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, createTime);
 
         if (md5 != null) {
-            newVersionUpdator.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+            newVersion.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
         }
-        return newVersionUpdator;
+        return newVersion;
 
+    }
+
+    private BSONObject getCurrentFileAndCheckVersion() throws ScmServerException {
+        BSONObject destFile = contentModule.getMetaService()
+                .getCurrentFileInfo(ws.getMetaLocation(), ws.getName(), fileId, false);
+        if (destFile == null) {
+            throw new ScmFileNotFoundException(
+                    "file not exist:ws=" + ws.getName() + ", fileId=" + fileId);
+        }
+        if (clientMajorVersion != -1 && clientMinorVersion != -1) {
+            int currentMajorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
+            int currentMinorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
+            if (clientMajorVersion != currentMajorVersion
+                    || clientMinorVersion != currentMinorVersion) {
+                throw new ScmServerException(ScmError.FILE_VERSION_MISMATCHING, "clientFileVersion="
+                        + ScmSystemUtils.getVersionStr(clientMajorVersion, clientMinorVersion)
+                        + ",currentFileVersion="
+                        + ScmSystemUtils.getVersionStr(currentMajorVersion, currentMinorVersion));
+            }
+        }
+        return destFile;
+    }
+
+    private void unlock(ScmLock lock) {
+        if (lock != null) {
+            lock.unlock();
+        }
     }
 
     private BSONObject createHistoryRecord(BSONObject currentFile) {
@@ -292,32 +317,5 @@ public class FileContentUpdateDao {
         historyRec.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
                 currentFile.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
         return historyRec;
-    }
-
-    private BSONObject getCurrentFileAndCheckVersion() throws ScmServerException {
-        BSONObject destFile =contentModule.getMetaService()
-                .getCurrentFileInfo(ws.getMetaLocation(), ws.getName(), fileId);
-        if (destFile == null) {
-            throw new ScmFileNotFoundException(
-                    "file not exist:ws=" + ws.getName() + ", fileId=" + fileId);
-        }
-        if (clientMajorVersion != -1 && clientMinorVersion != -1) {
-            int currentMajorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-            int currentMinorVersion = (int) destFile.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
-            if (clientMajorVersion != currentMajorVersion
-                    || clientMinorVersion != currentMinorVersion) {
-                throw new ScmServerException(ScmError.FILE_VERSION_MISMATCHING, "clientFileVersion="
-                        + ScmSystemUtils.getVersionStr(clientMajorVersion, clientMinorVersion)
-                        + ",currentFileVersion="
-                        + ScmSystemUtils.getVersionStr(currentMajorVersion, currentMinorVersion));
-            }
-        }
-        return destFile;
-    }
-
-    private void unlock(ScmLock lock) {
-        if (lock != null) {
-            lock.unlock();
-        }
     }
 }

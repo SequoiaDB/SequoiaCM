@@ -88,6 +88,15 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime)
             throws ScmServerException;
 
+    @DeleteMapping(value = "/internal/v1/datasource/{dataId}?action=delete_data_in_site_list")
+    public void deleteDataInSiteList(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @PathVariable("dataId") String dataId,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST) List<Integer> siteList)
+            throws ScmServerException;
+
     @GetMapping(value = "/internal/v1/datasource/{dataId}")
     public Response readData(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("dataId") String dataId,

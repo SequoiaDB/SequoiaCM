@@ -25,7 +25,7 @@ public class DirCreatorDao {
 
     public DirCreatorDao(String user, String wsName) throws ScmServerException {
         this.user = user;
-        this.ws = ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName);
+        this.ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
         this.dirOperator = DirOperator.getInstance();
     }
 

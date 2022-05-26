@@ -17,20 +17,34 @@ public class Bucket {
     @JsonIgnore
     private String region;
 
+    @JsonIgnore
+    private String versionStatus;
+
     public Bucket() {
     }
 
-    public Bucket(String bucketName, long createDateL, String user, String region) {
+    public Bucket(String bucketName, long createDateL, String user, String region,
+            String versionStatus) {
         this.bucketName = bucketName;
         this.createDate = DataFormatUtils.formatDate(createDateL);
         this.region = region;
         this.user = user;
+        this.versionStatus = versionStatus;
+    }
+
+    public String getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(String versionStatus) {
+        this.versionStatus = versionStatus;
     }
 
     @Override
     public String toString() {
         return "Bucket{" + "bucketName='" + bucketName + '\'' + ", createDate='" + createDate + '\''
-                + ", user='" + user + '\'' + ", region='" + region + '\'' + '}';
+                + ", user='" + user + '\'' + ", region='" + region + '\'' + ", versionStatus='"
+                + versionStatus + '\'' + '}';
     }
 
     public String getBucketName() {

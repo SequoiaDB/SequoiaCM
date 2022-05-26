@@ -6,9 +6,12 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
+import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -94,6 +97,9 @@ public class BucketController {
                 ret.put(FieldName.Bucket.WORKSPACE, b.getWorkspace());
                 ret.put(FieldName.Bucket.CREATE_USER, b.getCreateUser());
                 ret.put(FieldName.Bucket.CREATE_TIME, b.getCreateTime());
+                ret.put(FieldName.Bucket.VERSION_STATUS, b.getVersionStatus().name());
+                ret.put(FieldName.Bucket.UPDATE_TIME, b.getUpdateTime());
+                ret.put(FieldName.Bucket.UPDATE_USER, b.getUpdateUser());
                 return ret.toString();
             }
         }, ServiceUtils.getWriter(resp));
@@ -129,7 +135,10 @@ public class BucketController {
                 BsonUtils.getBooleanOrElse(uploadConfig, CommonDefine.RestArg.FILE_IS_NEED_MD5,
                         true));
         if (uploadConf.isOverwrite()) {
-            overwriteOption = new OverwriteOption(sessionId, userDetail);
+            overwriteOption = OverwriteOption.doOverwrite(sessionId, userDetail);
+        }
+        else {
+            overwriteOption = OverwriteOption.doNotOverwrite();
         }
         if (!uploadConf.isNeedMd5()) {
             throw new ScmServerException(ScmError.INVALID_ARGUMENT,
@@ -196,12 +205,86 @@ public class BucketController {
                 .build();
     }
 
+    @PutMapping(path = "/buckets/{name}", params = "action=update_version_status")
+    public ScmBucket updateBucketVersionStatus(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.BUCKET_VERSION_STATUS) String versionStatus,
+            HttpServletResponse resp, Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+
+        ScmBucketVersionStatus bucketVersionStatus = ScmBucketVersionStatus.parse(versionStatus);
+        if (bucketVersionStatus == null) {
+            throw new ScmServerException(ScmError.INVALID_ARGUMENT,
+                    "invalid bucket version status:" + versionStatus);
+        }
+        return service.updateBucketVersionStatus(user, bucketName, bucketVersionStatus);
+    }
+
+    @DeleteMapping(path = "/buckets/{name}/files", params = "action=delete_file")
+    public void deleteFile(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") boolean isPhysical,
+            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
+            throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        service.deleteFile(user, bucketName, fileName, isPhysical,
+                new SessionInfoWrapper(sessionId, userDetail));
+    }
+
+    @DeleteMapping(path = "/buckets/{name}/files", params = "action=delete_file_version")
+    public void deleteFileVersion(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, defaultValue = "-1") int majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, defaultValue = "-1") int minorVersion,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        service.deleteFileVersion(user, bucketName, fileName, majorVersion, minorVersion);
+    }
+
     @GetMapping(path = "/buckets/{name}/files", params = "action=get_file")
     public BSONObject getFile(@PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, defaultValue = "-1") int majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, defaultValue = "-1") int minorVersion,
             Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        return service.getFile(user, bucketName, fileName);
+        BSONObject file = service.getFileVersion(user, bucketName, fileName, majorVersion,
+                minorVersion);
+        if (file == null) {
+            throw new ScmFileNotFoundException(
+                    "file not exist:bucket=" + bucketName + ",fileName=" + fileName + ",version="
+                            + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+        }
+
+        if (isDeleteMarker(file)) {
+            throw new ScmFileNotFoundException("the specify version is delete marker:bucket="
+                    + bucketName + ",fileName=" + fileName + ",version="
+                    + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+        }
+        return file;
+    }
+
+    private boolean isDeleteMarker(BSONObject file) {
+        return BsonUtils.getBooleanOrElse(file, FieldName.FIELD_CLFILE_DELETE_MARKER, false);
+    }
+
+    @GetMapping(path = "/buckets/{name}/files", params = "action=get_null_marker_file")
+    public BSONObject getNullMarkerFile(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject file = service.getFileNullMarkerVersion(user, bucketName, fileName);
+        if (file == null) {
+            throw new ScmFileNotFoundException(
+                    "file not exist:bucket=" + bucketName + ",fileName=" + fileName);
+        }
+
+        if (isDeleteMarker(file)) {
+            throw new ScmFileNotFoundException("the specify version is delete marker:bucket="
+                    + bucketName + ",fileName=" + fileName);
+        }
+        return file;
+
     }
 
     // statistical traffic

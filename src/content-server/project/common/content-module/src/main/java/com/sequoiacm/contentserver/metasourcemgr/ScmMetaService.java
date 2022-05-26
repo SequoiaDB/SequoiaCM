@@ -1,7 +1,6 @@
 package com.sequoiacm.contentserver.metasourcemgr;
 
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
@@ -10,6 +9,8 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
+import com.sequoiacm.contentserver.dao.FileInfoUpdater;
+import com.sequoiacm.contentserver.dao.FileInfoUpdaterFactory;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
@@ -272,10 +273,10 @@ public class ScmMetaService {
                 if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
                     return true;
                 }
-                BSONObject oldRec = historyFileAccessor.updateFileInfo(fileId, majorVersion,
+                BSONObject newRec = historyFileAccessor.updateFileInfo(fileId, majorVersion,
                         minorVersion, new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
                                 externalData));
-                if (oldRec != null) {
+                if (newRec != null) {
                     return true;
                 }
             }
@@ -352,7 +353,6 @@ public class ScmMetaService {
             int minorVersion, BSONObject fileUpdator, BSONObject fileMatcher,
             TransactionContext context) throws ScmServerException {
         try {
-            BSONObject relUpdator = ScmMetaSourceHelper.createRelUpdatorByFileUpdator(fileUpdator);
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
                     wsInfo.getName(), context);
 
@@ -370,7 +370,7 @@ public class ScmMetaService {
                 return false;
             }
             ScmFileOperateUtils.updateFileRelForUpdateFile(wsInfo, fileId, oldFileRecord,
-                    relUpdator, context);
+                    fileUpdator, context);
             return true;
         }
         catch (ScmMetasourceException e) {
@@ -434,7 +434,8 @@ public class ScmMetaService {
     }
 
     public BSONObject getFileInfo(ScmWorkspaceInfo wsInfo, String parentDirId, String fileName,
-            int majorVersion, int minorVersion) throws ScmServerException {
+            int majorVersion, int minorVersion, boolean acceptDeleteMarker)
+            throws ScmServerException {
         if (!wsInfo.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "failed to get file, directory is disable:ws=" + wsInfo.getName()
@@ -449,9 +450,18 @@ public class ScmMetaService {
             if (relRec == null) {
                 return null;
             }
+
+            if (!acceptDeleteMarker && BsonUtils.getBooleanOrElse(relRec,
+                    FieldName.FIELD_CLREL_FILE_DELETE_MARKER, false)) {
+                logger.debug(
+                        "query delete marker: wsName={}, parentDirId={}, fileName={}, version={}.{}",
+                        wsInfo.getName(), parentDirId, fileName, majorVersion, minorVersion);
+                return null;
+            }
+
             String fileId = (String) relRec.get(FieldName.FIELD_CLREL_FILEID);
             return getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion,
-                    minorVersion);
+                    minorVersion, acceptDeleteMarker);
         }
         catch (ScmServerException e) {
             throw e;
@@ -463,6 +473,25 @@ public class ScmMetaService {
         }
     }
 
+    public BSONObject getFileInfo(MetaSourceLocation location, String wsName, String fileID,
+            int majorVersion, int minorVersion, boolean acceptDeleteMarker)
+            throws ScmServerException {
+        BSONObject file = getFileInfo(location, wsName, fileID, majorVersion, minorVersion);
+        if (file == null) {
+            return null;
+        }
+        if (acceptDeleteMarker) {
+            return file;
+        }
+        if (BsonUtils.getBooleanOrElse(file, FieldName.FIELD_CLREL_FILE_DELETE_MARKER, false)) {
+            logger.debug("query delete marker: wsName={}, fileId={}, version={}.{}", wsName, fileID,
+                    majorVersion, minorVersion);
+            return null;
+        }
+        return file;
+    }
+
+    // 返回指定文件元数据，不会剔除 deleteMarker
     public BSONObject getFileInfo(MetaSourceLocation location, String wsName, String fileID,
             int majorVersion, int minorVersion) throws ScmServerException {
         try {
@@ -478,7 +507,6 @@ public class ScmMetaService {
             }
 
             if (majorVersion == -1 && minorVersion == -1) {
-                // not valid version, return current file info
                 return currentFile;
             }
 
@@ -496,8 +524,7 @@ public class ScmMetaService {
             historyFileMatcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
             MetaFileHistoryAccessor historyAccessor = metasource.getFileHistoryAccessor(location,
                     wsName, null);
-            BSONObject historyFile = ScmMetaSourceHelper.queryOne(historyAccessor,
-                    historyFileMatcher);
+            BSONObject historyFile = historyAccessor.queryOne(historyFileMatcher, null);
             if (historyFile == null) {
                 logger.debug(
                         "get fileInfo failed, history file not exist:wsName={},fileId={},version={}.{}",
@@ -505,7 +532,7 @@ public class ScmMetaService {
                 return null;
             }
 
-            return CommonHelper.completeHisotryFileRec(historyFile, currentFile);
+            return historyFile;
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
@@ -547,9 +574,9 @@ public class ScmMetaService {
         }
     }
 
-    public BSONObject getCurrentFileInfo(MetaSourceLocation location, String wsName, String fileID)
-            throws ScmServerException {
-        return getFileInfo(location, wsName, fileID, -1, -1);
+    public BSONObject getCurrentFileInfo(MetaSourceLocation location, String wsName, String fileID,
+            boolean acceptDeleteMarker) throws ScmServerException {
+        return getFileInfo(location, wsName, fileID, -1, -1, acceptDeleteMarker);
     }
 
     public void deleteFile(ScmWorkspaceInfo ws, BSONObject file, BucketInfoManager bucketInfoMgr)
@@ -1175,11 +1202,9 @@ public class ScmMetaService {
             BSONObject matcher, BSONObject selector, BSONObject orderby, long skip, long limit)
             throws ScmServerException {
         try {
-            MetaFileAccessor fileAccessor = metasource.getFileAccessor(location, wsName, null);
             MetaFileHistoryAccessor historyAccessor = metasource.getFileHistoryAccessor(location,
                     wsName, null);
-            return new HistoryFileMetaCursor(fileAccessor, historyAccessor, matcher, selector,
-                    orderby, skip, limit);
+            return historyAccessor.query(matcher, orderby, skip, limit);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
@@ -1188,6 +1213,18 @@ public class ScmMetaService {
                             matcher, selector),
                     e);
         }
+    }
+
+    public MetaCursor queryCurrentFileIgnoreDeleteMarker(ScmWorkspaceInfo ws, BSONObject matcher,
+            BSONObject selector, BSONObject orderby, long skip, long limit)
+            throws ScmServerException {
+        BSONObject notDeleteMarker = ScmMetaSourceHelper.notDeleteMarkerMatcher();
+
+        BasicBSONList andArr = new BasicBSONList();
+        andArr.add(matcher);
+        andArr.add(notDeleteMarker);
+        matcher = new BasicBSONObject("$and", andArr);
+        return queryCurrentFile(ws, matcher, selector, orderby, skip, limit);
     }
 
     public MetaCursor queryCurrentFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
@@ -1482,42 +1519,6 @@ public class ScmMetaService {
         }
     }
 
-    public void deleteBatch(ScmWorkspaceInfo ws, String batchId, String batchCreateMonth,
-            String sessionId, String userDetail, String user, FileOperationListenerMgr listenerMgr,
-            BucketInfoManager bucketInfoMgr) throws ScmServerException {
-        try {
-            // check whether the batch exists
-            BSONObject batch = getBatchInfo(ws, batchId, batchCreateMonth);
-            if (null == batch) {
-                throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
-                        "batch not found:ws=" + ws.getName() + ",batchId=" + batchId);
-            }
-
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(ws.getName(), null);
-            FileDeletorDao fileDeletorDao = new FileDeletorDao();
-            BasicBSONList files = (BasicBSONList) batch.get(FieldName.Batch.FIELD_FILES);
-            for (Object obj : files) {
-                BSONObject file = (BSONObject) obj;
-                String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
-                // detach file
-                batchDetachFile(ws.getName(), batchCreateMonth, batchId, fileId, user);
-                // delete file
-                fileDeletorDao.init(sessionId, userDetail, ws, fileId, -1, -1, true, listenerMgr,
-                        bucketInfoMgr);
-                fileDeletorDao.delete();
-            }
-            batchAccessor.delete(batchId, batchCreateMonth);
-        }
-        catch (ScmServerException e) {
-            throw new ScmServerException(e.getError(),
-                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
-        }
-        catch (Exception e) {
-            throw new ScmSystemException(
-                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
-        }
-    }
-
     public MetaCursor getBatchList(String wsName, BSONObject matcher, BSONObject selector,
             BSONObject orderBy, long skip, long limit) throws ScmServerException {
         try {
@@ -1592,18 +1593,15 @@ public class ScmMetaService {
     public void updateBatchIdOfFile(String wsName, String newBatchId, String fileId, String user,
             TransactionContext context) throws ScmServerException {
         BSONObject updator = new BasicBSONObject(FieldName.FIELD_CLFILE_BATCH_ID, newBatchId);
-        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
-        Date updateTime = new Date();
-        updator.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, updateTime.getTime());
-        // BasicBSONObject fileMatcher = new
-        // BasicBSONObject(FieldName.FIELD_CLFILE_BATCH_ID, oldBatchId);
+
+        FileInfoUpdater fileInfoUpdater = FileInfoUpdaterFactory.create(updator);
         if (null == context) {
-            updateFileInfo(ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName), fileId,
-                    -1, -1, updator);
+            fileInfoUpdater.update(ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName),
+                    fileId, -1, -1, updator, user);
         }
         else {
-            updateFileInfo(ScmContentModule.getInstance().getWorkspaceInfoChecked(wsName), fileId,
-                    -1, -1, updator, null, context);
+            fileInfoUpdater.update(ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName),
+                    fileId, -1, -1, updator, user, context);
         }
     }
 
@@ -1640,80 +1638,6 @@ public class ScmMetaService {
         sb.append("siteId=").append(siteId).append(",");
         sb.append(metasource.toString());
         return sb.toString();
-    }
-
-    public void addNewFileVersion(ScmWorkspaceInfo ws, String fileId, BSONObject historyRec,
-            BSONObject currentRecUpdator) throws ScmServerException {
-        TransactionContext transaction = createTransactionContext();
-        try {
-            beginTransaction(transaction);
-            insertHistoryFileAndUpdateCurrentFile(ws, fileId, historyRec, currentRecUpdator,
-                    transaction);
-            commitTransaction(transaction);
-        }
-        catch (ScmMetasourceException e) {
-            rollbackTransaction(transaction);
-            throw new ScmServerException(e.getScmError(), "Failed to add new file version, fileId="
-                    + fileId + ", historyRec=" + historyRec + ", updater=" + currentRecUpdator, e);
-        }
-        catch (Exception e) {
-            rollbackTransaction(transaction);
-            throw e;
-        }
-        finally {
-            closeTransactionContext(transaction);
-        }
-    }
-
-    private void insertHistoryFileAndUpdateCurrentFile(ScmWorkspaceInfo ws, String fileId,
-            BSONObject historyRec, BSONObject currentRecUpdator, TransactionContext transaction)
-            throws ScmMetasourceException, ScmServerException {
-        MetaFileAccessor fileAccessor = metasource.getFileAccessor(ws.getMetaLocation(),
-                ws.getName(), transaction);
-        MetaFileHistoryAccessor historyAccessor = metasource
-                .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transaction);
-        historyAccessor.insert(historyRec);
-        BSONObject oldFileRecord = fileAccessor.updateFileInfo(fileId, -1, -1, currentRecUpdator);
-        if (oldFileRecord == null) {
-            throw new ScmSystemException(
-                    "add new file version failed, file not exist, we should lock it first:ws="
-                            + ws.getName() + ",fileId=" + fileId);
-        }
-        BSONObject relUpdator = ScmMetaSourceHelper
-                .createRelUpdatorByFileUpdator(currentRecUpdator);
-        ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, oldFileRecord, relUpdator,
-                transaction);
-        ScmFileOperateUtils.updateBucketFileForUpdateFile(currentRecUpdator, oldFileRecord,
-                transaction);
-    }
-
-    public void breakpointFileToNewVersionFile(ScmWorkspaceInfo ws, String breakpointFile,
-            String fileId, BSONObject historyRec, BSONObject currentRecUpdator)
-            throws ScmServerException {
-        TransactionContext transaction = createTransactionContext();
-        try {
-            beginTransaction(transaction);
-            MetaBreakpointFileAccessor breakpointAccessor = metasource
-                    .getBreakpointFileAccessor(ws.getName(), transaction);
-            insertHistoryFileAndUpdateCurrentFile(ws, fileId, historyRec, currentRecUpdator,
-                    transaction);
-            breakpointAccessor.delete(breakpointFile);
-            commitTransaction(transaction);
-        }
-        catch (ScmMetasourceException e) {
-            rollbackTransaction(transaction);
-            throw new ScmServerException(e.getScmError(),
-                    "Failed to change breakpoint to new version file, fileId=" + fileId
-                            + ", historyRec=" + historyRec + ", updater=" + currentRecUpdator,
-                    e);
-        }
-        catch (Exception e) {
-            rollbackTransaction(transaction);
-            throw e;
-        }
-        finally {
-            closeTransactionContext(transaction);
-        }
     }
 
     public void insertClass(String workspaceName, BSONObject classInfo) throws ScmServerException {

@@ -10,6 +10,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmBucket;
+import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
@@ -17,6 +18,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaRelAccessor;
@@ -91,16 +93,17 @@ public class ScmFileOperateUtils {
     }
 
     public static void updateFileRelForUpdateFile(ScmWorkspaceInfo wsInfo, String fileId,
-            BSONObject oldFileRecord, BSONObject relUpdator, TransactionContext context)
+            BSONObject oldFileRecord, BSONObject fileUpdater, TransactionContext context)
             throws ScmServerException, ScmMetasourceException {
         if (wsInfo.isEnableDirectory()) {
+            BSONObject relUpdater = ScmMetaSourceHelper.createRelUpdatorByFileUpdator(fileUpdater);
             MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource().getRelAccessor(wsInfo.getName(), context);
             String oldDirId = BsonUtils.getStringChecked(oldFileRecord,
                     FieldName.FIELD_CLFILE_DIRECTORY_ID);
             String oldFileName = BsonUtils.getStringChecked(oldFileRecord,
                     FieldName.FIELD_CLFILE_NAME);
-            relAccessor.updateRel(fileId, oldDirId, oldFileName, relUpdator);
+            relAccessor.updateRel(fileId, oldDirId, oldFileName, relUpdater);
         }
     }
 
@@ -117,11 +120,15 @@ public class ScmFileOperateUtils {
         }
         // 若文件在 Bucket 中，尝试更新文件名、BucketID 上层就会报错，不会走到这个函数，这里如果发现 fileUpdater
         // 包含这两个属性的更新，也进行报错
-        if (fileUpdater.containsField(FieldName.FIELD_CLFILE_NAME)) {
+        String newFileName = BsonUtils.getString(fileUpdater, FieldName.FIELD_CLREL_FILENAME);
+        if (newFileName != null
+                && !newFileName.equals(oldFileRecord.get(FieldName.FIELD_CLFILE_NAME))) {
             throw new ScmServerException(ScmError.SYSTEM_ERROR,
                     "can not rename bucket file：" + oldFileRecord);
         }
-        if (fileUpdater.containsField(FieldName.FIELD_CLFILE_FILE_BUCKET_ID)) {
+        Number newBucketId = BsonUtils.getNumber(fileUpdater,
+                FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (newBucketId != null && newBucketId.longValue() != bucketId.longValue()) {
             throw new ScmServerException(ScmError.SYSTEM_ERROR,
                     "can not reset bucket id：" + oldFileRecord);
         }
@@ -132,6 +139,38 @@ public class ScmFileOperateUtils {
                 new BasicBSONObject(FieldName.BucketFile.FILE_NAME,
                         oldFileRecord.get(FieldName.FIELD_CLFILE_NAME)),
                 new BasicBSONObject(ScmMetaSourceHelper.SEQUOIADB_MODIFIER_SET, bucketFileUpdater));
+    }
+
+    public static BSONObject createBucketFileRel(BSONObject fileInfo) {
+        BasicBSONObject ret = new BasicBSONObject();
+        ret.put(FieldName.BucketFile.FILE_ID, fileInfo.get(FieldName.FIELD_CLFILE_ID));
+        ret.put(FieldName.BucketFile.FILE_NAME, fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        String etag = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_MD5);
+        if (etag == null) {
+            etag = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_ETAG);
+        }
+        else {
+            etag = SignUtil.toHex(etag);
+        }
+        ret.put(FieldName.BucketFile.FILE_ETAG, etag);
+        ret.put(FieldName.BucketFile.FILE_CREATE_USER,
+                fileInfo.get(FieldName.FIELD_CLFILE_INNER_USER));
+        ret.put(FieldName.BucketFile.FILE_UPDATE_TIME,
+                fileInfo.get(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME));
+        ret.put(FieldName.BucketFile.FILE_MIME_TYPE,
+                fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE));
+        ret.put(FieldName.BucketFile.FILE_MAJOR_VERSION,
+                fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION));
+        ret.put(FieldName.BucketFile.FILE_MINOR_VERSION,
+                fileInfo.get(FieldName.FIELD_CLFILE_MINOR_VERSION));
+        ret.put(FieldName.BucketFile.FILE_SIZE, fileInfo.get(FieldName.FIELD_CLFILE_FILE_SIZE));
+        ret.put(FieldName.BucketFile.FILE_CREATE_TIME,
+                fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME));
+        ret.put(FieldName.BucketFile.FILE_DELETE_MARKER,
+                BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_DELETE_MARKER, false));
+        ret.put(FieldName.BucketFile.FILE_NULL_MARKER,
+                BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_NULL_MARKER, false));
+        return ret;
     }
 
     public static void deleteFileRelForDeleteFile(ScmWorkspaceInfo ws, String fileID,
@@ -164,8 +203,39 @@ public class ScmFileOperateUtils {
         return value;
     }
 
-    public static BSONObject checkFileObj(ScmWorkspaceInfo ws, BSONObject fileObj)
-            throws ScmServerException {
+    private static long toLongValue(String keyName, Object obj) throws ScmServerException {
+        try {
+            long l = ScmSystemUtils.toLongValue(obj);
+            return l;
+        }
+        catch (Exception e) {
+            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
+                    "field[" + keyName + "] is not long type:obj=" + obj, e);
+        }
+    }
+
+    public static void addDataInfo(BSONObject formatFileObject, String dataId, Date dataCreateTime,
+            int siteId, long size, String md5) {
+        formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
+        formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
+                dataCreateTime.getTime());
+        formatFileObject.put(FieldName.FIELD_CLFILE_FILE_SIZE, size);
+        formatFileObject.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+        if (md5 != null && md5.length() > 0) {
+            formatFileObject.put(FieldName.FIELD_CLFILE_FILE_ETAG, SignUtil.toHex(md5));
+        }
+
+        BSONObject oneSite = new BasicBSONObject();
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateTime.getTime());
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateTime.getTime());
+        BSONObject sites = BsonUtils.getBSONChecked(formatFileObject,
+                FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        sites.put("0", oneSite);
+    }
+
+    public static BSONObject formatFileObj(ScmWorkspaceInfo ws, BSONObject fileObj, String fileId,
+            Date fileCreateDate, String userName) throws ScmServerException {
         BSONObject result = new BasicBSONObject();
 
         String fieldName = FieldName.FIELD_CLFILE_NAME;
@@ -178,10 +248,10 @@ public class ScmFileOperateUtils {
         result.put(fieldName, fileObj.get(fieldName));
 
         fieldName = FieldName.FIELD_CLFILE_FILE_TITLE;
-        result.put(fieldName, checkExistString(fileObj, fieldName));
+        result.put(fieldName, fileObj.get(fieldName));
 
         fieldName = FieldName.FIELD_CLFILE_FILE_MIME_TYPE;
-        result.put(fieldName, checkExistString(fileObj, fieldName));
+        result.put(fieldName, fileObj.get(fieldName));
 
         fieldName = FieldName.FIELD_CLFILE_DIRECTORY_ID;
         result.put(fieldName, fileObj.get(fieldName));
@@ -212,64 +282,47 @@ public class ScmFileOperateUtils {
             result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMeta);
         }
 
-        result.put(FieldName.FIELD_CLFILE_FILE_ETAG,
-                fileObj.get(FieldName.FIELD_CLFILE_FILE_ETAG));
+        result.put(FieldName.FIELD_CLFILE_FILE_ETAG, fileObj.get(FieldName.FIELD_CLFILE_FILE_ETAG));
 
-        return result;
-    }
-
-    private static long toLongValue(String keyName, Object obj) throws ScmServerException {
-        try {
-            long l = ScmSystemUtils.toLongValue(obj);
-            return l;
-        }
-        catch (Exception e) {
-            throw new ScmServerException(ScmError.ATTRIBUTE_FORMAT_ERROR,
-                    "field[" + keyName + "] is not long type:obj=" + obj, e);
-        }
-    }
-
-    public static void addExtraField(ScmWorkspaceInfo ws, BSONObject obj, String fileId,
-            String dataId, Date fileCreateDate, Date dataCreateDate, String userName, int siteId,
-            int majorVersion, int minorVersion) throws ScmServerException {
-        obj.put(FieldName.FIELD_CLFILE_ID, fileId);
-        obj.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
-        obj.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
-        obj.put(FieldName.FIELD_CLFILE_TYPE, 1);
-        obj.put(FieldName.FIELD_CLFILE_BATCH_ID, "");
-        obj.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
-        obj.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, dataCreateDate.getTime());
-        obj.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, ENDataType.Normal.getValue());
+        result.put(FieldName.FIELD_CLFILE_ID, fileId);
+        result.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, 1);
+        result.put(FieldName.FIELD_CLFILE_MINOR_VERSION, 0);
+        result.put(FieldName.FIELD_CLFILE_TYPE, 1);
+        result.put(FieldName.FIELD_CLFILE_BATCH_ID, "");
 
         BSONObject sites = new BasicBSONList();
-        BSONObject oneSite = new BasicBSONObject();
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateDate.getTime());
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateDate.getTime());
+        result.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST, sites);
+        result.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, null);
+        result.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, null);
 
-        sites.put("0", oneSite);
-        obj.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST, sites);
-
-        obj.put(FieldName.FIELD_CLFILE_INNER_USER, userName);
-        obj.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateDate.getTime());
-        obj.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH,
+        result.put(FieldName.FIELD_CLFILE_INNER_USER, userName);
+        result.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateDate.getTime());
+        result.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH,
                 ScmSystemUtils.getCurrentYearMonth(fileCreateDate));
-        obj.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, userName);
-        obj.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, fileCreateDate.getTime());
+        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, userName);
+        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, fileCreateDate.getTime());
 
-        obj.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, ServiceDefine.FileStatus.NORMAL);
-        obj.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, "");
+        result.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, ServiceDefine.FileStatus.NORMAL);
+        result.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, "");
 
-        String dirId = (String) obj.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        String dirId = (String) result.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
         if (dirId == null || dirId.equals("")) {
-            obj.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
+            result.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
         }
         else if (!ws.isEnableDirectory()) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "can not specify parent directory for file");
         }
 
+        result.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, ENDataType.Normal.getValue());
+        result.put(FieldName.FIELD_CLFILE_FILE_SIZE, 0);
+        result.put(FieldName.FIELD_CLFILE_FILE_MD5, null);
+        result.put(FieldName.FIELD_CLFILE_NULL_MARKER, false);
+        result.put(FieldName.FIELD_CLFILE_DELETE_MARKER, false);
+        result.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null);
+        return result;
     }
+
 
     public static void deleteBucketFileRelForDeleteFile(BucketInfoManager bucketInfoMgr,
             BSONObject deletedFileRecord, TransactionContext context)

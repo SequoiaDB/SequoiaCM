@@ -297,6 +297,8 @@ public class CommonDefine {
         public static final String DATASOURCE_DATA_SIZE = "size";
         public static final String DATASOURCE_DATA_TABLE_NAMES = "table_names";
         public static final String DATASOURCE_SITE_NAME = "site_name";
+        public static final String DATASOURCE_SITE_ID = "site_id";
+        public static final String DATASOURCE_SITE_LIST = "site_list";
 
         public static final String FILE_ID = "id";
         public static final String FILE_READ_FLAG = "read_flag";
@@ -373,6 +375,7 @@ public class CommonDefine {
         public static final String ACTION_CALC_MD5 = "calc_md5";
         public static final String ACTION_GET_SITE_STRATEGY = "get_site_strategy";
         public static final String ACTION_GET_CONTENT_LOCATION = "get_content_location";
+        public static final String ACTION_DELETE_VERSION = "delete_version";
 
         public static final String SITE_STRATEGY = "strategy";
 
@@ -391,6 +394,8 @@ public class CommonDefine {
         public static final String ATTACH_FAILURE_ERROR_MSG = "error_msg";
         public static final String ATTACH_FAILURE_EXT_INFO = "external_info";
         public static final String ATTACH_FAILURE_EXT_INFO_BUCKET_NAME = "bucket_name";
+        public static final String BUCKET_VERSION_STATUS = "version_status";
+        public static final String NULL_MARKER_ONLY = "null_marker_only";
 
     }
 

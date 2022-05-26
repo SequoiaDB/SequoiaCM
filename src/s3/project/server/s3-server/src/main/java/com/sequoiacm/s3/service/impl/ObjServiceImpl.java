@@ -2,10 +2,13 @@ package com.sequoiacm.s3.service.impl;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
+import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -15,7 +18,6 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.s3.authoriztion.ScmSession;
@@ -36,7 +38,6 @@ import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.CopyObjectResult;
 import com.sequoiacm.s3.model.DeleteObjectResult;
 import com.sequoiacm.s3.model.GetObjectResult;
-import com.sequoiacm.s3.model.ListObjVersion;
 import com.sequoiacm.s3.model.ListObjectCommonPrefix;
 import com.sequoiacm.s3.model.ListObjectsResult;
 import com.sequoiacm.s3.model.ListObjectsResultV1;
@@ -45,14 +46,20 @@ import com.sequoiacm.s3.model.ObjectMatcher;
 import com.sequoiacm.s3.model.PutObjectResult;
 import com.sequoiacm.s3.scan.BasicS3ScanCommonPrefixParser;
 import com.sequoiacm.s3.scan.BasicS3ScanMatcher;
-import com.sequoiacm.s3.scan.BasicS3ScanOffset;
+import com.sequoiacm.s3.scan.ListObjVersionScanOffset;
+import com.sequoiacm.s3.scan.ListObjectScanOffset;
+import com.sequoiacm.s3.scan.ListObjectVersionRecordCursorProvider;
+import com.sequoiacm.s3.scan.ListVersionRecordWrapper;
+import com.sequoiacm.s3.scan.RecordWrapper;
 import com.sequoiacm.s3.scan.S3ResourceScanner;
 import com.sequoiacm.s3.scan.S3ScanResult;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.CommonUtil;
 import com.sequoiacm.s3.utils.DataFormatUtils;
+import com.sequoiacm.s3.utils.VersionUtil;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,12 +128,22 @@ public class ObjServiceImpl implements ObjectService {
             BSONObject fileInfo = FileMappingUtil.buildFileInfo(req.getObjectMeta());
             fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, objCreateTime);
 
-            scmBucketService.createFile(session.getUser(), s3Bucket.getBucketName(), fileInfo,
+            BSONObject createdFile = scmBucketService.createFile(session.getUser(),
+                    s3Bucket.getBucketName(), fileInfo,
                     dataDetail, null,
-                    new OverwriteOption(session.getSessionId(), session.getUserDetail()));
+                    OverwriteOption.doNotOverwrite());
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
                     "get s3 object meta: bucket=" + s3Bucket.getBucketName() + ", key="
                             + req.getObjectMeta().getKey());
+
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(s3Bucket.getBucketName(),
+                    createdFile);
+            PutObjectResult res = new PutObjectResult();
+            res.seteTag(s3ObjMeta.getEtag());
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                res.setVersionId(s3ObjMeta.getVersionId());
+            }
+            return res;
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
@@ -151,11 +168,6 @@ public class ObjServiceImpl implements ObjectService {
             deleteDataSilence(s3Bucket, dataDetail);
             throw e;
         }
-
-        PutObjectResult res = new PutObjectResult();
-        res.seteTag(SignUtil.toHex(dataDetail.getMd5()));
-        res.setVersionId(null);
-        return res;
     }
 
     private void deleteDataSilence(Bucket s3Bucket, ScmDataInfoDetail dataDetail) {
@@ -179,14 +191,11 @@ public class ObjServiceImpl implements ObjectService {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucket);
 
-            BSONObject fileInfo = scmBucketService.getFile(session.getUser(), bucket, objectName);
-            if (versionId != null) {
-                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
-                        "no such version. objectName:" + objectName + ",version:" + versionId);
-            }
+            BSONObject fileInfo = getFileInfo(session, bucket, objectName, versionId);
             S3ObjectMeta objectMeta = FileMappingUtil.buildS3ObjectMeta(bucket, fileInfo);
-            match(matchers, objectMeta);
-
+            if (!objectMeta.isDeleteMarker()) {
+                match(matchers, objectMeta);
+            }
             audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
                     "get s3 object meta: bucket=" + bucket + ", key=" + objectName);
             return objectMeta;
@@ -295,13 +304,11 @@ public class ObjServiceImpl implements ObjectService {
             String versionId, ObjectMatcher matcher, Range range) throws S3ServerException {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
-            BSONObject fileInfo = scmBucketService.getFile(session.getUser(), bucketName,
-                    objectName);
-            if (versionId != null) {
-                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
-                        "no such version. objectName:" + objectName + ",version:" + versionId);
-            }
+            BSONObject fileInfo = getFileInfo(session, bucketName, objectName, versionId);
             S3ObjectMeta s3ObjectMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, fileInfo);
+            if (s3ObjectMeta.isDeleteMarker()) {
+                return new GetObjectResult(s3ObjectMeta, null);
+            }
             match(matcher, s3ObjectMeta);
             InputStream objectData;
             if (range != null) {
@@ -328,22 +335,57 @@ public class ObjServiceImpl implements ObjectService {
         }
     }
 
+    private BSONObject getFileInfo(ScmSession session, String bucketName, String objectName,
+            String versionId) throws ScmServerException, S3ServerException {
+        if (versionId == null) {
+            return scmBucketService.getFileVersion(session.getUser(), bucketName, objectName, -1,
+                    -1);
+        }
+        try {
+            if (versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
+                return scmBucketService.getFileNullMarkerVersion(session.getUser(), bucketName,
+                        objectName);
+            }
+            ScmVersion version = VersionUtil.parseVersion(versionId);
+            return scmBucketService.getFileVersion(session.getUser(), bucketName, objectName,
+                    version.getMajorVersion(), version.getMinorVersion());
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
+                        "no such version: bucket=" + bucketName + ", key=" + objectName
+                                + ", version=" + versionId,
+                        e);
+            }
+            throw e;
+        }
+
+    }
+
     @Override
     public CopyObjectResult copyObject(ScmSession session, CopyObjectRequest request)
             throws S3ServerException {
         try {
             Bucket srcBucket = bucketService.getBucket(session, request.getSourceObjectBucket());
-            BSONObject fileInfo = scmBucketService.getFile(session.getUser(),
-                    request.getSourceObjectBucket(), request.getSourceObjectKey());
-            if (request.getSourceObjectVersion() != null) {
-                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_VERSION,
-                        "no such version. bucket=:" + request.getSourceObjectBucket()
-                                + ", objectKey=" + request.getSourceObjectKey() + ",version:"
-                                + request.getSourceObjectVersion());
-            }
-
+            BSONObject fileInfo = getFileInfo(session, request.getSourceObjectBucket(),
+                    request.getSourceObjectKey(), request.getSourceObjectVersion());
             S3ObjectMeta sourceObjectMeta = FileMappingUtil
                     .buildS3ObjectMeta(request.getSourceObjectBucket(), fileInfo);
+            if (sourceObjectMeta.isDeleteMarker()) {
+                if (request.getSourceObjectVersion() != null) {
+                    throw new S3ServerException(S3Error.OBJECT_COPY_DELETE_MARKER,
+                            "source object with versionId is a deleteMarker: bucket="
+                                    + request.getSourceObjectBucket() + ", key="
+                                    + request.getSourceObjectKey() + ", version="
+                                    + request.getSourceObjectVersion());
+                }
+                else {
+                    throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                            "source object is a deleteMarker bucket="
+                                    + request.getSourceObjectBucket() + ", key="
+                                    + request.getSourceObjectKey());
+                }
+            }
             checkIsValidCopy(request, sourceObjectMeta);
             S3BasicObjectMeta destObjectMeta = buildDestObjectMeta(request, sourceObjectMeta);
             ScmFileInputStreamAdapter fileReader = new ScmFileInputStreamAdapter(session, fileService,
@@ -362,8 +404,10 @@ public class ObjServiceImpl implements ObjectService {
             copyObjectResult.seteTag(result.geteTag());
             copyObjectResult.setLastModified(
                     DataFormatUtils.formatDate(sourceObjectMeta.getLastModified()));
-            copyObjectResult.setVersionId(null);
-            copyObjectResult.setSourceVersionId(null);
+            copyObjectResult.setVersionId(result.getVersionId());
+            if (sourceObjectMeta.getVersionId() != null) {
+                copyObjectResult.setSourceVersionId(sourceObjectMeta.getVersionId());
+            }
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), "null", 0,
                     "copy s3 bucket: srcBucket=" + request.getSourceObjectBucket() + ", srcObject="
                             + request.getSourceObjectKey() + ", destBucket="
@@ -419,20 +463,70 @@ public class ObjServiceImpl implements ObjectService {
     }
 
     @Override
-    public DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectKey,
-            String versionId) throws S3ServerException {
-        if (versionId != null) {
-            return null;
-        }
+    public DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectName)
+            throws S3ServerException {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
-            String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectKey);
-            fileService.deleteFile(session.getSessionId(), session.getUserDetail(),
-                    session.getUser(), s3Bucket.getRegion(), fileId, -1, -1, true);
+            BSONObject deleteMarker = scmBucketService.deleteFile(session.getUser(), bucketName,
+                    objectName, false,
+                    new SessionInfoWrapper(session.getSessionId(), session.getUserDetail()));
             audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "delete s3 object: bucket=" + bucketName + ", key=" + objectKey);
-            // obj no version, return null
-            return null;
+                    "delete s3 object: bucket=" + bucketName + ", key=" + objectName);
+            if (deleteMarker == null) {
+                return null;
+            }
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, deleteMarker);
+            DeleteObjectResult ret = new DeleteObjectResult();
+            ret.setDeleteMarker(s3ObjMeta.isDeleteMarker());
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                ret.setVersionId(s3ObjMeta.getVersionId());
+            }
+            return ret;
+        }
+        catch (ScmServerException e) {
+            throw new S3ServerException(S3Error.OBJECT_DELETE_FAILED,
+                    "failed to delete object: bucket=" + bucketName + ", objectKey=" + objectName,
+                    e);
+        }
+
+    }
+
+    @Override
+    public DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectKey,
+            String versionId) throws S3ServerException {
+        try {
+            BSONObject deletedVersion = null;
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+            if (versionId != null) {
+                if (versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
+                    deletedVersion = scmBucketService.deleteFileVersionNullMarker(session.getUser(),
+                            bucketName, objectKey);
+                }
+                else {
+                    ScmVersion scmVersion = VersionUtil.parseVersionIgnoreInvalidId(versionId);
+                    if (scmVersion == null) {
+                        return null;
+                    }
+                    deletedVersion = scmBucketService.deleteFileVersion(session.getUser(),
+                            bucketName, objectKey, scmVersion.getMajorVersion(),
+                            scmVersion.getMinorVersion());
+                }
+            }
+            else {
+                deletedVersion = scmBucketService.deleteFileVersion(session.getUser(), bucketName,
+                        objectKey, -1, -1);
+            }
+            audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
+                    "delete s3 object: bucket=" + bucketName + ", key=" + objectKey + ", version="
+                            + (versionId == null ? "nullMarker" : versionId));
+            if (deletedVersion == null) {
+                return null;
+            }
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, deletedVersion);
+            DeleteObjectResult ret = new DeleteObjectResult();
+            ret.setDeleteMarker(s3ObjMeta.isDeleteMarker());
+            ret.setVersionId(s3ObjMeta.getVersionId());
+            return ret;
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.FILE_NOT_FOUND) {
@@ -457,9 +551,10 @@ public class ObjServiceImpl implements ObjectService {
 
         Bucket s3Bucket = bucketService.getBucket(session, bucketName);
         S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, startAfter, delimiter);
-        for (BSONObject content : scanResult.getContent()) {
+        for (RecordWrapper content : scanResult.getContent()) {
             listObjectsResult
-                    .addContent(FileMappingUtil.buildListObjContent(content, encodingType));
+                    .addContent(
+                            FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
         }
         for (String commonPrefix : scanResult.getCommonPrefixSet()) {
             listObjectsResult.addCommonPrefix(
@@ -467,9 +562,9 @@ public class ObjServiceImpl implements ObjectService {
         }
         listObjectsResult.setIsTruncated(scanResult.isTruncated());
         if (listObjectsResult.getIsTruncated()) {
-            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+            ListObjectScanOffset nextOffset = (ListObjectScanOffset) scanResult.getNextScanOffset();
             String nextKeyMarker = nextOffset.getCommonPrefix() == null
-                    ? nextOffset.getMajorKeyStartAfter()
+                    ? nextOffset.getObjKeyStartAfter()
                     : nextOffset.getCommonPrefix();
             listObjectsResult.setNextMarker(
                     S3Codec.encode(nextKeyMarker, encodingType));
@@ -492,10 +587,19 @@ public class ObjServiceImpl implements ObjectService {
         }
 
         Bucket s3Bucket = bucketService.getBucket(session, bucketName);
-        S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, keyMarker, delimiter);
-        for (BSONObject content : scanResult.getContent()) {
-            listVersionsResult.addVersion(
-                    new ListObjVersion(FileMappingUtil.buildListObjContent(content, encodingType)));
+        S3ScanResult scanResult = scanVersion(bucketName, maxKeys, prefix, keyMarker,
+                versionIdMarker, delimiter);
+        for (RecordWrapper content : scanResult.getContent()) {
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, content.getRecord());
+            boolean isLatestVersion = ((ListVersionRecordWrapper) content).isLatestVersion();
+            if (s3ObjMeta.isDeleteMarker()) {
+                listVersionsResult.addDeleteMarker(FileMappingUtil.buildListDeleteMarker(s3ObjMeta,
+                        encodingType, isLatestVersion));
+            }
+            else {
+                listVersionsResult.addVersion(FileMappingUtil.buildListObjVersion(s3ObjMeta,
+                        encodingType, isLatestVersion));
+            }
         }
         for (String commonPrefix : scanResult.getCommonPrefixSet()) {
             listVersionsResult.addCommonPrefix(
@@ -503,18 +607,66 @@ public class ObjServiceImpl implements ObjectService {
         }
         listVersionsResult.setIsTruncated(scanResult.isTruncated());
         if (scanResult.isTruncated()) {
-            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
+            ListObjVersionScanOffset nextOffset = (ListObjVersionScanOffset) scanResult
+                    .getNextScanOffset();
             String nextKeyMarker = nextOffset.getCommonPrefix() == null
-                    ? nextOffset.getMajorKeyStartAfter()
+                    ? nextOffset.getObjKeyStartAfter()
                     : nextOffset.getCommonPrefix();
             listVersionsResult.setNextKeyMarker(S3Codec.encode(nextKeyMarker, encodingType));
-            listVersionsResult.setNextVersionIdMarker(null);
+            if (nextOffset.getCommonPrefix() == null) {
+                listVersionsResult.setNextVersionIdMarker(nextOffset.getVersionIdMarker());
+            }
+            else {
+                listVersionsResult.setNextVersionIdMarker(null);
+            }
         }
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
                 "list s3 object versions: bucket=" + bucketName + ", prefix=" + prefix
                         + ", delimiter=" + delimiter + ", keyMarker=" + keyMarker
                         + ", versionIdMarker=" + versionIdMarker + ",encodeType=" + encodingType);
         return listVersionsResult;
+    }
+
+    private S3ScanResult scanVersion(String bucketName, int maxKeys, String prefix,
+            String keyMarker, String versionIdMarker, String delimiter) throws S3ServerException {
+        try {
+            BasicS3ScanMatcher scanMatcher = new BasicS3ScanMatcher(FieldName.BucketFile.FILE_NAME,
+                    prefix, null);
+            BasicS3ScanCommonPrefixParser scanDelimiter = new BasicS3ScanCommonPrefixParser(
+                    FieldName.BucketFile.FILE_NAME, delimiter, prefix);
+            ListObjVersionScanOffset scanOffset = new ListObjVersionScanOffset(scmBucketService,
+                    bucketName, keyMarker, versionIdMarker,
+                    scanDelimiter.getCommonPrefix(keyMarker));
+            ScmBucket scmbucket = scmBucketService.getBucket(bucketName);
+            S3ResourceScanner scanner = new S3ResourceScanner(
+                    new ListObjectVersionRecordCursorProvider(scmbucket), scanMatcher, scanOffset,
+                    scanDelimiter, maxKeys);
+            return scanner.doScan();
+
+        }
+        catch (ScmMetasourceException e) {
+            throw new S3ServerException(S3Error.OBJECT_LIST_FAILED,
+                    "failed to list version: bucket=" + bucketName + ", prefix=" + prefix
+                            + ", startAfter=" + keyMarker + ", versionIdMarker=" + versionIdMarker
+                            + ", delimiter=" + delimiter,
+                    e);
+
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "failed to list version: bucket=" + bucketName + ", prefix=" + prefix
+                                + ", startAfter=" + keyMarker + ", versionIdMarker="
+                                + versionIdMarker + ", delimiter=" + delimiter,
+                        e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_LIST_FAILED,
+                    "failed to list version: bucket=" + bucketName + ", prefix=" + prefix
+                            + ", startAfter=" + keyMarker + ", versionIdMarker=" + versionIdMarker
+                            + ", delimiter=" + delimiter,
+                    e);
+        }
+
     }
 
     @Override
@@ -540,9 +692,10 @@ public class ObjServiceImpl implements ObjectService {
         Bucket s3Bucket = bucketService.getBucket(session, bucketName);
         S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, context.getLastMarker(),
                 delimiter);
-        for (BSONObject content : scanResult.getContent()) {
+        for (RecordWrapper content : scanResult.getContent()) {
             listObjectsResult
-                    .addContent(FileMappingUtil.buildListObjContent(content, encodingType));
+                    .addContent(
+                            FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
         }
         for (String commonPrefix : scanResult.getCommonPrefixSet()) {
             listObjectsResult.addCommonPrefix(
@@ -551,8 +704,8 @@ public class ObjServiceImpl implements ObjectService {
         listObjectsResult.setIsTruncated(scanResult.isTruncated());
         if (scanResult.isTruncated()) {
             listObjectsResult.setNextContinueToken(context.getToken());
-            BasicS3ScanOffset nextOffset = (BasicS3ScanOffset) scanResult.getNextScanOffset();
-            context.setLastMarker(nextOffset.getMajorKeyStartAfter());
+            ListObjectScanOffset nextOffset = (ListObjectScanOffset) scanResult.getNextScanOffset();
+            context.setLastMarker(nextOffset.getObjKeyStartAfter());
             context.save();
         }
         else {
@@ -570,12 +723,11 @@ public class ObjServiceImpl implements ObjectService {
             String delimiter) throws S3ServerException {
         try {
             BasicS3ScanMatcher scanMatcher = new BasicS3ScanMatcher(FieldName.BucketFile.FILE_NAME,
-                    prefix, null);
+                    prefix, new BasicBSONObject(FieldName.BucketFile.FILE_DELETE_MARKER, false));
             BasicS3ScanCommonPrefixParser scanDelimiter = new BasicS3ScanCommonPrefixParser(
                     FieldName.BucketFile.FILE_NAME, delimiter, prefix);
-            BasicS3ScanOffset scanOffset = new BasicS3ScanOffset(FieldName.BucketFile.FILE_NAME,
-                    startAfter, scanDelimiter.getCommonPrefix(startAfter));
-
+            ListObjectScanOffset scanOffset = new ListObjectScanOffset(startAfter,
+                    scanDelimiter.getCommonPrefix(startAfter));
             ScmBucket scmbucket = scmBucketService.getBucket(bucketName);
             MetaAccessor accessor = scmbucket.getFileTableAccessor(null);
             S3ResourceScanner scanner = new S3ResourceScanner(accessor, scanMatcher, scanOffset,
