@@ -59,7 +59,7 @@ public class CustomForwardFilter extends OncePerRequestFilter {
             logger.debug("custom forward req:service={}, targetApi={}", decision.getServiceName(),
                     decision.getTargetApi());
             service.forward(decision.getServiceName(), decision.getTargetApi(), clientReq,
-                    clientResp, decision.isChunkedForward());
+                    clientResp, decision.getDefaultContentType(), decision.isChunkedForward());
         }
         catch (Exception e) {
             logger.error("failed to forward s3 request: serviceName={}, reqUrl={}, queryParam={}",

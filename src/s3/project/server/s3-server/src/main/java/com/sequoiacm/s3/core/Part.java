@@ -8,7 +8,7 @@ import org.bson.BSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import static com.sequoiacm.s3.utils.DataFormatUtils.formatDate;
+import com.sequoiacm.s3.utils.DataFormatUtils;
 
 public class Part {
     public static final String UPLOADID = "upload_id";
@@ -98,7 +98,7 @@ public class Part {
             }
             if (record.get(Part.LASTMODIFIED) != null) {
                 this.lastModified = (long) record.get(Part.LASTMODIFIED);
-                this.lastModifiedDate = formatDate(this.lastModified);
+                this.lastModifiedDate = DataFormatUtils.formatISO8601Date(this.lastModified);
             }
             if (encodingType != null) {
                 this.etag = URLEncoder.encode("\"" + record.get(Part.ETAG).toString() + "\"",

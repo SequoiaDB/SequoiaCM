@@ -403,11 +403,12 @@ public class ObjServiceImpl implements ObjectService {
             CopyObjectResult copyObjectResult = new CopyObjectResult();
             copyObjectResult.seteTag(result.geteTag());
             copyObjectResult.setLastModified(
-                    DataFormatUtils.formatDate(sourceObjectMeta.getLastModified()));
+                    DataFormatUtils.formatISO8601Date(sourceObjectMeta.getLastModified()));
             copyObjectResult.setVersionId(result.getVersionId());
             if (sourceObjectMeta.getVersionId() != null) {
                 copyObjectResult.setSourceVersionId(sourceObjectMeta.getVersionId());
             }
+
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), "null", 0,
                     "copy s3 bucket: srcBucket=" + request.getSourceObjectBucket() + ", srcObject="
                             + request.getSourceObjectKey() + ", destBucket="

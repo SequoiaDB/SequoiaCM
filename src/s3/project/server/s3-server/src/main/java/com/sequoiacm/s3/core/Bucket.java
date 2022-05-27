@@ -26,7 +26,7 @@ public class Bucket {
     public Bucket(String bucketName, long createDateL, String user, String region,
             String versionStatus) {
         this.bucketName = bucketName;
-        this.createDate = DataFormatUtils.formatDate(createDateL);
+        this.createDate = DataFormatUtils.formatISO8601Date(createDateL);
         this.region = region;
         this.user = user;
         this.versionStatus = versionStatus;

@@ -49,7 +49,7 @@ public class FileMappingUtil {
         String etag = BsonUtils.getStringChecked(content, FieldName.BucketFile.FILE_ETAG);
         String user = BsonUtils.getStringChecked(content, FieldName.BucketFile.FILE_CREATE_USER);
         long size = BsonUtils.getLongChecked(content, FieldName.BucketFile.FILE_SIZE);
-        return new ListObjContent(key, DataFormatUtils.formatDate(updateTime), etag, size,
+        return new ListObjContent(key, DataFormatUtils.formatISO8601Date(updateTime), etag, size,
                 new Owner(user, user));
     }
 
@@ -57,7 +57,7 @@ public class FileMappingUtil {
             throws S3ServerException {
         String key = content.getKey();
         key = S3Codec.encode(key, encodeType);
-        return new ListObjContent(key, DataFormatUtils.formatDate(content.getLastModified()),
+        return new ListObjContent(key, DataFormatUtils.formatISO8601Date(content.getLastModified()),
                 content.getEtag(), content.getSize(),
                 new Owner(content.getUser(), content.getUser()));
     }
@@ -67,7 +67,7 @@ public class FileMappingUtil {
         String key = content.getKey();
         key = S3Codec.encode(key, encodeType);
         return new ListDeleteMarker(key, content.getVersionId(), isLatest,
-                DataFormatUtils.formatDate(content.getLastModified()), content.getUser());
+                DataFormatUtils.formatISO8601Date(content.getLastModified()), content.getUser());
     }
 
     public static ListObjVersion buildListObjVersion(S3ObjectMeta content, String encodeType,
@@ -75,7 +75,7 @@ public class FileMappingUtil {
         String key = content.getKey();
         key = S3Codec.encode(key, encodeType);
         return new ListObjVersion(key, content.getVersionId(), isLatest,
-                DataFormatUtils.formatDate(content.getLastModified()), content.getUser(),
+                DataFormatUtils.formatISO8601Date(content.getLastModified()), content.getUser(),
                 content.getEtag(), content.getSize());
     }
 

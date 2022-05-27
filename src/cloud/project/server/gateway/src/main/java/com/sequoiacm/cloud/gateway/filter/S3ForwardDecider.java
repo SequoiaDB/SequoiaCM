@@ -24,7 +24,7 @@ public class S3ForwardDecider implements CustomForwardDecider {
         }
         String uri = req.getRequestURI();
         String targetApi = uri.substring(("/" + s3ServiceName).length());
-        return Decision.shouldForward(s3ServiceName, targetApi, false);
+        return Decision.shouldForward(s3ServiceName, targetApi, null, false);
     }
 
     private String getS3ServiceName(HttpServletRequest clientReq) {

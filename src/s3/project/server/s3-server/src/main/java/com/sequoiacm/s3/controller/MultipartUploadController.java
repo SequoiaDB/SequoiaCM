@@ -14,7 +14,6 @@ import com.sequoiacm.s3.core.*;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.*;
-import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.MultiPartService;
 import com.sequoiacm.s3.service.ObjectService;
 import com.sequoiacm.s3.utils.RestUtils;
@@ -32,10 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
-import static com.sequoiacm.s3.utils.DataFormatUtils.formatDate;
+import com.sequoiacm.s3.utils.DataFormatUtils;
 
 @S3Controller
 public class MultipartUploadController {
@@ -219,7 +216,7 @@ public class MultipartUploadController {
 
             CopyPartResult copyResult = new CopyPartResult();
             copyResult.seteTag(newPart.getEtag());
-            copyResult.setLastModified(formatDate(newPart.getLastModified()));
+            copyResult.setLastModified(DataFormatUtils.formatISO8601Date(newPart.getLastModified()));
             HttpHeaders headers = new HttpHeaders();
 
             if (sourceUri.getVersionId() != null) {

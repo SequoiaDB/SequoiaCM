@@ -10,7 +10,7 @@ import org.bson.BSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import static com.sequoiacm.s3.utils.DataFormatUtils.formatDate;
+import com.sequoiacm.s3.utils.DataFormatUtils;
 
 public class Upload {
     @JsonProperty("Key")
@@ -39,7 +39,7 @@ public class Upload {
         }
 
         if (record.get(UploadMeta.META_LAST_MODIFY_TIME) != null) {
-            this.formatDate = formatDate((long) record.get(UploadMeta.META_LAST_MODIFY_TIME));
+            this.formatDate = DataFormatUtils.formatISO8601Date((long) record.get(UploadMeta.META_LAST_MODIFY_TIME));
         }
 
         this.owner = owner;

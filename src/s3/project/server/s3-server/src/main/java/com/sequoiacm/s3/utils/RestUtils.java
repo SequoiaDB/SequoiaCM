@@ -161,6 +161,15 @@ public class RestUtils {
             case ACCESS_DENIED:
             case NO_CREDENTIALS:
             case INVALID_AUTHORIZATION:
+            case REQUEST_TIME_TOO_SKEWED:
+            case ACCESS_EXPIRED:
+            case PRE_URL_V2_NEED_QUERY_PARAMETERS:
+            case PRE_URL_V4_NEED_QUERY_PARAMETERS:
+            case NUMBER_X_AMZ_EXPIRES:
+            case X_AMZ_EXPIRES_TOO_LARGE:
+            case X_AMZ_EXPIRES_NEGATIVE:
+            case X_AMZ_X_AMZ_DATE_ERROR:
+            case ACCESS_NEED_VALID_DATE:
                 status = HttpStatus.FORBIDDEN;
                 break;
             case BUCKET_NOT_EXIST:

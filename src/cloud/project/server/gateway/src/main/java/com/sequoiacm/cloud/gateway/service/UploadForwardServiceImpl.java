@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
+import com.sequoiacm.infrastructure.common.UriUtil;
 import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
@@ -116,7 +117,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
 
     @Override
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
-            HttpServletResponse clientResp, boolean chunked) throws Exception {
+            HttpServletResponse clientResp, String defaultContentType, boolean chunked)
+            throws Exception {
         long requestStartTime = System.currentTimeMillis();
         ServiceInstance instance = loadBalancerClient.choose(targetService);
         if (instance == null) {
@@ -133,12 +135,12 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             // build forward request
             clientInputstream = clientReq.getInputStream();
             final HttpRequest forwardReq = buildForwardRequest(targetApi, clientInputstream,
-                    clientReq, chunked);
+                    clientReq, defaultContentType, chunked);
             if (statisticsDecideResult.isNeedStatistics()) {
                 forwardReq.addHeader(ScmStatisticsDefine.STATISTICS_HEADER,
                         statisticsDecideResult.getStatisticsType());
             }
-            forwardReq.addHeader("x-forwarded-prefix", "/" + targetService);
+            UriUtil.addForwardPrefix(forwardReq, "/" + targetService);
             logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
 
             // execute with hystrix
@@ -164,7 +166,8 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             EntityUtils.consume(forwardResp.getEntity());
 
             long duration = System.currentTimeMillis() - requestStartTime;
-            ScmUserWrapper userWrapper = (ScmUserWrapper) clientReq.getAttribute(RestField.USER_INFO_WRAPPER);
+            ScmUserWrapper userWrapper = (ScmUserWrapper) clientReq
+                    .getAttribute(RestField.USER_INFO_WRAPPER);
             String username = userWrapper == null ? null : userWrapper.getUser().getUsername();
             if (statisticsDecideResult.isNeedStatistics() && isSuccessResponse) {
                 Header extraHeader = forwardResp
@@ -217,9 +220,14 @@ public class UploadForwardServiceImpl implements UploadForwardService {
     }
 
     private HttpRequest buildForwardRequest(String targetServiceApi, InputStream clientBody,
-            HttpServletRequest clientReq, boolean chunked) {
+            HttpServletRequest clientReq, String defaultContentType, boolean chunked) {
         RequestBuilder forwardReqBuilder = RequestBuilder.create(clientReq.getMethod());
-        forwardReqBuilder.setUri(targetServiceApi);
+        StringBuilder uri = new StringBuilder();
+        uri.append(targetServiceApi);
+        if (clientReq.getQueryString() != null) {
+            uri.append("?").append(clientReq.getQueryString());
+        }
+        forwardReqBuilder.setUri(uri.toString());
 
         // copy header from client request
         String contentType = null;
@@ -250,20 +258,13 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             forwardReqBuilder.addHeader(RestField.USER_ATTRIBUTE, (String) userdetails);
         }
 
-        // copy parameter from client request.
-        Map<String, String[]> paremeter = clientReq.getParameterMap();
-        for (Entry<String, String[]> entry : paremeter.entrySet()) {
-            String parameterName = entry.getKey();
-            for (String parameterValue : entry.getValue()) {
-                forwardReqBuilder.addParameter(parameterName, parameterValue);
-            }
-        }
-
         // add client request body.
         InputStreamEntity isEntity = new ScmInputStremEntity(clientBody,
                 clientReq.getContentLengthLong(), config.getBufferSize());
         if (contentType == null) {
-            isEntity.setContentType("binary/octet-stream");
+            if (defaultContentType != null) {
+                isEntity.setContentType(defaultContentType);
+            }
         }
         else {
             isEntity.setContentType(contentType);

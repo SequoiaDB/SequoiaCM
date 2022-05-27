@@ -112,6 +112,14 @@ public enum S3Error {
     NO_CREDENTIALS(-603, "CredentialsNotSupported", "This request does not support credentials."),
     INVALID_AUTHORIZATION(-604, "AuthorizationHeaderMalformed", "The authorization header you provided is invalid."),
     REQUEST_TIME_TOO_SKEWED(-605, "RequestTimeTooSkewed", "The difference between the request time and the server's time is too large."),
+    ACCESS_EXPIRED(-606, "AccessDenied", "Request has expired"),
+    PRE_URL_V2_NEED_QUERY_PARAMETERS(-607, "AccessDenied", "Query-string authentication requires the Signature, X-Amz-Date, Expires and AWSAccessKeyId parameters"),
+    PRE_URL_V4_NEED_QUERY_PARAMETERS(-608, "AuthorizationQueryParametersError", "Query-string authentication version 4 requires the X-Amz-Algorithm, X-Amz-Credential, X-Amz-Signature, X-Amz-Date, X-Amz-SignedHeaders, and X-Amz-Expires parameters."),
+    NUMBER_X_AMZ_EXPIRES(-609, "AuthorizationQueryParametersError", "X-Amz-Expires should be a number"),
+    X_AMZ_EXPIRES_TOO_LARGE(-610, "AuthorizationQueryParametersError", "X-Amz-Expires must be less than a week (in seconds); that is, the given X-Amz-Expires must be less than 604800 seconds"),
+    X_AMZ_EXPIRES_NEGATIVE(-611, "AuthorizationQueryParametersError", "X-Amz-Expires must be non-negative"),
+    X_AMZ_X_AMZ_DATE_ERROR(-612, "AuthorizationQueryParametersError", "X-Amz-Date must be in the ISO8601 Long Format yyyyMMdd'T'HHmmss'Z'"),
+    ACCESS_NEED_VALID_DATE(-613, "AccessDenied", "AWS authorization requires a valid Date or x-amz-date header"),
 
     // AWS error code -- common error
     METHOD_NOT_ALLOWED(-621, "MethodNotAllowed", "The specified method is not allowed against this resource."),

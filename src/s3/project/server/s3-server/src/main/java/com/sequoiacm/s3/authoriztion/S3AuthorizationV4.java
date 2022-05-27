@@ -2,9 +2,6 @@ package com.sequoiacm.s3.authoriztion;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,13 +11,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SimpleTimeZone;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.sequoiacm.infrastructure.common.UriUtil;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
+import com.sequoiacm.s3.config.AuthorizationConfig;
+import com.sequoiacm.s3.exception.S3Error;
+import com.sequoiacm.s3.exception.S3ServerException;
+import com.sequoiacm.s3.utils.DataFormatUtils;
 
 public class S3AuthorizationV4 extends S3Authorization {
     public static final String AMZ_HASH_HEADER = "x-amz-content-sha256";
@@ -28,15 +29,21 @@ public class S3AuthorizationV4 extends S3Authorization {
     public static final String SIGNED_HEADER_PREFIX = "SignedHeaders=";
     public static final String SIGNATURE_PREFIX = "Signature=";
 
-    private String accesskey;
-    private String signature;
-    private String algorithm = "HmacSHA256";
-    private String secretkeyPrefix;
+    protected String accesskey;
+    protected String signature;
+    protected String algorithm = "HmacSHA256";
+    protected String secretkeyPrefix = "AWS4";
     private Date signDate;
-    private List<String> stringToSign = new ArrayList<>();
+    protected List<String> stringToSign = new ArrayList<>();
+    private AuthorizationConfig authConfig;
 
-    public S3AuthorizationV4(HttpServletRequest req) {
+    public S3AuthorizationV4(AuthorizationConfig authConfig) {
+        this.authConfig = authConfig;
+    }
 
+    public S3AuthorizationV4(HttpServletRequest req, AuthorizationConfig authConfig)
+            throws S3ServerException {
+        this.authConfig = authConfig;
         String authorization = req.getHeader(S3Authorization.AUTHORIZATION_HEADER);
         // authorization: AWS4-HMAC-SHA256
         // Credential=N5OP54C5UAFCWECGGOBW/20200414/us-east-1/s3/aws4_request,
@@ -56,22 +63,23 @@ public class S3AuthorizationV4 extends S3Authorization {
         stringToSign.add(reqToSign);
     }
 
-    private String getReqToSign(HttpServletRequest req, AuthorizationInfo authorizationInfo) {
-        String path = req.getRequestURI();
-        try {
-            path = URLDecoder.decode(path, "utf-8");
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("UTF-8 decoding is not supported.", e);
-        }
-        String forwardPrefix = getForwardPrefix(req);
-        path = forwardPrefix + path;
+    private String getReqToSign(HttpServletRequest req, AuthorizationInfo authorizationInfo)
+            throws S3ServerException {
+        String path = getCanonicalizedResourcePath(req);
+
         String queryParameters = "";
         if (req.getQueryString() != null) {
             queryParameters = getCanonicalizedQueryString(req.getParameterMap());
         }
+
+        if (authConfig.isSortHeaders()) {
+            Arrays.sort(authorizationInfo.getHeaderArray());
+            authorizationInfo
+                    .setHeaders(buildSignedHeaderNames(authorizationInfo.getHeaderArray()));
+        }
         String canonicalizedHeaders = getCanonicalizedHeaderString(req,
                 authorizationInfo.getHeaderArray());
+
         String hash = req.getHeader(AMZ_HASH_HEADER);
         if (hash == null) {
             throw new IllegalArgumentException("missing required header:" + AMZ_HASH_HEADER);
@@ -81,22 +89,15 @@ public class S3AuthorizationV4 extends S3Authorization {
 
         String dateTimeStamp = req.getHeader(AMZ_DATE_HEADER);
         if (dateTimeStamp == null) {
-            throw new IllegalArgumentException("missing required header:" + AMZ_DATE_HEADER);
+            throw new S3ServerException(S3Error.ACCESS_NEED_VALID_DATE,
+                    "missing required header:" + AMZ_DATE_HEADER);
         }
-        SimpleDateFormat sdf = new SimpleDateFormat(ISO8601BasicFormat);
-        sdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
-        try {
-            signDate = sdf.parse(dateTimeStamp);
-        }
-        catch (ParseException e) {
-            throw new IllegalArgumentException(
-                    "failed to parse " + AMZ_DATE_HEADER + ":" + dateTimeStamp);
-        }
+        signDate = DataFormatUtils.parseISO8601Date(dateTimeStamp);
 
-        return authorizationInfo.getScheme() + "-" + authorizationInfo.getAlgorithm() + "\n"
-                + dateTimeStamp + "\n" + authorizationInfo.getCrendential().getScope() + "\n"
-                + SignUtil.toHex(SignUtil.hash(canonicalReq));
-
+        return new StringBuilder().append(authorizationInfo.getScheme()).append("-")
+                .append(authorizationInfo.getAlgorithm()).append("\n").append(dateTimeStamp)
+                .append("\n").append(authorizationInfo.getCrendential().getScope()).append("\n")
+                .append(SignUtil.toHex(SignUtil.hash(canonicalReq))).toString();
     }
 
     @Override
@@ -125,8 +126,14 @@ public class S3AuthorizationV4 extends S3Authorization {
     }
 
     @Override
-    public Date getSignDate() {
-        return signDate;
+    public void checkExpires(Date serverTime) throws S3ServerException {
+        int maxTimeOffset = authConfig.getMaxTimeOffset();
+        if (maxTimeOffset > 0
+                && Math.abs(signDate.getTime() - serverTime.getTime()) > maxTimeOffset) {
+            throw new S3ServerException(S3Error.REQUEST_TIME_TOO_SKEWED,
+                    "request time too skewed:requestTime=" + signDate
+                            + ", serverTime=" + serverTime);
+        }
     }
 
     protected String getCanonicalizeHeaderNames(HttpServletRequest req) {
@@ -147,6 +154,16 @@ public class S3AuthorizationV4 extends S3Authorization {
         return buffer.toString();
     }
 
+    protected String buildSignedHeaderNames(String[] sortedHeaders) {
+        StringBuilder buffer = new StringBuilder();
+        for (String header : sortedHeaders) {
+            if (buffer.length() > 0)
+                buffer.append(";");
+            buffer.append(header.toLowerCase());
+        }
+        return buffer.toString();
+    }
+
     /**
      * Computes the canonical headers with values for the request. For AWS4, all
      * headers must be included in the signing process.
@@ -155,11 +172,11 @@ public class S3AuthorizationV4 extends S3Authorization {
         StringBuilder buffer = new StringBuilder();
         for (String key : headerArr) {
             buffer.append(key.toLowerCase().replaceAll("\\s+", " ")).append(":");
-            String vakue = req.getHeader(key);
-            if (vakue == null) {
-                throw new IllegalArgumentException("missing header:" + key);
+            String value = req.getHeader(key);
+            if (value != null) {
+                buffer.append(value.replaceAll("\\s+", " "));
             }
-            buffer.append(req.getHeader(key).replaceAll("\\s+", " "));
+
             buffer.append("\n");
         }
         return buffer.toString();
@@ -167,16 +184,26 @@ public class S3AuthorizationV4 extends S3Authorization {
 
     protected String getCanonicalRequest(String path, String httpMethod, String queryParameters,
             String canonicalizedHeaderNames, String canonicalizedHeaders, String bodyHash) {
-        String canonicalRequest = httpMethod + "\n" + getCanonicalizedResourcePath(path) + "\n"
-                + queryParameters + "\n" + canonicalizedHeaders + "\n" + canonicalizedHeaderNames
-                + "\n" + bodyHash;
-        return canonicalRequest;
+        return new StringBuilder().append(httpMethod).append("\n").append(path).append("\n")
+                .append(queryParameters).append("\n").append(canonicalizedHeaders).append("\n")
+                .append(canonicalizedHeaderNames).append("\n").append(bodyHash).toString();
     }
 
     /**
      * Returns the canonicalized resource path for the service endpoint.
      */
-    protected String getCanonicalizedResourcePath(String path) {
+    protected String getCanonicalizedResourcePath(HttpServletRequest req) throws S3ServerException {
+        String path = req.getRequestURI();
+        try {
+            path = URLDecoder.decode(path, "utf-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new S3ServerException(S3Error.INVALID_AUTHORIZATION,
+                    "UTF-8 decoding is not supported.", e);
+        }
+        String forwardPrefix = UriUtil.getForwardPrefix(req);
+        path = forwardPrefix + path;
+
         if (path == null || path.isEmpty()) {
             return "/";
         }
@@ -195,7 +222,7 @@ public class S3AuthorizationV4 extends S3Authorization {
             return "";
         }
 
-        SortedMap<String, String> sorted = new TreeMap<String, String>();
+        SortedMap<String, String> sorted = new TreeMap<>();
 
         Iterator<Map.Entry<String, String[]>> pairs = map.entrySet().iterator();
         while (pairs.hasNext()) {
@@ -227,26 +254,6 @@ public class S3AuthorizationV4 extends S3Authorization {
         return builder.toString();
     }
 
-    public String urlEncode(String url, boolean keepPathSlash) {
-        String encoded;
-        try {
-            encoded = URLEncoder.encode(url, "UTF-8");
-
-            encoded = encoded.replace("+", "%20");
-            encoded = encoded.replace("*", "%2A");
-            encoded = encoded.replace("%7E", "~");
-            if (keepPathSlash) {
-                encoded = encoded.replace("%2F", "/");
-            }
-
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("UTF-8 encoding is not supported.", e);
-        }
-
-        return encoded;
-    }
-
     @Override
     public String toString() {
         return "S3AuthorizationV4 [accesskey=" + accesskey + ", signature=" + signature
@@ -269,7 +276,6 @@ class CredentialInfo {
     private String scope;
 
     public CredentialInfo(String credential) {
-        credential = credential.substring("Credential=".length()).trim();
         String[] credentialArr = credential.split("/");
         accesskey = credentialArr[0];
         dateStamp = credentialArr[1];
@@ -323,7 +329,8 @@ class AuthorizationInfo {
         String[] credentialHeadersSignatureArr = credentialHeadersSignature.split(",");
 
         String credentialStr = credentialHeadersSignatureArr[0].trim();
-        crendentialInfo = new CredentialInfo(credentialStr);
+        crendentialInfo = new CredentialInfo(
+                credentialStr.substring("Credential=".length()).trim());
 
         String headerStr = credentialHeadersSignatureArr[1].trim();
         headers = headerStr.substring("SignedHeaders=".length());
@@ -357,4 +364,7 @@ class AuthorizationInfo {
         return headerArray;
     }
 
+    public void setHeaders(String headers) {
+        this.headers = headers;
+    }
 }

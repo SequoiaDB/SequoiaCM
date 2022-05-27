@@ -179,10 +179,9 @@ public class RestParamDefine {
     }
 
     public static class CopyPartPara {
-        public static final String X_AMZ_COPY_SOURCE    = "x-amz-copy-source";
+        public static final String X_AMZ_COPY_SOURCE = "x-amz-copy-source";
         public static final String X_AMZ_COPY_SOURCE_RANGE = "x-amz-copy-source-range";
     }
-
 
     public static class Acl {
         public static final String X_AMZ_ACL = "x-amz-acl";
@@ -220,6 +219,27 @@ public class RestParamDefine {
 
     public static class DelimiterHeader {
         public static final String ENCODING_TYPE = "encoding-type";
+    }
+
+    public static class SignatureV4 {
+        public static final String DATE = "date";
+        public static final String X_AMZ_ALGORITHM = "X-Amz-Algorithm";
+        public static final String X_AMZ_DATE = "X-Amz-Date";
+        public static final String X_AMZ_SIGNEDHEADERS = "X-Amz-SignedHeaders";
+        public static final String X_AMZ_EXPIRES = "X-Amz-Expires";
+        public static final String X_AMZ_CREDENTIAL = "X-Amz-Credential";
+        public static final String X_AMZ_SIGNATURE = "X-Amz-Signature";
+
+        public static final String AMZ_HASH = "UNSIGNED-PAYLOAD";
+
+        public static final int X_AMZ_EXPIRES_MIN = 0;
+        public static final int X_AMZ_EXPIRES_MAX = 604800;
+    }
+
+    public static class SignatureV2 {
+        public static final String SIGNATURE = "Signature";
+        public static final String EXPIRES = "Expires";
+        public static final String ACCESS_KEYID = "AWSAccessKeyId";
     }
 
     public static final String EXPECT = "Expect";

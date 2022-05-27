@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class ZuulPrefixForwardDecider implements CustomForwardDecider {
     private static final String ZUUL_PREFIX = "/zuul/";
+    private static final String default_contentType = "binary/octet-stream";
 
     @Override
     public Decision decide(HttpServletRequest req) {
@@ -24,12 +25,12 @@ public class ZuulPrefixForwardDecider implements CustomForwardDecider {
         int firstDelimiterIndex = urlNoZuulPrefix.indexOf("/");
         if (firstDelimiterIndex == -1) {
             // urlNoZuulPrefix = serviceName
-            return Decision.shouldForward(urlNoZuulPrefix, "/", true);
+            return Decision.shouldForward(urlNoZuulPrefix, "/", default_contentType, true);
         }
 
         String serviceName = urlNoZuulPrefix.substring(0, firstDelimiterIndex);
         String targetApi = urlNoZuulPrefix.substring(firstDelimiterIndex);
-        return Decision.shouldForward(serviceName, targetApi, true);
+        return Decision.shouldForward(serviceName, targetApi, default_contentType, true);
     }
 
     @Override
