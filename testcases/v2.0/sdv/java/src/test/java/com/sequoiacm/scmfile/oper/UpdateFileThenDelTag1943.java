@@ -150,6 +150,10 @@ public class UpdateFileThenDelTag1943 extends TestScmBase {
         Assert.assertEquals( file.getMajorVersion(), version );
         Assert.assertEquals( file.getSize(), fileSize );
         ScmTags actTags = file.getTags();
-        Assert.assertEquals( actTags.toSet().size(), 0 );
+        if ( version == 3 ) {
+            Assert.assertEquals( actTags.toSet().size(), 0 );
+        } else {
+            Assert.assertEquals( actTags.toSet().size(), 5 );
+        }
     }
 }
