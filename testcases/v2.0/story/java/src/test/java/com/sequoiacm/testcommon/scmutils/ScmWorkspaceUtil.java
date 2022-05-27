@@ -383,23 +383,4 @@ public class ScmWorkspaceUtil extends TestScmBase {
         }
         Assert.fail( "ws add site is not done in 15 seconds" );
     }
-
-    /**
-     * @descreption 创建关闭目录的ws供s3功能使用
-     * @param session
-     * @param wsName
-     * @throws Exception
-     */
-    public static void createS3Ws( ScmSession session, String wsName )
-            throws Exception {
-        ScmWorkspaceUtil.deleteWs( wsName, session );
-        ScmWorkspaceConf conf = new ScmWorkspaceConf();
-        conf.setDataLocations(
-                ScmWorkspaceUtil.getDataLocationList( ScmInfo.getSiteNum() ) );
-        conf.setMetaLocation(
-                ScmWorkspaceUtil.getMetaLocation( ScmShardingType.YEAR ) );
-        conf.setEnableDirectory( false );
-        conf.setName( wsName );
-        ScmWorkspaceUtil.createWS( session, conf );
-    }
 }

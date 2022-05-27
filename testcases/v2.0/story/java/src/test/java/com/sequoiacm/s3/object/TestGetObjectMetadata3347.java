@@ -65,7 +65,7 @@ public class TestGetObjectMetadata3347 extends TestScmBase {
         // 满足StarAfter和prefix 满足delimiter
         ListObjectsV2Request request = new ListObjectsV2Request()
                 .withBucketName( bucketName ).withPrefix( prefix )
-                .withStartAfter( prefix + 1 ).withDelimiter( delimiter );
+                .withStartAfter( prefix + 0 ).withDelimiter( delimiter );
         ListObjectsV2Result result = s3Client.listObjectsV2( request );
         List< String > commonPrefixes = result.getCommonPrefixes();
         for ( String s : commonPrefixes ) {
