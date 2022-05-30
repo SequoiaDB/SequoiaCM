@@ -110,17 +110,22 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         }
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "count bucket file");
+
+        long ret = countFile(bucket, condition);
+        audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
+                "count file in bucket: bucketName=" + bucketName + ", ws=" + bucket.getWorkspace()
+                        + ", condition=" + condition);
+        return ret;
+    }
+
+    public long countFile(ScmBucket bucket, BSONObject condition) throws ScmServerException {
         try {
             MetaAccessor accessor = bucket.getFileTableAccessor(null);
-            long ret = accessor.count(condition);
-            audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                    "count file in bucket: bucketName=" + bucketName + ", ws="
-                            + bucket.getWorkspace() + ", condition=" + condition);
-            return ret;
+            return accessor.count(condition);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "failed to count bucket file: bucket="
-                    + bucketName + ", condition=" + condition, e);
+                    + bucket.getName() + ", condition=" + condition, e);
         }
     }
 
@@ -147,7 +152,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.DELETE, "delete bucket");
 
-        if (countFile(user, name, null) > 0) {
+        if (countFile(bucket, null) > 0) {
             throw new ScmServerException(ScmError.BUCKET_NOT_EMPTY, "bucket not empty:" + name);
         }
         try {
