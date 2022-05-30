@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.bizconfig;
 
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +17,17 @@ import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceNotifyOpt
 
 public class WorkspaceConfSubscriber implements ScmConfSubscriber {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceConfSubscriber.class);
+    private final BucketInfoManager bucketInfoMgr;
     private long heartbeatInterval;
     private DefaultVersionFilter versionFilter;
     private String myServiceName;
 
-    public WorkspaceConfSubscriber(String myServiceName, long heartbeatInterval) {
+    public WorkspaceConfSubscriber(BucketInfoManager bucketInfoManager, String myServiceName,
+            long heartbeatInterval) {
         this.heartbeatInterval = heartbeatInterval;
         this.myServiceName = myServiceName;
         this.versionFilter = new DefaultVersionFilter(ScmConfigNameDefine.WORKSPACE);
+        this.bucketInfoMgr = bucketInfoManager;
     }
 
     @Override
@@ -39,6 +43,7 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
         if (notification.getEventType() == EventType.DELTE) {
             ScmContentModule.getInstance().removeWorkspace(wsName);
             MetaDataManager.getInstence().removeMetaDataByWsName(wsName);
+            bucketInfoMgr.invalidateBucketCacheByWs(wsName);
             return;
         }
         if (notification.getEventType() == EventType.CREATE) {

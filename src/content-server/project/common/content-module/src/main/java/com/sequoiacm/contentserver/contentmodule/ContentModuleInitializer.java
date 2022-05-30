@@ -67,7 +67,7 @@ public class ContentModuleInitializer {
                 .init(confClient, bucketInfoMgr);
 
         // subscribe ws config
-        contentserverConfClient.subscribeWithAsyncRetry(new WorkspaceConfSubscriber(serviceName,
+        contentserverConfClient.subscribeWithAsyncRetry(new WorkspaceConfSubscriber(bucketInfoMgr, serviceName,
                 PropertiesUtils.getWorkspaceVersionHeartbeat()));
         // subscribe metadata config
         contentserverConfClient.subscribeWithAsyncRetry(new MetaDataConfSubscriber(serviceName,

@@ -123,6 +123,15 @@ public class BucketInfoManager {
         removeCacheByName(bucket);
     }
 
+    public void invalidateBucketCacheByWs(String wsName) {
+        List<ScmBucket> buckets = bucketCacheNameMap.getValuesCopy();
+        for (ScmBucket bucket : buckets) {
+            if (bucket.getWorkspace().equals(wsName)) {
+                removeCacheByName(bucket.getName());
+            }
+        }
+    }
+
     public ScmBucket getBucket(String name) throws ScmServerException {
         ScmBucket b = bucketCacheNameMap.get(name);
         if (b != null) {
