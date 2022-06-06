@@ -96,6 +96,7 @@ public class ScmTaskTransferFile extends ScmTaskFile {
             }
             // failed exception
             if (e.getError() == ScmError.DATA_UNAVAILABLE || e.getError() == ScmError.DATA_CORRUPTED
+                    || e.getError() == ScmError.DATA_IS_IN_USE
             // if data exist,it means main site data is exist but check
             // size failed
                     || e.getError() == ScmError.DATA_EXIST) {
