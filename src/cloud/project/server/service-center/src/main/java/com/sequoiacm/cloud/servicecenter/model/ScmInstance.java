@@ -5,6 +5,8 @@ import com.sequoiacm.cloud.servicecenter.common.FieldDefine;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
+import java.util.Objects;
+
 public class ScmInstance {
 
     @JsonProperty("ip_addr")
@@ -144,5 +146,26 @@ public class ScmInstance {
                 + ", hostName='" + hostName + '\'' + ", region='" + region + '\'' + ", zone='"
                 + zone + '\'' + ", metadata=" + metadata + ", isManualStopped=" + isManualStopped
                 + ", healthCheckUrl='" + healthCheckUrl + '\'' + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ScmInstance that = (ScmInstance) o;
+        return port == that.port && managementPort == that.managementPort
+                && isManualStopped == that.isManualStopped && Objects.equals(ipAddr, that.ipAddr)
+                && Objects.equals(serviceName, that.serviceName)
+                && Objects.equals(hostName, that.hostName) && Objects.equals(region, that.region)
+                && Objects.equals(zone, that.zone) && Objects.equals(metadata, that.metadata)
+                && Objects.equals(healthCheckUrl, that.healthCheckUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ipAddr, port, managementPort, serviceName, hostName, region, zone,
+                metadata, isManualStopped, healthCheckUrl);
     }
 }

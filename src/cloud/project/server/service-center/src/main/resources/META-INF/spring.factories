@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationListener=\
+com.sequoiacm.cloud.servicecenter.config.ScmEurekaLogConfig

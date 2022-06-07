@@ -1,6 +1,7 @@
 package com.sequoiacm.cloud.servicecenter;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.sequoiacm.cloud.servicecenter.exception.ScmServiceCenterException;
 import com.sequoiacm.cloud.servicecenter.model.ScmInstance;
 import com.sequoiacm.cloud.servicecenter.service.InstanceService;
 import org.bson.BasicBSONObject;
@@ -10,13 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRenewedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Component
+@EnableScheduling
 public class EurekaStateListener {
     private Logger logger = LoggerFactory.getLogger(EurekaStateListener.class);
+
+    private final Map<String, ScmInstance> scmInstanceCache = new HashMap<>();
+    private static final int CACHE_REFRESH_INTERVAL = 1000 * 30;
+    private final ReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
     @Autowired
     private InstanceService instanceService;
@@ -35,6 +48,9 @@ public class EurekaStateListener {
             return;
         }
         ScmInstance scmInstance = transferToScmInstanceInfo(instanceInfo);
+        if (!hasChange(scmInstance)) {
+            return;
+        }
         logger.debug("receive register event, save eureka instance:{}", scmInstance);
         try {
             instanceService.save(scmInstance);
@@ -43,6 +59,19 @@ public class EurekaStateListener {
             logger.error("failed to save eureka instance.", e);
         }
 
+    }
+
+    private boolean hasChange(ScmInstance scmInstance) {
+        Lock lock = cacheLock.readLock();
+        try {
+            lock.lock();
+            String ipHost = scmInstance.getIpAddr() + ":" + scmInstance.getPort();
+            ScmInstance cachedInstance = scmInstanceCache.get(ipHost);
+            return !scmInstance.equals(cachedInstance);
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
     private boolean needIgnoreInstance(InstanceInfo instanceInfo) {
@@ -64,6 +93,9 @@ public class EurekaStateListener {
         if (needIgnoreInstance(instanceInfo)) {
             return;
         }
+        if (!hasChange(scmInstance)) {
+            return;
+        }
         logger.debug("receive renewed event, save eureka instance:{}", scmInstance);
         try {
             instanceService.save(scmInstance);
@@ -72,6 +104,47 @@ public class EurekaStateListener {
             logger.warn("failed to save eureka instance.", e);
         }
 
+    }
+
+    @Scheduled(initialDelay = CACHE_REFRESH_INTERVAL, fixedDelay = CACHE_REFRESH_INTERVAL)
+    public void refreshCache() throws ScmServiceCenterException {
+        logger.debug("refresh scmInstance cache");
+        List<ScmInstance> scmInstances = instanceService.listInstances();
+        Lock lock = cacheLock.writeLock();
+        try {
+            lock.lock();
+            scmInstanceCache.clear();
+            for (ScmInstance scmInstance : scmInstances) {
+                String ipPort = scmInstance.getIpAddr() + ":" + scmInstance.getPort();
+                scmInstanceCache.put(ipPort, scmInstance);
+            }
+        }
+        finally {
+            lock.unlock();
+        }
+    }
+
+    public void evictCache(String ipAndPort) {
+        Lock lock = cacheLock.writeLock();
+        try {
+            lock.lock();
+            scmInstanceCache.remove(ipAndPort);
+        }
+        finally {
+            lock.unlock();
+        }
+    }
+
+    public void updateCache(ScmInstance scmInstance) {
+        Lock lock = cacheLock.writeLock();
+        try {
+            lock.lock();
+            scmInstanceCache.put(scmInstance.getIpAddr() + ":" + scmInstance.getPort(),
+                    scmInstance);
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
     private ScmInstance transferToScmInstanceInfo(InstanceInfo instanceInfo) {

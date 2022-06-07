@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.servicecenter.service.impl;
 
+import com.sequoiacm.cloud.servicecenter.EurekaStateListener;
 import com.sequoiacm.cloud.servicecenter.dao.InstanceDao;
 import com.sequoiacm.cloud.servicecenter.exception.ScmServiceCenterException;
 import com.sequoiacm.cloud.servicecenter.model.ScmInstance;
@@ -15,9 +16,13 @@ public class InstanceServiceImpl implements InstanceService {
     @Autowired
     private InstanceDao instanceDao;
 
+    @Autowired
+    private EurekaStateListener eurekaStateListener;
+
     @Override
     public void save(ScmInstance scmInstance) throws ScmServiceCenterException {
         instanceDao.upsert(scmInstance);
+        eurekaStateListener.updateCache(scmInstance);
     }
 
     @Override
@@ -29,10 +34,12 @@ public class InstanceServiceImpl implements InstanceService {
     public void deleteInstance(String ipAddr, int port, String username, String userType)
             throws ScmServiceCenterException {
         instanceDao.delete(ipAddr, port, username, userType);
+        eurekaStateListener.evictCache(ipAddr + ":" + port);
     }
 
     @Override
     public void stopInstance(String ipAddr, int port) throws ScmServiceCenterException {
         instanceDao.stopInstance(ipAddr, port);
+        eurekaStateListener.evictCache(ipAddr + ":" + port);
     }
 }
