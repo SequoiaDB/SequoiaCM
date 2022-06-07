@@ -75,12 +75,13 @@ def compileScm():
     compileArgs = ""
     if compileRelease:
         compileArgs = "-DpackageType=release"
-    
+
     if compileScmModule == "all":
+        scmProjectUtil.compileDoc(rootDir + "doc" + os.sep)
         scmProjectUtil.compileScm(compileArgs)
     else:
         scmProjectUtil.compileScmModule(compileScmModule, compileArgs)
-        
+
 def compileTest():
     if compileTestModule == "all":
         scmProjectUtil.compileTest()

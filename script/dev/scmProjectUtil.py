@@ -59,7 +59,11 @@ class ScmProjectUtil:
             
     def compileScm(self, customArg = ""):
         self.__cmdExecutor.command("mvn clean install -Dmaven.test.skip=true -f " + self.__parentPomPath + " " + customArg)
- 
+
+    def compileDoc(self, customArg = ""):
+        print("Start create the pdf")
+        self.__cmdExecutor.command("python " + customArg + "build.py --pdf")
+
     def getScmModules(self):
         return self.__scmModulePomPaths.keys()
         
