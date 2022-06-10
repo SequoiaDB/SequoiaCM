@@ -2240,7 +2240,9 @@ public class RestDispatcher implements MessageDispatcher {
     public void deleteFileVersion(String wsName, String fileId, int majorVersion, int minorVersion)
             throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + fileId + "?workspace_name="
-                + encode(wsName) + "&action=" + CommonDefine.RestArg.ACTION_DELETE_VERSION;
+                + encode(wsName) + "&action=" + CommonDefine.RestArg.ACTION_DELETE_VERSION + "&"
+                + CommonDefine.RestArg.FILE_MAJOR_VERSION + "=" + majorVersion + "&"
+                + CommonDefine.RestArg.FILE_MINOR_VERSION + "=" + minorVersion;
         HttpDelete request = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }
