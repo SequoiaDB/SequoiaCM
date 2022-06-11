@@ -63,7 +63,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                 return null;
             }
             audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
-                    "find breakpoint file by file name=" + fileName);
+                    "find breakpoint file by fileName=" + fileName);
             if (file.isCompleted()) {
                 return file;
             }

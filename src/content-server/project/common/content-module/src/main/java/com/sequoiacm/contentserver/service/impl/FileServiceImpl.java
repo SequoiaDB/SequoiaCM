@@ -90,7 +90,7 @@ public class FileServiceImpl implements IFileService {
                 acceptDeleteMarker);
         ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
                 ScmPrivilegeDefine.READ, "get file by id");
-        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file info by file id="
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file info by fileId="
                 + fileId + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return fileInfo;
     }
@@ -144,7 +144,7 @@ public class FileServiceImpl implements IFileService {
                     + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
-        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file by file path="
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file by filePath="
                 + filePath + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return fileInfo;
     }
@@ -237,7 +237,7 @@ public class FileServiceImpl implements IFileService {
         }
 
         audit.info(ScmAuditType.DIR_DQL, user, workspaceName, 0,
-                "list directory's files, directoryId=" + dirId + ", matcher" + matcher.toString());
+                "list directory's files, dirId=" + dirId + ", matcher=" + matcher.toString());
         return getFileList(workspaceName, matcher, CommonDefine.Scope.SCOPE_CURRENT, orderby, skip,
                 limit, selector);
     }
@@ -311,7 +311,7 @@ public class FileServiceImpl implements IFileService {
         listenerMgr.postCreate(wsInfo, fileId).onComplete();
 
         audit.info(ScmAuditType.CREATE_FILE, user, workspaceName, 0,
-                "create file , file id=" + finfo.get(FieldName.FIELD_CLFILE_ID) + ", file name="
+                "create file , fileId=" + finfo.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
         return finfo;
     }
@@ -411,7 +411,7 @@ public class FileServiceImpl implements IFileService {
         callback.onComplete();
 
         audit.info(ScmAuditType.CREATE_FILE, user, workspaceName, 0,
-                "create breakpointFile , file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
+                "create breakpointFile , fileId=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
                         + ", breakpointFileName=" + breakpointFileName);
         return ret;
     }
@@ -483,7 +483,7 @@ public class FileServiceImpl implements IFileService {
                     "overwrite file,delete old file");
             deleteFile(sessionId, userDetail, workspaceName, existFileId, -1, -1, true);
             audit.info(ScmAuditType.DELETE_FILE, user, workspaceName, 0,
-                    "overwrite file, delete old file by file id=" + existFileId);
+                    "overwrite file, delete old file by fileId=" + existFileId);
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.FILE_NOT_FOUND) {
@@ -511,7 +511,7 @@ public class FileServiceImpl implements IFileService {
                 ScmPrivilegeDefine.READ, "read file");
         FileReaderDao dao = downloadFile(sessionId, userDetail, workspaceName, fileInfo, readFlag);
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
-                "read file, file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
+                "read file, fileId=" + fileInfo.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
         return dao;
     }
@@ -535,7 +535,7 @@ public class FileServiceImpl implements IFileService {
         deleteFile(sessionid, userDetail, workspaceName, fileId, majorVersion, minorVersion,
                 isPhysical);
         audit.info(ScmAuditType.DELETE_FILE, user, workspaceName, 0,
-                "delete file by file id=" + fileId);
+                "delete file by fileId=" + fileId);
     }
 
     public long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition)
@@ -630,7 +630,7 @@ public class FileServiceImpl implements IFileService {
         callback.onComplete();
 
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "update file by file id=" + fileId);
+                "update file by fileId=" + fileId);
         return ret;
     }
 
@@ -687,7 +687,7 @@ public class FileServiceImpl implements IFileService {
         if (CommonHelper.isSiteExist(transferTargetSiteId, siteList)) {
             // remote site is exist. just response and return
             audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                    "async transfer file by file id=" + fileId);
+                    "async transfer file by fileId=" + fileId);
             return;
         }
 
@@ -696,7 +696,7 @@ public class FileServiceImpl implements IFileService {
                 dataId, transferTargetSiteId);
         ScmJobManager.getInstance().schedule(job, 0);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "async transfer file by file id=" + fileId);
+                "async transfer file by fileId=" + fileId);
     }
 
     @Override
@@ -728,7 +728,7 @@ public class FileServiceImpl implements IFileService {
         if (CommonHelper.isSiteExist(localSiteId, siteList)) {
             // local site is already exist. just return.
             audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                    "async cache file by file id=" + fileId);
+                    "async cache file by fileId=" + fileId);
             return;
         }
 
@@ -741,7 +741,7 @@ public class FileServiceImpl implements IFileService {
                 dataId, remoteSiteId);
         ScmJobManager.getInstance().schedule(job, 0);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "async cache file by file id=" + fileId);
+                "async cache file by fileId=" + fileId);
     }
 
     private static ScmLock lockBreakpointFile(String workspaceName, String breakpointFileName)
@@ -781,7 +781,7 @@ public class FileServiceImpl implements IFileService {
                 fileId, majorVersion, minorVersion, option, listenerMgr, bucketInfoMgr);
         BSONObject ret = dao.updateContent(newFileContent);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "update file by file id=" + fileId);
+                "update file by fileId=" + fileId);
         return ret;
     }
 
@@ -796,7 +796,7 @@ public class FileServiceImpl implements IFileService {
                 fileId, majorVersion, minorVersion, option, listenerMgr, bucketInfoMgr);
         BSONObject ret = dao.updateContent(newBreakpointFileContent);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "update file by file id=" + fileId);
+                "update file by fileId=" + fileId);
         return ret;
     }
 
@@ -838,7 +838,7 @@ public class FileServiceImpl implements IFileService {
             md5 = BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
         }
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
-                "calculate file md5, id=" + fileId);
+                "calculate file md5, fileId=" + fileId);
         return md5;
     }
 
@@ -939,7 +939,7 @@ public class FileServiceImpl implements IFileService {
             result.add(contentLocation);
         }
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
-                "get file content locations, file id=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
+                "get file content locations, fileId=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
                         + ", fileName=" + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return result;
     }

@@ -156,7 +156,7 @@ public class FileController {
         }
 
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
-                "update file by file id=" + fileId);
+                "update file by fileId=" + fileId);
         String fileInfoUtf8 = RestUtils.urlEncode(updatedFileInfo.toString());
         response.setHeader(CommonDefine.RestArg.FILE_INFO, fileInfoUtf8);
     }

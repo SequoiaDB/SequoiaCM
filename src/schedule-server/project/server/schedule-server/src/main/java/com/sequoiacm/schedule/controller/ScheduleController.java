@@ -67,7 +67,7 @@ public class ScheduleController {
     public ResponseEntity<String> getName(HttpServletRequest request, HttpServletResponse response,
             Authentication auth) {
         String name = request.getHeader("name");
-        audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0, "get schedule name, name=" + name);
+        audit.info(ScmAuditType.SCHEDULE_DQL, auth, null, 0, "get schedule name, scheduleName=" + name);
         logger.info("name=" + name);
         response.setHeader("name", name);
         return ResponseEntity.ok("");
@@ -120,7 +120,7 @@ public class ScheduleController {
                     sessionId, userDetail);
 
             audit.info(ScmAuditType.CREATE_SCHEDULE, auth, info.getWorkspace(), 0,
-                    "create schedule to leader, leaderId=" + leaderId + ", Schedule info:name="
+                    "create schedule to leader, leaderId=" + leaderId + ", Schedule info: scheduleName="
                             + info.getName() + ", type=" + info.getType() + ", desc="
                             + info.getDesc());
             return createSchedule2Leader;
@@ -129,7 +129,7 @@ public class ScheduleController {
             ScheduleFullEntity createSchedule = service.createSchedule(userName, info);
 
             audit.info(ScmAuditType.CREATE_SCHEDULE, auth, info.getWorkspace(), 0,
-                    "create schedule, Schedule info:name=" + info.getName() + ", type="
+                    "create schedule, Schedule info: scheduleName=" + info.getName() + ", type="
                             + info.getType() + ", desc=" + info.getDesc());
             return createSchedule;
         }

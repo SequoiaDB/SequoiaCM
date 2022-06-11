@@ -94,7 +94,7 @@ public class UserController {
         ScmUser user = ScmUser.withUsername(username).userId(userRoleRepository.generateUserId())
                 .passwordType(passwordType).password(passwd).build();
         userRoleRepository.insertUser(user);
-        audit.info(ScmAuditType.CREATE_USER, auth, null, 0, "create user : " + username);
+        audit.info(ScmAuditType.CREATE_USER, auth, null, 0, "create user: userName=" + username);
 
         return user;
     }
@@ -126,7 +126,7 @@ public class UserController {
 
         deleteUser(user);
 
-        audit.info(ScmAuditType.DELETE_USER, authentication, null, 0, "delete user : " + username);
+        audit.info(ScmAuditType.DELETE_USER, authentication, null, 0, "delete user: userName=" + username);
     }
 
     private void deleteUser(ScmUser user) throws Exception {
@@ -391,7 +391,7 @@ public class UserController {
             throw new NotFoundException("User is not found: " + username);
         }
 
-        audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find user by username=" + username);
+        audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find user by userName=" + username);
         return user;
     }
 }

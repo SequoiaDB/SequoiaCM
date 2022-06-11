@@ -133,7 +133,7 @@ public class ObjServiceImpl implements ObjectService {
                     dataDetail, null,
                     OverwriteOption.doNotOverwrite());
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "get s3 object meta: bucket=" + s3Bucket.getBucketName() + ", key="
+                    "get s3 object meta: bucketName=" + s3Bucket.getBucketName() + ", key="
                             + req.getObjectMeta().getKey());
 
             S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(s3Bucket.getBucketName(),
@@ -197,7 +197,7 @@ public class ObjServiceImpl implements ObjectService {
                 match(matchers, objectMeta);
             }
             audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                    "get s3 object meta: bucket=" + bucket + ", key=" + objectName);
+                    "get s3 object meta: bucketName=" + bucket + ", key=" + objectName);
             return objectMeta;
         }
         catch (ScmServerException e) {
@@ -321,7 +321,7 @@ public class ObjServiceImpl implements ObjectService {
                         fileInfo, 0, Long.MAX_VALUE);
             }
             audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                    "get s3 object: bucket=" + bucketName + ", key=" + objectName);
+                    "get s3 object: bucketName=" + bucketName + ", key=" + objectName);
             return new GetObjectResult(s3ObjectMeta, objectData);
         }
         catch (ScmServerException e) {
@@ -472,7 +472,7 @@ public class ObjServiceImpl implements ObjectService {
                     objectName, false,
                     new SessionInfoWrapper(session.getSessionId(), session.getUserDetail()));
             audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "delete s3 object: bucket=" + bucketName + ", key=" + objectName);
+                    "delete s3 object: bucketName=" + bucketName + ", key=" + objectName);
             if (deleteMarker == null) {
                 return null;
             }
@@ -518,7 +518,7 @@ public class ObjServiceImpl implements ObjectService {
                         objectKey, -1, -1);
             }
             audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "delete s3 object: bucket=" + bucketName + ", key=" + objectKey + ", version="
+                    "delete s3 object: bucketName=" + bucketName + ", key=" + objectKey + ", version="
                             + (versionId == null ? "nullMarker" : versionId));
             if (deletedVersion == null) {
                 return null;
@@ -571,7 +571,7 @@ public class ObjServiceImpl implements ObjectService {
                     S3Codec.encode(nextKeyMarker, encodingType));
         }
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                "list s3 object v1: bucket=" + bucketName + ", prefix=" + prefix + ", delimiter="
+                "list s3 object v1: bucketName=" + bucketName + ", prefix=" + prefix + ", delimiter="
                         + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType);
         return listObjectsResult;
     }
@@ -622,7 +622,7 @@ public class ObjServiceImpl implements ObjectService {
             }
         }
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                "list s3 object versions: bucket=" + bucketName + ", prefix=" + prefix
+                "list s3 object versions: bucketName=" + bucketName + ", prefix=" + prefix
                         + ", delimiter=" + delimiter + ", keyMarker=" + keyMarker
                         + ", versionIdMarker=" + versionIdMarker + ",encodeType=" + encodingType);
         return listVersionsResult;
@@ -714,7 +714,7 @@ public class ObjServiceImpl implements ObjectService {
         }
         listObjectsResult.setKeyCount(scanResult.getSize());
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                "list s3 object v2: bucket=" + bucketName + ", prefix=" + prefix + ", delimiter="
+                "list s3 object v2: bucketName=" + bucketName + ", prefix=" + prefix + ", delimiter="
                         + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType
                         + ", continueToken=" + continueToken);
         return listObjectsResult;

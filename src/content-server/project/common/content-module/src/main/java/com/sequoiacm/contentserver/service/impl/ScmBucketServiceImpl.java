@@ -96,7 +96,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmBucket ret = ContenserverConfClient.getInstance().createBucket(user.getUsername(), ws,
                 name);
         audit.info(ScmAuditType.CREATE_SCM_BUCKET, user, ws, 0,
-                "create bucket: name=" + name + ", ws=" + ws);
+                "create bucket: bucketName=" + name + ", ws=" + ws);
         return ret;
     }
 
@@ -220,7 +220,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             throw e;
         }
         audit.info(ScmAuditType.CREATE_FILE, user, wsInfo.getName(), 0,
-                "create file in bucket: bucket=" + bucketName + ", fileId="
+                "create file in bucket: bucketName=" + bucketName + ", fileId="
                         + createdFile.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return createdFile;
@@ -309,7 +309,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         }
         BSONObject createdFile = fileInfoAndOpCompleteCallback.getFileInfo();
         audit.info(ScmAuditType.CREATE_FILE, user, wsInfo.getName(), 0,
-                "create file in bucket: bucket=" + bucketName + ", fileId="
+                "create file in bucket: bucketName=" + bucketName + ", fileId="
                         + createdFile.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         fileInfoAndOpCompleteCallback.getCallback().onComplete();
@@ -341,7 +341,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 transactionCallback, overwriteOption, bucket, wsInfo);
         BSONObject createdFile = ret.getFileInfo();
         audit.info(ScmAuditType.CREATE_FILE, user, wsInfo.getName(), 0,
-                "create file meta in bucket: bucket=" + bucketName + ", fileId="
+                "create file meta in bucket: bucketName=" + bucketName + ", fileId="
                         + createdFile.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         ret.getCallback().onComplete();
@@ -592,7 +592,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.READ, "list file in bucket");
         MetaCursor ret = listFile(condition, selector, orderBy, skip, limit, bucket);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "list file in bucket: bucket=" + bucketName + ", condition=" + condition
+                "list file in bucket: bucketName=" + bucketName + ", condition=" + condition
                         + ", orderby=" + orderBy + ", skip=" + skip + ", limit=" + limit);
         return ret;
     }
@@ -638,7 +638,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
         String fileId = getFileId(bucket, fileName);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get file in bucket: bucket=" + bucketName + ", fileName=" + fileName + ", fileId="
+                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName + ", fileId="
                         + fileId);
         return fileId;
     }
@@ -673,7 +673,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 continue;
             }
             audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
-                    "bucket attach file: bucket=" + bucketName + ", fileId=" + fileId);
+                    "bucket attach file: bucketName=" + bucketName + ", fileId=" + fileId);
         }
         return ret;
     }
@@ -718,7 +718,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 // 客户端可以认为服务端已经做过一次解除关联，但是被其它线程重新在这个Bucket下又建了一个同名文件
                 trans.rollback();
                 audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
-                        "bucket detach file (file already detach): bucket=" + bucketName
+                        "bucket detach file (file already detach): bucketName=" + bucketName
                                 + ", fileName=" + fileName + ", fileId=" + fileId);
                 return;
             }
@@ -734,7 +734,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             }
             trans.commit();
             audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
-                    "bucket detach file: bucket=" + bucketName + ", fileName=" + fileName
+                    "bucket detach file: bucketName=" + bucketName + ", fileName=" + fileName
                             + ", fileId=" + fileId);
         }
         catch (ScmMetasourceException e) {
@@ -770,7 +770,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmBucket ret = ContenserverConfClient.getInstance()
                 .updateBucketVersionStatus(user.getUsername(), bucketName, bucketVersionStatus);
         audit.info(ScmAuditType.UPDATE_SCM_BUCKET, user, bucket.getWorkspace(), 0,
-                "update bucket version status: name=" + bucketName + ", ws=" + bucket.getWorkspace()
+                "update bucket version status: bucketName=" + bucketName + ", ws=" + bucket.getWorkspace()
                         + ", versionStatus=" + bucketVersionStatus);
         return ret;
     }
@@ -786,7 +786,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         dao.init(user.getUsername(), bucket, fileName, isPhysical);
         BSONObject ret = dao.delete();
         audit.info(ScmAuditType.FILE_DML, user, bucket.getWorkspace(), 0,
-                "delete file in bucket: bucket=" + bucketName + ", fileName=" + fileName
+                "delete file in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", isPhysical=" + isPhysical);
         return ret;
     }
@@ -801,7 +801,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 majorVersion, minorVersion, listenerMgr, bucketInfoManager);
         BSONObject ret = fileVersionDeleter.delete();
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "delete file version in bucket: bucket=" + bucketName + ", fileName=" + fileName
+                "delete file version in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", version=" + majorVersion + "." + minorVersion);
         return ret;
     }
@@ -819,7 +819,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 listenerMgr, bucketInfoManager);
         BSONObject ret = fileVersionDeleter.delete();
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "delete file version in bucket: bucket=" + bucketName + ", fileName=" + fileName
+                "delete file version in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", version=nullMarker");
         return ret;
     }
@@ -970,7 +970,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
         BSONObject ret = getFileVersion(bucketName, fileName, majorVersion, minorVersion);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get file in bucket: bucket=" + bucketName + ", fileName=" + fileName + ", version="
+                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName + ", version="
                         + majorVersion + "." + minorVersion);
         return ret;
     }
@@ -1042,7 +1042,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
         BSONObject ret = getFileNullMarkerVersion(bucketName, fileName);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get null marker file in bucket: bucket=" + bucketName + ", fileName=" + fileName);
+                "get null marker file in bucket: bucketName=" + bucketName + ", fileName=" + fileName);
         return ret;
     }
 

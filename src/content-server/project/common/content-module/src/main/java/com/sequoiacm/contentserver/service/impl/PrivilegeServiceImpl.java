@@ -73,7 +73,7 @@ public class PrivilegeServiceImpl implements IPrivilegeService {
                     e);
         }
         audit.info(ScmAuditType.GRANT, user, null, 0,
-                "grant privilege, user=" + user + "," + "roleName=" + roleName + ",resourceType="
+                "grant privilege, userName=" + user.getUsername() + "," + "roleName=" + roleName + ",resourceType="
                         + resourceType + ",resource=" + resource + ",privilege=" + privilege);
     }
 

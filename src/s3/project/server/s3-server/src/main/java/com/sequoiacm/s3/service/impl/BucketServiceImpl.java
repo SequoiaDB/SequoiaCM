@@ -53,7 +53,7 @@ public class BucketServiceImpl implements BucketService {
         try {
             scmBucketService.createBucket(session.getUser(), region, bucketName);
             audit.info(ScmAuditType.CREATE_S3_BUCKET, session.getUser(), region, 0,
-                    "create s3 bucket: bucket=" + bucketName);
+                    "create s3 bucket: bucketName=" + bucketName);
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.BUCKET_EXISTS) {
@@ -96,7 +96,7 @@ public class BucketServiceImpl implements BucketService {
         try {
             ScmBucket bucket = scmBucketService.deleteBucket(session.getUser(), bucketName);
             audit.info(ScmAuditType.DELETE_S3_BUCKET, session.getUser(), bucket.getWorkspace(), 0,
-                    "delete s3 bucket: bucket=" + bucketName);
+                    "delete s3 bucket: bucketName=" + bucketName);
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {

@@ -221,7 +221,7 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
-                    "update batch by batchId=" + batchId + ", newBatchBson" + updator);
+                    "update batch by batchId=" + batchId + ", newBatchBson=" + updator);
         }
         catch (ScmServerException e) {
             throw e;
@@ -509,7 +509,7 @@ public class BatchServiceImpl implements IBatchService {
         if (null != condition) {
             message += " by condition=" + condition.toString();
         }
-        audit.info(ScmAuditType.BATCH_DQL, user, wsName, 0, "");
+        audit.info(ScmAuditType.BATCH_DQL, user, wsName, 0, message);
         return ret;
     }
 }

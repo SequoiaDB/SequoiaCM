@@ -80,6 +80,6 @@ public class InternalRoleController {
                 resourceType, resource, privilege);
 
         audit.info(ScmAuditType.REVOKE, auth, null, 0, "grant role, roleName=" + roleName
-                + ",resource_type=" + resourceType + ",resource=" + resource + ",privilege=" + privilege);
+                + ",resourceType=" + resourceType + ",resource=" + resource + ",privilege=" + privilege);
     }
 }

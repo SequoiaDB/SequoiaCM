@@ -58,7 +58,7 @@ public class DirServiceImpl implements IDirService {
                         "directory not exist:id=" + dirId);
             }
             audit.info(ScmAuditType.DIR_DQL, user, wsName, 0,
-                    "get dir info by id=" + dirId + ", dir info=" + destDir);
+                    "get dir info by dirId=" + dirId + ", dirInfo=" + destDir);
             return destDir;
         }
         catch (ScmServerException e) {
@@ -101,7 +101,7 @@ public class DirServiceImpl implements IDirService {
                 ScmPrivilegeDefine.READ, "get dir path info by path");
         BSONObject destDir = getDirInfoByPath(wsName, dirPath);
         String authMessage = "get dir info  by path= " + dirPath;
-        audit.info(ScmAuditType.DIR_DQL, user, wsName, 0, authMessage + ", dir info=" + destDir);
+        audit.info(ScmAuditType.DIR_DQL, user, wsName, 0, authMessage + ", dirInfo=" + destDir);
         return destDir;
     }
 
@@ -131,7 +131,7 @@ public class DirServiceImpl implements IDirService {
         ScmFileServicePriv.getInstance().checkDirPriority(user, wsName, path,
                 ScmPrivilegeDefine.READ, "get dir path by id");
         audit.info(ScmAuditType.DIR_DQL, user, wsName, 0,
-                "get dir path by dir id=" + dirId + ", path=" + path);
+                "get dir path by dirId=" + dirId + ", dirPath=" + path);
         return path;
     }
 
@@ -187,7 +187,7 @@ public class DirServiceImpl implements IDirService {
             DireDeletorDao dao = new DireDeletorDao(wsName, id, path);
             dao.delete();
             audit.info(ScmAuditType.DELETE_DIR, user, wsName, 0,
-                    "delete dir: dirPath=" + path + ", id=" + id);
+                    "delete dir: dirPath=" + path + ", dirId=" + id);
         }
         catch (ScmServerException e) {
             throw e;
@@ -213,7 +213,7 @@ public class DirServiceImpl implements IDirService {
             DirCreatorDao dao = new DirCreatorDao(user.getUsername(), wsName);
             BSONObject dirInfo = dao.createDirByPath(path);
             audit.info(ScmAuditType.CREATE_DIR, user, wsName, 0,
-                    "create dir by path=" + path + ", newDir=" + dirInfo.toString());
+                    "create dir by dirPath=" + path + ", newDir=" + dirInfo.toString());
             return dirInfo;
         }
         catch (ScmServerException e) {
@@ -246,7 +246,7 @@ public class DirServiceImpl implements IDirService {
             DirCreatorDao dao = new DirCreatorDao(user.getUsername(), wsName);
             BSONObject dirInfo = dao.createDirByPidAndName(parentID, name);
             audit.info(ScmAuditType.CREATE_DIR, user, wsName, 0, "create dir by parentId="
-                    + parentID + " and Name=" + name + ", newDir=" + dirInfo.toString());
+                    + parentID + " and dirName=" + name + ", newDir=" + dirInfo.toString());
             return dirInfo;
         }
         catch (ScmServerException e) {
@@ -445,7 +445,7 @@ public class DirServiceImpl implements IDirService {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         long count =contentModule.getMetaService().getDirCount(wsName, condition);
-        String message = "count direcotry";
+        String message = "count directory";
         if (null != condition) {
             message += " by condition=" + condition.toString();
         }

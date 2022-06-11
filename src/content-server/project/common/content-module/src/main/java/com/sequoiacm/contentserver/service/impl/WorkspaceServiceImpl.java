@@ -67,7 +67,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     @Override
     public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
         audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
-                "get workspace by workspaceName=" + workspaceName);
+                "get workspace by wsName=" + workspaceName);
         ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName);
         return ws.getBSONObject();
     }
@@ -104,7 +104,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         BSONObject ret = creator.create();
 
         audit.info(ScmAuditType.CREATE_WS, user, wsName, 0,
-                "create workspace by wsconf : " + wsConf);
+                "create workspace by wsConf=" + wsConf);
         return ret;
     }
 
@@ -123,7 +123,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             client.deleteWorkspace(sessionId, token, wsName, isEnforced);
 
             audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
-                    "delete workspace: " + wsName + ", isEnforced=" + isEnforced);
+                    "delete wsName=" + wsName + ", isEnforced=" + isEnforced);
             return;
         }
 
@@ -153,7 +153,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         });
 
         audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
-                "delete workspace: " + wsName + ", isEnforced=" + isEnforced);
+                "delete wsName=" + wsName + ", isEnforced=" + isEnforced);
 
     }
 
@@ -274,7 +274,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
             audit.info(ScmAuditType.DELETE_WS, user, wsName,
                     ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
-                    "update workspace failed, permission denied:user=" + user.getUsername());
+                    "update workspace failed, permission denied: userName=" + user.getUsername());
             throw new ScmOperationUnauthorizedException(
                     "permission denied:user=" + user.getUsername());
         }
@@ -283,7 +283,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 .updateWorkspaceConf(confUpdator);
         BSONObject ret = resp.toBSONObject();
         audit.info(ScmAuditType.UPDATE_WS, user, wsName, 0,
-                "update workspace:" + wsName + ", updator=" + updator);
+                "update wsName=" + wsName + ", updator=" + updator);
         return ret;
     }
 

@@ -166,7 +166,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
         MetaDataClassConfig resp = ContenserverConfClient.getInstance().updateClass(classUpdator);
         MetadataClass ret = convertConfClass(resp);
         audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
-                "update class, classid=" + classId + ", description=" + updator);
+                "update class, classId=" + classId + ", description=" + updator);
         return ret;
     }
 
@@ -179,7 +179,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
                 .appendId(classId);
         deleteClass(workspaceName, filter);
         audit.info(ScmAuditType.DELETE_META_CLASS, user, workspaceName, 0,
-                "delete class by classid=" + classId);
+                "delete class by classId=" + classId);
     }
 
     @Override
@@ -214,7 +214,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
         ContenserverConfClient.getInstance().updateClass(updator);
 
         audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
-                "attach attr , classid=" + classId + ", and attrId=" + attrId);
+                "attach attr, classId=" + classId + ", and attrId=" + attrId);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
         classUpdator.setDettachAttributeId(attrId);
         ContenserverConfClient.getInstance().updateClass(classUpdator);
         audit.info(ScmAuditType.UPDATE_META_CLASS, user, workspaceName, 0,
-                "detach attr , classid=" + classId + ", and attrId=" + attrId);
+                "detach attr, classId=" + classId + ", and attrId=" + attrId);
     }
 
     @Override
@@ -247,7 +247,7 @@ public class MetaDataServiceImpl implements IMetaDataService {
         MetadataAttr ret = convertConfAttribute(resp);
 
         audit.info(ScmAuditType.CREATE_META_ATTR, user, workspaceName, 0,
-                "create attr , desc=" + attrInfo);
+                "create attr, desc=" + attrInfo);
         return ret;
     }
 
