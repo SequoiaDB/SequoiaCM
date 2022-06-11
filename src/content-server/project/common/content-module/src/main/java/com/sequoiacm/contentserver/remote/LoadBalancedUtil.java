@@ -19,13 +19,17 @@ public class LoadBalancedUtil {
     }
 
     public static String choose(String serviceName) throws ScmServerException {
-        ServiceInstance instance = loadBlancerClient.choose(serviceName.toLowerCase());
-        if (instance == null) {
-            throw new ScmSystemException(
-                    "no instance fo this service:serviceName" + serviceName);
-        }
+        ServiceInstance instance = chooseInstance(serviceName);
         return instance.getHost() + ":" + instance.getPort();
 
+    }
+
+    public static ServiceInstance chooseInstance(String serviceName) throws ScmServerException {
+        ServiceInstance instance = loadBlancerClient.choose(serviceName.toLowerCase());
+        if (instance == null) {
+            throw new ScmSystemException("no instance fo this service:serviceName" + serviceName);
+        }
+        return instance;
     }
 
 }

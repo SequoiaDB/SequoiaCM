@@ -7,9 +7,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
+import com.sequoiacm.contentserver.common.ScmRestClientUtils;
+import com.sequoiacm.infrastructure.dispatcher.ScmURLConfig;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
+import org.springframework.cloud.client.ServiceInstance;
 
 public class ScmInnerRemoteDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(ScmInnerRemoteDataWriter.class);
@@ -38,16 +41,12 @@ public class ScmInnerRemoteDataWriter {
         this.dataInfo = dataInfo;
         ScmContentModule contentModule = ScmContentModule.getInstance();
         remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
-        final String hostPort = LoadBalancedUtil.choose(remoteSiteName);
+        ServiceInstance instance = LoadBalancedUtil.chooseInstance(remoteSiteName);
+        final String hostPort = instance.getHost() + ":" + instance.getPort();
         try {
-            ScmHystrixExecutor.execute(remoteSiteName, hostPort, new ScmHystrixExecutor.Runnable<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    conn = getCreateDataConn(hostPort, wsInfo.getName(), dataInfo);
-                    os = conn.getOutputStream();
-                    return null;
-                }
-            });
+            conn = ScmRestClientUtils.getScmRestClient().getHttpURLConnection(
+                    getConfig(hostPort, wsInfo.getName(), dataInfo), instance);
+            os = conn.getOutputStream();
         }
         catch (IOException e) {
             closeOs(os);
@@ -166,37 +165,28 @@ public class ScmInnerRemoteDataWriter {
         return null;
     }
 
-    private HttpURLConnection getCreateDataConn(String hostPort, String wsName,
-            ScmDataInfo dataInfo) throws ScmServerException {
-        HttpURLConnection connection = null;
+    private ScmURLConfig getConfig(String hostPort, String wsName, ScmDataInfo dataInfo)
+            throws ScmServerException {
+        ScmURLConfig config = new ScmURLConfig();
         String addr = "http://" + hostPort + "/internal/v1/datasource/" + dataInfo.getId() + "?"
                 + CommonDefine.RestArg.WORKSPACE_NAME + "=" + wsName + "&"
                 + CommonDefine.RestArg.DATASOURCE_DATA_TYPE + "=" + dataInfo.getType() + "&"
                 + CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME + "="
                 + dataInfo.getCreateTime().getTime();
-        try {
-            URL url = new URL(addr);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setChunkedStreamingMode(4096);
-            connection.setUseCaches(false);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("Content-Type", "binary/octet-stream");
-            connection.setConnectTimeout(PropertiesUtils.getTransferConnectTimeout());
-            connection.setReadTimeout(PropertiesUtils.getTransferReadTimeout());
-            connection.connect();
-            return connection;
-        }
-        catch (IOException e) {
-            closeConn(connection);
-            throw new ScmServerException(ScmError.NETWORK_IO, "connet failed:url=" + hostPort, e);
-        }
-        catch (Exception e) {
-            closeConn(connection);
-            throw new ScmSystemException("connet failed:url=" + hostPort, e);
-        }
+        config.setUrl(addr);
+        config.setDoOutput(true);
+        config.setDoInput(true);
+        config.setChunkedStreamingMode(4096);
+        config.setUseCaches(false);
+        config.setRequestMethod("POST");
+        Map<String, String> requestProperties = new HashMap<>();
+        requestProperties.put("Connection", "Keep-Alive");
+        requestProperties.put("Content-Type", "binary/octet-stream");
+        config.setRequestProperties(requestProperties);
+        config.setConnectTimeout(PropertiesUtils.getTransferConnectTimeout());
+        config.setReadTimeout(PropertiesUtils.getTransferReadTimeout());
+        return config;
+
     }
 
     private void closeConn(HttpURLConnection conn) {

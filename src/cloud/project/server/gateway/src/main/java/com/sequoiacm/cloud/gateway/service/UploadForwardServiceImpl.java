@@ -6,9 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
+import com.sequoiacm.infrastructure.dispatcher.ScmRestClient;
 import com.sequoiacm.infrastructure.common.UriUtil;
-import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
@@ -26,14 +24,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -44,9 +37,6 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.cloud.gateway.config.UploadForwardConfig;
-import com.sequoiacm.infrastructure.common.timer.ScmTimer;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 
 @Service
@@ -65,54 +55,14 @@ public class UploadForwardServiceImpl implements UploadForwardService {
     @Autowired
     private ScmStatisticsRawDataReporter statisticsRawDataReporter;
 
-    private UploadForwardConfig config;
+    @Autowired
+    private ScmRestClient scmRestClient;
 
-    private PoolingHttpClientConnectionManager connectionManager;
-    private ScmTimer connectionManagerTimer;
-    private CloseableHttpClient httpClient;
+    private UploadForwardConfig config;
 
     @Autowired
     public UploadForwardServiceImpl(UploadForwardConfig config) {
-        connectionManager = new PoolingHttpClientConnectionManager(config.getConnectionTimeToLive(),
-                TimeUnit.SECONDS);
-        connectionManager.setMaxTotal(config.getMaxTotalConnections());
-        connectionManager.setDefaultMaxPerRoute(config.getMaxPerRouteConnections());
-
-        connectionManagerTimer = ScmTimerFactory.createScmTimer();
-        connectionManagerTimer.schedule(new UploadForwardConnectionCleaner(connectionManager),
-                30000, config.getConnectionCleanerRepeatInterval());
-
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setConnectTimeout(config.getConnectTimeout())
-                .setSocketTimeout(config.getSocketTimeout())
-                .setConnectionRequestTimeout(config.getConnectionRequestTimeout())
-                .setRedirectsEnabled(false).build();
-        httpClient = HttpClientBuilder.create().disableContentCompression()
-                .disableCookieManagement().useSystemProperties()
-                .setDefaultRequestConfig(defaultRequestConfig)
-                .setConnectionManager(connectionManager).build();
         this.config = config;
-    }
-
-    @PreDestroy
-    public void destroy() {
-        if (connectionManagerTimer != null) {
-            connectionManagerTimer.cancel();
-            connectionManagerTimer = null;
-        }
-
-        if (connectionManager != null) {
-            connectionManager.close();
-            connectionManager = null;
-        }
-        if (httpClient != null) {
-            try {
-                httpClient.close();
-            }
-            catch (Exception e) {
-            }
-            httpClient = null;
-        }
     }
 
     @Override
@@ -143,14 +93,9 @@ public class UploadForwardServiceImpl implements UploadForwardService {
             UriUtil.addForwardPrefix(forwardReq, "/" + targetService);
             logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
 
-            // execute with hystrix
-            forwardResp = ScmHystrixExecutor.execute(targetService, targetService,
-                    new ScmHystrixExecutor.Runnable<CloseableHttpResponse>() {
-                        @Override
-                        public CloseableHttpResponse run() throws IOException {
-                            return httpClient.execute(targetInstance, forwardReq);
-                        }
-                    });
+            // execute with short-circuit
+            forwardResp = scmRestClient.execute(forwardReq, instance);
+
             clientInputstreamWasConsumed = true;
             logger.debug("forward upload response:instance={},resp={}", targetInstance,
                     forwardResp);
@@ -355,30 +300,6 @@ public class UploadForwardServiceImpl implements UploadForwardService {
         catch (Exception e) {
             logger.warn("failed to consume resource", e);
         }
-    }
-
-}
-
-class UploadForwardConnectionCleaner extends ScmTimerTask {
-    private static final Logger logger = LoggerFactory
-            .getLogger(UploadForwardConnectionCleaner.class);
-    private PoolingHttpClientConnectionManager connectionManager;
-
-    public UploadForwardConnectionCleaner(PoolingHttpClientConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
-    @Override
-    public void run() {
-        if (logger.isDebugEnabled()) {
-            Set<HttpRoute> routes = connectionManager.getRoutes();
-            for (HttpRoute route : routes) {
-                logger.debug("connnection manager info:route={},routeState={}", route,
-                        connectionManager.getStats(route));
-            }
-            logger.debug("connection manager total state:{}", connectionManager.getTotalStats());
-        }
-        connectionManager.closeExpiredConnections();
     }
 
 }
