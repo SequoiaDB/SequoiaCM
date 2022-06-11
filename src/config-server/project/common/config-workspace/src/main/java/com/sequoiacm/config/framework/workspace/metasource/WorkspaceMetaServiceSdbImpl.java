@@ -450,7 +450,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                 cs.createCollection(clName, clOption);
                 return true;
             }
-            if (cs.getCollectionNames().size() > maxClInCs) {
+            if (cs.getCollectionNames().size() >= maxClInCs) {
                 return false;
             }
             cs.createCollection(clName, clOption);
