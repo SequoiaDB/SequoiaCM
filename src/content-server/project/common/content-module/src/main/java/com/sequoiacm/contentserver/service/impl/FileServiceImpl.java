@@ -949,6 +949,9 @@ public class FileServiceImpl implements IFileService {
             int minorVersion) throws ScmServerException {
         FileVersionDeleteDao deleter = new FileVersionDeleteDao(ws, fileId, majorVersion,
                 minorVersion, listenerMgr, bucketInfoMgr);
-        return deleter.delete();
+        BSONObject ret = deleter.delete();
+        audit.info(ScmAuditType.DELETE_FILE, user, ws, 0, "delete file version: wsName=" + ws
+                + ", fileId=" + fileId + ", version=" + majorVersion + "." + minorVersion);
+        return ret;
     }
 }

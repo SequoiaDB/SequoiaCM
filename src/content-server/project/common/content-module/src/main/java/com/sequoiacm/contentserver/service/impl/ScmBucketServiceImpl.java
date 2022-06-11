@@ -219,10 +219,6 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             deleteDataSilence(wsInfo.getName(), dataDetail);
             throw e;
         }
-        audit.info(ScmAuditType.CREATE_FILE, user, wsInfo.getName(), 0,
-                "create file in bucket: bucketName=" + bucketName + ", fileId="
-                        + createdFile.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
-                        + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         return createdFile;
     }
 
@@ -341,7 +337,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 transactionCallback, overwriteOption, bucket, wsInfo);
         BSONObject createdFile = ret.getFileInfo();
         audit.info(ScmAuditType.CREATE_FILE, user, wsInfo.getName(), 0,
-                "create file meta in bucket: bucketName=" + bucketName + ", fileId="
+                "create file in bucket: bucketName=" + bucketName + ", fileId="
                         + createdFile.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
                         + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
         ret.getCallback().onComplete();
@@ -785,7 +781,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 sessionInfoWrapper.getUserDetail(), listenerMgr, bucketInfoManager);
         dao.init(user.getUsername(), bucket, fileName, isPhysical);
         BSONObject ret = dao.delete();
-        audit.info(ScmAuditType.FILE_DML, user, bucket.getWorkspace(), 0,
+        audit.info(ScmAuditType.DELETE_FILE, user, bucket.getWorkspace(), 0,
                 "delete file in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", isPhysical=" + isPhysical);
         return ret;
@@ -800,7 +796,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         FileVersionDeleteDao fileVersionDeleter = new FileVersionDeleteDao(bucket, fileName,
                 majorVersion, minorVersion, listenerMgr, bucketInfoManager);
         BSONObject ret = fileVersionDeleter.delete();
-        audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
+        audit.info(ScmAuditType.DELETE_FILE, user, bucket.getWorkspace(), 0,
                 "delete file version in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", version=" + majorVersion + "." + minorVersion);
         return ret;
@@ -818,7 +814,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 BsonUtils.getIntegerChecked(fileVersion, FieldName.FIELD_CLFILE_MINOR_VERSION),
                 listenerMgr, bucketInfoManager);
         BSONObject ret = fileVersionDeleter.delete();
-        audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
+        audit.info(ScmAuditType.DELETE_FILE, user, bucket.getWorkspace(), 0,
                 "delete file version in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", version=nullMarker");
         return ret;
