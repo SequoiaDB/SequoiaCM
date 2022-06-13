@@ -19,9 +19,9 @@ public class SlowLogConfig {
 
     private boolean enabled = false;
 
-    private long allRequest = -1;
+    private Long allRequest = -1L;
 
-    private long allOperation = -1;
+    private Long allOperation = -1L;
 
     private Map<String, Long> request = new HashMap<>();
 
@@ -49,20 +49,34 @@ public class SlowLogConfig {
         this.enabled = enabled;
     }
 
-    public long getAllRequest() {
+    public Long getAllRequest() {
         return allRequest;
     }
 
-    public void setAllRequest(long allRequest) {
-        this.allRequest = allRequest;
+    public void setAllRequest(Long allRequest) {
+        if(allRequest == null){
+            logger.warn("unrecognized slowlog request config: key={}, value={}",
+                    "scm.slowlog.allRequest", allRequest);
+            this.allRequest = -1L;
+            logger.info("The value of allRequest has been modified to the default value:-1");
+        }else {
+            this.allRequest = allRequest;
+        }
     }
 
-    public long getAllOperation() {
+    public Long getAllOperation() {
         return allOperation;
     }
 
-    public void setAllOperation(long allOperation) {
-        this.allOperation = allOperation;
+    public void setAllOperation(Long allOperation) {
+        if(allOperation == null){
+            logger.warn("unrecognized slowlog operation config: key={}, value={}",
+                    "scm.slowlog.allOperation", allOperation);
+            this.allOperation = -1L;
+            logger.info("The value of allOperation has been modified to the default value:-1");
+        }else {
+            this.allOperation = allOperation;
+        }
     }
 
     public Map<String, Long> getRequest() {
