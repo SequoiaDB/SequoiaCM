@@ -63,6 +63,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
         conf.setDataLocations( getDataLocationList( siteNum ) );
         conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
         conf.setName( wsName );
+        conf.setEnableDirectory( true );
         return createWS( session, conf );
     }
 
@@ -123,6 +124,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
         conf.setBatchShardingType( batchShardingType );
         conf.setBatchIdTimePattern( pattern );
         conf.setBatchFileNameUnique( isFileNameUnique );
+        conf.setEnableDirectory(true);
         return createWS( session, conf );
     }
 
@@ -245,7 +247,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
                     + TestScmBase.gateWayList.get( 0 ) + "/"
                     + ScmInfo.getRootSite().getSiteName().toLowerCase()
                     + "\" --user " + TestScmBase.scmUserName + " --password "
-                    + TestScmBase.scmUserName;
+                    + TestScmBase.scmUserName + " --enable-directory";
             ssh.exec( cmd );
             String resultMsg = ssh.getStdout();
             if ( !resultMsg.contains( "success" ) ) {

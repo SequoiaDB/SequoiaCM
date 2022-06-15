@@ -196,6 +196,7 @@ public class CreateWorkspace4081 extends TestScmBase {
         conf.setDataLocations( scmDataLocationList );
         conf.setMetaLocation( scmMetaLocation );
         conf.setName( wsName );
+        conf.setEnableDirectory( true );
         ScmFactory.Workspace.createWorkspace( session, conf );
 
         ScmWorkspace ws = null;

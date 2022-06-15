@@ -1,11 +1,13 @@
 package com.sequoiacm.reloadconf.serial;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -62,28 +64,23 @@ public class ReloadConf464 extends TestScmBase {
     private List< String > domainNameList = new ArrayList< String >();
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
-            rootSite = ScmInfo.getRootSite();
-            branceSiteList = ScmInfo.getBranchSites( 2 );
-            siteList = ScmInfo.getAllSites();
-            wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( rootSite );
-            TestSdbTools.Workspace.delete( wsName1, session );
-            domainNameList.add( "metaDomain1" );
-            domainNameList.add( "dataDomain1" );
-            domainNameList.add( "dataDomain2" );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        rootSite = ScmInfo.getRootSite();
+        branceSiteList = ScmInfo.getBranchSites( 2 );
+        siteList = ScmInfo.getAllSites();
+        wsp = ScmInfo.getWs();
+        session = TestScmTools.createSession( rootSite );
+        TestSdbTools.Workspace.delete( wsName1, session );
+        domainNameList.add( "metaDomain1" );
+        domainNameList.add( "dataDomain1" );
+        domainNameList.add( "dataDomain2" );
     }
 
     @Test(groups = { "fourSite" })
@@ -165,42 +162,13 @@ public class ReloadConf464 extends TestScmBase {
         String dataStr1 = createDataStr( domainNameList );
         try {
             session = TestScmTools.createSession( rootSite );
-            createWs( session, wsName, metaStr1, dataStr1 );
+            ScmWorkspaceUtil.createWs( session, wsName, metaStr1, dataStr1 );
         } catch ( Exception e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
-            }
-        }
-    }
-
-    public void createWs( ScmSession session, String wsName, String metaStr,
-            String dataStr ) throws Exception {
-        Ssh ssh = null;
-        try {
-            ssh = new Ssh( ScmInfo.getRootSite().getNode().getHost() );
-
-            // get scm_install_dir
-            String installPath = ssh.getScmInstallDir();
-
-            // create workspace
-            String cmd = installPath + "/bin/scmadmin.sh createws -n " + wsName
-                    + " -m \"" + metaStr + "\" -d \"" + dataStr + "\" --url \""
-                    + TestScmBase.gateWayList.get( 0 ) + "/"
-                    + rootSite.getSiteName().toLowerCase() + "\" --user "
-                    + TestScmBase.scmUserName + " --password "
-                    + TestScmBase.scmUserName;
-            ssh.exec( cmd );
-            String resultMsg = ssh.getStdout();
-            if ( !resultMsg.contains( "success" ) ) {
-                throw new Exception( "Failed to create ws[" + wsName
-                        + "], msg:\n" + resultMsg );
-            }
-        } finally {
-            if ( null != ssh ) {
-                ssh.disconnect();
             }
         }
     }

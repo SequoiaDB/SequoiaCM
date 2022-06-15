@@ -53,7 +53,7 @@ public class Param_setCsOptions2259 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testValueIsWrong()
-            throws ScmInvalidArgumentException, InterruptedException {
+            throws ScmException, InterruptedException {
         ScmSdbMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
                 site.getSiteName(), ScmShardingType.YEAR,
                 TestSdbTools.getDomainNames( site.getMetaDsUrl() ).get( 0 ) );
@@ -65,15 +65,14 @@ public class Param_setCsOptions2259 extends TestScmBase {
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+               throw e;
             }
         }
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testKeyIsWrong()
-            throws ScmInvalidArgumentException, InterruptedException {
+            throws ScmException, InterruptedException {
         ScmSdbMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
                 site.getSiteName(), ScmShardingType.YEAR,
                 TestSdbTools.getDomainNames( site.getMetaDsUrl() ).get( 0 ) );
@@ -86,8 +85,7 @@ public class Param_setCsOptions2259 extends TestScmBase {
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
     }
@@ -155,6 +153,7 @@ public class Param_setCsOptions2259 extends TestScmBase {
         conf.setDataLocations( scmDataLocationList );
         conf.setMetaLocation( scmMetaLocation );
         conf.setName( wsName );
+        conf.setEnableDirectory(true);
         ScmFactory.Workspace.createWorkspace( session, conf );
     }
 }

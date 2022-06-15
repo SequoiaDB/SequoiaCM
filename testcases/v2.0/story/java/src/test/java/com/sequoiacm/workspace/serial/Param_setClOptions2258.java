@@ -55,7 +55,7 @@ public class Param_setClOptions2258 extends TestScmBase {
 
     @Test
     private void testValueIsWrong()
-            throws ScmInvalidArgumentException, InterruptedException {
+            throws ScmException, InterruptedException {
         ScmSdbMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
                 site.getSiteName(), ScmShardingType.YEAR,
                 TestSdbTools.getDomainNames( site.getMetaDsUrl() ).get( 0 ) );
@@ -76,15 +76,14 @@ public class Param_setClOptions2258 extends TestScmBase {
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.METASOURCE_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
     }
 
     @Test
     private void testKeyIsWrong()
-            throws ScmInvalidArgumentException, InterruptedException {
+            throws ScmException, InterruptedException {
         ScmSdbMetaLocation scmMetaLocation = new ScmSdbMetaLocation(
                 site.getSiteName(), ScmShardingType.YEAR,
                 TestSdbTools.getDomainNames( site.getMetaDsUrl() ).get( 0 ) );
@@ -105,21 +104,17 @@ public class Param_setClOptions2258 extends TestScmBase {
             Assert.fail( "exp fail but act success" );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.METASOURCE_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws Exception {
         try {
             ScmWorkspaceUtil.deleteWs( wsName1, session );
             ScmWorkspaceUtil.deleteWs( wsName2, session );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() + e.getStackTrace() );
-        } finally {
+        }finally {
             if ( session != null ) {
                 session.close();
             }
@@ -175,5 +170,6 @@ public class Param_setClOptions2258 extends TestScmBase {
         conf.setMetaLocation( scmMetaLocation );
         conf.setName( wsName );
         ScmFactory.Workspace.createWorkspace( session, conf );
+        conf.setEnableDirectory(true);
     }
 }
