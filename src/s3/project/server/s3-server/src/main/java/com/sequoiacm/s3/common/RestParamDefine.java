@@ -13,6 +13,7 @@ public class RestParamDefine {
     public static final String UPLOADS = "uploads";
     public static final String UPLOADID = "uploadId";
     public static final String PARTNUMBER = "partNumber";
+    public static final String DELETE = "delete";
 
     public static final String USERNAME = "username";
     public static final String TARGET_USERNAME = "target-username";

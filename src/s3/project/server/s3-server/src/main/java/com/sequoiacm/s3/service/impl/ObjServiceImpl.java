@@ -36,13 +36,18 @@ import com.sequoiacm.s3.core.S3PutObjectRequest;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.CopyObjectResult;
+import com.sequoiacm.s3.model.DeleteError;
 import com.sequoiacm.s3.model.DeleteObjectResult;
+import com.sequoiacm.s3.model.DeleteObjects;
+import com.sequoiacm.s3.model.DeleteObjectsResult;
 import com.sequoiacm.s3.model.GetObjectResult;
 import com.sequoiacm.s3.model.ListObjectCommonPrefix;
 import com.sequoiacm.s3.model.ListObjectsResult;
 import com.sequoiacm.s3.model.ListObjectsResultV1;
 import com.sequoiacm.s3.model.ListVersionsResult;
+import com.sequoiacm.s3.model.ObjectDeleted;
 import com.sequoiacm.s3.model.ObjectMatcher;
+import com.sequoiacm.s3.model.ObjectToDel;
 import com.sequoiacm.s3.model.PutObjectResult;
 import com.sequoiacm.s3.scan.BasicS3ScanCommonPrefixParser;
 import com.sequoiacm.s3.scan.BasicS3ScanMatcher;
@@ -70,6 +75,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -538,6 +544,70 @@ public class ObjServiceImpl implements ObjectService {
                     e);
         }
 
+    }
+
+    @Override
+    public DeleteObjectsResult deleteObjects(ScmSession session, String bucketName,
+            DeleteObjects deleteObjects) throws S3ServerException {
+        bucketService.getBucket(session, bucketName);
+
+        DeleteObjectsResult deleteObjectsResult = new DeleteObjectsResult();
+        if (deleteObjects != null && deleteObjects.getObjects() != null) {
+            List<ObjectToDel> objects = deleteObjects.getObjects();
+            for (ObjectToDel object : objects) {
+                try {
+                    DeleteObjectResult result;
+                    if (object.getVersionId() != null) {
+                        result = deleteObject(session, bucketName, object.getKey(),
+                                object.getVersionId());
+                        logger.debug(
+                                "delete object with version id success. bucketName={}, objectName={}, versionId={}",
+                                bucketName, object.getKey(), object.getVersionId());
+                    }
+                    else {
+                        result = deleteObject(session, bucketName, object.getKey());
+                        logger.debug("delete object success. bucketName={}, objectName={}",
+                                bucketName, object.getKey());
+                    }
+                    if (!deleteObjects.getQuiet()) {
+                        ObjectDeleted deleted = new ObjectDeleted();
+                        if (result != null && result.isDeleteMarker()) {
+                            deleted.setDeleteMarker(true);
+                            deleted.setDeleteMarkerVersion(result.getVersionId());
+                        }
+                        deleted.setVersionId(object.getVersionId());
+                        deleted.setKey(object.getKey());
+                        deleteObjectsResult.getDeletedObjects().add(deleted);
+                    }
+                }
+                catch (Exception e) {
+                    DeleteError error = new DeleteError();
+                    if (e instanceof S3ServerException) {
+                        S3Error s3Error = ((S3ServerException) e).getError();
+                        error.setCode(s3Error.getCode());
+                        error.setMessage(s3Error.getErrorMessage());
+                    }
+                    else {
+                        error.setCode(S3Error.OBJECT_DELETE_FAILED.getCode());
+                        error.setMessage(e.getMessage());
+                    }
+                    error.setKey(object.getKey());
+
+                    if (object.getVersionId() != null) {
+                        error.setVersionId(object.getVersionId());
+                        logger.error(
+                                "delete object failed. bucketName={}, objectName={}, versionId={}",
+                                bucketName, object.getKey(), object.getVersionId(), e);
+                    }
+                    else {
+                        logger.error("delete object failed. bucketName={}, objectName={}",
+                                bucketName, object.getKey(), e);
+                    }
+                    deleteObjectsResult.getErrors().add(error);
+                }
+            }
+        }
+        return deleteObjectsResult;
     }
 
     @Override

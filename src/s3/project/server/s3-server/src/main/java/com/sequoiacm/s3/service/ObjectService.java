@@ -8,6 +8,8 @@ import com.sequoiacm.s3.core.S3PutObjectRequest;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.CopyObjectResult;
 import com.sequoiacm.s3.model.DeleteObjectResult;
+import com.sequoiacm.s3.model.DeleteObjects;
+import com.sequoiacm.s3.model.DeleteObjectsResult;
 import com.sequoiacm.s3.model.GetObjectResult;
 import com.sequoiacm.s3.model.ListObjectsResult;
 import com.sequoiacm.s3.model.ListObjectsResultV1;
@@ -31,6 +33,9 @@ public interface ObjectService {
 
     DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectName,
                                     String versionId) throws S3ServerException;
+
+    DeleteObjectsResult deleteObjects(ScmSession session, String bucketName,
+            DeleteObjects deleteObjects) throws S3ServerException;
 
     ListObjectsResultV1 listObjectsV1(ScmSession session, String bucketName, String prefix,
             String delimiter, String startAfter, int maxKeys, String encodingType)

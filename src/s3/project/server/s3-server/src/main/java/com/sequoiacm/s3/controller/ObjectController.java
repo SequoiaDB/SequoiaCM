@@ -2,17 +2,29 @@ package com.sequoiacm.s3.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.sequoiacm.infrastructure.common.OutStreamFlushQueue;
+import com.sequoiacm.s3.model.DeleteError;
 import com.sequoiacm.s3.model.DeleteObjectResult;
+import com.sequoiacm.s3.model.DeleteObjects;
+import com.sequoiacm.s3.model.DeleteObjectsResult;
+import com.sequoiacm.s3.model.ObjectDeleted;
+import com.sequoiacm.s3.model.ObjectToDel;
+import com.sequoiacm.s3.utils.MD5Utils;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -275,6 +288,18 @@ public class ObjectController {
                     bucketName, httpServletRequest.getRequestURI(), versionId);
             throw e;
         }
+    }
+
+    @PostMapping(value = "/{bucketname:.+}", params = RestParamDefine.DELETE, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<?> deleteObjects(@PathVariable("bucketname") String bucketName,
+            ScmSession session,
+            @RequestHeader(name = RestParamDefine.PutObjectHeader.CONTENT_MD5, required = false) String contentMD5,
+            HttpServletRequest httpServletRequest) throws S3ServerException {
+        DeleteObjects deleteObjects = getDeleteObject(httpServletRequest, contentMD5);
+        logger.debug("delete objects. bucketName={}, objectList={}", bucketName, deleteObjects);
+        DeleteObjectsResult result = objectService.deleteObjects(session, bucketName,
+                deleteObjects);
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = "/{bucketname:.+}", params = RestParamDefine.ListObjectsPara.LIST_TYPE2, produces = MediaType.APPLICATION_XML_VALUE)
@@ -611,6 +636,44 @@ public class ObjectController {
                     + range.getStart() + "-" + range.getEnd() + "/" + objectMeta.getSize());
             response.setContentLengthLong(range.getContentLength());
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        }
+    }
+
+    private DeleteObjects getDeleteObject(HttpServletRequest httpServletRequest, String contentMD5)
+            throws S3ServerException {
+        try {
+            if (contentMD5 == null) {
+                return null;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            int ONCE_READ_BYTES = 1024;
+            ServletInputStream inputStream = httpServletRequest.getInputStream();
+            MessageDigest MD5 = MessageDigest.getInstance("MD5");
+            byte[] b = new byte[ONCE_READ_BYTES];
+            int len = inputStream.read(b, 0, ONCE_READ_BYTES);
+            while (len > 0) {
+                MD5.update(b, 0, len);
+                stringBuilder.append(new String(b, 0, len));
+                len = inputStream.read(b, 0, ONCE_READ_BYTES);
+            }
+            if (!MD5Utils.isMd5EqualWithETag(contentMD5, new String(Hex.encodeHex(MD5.digest())))) {
+                throw new S3ServerException(S3Error.OBJECT_BAD_DIGEST,
+                        "The Content-MD5 you specified does not match what we received.");
+            }
+
+            String content = stringBuilder.toString();
+            if (content.length() > 0) {
+                ObjectMapper objectMapper = new XmlMapper();
+                return objectMapper.readValue(content, DeleteObjects.class);
+            }
+            return null;
+        }
+        catch (S3ServerException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.MALFORMED_XML, "get delete objects failed", e);
         }
     }
 }
