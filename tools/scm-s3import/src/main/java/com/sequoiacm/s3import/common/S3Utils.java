@@ -241,11 +241,12 @@ public class S3Utils {
         s3Client.deleteVersion(request);
     }
 
-    public static void putObject(AmazonS3Client s3Client, String bucket, S3Object s3Object)
-            throws ScmToolsException {
+    // s3Object 中 lastModified 的时间粒度为秒
+    // 需要另外传入一个更精确的时间（通过 listObjects 或 listVersions 接口拿到的对象创建时间，其粒度为毫秒数）
+    public static void putObject(AmazonS3Client s3Client, String bucket, S3Object s3Object,
+            long objCreateTime) throws ScmToolsException {
         ObjectMetadata objectMetadata = s3Object.getObjectMetadata();
-        objectMetadata.setHeader(CommonDefine.SCM_OBJ_CREATE_TIME,
-                objectMetadata.getLastModified().getTime());
+        objectMetadata.setHeader(CommonDefine.SCM_OBJ_CREATE_TIME, objCreateTime);
 
         String eTag = objectMetadata.getETag();
         if (Md5Utils.isETagValid(eTag)) {

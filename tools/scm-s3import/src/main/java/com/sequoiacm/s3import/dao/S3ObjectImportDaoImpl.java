@@ -75,7 +75,8 @@ public class S3ObjectImportDaoImpl implements S3ObjectImportDao {
                     S3Object srcObject = null;
                     try {
                         srcObject = S3Utils.getObject(srcClient, request);
-                        S3Utils.putObject(destClient, destBucket, srcObject);
+                        S3Utils.putObject(destClient, destBucket, srcObject,
+                                summary.getLastModified().getTime());
                     }
                     finally {
                         ScmCommon.closeResource(srcObject);
@@ -89,7 +90,8 @@ public class S3ObjectImportDaoImpl implements S3ObjectImportDao {
             S3Object srcObject = null;
             try {
                 srcObject = S3Utils.getObject(srcClient, request);
-                S3Utils.putObject(destClient, destBucket, srcObject);
+                S3Utils.putObject(destClient, destBucket, srcObject,
+                        importObject.getLastModified().getTime());
             }
             finally {
                 ScmCommon.closeResource(srcObject);
