@@ -36,6 +36,7 @@ public class SlowLogConfig {
     @PostConstruct
     public void init() {
         this.parsedRequestList = parseRequest();
+        parseOperation();
     }
 
     @PreDestroy
@@ -147,6 +148,22 @@ public class SlowLogConfig {
         }
         else {
             return Collections.emptyList();
+        }
+    }
+
+    public void parseOperation() {
+        Set<String> keySet = operation.keySet();
+        Iterator<String> keyIterator = keySet.iterator();
+        while (keyIterator.hasNext()){
+            String key = keyIterator.next();
+            Long value = operation.get(key);
+            if(value==null){
+                logger.warn("unrecognized slowlog operation config: key={}, value={}",
+                        key, "null");
+                keyIterator.remove();
+                logger.info("slowlog.operation.{} has been removed",
+                        key);
+            }
         }
     }
 
