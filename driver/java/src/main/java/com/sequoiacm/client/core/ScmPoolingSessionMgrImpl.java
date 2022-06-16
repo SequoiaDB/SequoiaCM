@@ -51,6 +51,11 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
     private ScmTimer clearAbnormalSessionsTaskTimer;
     private ScmTimer idleConnectionMonitorTimer;
 
+    // Dummy value to associate with an Object in the outerSessions Map
+    private static final Object PRESENT = new Object();
+    private final Map<ScmSession, Object> outerSessions = new ConcurrentHashMap<ScmSession, Object>();
+
+
     private IdleConnectionMonitorTask idleConnectionMonitorTask;
 
     private Map<String, Long> lastAccessTimeMap = new ConcurrentHashMap<String, Long>();
@@ -136,9 +141,12 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
             for (;;) {
                 scmSession = pollFirst(sessionType);
                 if (scmSession == null) {
-                    return createSession(sessionType);
+                    scmSession = createSession(sessionType);
+                    outerSessions.put(scmSession, PRESENT);
+                    return scmSession;
                 }
                 if (isAvailable(scmSession)) {
+                    outerSessions.put(scmSession, PRESENT);
                     return scmSession;
                 }
                 else {
@@ -161,8 +169,16 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         Lock lock = closedStateLock.readLock();
         lock.lock();
         try {
+            outerSessions.remove(scmSession);
             if (closed) {
-                throw new ScmException(ScmError.OPERATION_UNSUPPORTED, "sessionMgr is closed");
+                logger.warn("sessionMgr is closed");
+                if (!scmSession.isClosed()) {
+                    closeSessionSilence(scmSession);
+                }
+                if (outerSessions.isEmpty()) {
+                    releaseResource();
+                }
+                return;
             }
             if (sessionCount() >= sessionPoolConf.getMaxCacheSize()) {
                 discardSession(scmSession);
@@ -332,14 +348,14 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
             if (idleConnectionMonitorTimer != null) {
                 idleConnectionMonitorTimer.cancel();
             }
-            if (httpClient != null) {
+            if (httpClient != null && outerSessions.isEmpty()) {
                 httpClient.close();
             }
             authSessionQueue = null;
             notAuthSessionQueue = null;
             abnormalSessionQueue = null;
-            lastAccessTimeMap = null;
-            gatewayHealthStatus = null;
+            lastAccessTimeMap.clear();
+            gatewayHealthStatus.clear();
         }
         catch (Exception e) {
             logger.warn("failed to release resource", e);
