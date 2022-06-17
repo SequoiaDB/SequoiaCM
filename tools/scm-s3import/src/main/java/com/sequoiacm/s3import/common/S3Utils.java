@@ -176,19 +176,24 @@ public class S3Utils {
         return versionListing;
     }
 
+
+    /**
+     * @param allSummary 版本列取结果，版本号为逆序（e.g. [key-v3、key-v2、key-v1]）
+     *                   构造多版本对象时需要逆向添加版本记录 -> key(v1、v2、v3)
+     * @return 对象列表，对象内封装了多个版本记录
+     */
     private static List<S3ImportObject> generateImportObject(List<S3VersionSummary> allSummary) {
-        List<S3ImportObject> importList = new ArrayList<>();
+        LinkedList<S3ImportObject> importList = new LinkedList<>();
 
         String currentKey = null;
         S3ImportObject currentObject = null;
-        for (int i = allSummary.size() - 1; i >= 0; i--) {
-            S3VersionSummary summary = allSummary.get(i);
+        for (S3VersionSummary summary : allSummary) {
             if (currentKey == null || !currentKey.equals(summary.getKey())) {
                 currentKey = summary.getKey();
                 currentObject = new S3ImportObject(summary.getBucketName(), summary.getKey(), true);
                 importList.add(currentObject);
             }
-            currentObject.addVersionSummary(summary);
+            currentObject.addVersionSummaryHistory(summary);
             if (summary.isDeleteMarker()) {
                 currentObject.setHasDeleteMarker(true);
             }

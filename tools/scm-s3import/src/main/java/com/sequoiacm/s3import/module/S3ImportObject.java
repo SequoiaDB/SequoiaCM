@@ -1,7 +1,7 @@
 package com.sequoiacm.s3import.module;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -16,7 +16,7 @@ public class S3ImportObject {
     private Date lastModified;
     private boolean withVersion;
     private boolean isCompleted;
-    private List<S3VersionSummary> versionSummaryList;
+    private LinkedList<S3VersionSummary> versionSummaryList;
 
     private boolean hasDeleteMarker;
 
@@ -60,10 +60,6 @@ public class S3ImportObject {
         return eTag;
     }
 
-    public void setETag(String eTag) {
-        this.eTag = eTag;
-    }
-
     public long getSize() {
         return size;
     }
@@ -76,23 +72,15 @@ public class S3ImportObject {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
-        this.lastModified = lastModified;
-    }
-
     public List<S3VersionSummary> getVersionSummaryList() {
         return versionSummaryList;
     }
 
-    public void setVersionSummaryList(List<S3VersionSummary> versionSummaryList) {
-        this.versionSummaryList = versionSummaryList;
-    }
-
-    public void addVersionSummary(S3VersionSummary versionSummary) {
+    public void addVersionSummaryHistory(S3VersionSummary versionSummary) {
         if (this.versionSummaryList == null) {
-            this.versionSummaryList = new ArrayList<>();
+            this.versionSummaryList = new LinkedList<>();
         }
-        this.versionSummaryList.add(versionSummary);
+        this.versionSummaryList.addFirst(versionSummary);
     }
 
     public boolean isHasDeleteMarker() {
