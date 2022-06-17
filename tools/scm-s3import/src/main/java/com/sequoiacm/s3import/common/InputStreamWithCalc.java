@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 
-public class InputStreamWithCalcMd5 extends InputStream {
+public class InputStreamWithCalc extends InputStream {
 
     private InputStream src;
     private MessageDigest md5Calc;
     private byte[] md5Bytes;
 
-    public InputStreamWithCalcMd5(InputStream src) throws ScmToolsException {
+    public InputStreamWithCalc(InputStream src) throws ScmToolsException {
         this.src = src;
         this.md5Calc = Md5Utils.createMd5Calc();
     }
@@ -42,14 +42,14 @@ public class InputStreamWithCalcMd5 extends InputStream {
 
     @Override
     public void close() throws IOException {
+        md5Bytes = md5Calc.digest();
         src.close();
     }
 
-    public String calcMd5() throws ScmToolsException {
-        if (md5Bytes != null) {
-            throw new ScmToolsException("Can not calc md5 twice", S3ImportExitCode.SYSTEM_ERROR);
+    public String getEtag() throws ScmToolsException {
+        if (md5Bytes == null) {
+            throw new ScmToolsException("inputstream did not close", S3ImportExitCode.SYSTEM_ERROR);
         }
-        md5Bytes = md5Calc.digest();
         return new String(Hex.encodeHex(md5Bytes));
     }
 }

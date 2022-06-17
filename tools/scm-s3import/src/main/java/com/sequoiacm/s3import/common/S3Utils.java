@@ -258,10 +258,10 @@ public class S3Utils {
             }
         }
         else {
-            InputStreamWithCalcMd5 is = new InputStreamWithCalcMd5(s3Object.getObjectContent());
+            InputStreamWithCalc is = new InputStreamWithCalc(s3Object.getObjectContent());
             PutObjectResult putObjectResult = s3Client.putObject(bucket, s3Object.getKey(), is,
                     objectMetadata);
-            if (!Md5Utils.isMd5EqualWithETag(putObjectResult.getETag(), is.calcMd5())) {
+            if (!is.getEtag().equals(putObjectResult.getETag())) {
                 throw new ScmToolsException("Upload object failed",
                         S3ImportExitCode.ETAG_NOT_MATCH);
             }
