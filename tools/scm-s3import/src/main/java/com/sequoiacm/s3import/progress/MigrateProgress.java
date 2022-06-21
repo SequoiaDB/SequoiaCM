@@ -20,6 +20,7 @@ public class MigrateProgress extends Progress {
 
     @Override
     public void init(JsonObject migrateProgress) {
+        super.init(migrateProgress);
         this.successCount = new AtomicLong(migrateProgress.get(SUCCESS_COUNT).getAsLong());
         this.failureCount = new AtomicLong(migrateProgress.get(FAIL_COUNT).getAsLong());
         JsonElement nextKeyMarker = migrateProgress.get(NEXT_KEY_MARKER);

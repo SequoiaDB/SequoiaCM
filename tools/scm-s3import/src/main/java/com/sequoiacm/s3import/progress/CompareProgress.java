@@ -27,6 +27,7 @@ public class CompareProgress extends Progress {
 
     @Override
     public void init(JsonObject progress) {
+        super.init(progress);
         this.diffCounter.put(SAME, new AtomicLong(progress.get(SAME).getAsLong()));
         this.diffCounter.put(NEW, new AtomicLong(progress.get(NEW).getAsLong()));
         this.diffCounter.put(DELETED, new AtomicLong(progress.get(DELETED).getAsLong()));
