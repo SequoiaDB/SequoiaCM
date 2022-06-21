@@ -8,7 +8,8 @@ createws 子命令提供工作区的创建功能。
 |--meta         |-m   |指定工作区元数据的存储位置及参数                                                        |是      |
 |--data         |-d   |指定工作区数据的存储位置                                                                |是      |
 |--description  |     |工作区描述                                                                              |否      |
-|--disable-directory |     |目录功能不开启，不指定默认开启目录功能                                             |否      |
+|--enable-directory |     |开启目录功能                                             |否      |
+|--disable-directory |     |关闭目录功能，与 --enable-directory 互斥，若两者都不指定，则默认关闭目录功能  |否      |
 |--batch-sharding-type|     |批次分区类型，可选类型值：none，month，quarter，year，不指定默认为 none           |否      |
 |--batch-id-time-regex|     |批次ID时间信息正则表达式，不指定默认为 null                                       |否      |
 |--batch-id-time-pattern|     |批次ID时间格式，不指定默认为null                                                |否      |

@@ -22,7 +22,7 @@ public class WorkspaceConfig implements Config {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
-    private boolean enableDirectory = true;
+    private boolean enableDirectory = false;
 
     public WorkspaceConfig() {
     }

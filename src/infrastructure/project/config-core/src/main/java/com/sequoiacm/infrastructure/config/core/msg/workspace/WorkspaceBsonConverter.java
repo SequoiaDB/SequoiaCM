@@ -72,7 +72,7 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, ScmShardingType.NONE.getName()));
 
         wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(config,
-                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true));
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
         return wsConfig;
     }
 

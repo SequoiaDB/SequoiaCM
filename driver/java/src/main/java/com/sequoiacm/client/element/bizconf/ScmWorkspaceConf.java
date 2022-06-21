@@ -25,7 +25,7 @@ public class ScmWorkspaceConf {
     private String batchIdTimeRegex;
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
-    private boolean enableDirectory = true;
+    private boolean enableDirectory = false;
 
     /**
      * Create a empty config instance.

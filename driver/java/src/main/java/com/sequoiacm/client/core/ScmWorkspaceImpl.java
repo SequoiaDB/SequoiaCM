@@ -82,7 +82,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         batchShardingType = ScmShardingType.getShardingType(batchShardingTypeStr);
 
         enableDirectory = BsonUtils.getBooleanOrElse(newWsInfo,
-                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false);
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {

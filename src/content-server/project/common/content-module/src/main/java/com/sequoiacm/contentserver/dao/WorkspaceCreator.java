@@ -160,7 +160,7 @@ public class WorkspaceCreator {
         checkBatchConf(wsConfig);
 
         wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(clientWsConfObj,
-                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true));
+                FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
 
         return wsConfig;
     }

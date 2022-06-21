@@ -76,7 +76,7 @@ public class ScmWorkspaceObj {
                     ScmShardingType.NONE.getName());
 
             enableDirectory = BsonUtils.getBooleanOrElse(obj,
-                    FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
+                    FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false);
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),

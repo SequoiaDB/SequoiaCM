@@ -2,6 +2,7 @@ package com.sequoiacm.tools.command;
 
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -43,7 +44,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_LONG_BATCH_ID_TIME_REGEX = "batch-id-time-regex";
     private final String OPT_LONG_BATCH_ID_TIME_PATTERN = "batch-id-time-pattern";
     private final String OPT_LONG_BATCH_FILE_NAME_UNIQUE = "batch-file-name-unique";
-    private final String OPT_LONG_DISABLE_DIRECOTRY = "disable-directory";
+    private final String OPT_LONG_DISABLE_DIRECTORY = "disable-directory";
+    private final String OPT_LONG_ENABLE_DIRECTORY = "enable-directory";
 
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -83,7 +85,9 @@ public class ScmCreateWsToolImpl extends ScmTool {
                 false, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_FILE_NAME_UNIQUE,
                 "set the file name is unique in the same batch.", false, false, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_DISABLE_DIRECOTRY, "disable directory feature.",
+        ops.addOption(hp.createOpt(null, OPT_LONG_DISABLE_DIRECTORY, "disable directory feature.",
+                false, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_ENABLE_DIRECTORY, "enable directory feature.",
                 false, false, false));
 
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
@@ -103,7 +107,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
         String wsName = cl.getOptionValue(OPT_SHORT_NAME);
         ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, LONG_OP_ADMIN_USER,
                 LONG_OP_ADMIN_PASSWD, LONG_OP_ADMIN_PASSWD_FILE);
-
+        if (cl.hasOption(OPT_LONG_DISABLE_DIRECTORY) && cl.hasOption(OPT_LONG_ENABLE_DIRECTORY)) {
+            throw new ScmToolsException("do not specify --" + OPT_LONG_DISABLE_DIRECTORY + " and " + "--"
+                    + OPT_LONG_ENABLE_DIRECTORY + " at the same time", ScmBaseExitCode.INVALID_ARG);
+        }
         ScmSession ss = null;
         try {
             ss = ScmFactory.Session
@@ -143,7 +150,12 @@ public class ScmCreateWsToolImpl extends ScmTool {
                         ScmExitCode.INVALID_ARG);
             }
             conf.setBatchShardingType(shardingType);
-            conf.setEnableDirectory(!cl.hasOption(OPT_LONG_DISABLE_DIRECOTRY));
+            if (cl.hasOption(OPT_LONG_ENABLE_DIRECTORY)) {
+                conf.setEnableDirectory(true);
+            }
+            if (cl.hasOption(OPT_LONG_DISABLE_DIRECTORY)) {
+                conf.setEnableDirectory(false);
+            }
             ScmFactory.Workspace.createWorkspace(ss, conf);
             logger.info("create workspace success:wsName={}", wsName);
             System.out.println("Create workspace success:" + wsName);
