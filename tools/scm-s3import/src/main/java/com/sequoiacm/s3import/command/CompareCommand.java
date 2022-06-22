@@ -307,6 +307,7 @@ class CompareTask implements Callable<CompareResult> {
                     continue;
                 }
 
+                ObjectMetadata srcMetadata, destMetadata;
                 if (isStrictComparisonMode) {
                     S3Object srcObject = null;
                     S3Object destObject = null;
@@ -325,10 +326,8 @@ class CompareTask implements Callable<CompareResult> {
                             return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
                         }
 
-                        if (!checkMetadata(srcObject.getObjectMetadata(),
-                                destObject.getObjectMetadata())) {
-                            return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                        }
+                        srcMetadata = srcObject.getObjectMetadata();
+                        destMetadata = destObject.getObjectMetadata();
                     }
                     finally {
                         ScmCommon.closeResource(srcObject, destObject);
@@ -340,19 +339,26 @@ class CompareTask implements Callable<CompareResult> {
                         return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
                     }
 
-                    ObjectMetadata srcObjectMetadata = S3Utils.getObjectMetadata(srcClient,
+                    srcMetadata = S3Utils.getObjectMetadata(srcClient,
                             new GetObjectMetadataRequest(s3Bucket.getName(),
                                     srcImportObject.getKey(), srcSummary.getVersionId()));
-                    ObjectMetadata destObjectMetadata = S3Utils.getObjectMetadata(destClient,
+                    destMetadata = S3Utils.getObjectMetadata(destClient,
                             new GetObjectMetadataRequest(s3Bucket.getDestName(),
                                     destImportObject.getKey(), destSummary.getVersionId()));
-                    if (!checkMetadata(srcObjectMetadata, destObjectMetadata)) {
-                        return new CompareResult(srcImportObject.getKey(), DIFF_METADATA);
-                    }
+                }
+
+                if (!checkMetadata(srcMetadata, destMetadata)) {
+                    logger.info(
+                            "metadata of object are different, key={}, srcBucket={}, srcVersionId={}, destBucket={}, destVersionId={}, srcUserMeta={}, destUserMeta={}",
+                            srcImportObject.getKey(), s3Bucket.getName(), srcSummary.getVersionId(),
+                            s3Bucket.getDestName(), destSummary.getVersionId(),
+                            srcMetadata.getUserMetadata(), destMetadata.getUserMetadata());
+                    return new CompareResult(srcImportObject.getKey(), DIFF_METADATA);
                 }
             }
         }
         else {
+            ObjectMetadata srcMetadata, destMetadata;
             if (isStrictComparisonMode) {
                 S3Object srcObject = null;
                 S3Object destObject = null;
@@ -369,27 +375,29 @@ class CompareTask implements Callable<CompareResult> {
                         return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
                     }
 
-                    if (!checkMetadata(srcObject.getObjectMetadata(),
-                            destObject.getObjectMetadata())) {
-                        return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                    }
+                    srcMetadata = srcObject.getObjectMetadata();
+                    destMetadata = destObject.getObjectMetadata();
                 }
                 finally {
                     ScmCommon.closeResource(srcObject, destObject);
                 }
             }
-
-            if (!checkData(srcImportObject.getETag(), destImportObject.getETag(),
-                    srcImportObject.getLastModified(), destImportObject.getLastModified())) {
-                return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
+            else {
+                if (!checkData(srcImportObject.getETag(), destImportObject.getETag(),
+                        srcImportObject.getLastModified(), destImportObject.getLastModified())) {
+                    return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
+                }
+                srcMetadata = S3Utils.getObjectMetadata(srcClient,
+                        new GetObjectMetadataRequest(s3Bucket.getName(), srcImportObject.getKey()));
+                destMetadata = S3Utils.getObjectMetadata(destClient, new GetObjectMetadataRequest(
+                        s3Bucket.getDestName(), destImportObject.getKey()));
             }
 
-            ObjectMetadata srcObjectMetadata = S3Utils.getObjectMetadata(srcClient,
-                    new GetObjectMetadataRequest(s3Bucket.getName(), srcImportObject.getKey()));
-            ObjectMetadata destObjectMetadata = S3Utils.getObjectMetadata(destClient,
-                    new GetObjectMetadataRequest(s3Bucket.getDestName(),
-                            destImportObject.getKey()));
-            if (!checkMetadata(srcObjectMetadata, destObjectMetadata)) {
+            if (!checkMetadata(srcMetadata, destMetadata)) {
+                logger.info(
+                        "metadata of object are different, key={}, srcBucket={}, destBucket={}, srcUserMeta={}, destUserMeta={}",
+                        srcImportObject.getKey(), s3Bucket.getName(), s3Bucket.getDestName(),
+                        srcMetadata.getUserMetadata(), destMetadata.getUserMetadata());
                 return new CompareResult(srcImportObject.getKey(), DIFF_METADATA);
             }
         }
@@ -418,7 +426,7 @@ class CompareTask implements Callable<CompareResult> {
         }
         for (String key : srcUserMetadata.keySet()) {
             String destVal = destUserMetadata.get(key);
-            if (destVal == null || StringUtils.equals(destVal, srcUserMetadata.get(key))) {
+            if (destVal == null || !StringUtils.equals(destVal, srcUserMetadata.get(key))) {
                 return false;
             }
         }
