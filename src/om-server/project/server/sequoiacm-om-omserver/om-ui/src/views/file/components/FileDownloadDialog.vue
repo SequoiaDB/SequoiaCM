@@ -72,6 +72,7 @@
 
 <script>
 import {queryFileDetail,getDownloadUrl} from '@/api/file'
+import {getToken} from '@/utils/auth'
 export default {
   setup() {
   },
@@ -111,8 +112,13 @@ export default {
     },
     // 下载文件
     handleDownloadFile() {
-      var url = getDownloadUrl(this.workspace, this.curVersionFileDetail.sites[0].site_name, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version);
-      window.location.href = url;
+      let downloadURL = '/api/v1/files/id/' + this.curVersionFile.id;
+      downloadURL += '?workspace=' + this.workspace;
+      downloadURL += '&site_name=' + this.curVersionFileDetail.sites[0].site_name;
+      downloadURL += '&major_version=' + this.curVersionFile.major_version;
+      downloadURL += '&minor_version=' + this.curVersionFile.minor_version;
+      downloadURL += '&x-auth-token=' + getToken();
+      window.location.href = downloadURL;
     },
     // 刷新文件页面
     refreshFileDetail() {

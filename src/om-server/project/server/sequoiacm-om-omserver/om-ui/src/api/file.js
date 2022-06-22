@@ -49,26 +49,6 @@ const BASE_API = '/api/v1'
 }
 
 /**
- * 文件下载
- * @param {string} ws 
- * @param {string} site 
- * @param {string} fileId 
- * @param {int} majorVersion 
- * @param {int} minorVersion 
- * @returns 
- */
-export function getDownloadUrl(ws, site, fileId, majorVersion, minorVersion) {
-  var downloadURL = process.env.VUE_APP_BASE_API;
-  downloadURL += BASE_API + '/files/id/' + fileId;
-  downloadURL += '?workspace=' + ws;
-  downloadURL += '&site_name=' + site;
-  downloadURL += '&major_version=' + majorVersion;
-  downloadURL += '&minor_version=' + minorVersion;
-  downloadURL += '&x-auth-token=' + getToken();
-  return downloadURL;
-}
-
-/**
  * 上传文件
  * @param {string} ws 
  * @param {string} site 
