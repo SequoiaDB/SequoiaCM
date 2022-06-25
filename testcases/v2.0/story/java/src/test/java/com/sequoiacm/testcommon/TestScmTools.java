@@ -120,4 +120,20 @@ public class TestScmTools extends TestScmBase {
         return ScmFactory.Session.createSessionMgr( scOpt,
                 syncGateWayInterval );
     }
+
+    /**
+     * @descreption 获取一个包含所有网关的ScmConfigOption
+     * @param siteName
+     * @return
+     * @throws ScmException
+     */
+    public static ScmConfigOption getScmConfigOption( String siteName )
+            throws ScmException {
+        List< String > urlList = new ArrayList< String >();
+        for ( String gateway : gateWayList ) {
+            urlList.add( gateway + "/" + siteName );
+        }
+        return new ScmConfigOption( urlList, TestScmTools.scmUserName,
+                TestScmTools.scmPassword );
+    }
 }
