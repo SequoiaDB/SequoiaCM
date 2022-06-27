@@ -308,6 +308,7 @@ class CompareTask implements Callable<CompareResult> {
                 }
 
                 ObjectMetadata srcMetadata, destMetadata;
+                CheckResult checkDataResult;
                 if (isStrictComparisonMode) {
                     S3Object srcObject = null;
                     S3Object destObject = null;
@@ -322,9 +323,7 @@ class CompareTask implements Callable<CompareResult> {
                                 destSummary.getVersionId());
                         destObject = S3Utils.getObject(destClient, destGetObjectRequest);
 
-                        if (!checkObjectContent(srcObject, destObject)) {
-                            return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                        }
+                        checkDataResult = checkObjectContent(srcObject, destObject);
 
                         srcMetadata = srcObject.getObjectMetadata();
                         destMetadata = destObject.getObjectMetadata();
@@ -334,10 +333,8 @@ class CompareTask implements Callable<CompareResult> {
                     }
                 }
                 else {
-                    if (!checkData(srcSummary.getETag(), destSummary.getETag(),
-                            srcSummary.getLastModified(), destSummary.getLastModified())) {
-                        return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                    }
+                    checkDataResult = checkData(srcSummary.getETag(), destSummary.getETag(),
+                            srcSummary.getLastModified(), destSummary.getLastModified());
 
                     srcMetadata = S3Utils.getObjectMetadata(srcClient,
                             new GetObjectMetadataRequest(s3Bucket.getName(),
@@ -347,18 +344,28 @@ class CompareTask implements Callable<CompareResult> {
                                     destImportObject.getKey(), destSummary.getVersionId()));
                 }
 
-                if (!checkMetadata(srcMetadata, destMetadata)) {
+                CheckResult checkMetaResult = checkMetadata(srcMetadata, destMetadata);
+                if (!checkMetaResult.isMatch()) {
                     logger.info(
-                            "metadata of object are different, key={}, srcBucket={}, srcVersionId={}, destBucket={}, destVersionId={}, srcUserMeta={}, destUserMeta={}",
+                            "metadata of object are different, key={}, srcBucket={}, srcVersionId={}, destBucket={}, destVersionId={}, diffDetail: {}",
                             srcImportObject.getKey(), s3Bucket.getName(), srcSummary.getVersionId(),
                             s3Bucket.getDestName(), destSummary.getVersionId(),
-                            srcMetadata.getUserMetadata(), destMetadata.getUserMetadata());
+                            checkMetaResult.getDiffDetail());
                     return new CompareResult(srcImportObject.getKey(), DIFF_METADATA);
+                }
+                if (!checkDataResult.isMatch()) {
+                    logger.info(
+                            "the contents of the object are different, key={}, srcBucket={}, srcVersionId={}, destBucket={}, destVersionId={}, diffDetail: {}",
+                            srcImportObject.getKey(), s3Bucket.getName(), srcSummary.getVersionId(),
+                            s3Bucket.getDestName(), destSummary.getVersionId(),
+                            checkDataResult.getDiffDetail());
+                    return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
                 }
             }
         }
         else {
             ObjectMetadata srcMetadata, destMetadata;
+            CheckResult checkDataResult;
             if (isStrictComparisonMode) {
                 S3Object srcObject = null;
                 S3Object destObject = null;
@@ -371,9 +378,7 @@ class CompareTask implements Callable<CompareResult> {
                             destImportObject.getBucket(), destImportObject.getKey());
                     destObject = S3Utils.getObject(destClient, destGetObjectRequest);
 
-                    if (!checkObjectContent(srcObject, destObject)) {
-                        return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                    }
+                    checkDataResult = checkObjectContent(srcObject, destObject);
 
                     srcMetadata = srcObject.getObjectMetadata();
                     destMetadata = destObject.getObjectMetadata();
@@ -383,53 +388,164 @@ class CompareTask implements Callable<CompareResult> {
                 }
             }
             else {
-                if (!checkData(srcImportObject.getETag(), destImportObject.getETag(),
-                        srcImportObject.getLastModified(), destImportObject.getLastModified())) {
-                    return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
-                }
+                checkDataResult = checkData(srcImportObject.getETag(), destImportObject.getETag(),
+                        srcImportObject.getLastModified(), destImportObject.getLastModified());
+
                 srcMetadata = S3Utils.getObjectMetadata(srcClient,
                         new GetObjectMetadataRequest(s3Bucket.getName(), srcImportObject.getKey()));
                 destMetadata = S3Utils.getObjectMetadata(destClient, new GetObjectMetadataRequest(
                         s3Bucket.getDestName(), destImportObject.getKey()));
             }
 
-            if (!checkMetadata(srcMetadata, destMetadata)) {
+            CheckResult checkMetaResult = checkMetadata(srcMetadata, destMetadata);
+            if (!checkMetaResult.isMatch()) {
                 logger.info(
-                        "metadata of object are different, key={}, srcBucket={}, destBucket={}, srcUserMeta={}, destUserMeta={}",
+                        "metadata of object are different, key={}, srcBucket={}, destBucket={}, diffDetail: {}",
                         srcImportObject.getKey(), s3Bucket.getName(), s3Bucket.getDestName(),
-                        srcMetadata.getUserMetadata(), destMetadata.getUserMetadata());
+                        checkMetaResult.getDiffDetail());
                 return new CompareResult(srcImportObject.getKey(), DIFF_METADATA);
+            }
+            if (!checkDataResult.isMatch()) {
+                logger.info(
+                        "the contents of the object are different, key={}, srcBucket={}, destBucket={}, diffDetail: {}",
+                        srcImportObject.getKey(), s3Bucket.getName(), s3Bucket.getDestName(),
+                        checkDataResult.getDiffDetail());
+                return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
             }
         }
 
         return new CompareResult(srcImportObject.getKey(), SAME);
     }
 
-    private boolean checkObjectContent(S3Object srcObject, S3Object destObject)
+    private CheckResult checkObjectContent(S3Object srcObject, S3Object destObject)
             throws ScmToolsException {
         String srcObjectMd5 = Md5Utils.getMD5(srcObject.getObjectContent());
         String destObjectMd5 = Md5Utils.getMD5(destObject.getObjectContent());
-        return srcObjectMd5.equals(destObjectMd5);
-    }
-
-    private boolean checkData(String srcETag, String destETag, Date srcModified,
-            Date destModified) {
-        return Md5Utils.isETagValid(srcETag) ? srcETag.equals(destETag)
-                : srcModified.equals(destModified);
-    }
-
-    private boolean checkMetadata(ObjectMetadata srcMetadata, ObjectMetadata destMetadata) {
-        Map<String, String> srcUserMetadata = srcMetadata.getUserMetadata();
-        Map<String, String> destUserMetadata = destMetadata.getUserMetadata();
-        if (srcUserMetadata.size() != destUserMetadata.size()) {
-            return false;
+        if (!srcObjectMd5.equals(destObjectMd5)) {
+            return CheckResult
+                    .diff("srcObjectMd5=" + srcObjectMd5 + ", destObjectMd5=" + destObjectMd5);
         }
-        for (String key : srcUserMetadata.keySet()) {
-            String destVal = destUserMetadata.get(key);
-            if (destVal == null || !StringUtils.equals(destVal, srcUserMetadata.get(key))) {
-                return false;
+        return CheckResult.match();
+    }
+
+    private CheckResult checkData(String srcETag, String destETag, Date srcModified,
+            Date destModified) {
+        // 快速比对数据：
+        // ETag 有效比对 ETag
+        // ETag 无效比对 Last-Modified（上传时本身已经做了数据完整性校验，且迁移失败时会清除目标桶上的对象）
+        if (Md5Utils.isETagValid(srcETag)) {
+            if (!srcETag.equals(destETag)) {
+                return CheckResult.diff("srcETag=" + srcETag + ", destETag=" + destETag);
             }
         }
-        return true;
+        else {
+            if (!srcModified.equals(destModified)) {
+                return CheckResult.diff(
+                        "srcLastModified=" + srcModified + ", destLastModified=" + destModified);
+            }
+        }
+        return CheckResult.match();
+    }
+
+    private CheckResult checkMetadata(ObjectMetadata srcMetadata, ObjectMetadata destMetadata) {
+        // check userMetadata
+        Map<String, String> srcUserMetadata = srcMetadata.getUserMetadata();
+        Map<String, String> destUserMetadata = destMetadata.getUserMetadata();
+        boolean isUserMetaMatch = true;
+        if (srcUserMetadata.size() != destUserMetadata.size()) {
+            isUserMetaMatch = false;
+        }
+        else {
+            for (String key : srcUserMetadata.keySet()) {
+                String destVal = destUserMetadata.get(key);
+                if (destVal == null || !StringUtils.equals(destVal, srcUserMetadata.get(key))) {
+                    isUserMetaMatch = false;
+                    break;
+                }
+            }
+        }
+        if (!isUserMetaMatch) {
+            return CheckResult.diff(
+                    "srcUserMeta=" + srcUserMetadata + ", destUserMeta=" + destUserMetadata);
+        }
+
+        // check ObjectMeta
+        try {
+            if (Md5Utils.isETagValid(srcMetadata.getETag())
+                    && Md5Utils.isETagValid(destMetadata.getETag())) {
+                AssertEqual("ETag", srcMetadata.getETag(), destMetadata.getETag());
+            }
+            AssertEqual("Cache-Control", srcMetadata.getCacheControl(),
+                    destMetadata.getCacheControl());
+            AssertEqual("Content-Disposition", srcMetadata.getContentDisposition(),
+                    destMetadata.getContentDisposition());
+            AssertEqual("Content-Encoding", srcMetadata.getContentEncoding(),
+                    destMetadata.getContentEncoding());
+            AssertEqual("Content-Language", srcMetadata.getContentLanguage(),
+                    destMetadata.getContentLanguage());
+            AssertEqual("Content-MD5", srcMetadata.getContentMD5(), destMetadata.getContentMD5());
+            AssertEqual("Content-Length", srcMetadata.getContentLength(),
+                    destMetadata.getContentLength());
+            AssertEqual("Content-Type", srcMetadata.getContentType(),
+                    destMetadata.getContentType());
+            AssertEqual("expirationTime", srcMetadata.getExpirationTime(),
+                    destMetadata.getExpirationTime());
+            AssertEqual("expirationTimeRuleId", srcMetadata.getExpirationTimeRuleId(),
+                    destMetadata.getExpirationTimeRuleId());
+            AssertEqual("httpExpiresDate", srcMetadata.getHttpExpiresDate(),
+                    destMetadata.getHttpExpiresDate());
+            AssertEqual("restoreExpirationTime", srcMetadata.getRestoreExpirationTime(),
+                    destMetadata.getRestoreExpirationTime());
+            AssertEqual("SSECustomerKeyMd5", srcMetadata.getSSECustomerKeyMd5(),
+                    destMetadata.getSSECustomerKeyMd5());
+            AssertEqual("SSEAlgorithm", srcMetadata.getSSEAlgorithm(),
+                    destMetadata.getSSEAlgorithm());
+            AssertEqual("SSECustomerAlgorithm", srcMetadata.getSSECustomerAlgorithm(),
+                    destMetadata.getSSECustomerAlgorithm());
+            AssertEqual("SSEAwsKmsKeyId", srcMetadata.getSSEAwsKmsKeyId(),
+                    destMetadata.getSSEAwsKmsKeyId());
+        }
+        catch (IllegalStateException e) {
+            return CheckResult.diff(e.getMessage());
+        }
+
+        return CheckResult.match();
+    }
+
+    private void AssertEqual(String fieldName, Object srcVal, Object destVal) {
+        if (srcVal == null && destVal == null) {
+            return;
+        }
+        if (srcVal == null || !srcVal.equals(destVal)) {
+            throw new IllegalStateException(
+                    "fieldName=" + fieldName + ", srcValue=" + srcVal + ", destValue=" + destVal);
+        }
+    }
+}
+
+class CheckResult {
+
+    private boolean isMatch;
+    private String diffDetail;
+
+    public CheckResult(boolean isMatch, String diffDetail) {
+        this.isMatch = isMatch;
+        this.diffDetail = diffDetail;
+    }
+
+    static CheckResult match() {
+        return new CheckResult(true, null);
+    }
+
+    static CheckResult diff(String diffDetail) {
+        return new CheckResult(false, diffDetail);
+    }
+
+    public boolean isMatch() {
+        return isMatch;
+    }
+
+    public String getDiffDetail() {
+        return diffDetail;
     }
 }
