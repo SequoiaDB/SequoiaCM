@@ -49,6 +49,7 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |scm.hystrix.enabled|boolean|是否开启熔断与隔离能力，默认值：true。关闭后，该节点的熔断与隔离能力将失效，所有hystrix开头的配置项将不起作用。此配置在网关节点暂不生效。|
 |management.port|num|配置节点的管理端口，用于系统状态监控。不配置时，默认为 server.port + 1，除 s3-server 外的其它服务均支持将 management.port 设为与 server.port 一致。|
 |management.security.enabled|boolean|是否开启 Actuator 端点的权限控制，默认 false 。详情请见：[Actuator 安全性配置][actuator]|
+|scm.ribbon.localPreferred|boolean|服务调用时是否优先选择同一台机器上的节点，默认值：true 。|
 
 ##公共配置举例##
 
