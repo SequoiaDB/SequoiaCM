@@ -290,7 +290,7 @@ class CompareTask implements Callable<CompareResult> {
                                 + "destBucket={}, versionCount={}",
                         srcImportObject.getKey(), s3Bucket.getName(), srcSummaries.size(),
                         s3Bucket.getDestName(), destSummaries.size());
-                return new CompareResult(srcImportObject.getKey(), DIFF_CONTENT);
+                return new CompareResult(srcImportObject.getKey(), DIFF_VERSION);
             }
 
             for (int i = 0; i < srcSummaries.size(); i++) {
