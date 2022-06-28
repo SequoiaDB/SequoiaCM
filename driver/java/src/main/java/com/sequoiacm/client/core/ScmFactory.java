@@ -2236,8 +2236,18 @@ public class ScmFactory {
      */
     public static class Workspace {
 
+        private static ScmWorkspaceCache wsCache = new ScmWorkspaceCache();
+
         private Workspace() {
 
+        }
+
+        public static void setKeepAliveTime(int keepAliveTime) throws ScmException {
+            wsCache.setKeepAliveTime(keepAliveTime);
+        }
+
+        public static void setMaxCacheSize(int maxCacheSize) throws ScmException {
+            wsCache.setMaxCacheSize(maxCacheSize);
         }
 
         /**
@@ -2276,12 +2286,17 @@ public class ScmFactory {
             checkArgNotNull("session", ss);
             checkArgInUriPath("workspaceName", name);
 
-            BSONObject wsBSON = ss.getDispatcher().getWorkspace(name);
+            if(wsCache.contains(name)){
+                return new ScmWorkspaceCacheNodeImpl(name, ss);
+            }
 
+            BSONObject wsBSON = ss.getDispatcher().getWorkspace(name);
             ScmWorkspaceImpl ws = new ScmWorkspaceImpl(ss, wsBSON);
             // logger.debug("[ScmSession.getWorkspace] " + "wsID:" + ws.getId()
             // + ", " + "wsName:"
             // + ws.getName());
+            wsCache.put(name);
+
             return ws;
         }
 
