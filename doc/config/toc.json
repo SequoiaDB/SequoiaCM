@@ -703,6 +703,18 @@
                     "file": "listsubscribers",
                     "cn": "listsubscribers",
                     "en": "listsubscribers"
+                },
+                {
+                    "id": 1656073214,
+                    "file": "updateconfig",
+                    "cn": "updateconfig",
+                    "en": "updateconfig"
+                },
+                {
+                    "id": 1656073344,
+                    "file": "deleteconfig",
+                    "cn": "deleteconfig",
+                    "en": "deleteconfig"
                 }]
             },
             {

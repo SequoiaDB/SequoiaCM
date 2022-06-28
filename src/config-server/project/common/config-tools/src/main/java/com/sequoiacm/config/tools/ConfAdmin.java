@@ -2,8 +2,10 @@ package com.sequoiacm.config.tools;
 
 import java.util.HashMap;
 
+import com.sequoiacm.config.tools.command.ScmDeleteConfigImpl;
 import com.sequoiacm.config.tools.command.ScmListSubscribersImpl;
 import com.sequoiacm.config.tools.command.ScmUnsubscribeImpl;
+import com.sequoiacm.config.tools.command.ScmUpdateConfigImpl;
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
@@ -30,6 +32,8 @@ public class ConfAdmin {
             cmd.addTool(new ScmUnsubscribeImpl());
             cmd.addTool(new ScmListSubscribersImpl());
             cmd.addTool(new ScmUnsubscribeImpl());
+            cmd.addTool(new ScmUpdateConfigImpl());
+            cmd.addTool(new ScmDeleteConfigImpl());
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

@@ -185,6 +185,7 @@
                 <artifactId>sequoiacm-infrastructure-tool</artifactId>
                 <version>${sequoiacm-infrastructure.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

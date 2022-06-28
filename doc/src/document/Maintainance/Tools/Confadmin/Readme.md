@@ -22,9 +22,13 @@ confadmin 提供 confserver 配置管理功能
 |[subscribe][subscribe] |订阅配置事件通知  |
 |[unsubscribe][unsubscribe] |取消订阅配置事件通知|
 |[listsubscribers][listsubscribe]|获取订阅者列表|
+|[updateconfig][updateconfig]|动态修改服务或节点的配置|
+|[deleteconfig][deleteconfig]|动态删除服务或节点的配置|
 
 [create_node]:Maintainance/Tools/Confadmin/createnode.md
 [subscribe]:Maintainance/Tools/Confadmin/subscribe.md
 [unsubscribe]:Maintainance/Tools/Confadmin/unsubscribe.md
 [listsubscribe]:Maintainance/Tools/Confadmin/listsubscribers.md
+[updateconfig]:Maintainance/Tools/Confadmin/updateconfig.md
+[deleteconfig]:Maintainance/Tools/Confadmin/deleteconfig.md
 
