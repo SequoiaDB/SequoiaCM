@@ -95,8 +95,10 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         long interval = sessionPoolConf.getSynGatewayUrlsInterval();
         final SyncGatewayAddrTask syncGatewayAddrTask = new SyncGatewayAddrTask(this,
                 sessionPoolConf.getSessionConfig());
-        syncGatewayAddrTaskTimer = ScmTimerFactory.createScmTimer();
-        syncGatewayAddrTaskTimer.schedule(syncGatewayAddrTask, interval, interval);
+        if (interval > 0) {
+            syncGatewayAddrTaskTimer = ScmTimerFactory.createScmTimer();
+            syncGatewayAddrTaskTimer.schedule(syncGatewayAddrTask, interval, interval);
+        }
 
         // start check gateway urls task
         interval = sessionPoolConf.getCheckGatewayUrlsInterval();

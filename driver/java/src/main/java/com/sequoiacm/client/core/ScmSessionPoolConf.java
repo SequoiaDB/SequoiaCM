@@ -14,7 +14,6 @@ public class ScmSessionPoolConf {
     private static final int DEFAULT_MAX_CACHE_SIZE = 100;
     private static final int DEFAULT_KEEP_ALIVE_TIME = 1200;
     private static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 1000;
-    private static final long DEFAULT_SYNC_GATEWAY_URLS_INTERVAL = 20 * 1000;
     private static final long DEFAULT_CHECK_GATEWAY_URLS_INTERVAL = 10 * 1000;
     private static final long DEFAULT_CLEAR_ABNORMAL_SESSION_INTERVAL = 120 * 1000;
 
@@ -29,7 +28,7 @@ public class ScmSessionPoolConf {
 
     private long checkGatewayUrlsInterval = DEFAULT_CHECK_GATEWAY_URLS_INTERVAL;
 
-    private long synGatewayUrlsInterval = DEFAULT_SYNC_GATEWAY_URLS_INTERVAL;
+    private long synGatewayUrlsInterval = 0;
 
     private long clearAbnormalSessionInterval = DEFAULT_CLEAR_ABNORMAL_SESSION_INTERVAL;
 
@@ -97,7 +96,9 @@ public class ScmSessionPoolConf {
     }
 
     /**
-     * Set the interval in milliseconds for checking gateway urls.
+     * Set the interval in milliseconds for checking gateway urls. when
+     * "checkGatewayUrlsInterval" is less than 1,000 milliseconds, use 1,000
+     * milliseconds instead.
      *
      * @param checkGatewayUrlsInterval
      *            the interval of checking gateway urls (unit: milliseconds).
@@ -118,7 +119,10 @@ public class ScmSessionPoolConf {
 
     /**
      * Set the interval in milliseconds for updating gateway urls from
-     * service-center.
+     * service-center. When "synGatewayUrlsInterval" is less than or equal to 0, the
+     * pool will stop updating gateway's addresses from service-center. when
+     * "synGatewayUrlsInterval" is less than 1,000 milliseconds, use 1,000
+     * milliseconds instead.
      *
      * @param synGatewayUrlsInterval
      *            the interval of updating gateway urls from service-center (unit:
@@ -126,7 +130,7 @@ public class ScmSessionPoolConf {
      * @since 3.2
      */
     public void setSynGatewayUrlsInterval(long synGatewayUrlsInterval) {
-        if (synGatewayUrlsInterval < 1000) {
+        if (synGatewayUrlsInterval < 1000 && synGatewayUrlsInterval > 0) {
             this.synGatewayUrlsInterval = 1000;
             logger.warn("invalid synGatewayUrlsInterval:{}, reset synGatewayUrlsInterval to 1000ms",
                     synGatewayUrlsInterval);
@@ -139,7 +143,8 @@ public class ScmSessionPoolConf {
 
     /**
      * Set the interval in milliseconds for cleaning up abnormal sessions int the
-     * pool.
+     * pool. when "clearAbnormalSessionInterval" is less than 1,000 milliseconds,
+     * use 1,000 milliseconds instead.
      *
      * @param clearAbnormalSessionInterval
      *            the interval of cleaning up abnormal sessions int the pool (unit:
