@@ -11,41 +11,38 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
 public abstract class AbstractScmRefreshConfig extends ScmTool {
-    public final String OPT_LONG_SERVICE = "service";
-    public final String OPT_LONG_NODE = "node";
-    public final String OPT_LONG_CONFIG = "config";
+    protected final String OPT_LONG_SERVICE = "service";
+    protected final String OPT_LONG_NODE = "node";
+    protected final String OPT_LONG_CONFIG = "config";
 
-    public final String OPT_LONG_URL = "url";
-    public final String OPT_LONG_ADMIN_USER = "user";
-    public final String OPT_LONG_ADMIN_PASSWD = "password";
-    public final String OPT_LONG_ADMIN_PASSWD_FILE = "password-file";
+    protected final String OPT_LONG_URL = "url";
+    protected final String OPT_LONG_ADMIN_USER = "user";
+    protected final String OPT_LONG_ADMIN_PASSWD = "password";
+    protected final String OPT_LONG_ADMIN_PASSWD_FILE = "password-file";
 
-    public String name;
-    public Integer type;
-    public String config;
-    public String gatewayUrl;
-    public String username;
-    public String password;
+    protected String name;
+    protected Integer type;
+    protected String config;
+    protected String gatewayUrl;
+    protected String username;
+    protected String password;
 
-    public Options ops;
-    public ScmHelpGenerator hp;
+    protected Options ops;
+    protected ScmHelpGenerator hp;
 
     public AbstractScmRefreshConfig(String tooName) throws ScmToolsException {
         super(tooName);
         ops = new Options();
         hp = new ScmHelpGenerator();
-        ops.addOption(hp.createOpt(null, OPT_LONG_SERVICE, "service name.",
-                false, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_NODE, "node name.",
-                false, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_CONFIG, "config item.",
-                true, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_URL, "gateway url. exam: host1:8080,host2:8080,host3:8080",
-                true, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_USER, "login admin username.",
-                true, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_PASSWD, "login admin password.",
-                false, true, true, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_SERVICE, "service name.", false, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_NODE, "node name.", false, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_CONFIG, "config item.", true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_URL,
+                "gateway url. exam: host1:8080,host2:8080,host3:8080", true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_USER, "login admin username.", true, true,
+                false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_PASSWD, "login admin password.", false,
+                true, true, false, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
     }
@@ -54,22 +51,30 @@ public abstract class AbstractScmRefreshConfig extends ScmTool {
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         if (cl.hasOption(OPT_LONG_SERVICE)) {
             if (cl.hasOption(OPT_LONG_NODE)) {
-                throw new ScmToolsException("invalid argument, only one service name and node name can be filled in", ScmExitCode.INVALID_ARG);
-            } else {
+                throw new ScmToolsException(
+                        "invalid argument, only one service name and node name can be filled in",
+                        ScmExitCode.INVALID_ARG);
+            }
+            else {
                 this.type = ConfigType.BY_SERVICE.getType();
                 this.name = cl.getOptionValue(OPT_LONG_SERVICE);
             }
-        } else {
+        }
+        else {
             if (!cl.hasOption(OPT_LONG_NODE)) {
-                throw new ScmToolsException("invalid argument, service name or node name can not be empty", ScmExitCode.INVALID_ARG);
-            } else {
+                throw new ScmToolsException(
+                        "invalid argument, service name or node name can not be empty",
+                        ScmExitCode.INVALID_ARG);
+            }
+            else {
                 this.type = ConfigType.BY_NODE.getType();
                 this.name = cl.getOptionValue(OPT_LONG_NODE);
             }
         }
         this.config = cl.getOptionValue(OPT_LONG_CONFIG);
         this.gatewayUrl = cl.getOptionValue(OPT_LONG_URL);
-        ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_ADMIN_USER, OPT_LONG_ADMIN_PASSWD, OPT_LONG_ADMIN_PASSWD_FILE);
+        ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_ADMIN_USER,
+                OPT_LONG_ADMIN_PASSWD, OPT_LONG_ADMIN_PASSWD_FILE);
         this.username = adminUser.getUsername();
         this.password = adminUser.getPassword();
     }

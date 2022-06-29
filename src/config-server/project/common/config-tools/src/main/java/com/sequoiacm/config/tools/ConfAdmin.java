@@ -21,7 +21,8 @@ public class ConfAdmin {
         CommandManager cmd = new CommandManager("confadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-", ScmServerScriptEnum.CONFIGSERVER));
+        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-",
+                ScmServerScriptEnum.CONFIGSERVER));
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
                 .addCloudParam().addSdbParam().addZkParam().addServerPortParam(8190).get();

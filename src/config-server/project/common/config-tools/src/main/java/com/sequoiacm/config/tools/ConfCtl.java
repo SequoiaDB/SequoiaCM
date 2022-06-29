@@ -1,8 +1,5 @@
 package com.sequoiacm.config.tools;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.*;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
@@ -15,12 +12,14 @@ public class ConfCtl {
         CommandManager cmd = new CommandManager("confctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-", ScmServerScriptEnum.CONFIGSERVER));
+        nodeTypes.add(new ScmNodeType("1", "config-server", "sequoiacm-config-server-",
+                ScmServerScriptEnum.CONFIGSERVER));
         try {
             cmd.addTool(new ScmStartToolImpl(nodeTypes));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));
             cmd.addTool(new ScmListToolImpl(nodeTypes));
-        } catch (ScmToolsException e) {
+        }
+        catch (ScmToolsException e) {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }
