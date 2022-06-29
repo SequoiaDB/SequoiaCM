@@ -63,8 +63,8 @@ public class TestWorkspaceDirConf extends ScmTestMultiCenterBase {
         conf.addDataLocation(new ScmSdbDataLocation("rootSite", "domain2", ScmShardingType.YEAR,
                 ScmShardingType.QUARTER));
         ws = ScmFactory.Workspace.createWorkspace(ss, conf);
-        Assert.assertEquals(ws.isEnableDirectory(), true);
-        checkWs(true);
+        Assert.assertFalse(ws.isEnableDirectory());
+        checkWs(false);
 
     }
 
