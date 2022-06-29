@@ -105,6 +105,8 @@ public class TestScmBase {
         zone2 = "zone2";
         defaultRegion = "DefaultRegion";
 
+        //TODO:SEQUOIACM-936 暂时关闭缓存
+        ScmFactory.Workspace.setKeepAliveTime(0);
         // initialize scmInfo
         ScmSession session = null;
         try {
