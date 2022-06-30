@@ -72,6 +72,8 @@ export default {
         getProcessInfo(this.instanceId).then(res => {
           this.processInfo = res.data
           this.setRefresh()
+        }).catch(() => {
+          this.closeTimeAdder()
         })
       }, this.interval)
     },
