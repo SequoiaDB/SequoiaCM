@@ -17,6 +17,7 @@ public class ProgressPrinter extends Thread {
     private String type;
     private List<S3Bucket> bucketList;
     private boolean loop = true;
+    private int lastPrintLen;
 
     public ProgressPrinter(String type, List<S3Bucket> bucketList) {
         this.type = type;
@@ -30,35 +31,16 @@ public class ProgressPrinter extends Thread {
     @Override
     public void run() {
         try {
-            List<S3Bucket> bucketList = new ArrayList<>(this.bucketList);
-            int lastPrintLen = 0;
-            while (loop) {
-                // 输出退格，清空上一次动态打屏的结果
-                for (int i = 0; i < lastPrintLen; i++) {
-                    System.out.print("\b");
+            List<S3Bucket> tmpBucketList = new ArrayList<>(this.bucketList);
+            while (true) {
+                printProgress(tmpBucketList);
+
+                if (tmpBucketList.size() == 0) {
+                    break;
                 }
 
-                Iterator<S3Bucket> iterator = bucketList.iterator();
-                while (iterator.hasNext()) {
-                    S3Bucket s3Bucket = iterator.next();
-                    Progress progress = s3Bucket.getProgress();
-                    if (progress.getStatus().equals(CommonDefine.ProgressStatus.FINISH)) {
-                        System.out.println(generateProgress(s3Bucket));
-                        logger.info(
-                                "Finished {} in the bucket, bucket={}, dest_bucket={}, total_count={}, success_count={}, failure_count={}",
-                                this.type, s3Bucket.getName(), s3Bucket.getDestName(),
-                                progress.getTotalCount(), progress.getSuccessCount(),
-                                progress.getFailureCount());
-                        lastPrintLen = 0;
-                        iterator.remove();
-                    }
-                    else if (progress.getStatus().equals(CommonDefine.ProgressStatus.RUNNING)) {
-                        String currentProgress = generateProgress(s3Bucket);
-                        System.out.print(currentProgress);
-                        lastPrintLen = currentProgress.length();
-                    }
-                }
-                if (bucketList.size() == 0) {
+                if (!loop) {
+                    printProgress(tmpBucketList);
                     break;
                 }
                 TimeUnit.MILLISECONDS.sleep(PRINT_PERIOD);
@@ -66,6 +48,34 @@ public class ProgressPrinter extends Thread {
         }
         catch (Exception e) {
             logger.error("Failed to print {} progress", this.type, e);
+        }
+    }
+
+    private void printProgress(List<S3Bucket> bucketList) {
+        // 输出退格，清空上一次动态打屏的结果
+        for (int i = 0; i < lastPrintLen; i++) {
+            System.out.print("\b");
+        }
+
+        Iterator<S3Bucket> iterator = bucketList.iterator();
+        while (iterator.hasNext()) {
+            S3Bucket s3Bucket = iterator.next();
+            Progress progress = s3Bucket.getProgress();
+            if (progress.getStatus().equals(CommonDefine.ProgressStatus.FINISH)) {
+                System.out.println(generateProgress(s3Bucket));
+                logger.info(
+                        "Finished {} in the bucket, bucket={}, dest_bucket={}, total_count={}, success_count={}, failure_count={}",
+                        this.type, s3Bucket.getName(), s3Bucket.getDestName(),
+                        progress.getTotalCount(), progress.getSuccessCount(),
+                        progress.getFailureCount());
+                lastPrintLen = 0;
+                iterator.remove();
+            }
+            else if (progress.getStatus().equals(CommonDefine.ProgressStatus.RUNNING)) {
+                String currentProgress = generateProgress(s3Bucket);
+                System.out.print(currentProgress);
+                lastPrintLen = currentProgress.length();
+            }
         }
     }
 
