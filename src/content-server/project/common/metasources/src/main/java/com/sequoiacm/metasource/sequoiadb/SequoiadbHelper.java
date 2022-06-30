@@ -110,6 +110,8 @@ public class SequoiadbHelper {
                         "getCollection failed:cl=" + csName + "." + clName);
             }
 
+            logger.info("creating index:table={}.{},indexName={},indexDef={}", csName, clName,
+                    indexName, indexDef);
             cl.createIndex(indexName, indexDef, isUnique, enforced);
         }
         catch (BaseException e) {
@@ -124,6 +126,8 @@ public class SequoiadbHelper {
             }
             else {
                 // SDB_ERRORCODE_SDB_IXM_REDEF, success do nothing here.
+                logger.warn("create index failed:table={}.{},indexName={},indexDef={}", csName,
+                        clName, indexName, indexDef, e);
             }
         }
     }
