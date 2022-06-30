@@ -81,7 +81,8 @@ public class ScmFileMappingToolImpl extends ScmTool {
                 "gateway url, eg:'host1:port/sitename,host2:port/sitename'.", true, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_USER, "login username.", true, true, false));
         options.addOption(
-                hp.createOpt(null, OPT_LONG_PASSWORD, "login password.", true, false, false));
+                hp.createOpt(null, OPT_LONG_PASSWORD, "login password.", false, true, true, false,
+                        false));
         options.addOption(hp.createOpt(null, OPT_LONG_PASSWORD_FILE, "login password file.", false,
                 true, false));
         options.addOption(
