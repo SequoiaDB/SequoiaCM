@@ -15,6 +15,10 @@
           <el-col :span="3"><span class="key">文件名</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.name}}</span></el-col>
         </el-row>
+        <el-row v-if="curVersionFileDetail.bucket_id">
+          <el-col :span="3"><span class="key">所属桶 ID</span></el-col>
+          <el-col :span="21"><span class="value">{{curVersionFileDetail.bucket_id}}</span></el-col>
+        </el-row>
         <el-row>
           <el-col :span="3"><span class="key">标题</span></el-col>
           <el-col :span="9"><span class="value">{{curVersionFileDetail.title?curVersionFileDetail.title:'无'}}</span></el-col>
@@ -41,7 +45,7 @@
           <el-col :span="3"><span class="key">更新时间</span></el-col>
           <el-col :span="9"><span class="value">{{$util.parseTime(curVersionFileDetail.update_time)}}</span></el-col>
         </el-row>
-        <el-row v-if="curVersionFileDetail.tags.length!==0" >
+        <el-row v-if="curVersionFileDetail.tags.length!==0">
           <el-col :span="3"><span class="key" style="line-height:30px;">标签</span></el-col>
           <el-col :span="21">
             <el-tag

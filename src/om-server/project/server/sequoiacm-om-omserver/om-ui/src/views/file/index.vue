@@ -3,7 +3,7 @@
     <!-- 搜索部分 -->
     <div class="search-box">
       <el-row :gutter="2">
-        <el-col :span="9">
+        <el-col :span="8">
           <el-select 
             id="query_file_select_workspace"
             placeholder="请选择工作区"
@@ -20,14 +20,33 @@
             </el-option>
           </el-select>
         </el-col>
-        <el-col :span="9">
-          <el-input
-            id="input_file_search_id_name"
-            placeholder="请输入文件ID或文件名"
-            v-model="searchParams.id_name"
+        <el-col :span="10">
+          <el-input 
+            id="input_file_search_param"
+            :placeholder="currentFileSearchType.tip" 
+            v-model="searchParam" 
+            class="input-with-select"
             size="small"
-            clearable
             @keyup.enter.native="doSearch">
+            <i
+              class="el-input__icon el-icon-question" 
+              slot="suffix"
+              v-if="currentFileSearchTypeStr === 'search_by_json'"
+              @click="handleQuestionIconClick">
+            </i>
+            <el-select 
+              id="search_type_select" 
+              v-model="currentFileSearchTypeStr" 
+              slot="prepend"
+              size="small"
+              @change="onSearchTypeChange()">
+              <el-option
+                v-for="item in fileSearchTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </el-input>
         </el-col>
         <el-col :span="3" >
@@ -130,6 +149,8 @@
     <file-download-dialog ref="fileDownloadDialog" :multiVofCurFile="multiVofCurFile" :workspace="currentWorkspace"></file-download-dialog>
     <!-- 文件更新弹框 -->
     <file-edit-dialog ref="fileEditDialog" :workspaceDetail="currentWorkspaceDetail" :fileId="currentFileId" @refreshTable="queryTableData" @update="changeUpdateStatus"></file-edit-dialog>
+    <!-- 展示文件属性弹框 -->
+    <file-properties-dialog ref="filePropertiesDialog"></file-properties-dialog>
   </div>
 </template>
 <script>
@@ -140,13 +161,15 @@ import FileDetailDialog from './components/FileDetailDialog.vue'
 import FileUploadDialog from './components/FileUploadDialog.vue'
 import FileEditDialog from './components/FileEditDialog.vue'
 import FileDownloadDialog from './components/FileDownloadDialog.vue'
+import FilePropertiesDialog from './components/FilePropertiesDialog.vue' 
 import {Loading } from 'element-ui';
 export default { 
   components: {
     FileDetailDialog,
     FileUploadDialog,
     FileEditDialog,
-    FileDownloadDialog
+    FileDownloadDialog,
+    FilePropertiesDialog
   },
   data(){
     return {
@@ -156,7 +179,26 @@ export default {
         total: 0, //总数据条数
       },
       filter: {},
-      searchParams: {},
+      fileSearchTypes: [
+        {
+          value: 'search_by_id',
+          label: '按 id',
+          tip: '请输入文件 ID'
+        },
+        {
+          value: 'search_by_name',
+          label: '按文件名',
+          tip: '请输入文件名'
+        },
+        {
+          value: 'search_by_json',
+          label: '按 json',
+          tip: '请输入 json 串'
+        }
+      ],
+      currentFileSearchType: {},
+      currentFileSearchTypeStr: '',
+      searchParam: '',
       tableLoading: false,
       tableData: [],
       workspaceList: [],
@@ -174,6 +216,8 @@ export default {
   methods:{
     // 初始化
     init(){
+      this.currentFileSearchType = this.fileSearchTypes[0]
+      this.currentFileSearchTypeStr = this.currentFileSearchType.value
       // 加载用户关联的工作区列表
       queryWorkspaceList(1, -1, null, true).then(res => {
         let workspaces = res.data
@@ -302,19 +346,40 @@ export default {
         this.tableLoading = false
       })
     },
+    // 切换搜索类型
+    onSearchTypeChange() {
+      this.currentFileSearchType = this.fileSearchTypes.find(
+        item=>{
+          return item.value === this.currentFileSearchTypeStr;
+        }
+      )
+      this.resetSearch()
+    },
+    // 点击展示 json 查询示例
+    handleQuestionIconClick() {
+      this.$refs['filePropertiesDialog'].show()
+    },
     // 执行搜索
     doSearch() {
       let filter = {}
-      if (this.searchParams.id_name) {
-        let idFilter = {}
-        let nameFilter = {}
-        idFilter['id'] = {
-          $regex: this.$util.escapeStr(this.searchParams.id_name)
+      if (this.searchParam) {
+        if (this.currentFileSearchTypeStr === 'search_by_id') {
+          filter['id'] = {
+            $regex: this.$util.escapeStr(this.searchParam)
+          }
         }
-        nameFilter['name'] = {
-          $regex: this.$util.escapeStr(this.searchParams.id_name)
+        else if(this.currentFileSearchTypeStr === 'search_by_name') {
+          filter['name'] = {
+            $regex: this.$util.escapeStr(this.searchParam)
+          }
         }
-        filter['$or'] = [ idFilter, nameFilter ]
+        else {
+          if (!this.$util.isJsonStr(this.searchParam)) {
+            this.$message.error(`请检查 json 格式是否正确`)
+            return
+          }
+          filter = JSON.parse(this.searchParam)
+        }
       }
       this.pagination.current = 1
       this.filter = {...filter}
@@ -322,7 +387,7 @@ export default {
     },
     // 重置搜索
     resetSearch() {
-      this.searchParams = {}
+      this.searchParam = ''
       this.filter = {}
       this.pagination.current = 1
       this.queryTableData()
@@ -344,4 +409,10 @@ export default {
   float: right;
   margin-bottom: 10px;
 }
+.input-with-select >>> .el-select {
+  width: 100px;
+}
+.input-with-select >>> .el-input-group__prepend {
+  background-color: #fff;
+} 
 </style>

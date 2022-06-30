@@ -23,6 +23,9 @@ public class OmFileDetail extends OmFileBasic {
     @JsonProperty("directory_path")
     private String directoryPath;
 
+    @JsonProperty("bucket_id")
+    private Long bucketId;
+
     @JsonProperty("batch_id")
     private String batchId;
 
@@ -89,6 +92,14 @@ public class OmFileDetail extends OmFileBasic {
 
     public void setDirectoryId(String directoryId) {
         this.directoryId = directoryId;
+    }
+
+    public Long getBucketId() {
+        return bucketId;
+    }
+
+    public void setBucketId(Long bucketId) {
+        this.bucketId = bucketId;
     }
 
     public Map<String, Object> getClassProperties() {

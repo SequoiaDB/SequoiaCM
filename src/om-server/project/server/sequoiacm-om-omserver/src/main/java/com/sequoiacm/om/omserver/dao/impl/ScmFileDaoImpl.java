@@ -253,6 +253,7 @@ public class ScmFileDaoImpl implements ScmFileDao {
     private OmFileDetail transformToFileDetail(ScmFile file) throws ScmException {
         OmFileDetail fileDetail = new OmFileDetail();
         fileDetail.setAuthor(file.getAuthor());
+        fileDetail.setBucketId(file.getBucketId());
         fileDetail.setBatchId(file.getBatchId() == null ? "" : file.getBatchId().get());
         fileDetail.setClassId(file.getClassId() == null ? "" : file.getClassId().get());
         fileDetail.setClassProperties(
@@ -274,7 +275,6 @@ public class ScmFileDaoImpl implements ScmFileDao {
         fileDetail.setUpdateUser(file.getUpdateUser());
         fileDetail.setUser(file.getUser());
         fileDetail.setMimeType(file.getMimeType());
-        ;
 
         List<OmFileDataSiteInfo> sites = new ArrayList<>();
         for (ScmFileLocation location : file.getLocationList()) {
