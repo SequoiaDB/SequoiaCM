@@ -43,7 +43,7 @@ def load_config(conf_file):
 def create_node(type, config):
     cmd = 'createnode --type ' + type
     for key in config:
-        cmd += ' -D'+key+'='+config[key]
+        cmd += ' -D'+key+'="'+config[key]+'"'
     scm_admin(cmd)
 
 def hostAdaptor(hostname):

@@ -187,7 +187,7 @@ def create_node(conf, audit_conf, gateway_conf):
     if 'customProperties' in conf and len(conf['customProperties']) > 0:
         customProps = conf['customProperties']
         for customPropKey in customProps:
-            cmd += ' -D' + customPropKey + '=' + customProps[customPropKey]
+            cmd += ' -D' + customPropKey + '="' + customProps[customPropKey] + '"'
     # audit
     adurl = audit_conf['auditurl']
     aduser = audit_conf['audituser']
