@@ -126,19 +126,21 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
 
         if (authentication.getCredentials() == null) {
-            logger.debug("Authentication failed: no credentials provided");
+            logger.error("Authentication failed: no credentials provided");
 
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                    "username or password error"));
         }
 
         String presentedPassword = authentication.getCredentials().toString();
 
         if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
-            logger.debug("Authentication failed: password does not match stored value");
+            logger.error("Authentication failed: password does not match stored value");
 
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                    "username or password error"));
         }
     }
 
@@ -149,6 +151,19 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     @Override
     protected final UserDetails retrieveUser(String username,
+            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        UserDetails loadedUser;
+        try {
+            loadedUser = searchUser(username, authentication);
+        }
+        catch (Exception e) {
+            logger.error("failed to login", e);
+            throw e;
+        }
+        return loadedUser;
+    }
+
+    private UserDetails searchUser(String username,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         UserDetails loadedUser;
 
@@ -170,7 +185,9 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
         catch (UsernameNotFoundException notFound) {
             logger.error("failed to login, user not found", notFound);
-            throw notFound;
+            throw new BadCredentialsException(
+                    messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
+                            "username or password error"));
         }
         catch (Exception repositoryProblem) {
             throw new InternalAuthenticationServiceException(repositoryProblem.getMessage(),
@@ -178,6 +195,8 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
 
         if (loadedUser == null) {
+            logger.error(
+                    "UserDetailsService returned null, which is an interface contract violation");
             throw new InternalAuthenticationServiceException(
                     "UserDetailsService returned null, which is an interface contract violation");
         }
