@@ -27,11 +27,11 @@
 
     <!-- 按物理机房显示 -->
     <div v-if="showType=='byRegionZone'">
-      <div v-for="(services, name) in sameRegionZoneServices" :key="name">
+      <div v-for="(key, index) in Object.keys(sameRegionZoneServices).sort()" :key="index">
         <div class="location">
-          {{name}}
+          {{key}}
         </div>
-        <service-list :services="services" @onClickViewInstancesBtn="toInstancePage" @onClickIgnoreInstancesBtn="handleIgnoreBtnClick"></service-list>
+        <service-list :services="sameRegionZoneServices[key]" @onClickViewInstancesBtn="toInstancePage" @onClickIgnoreInstancesBtn="handleIgnoreBtnClick"></service-list>
       </div>
     </div>
 
