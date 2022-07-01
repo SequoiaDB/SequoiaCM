@@ -63,7 +63,7 @@ def create_node(node_type, auditconf, config):
     cmd += ' --adurl ' + adurl + " --aduser " + aduser + " --adpasswd " + adpasswd
 
     for key in config:
-        cmd += ' -D'+key+'="'+config[key]+'"'
+        cmd += ' -D'+key+'='+config[key]
     scm_admin(cmd)
 
 def hostAdaptor(hostname):
