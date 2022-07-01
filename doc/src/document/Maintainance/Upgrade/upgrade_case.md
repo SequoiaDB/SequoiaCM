@@ -33,7 +33,7 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 2. 指定 /opt/scm_upgrade/sequoiacm/ 目录所属用户及用户组为 SequoiaCM 的安装用户、用户组
 
    ```
-   $ chown scmadmin:scmadmin_group /opt/scm_upgrade/sequoiacm/ /opt/scm_upgrade/sequoiacm/ -R
+   $ chown scmadmin:scmadmin_group /opt/scm_upgrade/sequoiacm/ -R
    ```
 
 3. 赋予升级脚本的可执行权限
