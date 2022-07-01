@@ -35,7 +35,8 @@ public class MappingOption {
     private int thread = 20;
 
     public MappingOption(CommandLine cl) throws ScmToolsException {
-        this.workPath = getAbsolutePath(cl.getOptionValue(OPT_LONG_WORK_PATH));
+        this.workPath = checkAndGetAbsolutePath(cl.getOptionValue(OPT_LONG_WORK_PATH),
+                OPT_LONG_WORK_PATH);
         this.workspace = cl.getOptionValue(OPT_LONG_WORKSPACE);
         this.bucket = cl.getOptionValue(OPT_LONG_BUCKET);
         this.keyType = ScmBucketAttachKeyType.valueOf(cl.getOptionValue(OPT_LONG_KEY_TYPE));
@@ -53,7 +54,7 @@ public class MappingOption {
             this.idFilePath = cl.getOptionValue(OPT_LONG_FILE_ID);
             CommonUtils.assertTrue(idFilePath != null, "please specify one of --"
                     + OPT_LONG_FILE_ID + "and --" + OPT_LONG_FILE_MATCHER);
-            this.idFilePath = getAbsolutePath(idFilePath);
+            this.idFilePath = checkAndGetAbsolutePath(idFilePath, OPT_LONG_FILE_ID);
             CommonUtils.assertTrue(new File(idFilePath).exists(),
                     "Id file not exist, path=" + idFilePath);
         }
@@ -89,7 +90,8 @@ public class MappingOption {
         }
     }
 
-    private String getAbsolutePath(String path) throws ScmToolsException {
+    private String checkAndGetAbsolutePath(String path, String optName) throws ScmToolsException {
+        CommonUtils.assertTrue(!"".equals(path), optName + " cannot be empty");
         File file = new File(path);
         if (file.isAbsolute()) {
             return path;
