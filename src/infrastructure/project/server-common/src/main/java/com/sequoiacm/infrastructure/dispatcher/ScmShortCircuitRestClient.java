@@ -1,11 +1,15 @@
 package com.sequoiacm.infrastructure.dispatcher;
 
 import com.sequoiacm.infrastructure.common.ScmLoadBalancerUtil;
+import com.sequoiacm.infrastructure.dispatcher.retry.ScmRetryContext;
+import com.sequoiacm.infrastructure.dispatcher.retry.ScmRetryPolicy;
 import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixExecutor;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.support.RetryTemplate;
 
 import javax.annotation.PreDestroy;
 import java.net.HttpURLConnection;
@@ -27,18 +31,40 @@ public class ScmShortCircuitRestClient extends ScmBasicRestClient {
                 new ScmHystrixExecutor.Runnable<CloseableHttpResponse>() {
                     @Override
                     public CloseableHttpResponse run() throws Exception {
-                        try {
-                            CloseableHttpResponse httpResponse = ScmShortCircuitRestClient.super.execute(
-                                    httpRequest, serviceInstance);
-                            ScmLoadBalancerUtil.resetInstanceError(serviceInstance);
-                            return httpResponse;
+                        if (!ScmLoadBalancerUtil.getRetryProperties().isEnabled()) {
+                            return sendRequest(httpRequest, serviceInstance);
                         }
-                        catch (Exception e) {
-                            ScmLoadBalancerUtil.recordInstanceError(serviceInstance, e);
-                            throw e;
+                        else {
+                            RetryTemplate retryTemplate = new RetryTemplate();
+                            retryTemplate.setRetryPolicy(
+                                    new ScmRetryPolicy(httpRequest, serviceInstance));
+                            return retryTemplate
+                                    .execute(new RetryCallback<CloseableHttpResponse, Exception>() {
+                                        @Override
+                                        public CloseableHttpResponse doWithRetry(
+                                                RetryContext context) throws Exception {
+                                            ScmRetryContext scmRetryContext = (ScmRetryContext) context;
+                                            return sendRequest(httpRequest,
+                                                    scmRetryContext.getServiceInstance());
+                                        }
+                                    });
                         }
                     }
                 });
+    }
+
+    private CloseableHttpResponse sendRequest(HttpRequest httpRequest,
+            ServiceInstance serviceInstance) throws Exception {
+        try {
+            CloseableHttpResponse httpResponse = ScmShortCircuitRestClient.super.execute(
+                    httpRequest, serviceInstance);
+            ScmLoadBalancerUtil.resetInstanceError(serviceInstance);
+            return httpResponse;
+        }
+        catch (Exception e) {
+            ScmLoadBalancerUtil.recordInstanceError(serviceInstance, e);
+            throw e;
+        }
     }
 
     @Override
