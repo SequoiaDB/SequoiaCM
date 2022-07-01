@@ -114,10 +114,7 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %F:%L [%thread] %-5level %msg %n</pattern>
         </encoder>
     </appender-->
-    <!--logger name="com.sequoiacm.common.memorypool.ScmMemoryPool" level="DEBUG" additivity="false">
-        <appender-ref ref="MemoryPool"/>
-    </logger-->
-    <!--logger name="com.sequoiacm.common.memorypool.ScmNoPool" level="DEBUG" additivity="false">
+    <!--logger name="com.sequoiacm.common.memorypool" level="DEBUG" additivity="false">
         <appender-ref ref="MemoryPool"/>
     </logger-->
     <!-- set memory pool log end -->

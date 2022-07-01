@@ -1,8 +1,11 @@
 package com.sequoiacm.common.memorypool;
 
 import com.sequoiacm.infrastructure.common.ApplicationConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScmPoolWrapper implements IMemoryPool {
+    private static final Logger logger = LoggerFactory.getLogger(ScmPoolWrapper.class);
     private IMemoryPool pool;
     private static ScmPoolWrapper instance;
 
@@ -27,7 +30,14 @@ public class ScmPoolWrapper implements IMemoryPool {
     private boolean getEnableOptionValue() throws Exception {
         String enableMemoryPoolStr = ApplicationConfig.getInstance().getConfig(
                 ScmMemoryPoolDefine.PROPERTY_MEMORYPOOL_ENABLE, ScmMemoryPoolDefine.DEFAULT_ENABLE);
-        return Boolean.parseBoolean(enableMemoryPoolStr);
+        if (enableMemoryPoolStr.equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        }
+        if (!enableMemoryPoolStr.equalsIgnoreCase("false")) {
+            logger.warn("scm.memoryPool.enable value is invalid, value:" + enableMemoryPoolStr
+                    + ", set to value:false");
+        }
+        return Boolean.FALSE;
     }
 
     @Override
