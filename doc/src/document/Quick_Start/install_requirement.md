@@ -125,6 +125,11 @@
      ```lang-javascript
      # ping server2
      ```
+     
+>  **Note:**
+
+>  * 当同一个台机器拥有多个 IP 时，若任一 IP 都允许用于 SequoiaCM 集群中的节点通信，请为所有 IP 都配置相同的 hosts 映射；否则请在后续的节点部署阶段，手动指定节点所在机器的主机名及 IP 地址信息，详情请参考[节点配置][public_config]中的 eureka.instance.hostname、spring.cloud.client.hostname、eureka.instance.ip-address 配置项。
+
 
 ###关闭防火墙 ###
 
@@ -177,3 +182,5 @@
 >  **Note:**
 
 >  * 每台作为 SequoiaCM 服务器的机器都需要配置
+
+[public_config]:Maintainance/Node_Config/Readme.md
