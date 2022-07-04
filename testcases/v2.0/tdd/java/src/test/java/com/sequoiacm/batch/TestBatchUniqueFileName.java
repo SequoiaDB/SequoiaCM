@@ -50,6 +50,7 @@ public class TestBatchUniqueFileName extends ScmTestMultiCenterBase {
         conf.setMetaLocation(new ScmSdbMetaLocation("rootSite", ScmShardingType.MONTH, "domain1"));
         conf.addDataLocation(new ScmSdbDataLocation("rootSite", "domain2", ScmShardingType.YEAR,
                 ScmShardingType.QUARTER));
+        conf.setEnableDirectory(true);
         conf.setBatchFileNameUnique(true);
 
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace(ss, conf);
