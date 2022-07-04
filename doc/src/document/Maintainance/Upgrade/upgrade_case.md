@@ -1,4 +1,4 @@
-本节将介绍一个小规模的 SequoiaCM 集群从版本 3.1.2 滚动升级至 3.2 的过程。
+本节将介绍一个小规模的 SequoiaCM 集群从版本 3.1.2 滚动升级至 3.2.0 的过程。
 
 ## 滚动升级##
 
@@ -22,12 +22,12 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
 > - 本节假设 SequoiaCM 的安装用户、用户组分别为 scmadmin、scmadmin_group，服务的安装路径为 /opt/sequoiacm/。
 
-将新版本 SequoiaCM 3.2 版本的安装包上传至主、备中心的各个部署机（图示主机 A、B、C、D），并执行以下步骤：
+将新版本 SequoiaCM 3.2.0 版本的安装包上传至主、备中心的各个部署机（图示主机 A、B、C、D），并执行以下步骤：
 
 1. 安装包解压缩
 
    ```
-   $ tar -zxvf sequoiacm-3.2-release.tar.gz -C /opt/scm_upgrade/
+   $ tar -zxvf sequoiacm-3.2.0-release.tar.gz -C /opt/scm_upgrade/
    ```
 
 2. 指定 /opt/scm_upgrade/sequoiacm/ 目录所属用户及用户组为 SequoiaCM 的安装用户、用户组
@@ -44,7 +44,7 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
    > **Note：**
    >
-   >  * 若安装包中无升级脚本 scmupgrade.py，需从 3.2 及之后版本的安装包中获取。
+   >  * 若安装包中无升级脚本 scmupgrade.py，需从 3.2.0 及之后版本的安装包中获取。
 
 ### 升级原有服务###
 
