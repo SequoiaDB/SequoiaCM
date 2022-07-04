@@ -76,7 +76,8 @@ public class WRDEmptyFile1108 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // S3修改导致用例暂时屏蔽,单号:http://jira.web:8080/browse/SEQUOIACM-929
+    @Test(enabled = false, groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         writeAndCheck();
         readAndCheck();

@@ -57,7 +57,7 @@ public class SeekReadFile2122 extends TestScmBase {
     private List< SiteWrapper > branSites = null;
 
     @BeforeClass()
-    private void setUp() throws IOException,ScmException {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -82,7 +82,8 @@ public class SeekReadFile2122 extends TestScmBase {
                 TestScmBase.scmUserName, TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "fourSite" })
+    // S3修改导致用例暂时屏蔽,单号:http://jira.web:8080/browse/SEQUOIACM-929
+    @Test(enabled = false, groups = { "fourSite" })
     private void test() throws Exception {
         writeFile( restA );
         seekReadAndCheck( restB );
@@ -106,8 +107,8 @@ public class SeekReadFile2122 extends TestScmBase {
         }
     }
 
-    private void writeFile( RestWrapper rest ) throws
-            UnsupportedEncodingException, FileNotFoundException {
+    private void writeFile( RestWrapper rest )
+            throws UnsupportedEncodingException, FileNotFoundException {
         // write
         JSONObject desc = new JSONObject();
         desc.put( "name", author );
