@@ -80,6 +80,14 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.FILE_IS_PHYSICAL) boolean isPhysical)
             throws ScmServerException;
 
+    @DeleteMapping(value = "/api/v1/buckets/{name}/files?action=delete_file")
+    public BSONObject deleteFileInBucket(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(RestField.USER_ATTRIBUTE) String userDetailJson,
+            @PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL) boolean isPhysical)
+            throws ScmServerException;
+
     // **************datasource************//
     @DeleteMapping(value = "/internal/v1/datasource/{dataId}")
     public void deleteData(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,

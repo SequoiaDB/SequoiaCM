@@ -220,14 +220,14 @@ public class BucketController {
     }
 
     @DeleteMapping(path = "/buckets/{name}/files", params = "action=delete_file")
-    public void deleteFile(@PathVariable("name") String bucketName,
+    public BSONObject deleteFile(@PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") boolean isPhysical,
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        service.deleteFile(user, bucketName, fileName, isPhysical,
+        return service.deleteFile(user, bucketName, fileName, isPhysical,
                 new SessionInfoWrapper(sessionId, userDetail));
     }
 

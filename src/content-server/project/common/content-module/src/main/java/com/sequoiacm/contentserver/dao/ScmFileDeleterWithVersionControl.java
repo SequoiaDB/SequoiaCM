@@ -10,6 +10,8 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.remote.ContentServerClient;
+import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -55,18 +57,49 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         this.userName = userName;
     }
 
+    private String queryFileId() throws ScmMetasourceException, ScmServerException {
+        BSONObject file = bucket.getFileTableAccessor(null).queryOne(
+                new BasicBSONObject(FieldName.BucketFile.FILE_NAME, fileName), null, null);
+        if (file == null) {
+            return null;
+        }
+        return BsonUtils.getStringChecked(file, FieldName.BucketFile.FILE_ID);
+    }
+
+    private boolean isFileInBucket(BSONObject fileInfo, String expectFileInBucket)
+            throws ScmServerException {
+        Number bucketId = BsonUtils.getNumber(fileInfo, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        ScmBucket actualFileBucket = null;
+        if (bucketId != null) {
+            actualFileBucket = bucketInfoMgr.getBucketById(bucketId.longValue());
+        }
+
+        if (actualFileBucket == null || !actualFileBucket.getName().equals(expectFileInBucket)) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public BSONObject delete() throws ScmServerException {
+        if (bucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
+            // disabled 状态走物理删除
+            if (contentModule.getLocalSiteInfo().isRootSite()) {
+                checkAndPhysicallyDelete();
+                return null;
+            }
+            // 将本次版本控制删除转发给主站点，由主站点进行处理（这里不能直接发一个物理删除给主站点，需要让主站点按版本控制删除流程再次锁内检查文件，再做物理删除）
+            return forwardToMainSite();
+        }
+
+        // bucket version enabled or suspend
         FileInfoAndOpCompleteCallback fileInfoAndOpCompleteCallback;
         ScmLock wLock = null;
         try {
-            BSONObject file = bucket.getFileTableAccessor(null).queryOne(
-                    new BasicBSONObject(FieldName.BucketFile.FILE_NAME, fileName), null, null);
-            if (file == null) {
+            String fileId = queryFileId();
+            if (fileId == null) {
                 return createDeleteMarkerFile();
             }
-            String fileId = BsonUtils.getStringChecked(file, FieldName.BucketFile.FILE_ID);
-
             ScmLockPath fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(),
                     fileId);
             wLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
@@ -77,23 +110,10 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
                 return createDeleteMarkerFile();
             }
 
-            ScmBucket fileBucketInLock = null;
-            Number bucketId = BsonUtils.getNumber(latestVersionInLock,
-                    FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-            if (bucketId != null) {
-                fileBucketInLock = bucketInfoMgr.getBucketById(bucketId.longValue());
-            }
-
-            if (fileBucketInLock == null || !fileBucketInLock.getName().equals(bucket.getName())) {
+            if (!isFileInBucket(latestVersionInLock, bucket.getName())) {
                 // 查询到文件ID后，加锁之前，这个文件又被重新关联到其它桶上了，所以这里会出现锁内文件的所属桶非指定的桶
                 // 所以这里认为指定桶下已经不存在这个文件了，直接创建 deleteMarker
                 return createDeleteMarkerFile();
-            }
-
-            if (fileBucketInLock.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
-                ScmFileDeletorPysical fileDeleterPhysical = new ScmFileDeletorPysical(sessionId,
-                        userDetail, wsInfo, fileId, listenerMgr, bucketInfoMgr);
-                return fileDeleterPhysical.deleteNoLock();
             }
 
             BSONObject newFileVersion = createDeleteMarkerBSON();
@@ -131,7 +151,47 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         }
         fileInfoAndOpCompleteCallback.getCallback().onComplete();
         return fileInfoAndOpCompleteCallback.getFileInfo();
+    }
 
+    private void checkAndPhysicallyDelete() throws ScmServerException {
+        ScmLock wLock = null;
+        try {
+            String fileId = queryFileId();
+            if (fileId == null) {
+                return;
+            }
+            ScmLockPath fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(),
+                    fileId);
+            wLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
+
+            BSONObject latestVersionInLock = contentModule.getMetaService()
+                    .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, -1, -1);
+            if (latestVersionInLock == null
+                    || !isFileInBucket(latestVersionInLock, bucket.getName())) {
+                return;
+            }
+            ScmFileDeletorPysical fileDeleterPhysical = new ScmFileDeletorPysical(sessionId,
+                    userDetail, wsInfo, fileId, listenerMgr, bucketInfoMgr);
+            fileDeleterPhysical.deleteInMainSiteNoLock(latestVersionInLock);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "failed to delete file with version control: bucket=" + bucket.getName()
+                            + ", fileName=" + fileName,
+                    e);
+        }
+        finally {
+            if (wLock != null) {
+                wLock.unlock();
+            }
+        }
+    }
+
+    private BSONObject forwardToMainSite() throws ScmServerException {
+        String remoteSiteName = contentModule.getMainSiteName();
+        ContentServerClient client = ContentServerClientFactory
+                .getFeignClientByServiceName(remoteSiteName);
+        return client.deleteFileInBucket(sessionId, userDetail, bucket.getName(), fileName, false);
     }
 
     private BSONObject createDeleteMarkerBSON() throws ScmServerException {
@@ -149,10 +209,6 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
 
     private BSONObject createDeleteMarkerFile()
             throws ScmMetasourceException, ScmServerException, FileExistWhenCreateDeleteMarker {
-        if (bucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
-            return null;
-        }
-
         BSONObject deleteMarkerFile = createDeleteMarkerBSON();
         BSONObject bucketFileRel = ScmFileOperateUtils.createBucketFileRel(deleteMarkerFile);
         ContentModuleMetaSource metasource = contentModule.getMetaService().getMetaSource();

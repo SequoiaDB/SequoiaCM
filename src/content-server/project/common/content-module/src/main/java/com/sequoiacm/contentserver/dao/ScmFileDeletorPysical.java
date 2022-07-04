@@ -74,16 +74,6 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         return null;
     }
 
-    public BSONObject deleteNoLock() throws ScmServerException {
-        if (contentModule.getMainSite() != contentModule.getLocalSite()) {
-            forwardToMainSite();
-        }
-        else {
-            deleteInMainSite();
-        }
-        return null;
-    }
-
     private void forwardToMainSite() throws ScmServerException {
         Assert.notNull(sessionId, "sessionIdis null, forward mainSite failed");
         Assert.notNull(userDetail, "userDetail is null, forward mainSite failed");
@@ -106,17 +96,12 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         }
     }
 
-    private void deleteInMainSite() throws ScmServerException {
-        BSONObject currentFile = contentModule.getMetaService()
-                .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, -1, -1);
-        if (null == currentFile) {
-            throw new ScmFileNotFoundException("file is unexist:workspace=" + wsInfo.getName()
-                    + ",file=" + fileId);
-        }
-
+    // 调用者已经确认自己处于主站点中，且持有文件写锁，参数为锁内获取的最新版本文件
+    public void deleteInMainSiteNoLock(BSONObject latestFileVersionInLock)
+            throws ScmServerException {
         // if the file belongs to a batch, the relationship needs to be detached
         // before deleting.
-        String batchId = (String) currentFile.get(FieldName.FIELD_CLFILE_BATCH_ID);
+        String batchId = (String) latestFileVersionInLock.get(FieldName.FIELD_CLFILE_BATCH_ID);
         if (!StringUtils.isEmpty(batchId)) {
             throw new ScmServerException(ScmError.FILE_IN_ANOTHER_BATCH,
                     "file belongs to a batch, detach the relationship before deleting it:"
@@ -125,13 +110,13 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
         }
 
         final List<BSONObject> allVersionFile = new ArrayList<>();
-        allVersionFile.add(currentFile);
-        if (!isFirstVersion(currentFile)) {
-            addHistoryVersionRecord(allVersionFile, currentFile);
+        allVersionFile.add(latestFileVersionInLock);
+        if (!isFirstVersion(latestFileVersionInLock)) {
+            addHistoryVersionRecord(allVersionFile, latestFileVersionInLock);
         }
 
         // delete file meta
-        contentModule.getMetaService().deleteFile(wsInfo, currentFile, bucketInfoMgr);
+        contentModule.getMetaService().deleteFile(wsInfo, latestFileVersionInLock, bucketInfoMgr);
 
         // delete file data async
         AsyncUtils.execute(new Runnable() {
@@ -146,6 +131,16 @@ public class ScmFileDeletorPysical implements ScmFileDeletor {
             }
         });
         listenerMgr.postDelete(wsInfo, allVersionFile);
+    }
+
+    private void deleteInMainSite() throws ScmServerException {
+        BSONObject currentFile = contentModule.getMetaService()
+                .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, -1, -1);
+        if (null == currentFile) {
+            throw new ScmFileNotFoundException("file is unexist:workspace=" + wsInfo.getName()
+                    + ",file=" + fileId);
+        }
+        deleteInMainSiteNoLock(currentFile);
     }
 
     private void deleteData(BSONObject file) {
