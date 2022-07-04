@@ -26,6 +26,7 @@ public class ScmWorkspaceConf {
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
     private boolean enableDirectory = false;
+    private String preferred;
 
     /**
      * Create a empty config instance.
@@ -233,6 +234,9 @@ public class ScmWorkspaceConf {
             bson.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX, batchIdTimeRegex);
         }
         bson.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
+        if (preferred != null) {
+            bson.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
+        }
         return bson;
     }
 
@@ -361,5 +365,24 @@ public class ScmWorkspaceConf {
      */
     public void setEnableDirectory(boolean enableDirectory) {
         this.enableDirectory = enableDirectory;
+    }
+
+    /**
+     * Return the strategy to choose site.
+     * 
+     * @return strategy.
+     */
+    public String getPreferred() {
+        return preferred;
+    }
+
+    /**
+     * Set the strategy to choose site.
+     * 
+     * @param preferred
+     *            strategy.
+     */
+    public void setPreferred(String preferred) {
+        this.preferred = preferred;
     }
 }

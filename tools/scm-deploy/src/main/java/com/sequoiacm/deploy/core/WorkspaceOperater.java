@@ -155,6 +155,7 @@ public class WorkspaceOperater {
         conf.setBatchShardingType(shardingType);
         conf.setEnableDirectory(BsonUtils.getBooleanOrElse(wsBSON,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
+        conf.setPreferred(BsonUtils.getString(wsBSON, FieldName.FIELD_CLWORKSPACE_PREFERRED));
 
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace(ss, conf);
         return ws.getName();

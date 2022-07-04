@@ -33,6 +33,7 @@ public class ScmWorkspaceInfo {
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
+    private String preferred;
 
     /**
      * Create a instance of ScmWorkspaceInfo.
@@ -63,6 +64,7 @@ public class ScmWorkspaceInfo {
             this.batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
             this.batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
             this.enableDirectory = wsObj.isEnableDirectory();
+            this.preferred = wsObj.getPreferred();
         }
         catch (ScmMappingException e) {
             throw new ScmInvalidArgumentException(e.getMessage(), e);
@@ -272,5 +274,14 @@ public class ScmWorkspaceInfo {
      */
     public boolean isEnableDirectory() {
         return enableDirectory;
+    }
+
+    /**
+     * Return the strategy to choose site.
+     * 
+     * @return
+     */
+    public String getPreferred() {
+        return preferred;
     }
 }

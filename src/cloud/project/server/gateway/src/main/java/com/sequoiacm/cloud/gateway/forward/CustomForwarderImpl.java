@@ -1,25 +1,18 @@
-package com.sequoiacm.cloud.gateway.service;
+package com.sequoiacm.cloud.gateway.forward;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
-import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
-import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
-import com.sequoiacm.infrastructure.dispatcher.ScmRestClient;
-import com.sequoiacm.infrastructure.common.UriUtil;
-import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
-import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -36,12 +29,20 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 
-import com.sequoiacm.cloud.gateway.config.UploadForwardConfig;
+import com.sequoiacm.cloud.gateway.config.CustomForwardConfig;
+import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
+import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
+import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
+import com.sequoiacm.infrastructure.common.UriUtil;
+import com.sequoiacm.infrastructure.dispatcher.ScmRestClient;
 import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
+import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 
 @Service
-public class UploadForwardServiceImpl implements UploadForwardService {
-    private static final Logger logger = LoggerFactory.getLogger(UploadForwardServiceImpl.class);
+public class CustomForwarderImpl implements CustomForwarder {
+    private static final Logger logger = LoggerFactory.getLogger(CustomForwarderImpl.class);
 
     private static final List<String> IGNORE_RESP_HEADERS = Arrays.asList("Transfer-Encoding",
             ScmStatisticsDefine.STATISTICS_EXTRA_HEADER);
@@ -58,17 +59,17 @@ public class UploadForwardServiceImpl implements UploadForwardService {
     @Autowired
     private ScmRestClient scmRestClient;
 
-    private UploadForwardConfig config;
+    private CustomForwardConfig config;
 
     @Autowired
-    public UploadForwardServiceImpl(UploadForwardConfig config) {
+    public CustomForwarderImpl(CustomForwardConfig config) {
         this.config = config;
     }
 
     @Override
     public void forward(String targetService, String targetApi, HttpServletRequest clientReq,
-            HttpServletResponse clientResp, String defaultContentType, boolean chunked)
-            throws Exception {
+            HttpServletResponse clientResp, String defaultContentType, boolean chunked,
+            boolean setForwardPrefix) throws Exception {
         long requestStartTime = System.currentTimeMillis();
         ServiceInstance instance = loadBalancerClient.choose(targetService);
         if (instance == null) {
@@ -90,14 +91,16 @@ public class UploadForwardServiceImpl implements UploadForwardService {
                 forwardReq.addHeader(ScmStatisticsDefine.STATISTICS_HEADER,
                         statisticsDecideResult.getStatisticsType());
             }
-            UriUtil.addForwardPrefix(forwardReq, "/" + targetService);
-            logger.debug("forward upload request:instance={},req={}", targetInstance, forwardReq);
+            if (setForwardPrefix) {
+                UriUtil.addForwardPrefix(forwardReq, "/" + targetService);
+            }
+            logger.debug("forward request:instance={},req={}", targetInstance, forwardReq);
 
             // execute with short-circuit
             forwardResp = scmRestClient.execute(forwardReq, instance);
 
             clientInputstreamWasConsumed = true;
-            logger.debug("forward upload response:instance={},resp={}", targetInstance,
+            logger.debug("forward response:instance={},resp={}", targetInstance,
                     forwardResp);
             boolean isSuccessResponse = isSuccessResponse(forwardResp);
             if (!isSuccessResponse) {

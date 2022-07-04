@@ -14,6 +14,7 @@ createws 子命令提供工作区的创建功能。
 |--batch-id-time-regex|     |批次ID时间信息正则表达式，不指定默认为 null                                       |否      |
 |--batch-id-time-pattern|     |批次ID时间格式，不指定默认为null                                                |否      |
 |--batch-file-name-unique|     |批次内的文件名唯一，不指定默认批次内的文件允许重名                             |否      |
+|--preferred|-p   |指定工作区的站点选择策略，目前可以指定为工作区下的某个站点名，默认为主站点，该策略目前作用在网关转发 S3 请求上，当 S3 请求需要访问本工作区时，网关将会转发至指定站点的 S3 服务|否      |
 |--url          |     |(gateway)网关地址，eg:'localhost:8080/rootsite',rootsite是站点服务名（小写）            |是      |
 |--user         |     |管理员用户名                                                                            |是      |
 |--password     |     |管理员密码，指定值则使用明文输入，不指定值则命令行提示输入                              |否      |
@@ -109,7 +110,7 @@ sharding 类型说明：
 1. 采用默认参数创建一个名为 ws 的工作区
 
    ```lang-javascript
-   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}，{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password 
+   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}，{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password --preferred site2
    ```
 > **Note:** 
 >
@@ -122,6 +123,8 @@ sharding 类型说明：
 > * 使用默认方式对数据进行分区
 >
 > * 使用默认的选项创建collection、collectionspace
+>
+> * 站点选择策略指定为 site2，后续 S3 请求访问该工作区的资源时，将会由 site2 上的 s3 服务进行处理（site2 上必须部署 S3 服务，否则转发失败）
 
 
 2. 采用自定义批次参数创建一个名为 ws 的工作区

@@ -21,6 +21,7 @@ import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
@@ -46,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +314,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfoCheckLocalSite(wsName);
+        List<Integer> dataLocationAfterUpdate = new ArrayList<>(wsInfo.getDataLocations().keySet());
 
         WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
                 contentModule.getWorkspaceInfoCheckLocalSite(wsName).getBSONObject());
@@ -347,6 +350,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 }
             }
             confUpdator.setAddDataLocation(addDataLocation.toCompleteBSON());
+            dataLocationAfterUpdate.add(addSite.getId());
         }
 
         String removeDataLocationSiteName = updator.getRemoveDataLocation();
@@ -375,9 +379,29 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 throw new ScmInvalidArgumentException(
                         "site not in data location list:siteName=" + removeSite.getName());
             }
+
+            if (removeSite.getName().equals(wsInfo.getPreferred())
+                    && updator.getPreferred() == null) {
+                updator.setPreferred(contentModule.getMainSiteName());
+            }
             confUpdator.setRemoveDataLocationId(removeSite.getId());
+            dataLocationAfterUpdate.remove(Integer.valueOf(removeSite.getId()));
+        }
+
+        if (updator.getPreferred() != null) {
+            ScmSite preferredSite = contentModule.getSiteInfo(updator.getPreferred());
+            if (preferredSite == null) {
+                throw new ScmInvalidArgumentException(
+                        "failed to update workspace, preferred site not found: workspace=" + wsName
+                                + ", preferred=" + updator.getPreferred());
+            }
+            if (!dataLocationAfterUpdate.contains(preferredSite.getId())) {
+                throw new ScmInvalidArgumentException(
+                        "failed to update workspace, preferred site not in workspace data location list: workspace="
+                                + wsName + ", preferred=" + updator.getPreferred());
+            }
+            confUpdator.setPreferred(updator.getPreferred());
         }
         return confUpdator;
     }
-
 }

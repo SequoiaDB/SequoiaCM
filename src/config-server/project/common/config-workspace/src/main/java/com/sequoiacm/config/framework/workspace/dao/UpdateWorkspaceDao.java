@@ -69,6 +69,18 @@ public class UpdateWorkspaceDao {
                         updator.getWsName());
             }
 
+            if (updator.getPreferred() != null) {
+                BasicBSONObject updater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_PREFERRED,
+                        updator.getPreferred());
+                newWsRecord = table.updateAndCheck(matcher, updater);
+                if (newWsRecord == null) {
+                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
+                            "client workspace cache is not latest");
+                }
+                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                        updator.getWsName());
+            }
+
             Integer removeLocationId = updator.getRemoveDataLocationId();
             if (removeLocationId != null) {
                 newWsRecord = table.removeDataLocation(matcher, removeLocationId);

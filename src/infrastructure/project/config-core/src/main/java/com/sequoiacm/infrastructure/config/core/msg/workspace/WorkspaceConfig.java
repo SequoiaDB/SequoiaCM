@@ -23,6 +23,7 @@ public class WorkspaceConfig implements Config {
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
     private boolean enableDirectory = false;
+    private String preferred;
 
     public WorkspaceConfig() {
     }
@@ -147,6 +148,14 @@ public class WorkspaceConfig implements Config {
         return enableDirectory;
     }
 
+    public String getPreferred() {
+        return preferred;
+    }
+
+    public void setPreferred(String preferred) {
+        this.preferred = preferred;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject wsConfigObj = new BasicBSONObject();
@@ -165,6 +174,7 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, batchFileNameUnique);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, batchShardingType);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
         return wsConfigObj;
     }
 

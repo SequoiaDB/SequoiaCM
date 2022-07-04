@@ -30,6 +30,7 @@ import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 
 public class ScmWorkspaceInfo {
     private static final Logger logger = LoggerFactory.getLogger(ScmWorkspaceInfo.class);
+    private final String preferred;
 
     private String name;
     private int id;
@@ -93,6 +94,7 @@ public class ScmWorkspaceInfo {
             batchIdTimePattern = wsObj.getBatchIdTimePattern();
             batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
             enableDirectory = wsObj.isEnableDirectory();
+            preferred = wsObj.getPreferred();
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -272,5 +274,9 @@ public class ScmWorkspaceInfo {
 
     public Map<Integer, ScmLocation> getDataLocations() {
         return dataLocations;
+    }
+
+    public String getPreferred() {
+        return preferred;
     }
 }

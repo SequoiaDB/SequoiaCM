@@ -139,6 +139,23 @@ public abstract class ScmWorkspace {
      */
     public abstract boolean isEnableDirectory();
 
+    /**
+     * Return the strategy to choose site.
+     * 
+     * @return strategy.
+     */
+    public abstract String getPreferred();
+
+    /**
+     * Update the strategy to choose site.
+     * 
+     * @param preferred
+     *            strategy
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void updatePreferred(String preferred) throws ScmException;
+
     abstract ScmSession getSession();
 
     abstract int getId();

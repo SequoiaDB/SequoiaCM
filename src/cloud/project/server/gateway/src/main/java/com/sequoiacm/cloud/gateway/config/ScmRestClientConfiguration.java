@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class ScmRestClientConfiguration {
 
     @Bean
-    public ScmRestClient scmDispatcher(UploadForwardConfig config) {
+    public ScmRestClient scmDispatcher(CustomForwardConfig config) {
         ScmRestClientConfig restClientConfig = new ScmRestClientConfig();
         restClientConfig.setConnectionRequestTimeout(config.getConnectionRequestTimeout());
         restClientConfig.setConnectTimeout(config.getConnectTimeout());

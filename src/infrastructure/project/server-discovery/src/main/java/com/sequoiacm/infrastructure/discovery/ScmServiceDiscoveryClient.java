@@ -1,6 +1,7 @@
 package com.sequoiacm.infrastructure.discovery;
 
 import com.sequoiacm.infrastructure.common.NetUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
@@ -9,8 +10,22 @@ import java.util.*;
 public class ScmServiceDiscoveryClient {
     private final DiscoveryClient discoveryClient;
 
+    @Value("${eureka.instance.metadata-map.zone}")
+    private String localZone;
+
+    @Value("${eureka.instance.metadata-map.region}")
+    private String localRegion;
+
     public ScmServiceDiscoveryClient(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
+    }
+
+    public String getLocalRegion() {
+        return localRegion;
+    }
+
+    public String getLocalZone() {
+        return localZone;
     }
 
     public Map<String, Set<String>> getZones() {
@@ -26,6 +41,15 @@ public class ScmServiceDiscoveryClient {
                 }
                 sameRegionZones.add(instance.getZone());
             }
+        }
+        return ret;
+    }
+
+    public List<ScmServiceInstance> getInstances() {
+        List<String> services = discoveryClient.getServices();
+        List<ScmServiceInstance> ret = new ArrayList<>();
+        for (String service : services) {
+            ret.addAll(getInstances(service));
         }
         return ret;
     }

@@ -8,9 +8,9 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 @ConfigurationProperties(prefix = "scm.uploadForward")
-public class UploadForwardConfig {
+public class CustomForwardConfig {
     
-    private final static Logger logger = LoggerFactory.getLogger(UploadForwardConfig.class);
+    private final static Logger logger = LoggerFactory.getLogger(CustomForwardConfig.class);
 
     private Environment environment;
 
@@ -35,7 +35,7 @@ public class UploadForwardConfig {
 
     private int bufferSize = 1024 * 4;
     
-    public UploadForwardConfig(Environment environment) {
+    public CustomForwardConfig(Environment environment) {
         this.environment = environment;
         this.connectTimeout = getPreferredValue(PROPERTY_UPLOAD_CONNECT_TIMEOUT,
                 PROPERTY_RIBBON_CONNECT_TIMEOUT, connectTimeout);

@@ -32,7 +32,8 @@ SequoiaCM 配置
 |scm.statistics.types.file_download.conditions.workspacesRegex|str|统计文件下载请求的工作区过滤条件，填写工作区名字正则表达式，未指定任何工作过滤条件时默认统计所有工作区的文件下载|
 |scm.statistics.rawDataCacheSize|num|网关用于缓存统计原始数据的队列大小，默认5000条原始数据|
 |scm.statistics. rawDataReportPeriod|num|网关每隔多长时间将统计原始数据上报给监控服务，默认值：10000，单位：毫秒|
-
+|scm.s3.userAgent|str|网关会借助 User-Agent 头来识别 S3 请求，当请求头包含该配置的指定值时，将会被网关识别为 S3 请求，默认值：aws-sdk-java，该配置允许配置多个，使用逗号进行分割|
+|scm.s3.chooserRefreshInterval|num|网关在决策 S3 请求发往哪个站点时，会依赖自身构筑的集群信息缓存，此配置控制缓存的刷新间隔，默认值：180000，单位：毫秒|
 
 ##注册中心##
 

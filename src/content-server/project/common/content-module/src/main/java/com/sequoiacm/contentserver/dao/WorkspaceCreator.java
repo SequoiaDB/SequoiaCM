@@ -108,11 +108,13 @@ public class WorkspaceCreator {
         }
         wsConfig.setMetalocation(metaLocationObj);
 
+        List<String> dataLocationSiteNameList = new ArrayList<>();
         boolean isDatalocationsContainRootSite = false;
         for (Object obj : dataLocations) {
             BSONObject dataLocationObj = (BSONObject) obj;
             String siteName = (String) dataLocationObj
                     .get(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            dataLocationSiteNameList.add(siteName);
             ScmSite siteInfo =contentModule.getSiteInfo(siteName);
             if (siteInfo == null) {
                 throw new ScmInvalidArgumentException(
@@ -144,6 +146,16 @@ public class WorkspaceCreator {
             throw new ScmInvalidArgumentException(
                     "failed to create workspace,data location must contain root site:wsName="
                             + wsName);
+        }
+        wsConfig.setPreferred(
+                BsonUtils.getString(clientWsConfObj, FieldName.FIELD_CLWORKSPACE_PREFERRED));
+        if (wsConfig.getPreferred() != null) {
+            if (!dataLocationSiteNameList.contains(wsConfig.getPreferred())) {
+                throw new ScmInvalidArgumentException(
+                        "failed to create workspace, preferred must be a site name in data location list:wsName="
+                                + wsName + ", preferred=" + wsConfig.getPreferred()
+                                + ", dataLocations=" + dataLocationSiteNameList);
+            }
         }
 
         wsConfig.setDataLocations(dataLocations);

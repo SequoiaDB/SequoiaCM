@@ -46,6 +46,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_LONG_BATCH_FILE_NAME_UNIQUE = "batch-file-name-unique";
     private final String OPT_LONG_DISABLE_DIRECTORY = "disable-directory";
     private final String OPT_LONG_ENABLE_DIRECTORY = "enable-directory";
+    private final String OPT_LONG_PREFERRED = "preferred";
+    private final String OPT_SHORT_PREFERRED = "p";
 
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -76,6 +78,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_DESC, "workspace description.", false, true, false));
 
+        ops.addOption(hp.createOpt(OPT_SHORT_PREFERRED, OPT_LONG_PREFERRED,
+                "strategy to choose site, only support to specify a site name now.", false, true,
+                false));
+
         ops.addOption(hp.createOpt(null, OPT_LONG_BATCH_SHARDING_TYPE,
                 "batch sharding type, default is none, all available sharding type: none, year, month, quarter.",
                 false, true, false));
@@ -98,6 +104,7 @@ public class ScmCreateWsToolImpl extends ScmTool {
                 true, false, false));
         ops.addOption(hp.createOpt(null, LONG_OP_ADMIN_PASSWD_FILE, "login admin password file.",
                 false, true, false));
+
     }
 
     @Override
@@ -127,6 +134,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
             // desc
             if (cl.hasOption(OPT_LONG_DESC)) {
                 conf.setDescription(cl.getOptionValue(OPT_LONG_DESC));
+            }
+
+            if (cl.hasOption(OPT_LONG_PREFERRED)) {
+                conf.setPreferred(cl.getOptionValue(OPT_LONG_PREFERRED));
             }
 
             // meta

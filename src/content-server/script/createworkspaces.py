@@ -71,6 +71,9 @@ def create_workspace(ws_conf, url, user, password):
         enable_directory = ws_conf['enable_directory']
         if not enable_directory:
             cmd += " --disable-directory"
+    if 'preferred' in ws_conf:
+        preferred = ws_conf['preferred']
+        cmd += " --preferred " + preferred
     
     cmd += ' --user ' + user
     cmd += ' --password ' + password

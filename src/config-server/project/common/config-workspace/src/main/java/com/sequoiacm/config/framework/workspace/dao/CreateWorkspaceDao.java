@@ -179,6 +179,9 @@ public class CreateWorkspaceDao {
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE,
                 wsConfig.getBatchShardingType());
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, wsConfig.isEnableDirectory());
+        if (wsConfig.getPreferred() != null) {
+            wsRecord.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, wsConfig.getPreferred());
+        }
         return wsRecord;
     }
 }

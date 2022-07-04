@@ -1,4 +1,4 @@
-package com.sequoiacm.cloud.gateway.filter;
+package com.sequoiacm.cloud.gateway.forward.decider;
 
 import org.springframework.stereotype.Component;
 
@@ -25,12 +25,12 @@ public class ZuulPrefixForwardDecider implements CustomForwardDecider {
         int firstDelimiterIndex = urlNoZuulPrefix.indexOf("/");
         if (firstDelimiterIndex == -1) {
             // urlNoZuulPrefix = serviceName
-            return Decision.shouldForward(urlNoZuulPrefix, "/", default_contentType, true);
+            return Decision.shouldForward(urlNoZuulPrefix, "/", default_contentType, true, true);
         }
 
         String serviceName = urlNoZuulPrefix.substring(0, firstDelimiterIndex);
         String targetApi = urlNoZuulPrefix.substring(firstDelimiterIndex);
-        return Decision.shouldForward(serviceName, targetApi, default_contentType, true);
+        return Decision.shouldForward(serviceName, targetApi, default_contentType, true, true);
     }
 
     @Override

@@ -14,6 +14,7 @@ public class ScmRestArgDefine {
     public static final String WORKSPACE_CONF_WORKSPACENAME = "name";
     public static final String WORKSPACE_CONF_WORKSPACEID = "id";
     public static final String WORKSPACE_CONF_DESCRIPTION = "description";
+    public static final String WORKSPACE_CONF_PREFERRED = "preferred";
     public static final String WORKSPACE_CONF_METALOCATION = "meta_location";
     public static final String WORKSPACE_CONF_DATALOCATION = "data_location";
     public static final String WORKSPACE_CONF_CREATE_USER = "create_user";

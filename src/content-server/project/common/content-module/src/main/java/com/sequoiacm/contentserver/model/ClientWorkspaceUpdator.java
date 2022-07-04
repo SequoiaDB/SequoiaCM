@@ -10,8 +10,17 @@ public class ClientWorkspaceUpdator {
     private String description;
     private String removeDataLocation;
     private ClientLocationOutline addDataLocation;
+    private String preferred;
 
     public ClientWorkspaceUpdator() {
+    }
+
+    public void setPreferred(String preferred) {
+        this.preferred = preferred;
+    }
+
+    public String getPreferred() {
+        return preferred;
     }
 
     public String getDescription() {
@@ -40,8 +49,9 @@ public class ClientWorkspaceUpdator {
 
     @Override
     public String toString() {
-        return "WorkspaceUpdator [description=" + description + ", removeDataLocation="
-                + removeDataLocation + ", addDataLocation=" + addDataLocation + "]";
+        return "ClientWorkspaceUpdator{" + "description='" + description + '\''
+                + ", removeDataLocation='" + removeDataLocation + '\'' + ", addDataLocation="
+                + addDataLocation + ", preferred='" + preferred + '\'' + '}';
     }
 
     public static ClientWorkspaceUpdator fromBSONObject(BSONObject obj)
@@ -59,6 +69,9 @@ public class ClientWorkspaceUpdator {
         if (addDataLocation != null) {
             updator.setAddDataLocation(new ClientLocationOutline(addDataLocation));
         }
+        String preferred = (String) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_PREFERRED);
+        updator.setPreferred(preferred);
         if (!objCopy.isEmpty()) {
             throw new ScmInvalidArgumentException(
                     "failed to update workspace, updator contain invalid key:" + objCopy.keySet());

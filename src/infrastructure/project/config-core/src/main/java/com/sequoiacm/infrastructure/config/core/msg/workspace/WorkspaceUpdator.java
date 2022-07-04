@@ -13,6 +13,7 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private String newDesc;
     private BSONObject externalData;
     private BSONObject oldWsRecord;
+    private String preferred;
 
     public WorkspaceUpdator(String wsName) {
         this.wsName = wsName;
@@ -48,6 +49,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
         }
         if (externalData != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA, externalData);
+        }
+        if (preferred != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_PREFERRED, preferred);
         }
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, oldWsRecord);
@@ -94,4 +98,11 @@ public class WorkspaceUpdator implements ConfigUpdator {
         this.oldWsRecord = oldWsRecord;
     }
 
+    public void setPreferred(String preferred) {
+        this.preferred = preferred;
+    }
+
+    public String getPreferred() {
+        return preferred;
+    }
 }

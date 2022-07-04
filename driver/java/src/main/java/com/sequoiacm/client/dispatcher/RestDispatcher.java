@@ -2230,7 +2230,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException {
-        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName
+        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName.toLowerCase()
                 + "/region?Action=SetDefaultRegion&workspace=" + encode(wsName);
         HttpPut request = new HttpPut(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
@@ -2249,7 +2249,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public String getDefaultRegion(String s3ServiceName) throws ScmException {
-        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName + "/region?Action=GetDefaultRegion";
+        String uri = URL_PREFIX + pureUrl + "/" + s3ServiceName.toLowerCase()
+                + "/region?Action=GetDefaultRegion";
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
                 "default-region");

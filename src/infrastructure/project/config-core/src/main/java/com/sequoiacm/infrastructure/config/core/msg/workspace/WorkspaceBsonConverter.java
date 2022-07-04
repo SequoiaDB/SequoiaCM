@@ -73,6 +73,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
 
         wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(config,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
+
+        wsConfig.setPreferred(BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_PREFERRED));
         return wsConfig;
     }
 
@@ -111,6 +113,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_DESCRIPTION));
         configUpdator.setExternalData(
                 BsonUtils.getBSON(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA));
+        configUpdator.setPreferred(
+                BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_PREFERRED));
         return configUpdator;
     }
 

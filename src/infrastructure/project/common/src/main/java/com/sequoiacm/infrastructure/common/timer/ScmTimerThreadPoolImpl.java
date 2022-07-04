@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -14,11 +15,16 @@ class ScmTimerThreadPoolImpl implements ScmTimer {
     private ScheduledExecutorService innerExecutorService = null;
 
     public ScmTimerThreadPoolImpl() {
-        this(1);
+        innerExecutorService = Executors.newScheduledThreadPool(1);
     }
 
-    public ScmTimerThreadPoolImpl(int corePoolSize) {
-        innerExecutorService = Executors.newScheduledThreadPool(corePoolSize);
+    public ScmTimerThreadPoolImpl(final String name) {
+        innerExecutorService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(null, r, name);
+            }
+        });
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,12 @@ public class ScmConfSubscriberMgr {
 
     public void addSubscriber(ScmConfSubscriber subscriber, ScmConfClient client)
             throws ScmConfigException {
-        subscribers.put(subscriber.subscribeConfigName(), subscriber);
-
+        ScmConfSubscriber old = subscribers.put(subscriber.subscribeConfigName(), subscriber);
+        if (old != null) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "subscriber already exist for config: " + subscriber.subscribeConfigName()
+                            + ", can not subscribe twice");
+        }
         ConfVersionChecker checker = new ConfVersionChecker(subscriber, client, notifyLock);
         timer.schedule(checker, subscriber.getHeartbeatIterval(), subscriber.getHeartbeatIterval());
         logger.info("config version's heartbeat is started:configName={},filter={},interval={}",

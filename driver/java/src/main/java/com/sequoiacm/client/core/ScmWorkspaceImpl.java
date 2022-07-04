@@ -39,6 +39,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
+    private String preferred;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -83,6 +84,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
 
         enableDirectory = BsonUtils.getBooleanOrElse(newWsInfo,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false);
+        preferred = BsonUtils.getString(newWsInfo, FieldName.FIELD_CLWORKSPACE_PREFERRED);
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -174,10 +176,15 @@ class ScmWorkspaceImpl extends ScmWorkspace {
 
     @Override
     public String toString() {
-        return "ScmWorkspaceImpl [name=" + name + ", id=" + id + ", session=" + session
+        return "ScmWorkspaceImpl{" + "name='" + name + '\'' + ", id=" + id + ", session=" + session
                 + ", metaLocation=" + metaLocation + ", dataLocations=" + dataLocations
-                + ", description=" + description + ", createUser=" + createUser + ", updateUser="
-                + updateUser + ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
+                + ", description='" + description + '\'' + ", createUser='" + createUser + '\''
+                + ", updateUser='" + updateUser + '\'' + ", createTime=" + createTime
+                + ", updateTime=" + updateTime + ", extData=" + extData + ", batchShardingType="
+                + batchShardingType + ", batchIdTimeRegex='" + batchIdTimeRegex + '\''
+                + ", batchIdTimePattern='" + batchIdTimePattern + '\'' + ", batchFileNameUnique="
+                + batchFileNameUnique + ", enableDirectory=" + enableDirectory + ", preferred='"
+                + preferred + '\'' + '}';
     }
 
     @Override
@@ -245,5 +252,21 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     @Override
     public boolean isEnableDirectory() {
         return enableDirectory;
+    }
+
+    @Override
+    public String getPreferred() {
+        return preferred;
+    }
+
+    @Override
+    public void updatePreferred(String preferred) throws ScmException {
+        if (preferred == null) {
+            throw new ScmInvalidArgumentException("preferred is null");
+        }
+
+        BasicBSONObject updater = new BasicBSONObject(
+                CommonDefine.RestArg.WORKSPACE_UPDATOR_PREFERRED, preferred);
+        _update(updater);
     }
 }
