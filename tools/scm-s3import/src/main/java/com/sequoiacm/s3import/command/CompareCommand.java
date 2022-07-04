@@ -50,6 +50,8 @@ public class CompareCommand extends SubCommand {
         Options ops = super.commandOptions();
         ops.addOption(Option.builder().longOpt(CommonDefine.Option.BUCKET).hasArg(true)
                 .desc("buckets that need to compare data").build());
+        ops.addOption(Option.builder().longOpt(CommonDefine.Option.RESET).hasArg(false)
+                .desc("reset the comparison progress").build());
         return ops;
     }
 
@@ -60,12 +62,14 @@ public class CompareCommand extends SubCommand {
         S3ImportOptions options = super.parseCommandLineArgs(cl);
         String bucketStr = cl.getOptionValue(CommonDefine.Option.BUCKET);
         options.setBucketList(ArgUtils.parseS3Bucket(bucketStr, NAME));
+        options.setResetCompareProgress(cl.hasOption(CommonDefine.Option.RESET));
         return options;
     }
 
     @Override
-    protected void checkAndInitBucketConf(List<S3Bucket> bucketList) throws ScmToolsException {
-        super.checkAndInitBucketConf(bucketList);
+    protected void checkAndInitBucketConf(S3ImportOptions importOptions) throws ScmToolsException {
+        super.checkAndInitBucketConf(importOptions);
+        List<S3Bucket> bucketList = importOptions.getBucketList();
 
         String progressFilePath = ImportPathConfig.getInstance().getCompareProgressFilePath();
         File progressFile = new File(progressFilePath);
@@ -105,7 +109,9 @@ public class CompareCommand extends SubCommand {
                                 + s3Bucket.getName() + ", dest_bucket=" + s3Bucket.getDestName(),
                         S3ImportExitCode.INVALID_ARG);
             }
-            s3Bucket.setProgress(checkS3Bucket.getProgress());
+            if (!importOptions.isResetCompareProgress()) {
+                s3Bucket.setProgress(checkS3Bucket.getProgress());
+            }
         }
     }
 
@@ -123,6 +129,9 @@ public class CompareCommand extends SubCommand {
         ScmCommon.createDir(compareResultPath);
         System.out.println("executing data comparison, result output path: " + compareResultPath);
         logger.info("executing data comparison, result output path: {}", compareResultPath);
+        if (importOptions.isResetCompareProgress()) {
+            FileOperateUtils.backupCompareResult(compareResultPath);
+        }
 
         ImportToolProps toolProps = ImportToolProps.getInstance();
         int batchSize = toolProps.getBatchSize();

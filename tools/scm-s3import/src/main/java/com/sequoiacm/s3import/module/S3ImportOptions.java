@@ -11,6 +11,7 @@ public class S3ImportOptions {
     private String workPath;
     private String confPath;
     private long maxExecTime = -1;
+    private boolean resetCompareProgress;
     private String compareResultPath;
     private List<S3Bucket> bucketList;
 
@@ -52,5 +53,13 @@ public class S3ImportOptions {
 
     public void setBucketList(List<S3Bucket> bucketList) {
         this.bucketList = bucketList;
+    }
+
+    public boolean isResetCompareProgress() {
+        return resetCompareProgress;
+    }
+
+    public void setResetCompareProgress(boolean resetCompareProgress) {
+        this.resetCompareProgress = resetCompareProgress;
     }
 }

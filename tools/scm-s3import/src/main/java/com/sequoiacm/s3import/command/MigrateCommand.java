@@ -56,8 +56,9 @@ public class MigrateCommand extends SubCommand {
     }
 
     @Override
-    protected void checkAndInitBucketConf(List<S3Bucket> bucketList) throws ScmToolsException {
-        super.checkAndInitBucketConf(bucketList);
+    protected void checkAndInitBucketConf(S3ImportOptions importOptions) throws ScmToolsException {
+        super.checkAndInitBucketConf(importOptions);
+        List<S3Bucket> bucketList = importOptions.getBucketList();
 
         // 迁移进度文件不存在
         String progressFilePath = ImportPathConfig.getInstance().getMigrateProgressFilePath();

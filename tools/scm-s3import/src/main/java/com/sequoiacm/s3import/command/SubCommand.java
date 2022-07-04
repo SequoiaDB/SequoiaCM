@@ -62,7 +62,7 @@ public abstract class SubCommand {
             }
             changeLogOutputFile(pathConfig);
             InitWorkEnv(resource);
-            checkAndInitBucketConf(importOptions.getBucketList());
+            checkAndInitBucketConf(importOptions);
             ProgressPrinter printer = new ProgressPrinter(getName(), importOptions.getBucketList());
             try {
                 printer.start();
@@ -89,10 +89,10 @@ public abstract class SubCommand {
         }
     }
 
-    protected void checkAndInitBucketConf(List<S3Bucket> bucketList) throws ScmToolsException {
+    protected void checkAndInitBucketConf(S3ImportOptions importOptions) throws ScmToolsException {
         S3ClientManager clientManager = S3ClientManager.getInstance();
         S3Utils.checkAndInitVersionControl(clientManager.getSrcS3Client(),
-                clientManager.getDestS3Client(), bucketList);
+                clientManager.getDestS3Client(), importOptions.getBucketList());
     }
 
     protected Options commandOptions() throws ScmToolsException {

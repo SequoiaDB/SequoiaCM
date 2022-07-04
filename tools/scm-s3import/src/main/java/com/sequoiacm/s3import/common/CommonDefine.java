@@ -36,6 +36,7 @@ public class CommonDefine {
         public static final String CONF = "conf";
         public static final String MAX_EXEC_TIME = "max-exec-time";
         public static final String BUCKET = "bucket";
+        public static final String RESET = "reset";
         public static final String CMP_RES_PATH = "cmp-result-path";
     }
 

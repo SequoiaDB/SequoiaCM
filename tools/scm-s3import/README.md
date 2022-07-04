@@ -38,6 +38,7 @@
 |--conf           |migrate/retry/compare/sync |否      |指定工程配置文件的路径|
 |--max-exec-time  |migrate/retry/compare/sync |否      |最大执行时间，未指定时不限制，单位：秒|
 |--bucket         |migrate/retry/compare      |是      |需要处理的桶列表，多个桶之间用逗号分隔|
+|--reset          |compare                    |否      |重置比对进度。<br>1. 工具执行时会持久化数据比对进度，重复执行比对命令，会跳过已经比对完成的桶，指定该参数可重置进度从头开始比对<br>2. 上一次比对结果将备份至如下目录<br>工作目录/compare_result/back_up/cmp_res_当前时间 |
 |--cmp-result-path|sync                       |是      |数据比对结果的路径|
 
 ## 3 执行迁移
@@ -109,6 +110,7 @@
 ```shell
 /opt/s3import/
 	|--compare_result/         # 存放数据比对结果
+		|--back_up/            # 历史比对结果备份
 	|--conf/            
 		|--work_env.json       # 当前工作路径的环境描述信息
 		|--logback.xml         # 日志配置文件

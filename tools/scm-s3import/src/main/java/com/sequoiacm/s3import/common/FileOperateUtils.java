@@ -11,14 +11,20 @@ import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.module.CompareResult;
 import com.sequoiacm.s3import.module.S3Bucket;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 
 public class FileOperateUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileOperateUtils.class);
 
     public static void copyLogXml2WorkPath(File logConfFile) throws ScmToolsException {
         ScmFileResource fileResource = ScmResourceFactory.getInstance()
@@ -126,6 +132,36 @@ public class FileOperateUtils {
         }
         finally {
             resource.release();
+        }
+    }
+
+    public static void backupCompareResult(String resultDirPath) throws ScmToolsException {
+        String backupDirName = "back_up";
+        String compareBackupPath = resultDirPath + File.separator + backupDirName;
+        ScmCommon.createDir(compareBackupPath);
+
+        File[] files = new File(resultDirPath).listFiles();
+        if (files.length <= 1) {
+            return;
+        }
+
+        // e.g. {work-path}/compare_result/back_up/cmp_res_20220701123030
+        String currentBackupPath = compareBackupPath + File.separator + "cmp_res_"
+                + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        ScmCommon.createDir(currentBackupPath);
+        logger.info("backup comparison result, backup dir={}", currentBackupPath);
+
+        File currentBackupDir = new File(currentBackupPath);
+        try {
+            for (File file : files) {
+                if (!file.getName().equals(backupDirName)) {
+                    FileUtils.moveToDirectory(file, currentBackupDir, false);
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new ScmToolsException("Failed to backup comparison result",
+                    S3ImportExitCode.SYSTEM_ERROR, e);
         }
     }
 

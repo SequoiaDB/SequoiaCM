@@ -52,11 +52,11 @@ public class RetryCommand extends SubCommand {
     }
 
     @Override
-    protected void checkAndInitBucketConf(List<S3Bucket> bucketList)
+    protected void checkAndInitBucketConf(S3ImportOptions importOptions)
             throws ScmToolsException {
-        super.checkAndInitBucketConf(bucketList);
+        super.checkAndInitBucketConf(importOptions);
         ImportPathConfig pathConfig = ImportPathConfig.getInstance();
-        for (S3Bucket s3Bucket : bucketList) {
+        for (S3Bucket s3Bucket : importOptions.getBucketList()) {
             File errorKeyFile = new File(pathConfig.getErrorKeyFilePath(s3Bucket));
             Queue<String> errorKeyList = new LinkedList<>();
             if (errorKeyFile.exists() && errorKeyFile.isFile()) {
