@@ -11,8 +11,8 @@ SequoiaCM 配置
 |---------------------------|-------|----------------------------------------|
 |spring.application.name|str|内容服务节点的服务名，即所属的站点名|
 |scm.server.transferCheckLength |num    |迁移任务，在某个文件迁移过程中，每迁移多少数据检查一次任务状态，默认值：10485760，单位：字节|
-|scm.server.transferConnectTimeout|num  |迁移任务，源节点与目标节点建立连接的超时时间，默认值：3000，单位：毫秒|
-|scm.server.transferReadTimeout|num |迁移任务，源节点与目标节点建立连接后，源节点的读超时，默认值：120000，单位：毫秒|
+|scm.server.transferConnectTimeout|num  |迁移任务，源节点与目标节点建立连接的超时时间，不配置时使用 ribbon.ConnectTimeout 配置项指定的值，默认：10000，单位：毫秒|
+|scm.server.transferReadTimeout|num |迁移任务，源节点与目标节点建立连接后，源节点的读超时，不配置时使用 ribbon.ReadTimeout 配置项指定的值，默认：30000，单位：毫秒|
 |scm.server.listInstanceCheckInterval|num|内容服务节点在处理list请求时，每列取多少个对象检查一次与客户端的连接状态（检查状态的同时，会对该连接执行 flush ），默认值：2000|
 |scm.audit.mask|str|审计日志操作配置，控制对不同操作命令记录审计日志。默认为空，不记录任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|
 |scm.audit.userMask|str|审计日志用户配置，默认为空，不记录任何用户的审计日志。支持的配置详见[审计用户类型掩码列表][audit_log]|

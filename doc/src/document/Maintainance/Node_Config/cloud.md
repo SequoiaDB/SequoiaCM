@@ -22,9 +22,9 @@ SequoiaCM 配置
 |scm.uploadForward.maxTotalConnections|num|文件转发连接池的最大连接数，默认值：1000|
 |scm.uploadForward.maxPerRouteConnections|num|文件转发连接池中，每个地址最大连接数，默认值：50|
 |scm.uploadForward.connectionCleanerRepeatInterval|num|文件转发连接池的空闲连接清理周期，默认值：30000，单位：毫秒|
-|scm.uploadForward.connectTimeout|num|文件转发连接池中的连接建连超时，默认值：5000，单位：毫秒|
+|scm.uploadForward.connectTimeout|num|文件转发连接池中的连接建连超时，不配置时使用 ribbon.ConnectTimeout 配置项指定的值，默认：10000，单位：毫秒|
 |scm.uploadForward.connectionRequestTimeout|num|从文件转发连接池中获取连接的超时时间，默认值：-1（表示不超时），单位：毫秒|
-|scm.uploadForward.socketTimeout|num|文件转发连接池中的连接读超时，默认值：30000，单位：毫秒|
+|scm.uploadForward.socketTimeout|num|文件转发连接池中的连接读超时，不配置时使用 ribbon.ReadTimeout 配置项指定的值，默认：30000，单位：毫秒|
 |scm.statistics.types|str|需要进行统计的请求类型，可选值：file_upload（文件上传）、file_download（文件下载），需要统计多项时用逗号分开，默认不进行任何统计|
 |scm.statistics.types.file_upload.conditions.workspaces|str|统计文件上传请求的工作区过滤条件，填写工作区名字，多个工作区用逗号分开，未指定任何工作过滤条件时默认统计所有工作区的文件上传|
 |scm.statistics.types.file_upload.conditions.workspacesRegex|str|统计文件上传请求的工作区过滤条件，填写工作区名字正则表达式，未指定任何工作过滤条件时默认统计所有工作区的文件上传|
