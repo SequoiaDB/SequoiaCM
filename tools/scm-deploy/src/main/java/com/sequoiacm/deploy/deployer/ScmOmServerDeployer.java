@@ -29,6 +29,11 @@ public class ScmOmServerDeployer extends ServiceDeployerBase {
         BasicBSONList decoratedArrayBson = new BasicBSONList();
         BasicBSONObject decoratedBSON = new BasicBSONObject();
         decoratedBSON.putAll(templateServerBson);
+        // generate custom node props
+        BSONObject customConf = node.getCustomNodeConf();
+        if (customConf != null) {
+            decoratedBSON.putAll(customConf);
+        }
 
         decoratedBSON.put(DeployJsonDefine.SERVER_PORT, node.getPort() + "");
         decoratedBSON.put(DeployJsonDefine.HOSTNAME, node.getHostName());
