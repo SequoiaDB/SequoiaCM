@@ -10,8 +10,9 @@ com.sequoiacm.infrastructure.ribbon.ScmRibbonClientAutoConfiguration
 
 
 org.springframework.context.ApplicationListener=\
-com.sequoiacm.infrastructure.config.ScmPropertySourceConfig
+com.sequoiacm.infrastructure.config.ScmPropertySourceConfig,\
+com.sequoiacm.infrastructure.fix.ThirdPartyComponentFixEntry
 
-## 在 Actuator 的管理端口上注册该 Bean
+## Register bean on management port of Actuator
 org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration=\
 com.sequoiacm.infrastructure.controller.InternalActuatorController
