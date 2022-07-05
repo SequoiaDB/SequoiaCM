@@ -150,4 +150,16 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
         checkScmWorkspace();
         return scmWorkspace.getExtData();
     }
+
+    @Override
+    public void updatePreferred(String preferred) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.updatePreferred(preferred);
+    }
+
+    @Override
+    public String getPreferred() {
+        checkScmWorkspace();
+        return scmWorkspace.getPreferred();
+    }
 }
