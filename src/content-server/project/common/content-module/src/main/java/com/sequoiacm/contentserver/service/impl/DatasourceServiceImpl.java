@@ -136,11 +136,14 @@ public class DatasourceServiceImpl implements IDatasourceService {
         try {
             if (is != null) {
                 while (true) {
-                    int actLen = is.read(buf, 0, Const.TRANSMISSION_LEN);
+                    int actLen = CommonHelper.readAsMuchAsPossible(is, buf);
                     if (actLen == -1) {
                         break;
                     }
                     writer.write(buf, 0, actLen);
+                    if (actLen < buf.length) {
+                        break;
+                    }
                 }
             }
             writer.close();
