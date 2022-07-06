@@ -70,6 +70,7 @@ public class ScmTestMultiCenterBase {
         boolean hasRootSite = false;
         int siteCount = 0;
 
+        ScmFactory.Workspace.setKeepAliveTime(0);
         ScmSiteInfo currentSite = null;
         while ((currentSite = siteCursor.getNext()) != null) {
             if (++siteCount > 3 && hasRootSite) {
