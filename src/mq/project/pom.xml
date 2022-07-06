@@ -122,6 +122,12 @@
                 <artifactId>sequoiacm-infrastructure-tool</artifactId>
                 <version>${sequoiacm-infrastructure.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-security-auth</artifactId>
+                <version>${sequoiacm-infrastructure.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

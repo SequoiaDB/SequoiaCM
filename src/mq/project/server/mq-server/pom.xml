@@ -75,6 +75,16 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-security-auth</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!--加入SpringBoot Test的相关依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
