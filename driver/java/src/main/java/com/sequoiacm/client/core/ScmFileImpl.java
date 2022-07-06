@@ -665,6 +665,41 @@ class ScmFileImpl extends ScmFile {
         }
     }
 
+    @Override
+    public InputStream getInputStream() throws ScmException {
+        return internalGetContentInputStream(0);
+    }
+
+    //对外不开放SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE，目前只暴露 SCM_READ_FILE_FORCE_NO_CACHE
+    @Override
+    public InputStream getInputStream(int readFlag) throws ScmException {
+        if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+                | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE
+                | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK)) > 0) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "readFlag cannot contain the following: "
+                            + "SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE, "
+                            + "readFlag=" + readFlag);
+        }
+        return internalGetContentInputStream(readFlag);
+    }
+
+    @Override
+    public InputStream getInputStreamFromLocalSite() throws ScmException {
+        return internalGetContentInputStream(CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE);
+    }
+
+    private InputStream internalGetContentInputStream(int readFlag)throws ScmException{
+        if (!isExist()) {
+            throw new ScmException(ScmError.FILE_NOT_EXIST,
+                    "file does not exist");
+        }
+        ScmSession conn = ws.getSession();
+        CloseableFileDataEntity fileData = conn.getDispatcher().downloadFile(ws.getName(), basicInfo.getFileId().get(),
+                basicInfo.getMajorVersion(), basicInfo.getMinorVersion(), readFlag);
+        return fileData.getDataIs();
+    }
+
     private BSONObject saveBreakpointFile(ScmUploadConf uploadConf) throws ScmException {
         if (!breakpointFile.isCompleted()) {
             throw new ScmInvalidArgumentException("BreakpointFile is uncompleted");

@@ -756,4 +756,36 @@ public abstract class ScmFile {
     abstract HttpURLConnection httpURLConnectionForSave(ScmUploadConf conf) throws ScmException;
 
     abstract HttpURLConnection httpURLConnectionForUpdateContent() throws ScmException;
+
+    /**
+     * Get the file InputStream
+     *
+     * @throws ScmException
+     *             If error happens
+     */
+    public abstract InputStream getInputStream() throws ScmException;
+
+    /**
+     * Get the file InputStream
+     *
+     * @param flag
+     *            the read flags. Please see the description of follow flags for
+     *            more detail, and can also specify 0 to not configure.
+     *            <dl>
+     *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE :do not
+     *            cache when reading file across sites
+     *            </dl>
+     *
+     * @throws ScmException
+     *             If error happens
+     */
+    public abstract InputStream getInputStream(int flag) throws ScmException;
+
+    /**
+     * Get the file InputStream, only get content from local site
+     *
+     * @throws ScmException
+     *             If error happens
+     */
+    public abstract InputStream getInputStreamFromLocalSite() throws ScmException;
 }
