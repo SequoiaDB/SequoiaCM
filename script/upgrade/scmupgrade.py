@@ -78,7 +78,9 @@ def operate_resource(service, source_path, target_path, operate_type):
     current_bin = source_path + os.sep + "bin"
     current_jars = source_path + os.sep + DICT_SVC[service]['jars_lib']
     if operate_type == "copy":
-        exec_cmd("cp -rf " + current_py + " " + target_path)
+        # service may not contain .py (e.g. daemon)
+        if is_source_exist(current_py):
+            exec_cmd("cp -rf " + current_py + " " + target_path)
         exec_cmd("cp -rf " + current_bin + " " + target_path)
         exec_cmd("cp -rf " + current_jars + " " + target_path)
     else:
@@ -87,8 +89,11 @@ def operate_resource(service, source_path, target_path, operate_type):
         mv_if_source_exist(current_jars, target_path)
 
 def mv_if_source_exist(source_path, target_path):
-    if len(glob.glob(source_path)) != 0:
+    if is_source_exist(source_path):
         exec_cmd("mv " + source_path + " " + target_path)
+
+def is_source_exist(source_path):
+    return len(glob.glob(source_path)) != 0
 
 def copy_old_transwarp_jars(service_backup_dir, service_install_path):
     #cp old transwarp jars to install path
