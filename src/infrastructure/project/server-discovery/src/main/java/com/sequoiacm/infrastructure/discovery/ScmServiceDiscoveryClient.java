@@ -10,10 +10,10 @@ import java.util.*;
 public class ScmServiceDiscoveryClient {
     private final DiscoveryClient discoveryClient;
 
-    @Value("${eureka.instance.metadata-map.zone}")
+    @Value("${eureka.instance.metadata-map.zone:#{null}}")
     private String localZone;
 
-    @Value("${eureka.instance.metadata-map.region}")
+    @Value("${eureka.instance.metadata-map.region:#{null}}")
     private String localRegion;
 
     public ScmServiceDiscoveryClient(DiscoveryClient discoveryClient) {
