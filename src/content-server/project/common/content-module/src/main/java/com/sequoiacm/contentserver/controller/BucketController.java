@@ -198,6 +198,7 @@ public class BucketController {
         ScmUser user = (ScmUser) auth.getPrincipal();
         MetaCursor cursor = service.listFile(user, bucketName, condition, null, orderby, skip,
                 limit);
+        resp.setHeader("Content-Type", "application/json;charset=utf-8");
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(resp));
     }
 

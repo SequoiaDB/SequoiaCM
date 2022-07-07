@@ -156,7 +156,13 @@ public class ScmArgChecker {
 
     public static class Bucket {
         public static boolean checkBucketName(String name) {
-            return Directory.checkDirectoryName(name);
+            if (name.length() < 3 || name.length() > 63) {
+                return false;
+            }
+            if (!name.matches("^[a-z0-9][a-z0-9.-]+[a-z0-9]$")) {
+                return false;
+            }
+            return true;
         }
     }
 
