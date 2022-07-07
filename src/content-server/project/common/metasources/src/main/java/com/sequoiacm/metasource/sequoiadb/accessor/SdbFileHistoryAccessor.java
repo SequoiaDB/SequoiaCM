@@ -20,6 +20,8 @@ import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 import com.sequoiadb.exception.SDBError;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     private static final Logger logger = LoggerFactory.getLogger(SdbFileHistoryAccessor.class);
@@ -236,6 +238,25 @@ class LatestVersionCache {
 }
 
 class CompatibilityProcessor {
+    private static final Set<String> FIX_FIELD = new HashSet<>();
+    static {
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_BATCH_ID);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_PROPERTIES);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_NAME);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_EXTRA_STATUS);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_TAGS);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_TYPE);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_INNER_UPDATE_USER);
+        FIX_FIELD.add(FieldName.FIELD_CLFILE_INNER_USER);
+    }
     private static final Logger logger = LoggerFactory.getLogger(CompatibilityProcessor.class);
     private final String wsName;
     private LruMap<String, LatestVersionCache> latestVersionCacheMap = new LruMap<>(100);
@@ -298,11 +319,19 @@ class CompatibilityProcessor {
         }
 
         BasicBSONObject newHistoryRecord = new BasicBSONObject();
-        newHistoryRecord.putAll(latestVersionCache.getLatestVersionInfo());
+        fillLatestVersionProps(newHistoryRecord, latestVersionCache.getLatestVersionInfo());
         newHistoryRecord.putAll(historyRecord);
         historyFileAccessor.pureUpdate(historyRecord,
                 new BasicBSONObject("$set", newHistoryRecord));
         return newHistoryRecord;
+    }
+
+    private void fillLatestVersionProps(BasicBSONObject newHistoryRecord,
+            BSONObject latestVersionInfo) {
+        // 使用最新版本的属性填充历史版本
+        for (String field : FIX_FIELD) {
+            newHistoryRecord.put(field, latestVersionInfo.get(field));
+        }
     }
 }
 

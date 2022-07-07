@@ -44,6 +44,7 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
@@ -718,6 +719,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             trans.begin();
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
                     wsInfo.getName(), trans);
+            MetaFileHistoryAccessor historyFileAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), trans);
             MetaAccessor bucketFileAccessor = bucket.getFileTableAccessor(trans);
             BasicBSONObject bucketFileMatcher = new BasicBSONObject();
             bucketFileMatcher.put(FieldName.BucketFile.FILE_NAME, fileName);
@@ -735,9 +738,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                                 + ", fileName=" + fileName + ", fileId=" + fileId);
                 return;
             }
-            BSONObject fileMatcher = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
-                    bucket.getId());
-            SequoiadbHelper.addFileIdAndCreateMonth(bucketFileMatcher, fileId);
+            BSONObject fileMatcher = new BasicBSONObject();
+            SequoiadbHelper.addFileIdAndCreateMonth(fileMatcher, fileId);
             BSONObject bucketIdSetNull = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
                     null);
             BSONObject updater = new BasicBSONObject("$set", bucketIdSetNull);
@@ -745,6 +747,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             if (newFileInfo != null) {
                 operationCompleteCallback = listenerMgr.postUpdate(wsInfo, newFileInfo);
             }
+            historyFileAccessor.updateAndReturnNew(fileMatcher, updater);
             trans.commit();
             audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
                     "bucket detach file: bucketName=" + bucketName + ", fileName=" + fileName
@@ -837,15 +840,45 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         return ret;
     }
 
-    private ScmBucketAttachFailure attachFile(ScmBucket bucket, ScmWorkspaceInfo wsInfo,
-            ContentModuleMetaSource metasource, String fileId, ScmBucketAttachKeyType type) {
+    private BSONObject genFileAttachBucketUpdater(ScmBucket attachToBucket,
+            ScmBucketAttachKeyType type, BSONObject fileRecord) {
         BSONObject newInfo = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
-                bucket.getId());
-        if (bucket.getVersionStatus() != ScmBucketVersionStatus.Enabled) {
+                attachToBucket.getId());
+        if (attachToBucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
             newInfo.put(FieldName.FIELD_CLFILE_NULL_MARKER, true);
         }
-        BasicBSONObject updater = new BasicBSONObject("$set", newInfo);
 
+        String etag = BsonUtils.getString(fileRecord, FieldName.FIELD_CLFILE_FILE_ETAG);
+        if (etag == null) {
+            String md5 = BsonUtils.getString(fileRecord, FieldName.FIELD_CLFILE_FILE_MD5);
+            if (md5 != null) {
+                etag = SignUtil.toHex(md5);
+            }
+            else {
+                // 被关联的文件没有md5属性，这里按分段上传形成的对象 ETAG 格式（这个 ETAG 不代表文件 MD5），造一个 ETAG 给这个文件
+                String dataId = BsonUtils.getStringChecked(fileRecord,
+                        FieldName.FIELD_CLFILE_FILE_DATA_ID);
+                etag = SignUtil.calcHexMd5(dataId) + "-1";
+            }
+            newInfo.put(FieldName.FIELD_CLFILE_FILE_ETAG, etag);
+        }
+
+        if (type == ScmBucketAttachKeyType.FILE_ID) {
+            // 关联类型是fileId，表示用户希望关联后通过 桶+文件ID 访问文件，
+            // 这里将文件使用ID重命名，并将旧文件名使用文件external_data保存起来
+            newInfo.put(FieldName.FIELD_CLFILE_NAME, fileRecord.get(FieldName.FIELD_CLFILE_ID));
+            newInfo.put(
+                    FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
+                            + FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH,
+                    fileRecord.get(FieldName.FIELD_CLFILE_NAME));
+        }
+
+        return new BasicBSONObject("$set", newInfo);
+    }
+
+    private ScmBucketAttachFailure attachFile(ScmBucket attachToBucket, ScmWorkspaceInfo wsInfo,
+            ContentModuleMetaSource metasource, String fileId,
+            ScmBucketAttachKeyType attachKeyType) {
         ScmLock lock = null;
         TransactionContext trans = null;
         OperationCompleteCallback operationCompleteCallback = null;
@@ -854,74 +887,61 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                     ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId));
             trans = metasource.createTransactionContext();
             trans.begin();
+
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
                     wsInfo.getName(), trans);
-            MetaAccessor bucketFileAccessor = bucket.getFileTableAccessor(trans);
+            MetaFileHistoryAccessor historyFileAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), trans);
+            MetaAccessor bucketFileAccessor = attachToBucket.getFileTableAccessor(trans);
 
-            BasicBSONObject matcher = new BasicBSONObject();
-            ScmMetaSourceHelper.addFileIdAndCreateMonth(matcher, fileId);
+            BasicBSONObject fileIdAndMonthMatcher = new BasicBSONObject();
+            ScmMetaSourceHelper.addFileIdAndCreateMonth(fileIdAndMonthMatcher, fileId);
 
-            BSONObject oldFileRecord = fileAccessor.queryAndUpdate(matcher, updater, null);
-            if (oldFileRecord == null) {
+            BSONObject latestFileVersion = fileAccessor.queryOne(fileIdAndMonthMatcher, null, null);
+            if (latestFileVersion == null) {
                 ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
                         ScmError.FILE_NOT_FOUND, "file not exist:ws=" + wsInfo.getName(), null);
-                logger.warn("failed to attach file: bucket={}, failure={}", bucket, failure);
+                logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
+                        failure);
                 transactionRollback(trans);
                 return failure;
             }
-            Number oldBucketId = BsonUtils.getNumber(oldFileRecord,
-                    FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-            if (oldBucketId != null) {
-                if (oldBucketId.longValue() != bucket.getId()) {
-                    ScmBucket oldBucket = bucketInfoManager.getBucketById(oldBucketId.longValue());
-                    if (oldBucket != null) {
-                        ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
-                                ScmError.FILE_IN_ANOTHER_BUCKET,
-                                "file already in another bucket:ws=" + wsInfo.getName()
-                                        + ", bucketName=" + oldBucket.getName(),
-                                new BasicBSONObject(CommonDefine.RestArg.BUCKET_NAME,
-                                        oldBucket.getName()));
-                        transactionRollback(trans);
-                        logger.warn("failed to attach file: bucket={}, failure={}", bucket,
-                                failure);
-                        return failure;
-                    }
-                }
-                else {
-                    transactionRollback(trans);
+
+            ScmBucket fileCurrentBucket = getFileBucket(latestFileVersion);
+            if (fileCurrentBucket != null) {
+                transactionRollback(trans);
+                if (fileCurrentBucket.getName().equals(attachToBucket.getName())) {
                     return null;
                 }
-            }
-            if (bucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
-                if (!isFirstVersion(oldFileRecord)) {
-                    ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
-                            ScmError.OPERATION_UNSUPPORTED,
-                            "file has multi version, can not attach to the bucket(version control is disabled):ws="
-                                    + wsInfo.getName() + ", bucketName=" + bucket.getName()
-                                    + ", versionStatus=" + bucket.getVersionStatus(),
-                            null);
-                    transactionRollback(trans);
-                    logger.warn("failed to attach file: bucket={}, failure={}", bucket, failure);
-                    return failure;
-                }
-            }
-            BSONObject newFileInfo = oldFileRecord;
-            newFileInfo.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, bucket.getId());
-            if (type == ScmBucketAttachKeyType.FILE_ID) {
-                // 关联类型是fileId，表示用户希望关联后通过 桶+文件ID 访问文件，
-                // 这里将文件使用ID重命名，并将旧文件名使用文件external_data保存起来
-                BasicBSONObject renameUpdator = new BasicBSONObject();
-                renameUpdator.put(FieldName.FIELD_CLFILE_NAME, fileId);
-                renameUpdator.put(
-                        FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
-                                + FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH,
-                        oldFileRecord.get(FieldName.FIELD_CLFILE_NAME));
-                fileAccessor.update(matcher, new BasicBSONObject("$set", renameUpdator));
-                newFileInfo.put(FieldName.FIELD_CLFILE_NAME, fileId);
+                ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
+                        ScmError.FILE_IN_ANOTHER_BUCKET,
+                        "file already in another bucket:ws=" + wsInfo.getName() + ", bucketName="
+                                + fileCurrentBucket.getName(),
+                        new BasicBSONObject(CommonDefine.RestArg.BUCKET_NAME,
+                                fileCurrentBucket.getName()));
+                transactionRollback(trans);
+                logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
+                        failure);
+                return failure;
             }
 
-            // newFileInfo external_data字段是旧的，但是createBucketFileRel函数不关心这个字段
-            BSONObject bucketFileRel = ScmFileOperateUtils.createBucketFileRel(newFileInfo);
+            BSONObject latestVersionUpdater = genFileAttachBucketUpdater(attachToBucket,
+                    attachKeyType, latestFileVersion);
+            BSONObject latestFileVersionAfterUpdate = fileAccessor
+                    .queryAndUpdate(fileIdAndMonthMatcher, latestVersionUpdater, null, true);
+
+            ScmBucketAttachFailure failure = attachHistoryVersion(latestFileVersion,
+                    historyFileAccessor, fileId, fileIdAndMonthMatcher, wsInfo, attachToBucket,
+                    attachKeyType);
+            if (failure != null) {
+                transactionRollback(trans);
+                logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
+                        failure);
+                return failure;
+            }
+
+            BSONObject bucketFileRel = ScmFileOperateUtils
+                    .createBucketFileRel(latestFileVersionAfterUpdate);
             try {
                 bucketFileAccessor.insert(bucketFileRel);
             }
@@ -929,14 +949,17 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 if (e.getScmError() == ScmError.METASOURCE_RECORD_EXIST) {
                     throw new ScmServerException(ScmError.FILE_EXIST,
                             "the bucket already contain a file with same name: bucket="
-                                    + bucket.getName() + ", ws=" + wsInfo.getName() + ", fileName="
+                                    + attachToBucket.getName() + ", ws=" + wsInfo.getName()
+                                    + ", fileName="
                                     + bucketFileRel.get(FieldName.BucketFile.FILE_NAME),
                             e);
                 }
                 throw e;
             }
+
             trans.commit();
-            operationCompleteCallback = listenerMgr.postUpdate(wsInfo, newFileInfo);
+            operationCompleteCallback = listenerMgr.postUpdate(wsInfo,
+                    latestFileVersionAfterUpdate);
             return null;
         }
         catch (Exception e) {
@@ -944,7 +967,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             ScmError scmError = getScmErrorFromException(e);
             ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId, scmError,
                     e.getMessage(), null);
-            logger.warn("failed to attach file: bucket={}, failure={}", bucket, failure, e);
+            logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket, failure, e);
             return failure;
         }
         finally {
@@ -955,6 +978,47 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             if (operationCompleteCallback != null) {
                 operationCompleteCallback.onComplete();
             }
+        }
+    }
+
+    private ScmBucket getFileBucket(BSONObject file) throws ScmServerException {
+        Number bucketId = BsonUtils.getNumber(file, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (bucketId != null) {
+            return bucketInfoManager.getBucketById(bucketId.longValue());
+        }
+        return null;
+    }
+
+    private ScmBucketAttachFailure attachHistoryVersion(BSONObject latestFileVersion,
+            MetaFileHistoryAccessor historyFileAccessor, String fileId,
+            BSONObject fileIdAndMonthMatcher, ScmWorkspaceInfo fileWs, ScmBucket attachToBucket,
+            ScmBucketAttachKeyType attachType) throws ScmMetasourceException {
+        if (isFirstVersion(latestFileVersion)) {
+            return null;
+        }
+        try (MetaCursor historyVersionCursor = historyFileAccessor.query(fileIdAndMonthMatcher,
+                null)) {
+            if (historyVersionCursor.hasNext()
+                    && attachToBucket.getVersionStatus() != ScmBucketVersionStatus.Enabled) {
+                return new ScmBucketAttachFailure(fileId, ScmError.OPERATION_UNSUPPORTED,
+                        "file has multi version, can not attach to the bucket(version control is disabled):ws="
+                                + fileWs.getName() + ", bucketName=" + attachToBucket.getName()
+                                + ", versionStatus=" + attachToBucket.getVersionStatus(),
+                        null);
+            }
+            BSONObject fileIdAndMonthMatcherCopy = new BasicBSONObject();
+            fileIdAndMonthMatcherCopy.putAll(fileIdAndMonthMatcher);
+            while (historyVersionCursor.hasNext()) {
+                BSONObject historyRecord = historyVersionCursor.getNext();
+                BSONObject updater = genFileAttachBucketUpdater(attachToBucket, attachType,
+                        historyRecord);
+                fileIdAndMonthMatcherCopy.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
+                        historyRecord.get(FieldName.FIELD_CLFILE_MAJOR_VERSION));
+                fileIdAndMonthMatcherCopy.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
+                        historyRecord.get(FieldName.FIELD_CLFILE_MINOR_VERSION));
+                historyFileAccessor.updateAndReturnNew(fileIdAndMonthMatcherCopy, updater);
+            }
+            return null;
         }
     }
 

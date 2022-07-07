@@ -260,7 +260,13 @@ public class SdbMetaAccessor implements MetaAccessor {
             DBCollection cl = cs.getCollection(getClName());
 
             cursor = cl.query(matcher, selector, orderBy, hint, skip, limit, flag);
-            sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
+            if (context != null) {
+                // 连接在事务中自行管理，不需要将连接托管给 MetaCursor
+                sdbCursor = new SdbMetaCursor(cursor);
+            }
+            else {
+                sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
+            }
         }
         catch (SdbMetasourceException e) {
             SequoiadbHelper.closeCursor(cursor);
@@ -581,7 +587,13 @@ public class SdbMetaAccessor implements MetaAccessor {
             }
 
             cursor = cl.aggregate(objs);
-            sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
+            if (context != null) {
+                // 连接在事务中自行管理，不需要将连接托管给 MetaCursor
+                sdbCursor = new SdbMetaCursor(cursor);
+            }
+            else {
+                sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
+            }
         }
         catch (SdbMetasourceException e) {
             SequoiadbHelper.closeCursor(cursor);

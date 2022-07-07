@@ -13,9 +13,15 @@ public class SdbMetaCursor implements MetaCursor {
     private Sequoiadb sdb;
     private DBCursor cursor;
 
+    // 托管 sdb 连接，游标释放的时候，将连接进行回池
     public SdbMetaCursor(SdbMetaSource metasource, Sequoiadb sdb, DBCursor cursor) {
         this.metasource = metasource;
         this.sdb = sdb;
+        this.cursor = cursor;
+    }
+
+    // sdb 连接在外部维护，游标释放只关闭底层sdb cursor，调用者需要自行维护该游标关联的 sdb 连接
+    public SdbMetaCursor(DBCursor cursor) {
         this.cursor = cursor;
     }
 

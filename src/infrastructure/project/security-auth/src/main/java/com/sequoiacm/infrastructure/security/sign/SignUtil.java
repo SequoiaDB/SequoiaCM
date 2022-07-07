@@ -89,6 +89,18 @@ public class SignUtil {
         }
     }
 
+    public static String calcHexMd5(String content) {
+        try {
+            MessageDigest md5Calc = MessageDigest.getInstance("MD5");
+            md5Calc.update(content.getBytes());
+            byte[] md5Bytes = md5Calc.digest();
+            return Hex.encodeHexString(md5Bytes);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("failed to calc md5 string:" + content, e);
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println(SignUtil.toHex(hash("PUT\n" + "/s3/bucket1/ExampleObject.txt\n" + "\n"
                 + "content-length:857\n" + "host:192.168.10.95:8080\n"
