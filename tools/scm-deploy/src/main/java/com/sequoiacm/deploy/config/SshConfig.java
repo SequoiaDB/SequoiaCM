@@ -5,6 +5,7 @@ public class SshConfig {
     private String privateKeyPath = "~/.ssh/id_rsa";
     private String envFile = "/etc/profile";
     private String sudoShellPath = "/bin/sh";
+    private int runCommandTimeout = 5 * 60 * 1000;
 
     public SshConfig() {
         SystemApplicationProperty p = SystemApplicationProperty.getInstance();
@@ -12,6 +13,7 @@ public class SshConfig {
         privateKeyPath = p.getString("ssh.privateKeyPath", privateKeyPath);
         envFile = p.getString("ssh.envFile", envFile);
         sudoShellPath = p.getString("ssh.sudoShellPath", sudoShellPath);
+        runCommandTimeout = p.getInt("ssh.runCommandTimeout", runCommandTimeout);
     }
 
     public void setConnectTimeout(int sshConnectTimeout) {
@@ -36,5 +38,9 @@ public class SshConfig {
 
     public String getSudoShellPath() {
         return sudoShellPath;
+    }
+
+    public int getRunCommandTimeout() {
+        return runCommandTimeout;
     }
 }

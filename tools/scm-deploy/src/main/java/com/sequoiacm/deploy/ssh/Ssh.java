@@ -267,6 +267,8 @@ public class Ssh implements Closeable {
             os.flush();
         }
 
+        long startTime = System.currentTimeMillis();
+
         byte[] tmp = new byte[4 * 1024];
         while (true) {
             while (in.available() > 0) {
@@ -275,6 +277,7 @@ public class Ssh implements Closeable {
                     break;
                 }
                 stdoutBf.append(new String(tmp, 0, i));
+                checkRunTime(command, startTime, stdoutBf.toString(), stderrBf.toString());
             }
             while (er.available() > 0) {
                 int i = er.read(tmp, 0, 1024);
@@ -282,6 +285,7 @@ public class Ssh implements Closeable {
                     break;
                 }
                 stderrBf.append(new String(tmp, 0, i));
+                checkRunTime(command, startTime, stdoutBf.toString(), stderrBf.toString());
             }
 
             if (channel.isClosed()) {
@@ -298,6 +302,7 @@ public class Ssh implements Closeable {
                 throw new IOException(
                         "failed to wait for the execution to complete, cause by interrupt", e);
             }
+            checkRunTime(command, startTime, stdoutBf.toString(), stderrBf.toString());
         }
 
         String stderr = stderrBf.toString();
@@ -319,6 +324,14 @@ public class Ssh implements Closeable {
                 + ", stderror:" + stderr + ", stdout:" + stdout + ", exitCode=" + exitStatus
                 + ", expectExitCode:" + expectExitCode);
         return new SshExecRes(exitStatus, stdout, stderr);
+    }
+
+    private void checkRunTime(String command, long startTime, String stdOut, String stdError)
+            throws IOException {
+        if (System.currentTimeMillis() - startTime > sshConfig.getRunCommandTimeout()) {
+            throw new IOException("command execution timeout, remoteHost:" + host + ", command:"
+                    + command + ", stderror:" + stdError + ", stdout:" + stdOut);
+        }
     }
 
     @Override
