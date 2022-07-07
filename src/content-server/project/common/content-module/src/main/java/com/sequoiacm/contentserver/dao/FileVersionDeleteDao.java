@@ -40,7 +40,7 @@ public class FileVersionDeleteDao {
             FileOperationListenerMgr listenerMgr, BucketInfoManager bucketInfoManager)
             throws ScmServerException {
         this.contentModule = ScmContentModule.getInstance();
-        this.wsInfo = contentModule.getWorkspaceInfoCheckExist(ws);
+        this.wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(ws);
         this.fileId = fileId;
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
@@ -52,7 +52,7 @@ public class FileVersionDeleteDao {
             int minorVersion, FileOperationListenerMgr listenerMgr,
             BucketInfoManager bucketInfoManager) throws ScmServerException {
         this.contentModule = ScmContentModule.getInstance();
-        this.wsInfo = contentModule.getWorkspaceInfoCheckExist(bucket.getWorkspace());
+        this.wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         BSONObject file;
         try {
             file = bucket.getFileTableAccessor(null).queryOne(

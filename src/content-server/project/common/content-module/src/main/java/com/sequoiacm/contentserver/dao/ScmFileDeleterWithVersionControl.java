@@ -51,7 +51,7 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         this.listenerMgr = listenerMgr;
         this.bucketInfoMgr = bucketInfoMgr;
         this.contentModule = ScmContentModule.getInstance();
-        this.wsInfo = contentModule.getWorkspaceInfoCheckExist(bucket.getWorkspace());
+        this.wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         this.sessionId = sessionId;
         this.userDetail = userDetail;
         this.userName = userName;

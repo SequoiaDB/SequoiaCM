@@ -167,62 +167,25 @@ public class DatasourceServiceImpl implements IDatasourceService {
     @Override
     public ScmDataInfoDetail createData(String ws, InputStream data, long createTimeMill) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo workspace = contentModule.getWorkspaceInfo(ws);
-        if (workspace == null) {
-            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST, "workspace not found:" + ws);
-        }
-
+        contentModule.getWorkspaceInfoCheckLocalSite(ws);
         Date createTime = new Date(createTimeMill);
         String dataId = ScmIdGenerator.FileId.get(createTime);
 
         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createTime);
         ScmDataInfoDetail scmDataInfoDetail = new ScmDataInfoDetail(dataInfo);
 
-        if (workspace.getLocationObj(contentModule.getLocalSite()) != null) {
-            InputStreamWithCalcMd5 inputStreamWithCalcMd5 = new InputStreamWithCalcMd5(data, false);
-            try {
-                createDataInLocal(ws, dataId, ENDataType.Normal.getValue(), createTime.getTime(),
-                        inputStreamWithCalcMd5);
-                scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
-                scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
-            } finally {
-                ScmSystemUtils.closeResource(inputStreamWithCalcMd5);
-            }
-            scmDataInfoDetail.setSiteId(ScmContentModule.getInstance().getLocalSite());
-            return scmDataInfoDetail;
-        }
-
-        byte[] buf = new byte[Const.TRANSMISSION_LEN];
-        ScmInnerRemoteDataWriter writer = new ScmInnerRemoteDataWriter(contentModule.getMainSite(),
-                workspace, dataInfo);
-        InputStreamWithCalcMd5 inputStreamWithCalcMd5 = null;
+        InputStreamWithCalcMd5 inputStreamWithCalcMd5 = new InputStreamWithCalcMd5(data, false);
         try {
-            inputStreamWithCalcMd5 = new InputStreamWithCalcMd5(data, false);
-            while (true) {
-                int ret = CommonHelper.readAsMuchAsPossible(inputStreamWithCalcMd5, buf);
-                if (ret <= -1) {
-                    break;
-                }
-                writer.write(buf, 0, ret);
-                if (ret < buf.length) {
-                    break;
-                }
-            }
-            writer.close();
+            createDataInLocal(ws, dataId, ENDataType.Normal.getValue(), createTime.getTime(),
+                    inputStreamWithCalcMd5);
             scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
             scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
-            scmDataInfoDetail.setSiteId(contentModule.getMainSite());
-            return scmDataInfoDetail;
-        } catch (ScmServerException e) {
-            writer.cancel();
-            throw e;
-        } catch (Exception e) {
-            writer.cancel();
-            throw new ScmServerException(ScmError.DATA_WRITE_ERROR,
-                    "failed to write data to main site: ws=" + ws + ", dataId=" + dataId, e);
-        } finally {
+        }
+        finally {
             ScmSystemUtils.closeResource(inputStreamWithCalcMd5);
         }
+        scmDataInfoDetail.setSiteId(ScmContentModule.getInstance().getLocalSite());
+        return scmDataInfoDetail;
     }
 
     @Override

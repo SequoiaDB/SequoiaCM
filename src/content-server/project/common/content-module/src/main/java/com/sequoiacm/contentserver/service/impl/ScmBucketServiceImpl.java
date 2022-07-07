@@ -85,7 +85,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     public ScmBucket createBucket(ScmUser user, String ws, String name) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, ws, ScmPrivilegeDefine.CREATE,
                 "create bucket");
-        ScmWorkspaceInfo workspaceInfo = ScmContentModule.getInstance().getWorkspaceInfo(ws);
+        ScmWorkspaceInfo workspaceInfo = ScmContentModule.getInstance()
+                .getWorkspaceInfoCheckExist(ws);
         if (workspaceInfo.isEnableDirectory()) {
             throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
                     "can not create bucket, please disable the workspace directory feature: ws="
@@ -203,12 +204,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.CREATE, "create file in bucket");
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfo(bucket.getWorkspace());
-        if (wsInfo == null) {
-            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
-                    "bucket workspace not exist: bucket=" + bucketName + ",workspace="
-                            + bucket.getWorkspace());
-        }
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         if (wsInfo.isEnableDirectory()) {
             throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
                     "can not create file in bucket, please disable the workspace directory feature: ws="
@@ -268,12 +264,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.CREATE, "create file in bucket");
 
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfo(bucket.getWorkspace());
-        if (wsInfo == null) {
-            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
-                    "bucket workspace not exist: bucket=" + bucketName + ",workspace="
-                            + bucket.getWorkspace());
-        }
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+
         if (wsInfo.isEnableDirectory()) {
             throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
                     "can not create file in bucket, please disable the workspace directory feature: ws="
@@ -339,12 +331,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.CREATE, "create file in bucket");
 
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfo(bucket.getWorkspace());
-        if (wsInfo == null) {
-            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
-                    "bucket workspace not exist: bucket=" + bucketName + ",workspace="
-                            + bucket.getWorkspace());
-        }
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         if (wsInfo.isEnableDirectory()) {
             throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
                     "can not create file in bucket, please disable the workspace directory feature: ws="
@@ -613,6 +600,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
     private MetaCursor listFile(BSONObject condition, BSONObject selector,
             BSONObject orderBy, long skip, long limit, ScmBucket bucket) throws ScmServerException {
+        ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         try {
             MetaAccessor accessor = bucket.getFileTableAccessor(null);
             return accessor.query(condition, selector, orderBy, skip, limit, 0);
@@ -664,7 +652,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.CREATE, "bucket attach file");
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfo(bucket.getWorkspace());
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         if (wsInfo == null) {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     "bucket workspace not exist: bucket=" + bucketName + ",workspace="
@@ -699,7 +687,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.CREATE, "bucket attach file");
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
-                .getWorkspaceInfo(bucket.getWorkspace());
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         if (wsInfo == null) {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     "bucket workspace not exist: bucket=" + bucketName + ",workspace="
@@ -1082,7 +1070,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
         ScmBucket bucket = getBucket(bucketName);
         ScmWorkspaceInfo ws = ScmContentModule.getInstance()
-                .getWorkspaceInfoCheckExist(bucket.getWorkspace());
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         BasicBSONObject fileIdMatcher = new BasicBSONObject();
         ScmMetaSourceHelper.addFileIdAndCreateMonth(fileIdMatcher,
                 BsonUtils.getStringChecked(file, FieldName.FIELD_CLFILE_ID));

@@ -64,7 +64,7 @@ public class FileDeletorDao {
         if (file != null) {
             fileDelete = new ScmFileDeletorPysical(sessionId, userDetail,
                     ScmContentModule.getInstance()
-                            .getWorkspaceInfoCheckExist(bucket.getWorkspace()),
+                            .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace()),
                     BsonUtils.getStringChecked(file, FieldName.BucketFile.FILE_ID), listenerMgr,
                     bucketInfoMgr);
             return;

@@ -26,7 +26,7 @@ public class ListObjectVersionRecordCursorProvider implements S3ScanRecordCursor
         ContentModuleMetaSource metasource = ScmContentModule.getInstance().getMetaService()
                 .getMetaSource();
         ScmWorkspaceInfo ws = ScmContentModule.getInstance()
-                .getWorkspaceInfoCheckExist(bucket.getWorkspace());
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         historyFileAccessor = metasource.getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(),
                 null);
         bucketFileAccessor = bucket.getFileTableAccessor(null);

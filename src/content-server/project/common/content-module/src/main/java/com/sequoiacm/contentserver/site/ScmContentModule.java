@@ -470,7 +470,8 @@ public class ScmContentModule {
         boolean isServerInWorkspace = isSiteInWorkspace(wsInfo, localSiteId);
 
         if (!isServerInWorkspace) {
-            throw new ScmServerException(ScmError.SERVER_NOT_IN_WORKSPACE, "my site[" + localSiteId
+            throw new ScmServerException(ScmError.SERVER_NOT_IN_WORKSPACE,
+                    "my site[" + getLocalSiteInfo().getName()
                     + "] is not in the workspace[" + wsInfo.getName() + "]");
         }
 
