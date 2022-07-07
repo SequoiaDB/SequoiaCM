@@ -321,6 +321,8 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getBucket(String name) throws ScmException;
 
+    BSONObject getBucket(long id) throws ScmException;
+
     void deleteBucket(String name) throws ScmException;
 
     BsonReader listBucket(BSONObject condition, BSONObject orderby, long skip, long limit)

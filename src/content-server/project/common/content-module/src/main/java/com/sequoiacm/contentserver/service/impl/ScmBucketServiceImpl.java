@@ -138,10 +138,27 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
+    public ScmBucket getBucket(ScmUser user, long id) throws ScmServerException {
+        ScmBucket bucket = getBucket(id);
+        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
+                bucket.getName(), ScmPrivilegeDefine.READ, "get bucket");
+        return bucket;
+    }
+
+    @Override
     public ScmBucket getBucket(String name) throws ScmServerException {
         ScmBucket bucket = bucketInfoManager.getBucket(name);
         if (bucket == null) {
             throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS, "bucket not exist:" + name);
+        }
+        return bucket;
+    }
+
+    @Override
+    public ScmBucket getBucket(long id) throws ScmServerException {
+        ScmBucket bucket = bucketInfoManager.getBucket(id);
+        if (bucket == null) {
+            throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS, "bucket not exist:" + id);
         }
         return bucket;
     }

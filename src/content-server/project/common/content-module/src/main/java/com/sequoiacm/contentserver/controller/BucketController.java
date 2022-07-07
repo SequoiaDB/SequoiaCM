@@ -62,11 +62,18 @@ public class BucketController {
         service.deleteBucket(user, name);
     }
 
-    @GetMapping("/buckets/{name}")
+    @GetMapping(value = "/buckets/{name}", params = "action=get_bucket_by_name")
     public ScmBucket getBucket(@PathVariable("name") String name, Authentication auth)
             throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         return service.getBucket(user, name);
+    }
+
+    @GetMapping(value = "/buckets/{id}", params = "action=get_bucket_by_id")
+    public ScmBucket getBucket(@PathVariable("id") long id, Authentication auth)
+            throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        return service.getBucket(user, id);
     }
 
     @GetMapping(path = "/buckets", params = "action=count_bucket")

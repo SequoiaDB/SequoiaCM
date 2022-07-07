@@ -3207,6 +3207,24 @@ public class ScmFactory {
         }
 
         /**
+         * Get a Bucket with specified id.
+         *
+         * @param session
+         *            session.
+         * @param bucketId
+         *            bucket id.
+         * @return bucket object.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmBucket getBucket(ScmSession session, long bucketId) throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("bucketId", bucketId);
+            BSONObject resp = session.getDispatcher().getBucket(bucketId);
+            return new ScmBucketImpl(session, resp);
+        }
+
+        /**
          * Delete the specified bucket.
          * 
          * @param session

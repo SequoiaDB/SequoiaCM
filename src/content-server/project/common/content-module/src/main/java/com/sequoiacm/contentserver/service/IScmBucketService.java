@@ -24,7 +24,11 @@ public interface IScmBucketService {
 
     ScmBucket getBucket(ScmUser user, String name) throws ScmServerException;
 
+    ScmBucket getBucket(ScmUser user, long id) throws ScmServerException;
+
     ScmBucket getBucket(String name) throws ScmServerException;
+
+    ScmBucket getBucket(long id) throws ScmServerException;
 
     ScmBucket deleteBucket(ScmUser user, String name) throws ScmServerException;
 

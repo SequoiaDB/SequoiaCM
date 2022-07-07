@@ -2046,7 +2046,15 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject getBucket(String name) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name);
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name)
+                + "?action=get_bucket_by_name";
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getBucket(long id) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + id + "?action=get_bucket_by_id";
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }
