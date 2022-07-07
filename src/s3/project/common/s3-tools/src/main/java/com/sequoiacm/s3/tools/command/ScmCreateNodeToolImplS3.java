@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
+import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
@@ -50,6 +52,13 @@ public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
             ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = nodeType2RequireParams.get(typEnum.getType());
             if (scmNodeRequiredParamGroup != null) {
                 scmNodeRequiredParamGroup.check(nodeConf);
+            }
+            String applicationName = nodeConf.getProperty("spring.application.name");
+            boolean checkResult = CheckRuleUtils.isConformHostNameRule(applicationName);
+            if(!checkResult){
+                throw new ScmToolsException(
+                        "failed to resolve name:" + applicationName + ",because " + applicationName + " does not conform to host name specification",
+                        ScmExitCode.INVALID_ARG);
             }
         }
         String adurl = cl.getOptionValue(OPT_LONG_AUDIT_URL);

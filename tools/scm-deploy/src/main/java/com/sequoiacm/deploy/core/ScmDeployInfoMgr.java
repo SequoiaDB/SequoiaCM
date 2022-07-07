@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -375,6 +376,11 @@ public class ScmDeployInfoMgr {
     private void checkS3Node(List<NodeInfo> s3Nodes, Map<String, List<Integer>> portsOnHost) {
         for (NodeInfo node : s3Nodes) {
             S3NodeInfo s3Node = (S3NodeInfo) node;
+            String serviceName = ((S3NodeInfo) node).getServiceName();
+            boolean checkResult = CheckRuleUtils.isConformHostNameRule(serviceName);
+            if(!checkResult){
+                throw new IllegalArgumentException("failed to resolve name:" + serviceName + ",because " + serviceName + " does not conform to host name specification");
+            }
             if (!siteNameToSiteInfos.containsKey(s3Node.getBindingSite())) {
                 throw new IllegalArgumentException("invalid s3 node, unrecognized binding site:"
                         + s3Node.getBindingSite() + ", node=" + s3Node.toString());
@@ -464,6 +470,12 @@ public class ScmDeployInfoMgr {
         List<String> allSiteName = new ArrayList<>(siteNameToSiteInfos.keySet());
         for (NodeInfo node : sitenodes) {
             SiteNodeInfo siteNode = (SiteNodeInfo) node;
+            //执行SCM部署脚本，校验站点名是否主机名命名规范
+            String siteName = siteNode.getSiteName();
+            boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+            if(!checkResult){
+                throw new IllegalArgumentException("failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification");
+            }
             if (!siteNameToSiteInfos.containsKey(siteNode.getSiteName())) {
                 throw new IllegalArgumentException("invalid sitenode, unregnized site name:"
                         + siteNode.getSiteName() + ", node=" + siteNode.toString());

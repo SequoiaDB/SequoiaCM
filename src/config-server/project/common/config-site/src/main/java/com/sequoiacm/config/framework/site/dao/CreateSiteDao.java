@@ -1,6 +1,7 @@
 package com.sequoiacm.config.framework.site.dao;
 
 import com.sequoiacm.config.framework.site.tool.ScmSiteTool;
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.site.SiteFilter;
 import org.bson.BSONObject;
@@ -50,6 +51,11 @@ public class CreateSiteDao {
 
     public ScmConfOperateResult create(SiteConfig config) throws ScmConfigException {
         logger.info("start to create site:{}", config.getName());
+        String siteName = config.getName();
+        boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+        if(!checkResult){
+            throw new ScmConfigException(ScmConfError.INVALID_ARG, "failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification");
+        }
         SiteConfig siteRespConfig = createSite(config);
         logger.info("create site success:{}", siteRespConfig.getName());
         ScmConfEvent event = createSiteEvent(siteRespConfig.getName());

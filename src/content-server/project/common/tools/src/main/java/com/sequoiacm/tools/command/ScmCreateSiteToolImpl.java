@@ -1,11 +1,11 @@
 package com.sequoiacm.tools.command;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import com.sequoiacm.tools.common.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -135,6 +135,13 @@ public class ScmCreateSiteToolImpl extends ScmTool {
         }
 
         String siteName = cl.getOptionValue(OPT_SHORT_NAME);
+        //使用工具创建站点时，校验站点名是否主机名命名规范
+        boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+        if(!checkResult){
+            throw new ScmToolsException(
+                    "failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification",
+                    ScmExitCode.INVALID_ARG);
+        }
         // tranform DatasourceType
         DatasourceType dataType = getDatasourceType(cl.getOptionValue(OPT_LONG_DSTYPE));
         // if dataType is hdfs|hbase newSite setDataConf
