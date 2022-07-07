@@ -113,6 +113,8 @@ public class SequoiadbMetasource implements Metasource {
                         + ", idxName=" + idxName + ", idxDef=" + indexDefinition + ", isUnique="
                         + isUnique, e);
             }
+            logger.info("assume index exist, cl={}.{}, isUnique={}, indexDef={}, sdbError={},{}",
+                    csName, clName, isUnique, indexDefinition, e.getErrorCode(), e.getMessage());
         }
         finally {
             releaseConnection(db);

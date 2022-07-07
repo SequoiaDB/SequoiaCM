@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.scan;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.IndexName;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -35,15 +36,20 @@ public class ListObjectVersionRecordCursorProvider implements S3ScanRecordCursor
     @Override
     public RecordWrapperCursor<ListVersionRecordWrapper> createRecordCursor(BSONObject matcher,
                                                                             BSONObject orderby) throws ScmMetasourceException {
-        MetaCursor bucketFileCursor = bucketFileAccessor.query(matcher, null, orderby);
+        BSONObject bucketFileHint = new BasicBSONObject();
+        bucketFileHint.put("", IndexName.BucketFile.FILE_NAME_UNIQUE_IDX);
+        MetaCursor bucketFileCursor = bucketFileAccessor.query(matcher, null, orderby,
+                bucketFileHint, 0, -1, 0);
         try {
             BasicBSONList andArr = new BasicBSONList();
             if (matcher != null) {
                 andArr.add(matcher);
             }
             andArr.add(new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, bucket.getId()));
+            BSONObject historyFileHint = new BasicBSONObject();
+            historyFileHint.put("", IndexName.HistoryFile.NAME_VERSION_UNION_IDX);
             MetaCursor historyFileCursor = historyFileAccessor
-                    .query(new BasicBSONObject("$and", andArr), orderby);
+                    .query(new BasicBSONObject("$and", andArr), orderby, historyFileHint, 0, -1);
             return new ListVersionCursor(bucketFileCursor, historyFileCursor);
         }
         catch (Exception e) {

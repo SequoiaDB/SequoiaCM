@@ -15,15 +15,6 @@ public class S3ResourceScanner {
     private final int limit;
     private final S3ScanRecordCursorProvider cursorProvider;
 
-    public S3ResourceScanner(MetaAccessor metaAccessor,
-                             S3ScanMatcher matcher, S3ScanOffset offset, S3ScanCommonPrefixParser delimiter, int limit) {
-        this.cursorProvider = new BasicS3ScanRecordCursorProvider(metaAccessor);
-        this.matcher = matcher;
-        this.offset = offset;
-        this.delimiter = delimiter;
-        this.limit = limit;
-    }
-
     public S3ResourceScanner(S3ScanRecordCursorProvider cursorProvider, S3ScanMatcher matcher,
                              S3ScanOffset offset, S3ScanCommonPrefixParser delimiter, int limit) {
         this.cursorProvider = cursorProvider;

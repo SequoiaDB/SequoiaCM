@@ -388,7 +388,9 @@ public class MultiPartServiceImpl implements MultiPartService {
 
             MetaAccessor accessor = metaSourceService.getMetaSource()
                     .createMetaAccessor(S3CommonDefine.UPLOAD_META_TABLE_NAME);
-            S3ResourceScanner scanner = new S3ResourceScanner(accessor, scanMatcher, scanOffset,
+
+            S3ResourceScanner scanner = new S3ResourceScanner(
+                    new BasicS3ScanRecordCursorProvider(accessor), scanMatcher, scanOffset,
                     new BasicS3ScanCommonPrefixParser(UploadMeta.META_KEY_NAME, delimiter, prefix),
                     maxKeys);
             return scanner.doScan();

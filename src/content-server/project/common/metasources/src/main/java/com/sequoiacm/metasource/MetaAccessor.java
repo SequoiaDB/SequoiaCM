@@ -17,6 +17,9 @@ public interface MetaAccessor {
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
             long limit, int flag) throws ScmMetasourceException;
 
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy,
+            BSONObject hint, long skip, long limit, int flag) throws ScmMetasourceException;
+
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
             long limit) throws ScmMetasourceException;
 

@@ -172,6 +172,13 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     }
 
     @Override
+    public MetaCursor query(BSONObject matcher, BSONObject orderBy, BSONObject hint, long skip,
+            long limit) throws ScmMetasourceException {
+        MetaCursor metaCursor = baseAccesor.query(matcher, null, orderBy, hint, skip, limit, 0);
+        return new CompatibilityCursorWrapper(metaCursor, compatibilityProcessor);
+    }
+
+    @Override
     public MetaCursor query(BSONObject matcher, BSONObject orderBy) throws ScmMetasourceException {
         MetaCursor metaCursor = baseAccesor.query(matcher, null, orderBy);
         return new CompatibilityCursorWrapper(metaCursor, compatibilityProcessor);

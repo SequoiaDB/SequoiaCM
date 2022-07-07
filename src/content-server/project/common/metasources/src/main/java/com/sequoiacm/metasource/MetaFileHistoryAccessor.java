@@ -44,6 +44,9 @@ public interface MetaFileHistoryAccessor {
     public MetaCursor query(BSONObject matcher, BSONObject orderBy, long skip,
             long limit) throws ScmMetasourceException;
 
+    public MetaCursor query(BSONObject matcher, BSONObject orderBy, BSONObject hint, long skip,
+            long limit) throws ScmMetasourceException;
+
     public MetaCursor query(BSONObject matcher, BSONObject orderBy) throws ScmMetasourceException;
 
     public BSONObject queryOne(BSONObject matcher, BSONObject orderBy)

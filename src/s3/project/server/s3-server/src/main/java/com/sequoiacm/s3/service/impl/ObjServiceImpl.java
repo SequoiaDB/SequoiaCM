@@ -2,6 +2,7 @@ package com.sequoiacm.s3.service.impl;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.IndexName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
@@ -51,12 +52,14 @@ import com.sequoiacm.s3.model.ObjectToDel;
 import com.sequoiacm.s3.model.PutObjectResult;
 import com.sequoiacm.s3.scan.BasicS3ScanCommonPrefixParser;
 import com.sequoiacm.s3.scan.BasicS3ScanMatcher;
+import com.sequoiacm.s3.scan.BasicS3ScanRecordCursorProvider;
 import com.sequoiacm.s3.scan.ListObjVersionScanOffset;
 import com.sequoiacm.s3.scan.ListObjectScanOffset;
 import com.sequoiacm.s3.scan.ListObjectVersionRecordCursorProvider;
 import com.sequoiacm.s3.scan.ListVersionRecordWrapper;
 import com.sequoiacm.s3.scan.RecordWrapper;
 import com.sequoiacm.s3.scan.S3ResourceScanner;
+import com.sequoiacm.s3.scan.S3ScanRecordCursorProvider;
 import com.sequoiacm.s3.scan.S3ScanResult;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
@@ -801,8 +804,10 @@ public class ObjServiceImpl implements ObjectService {
                     scanDelimiter.getCommonPrefix(startAfter));
             ScmBucket scmbucket = scmBucketService.getBucket(bucketName);
             MetaAccessor accessor = scmbucket.getFileTableAccessor(null);
-            S3ResourceScanner scanner = new S3ResourceScanner(accessor, scanMatcher, scanOffset,
-                    scanDelimiter, maxKeys);
+            BasicS3ScanRecordCursorProvider cursorProvider = new BasicS3ScanRecordCursorProvider(
+                    accessor, new BasicBSONObject("", IndexName.BucketFile.FILE_NAME_UNIQUE_IDX));
+            S3ResourceScanner scanner = new S3ResourceScanner(cursorProvider, scanMatcher,
+                    scanOffset, scanDelimiter, maxKeys);
             return scanner.doScan();
 
         }

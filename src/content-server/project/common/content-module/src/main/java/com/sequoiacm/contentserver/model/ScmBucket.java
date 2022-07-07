@@ -205,6 +205,19 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
     }
 
     @Override
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy,
+            BSONObject hint, long skip, long limit, int flag) throws ScmMetasourceException {
+        try {
+            return bucketFileMetaAccessor.query(matcher, selector, orderBy, hint, skip, limit,
+                    flag);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
                             long limit) throws ScmMetasourceException {
         try {

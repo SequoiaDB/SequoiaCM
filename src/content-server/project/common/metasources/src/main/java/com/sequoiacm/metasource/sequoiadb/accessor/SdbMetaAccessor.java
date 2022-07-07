@@ -248,8 +248,8 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
-    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
-            long limit, int flag) throws SdbMetasourceException {
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy,
+            BSONObject hint, long skip, long limit, int flag) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         SdbMetaCursor sdbCursor = null;
         DBCursor cursor = null;
@@ -259,7 +259,7 @@ public class SdbMetaAccessor implements MetaAccessor {
             CollectionSpace cs = sdb.getCollectionSpace(getCsName());
             DBCollection cl = cs.getCollection(getClName());
 
-            cursor = cl.query(matcher, selector, orderBy, null, skip, limit, flag);
+            cursor = cl.query(matcher, selector, orderBy, hint, skip, limit, flag);
             sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
         }
         catch (SdbMetasourceException e) {
@@ -280,6 +280,12 @@ public class SdbMetaAccessor implements MetaAccessor {
                     + getCsName() + ",clName=" + getClName() + ",matcher=" + matcher, e);
         }
         return sdbCursor;
+    }
+
+    @Override
+    public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
+            long limit, int flag) throws SdbMetasourceException {
+        return query(matcher, selector, orderBy, null, skip, limit, flag);
     }
 
     @Override

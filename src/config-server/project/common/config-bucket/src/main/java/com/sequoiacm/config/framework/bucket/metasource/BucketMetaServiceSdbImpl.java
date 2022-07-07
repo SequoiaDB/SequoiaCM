@@ -1,6 +1,7 @@
 package com.sequoiacm.config.framework.bucket.metasource;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.IndexName;
 import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaServiceSdbImpl;
 import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.config.metasource.TableDao;
@@ -77,7 +78,8 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
         String[] csCLArr = csClName.split("\\.");
 
         try {
-            sdbMetaSource.ensureIndex(csCLArr[0], csCLArr[1], "file_name_idx",
+            sdbMetaSource.ensureIndex(csCLArr[0], csCLArr[1],
+                    IndexName.BucketFile.FILE_NAME_UNIQUE_IDX,
                     new BasicBSONObject(FieldName.BucketFile.FILE_NAME, 1), true);
         }
         catch (Exception e) {

@@ -2,6 +2,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import java.util.Date;
 
+import com.sequoiacm.common.IndexName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -81,6 +82,13 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
                     "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_ID, indexDef, false,
                     false);
+
+            indexDef = new BasicBSONObject();
+            indexDef.put(FieldName.FIELD_CLFILE_NAME, 1);
+            indexDef.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, -1);
+            indexDef.put(FieldName.FIELD_CLFILE_MINOR_VERSION, -1);
+            SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
+                    IndexName.HistoryFile.NAME_VERSION_UNION_IDX, indexDef, false, false);
 
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaCLInfo.getLowMonth());
