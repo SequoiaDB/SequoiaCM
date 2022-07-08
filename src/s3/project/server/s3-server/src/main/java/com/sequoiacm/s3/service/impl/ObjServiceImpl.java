@@ -105,6 +105,8 @@ public class ObjServiceImpl implements ObjectService {
     @Autowired
     private MetaSourceService metaSourceService;
 
+    private final int MAX_KEYS = 1000;
+
     @Override
     public PutObjectResult putObject(ScmSession session, S3PutObjectRequest req)
             throws S3ServerException {
@@ -660,6 +662,10 @@ public class ObjServiceImpl implements ObjectService {
             return listVersionsResult;
         }
 
+        if(maxKeys > MAX_KEYS){
+            maxKeys = MAX_KEYS;
+        }
+
         Bucket s3Bucket = bucketService.getBucket(session, bucketName);
         S3ScanResult scanResult = scanVersion(bucketName, maxKeys, prefix, keyMarker,
                 versionIdMarker, delimiter);
@@ -795,6 +801,10 @@ public class ObjServiceImpl implements ObjectService {
 
     private S3ScanResult scan(String bucketName, int maxKeys, String prefix, String startAfter,
             String delimiter) throws S3ServerException {
+        if(maxKeys > MAX_KEYS){
+            maxKeys = MAX_KEYS;
+        }
+
         try {
             BasicS3ScanMatcher scanMatcher = new BasicS3ScanMatcher(FieldName.BucketFile.FILE_NAME,
                     prefix, new BasicBSONObject(FieldName.BucketFile.FILE_DELETE_MARKER, false));
