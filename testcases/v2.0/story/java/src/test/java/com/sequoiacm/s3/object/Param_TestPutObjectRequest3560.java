@@ -95,38 +95,6 @@ public class Param_TestPutObjectRequest3560 extends TestScmBase {
             Assert.assertEquals( e.getErrorCode(), "MalformedXML" );
         }
 
-        // 对象名中包含不支持的参数
-        String[] chars = { "aa/bb/object18558_8符*ezT2xd", "a\\a", ":", "*", "?",
-                "\"", ">", "<", "|", "%", ";" };
-        for ( String str : chars ) {
-            try {
-                s3Client.putObject( new PutObjectRequest( bucketName, str,
-                        new File( filePath ) ) );
-                Assert.fail( "when key name is null,it should fail" );
-            } catch ( AmazonS3Exception e ) {
-                Assert.assertTrue( e.getMessage().contains( "Invalid Key" ),
-                        "str = " + str );
-            }
-        }
-
-        // 对象名以/开头
-        try {
-            s3Client.putObject( new PutObjectRequest( bucketName, "/a",
-                    new File( filePath ) ) );
-            Assert.fail( "when key name is null,it should fail" );
-        } catch ( AmazonS3Exception e ) {
-            Assert.assertTrue( e.getMessage().contains( "Invalid Key" ) );
-        }
-
-        // 对象名以/结尾
-        try {
-            s3Client.putObject( new PutObjectRequest( bucketName, "ac/",
-                    new File( filePath ) ) );
-            Assert.fail( "when key name is null,it should fail" );
-        } catch ( AmazonS3Exception e ) {
-            Assert.assertTrue( e.getMessage().contains( "Invalid Key" ) );
-        }
-
         try {
             s3Client.putObject( new PutObjectRequest( bucketName, null,
                     new File( filePath ) ) );

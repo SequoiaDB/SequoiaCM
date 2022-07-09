@@ -10,15 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.element.ScmNodeInfo;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.TestScmTools;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import com.sequoiacm.exception.ScmError;
+import org.bson.BSONObject;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -48,9 +46,9 @@ public class S3Utils extends TestScmBase {
     private static String gateway = gateWayList.get( 0 );
 
     /**
-     * @descreption 随机连接一个s3节点
      * @return
      * @throws Exception
+     * @descreption 创建一个S3连接
      */
     public static AmazonS3 buildS3Client() throws Exception {
         return buildS3Client( TestScmBase.s3AccessKeyID,
@@ -58,11 +56,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * @descreption 使用ACCESS_KEY和SECRET_KEY随机连接一个节点
      * @param ACCESS_KEY
      * @param SECRET_KEY
      * @return
      * @throws Exception
+     * @descreption 使用指定ACCESS_KEY和SECRET_KEY连接
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY )
             throws Exception {
@@ -70,21 +68,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * @descreption 连接指定站点的s3节点
-     * @param siteName
-     * @return
-     */
-    public static AmazonS3 buildS3Client( String siteName ) {
-        return buildS3Client( TestScmBase.s3AccessKeyID,
-                TestScmBase.s3SecretKey, getS3UrlBySite( siteName ) );
-    }
-
-    /**
-     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      * @param ACCESS_KEY
      * @param SECRET_KEY
      * @param S3URL
      * @return
+     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
             String S3URL ) {
@@ -107,34 +95,12 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * @descreption 根据站点名生成s3协议url
-     * @param siteName
-     * @return
-     */
-    public static String getS3UrlBySite( String siteName ) {
-        return "http://" + gateway + "/" + siteName + "-s3";
-    }
-
-    /**
-     * @descreption 随机获取一个s3节点生成url
      * @return
      * @throws Exception
+     * @descreption 根据网关生成s3 url
      */
-    public static String getS3Url() throws Exception {
-        ScmSession session = TestScmTools
-                .createSession( ScmInfo.getRootSite() );
-        try {
-            List< String > serviceList = ScmSystem.ServiceCenter
-                    .getServiceList( session );
-            for ( String serviceName : serviceList ) {
-                if ( serviceName.contains( "-s3" ) ) {
-                    return "http://" + gateway + "/" + serviceName;
-                }
-            }
-        } finally {
-            session.close();
-        }
-        throw new Exception( "no s3 nodes available" );
+    public static String getS3Url() {
+        return "http://" + gateway;
     }
 
     /**
@@ -402,5 +368,100 @@ public class S3Utils extends TestScmBase {
             Assert.assertEquals( objectSummaries.get( i ).getKey(),
                     expresultList.get( i ), "keyName is wrong" );
         }
+    }
+
+    /**
+     * @param ws
+     * @param objectKey
+     * @return
+     * @throws ScmException
+     * @descreption objectKey映射fileName时，根据object查询映射scm文件的ID
+     */
+    public static ScmId queryS3Object( ScmWorkspace ws, String objectKey )
+            throws ScmException {
+        BSONObject cond = ScmQueryBuilder
+                .start( ScmAttributeName.File.FILE_NAME ).is( objectKey ).get();
+        ScmCursor< ScmFileBasicInfo > scmFileBasicInfoScmCursor = ScmFactory.File
+                .listInstance( ws, ScmType.ScopeType.SCOPE_CURRENT, cond );
+        ScmId fileId = null;
+        while ( scmFileBasicInfoScmCursor.hasNext() ) {
+            fileId = scmFileBasicInfoScmCursor.getNext().getFileId();
+        }
+        scmFileBasicInfoScmCursor.close();
+        return fileId;
+    }
+
+    public static void checkBucketList(
+            ScmCursor< ScmBucket > scmBucketScmCursor,
+            List< String > expBucketNames, boolean sort ) throws ScmException {
+        try {
+            List< String > actBucketNames = new ArrayList<>();
+            while ( scmBucketScmCursor.hasNext() ) {
+                actBucketNames.add( scmBucketScmCursor.getNext().getName() );
+            }
+            if ( sort ) {
+                Assert.assertEquals( actBucketNames, expBucketNames );
+            } else {
+                Assert.assertEqualsNoOrder( actBucketNames.toArray(),
+                        expBucketNames.toArray() );
+            }
+        } finally {
+            scmBucketScmCursor.close();
+        }
+    }
+
+    /**
+     * @param session
+     * @param bucketName
+     * @throws ScmException
+     * @descreption 使用scm api清理桶
+     */
+    public static void clearBucket( ScmSession session, String bucketName )
+            throws ScmException {
+        clearBucket( session, s3WorkSpaces, bucketName );
+    }
+
+    public static void clearBucket( ScmSession session, String wsName,
+            String bucketName ) throws ScmException {
+        ScmCursor< ScmFileBasicInfo > scmFileBasicInfoScmCursor = null;
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                    bucketName );
+            scmFileBasicInfoScmCursor = bucket.listFile( null, null, 0, -1 );
+            while ( scmFileBasicInfoScmCursor.hasNext() ) {
+                ScmId fileId = scmFileBasicInfoScmCursor.getNext().getFileId();
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            }
+            ScmFactory.Bucket.deleteBucket( session, bucketName );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.BUCKET_NOT_EXISTS ) ) {
+                throw e;
+            }
+        } finally {
+            if ( scmFileBasicInfoScmCursor != null ) {
+                scmFileBasicInfoScmCursor.close();
+            }
+        }
+    }
+
+    /**
+     * @param session
+     * @return
+     * @throws ScmException
+     * @Descreption 获取所有s3节点名
+     */
+    public static List< String > getS3ServiceName( ScmSession session )
+            throws ScmException {
+        List< String > s3ServcieNames = new ArrayList<>();
+        List< String > serviceList = ScmSystem.ServiceCenter
+                .getServiceList( session );
+        for ( String serviceName : serviceList ) {
+            if ( serviceName.contains( "-s3" ) ) {
+                s3ServcieNames.add( serviceName );
+            }
+        }
+        return s3ServcieNames;
     }
 }
