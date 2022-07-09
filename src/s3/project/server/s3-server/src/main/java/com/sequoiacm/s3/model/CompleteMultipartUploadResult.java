@@ -18,7 +18,7 @@ public class CompleteMultipartUploadResult {
     private String eTag;
 
     @JsonIgnore
-    private Long versionId;
+    private String versionId;
 
     public void seteTag(String eTag) {
         this.eTag = eTag;
@@ -52,11 +52,11 @@ public class CompleteMultipartUploadResult {
         return location;
     }
 
-    public void setVersionId(Long versionId) {
+    public void setVersionId(String versionId) {
         this.versionId = versionId;
     }
 
-    public Long getVersionId() {
+    public String getVersionId() {
         return versionId;
     }
 }

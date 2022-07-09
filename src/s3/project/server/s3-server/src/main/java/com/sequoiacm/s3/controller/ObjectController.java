@@ -466,16 +466,7 @@ public class ObjectController {
 
             CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucketName, objectName,
                     requestHeaders, xMeta, sourceUri, copyMeta, matcher);
-
-            CopyObjectResult result;
-            ServletOutputStream os = response.getOutputStream();
-            long idx = outStreamFlushQueue.add(os);
-            try {
-                result = objectService.copyObject(session, copyObjectRequest);
-            }
-            finally {
-                outStreamFlushQueue.remove(idx, os);
-            }
+            CopyObjectResult result = objectService.copyObject(session, copyObjectRequest);
             HttpHeaders headers = new HttpHeaders();
             if (result.getVersionId() != null) {
                 headers.add(RestParamDefine.CopyObjectResultHeader.VERSION_ID,

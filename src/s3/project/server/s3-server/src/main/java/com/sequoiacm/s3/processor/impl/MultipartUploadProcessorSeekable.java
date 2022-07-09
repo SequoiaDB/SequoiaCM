@@ -257,9 +257,6 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             dataCreateTime = dataInfo.getCreateTime();
         }
 
-        // 合并
-        // TODO:在刷空白字符前应判断是否需要返回versionId，否则后面刷过之后再写header，客户端也接收不到了
-        Long flushIndex = outStreamFlushQueue.add(outputStream);
         ScmSeekableDataWriter writer = null;
         try {
             writer = datasourceService.getScmSeekableDataWriter(wsName, destDataId,
@@ -306,13 +303,13 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             dataInfoDetail.setSiteId(upload.getSiteId());
             dataInfoDetail.setSize(copyAction.getCompleteSize());
 
-            scmBucketService.createFile(session.getUser(), bucketName, file, dataInfoDetail,
+            BSONObject newFile = scmBucketService.createFile(session.getUser(), bucketName, file,
+                    dataInfoDetail,
                     callbackUpload,
                     OverwriteOption.doNotOverwrite());
 
-            // TODO:add object version to result 前面已经发过空格了，这里setVersionId希望发个响应头给客户端，客户端已经不能处理了
-
-            // response.setVersionId(objectMeta.getVersionId());
+            S3ObjectMeta objMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, newFile);
+            response.setVersionId(objMeta.getVersionId());
 
             return response;
         }
@@ -326,7 +323,6 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
                     e);
         }
         finally {
-            outStreamFlushQueue.remove(flushIndex, outputStream);
             if (writer != null) {
                 writer.close();
             }
