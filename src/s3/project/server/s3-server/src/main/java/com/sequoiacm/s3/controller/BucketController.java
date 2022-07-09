@@ -108,7 +108,7 @@ public class BucketController {
                                                                 @RequestHeader(value = RestParamDefine.AUTHORIZATION, required = false) String authorization)
             throws S3ServerException {
         try {
-            logger.debug("get bucket location. bucket={}, operator={}", bucketName,
+            logger.debug("get bucket location. bucketName={}, operator={}", bucketName,
                     session.getUser().getUsername());
             return ResponseEntity.ok().body(bucketService.getBucketLocation(session, bucketName));
         }

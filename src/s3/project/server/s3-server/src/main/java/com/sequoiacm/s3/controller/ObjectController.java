@@ -88,34 +88,20 @@ public class ObjectController {
             HttpServletRequest httpServletRequest, ScmSession session)
             throws S3ServerException, IOException {
         try {
-            String objectName;
-            ObjectUri objUrl = (ObjectUri) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_OBJECTURI);
-            if (objUrl == null) {
-                objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
-                // check key length
-                if (objectName.length() > RestParamDefine.KEY_LENGTH) {
-                    throw new S3ServerException(S3Error.OBJECT_KEY_TOO_LONG,
-                            "ObjectName is too long. objectName:" + objectName);
-                }
-            }
-            else {
-                objectName = objUrl.getObjectName();
+            String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
+            // check key length
+            if (objectName.length() > RestParamDefine.KEY_LENGTH) {
+                throw new S3ServerException(S3Error.OBJECT_KEY_TOO_LONG,
+                        "ObjectName is too long. objectName:" + objectName);
             }
             logger.debug("put object. bucketName={}, objectName={}", bucketName, objectName);
 
-            Map<String, String> requestHeaders = (Map<String, String>) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_HEADERS);
-            Map<String, String> xMeta = (Map<String, String>) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_XMETA);
-            if(requestHeaders == null || xMeta == null){
-                requestHeaders = new HashMap<>();
-                xMeta = new HashMap<>();
-                restUtils.getHeaders(httpServletRequest, requestHeaders, xMeta);
-                if (restUtils.getXMetaLength(xMeta) > RestParamDefine.X_AMZ_META_LENGTH) {
-                    throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
-                            "metadata headers exceed the maximum. xMeta:" + xMeta);
-                }
+            Map<String, String> requestHeaders = new HashMap<>();
+            Map<String, String> xMeta = new HashMap<>();
+            restUtils.getHeaders(httpServletRequest, requestHeaders, xMeta);
+            if (restUtils.getXMetaLength(xMeta) > RestParamDefine.X_AMZ_META_LENGTH) {
+                throw new S3ServerException(S3Error.OBJECT_METADATA_TOO_LARGE,
+                        "metadata headers exceed the maximum. xMeta:" + xMeta);
             }
 
             // get and check bucket
@@ -151,8 +137,8 @@ public class ObjectController {
                         result.getVersionId());
             }
 
-            logger.debug("put object success. bucketName={}, objectName={}, versionId={}, eTag={}",
-                    bucketName, objectName, result.getVersionId(), result.geteTag());
+            logger.debug("put object success. bucketName={}, objectName={}, versionId={}, eTag={}, contentLength={}",
+                    bucketName, objectName, result.getVersionId(), result.geteTag(), realContentLength);
             return ResponseEntity.ok().headers(headers).build();
         }
         catch (Exception e) {
@@ -180,10 +166,10 @@ public class ObjectController {
             HttpServletResponse response) throws S3ServerException, IOException {
         try {
             String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
-            logger.debug("get object. bucketName={}, objectName={}", bucketName, objectName);
-            Range range = null;
             String rangeHeader = httpServletRequest
                     .getHeader(RestParamDefine.GetObjectReqHeader.REQ_RANGE);
+            logger.debug("get object. bucketName={}, objectName={}, range={}", bucketName, objectName, rangeHeader);
+            Range range = null;
             if (rangeHeader != null) {
                 range = restUtils.getRange(rangeHeader);
             }
@@ -352,8 +338,8 @@ public class ObjectController {
             throws S3ServerException {
         try {
             logger.debug(
-                    "list objectsV1 with delimiter={}, marker={}, prefix={}, maxKeys={}, encodingType={}",
-                    delimiter, startAfter, prefix, maxKeys, encodingType);
+                    "list objectsV1. bucketName={}, delimiter={}, marker={}, prefix={}, maxKeys={}, encodingType={}",
+                    bucketName, delimiter, startAfter, prefix, maxKeys, encodingType);
 
             if (null != encodingType) {
                 if (!encodingType.equals(RestParamDefine.ENCODING_TYPE_URL)) {

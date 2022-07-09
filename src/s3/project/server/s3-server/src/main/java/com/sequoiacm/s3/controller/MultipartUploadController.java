@@ -83,37 +83,14 @@ public class MultipartUploadController {
             logger.debug("upload part. bucketName={}, requestURI={}, uploadId={}, partNumber={}",
                     bucketName, httpServletRequest.getRequestURI(), uploadIdStr, partNumberStr);
 
-            // CustomContextValve 可能已经对bucket，objectName，uploadId，partNumber进行了查询、解析、检查
-            // 并通过attribute记录，此处通过attribute获取处理过的相应数据，减少数据库交互查询，及转换处理
-            // CustomContextValve 只对数据长度较大（512k以上）的请求进行检查，
-            ObjectUri objectMeta = (ObjectUri) httpServletRequest
-                    .getAttribute((RestParamDefine.Attribute.S3_OBJECTURI));
-            String objectName;
-            if (objectMeta == null) {
-                objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
-            }
-            else {
-                objectName = objectMeta.getObjectName();
-            }
+            String objectName = restUtils.getObjectNameByURI(httpServletRequest.getRequestURI());
 
             // get and check bucket
-            ScmBucket bucket = (ScmBucket) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_BUCKET);
-            if (bucket == null) {
-                bucket = getBucket(session.getUser(), bucketName);
-            }
+            ScmBucket bucket = getBucket(session.getUser(), bucketName);
 
-            Long uploadId = (Long) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_UPLOADID);
-            if (uploadId == null) {
-                uploadId = restUtils.convertUploadId(uploadIdStr);
-            }
+            Long uploadId = restUtils.convertUploadId(uploadIdStr);
 
-            Integer partNumber = (Integer) httpServletRequest
-                    .getAttribute(RestParamDefine.Attribute.S3_PARTNUMBER);
-            if (partNumber == null) {
-                partNumber = getPartNumber(partNumberStr);
-            }
+            Integer partNumber = getPartNumber(partNumberStr);
 
             InputStream body = httpServletRequest.getInputStream();
             Long realContentLength = 0L;

@@ -12,9 +12,9 @@ public class TomcatConfig {
 
     @Bean
     public TomcatEmbeddedServletContainerFactory containerCustomizer(
-            CustomContextValve contextValve, S3AuthorizationValve authVavle) {
+            S3AuthorizationValve authValve) {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.addContextValves(authVavle, contextValve);
+        factory.addContextValves(authValve);
         factory.addConnectorCustomizers(customConnector());
         return factory;
     }
