@@ -219,11 +219,13 @@ export function isArray(arr){
  * @returns 
  */
 export function convertFileSize(val) {
-  if (val == 0) return "0 B";
-  var k = 1024;
-  var sizes = ["B", "KB", "MB", "GB", "TB", "PB"],
-  i = Math.floor(Math.log(val) / Math.log(k));
-  return (val / Math.pow(k, i)).toPrecision(3) + " " + sizes[i];
+  if (val == 0) return "0 B"
+  let k = 1024
+  let sizes = ["B", "KB", "MB", "GB", "TB", "PB"]
+  let i = Math.floor(Math.log(val) / Math.log(k))
+  let res = val / Math.pow(k, i)
+  res = Math.floor(res * 100) / 100
+  return res + " " + sizes[i]
 }
 /**
  *

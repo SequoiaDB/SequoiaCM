@@ -17,7 +17,7 @@
         </el-row>
         <el-row>
           <el-col :span="5"><span class="key">文件大小</span></el-col>
-          <el-col :span="19"><span class="value">{{$util.convertFileSize(curVersionFileDetail.size)}}</span></el-col>
+          <el-col :span="19"><span class="value">{{curVersionFileDetail.size}} ({{$util.convertFileSize(curVersionFileDetail.size)}})</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="5"><span class="key">MD5</span></el-col>
