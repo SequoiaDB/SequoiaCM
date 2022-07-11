@@ -273,7 +273,12 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         Sequoiadb sdb = sdbMetasource.getConnection();
         try {
             for (String cs : extraMetaList) {
-                dropCS(sdb, cs);
+                try {
+                    dropCS(sdb, cs);
+                }
+                catch (Exception e) {
+                    logger.warn("failed to drop cs: {}", cs, e);
+                }
             }
         }
         finally {
