@@ -528,9 +528,10 @@ public class ObjectController {
                     response.addHeader(entry.getKey(), entry.getValue());
                 }
                 else {
+                    String value = entry.getValue() == null ? "" : entry.getValue();
                     response.addHeader(
                             RestParamDefine.PutObjectHeader.X_AMZ_META_PREFIX + entry.getKey(),
-                            entry.getValue());
+                            value);
                 }
             }
         }
