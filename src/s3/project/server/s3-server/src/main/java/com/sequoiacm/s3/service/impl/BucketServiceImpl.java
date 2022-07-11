@@ -185,8 +185,11 @@ public class BucketServiceImpl implements BucketService {
                 throw new S3ServerException(S3Error.BUCKET_INVALID_VERSIONING_STATUS,
                         "invalid status=" + status);
             }
-            scmBucketService.updateBucketVersionStatus(session.getUser(), bucketName,
+            ScmBucket bucket = scmBucketService.updateBucketVersionStatus(session.getUser(), bucketName,
                     versionStatus);
+            audit.info(ScmAuditType.UPDATE_S3_BUCKET, session.getUser(), bucket.getWorkspace(), 0,
+                    "update bucket version status: bucketName=" + bucketName + ",status="
+                            + versionStatus.name());
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
