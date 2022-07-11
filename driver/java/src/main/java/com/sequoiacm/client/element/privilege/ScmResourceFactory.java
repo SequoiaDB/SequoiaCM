@@ -84,6 +84,16 @@ public class ScmResourceFactory {
             return createDirectoryResource(array[0], array[1]);
         }
 
+        if (type.equals(ScmBucketResource.RESOURCE_TYPE)) {
+            String[] array = resource.split(":");
+            if (array.length != 2) {
+                throw new ScmInvalidArgumentException(
+                        "bucket's resource is invalid:resource=" + resource);
+            }
+
+            return createBucketResource(array[0], array[1]);
+        }
+
         if (type.equals(ScmAllWorkspaceResource.RESOURCE_TYPE)) {
             return new ScmAllWorkspaceResource();
         }
