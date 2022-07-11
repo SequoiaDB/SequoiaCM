@@ -12,6 +12,7 @@ import java.util.*;
 
 public class S3Utils {
     private static int S3_SAME_OBJECT_CHECK_NUM = 10;
+    private static int S3_MAX_LIST_NUM = 1000;
 
     public static void checkAndInitVersionControl(AmazonS3Client srcClient,
             AmazonS3Client destClient, List<S3Bucket> bucketList) throws ScmToolsException {
@@ -119,15 +120,15 @@ public class S3Utils {
 
             // 记录最后一个key
             lastKey = objectList.get(objectList.size() - 1).getKey();
-            request.setMaxResults(S3_SAME_OBJECT_CHECK_NUM);
-
             listContext.setNextKeyMarker(result.getNextKeyMarker());
 
+            int maxResult = S3_SAME_OBJECT_CHECK_NUM;
             // 一直查询到服务端没有相同的 lastKey 为止
             while (checkNextObjects && result.isTruncated()) {
                 request.setKeyMarker(result.getNextKeyMarker());
                 request.setVersionIdMarker(result.getNextVersionIdMarker());
-
+                maxResult = maxResult < S3_MAX_LIST_NUM ? maxResult * 2 : S3_MAX_LIST_NUM;
+                request.setMaxResults(maxResult);
                 result = listVersions(s3Client, request);
                 listContext.setNextKeyMarker(result.getNextKeyMarker());
                 List<S3VersionSummary> tempList = result.getVersionSummaries();
