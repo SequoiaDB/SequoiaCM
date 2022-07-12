@@ -10,36 +10,30 @@
 2.Zookeeper：假设地址为：192.168.31.32:2181
 
 ###部署###
-1.上传相关部署包：sequoiacm-3.0.0.tgz、sequoiacm-image-3.0.0.tar.gz
-
-2.解压 SequoiaCM 镜像压缩包
-
-```
-tar -xvf sequoiacm-image-3.0.0.tar.gz
-```
+1.上传相关部署包：sequoiacm-3.0.0.tgz、sequoiacm-image-3.0.0.tar
 
 2.将 SequoiaCM 镜像 Push 至私人仓库
 
 ```
 # a) 载入离线镜像
-docker load -i sequoiacm-3.0.0.tar
+docker load -i sequoiacm-image-3.0.0.tar
 
 # b) 查看镜像的 ID
 docker images
 REPOSITORY            TAG       IMAGE ID             CREATED             SIZE
-sequoiadb/sequoiacm   3.0       ac22eb1f780e         2 months ago        94.2MB
+sequoiadb/sequoiacm   3.0.0     ac22eb1f780e         2 months ago        94.2MB
 
 # c) 重新 tag
-docker tag ac22eb1f780e  私人仓库IP:5000/sequoiacm:3.0
+docker tag ac22eb1f780e  私人仓库IP:5000/sequoiacm:3.0.0
 
 # d) push 至私人仓库
-docker push 私人仓库IP:5000/sequoiacm:3.0
+docker push 私人仓库IP:5000/sequoiacm:3.0.0
 ```
 
 3.执行如下命令获取 SequoiaCM 配置文件
 
 ```
-helm inspect values ./ sequoiacm-3.0.0.tgz  > ./myValues.yaml
+helm inspect values ./sequoiacm-3.0.0.tgz > ./myValues.yaml
 ```
 
 4.编辑配置文件
@@ -57,7 +51,7 @@ vi ./myValues.yaml
   image:
      pullPolicy: IfNotPresent
      repository: 私人仓库IP:5000/sequoiacm
-     tag: 3.0
+     tag: 3.0.0
   #...忽略其它默认配置
 
 ```
@@ -65,7 +59,7 @@ vi ./myValues.yaml
 5.执行安装
 
 ```
-helm install   ./sequoiacm-3.0.0.tgz -f ./myValues.yaml
+helm install ./sequoiacm-3.0.0.tgz -f ./myValues.yaml
 ```
 6.等待所有节点就绪
 
