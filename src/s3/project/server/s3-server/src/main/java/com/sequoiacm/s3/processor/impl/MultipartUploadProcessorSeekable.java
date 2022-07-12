@@ -61,7 +61,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
     private static final Logger logger = LoggerFactory
             .getLogger(MultipartUploadProcessorSeekable.class);
 
-    private static final int ONCE_WRITE_BYTES = 2 * 1024 * 1024; // 2MB
+    private static final int ONCE_WRITE_BYTES = 256 * 1024; // 256K
     private static final int DEFAULT_DATA_TYPE = 1;
     private static String emptyEtag = null;
 
@@ -502,8 +502,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
             int size = 0;
             while (true) {
-                if ((size = is.read(buffer, 0, buffer.length)) > 0) {
-
+                if ((size = CommonHelper.readAsMuchAsPossible(is, buffer, 0, buffer.length)) > 0) {
                     // write lob
                     dataWriter.write(buffer, 0, size);
                 }
