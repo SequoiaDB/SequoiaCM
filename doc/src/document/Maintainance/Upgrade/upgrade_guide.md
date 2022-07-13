@@ -4,7 +4,8 @@ SequoiaCM 提供升级脚本 scmupgrade.py 辅助完成各个服务的升级，�
 
 > 本节假设 SequoiaCM 的安装用户、用户组分别为 scmadmin、scmadmin_group。
 
-将新版本 SequoiaCM 安装包上传至 SequoiaCM 系统的安装机，并执行以下步骤：
+- 阅读[升级注意事项][upgrade_tip]，完成升级准备，如节点配置调整
+- 将新版本 SequoiaCM 安装包上传至 SequoiaCM 系统的安装机，并执行以下步骤：
 
 1. 安装包解压缩
 
@@ -98,3 +99,4 @@ scmupgrade.py
 
 
 [tools]:Maintainance/Tools/Readme.md
+[upgrade_tip]:Maintainance/Upgrade/compatibility.md#升级注意事项
