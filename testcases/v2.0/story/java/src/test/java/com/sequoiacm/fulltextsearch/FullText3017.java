@@ -148,8 +148,15 @@ public class FullText3017 extends TestScmBase {
         ScmFulltextJobInfo jodInfo = indexInfo.getJobInfo();
         long count = ScmFactory.File.countInstance( ws,
                 ScmType.ScopeType.SCOPE_CURRENT, fileCondition );
+        int time = 0;
         while ( jodInfo.getSuccessCount() != count ) {
             jodInfo = ScmFactory.Fulltext.getIndexInfo( ws ).getJobInfo();
+            Thread.sleep( 1000 );
+            time++;
+            if ( time >= 300 ) {
+                throw new Exception( "wait jobInfo successCount=" + count
+                        + " time out, jobInfo=" + jodInfo.toString() );
+            }
         }
         try {
             Assert.assertEquals( jodInfo.getEstimateFileCount(), count );
