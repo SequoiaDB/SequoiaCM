@@ -110,7 +110,7 @@ sharding 类型说明：
 1. 采用默认参数创建一个名为 ws 的工作区
 
    ```lang-javascript
-   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"}，{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password --preferred site2
+   $ scmadmin.sh createws --name ws --meta '{site:"rootSite",domain:"metaDomain"}' --data '[{site:"rootSite",domain:"dataDomain"},{site:"site2",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password --preferred site2
    ```
 > **Note:** 
 >

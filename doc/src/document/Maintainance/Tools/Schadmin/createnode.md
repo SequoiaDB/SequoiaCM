@@ -24,7 +24,7 @@ createnode 子命令提供创建调度服务节点的功能。
 创建调度服务节点
 
    ```lang-javascript
-   $  schadmin.sh createnode --type schedule-server --adurl localhost:11810 --aduser sdbadmin --adpasswd /home/scm/sdb.passwd -Dserver.port=8180 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=sdbadmin -Dscm.store.sequoiadb.password=/home/scm/sdb.passwd
+   $  schadmin.sh createnode --type schedule-server --adurl localhost:11810 --aduser sdbadmin --adpasswd /opt/sequoiacm/secret/auditsource.pwd -Dserver.port=8180 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=DefaultRegion -Deureka.client.availability-zones.DefaultRegion=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=sdbadmin -Dscm.store.sequoiadb.password=/opt/sequoiacm/secret/metasource.pwd
    ```
 
 [schedule_config]:Maintainance/Node_Config/schedule.md

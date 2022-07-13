@@ -4,7 +4,7 @@ createnode 子命令提供创建 Cloud 服务节点的功能。
 
 |选项       |缩写 |描述                                                   |是否必填|
 |-----------|-----|---------------------------------------------------- |--------|
-|--type     |-t   |节点类型，可选值：service-center、gateway、auth-server、service-trace、admin-server|是      |
+|--type     |-t   |节点类型，可选值：service-center、gateway、auth-server、admin-server|是      |
 |           |-D   |节点配置参数，如指定节点端口号：-Dserver.port=8190       |是|
 |--adurl    |     |审计日志入库地址，Sequoiadb 协调节点地址，如：sdb1:1180,sdb2:1180							|是|
 |--aduser   |     |审计日志入库用户名，Sequoiadb 用户名|是|
@@ -23,7 +23,7 @@ createnode 子命令提供创建 Cloud 服务节点的功能。
 创建 service-center 类型的 Cloud 服务节点
 
 ```lang-javascript
-   $ scmcloudadmin.sh  createnode --type service-center --adurl localhost:11800 --aduser sdbadmin --adpasswd /home/mount/scm/contentserver/sdb.passwd -Dserver.port=8800 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/
+   $ scmcloudadmin.sh  createnode --type service-center --adurl localhost:11800 --aduser sdbadmin --adpasswd /opt/sequoiacm/secret/auditsource.pwd -Dserver.port=8800 -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=DefaultRegion -Deureka.client.availability-zones.DefaultRegion=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=sdbadmin -Dscm.store.sequoiadb.password=/opt/sequoiacm/secret/metasource.pwd
 ```
 
 

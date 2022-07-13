@@ -28,13 +28,13 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
             "meta": {
                 "url": "localhost:11810",
                 "user": "sdbadmin",
-                "password": "/home/mount/scm/contentserver/sdb.passwd"
+                "password": "/opt/sequoiacm/secret/metasource.pwd"
             },
             "data": {
                 "type": "sequoiadb",
                 "url": "localhost:11810",
                 "user": "sdbadmin",
-                "password": "/home/mount/scm/contentserver/sdb.passwd"
+                "password": "/opt/sequoiacm/secret/ds.pwd"
             }
         },
         {
@@ -43,7 +43,8 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
                 "type": "hbase",
                 "configuration": {
                     "hbase.zookeeper.quorum":"192.168.28.172:2181", 
-                    "hbase.client.retries.number":"5", "hbase.client.pause":"50"
+                    "hbase.client.retries.number":"5", 
+                    "hbase.client.pause":"50"
                 }
             }
         }
@@ -57,19 +58,10 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
                     "siteName": "rootSite",
                     "customProperties":{
                         "eureka.instance.metadata-map.zone": "zone1",
-                        "eureka.client.register-with-eureka": "true",
-                        "eureka.client.fetch-registry": "true",
-                        "eureka.client.prefer-same-zone-eureka": "true",
-                        "eureka.client.region": "beijing",
-                        "eureka.client.availability-zones.beijing": "zone1",
+                        "eureka.client.region": "DefaultRegion",
+                        "eureka.client.availability-zones.DefaultRegion": "zone1",
                         "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
-                        "spring.zipkin.enabled": "true",
-                        "spring.zipkin.base-url": "http://localhost:8890",
-                        "scm.zookeeper.urls": "localhost:2181",
-                        "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
-                        "scm.audit.mask":"ALL",
-                        "scm.audit.userMask":"TOKEN",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.zookeeper.urls": "localhost:2181"
                      }
                 }
             ]
@@ -82,19 +74,10 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
                     "siteName": "hbaseSite",
                     "customProperties":{
                         "eureka.instance.metadata-map.zone": "zone1",
-                        "eureka.client.register-with-eureka": "true",
-                        "eureka.client.fetch-registry": "true",
-                        "eureka.client.prefer-same-zone-eureka": "true",
-                        "eureka.client.region": "beijing",
-                        "eureka.client.availability-zones.beijing": "zone1",
+                        "eureka.client.region": "DefaultRegion",
+                        "eureka.client.availability-zones.DefaultRegion": "zone1",
                         "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
-                        "spring.zipkin.enabled": "true",
-                        "spring.zipkin.base-url": "http://localhost:8890",
-                        "scm.zookeeper.urls": "localhost:2181",
-                        "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
-                        "scm.audit.mask":"ALL",
-                        "scm.audit.userMask":"TOKEN",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.zookeeper.urls": "localhost:2181"
                      }
                 }
             ]
@@ -103,8 +86,13 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
     "audit": {
             "auditurl":"localhost:11810",
             "audituser":"sdbadmin",
-            "auditpassword":"/home/mount/scm/contentserver/sdb.passwd"
-   }
+            "auditpassword":"/opt/sequoiacm/secret/auditsource.pwd"
+   },
+    "gateway":{
+        "url":"gatewayUrl:port",
+        "user":"admin",
+        "password":"admin"
+    }
 } 
 ```
 

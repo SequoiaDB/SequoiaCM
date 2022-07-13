@@ -12,7 +12,7 @@ Fulltext-Server 安装包下的 deploy.py 提供 Fulltext-Server 服务的部署
 |--dryrun  |           |仅打印脚本执行的命令，用于实际执行前的确认及核对|
 
 ##配置文件##
-如下是一个完整的配置文件示例：
+如下是一个简要的配置文件示例：
 
 ```lang-javascript
 {
@@ -21,11 +21,8 @@ Fulltext-Server 安装包下的 deploy.py 提供 Fulltext-Server 服务的部署
             "hostname": "localhost",
             "server.port": "8190",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
-            "eureka.client.region": "beijing",
-            "eureka.client.availability-zones.beijing": "zone1",
+            "eureka.client.region": "DefaultRegion",
+            "eureka.client.availability-zones.DefaultRegion": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
             "scm.zookeeper.urls": "localhost:2181",
             "scm.fulltext.es.urls":"http://192.168.20.46:9200",

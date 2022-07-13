@@ -4,7 +4,7 @@ start 子命令提供 Cloud 服务节点的启动功能。
 
 |选项      |缩写 |描述                                     |
 |----------|-----|-----------------------------------------|
-|--type    |-t   |启动指定类型的节点，可选值:all、service-center、gateway、auth-server、service-trace、admin-server|
+|--type    |-t   |启动指定类型的节点，可选值:all、service-center、gateway、auth-server、admin-server|
 |--port    |-p   |指定特定端口，启动该节点                 |
 |--timeout |     |指定超时时间，在规定时间内节点未正常运行，判定启动失败，单位：秒，默认值：50s|
 

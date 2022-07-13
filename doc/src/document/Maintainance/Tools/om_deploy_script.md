@@ -11,22 +11,18 @@ Om-Server 安装包下的 deploy.py 提供 Om-Server 服务的部署功能，dep
 |--dryrun  |           |仅打印脚本执行的命令，用于实际执行前的确认及核对|
 
 ## 配置文件 ##
-如下是一个完整的配置文件示例：
+如下是一个简要的配置文件示例：
 
 ```lang-javascript
 {
     "om-server": [
         {
             "hostname": "localhost",
-            "server.port": "8081",
-            "scm.omserver.gateway": "''",
+            "server.port": "9000",
+            "scm.omserver.gateway": "gatewayUrl:port",
             "scm.omserver.readTimeout": "5000",
-            "scm.omserver.region": "defaultRegion",
-            "scm.omserver.zone": "zone1",
-            "scm.omserver.onlyConnectLocalRegionServer": "false",
-            "scm.omserver.sessionKeepAliveTime": "900",
-            "scm.omserver.cacheRefreshInterval": "180",
-            "scm.jvm.options": ""
+            "scm.omserver.region": "DefaultRegion",
+            "scm.omserver.zone": "zone1"
         }
     ]
 	

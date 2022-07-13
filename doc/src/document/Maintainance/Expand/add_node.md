@@ -22,9 +22,6 @@ $ vi /opt/sequoiacm/sequoiacm-cloud/deploy.json
 		    "hostname":"scmServer2",
 			"server.port":"8080",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://scmServer2:8800/eureka/",
@@ -38,9 +35,6 @@ $ vi /opt/sequoiacm/sequoiacm-cloud/deploy.json
 		    "hostname":"scmServer2",
 			"server.port":"8810",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://scmServer2:8800/eureka/",
@@ -89,8 +83,9 @@ $ python /opt/sequoiacm/sequoiacm-cloud/deploy.py --start
 
 
 ```
-$ vi /opt/sequoiacm/contentserver/deploy.json
+$ vi /opt/sequoiacm/sequoiacm-content/deploy.json
 {
+    "sites": [],
 	"nodes":[
 		{
 			"node":[
@@ -100,9 +95,6 @@ $ vi /opt/sequoiacm/contentserver/deploy.json
 					"siteName":"rootSite",
 					"customProperties":{
 					    "eureka.instance.metadata-map.zone": "zone1",
-                        "eureka.client.register-with-eureka": "true",
-                        "eureka.client.fetch-registry": "true",
-                        "eureka.client.prefer-same-zone-eureka": "true",
                         "eureka.client.region": "beijing",
                         "eureka.client.availability-zones.beijing": "zone1",
                         "eureka.client.service-url.zone1": "http://scmServer2:8800/eureka/",
@@ -121,7 +113,13 @@ $ vi /opt/sequoiacm/contentserver/deploy.json
 		"auditurl":"sdbServer",
 		"audituser":"sdbadmin",
 		"auditpassword":"/opt/sequoiacm/sdb.passwd"
-   }
+    },
+    "gateway":{
+        "url":"gatewayUrl:port",
+        "user":"admin",
+        "password":"admin"
+    }
+
 }
 ```
 
@@ -135,7 +133,7 @@ $ vi /opt/sequoiacm/contentserver/deploy.json
 - 执行部署命令，并启动新增节点
 
 ```
-$ python /opt/sequoiacm/contentserver/deploy.py --start
+$ python /opt/sequoiacm/sequoiacm-content/deploy.py --createnode --start
 ```
 
 ###增加配置服务节点###
@@ -150,9 +148,6 @@ $ vi /opt/sequoiacm/sequoiacm-config/deploy.json
 		    "hostname":"scmServer1",
 			"server.port":"8190",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://scmServer2:8800/eureka/",
@@ -191,9 +186,6 @@ $ vi /opt/sequoiacm/sequoiacm-schedule/deploy.json
 		    "hostname":"scmServer1",
 			"server.port":"8180",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://scmServer2:8800/eureka/",

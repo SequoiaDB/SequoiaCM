@@ -18,7 +18,7 @@ createnode 子命令提供创建消息队列服务节点的功能。
 创建消息队列服务节点
 
    ```lang-javascript
-   $  mqadmin.sh createnode --type mq-server -Dserver.port=8610 -Deureka.client.region=DefaultRegion -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.availability-zones.DefaultRegion=zone1 -Deureka.client.service-url.zone1=http://192.168.31.14:8800/eureka/ -Dscm.zookeeper.urls=192.168.31.14:2181 -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=root -Dscm.store.sequoiadb.password=/home/scm/sdb.passwd
+   $  mqadmin.sh createnode --type mq-server -Dserver.port=8610 -Deureka.client.region=DefaultRegion -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.availability-zones.DefaultRegion=zone1 -Deureka.client.service-url.zone1=http://192.168.31.14:8800/eureka/ -Dscm.zookeeper.urls=192.168.31.14:2181 -Dscm.store.sequoiadb.urls=localhost:11810 -Dscm.store.sequoiadb.username=root -Dscm.store.sequoiadb.password=/opt/sequoiacm/secret/metasource.pwd
    ```
 
 [message_queue_config]:Maintainance/Node_Config/message_queue.md

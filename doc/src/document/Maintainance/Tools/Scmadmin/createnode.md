@@ -44,7 +44,7 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 在本机，创建主站点的一个服务节点
 
 ```lang-javascript
-   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl 192.168.31.14:15100 --mdsurl 192.168.20.74:11810 --mdsuser sdbadmin --mdspasswd /opt/sequoiacm/pw.txt --gateway 192.168.31.14:8080 --user admin --passwd admin -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=beijing -Deureka.client.availability-zones.beijing=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 
+   $  scmadmin.sh createnode --sitename rootSite --name rootSiteNode --serverurl server2:15000 --mdsurl metaServer1:11810 --mdsuser sdbadmin --mdspasswd /opt/sequoiacm/secret/metasource.pwd --gateway server2:8080 --user admin --passwd admin -Deureka.instance.metadata-map.zone=zone1 -Deureka.client.region=DefaultRegion -Deureka.client.availability-zones.DefaultRegion=zone1 -Deureka.client.service-url.zone1=http://localhost:8800/eureka/ -Dscm.zookeeper.urls=localhost:2181 
 ```
 >  **Note:**
 >
@@ -53,7 +53,7 @@ createnode 子命令提供创建 ContentServer 节点的功能。
 >  * 主站点名为 rootSite，新增的节点名为 rootSiteNode，新增加节点的 host 为 server2，服务端口为15000
 >  * 网关地址 gateway为 server2:8080，管理员用户名 user 为 admin，命令行提示输入管理员密码
 >
->  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
+>  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，mdsuser 为 sdbadmin，mdspasswd 为 /opt/sequoiacm/secret/metasource.pwd
 
 
 

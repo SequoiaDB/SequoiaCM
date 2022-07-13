@@ -12,7 +12,7 @@ Schedule 安装包下的 deploy.py 提供 Schedule 服务的部署功能，deplo
 
 
 ##配置文件##
-如下是一个完整的配置文件示例：
+如下是一个简要的配置文件示例：
 
 ```lang-javascript
 {
@@ -21,29 +21,19 @@ Schedule 安装包下的 deploy.py 提供 Schedule 服务的部署功能，deplo
             "hostname": "localhost",
             "server.port": "8180",
             "eureka.instance.metadata-map.zone": "zone1",
-            "eureka.client.register-with-eureka": "true",
-            "eureka.client.fetch-registry": "true",
-            "eureka.client.prefer-same-zone-eureka": "true",
-            "eureka.client.region": "beijing",
-            "eureka.client.availability-zones.beijing": "zone1",
+            "eureka.client.region": "DefaultRegion",
+            "eureka.client.availability-zones.DefaultRegion": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
-            "zuul.routes.api-a.path": "/**",
-            "spring.zipkin.enabled": "false",
-            "spring.zipkin.base-url": "http://localhost:8820",
-            "spring.application.name": "schedule-server",
             "scm.zookeeper.urls": "localhost:2181",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
-            "scm.store.sequoiadb.password": "/home/mount/scm/contentserver/sdb.passwd",
-            "scm.audit.mask":"ALL",
-            "scm.audit.userMask":"TOKEN",
-            "scm.jvm.options": "''"
+            "scm.store.sequoiadb.password": "/opt/sequoiacm/secret/metasource.pwd"
         }
     ],
    "audit":{
             "auditurl":"localhost:11810",
             "audituser":"sdbadmin",
-            "auditpassword":"/home/mount/scm/contentserver/sdb.passwd"
+            "auditpassword":"/opt/sequoiacm/secret/auditsource.pwd"
    }
 }
 

@@ -18,7 +18,7 @@ createnode 子命令提供创建om服务节点的功能。
 创建om服务节点
 
    ```lang-javascript
-   $  omadmin.sh createnode --type om-server -Dserver.port=8888 -Dscm.omserver.gateway=192.168.16.70:8080  -Dscm.omserver.cacheRefreshInterval=180 -Dscm.omserver.sessionKeepAliveTime=900 -Dscm.omserver.readTimeout=10000
+   $  omadmin.sh createnode --type om-server -Dserver.port=9000 -Dscm.omserver.gateway=192.168.16.70:8080  -Dscm.omserver.region=DefaultRegion -Dscm.omserver.zone=zone1
    ```
 
 [om_config]:Maintainance/Node_Config/om.md
