@@ -11,7 +11,7 @@
 |ZooKeeper|scmServer:2181|zookeeper服务,提供选举及分布式锁服务|
 |内容管理服务|scmServer:15000|提供内容管理核心功能|
 |配置服务|scmServer:8190|提供配置管理功能|
-|调度服务|scmServer:8180|提供调度管理功能|
+|调度服务|scmServer:8910|提供调度管理功能|
 |注册中心|scmServer:8800|提供服务治理功能|
 |网关服务|scmServer:8080|提供路由、负载均衡功能|
 |认证服务|scmServer:8810|提供认证、权限控制功能|
