@@ -43,6 +43,8 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
@@ -256,6 +258,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
+    @SlowLog(operation = "crateFile", extras = @SlowLogExtra(name = "breakpointFileName", data = "breakpointFileName"))
     public BSONObject createFile(ScmUser user, String bucketName, BSONObject fileInfo,
             final String breakpointFileName, OverwriteOption overwriteOption)
             throws ScmServerException {
@@ -323,6 +326,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
+    @SlowLog(operation = "crateFile")
     public BSONObject createFile(ScmUser user, String bucketName, BSONObject fileInfo,
             ScmDataInfoDetail data, TransactionCallback transactionCallback,
             OverwriteOption overwriteOption) throws ScmServerException {

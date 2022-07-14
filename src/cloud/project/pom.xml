@@ -199,6 +199,12 @@
                 <artifactId>sequoiacm-infrastructure-lock</artifactId>
                 <version>${sequoiacm-infrastructure.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-slowlog</artifactId>
+                <version>${sequoiacm-infrastructure.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

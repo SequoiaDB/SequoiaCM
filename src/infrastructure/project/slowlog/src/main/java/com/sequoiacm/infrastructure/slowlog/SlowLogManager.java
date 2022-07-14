@@ -9,6 +9,7 @@ import javassist.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SlowLogManager {
@@ -21,7 +22,17 @@ public final class SlowLogManager {
 
     private static final ThreadLocal<SlowLogContext> slowLogContextLocal = new ThreadLocal<>();
 
+    private static final List<String> modifiedClasses = new ArrayList<>();
+
+    private static ClassPool defaultClassPool = null;
+
     private static boolean initialized = false;
+
+    static {
+        defaultClassPool = ClassPool.getDefault();
+        defaultClassPool.appendClassPath(
+                new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+    }
 
     private SlowLogManager() {
     }
@@ -32,19 +43,30 @@ public final class SlowLogManager {
         }
         logger.info("init SlowLogManager");
         initialized = true;
+        List<ClassMetaInfo> classMetaInfoList = null;
+        try {
+            classMetaInfoList = ClassUtils.scanClasses(BASE_PACKAGE);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    "failed to init SlowLogManager: scan classes failed, package=" + BASE_PACKAGE,
+                    e);
+        }
+        modifyClass(classMetaInfoList, defaultClassPool);
+
+    }
+
+    private static void modifyClass(List<ClassMetaInfo> classMetaInfoList, ClassPool classPool) {
         String currentClassName = null;
         String currentMethodName = null;
         try {
-            ClassPool pool = ClassPool.getDefault();
-            pool.appendClassPath(
-                    new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-            List<ClassMetaInfo> classMetaInfoList = ClassUtils.scanClasses(BASE_PACKAGE);
             for (ClassMetaInfo classMetaInfo : classMetaInfoList) {
-                if (classMetaInfo.isAnnotation() || classMetaInfo.isInterface()) {
+                currentClassName = classMetaInfo.getClassName();
+                if (classMetaInfo.isAnnotation() || classMetaInfo.isInterface()
+                        || modifiedClasses.contains(currentClassName)) {
                     continue;
                 }
-                CtClass ctClass = pool.get(classMetaInfo.getClassName());
-                currentClassName = classMetaInfo.getClassName();
+                CtClass ctClass = classPool.get(classMetaInfo.getClassName());
                 boolean hasChange = false;
                 for (CtBehavior ctBehavior : ctClass.getDeclaredBehaviors()) {
                     currentMethodName = ctBehavior.getMethodInfo().getName();
@@ -79,6 +101,7 @@ public final class SlowLogManager {
                 if (hasChange) {
                     ctClass.toClass();
                     ctClass.detach();
+                    modifiedClasses.add(currentClassName);
                 }
             }
         }
@@ -97,9 +120,23 @@ public final class SlowLogManager {
         return slowLogContext;
     }
 
+    public static void addPackage(String packageName, ClassLoader classLoader) {
+        logger.info("add package to slowlog:{}", packageName);
+        try {
+            List<ClassMetaInfo> classMetaInfoList = ClassUtils.scanClasses(packageName,
+                    classLoader);
+            ClassPool classPool = new ClassPool();
+            classPool.appendClassPath(new LoaderClassPath(classLoader));
+            modifyClass(classMetaInfoList, classPool);
+        }
+        catch (Exception e) {
+            logger.warn("failed to add package to slowlog, package=" + packageName, e);
+        }
+
+    }
+
     public static void setCurrentContext(SlowLogContext currentContext) {
         slowLogContextLocal.set(currentContext);
     }
-
 
 }

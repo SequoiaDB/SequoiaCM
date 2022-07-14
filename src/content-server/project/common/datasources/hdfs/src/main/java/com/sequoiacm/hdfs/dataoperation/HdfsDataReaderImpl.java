@@ -1,5 +1,7 @@
 package com.sequoiacm.hdfs.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -24,6 +26,9 @@ public class HdfsDataReaderImpl implements ScmDataReader {
     private boolean isEof;
     private Path path;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readHdfsFilePath", data = "filePath"),
+            @SlowLogExtra(name = "readHdfsFileName", data = "dataInfo.getId()") })
     public HdfsDataReaderImpl(String wsName, HdfsDataLocation dataLocation,
             ScmService service, ScmDataInfo dataInfo)
                     throws HdfsException {
@@ -67,11 +72,13 @@ public class HdfsDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         releaseReource();
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws HdfsException {
         try {
             int readLen = inputStream.read(buff, offset, len);
@@ -88,6 +95,7 @@ public class HdfsDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws HdfsException {
         try {
             inputStream.seek(size);

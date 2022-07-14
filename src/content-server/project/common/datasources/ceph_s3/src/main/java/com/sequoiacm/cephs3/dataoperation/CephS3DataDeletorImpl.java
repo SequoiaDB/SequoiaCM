@@ -1,5 +1,7 @@
 package com.sequoiacm.cephs3.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ public class CephS3DataDeletorImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteObjectKey", data = "key"))
     public void delete() throws CephS3Exception {
         DeleteObjectRequest req = new DeleteObjectRequest(bucketName, key);
         CephS3ConnWrapper conn = dataService.getConn();

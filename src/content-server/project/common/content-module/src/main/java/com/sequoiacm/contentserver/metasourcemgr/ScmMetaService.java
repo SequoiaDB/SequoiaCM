@@ -21,7 +21,6 @@ import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
@@ -75,7 +74,6 @@ public class ScmMetaService {
         insertFile(wsInfo, file, (TransactionCallback) null);
     }
 
-    @SlowLog(operation = "accessMeta")
     public void insertFile(ScmWorkspaceInfo wsInfo, BSONObject file,
             TransactionCallback transactionCallback) throws ScmServerException {
         TransactionContext context = createTransactionContext();
@@ -1381,7 +1379,6 @@ public class ScmMetaService {
     }
 
 
-    @SlowLog(operation = "accessMeta")
     public void breakpointFileToFile(ScmWorkspaceInfo wsInfo, BreakpointFile breakpointFile,
             BSONObject fileInfo) throws ScmServerException {
         TransactionContext context = null;

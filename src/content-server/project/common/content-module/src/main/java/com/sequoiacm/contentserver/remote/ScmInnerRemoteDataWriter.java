@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sequoiacm.contentserver.common.ScmRestClientUtils;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.infrastructure.dispatcher.ScmURLConfig;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
@@ -36,6 +38,9 @@ public class ScmInnerRemoteDataWriter {
     private HttpURLConnection conn;
     private OutputStream os;
 
+    @SlowLog(operation = "openWriter", extras = {
+            @SlowLogExtra(name = "writeFileId", data = "dataInfo.getId()"),
+            @SlowLogExtra(name = "writeRemoteSiteName", data = "remoteSiteName") })
     public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo, final ScmDataInfo dataInfo)
             throws ScmServerException {
         this.dataInfo = dataInfo;
@@ -69,6 +74,7 @@ public class ScmInnerRemoteDataWriter {
         }
     }
 
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws ScmServerException {
         try {
             os.write(content, offset, len);
@@ -90,12 +96,14 @@ public class ScmInnerRemoteDataWriter {
     }
 
     // remove the writing file & release writer's resources
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         closeConn(conn);
         closeOs(os);
     }
 
     // close and commit this file & release writer's resources
+    @SlowLog(operation = "closeWriter")
     public void close() throws ScmServerException {
         try {
             os.flush();

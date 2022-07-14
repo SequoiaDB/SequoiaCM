@@ -14,7 +14,7 @@ public class SlowLogContextImpl implements SlowLogContext {
     private final Map<String, OperationStatistics> operationStatisticsMap = new TreeMap<>();
     private final Stack<OperationFrame> operationFrameStack = new Stack<>();
 
-    private Map<String, Set<Object>> extra;
+    private Map<String, Set<Object>> extras;
     private String sessionId;
     private String path;
     private String method;
@@ -178,19 +178,19 @@ public class SlowLogContextImpl implements SlowLogContext {
     }
 
     @Override
-    public Map<String, Set<Object>> getExtra() {
-        return extra;
+    public Map<String, Set<Object>> getExtras() {
+        return extras;
     }
 
     @Override
     public void addExtra(String key, Object value) {
-        if (extra == null) {
-            extra = new HashMap<>();
+        if (extras == null) {
+            extras = new HashMap<>();
         }
-        Set<Object> set = extra.get(key);
+        Set<Object> set = extras.get(key);
         if (set == null) {
             set = new HashSet<>(1);
-            extra.put(key, set);
+            extras.put(key, set);
         }
         set.add(value);
     }

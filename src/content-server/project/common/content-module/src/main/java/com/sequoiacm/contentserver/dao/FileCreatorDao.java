@@ -41,7 +41,6 @@ public class FileCreatorDao implements IFileCreatorDao {
     private ScmDataWriter fileWriter;
     private ScmDataInfo dataInfo;
 
-    @SlowLog(operation = "openWriter", extras = @SlowLogExtra(name = "fileId", data = "fileId"))
     public FileCreatorDao(int siteId, ScmWorkspaceInfo wsInfo, BSONObject fileInfo,
             ScmDataInfo dataInfo, boolean isNeedMd5) throws ScmServerException {
         this.siteId = siteId;
@@ -66,7 +65,6 @@ public class FileCreatorDao implements IFileCreatorDao {
         }
     }
 
-    @SlowLog(operation = "writeData")
     private void write(byte[] content, int off, int len) throws ScmServerException {
         try {
             fileWriter.write(content, off, len);
@@ -106,6 +104,7 @@ public class FileCreatorDao implements IFileCreatorDao {
         }
     }
 
+    @SlowLog(operation = "writeFileData")
     public void write(InputStream is) throws ScmServerException {
         if (!isNeedMd5) {
             writeData(is);
@@ -125,7 +124,6 @@ public class FileCreatorDao implements IFileCreatorDao {
         }
     }
 
-    @SlowLog(operation = "closeWriter")
     private void writeFinish() throws ScmServerException {
         FileCommonOperator.closeWriter(fileWriter);
     }

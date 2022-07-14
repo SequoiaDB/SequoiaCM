@@ -13,9 +13,16 @@ import java.util.List;
 
 public class ClassUtils {
 
-    public static List<ClassMetaInfo> scanClasses(String packageName) throws Exception {
+    public static List<ClassMetaInfo> scanClasses(String packageName, ClassLoader classLoader)
+            throws Exception {
         List<ClassMetaInfo> classMetaInfoList = new ArrayList<>();
-        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        ResourcePatternResolver resourcePatternResolver = null;
+        if (classLoader == null) {
+            resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        }
+        else {
+            resourcePatternResolver = new PathMatchingResourcePatternResolver(classLoader);
+        }
         String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                 + org.springframework.util.ClassUtils.convertClassNameToResourcePath(packageName)
                 + "/**/*.class";
@@ -32,5 +39,9 @@ public class ClassUtils {
             classMetaInfoList.add(metaInfo);
         }
         return classMetaInfoList;
+    }
+
+    public static List<ClassMetaInfo> scanClasses(String packageName) throws Exception {
+        return scanClasses(packageName, null);
     }
 }

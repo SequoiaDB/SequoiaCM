@@ -3,6 +3,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.metasource.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -79,6 +80,7 @@ public class SdbMetaAccessor implements MetaAccessor {
         insert(insertor, 0);
     }
     @Override
+    @SlowLog(operation = "accessMeta")
     public void insert(BSONObject insertor, int flag) throws ScmMetasourceException {
         Sequoiadb sdb = null;
         try {
@@ -123,6 +125,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     // return an matching record (old), and delete all matching records.
+    @SlowLog(operation = "accessMeta")
     public BSONObject queryAndDelete(BSONObject deletor, BSONObject orderby)
             throws SdbMetasourceException {
         Sequoiadb sdb = null;
@@ -166,6 +169,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public void delete(BSONObject deletor, BSONObject hint) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         try {
@@ -197,6 +201,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public void update(BSONObject matcher, BSONObject updater, BSONObject hint)
             throws SdbMetasourceException {
         Sequoiadb sdb = null;
@@ -248,6 +253,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy,
             BSONObject hint, long skip, long limit, int flag) throws SdbMetasourceException {
         Sequoiadb sdb = null;
@@ -295,6 +301,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public long count(BSONObject matcher) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         try {
@@ -321,6 +328,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public double sum(BSONObject matcher, String field) throws ScmMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
@@ -374,6 +382,7 @@ public class SdbMetaAccessor implements MetaAccessor {
 
     // return an matching record (old|new), and update all matching records.
     @Override
+    @SlowLog(operation = "accessMeta")
     public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
             boolean returnNew) throws SdbMetasourceException {
         Sequoiadb sdb = null;
@@ -414,6 +423,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public void ensureTable(List<String> indexFields, List<String> uniqueIndexField)
             throws ScmMetasourceException {
         ensureCollection();
@@ -430,6 +440,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public void ensureTable(List<IndexDef> indexes) throws ScmMetasourceException {
         ensureCollection();
         if (indexes != null) {
@@ -448,6 +459,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public void upsert(BSONObject matcher, BSONObject updator) throws ScmMetasourceException {
         Sequoiadb sdb = null;
         try {
@@ -544,6 +556,7 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @Override
+    @SlowLog(operation = "accessMeta")
     public BSONObject queryOne(BSONObject matcher, BSONObject selector, BSONObject orderBy)
             throws ScmMetasourceException {
         Sequoiadb sdb = null;
@@ -572,6 +585,7 @@ public class SdbMetaAccessor implements MetaAccessor {
         }
     }
 
+    @SlowLog(operation = "accessMeta")
     protected MetaCursor aggregate(List<BSONObject> objs) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         SdbMetaCursor sdbCursor = null;

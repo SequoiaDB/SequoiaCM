@@ -3,6 +3,8 @@ package com.sequoiacm.cephswift.dataoperation;
 import java.io.InputStream;
 
 import com.sequoiacm.datasource.common.ScmInputStreamDataReader;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
@@ -22,6 +24,9 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     private long size = 0;
     private ScmInputStreamDataReader inputStreamDataReader;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readCephSwiftContainerName", data = "containerName"),
+            @SlowLogExtra(name = "readCephSwiftObjectName", data = "objectName") })
     public CephSwiftDataReaderImpl(String containerName, String objectName, ScmService service)
             throws CephSwiftException {
         try {
@@ -49,6 +54,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         try {
             inputStreamDataReader.close();
@@ -60,6 +66,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws CephSwiftException {
         try {
             int readLen = inputStreamDataReader.read(buff, offset, len);
@@ -85,6 +92,7 @@ public class CephSwiftDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws CephSwiftException {
         try {
             inputStreamDataReader.seek(size);

@@ -3,6 +3,8 @@ package com.sequoiacm.hbase.dataoperation;
 import java.nio.ByteBuffer;
 
 import com.sequoiacm.common.memorypool.ScmPoolWrapper;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
@@ -39,6 +41,9 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
 
     private ScmPoolWrapper poolWrapper;
 
+    @SlowLog(operation = "openWriter", extras = {
+            @SlowLogExtra(name = "writeHbaseTableName", data = "tableName"),
+            @SlowLogExtra(name = "writeHbaseFileId", data = "fileId") })
     public HbaseDataWriterImpl(String tableName, String fileId, ScmService service)
             throws HbaseException {
         this.tableName = tableName;
@@ -109,6 +114,7 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws HbaseException {
         try {
             fileSize += len;
@@ -154,6 +160,7 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         try {
             dataService.delete(table, fileId);
@@ -167,6 +174,7 @@ public class HbaseDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws HbaseException {
         try {
             Put put = new Put(fileId);

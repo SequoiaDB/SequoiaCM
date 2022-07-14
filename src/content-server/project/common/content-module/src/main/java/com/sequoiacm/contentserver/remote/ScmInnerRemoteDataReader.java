@@ -3,6 +3,8 @@ package com.sequoiacm.contentserver.remote;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,9 @@ public class ScmInnerRemoteDataReader {
     private long expectDataLen;
     private long actReadLen;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readFileId", data = "dataInfo.getId()"),
+            @SlowLogExtra(name = "readRemoteSiteName", data = "remoteSiteName") })
     public ScmInnerRemoteDataReader(int remoteSiteId, ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo,
             int flag) throws ScmServerException {
         this.dataInfo = dataInfo;
@@ -61,6 +66,7 @@ public class ScmInnerRemoteDataReader {
         }
     }
 
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws ScmServerException {
         if (isEof) {
             return -1;
@@ -104,6 +110,7 @@ public class ScmInnerRemoteDataReader {
         }
     }
 
+    @SlowLog(operation = "closeReader")
     public void close() {
         try {
             if (is != null) {

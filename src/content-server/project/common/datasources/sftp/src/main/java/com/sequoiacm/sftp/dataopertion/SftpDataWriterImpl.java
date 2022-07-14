@@ -3,6 +3,8 @@ package com.sequoiacm.sftp.dataopertion;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,9 @@ public class SftpDataWriterImpl extends ScmDataWriter {
     private String fileName;
     private OutputStream outputStream;
 
+    @SlowLog(operation = "openWriter", extras = {
+            @SlowLogExtra(name = "writeSftpFileDir", data = "fileDir"),
+            @SlowLogExtra(name = "writeSftpFileName", data = "fileName") })
     SftpDataWriterImpl(String fileDir, String fileName, ScmService service)
             throws SftpDataException {
         try {
@@ -123,6 +128,7 @@ public class SftpDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws SftpDataException {
         try {
             outputStream.write(content, offset, len);
@@ -136,6 +142,7 @@ public class SftpDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         try {
             if (sftp != null) {
@@ -163,6 +170,7 @@ public class SftpDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws SftpDataException {
         releaseResource();
     }

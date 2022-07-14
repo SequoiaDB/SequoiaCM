@@ -1,6 +1,8 @@
 package com.sequoiacm.cephs3.dataoperation;
 
 import com.sequoiacm.datasource.common.ScmInputStreamDataReader;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,9 @@ public class CephS3DataReaderImpl implements ScmDataReader {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataReaderImpl.class);
     private S3Object obj;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readCephS3BucketName", data = "bucketName"),
+            @SlowLogExtra(name = "readCephS3ObjectKey", data = "key") })
     public CephS3DataReaderImpl(String bucketName, String key, ScmService service)
             throws CephS3Exception {
         this.dataService = (CephS3DataService) service;
@@ -67,12 +72,14 @@ public class CephS3DataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         conn.closeObj(obj);
         dataService.releaseConn(conn);
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws CephS3Exception {
         try {
             return inputStreamDataReader.read(buff, offset, len);
@@ -85,6 +92,7 @@ public class CephS3DataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws CephS3Exception {
         try {
             inputStreamDataReader.seek(size);

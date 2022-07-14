@@ -1,5 +1,7 @@
 package com.sequoiacm.hdfs.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -37,6 +39,7 @@ public class HdfsDataDeleterImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteFilePath", data = "filePath"))
     public void delete() throws HdfsException {
         try {
             dataService.delete(fileSystem, new Path(filePath));

@@ -1,5 +1,7 @@
 package com.sequoiacm.hdfs.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,6 +25,9 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
     private HdfsDataService dataService;
     private FSDataOutputStream outputStream = null;
 
+    @SlowLog(operation = "openWriter", extras = {
+            @SlowLogExtra(name = "writeHdfsFilePath", data = "filePath"),
+            @SlowLogExtra(name = "writeHdfsFileName", data = "dataInfo.getId()") })
     public HdfsDataWriterImpl(String wsName, HdfsDataLocation dataLocation, ScmService service,
             ScmDataInfo dataInfo) throws HdfsException {
         try {
@@ -71,6 +76,7 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws HdfsException {
         try {
             outputStream.write(content, offset, len);
@@ -82,6 +88,7 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         try {
             if (null != outputStream) {
@@ -98,6 +105,7 @@ public class HdfsDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws HdfsException {
         releaseReource();
     }

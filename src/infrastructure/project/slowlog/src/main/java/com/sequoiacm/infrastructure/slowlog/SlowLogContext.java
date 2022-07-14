@@ -48,7 +48,7 @@ public interface SlowLogContext {
 
     Collection<OperationStatistics> getOperationStatisticsData();
 
-    Map<String, Set<Object>> getExtra();
+    Map<String, Set<Object>> getExtras();
 
     void addExtra(String key, Object value);
 }

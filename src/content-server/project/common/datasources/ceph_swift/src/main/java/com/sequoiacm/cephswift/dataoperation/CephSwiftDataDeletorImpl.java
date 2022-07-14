@@ -1,5 +1,7 @@
 package com.sequoiacm.cephswift.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
@@ -34,6 +36,7 @@ public class CephSwiftDataDeletorImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteObjectName", data = "objectName"))
     public void delete() throws CephSwiftException {
         try {
             Account account = dataService.createAccount();

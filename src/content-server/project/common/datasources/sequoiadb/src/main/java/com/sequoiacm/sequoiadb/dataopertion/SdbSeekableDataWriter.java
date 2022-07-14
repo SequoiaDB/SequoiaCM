@@ -3,6 +3,7 @@ package com.sequoiacm.sequoiadb.dataopertion;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
 
@@ -16,6 +17,7 @@ public class SdbSeekableDataWriter extends SdbBreakpointDataWriter
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] data, int offset, int length) throws SequoiadbException {
         super.seekWrite(data, offset, length);
     }

@@ -124,4 +124,8 @@ public class ScmClassLoader {
                     "load class failed:className=" + className, e);
         }
     }
+
+    public URLClassLoader getInnerLoader() {
+        return innerLoader;
+    }
 }

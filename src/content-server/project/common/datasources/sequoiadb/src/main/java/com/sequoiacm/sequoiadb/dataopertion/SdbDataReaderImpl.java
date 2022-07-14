@@ -2,6 +2,8 @@ package com.sequoiacm.sequoiadb.dataopertion;
 
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
 import com.sequoiacm.sequoiadb.dataservice.SequoiadbHelper;
@@ -14,22 +16,28 @@ import org.slf4j.LoggerFactory;
 public class SdbDataReaderImpl implements ScmDataReader {
     private SdbFileContent content = null;
 
+    @SlowLog(operation = "openReader", extras = { @SlowLogExtra(name = "readCs", data = "csName"),
+            @SlowLogExtra(name = "readCl", data = "clName"),
+            @SlowLogExtra(name = "readLobId", data = "id") })
     SdbDataReaderImpl(int siteId, String csName, String clName, int type, String id,
             ScmService service) throws SequoiadbException {
         content = new SdbFileContentLob(siteId, csName, clName, id, service);
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws SequoiadbException {
         return content.read(buff, offset, len);
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws SequoiadbException {
         content.seek(size);
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         content.close();
         content = null;

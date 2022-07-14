@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.common;
 
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -43,9 +44,14 @@ public class InputStreamWithCalcMd5 extends InputStream {
             return -1;
         }
 
-        md5Calc.update(b, off, len);
+        updateMd5(b, off, len);
         size += len;
         return len;
+    }
+
+    @SlowLog(operation = "calcMD5")
+    private void updateMd5(byte[] b, int off, int len) {
+        md5Calc.update(b, off, len);
     }
 
     @Override
@@ -55,6 +61,7 @@ public class InputStreamWithCalcMd5 extends InputStream {
         }
     }
 
+    @SlowLog(operation = "calcMD5")
     public String calcMd5() throws ScmSystemException {
         if (md5Bytes != null) {
             throw new ScmSystemException("can not calc md5 towice");

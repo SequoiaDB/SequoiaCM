@@ -3,6 +3,8 @@ package com.sequoiacm.cephswift.dataoperation;
 import java.io.ByteArrayInputStream;
 
 import com.sequoiacm.common.memorypool.ScmPoolWrapper;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.javaswift.joss.headers.object.ObjectManifest;
 import org.javaswift.joss.headers.object.ObjectMetadata;
 import org.javaswift.joss.instructions.UploadInstructions;
@@ -33,6 +35,9 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     private String createdContainerName;
     private ScmPoolWrapper poolWrapper;
 
+    @SlowLog(operation = "openWriter", extras = {
+            @SlowLogExtra(name = "writeCephSwiftContainerName", data = "containerName"),
+            @SlowLogExtra(name = "writeCephSwiftObjectName", data = "objectName") })
     public CephSwiftDataWriterImpl(String containerName, String objectName, ScmService service)
             throws CephSwiftException {
         try {
@@ -70,6 +75,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws CephSwiftException {
         try {
             fileSize += len;
@@ -127,6 +133,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         for (int i = 1; i < partNum; i++) {
             try {
@@ -150,6 +157,7 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws CephSwiftException {
         try {
             StoredObject obj = dataService.getObject(container, objectName);

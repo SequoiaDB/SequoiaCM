@@ -118,6 +118,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-content-module</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-slowlog</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

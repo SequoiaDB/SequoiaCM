@@ -1,5 +1,7 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -32,6 +34,9 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     private long offset = 0;
     private String createdCsName;
 
+    @SlowLog(operation = "openWriter", extras = { @SlowLogExtra(name = "writeCs", data = "csName"),
+            @SlowLogExtra(name = "writeCl", data = "clName"),
+            @SlowLogExtra(name = "writeLobId", data = "dataId") })
     SdbDataWriterImpl(int siteId, ScmLocation location, ScmService service, String csName,
             String clName, int dataType, String dataId) throws SequoiadbException {
         this.siteId = siteId;
@@ -140,6 +145,7 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] content, int offset, int len) throws SequoiadbException {
         try {
             lob.write(content, offset, len);
@@ -161,6 +167,7 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "cancelWriter")
     public void cancel() {
         // interrupt Sequoiadb connection
         if (null != sds) {
@@ -172,6 +179,7 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws SequoiadbException {
         try {
             if (null != lob) {

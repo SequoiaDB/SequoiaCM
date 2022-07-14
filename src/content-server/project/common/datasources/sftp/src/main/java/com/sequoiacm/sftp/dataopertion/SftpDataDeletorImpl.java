@@ -2,6 +2,8 @@ package com.sequoiacm.sftp.dataopertion;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class SftpDataDeletorImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteFileName", data = "fileName"))
     public void delete() throws SftpDataException {
         ChannelSftp sftp = service.getSftp();
         try {

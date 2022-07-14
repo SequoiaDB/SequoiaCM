@@ -82,7 +82,6 @@ public class FileServiceImpl implements IFileService {
     private BucketInfoManager bucketInfoMgr;
 
     @Override
-    @SlowLog(operation = "accessMeta")
     public BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId,
             int majorVersion, int minorVersion, boolean acceptDeleteMarker)
             throws ScmServerException {
@@ -416,6 +415,7 @@ public class FileServiceImpl implements IFileService {
         return ret;
     }
 
+    @SlowLog(operation = "insertFileInfo")
     private BSONObject insertFileInfo(ScmWorkspaceInfo ws, IFileCreatorDao fileDao,
             BSONObject fileInfo, ClientUploadConf uploadConf, String sessionId, ScmUser user,
             ScmUserPasswordType passwordType, String userDetail) throws ScmServerException {

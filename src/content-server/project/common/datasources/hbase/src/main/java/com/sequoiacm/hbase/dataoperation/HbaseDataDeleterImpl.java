@@ -1,5 +1,7 @@
 package com.sequoiacm.hbase.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -31,6 +33,7 @@ public class HbaseDataDeleterImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteFileId", data = "fileId"))
     public void delete() throws HbaseException {
         Connection con = null;
         Table table = null;

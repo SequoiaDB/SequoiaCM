@@ -5,6 +5,8 @@ import com.jcraft.jsch.SftpException;
 import com.sequoiacm.datasource.common.ScmInputStreamDataReader;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.sftp.SftpDataException;
 import com.sequoiacm.sftp.dataservice.SftpDataService;
 import org.slf4j.Logger;
@@ -25,6 +27,9 @@ public class SftpDataReaderImpl implements ScmDataReader {
     private String fileDir;
     private String fileName;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readSftpFileDir", data = "fileDir"),
+            @SlowLogExtra(name = "readSftpFileName", data = "fileName") })
     SftpDataReaderImpl(String fileDir, String fileName, ScmService service)
             throws SftpDataException {
         try {
@@ -58,6 +63,7 @@ public class SftpDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws SftpDataException {
 
         try {
@@ -70,6 +76,7 @@ public class SftpDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws SftpDataException {
         try {
             inputStreamDataReader.seek(size);
@@ -81,6 +88,7 @@ public class SftpDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         releaseResource();
     }

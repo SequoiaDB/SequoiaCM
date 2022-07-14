@@ -1,5 +1,7 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ public class SdbDataDeletorImpl implements ScmDataDeletor {
     }
 
     @Override
+    @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteLobId", data = "lobId"))
     public void delete() throws SequoiadbException {
         try {
             service.removeLob(csName, clName, lobId);

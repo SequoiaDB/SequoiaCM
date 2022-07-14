@@ -112,7 +112,7 @@ public class NoOpSlowLogContextImpl implements SlowLogContext {
     }
 
     @Override
-    public Map<String, Set<Object>> getExtra() {
+    public Map<String, Set<Object>> getExtras() {
         return null;
     }
 

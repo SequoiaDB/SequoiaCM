@@ -1,6 +1,8 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -30,6 +32,9 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
 
     private String createCsName;
 
+    @SlowLog(operation = "openWriter", extras = { @SlowLogExtra(name = "writeCs", data = "csName"),
+            @SlowLogExtra(name = "writeCl", data = "clName"),
+            @SlowLogExtra(name = "writeLobId", data = "dataId") })
     public SdbBreakpointDataWriter(SdbDataLocation sdbLocation, SdbDataService sds, String csName,
             String clName, String dataId, boolean createData, long writeOffset)
             throws SequoiadbException {
@@ -66,6 +71,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "writeData")
     public void write(byte[] data, int offset, int length) throws SequoiadbException {
         if (writeOffset != lob.getSize()) {
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
@@ -86,6 +92,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "truncateData")
     public void truncate(long length) throws SequoiadbException {
         if (lob.getSize() <= length) {
             return;
@@ -97,17 +104,20 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "flushData")
     public void flush() throws SequoiadbException {
         closeLob();
         this.lob = openLob(lobId);
     }
 
     @Override
+    @SlowLog(operation = "completeData")
     public void complete() throws ScmDatasourceException {
         close();
     }
 
     @Override
+    @SlowLog(operation = "abortData")
     public void abort() throws ScmDatasourceException {
         closeLob();
         SequoiadbHelper.removeLob(sdb, csName, clName, lobId);
@@ -131,6 +141,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     @Override
+    @SlowLog(operation = "closeWriter")
     public void close() throws SequoiadbException {
         try {
             closeLob();

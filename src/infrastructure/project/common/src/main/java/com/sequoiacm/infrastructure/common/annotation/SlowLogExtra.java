@@ -13,14 +13,14 @@ public @interface SlowLogExtra {
      * 
      * @return
      */
-    String name() default "";
+    String name();
 
     /**
      * 额外信息内容
      * 
      * @return
      */
-    String data() default "";
+    String data();
 
     /**
      * 额外信息内容的类型，支持字面量类型的内容：TEXT，也支持使用 @SlowLog

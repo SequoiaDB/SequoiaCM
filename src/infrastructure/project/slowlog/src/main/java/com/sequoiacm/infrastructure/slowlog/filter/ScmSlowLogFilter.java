@@ -132,7 +132,9 @@ public class ScmSlowLogFilter extends OncePerRequestFilter {
         sb.append("Request processing is too slow: spend=").append(logContext.getSpend())
                 .append("ms, details=");
         sb.append("[");
-        sb.append("sessionId=").append(logContext.getSessionId()).append(", ");
+        if (logContext.getSessionId() != null) {
+            sb.append("sessionId=").append(logContext.getSessionId()).append(", ");
+        }
         sb.append("spend=").append(logContext.getSpend()).append("ms, ");
         sb.append("method=").append(logContext.getMethod()).append(", ");
         sb.append("path=").append(logContext.getPath()).append(", ");
@@ -160,11 +162,11 @@ public class ScmSlowLogFilter extends OncePerRequestFilter {
             }
             sb.append("]");
         }
-        Map<String, Set<Object>> extra = logContext.getExtra();
-        if (extra != null && extra.size() > 0) {
-            sb.append(", extra=[");
-            int n = extra.size();
-            for (Map.Entry<String, Set<Object>> extraEntry : extra.entrySet()) {
+        Map<String, Set<Object>> extras = logContext.getExtras();
+        if (extras != null && extras.size() > 0) {
+            sb.append(", extras=[");
+            int n = extras.size();
+            for (Map.Entry<String, Set<Object>> extraEntry : extras.entrySet()) {
                 sb.append(extraEntry.getKey()).append("=");
                 if (extraEntry.getValue().size() == 1) {
                     sb.append(extraEntry.getValue().iterator().next());

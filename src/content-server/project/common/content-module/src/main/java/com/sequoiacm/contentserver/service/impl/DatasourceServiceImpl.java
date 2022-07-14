@@ -21,6 +21,8 @@ import com.sequoiacm.datasource.dataoperation.*;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.slowlog.SlowLogManager;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -165,6 +167,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
     }
 
     @Override
+    @SlowLog(operation = "createData")
     public ScmDataInfoDetail createData(String ws, InputStream data, long createTimeMill) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         contentModule.getWorkspaceInfoCheckLocalSite(ws);

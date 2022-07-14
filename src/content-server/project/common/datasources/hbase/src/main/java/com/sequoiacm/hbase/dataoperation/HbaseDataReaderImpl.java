@@ -1,5 +1,7 @@
 package com.sequoiacm.hbase.dataoperation;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -35,6 +37,9 @@ public class HbaseDataReaderImpl implements ScmDataReader {
     private byte[] currentPieceArr;
     private int currentPieceArrOff;
 
+    @SlowLog(operation = "openReader", extras = {
+            @SlowLogExtra(name = "readHbaseTableName", data = "tableName"),
+            @SlowLogExtra(name = "readHbaseFileId", data = "fileId") })
     public HbaseDataReaderImpl(int siteId, String tableName, String fileId,
             ScmService service) throws HbaseException {
         try {
@@ -86,6 +91,7 @@ public class HbaseDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "closeReader")
     public void close() {
         closeTable(table);
         closeConnection(con);
@@ -100,6 +106,7 @@ public class HbaseDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "readData")
     public int read(byte[] buff, int offset, int len) throws HbaseException {
         if (isEof) {
             return -1;
@@ -196,6 +203,7 @@ public class HbaseDataReaderImpl implements ScmDataReader {
     }
 
     @Override
+    @SlowLog(operation = "seekData")
     public void seek(long size) throws HbaseException {
         try {
             if (size > fileSize) {
