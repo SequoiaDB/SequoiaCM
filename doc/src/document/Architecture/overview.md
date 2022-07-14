@@ -53,4 +53,4 @@ cloud 组件服务包括： 网关服务、注册中心、认证服务、监控�
 
 
 
-[overview]:SequoiaCM_Intro/overall_arch.png
+[overview]:Architecture/overall_arch.png

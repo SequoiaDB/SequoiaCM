@@ -7,3 +7,10 @@
 + 支持灵活的权限控制
 + 实现文件数据的生命周期控制
 + 提供批次、目录的文件管理能力
+
+系统架构
+----
+SequoiaCM 是基于 Spring Cloud 微服务框架开发的分布式企业内容管理系统，主要由 Spring Cloud 组件服务和内容管理等服务组成，更详细的内容请见[系统架构][architecture]。
+
+
+[architecture]:Architecture/overview.md
