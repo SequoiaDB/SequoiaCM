@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucket;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.privilege.ScmBucketResource;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
@@ -14,6 +15,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Random;
 
 /**
  * @Descreption SCM-4278:用户存不存在ws权限，存在桶所有权限执行文件操作
@@ -107,12 +110,29 @@ public class Bucket4278 extends TestScmBase {
     private void alterUser( ScmSession session, ScmPrivilegeType privilege )
             throws ScmException {
         ScmUserModifier modifier = new ScmUserModifier();
-        ScmResource bucketResource = ScmResourceFactory
-                .createBucketResource( s3WorkSpaces, bucketName );
+        ScmResource bucketResource = createBucketSource(
+                TestScmBase.s3WorkSpaces, bucketName );
         ScmFactory.Role.grantPrivilege( session, role, bucketResource,
                 privilege );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session, user, modifier );
+    }
+
+    // 随机选取一种方式创建桶资源，覆盖两种接口
+    private ScmResource createBucketSource( String wsName, String bucketName )
+            throws ScmException {
+        Random rd = new Random();
+        int i = rd.nextInt( 2 );
+        ScmResource resource;
+        if ( i == 0 ) {
+            resource = ScmResourceFactory.createResource(
+                    ScmBucketResource.RESOURCE_TYPE,
+                    wsName + ":" + bucketName );
+        } else {
+            resource = ScmResourceFactory.createBucketResource( wsName,
+                    bucketName );
+        }
+        return resource;
     }
 
     private void checkCreateWithNoPrivilege() {
