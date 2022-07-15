@@ -104,6 +104,22 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * delete buckets with same bucketNamePrefix
+     *
+     * @param s3Client,bucketName
+     */
+    public static void deleteEmptyBucketsWithPrefix( AmazonS3 s3Client,
+            String bucketPrefix ) {
+        List< Bucket > buckets = s3Client.listBuckets();
+
+        for ( int i = 0; i < buckets.size(); i++ ) {
+            if ( buckets.get( i ).getName().startsWith( bucketPrefix ) ) {
+                s3Client.deleteBucket( buckets.get( i ).getName() );
+            }
+        }
+    }
+
+    /**
      * delete one bucket by bucketName
      *
      * @param s3Client,bucketName
