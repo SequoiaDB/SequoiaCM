@@ -43,10 +43,7 @@ public class ListHealth2207 extends TestScmBase {
             cursor = ScmSystem.Monitor.listHealth( session, null );
             while ( cursor.hasNext() ) {
                 ScmHealth str = cursor.getNext();
-                // SEQUOIACM-681暂时屏蔽掉s3节点的测试
-                if ( !( str.getServiceName().equals( "s3" ) ) ) {
-                    Assert.assertEquals( str.getStatus(), "UP" );
-                }
+                Assert.assertEquals( str.getStatus(), "UP" );
                 Assert.assertNotNull( str.getNodeName() );
                 Assert.assertNotNull( str.getServiceName() );
             }
