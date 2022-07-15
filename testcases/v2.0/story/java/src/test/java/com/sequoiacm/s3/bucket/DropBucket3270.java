@@ -38,12 +38,10 @@ public class DropBucket3270 extends TestScmBase {
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
         s3B = S3Utils.buildS3Client( accessKeys[ 0 ], accessKeys[ 1 ] );
-
         S3Utils.clearBucket( s3A, bucketName );
     }
 
-    //因问题单SEQUOIACM-842暂时屏蔽
-    @Test(enabled = false)
+    @Test
     public void test() throws ScmException, InterruptedException {
         // 用户A创建桶A
         s3A.createBucket( bucketName );
