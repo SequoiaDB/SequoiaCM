@@ -124,9 +124,8 @@ public class S3Utils extends TestScmBase {
      *
      * @param s3Client,bucketName
      */
-    @SuppressWarnings("deprecation")
     public static void clearBucket( AmazonS3 s3Client, String bucketName ) {
-        if ( s3Client.doesBucketExist( bucketName ) ) {
+        if ( s3Client.doesBucketExistV2( bucketName ) ) {
             String bucketVerStatus = s3Client
                     .getBucketVersioningConfiguration( bucketName ).getStatus();
             if ( bucketVerStatus == "Off" ) {

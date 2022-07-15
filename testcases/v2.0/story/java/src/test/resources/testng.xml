@@ -88,11 +88,11 @@
             <!-- definemeta -->
             <package name="com.sequoiacm.definemeta"/>
             <package name="com.sequoiacm.definemeta.concurrent"/>
-            <!-- s3重构中，暂时屏蔽-->
-            <!-- <package name="com.sequoiacm.s3.bucket"/>-->
-            <!-- <package name="com.sequoiacm.s3.bucket.concurrent"/>-->
-            <!-- <package name="com.sequoiacm.s3.object"/>-->
-            <!-- <package name="com.sequoiacm.s3.object.concurrent"/>-->
+            <!-- s3-->
+            <package name="com.sequoiacm.s3.bucket"/>
+            <package name="com.sequoiacm.s3.bucket.concurrent"/>
+            <package name="com.sequoiacm.s3.object"/>
+            <package name="com.sequoiacm.s3.object.concurrent"/>
 
 
             <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2 -->

@@ -83,8 +83,8 @@
             <!-- <package name="com.sequoiacm.bigfile"/>-->
             <!--directory -->
             <package name="com.sequoiacm.directory.serial"/>
-            <!--s3重构中，暂时屏蔽-->
-            <!-- package name="com.sequoiacm.s3.bucket.serial"/>-->
+            <!--s3-->
+            <package name="com.sequoiacm.s3.bucket.serial"/>
             <!-- statistics -->
             <package name="com.sequoiacm.statistics"/>
         </packages>
