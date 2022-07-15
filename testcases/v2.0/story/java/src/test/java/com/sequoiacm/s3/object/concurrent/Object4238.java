@@ -4,6 +4,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
@@ -60,7 +62,7 @@ public class Object4238 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    // TODO：SEQUOIACM-847 s3更新文件会修改fileId
+    //SEQUOIACM-960
     @Test(enabled = false)
     public void test() throws Exception {
         // 创建桶，创建s3文件
@@ -87,6 +89,7 @@ public class Object4238 extends TestScmBase {
     public void tearDown() {
         try {
             if ( runSuccess ) {
+                TestTools.LocalFile.removeFile( localPath );
                 S3Utils.clearBucket( s3Client, bucketName );
             }
         } finally {
@@ -106,6 +109,10 @@ public class Object4238 extends TestScmBase {
                 ScmId scmId = S3Utils.queryS3Object( ws, objectKey );
                 ScmFile file = ScmFactory.File.getInstance( ws, scmId );
                 file.updateContent( scmUpdateFilePath );
+            } catch ( ScmException e ) {
+                if(e.getError()!= ScmError.FILE_VERSION_MISMATCHING){
+                    throw e;
+                }
             } finally {
                 session.close();
             }
