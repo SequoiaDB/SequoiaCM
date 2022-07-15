@@ -8,7 +8,6 @@ import com.sequoiacm.client.element.bizconf.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -34,11 +33,12 @@ import java.util.List;
 public class Object4312 extends TestScmBase {
     private final String bucketName = "bucket4312";
     private final String objectKey = "object4312";
-    private final String wsName = "ws4312";
     private SiteWrapper rootSite;
     private SiteWrapper branchSite;
     private ScmSession session;
-    private AmazonS3 s3Client = null;
+    private ScmSession branchSiteSession;
+    private AmazonS3 rootS3Client = null;
+    private AmazonS3 branchS3Client = null;
     private final int fileSize = 1024 * 300;
     private File localPath = null;
     private String filePath = null;
@@ -65,39 +65,52 @@ public class Object4312 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
 
-        // 新建ws,ws仅包含主站点
-        createWs( wsName );
-        ScmAuthUtils.alterUser( session, wsName,
-                ScmFactory.User.getUser( session, TestScmBase.scmUserName ),
-                ScmFactory.Role.getRole( session, "ROLE_AUTH_ADMIN" ),
-                ScmPrivilegeType.ALL );
-        ScmAuthUtils.checkPriorityByS3( session, wsName );
-
-        // 使用分站点s3节点url建立连接
-        s3Client = S3Utils.buildS3Client();
+        // 直连不同节点
+        branchS3Client = S3Utils.buildS3Client( TestScmBase.s3AccessKeyID,
+                TestScmBase.s3SecretKey, getS3NodeURLBySite( session,
+                        branchSite.getSiteServiceName() ) );
+        rootS3Client = S3Utils.buildS3Client( TestScmBase.s3AccessKeyID,
+                TestScmBase.s3SecretKey,
+                getS3NodeURLBySite( session, rootSite.getSiteServiceName() ) );
+        branchSiteSession = TestScmTools
+                .createSession( branchSite.getSiteName() );
+        S3Utils.clearBucket( rootS3Client, bucketName );
     }
 
     @Test(groups = "twoSite")
     public void test() throws Exception {
-        // 在主站点ws下创建桶
-        s3Client.createBucket( bucketName );
+        // 在主站点ws下创建桶，创建文件
+        rootS3Client.createBucket( bucketName );
 
-        // 创建文件，校验文件存在
-        s3Client.putObject( bucketName, objectKey, new File( filePath ) );
-        Assert.assertTrue( s3Client.doesObjectExist( bucketName, objectKey ) );
+        // 主站点创建文件，校验文件存在
+        rootS3Client.putObject( bucketName, objectKey, new File( filePath ) );
+        Assert.assertTrue(
+                branchS3Client.doesObjectExist( bucketName, objectKey ) );
 
-        // 更新文件
-        s3Client.putObject( bucketName, objectKey, new File( updatePath ) );
+        // 分站点更新文件
+        branchS3Client.putObject( bucketName, objectKey,
+                new File( updatePath ) );
 
-        // 下载文件，校验更新后的内容
-        S3Object object = s3Client.getObject( bucketName, objectKey );
+        // 分站点下载文件，校验更新后的内容
+        S3Object object = branchS3Client.getObject( bucketName, objectKey );
         S3Utils.inputStream2File( object.getObjectContent(), downloadPath );
         Assert.assertEquals( TestTools.getMD5( downloadPath ),
                 TestTools.getMD5( updatePath ) );
 
+        // detach File
+        ScmFactory.Bucket.detachFile( branchSiteSession, bucketName,
+                objectKey );
+
+        // attach File
+        ScmWorkspace ws = ScmFactory.Workspace
+                .getWorkspace( TestScmBase.s3WorkSpaces, branchSiteSession );
+        ScmId scmId = S3Utils.queryS3Object( ws, objectKey );
+        ScmFactory.Bucket.attachFile( branchSiteSession, bucketName, scmId );
+
         // 删除文件，校验文件不存在
-        s3Client.deleteObject( bucketName, objectKey );
-        Assert.assertFalse( s3Client.doesObjectExist( bucketName, objectKey ) );
+        branchS3Client.deleteObject( bucketName, objectKey );
+        Assert.assertFalse(
+                branchS3Client.doesObjectExist( bucketName, objectKey ) );
         runSuccess = true;
     }
 
@@ -105,30 +118,30 @@ public class Object4312 extends TestScmBase {
     public void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                S3Utils.clearBucket( s3Client, bucketName );
-                ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
+                S3Utils.clearBucket( branchS3Client, bucketName );
             }
         } finally {
-            s3Client.shutdown();
+            branchS3Client.shutdown();
             session.close();
         }
     }
 
-    private void createWs( String wsName ) throws Exception {
-        ScmWorkspaceUtil.deleteWs( wsName, session );
-        ScmWorkspaceConf conf = new ScmWorkspaceConf();
-        String domain = TestSdbTools
-                .getDomainNames( ScmInfo.getRootSite().getDataDsUrl() )
-                .get( 0 );
-        ScmSdbDataLocation sdbDataLocation = new ScmSdbDataLocation(
-                rootSite.getSiteName(), domain );
-        List< ScmDataLocation > dataLocationList = new ArrayList<>();
-        dataLocationList.add( sdbDataLocation );
-        conf.setDataLocations( dataLocationList );
-        conf.setMetaLocation(
-                ScmWorkspaceUtil.getMetaLocation( ScmShardingType.YEAR ) );
-        conf.setEnableDirectory( false );
-        conf.setName( wsName );
-        ScmWorkspaceUtil.createWS( session, conf );
+    private static String getS3NodeURLBySite( ScmSession session,
+            String siteName ) throws ScmException {
+        ScmCursor< ScmHealth > scmHealthScmCursor = ScmSystem.Monitor
+                .listHealth( session, null );
+        String S3URL = null;
+        while ( scmHealthScmCursor.hasNext() ) {
+            ScmHealth scmHealth = scmHealthScmCursor.getNext();
+            String serviceName = scmHealth.getServiceName();
+            if ( serviceName.contains( "s3" ) ) {
+                if ( serviceName.contains( siteName ) ) {
+                    S3URL = scmHealth.getNodeName();
+                    break;
+                }
+            }
+        }
+        scmHealthScmCursor.close();
+        return "http://" + S3URL;
     }
 }
