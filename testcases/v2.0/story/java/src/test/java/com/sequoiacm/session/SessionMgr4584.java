@@ -5,7 +5,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,19 +25,13 @@ import java.util.List;
  */
 public class SessionMgr4584 extends TestScmBase {
     private ScmSessionMgr sessionMgr;
-    private int connectionRequestTimeout = 2000;
-    private ScmConfigOption scmConfigOption;
     private ScmSession session;
 
     @BeforeClass
-    private void setUp() throws ScmException {
-        scmConfigOption = TestScmTools
-                .getScmConfigOption( ScmInfo.getRootSite().getSiteName() );
-
+    private void setUp() {
     }
 
-    // TODO SEQUOIACM-928
-    @Test(enabled = false)
+    @Test
     private void test() throws ScmException {
         // 设置无效Url
         ScmSessionPoolConf conf = createSessionPoolConf( "123456",
@@ -55,32 +48,38 @@ public class SessionMgr4584 extends TestScmBase {
         // 设置无效用户名
         conf = createSessionPoolConf( getDefaultUrl(), "user4584",
                 TestScmBase.scmPassword );
+        ScmSessionMgr sessionMgr = ScmFactory.Session.createSessionMgr( conf );
         try {
-            ScmFactory.Session.createSessionMgr( conf );
+            sessionMgr.getSession();
             Assert.fail( "except fail but success" );
         } catch ( ScmException e ) {
-            if ( !e.getError().equals( ScmError.INVALID_ARGUMENT ) ) {
+            if ( !e.getError().equals( ScmError.HTTP_UNAUTHORIZED ) ) {
                 throw e;
             }
+        } finally {
+            sessionMgr.close();
         }
 
         // 设置无效密码
         conf = createSessionPoolConf( getDefaultUrl(), TestScmBase.scmUserName,
                 "passwd4584" );
+        sessionMgr = ScmFactory.Session.createSessionMgr( conf );
         try {
-            ScmFactory.Session.createSessionMgr( conf );
+            sessionMgr.getSession();
             Assert.fail( "except fail but success" );
         } catch ( ScmException e ) {
-            if ( !e.getError().equals( ScmError.INVALID_ARGUMENT ) ) {
+            if ( !e.getError().equals( ScmError.HTTP_UNAUTHORIZED ) ) {
                 throw e;
             }
+        } finally {
+            sessionMgr.close();
         }
 
         // 设置有效url、用户名、密码，获取session并使用
         conf = createSessionPoolConf( getDefaultUrl(), TestScmBase.scmUserName,
                 TestScmBase.scmPassword );
-        sessionMgr = ScmFactory.Session.createSessionMgr( conf );
-        session = sessionMgr.getSession();
+        this.sessionMgr = ScmFactory.Session.createSessionMgr( conf );
+        session = this.sessionMgr.getSession();
         long count = ScmFactory.Workspace.count( session,
                 new BasicBSONObject() );
         Assert.assertNotEquals( count, 0 );
@@ -103,8 +102,7 @@ public class SessionMgr4584 extends TestScmBase {
     }
 
     private String getDefaultUrl() {
-        String url = TestScmBase.gateWayList.get( 0 ) + "/"
+        return TestScmBase.gateWayList.get( 0 ) + "/"
                 + ScmInfo.getSite().getSiteName();
-        return url;
     }
 }

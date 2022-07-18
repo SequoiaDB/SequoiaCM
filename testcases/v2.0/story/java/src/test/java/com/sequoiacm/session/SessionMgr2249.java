@@ -137,8 +137,7 @@ public class SessionMgr2249 extends TestScmBase {
         }
     }
 
-    //TODO:SEQUOIACM-928暂时屏蔽
-    @Test(enabled = false)
+    @Test
     private void testUserIsWrong() throws Exception {
         List< String > urlList = new ArrayList< String >();
         for ( String gateway : gateWayList ) {
@@ -165,8 +164,7 @@ public class SessionMgr2249 extends TestScmBase {
         }
     }
 
-    //TODO:SEQUOIACM-928暂时屏蔽
-    @Test(enabled = false)
+    @Test
     private void testPasswdIsWrong() throws Exception {
         List< String > urlList = new ArrayList< String >();
         for ( String gateway : gateWayList ) {
