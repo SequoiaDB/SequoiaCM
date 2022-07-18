@@ -144,7 +144,7 @@ public class ObjServiceImpl implements ObjectService {
                     dataDetail, null,
                     OverwriteOption.doNotOverwrite());
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "get s3 object meta: bucketName=" + s3Bucket.getBucketName() + ", key="
+                    "create s3 object meta: bucketName=" + s3Bucket.getBucketName() + ", key="
                             + req.getObjectMeta().getKey());
 
             S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(s3Bucket.getBucketName(),
@@ -421,7 +421,7 @@ public class ObjServiceImpl implements ObjectService {
             }
 
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), "null", 0,
-                    "copy s3 bucket: srcBucket=" + request.getSourceObjectBucket() + ", srcObject="
+                    "copy s3 object: srcBucket=" + request.getSourceObjectBucket() + ", srcObject="
                             + request.getSourceObjectKey() + ", destBucket="
                             + request.getDestObjectMeta().getBucket() + ", destObject="
                             + request.getDestObjectMeta().getKey());
