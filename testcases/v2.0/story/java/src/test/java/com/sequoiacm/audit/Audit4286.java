@@ -64,12 +64,15 @@ public class Audit4286 extends TestScmBase {
                 ConfUtil.checkAuditByType( session, "CREATE_S3_BUCKET",
                         "create s3 bucket: bucketName=" + bucketName ) );
 
+        // 更新桶
         BucketVersioningConfiguration config = new BucketVersioningConfiguration()
                 .withStatus( BucketVersioningConfiguration.SUSPENDED );
         s3Client.setBucketVersioningConfiguration(
                 new SetBucketVersioningConfigurationRequest( bucketName,
                         config ) );
-        // TODO:SEQUOIACM-952 存在问题，暂未实现校验
+        Assert.assertTrue(
+                ConfUtil.checkAuditByType( session, "UPDATE_S3_BUCKET",
+                        "bucketName=" + bucketName + ",status=Suspended" ) );
 
         // 删除桶
         s3Client.deleteBucket( bucketName );
