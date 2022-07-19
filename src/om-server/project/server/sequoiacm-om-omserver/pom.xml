@@ -78,12 +78,6 @@
                         <fileset>
                             <directory>${vue.modules.dir}</directory>
                         </fileset>
-                        <fileset>
-                            <directory>${vue.project.root}</directory>
-                            <includes>
-                                <include>package-lock.json</include>
-                            </includes>
-                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
