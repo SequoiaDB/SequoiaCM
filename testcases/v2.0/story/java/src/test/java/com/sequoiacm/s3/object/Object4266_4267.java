@@ -110,8 +110,7 @@ public class Object4266_4267 extends TestScmBase {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileNameBase + i );
             file.setContent( filePath );
-            // TODO:SEQUOIACM-845
-            fileIds.add( file.save( new ScmUploadConf( true, true ) ) );
+            fileIds.add( file.save() );
 
         }
         return fileIds;

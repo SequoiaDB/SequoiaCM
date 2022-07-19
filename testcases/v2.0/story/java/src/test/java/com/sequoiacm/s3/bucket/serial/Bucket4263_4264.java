@@ -96,8 +96,7 @@ public class Bucket4263_4264 extends TestScmBase {
         ScmFile file = ScmFactory.File.createInstance( newWs );
         file.setFileName( objectKey );
         file.setContent( filePath );
-        // TODO:SEQUOIACM-845
-        ScmId fileId = file.save( new ScmUploadConf( true, true ) );
+        ScmId fileId = file.save();
 
         // 挂载到没有权限的桶A中
         try {

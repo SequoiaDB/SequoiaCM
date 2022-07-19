@@ -70,8 +70,7 @@ public class Object4219 extends TestScmBase {
         file.setFileName( objectKey );
         file.setContent( filePath );
         file.setCustomMetadata( map );
-        // TODO: SEQUOIACM-845
-        ScmId fileID = file.save( new ScmUploadConf( true, true ) );
+        ScmId fileID = file.save();
 
         // 关联文件
         ScmFactory.Bucket.attachFile( session, bucketName, fileID );

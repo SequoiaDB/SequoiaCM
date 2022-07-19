@@ -66,8 +66,7 @@ public class Object4245 extends TestScmBase {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( objectKey );
         file.setContent( filePath );
-        // TODO: SEQUOIACM-845
-        fileID = file.save( new ScmUploadConf( true, true ) );
+        fileID = file.save();
 
         // 并发关联和解除关联
         ThreadExecutor te = new ThreadExecutor();
@@ -77,11 +76,11 @@ public class Object4245 extends TestScmBase {
         te.run();
 
         if ( detachFileThread.getRetCode() == 0 ) {
-            //解除关联成功
+            // 解除关联成功
             Assert.assertFalse(
                     s3Client.doesObjectExist( bucketName, objectKey ) );
         } else {
-            //解除关联失败
+            // 解除关联失败
             ScmException e = ( ScmException ) detachFileThread.getThrowable();
             Assert.assertEquals( e.getErrorCode(),
                     ScmError.FILE_NOT_FOUND.getErrorCode() );
