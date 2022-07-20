@@ -493,8 +493,7 @@ public class AuthDir_All1728 extends TestScmBase {
         }
     }
 
-    //SEQUOIACM-778
-    @Test(groups = { "twoSite", "fourSite" },enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     private void testRenameFile() throws ScmException {
         String path = path1;
         String fileName = author + UUID.randomUUID();

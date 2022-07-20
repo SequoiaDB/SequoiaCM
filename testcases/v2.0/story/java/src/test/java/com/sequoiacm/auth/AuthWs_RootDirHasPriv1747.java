@@ -80,8 +80,7 @@ public class AuthWs_RootDirHasPriv1747 extends TestScmBase {
         }
     }
 
-    //SEQUOIACM-778
-    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() {
         String testpath = path;
         String dirpath = path + "/1747_dir_new_0";
