@@ -128,7 +128,7 @@ public class FileInfoUpdatorDao {
                 FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
         if (bucketId != null) {
             throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
-                    "can not rename file because the file in bucket:ws=" + ws + ", fileId=" + fileId
+                    "can not rename file because the file in bucket:ws=" + ws.getName() + ", fileId=" + fileId
                             + ", bucketId=" + bucketId);
         }
         String fileName = (String) updator.get(FieldName.FIELD_CLFILE_NAME);

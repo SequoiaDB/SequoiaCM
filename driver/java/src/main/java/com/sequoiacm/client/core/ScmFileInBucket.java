@@ -22,15 +22,13 @@ class ScmFileInBucket extends ScmFileImpl {
 
     @Override
     public void setFileName(String fileName) throws ScmException {
-        if (getFileName() == null) {
-            super.setFileName(fileName);
-            return;
-        }
-        if (!getFileName().equals(fileName)) {
+        if (!isExist() && getFileName() != null && !getFileName().equals(fileName)) {
+            // 桶下文件构建阶段，文件名必须与构造方法时赋值的文件名一致，否则报错
             throw new ScmException(ScmError.INVALID_ARGUMENT,
                     "file name is different from initial file name: name=" + fileName
                             + ", initialFileName=" + getFileName());
         }
+        super.setFileName(fileName);
     }
 
     @Override
