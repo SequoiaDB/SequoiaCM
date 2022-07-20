@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
@@ -28,16 +29,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ListVersionsRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.S3VersionSummary;
-import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
 
@@ -478,5 +469,20 @@ public class S3Utils extends TestScmBase {
             }
         }
         return s3ServcieNames;
+    }
+
+    /**
+     * @descreption 修改桶版本控制状态
+     * @param s3Client
+     * @param bucketName
+     * @param BucketVersionConf
+     */
+    public static void updateBucketVersionConfig( AmazonS3 s3Client, String bucketName,
+            String BucketVersionConf ) {
+        BucketVersioningConfiguration config = new BucketVersioningConfiguration()
+                .withStatus( BucketVersionConf );
+        s3Client.setBucketVersioningConfiguration(
+                new SetBucketVersioningConfigurationRequest( bucketName,
+                        config ) );
     }
 }
