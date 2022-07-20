@@ -36,6 +36,7 @@ public class ClassUtils {
             metaInfo.setClassName(classMetadata.getClassName());
             metaInfo.setAnnotation(classMetadata.isAnnotation());
             metaInfo.setInterface(classMetadata.isInterface());
+            metaInfo.setSuperClassName(classMetadata.getSuperClassName());
             classMetaInfoList.add(metaInfo);
         }
         return classMetaInfoList;

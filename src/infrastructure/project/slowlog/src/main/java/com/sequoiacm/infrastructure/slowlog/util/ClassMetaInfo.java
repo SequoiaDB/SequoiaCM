@@ -8,6 +8,8 @@ public class ClassMetaInfo {
 
     private boolean isAnnotation;
 
+    private String superClassName;
+
     public String getClassName() {
         return className;
     }
@@ -32,9 +34,18 @@ public class ClassMetaInfo {
         isAnnotation = annotation;
     }
 
+    public String getSuperClassName() {
+        return superClassName;
+    }
+
+    public void setSuperClassName(String superClassName) {
+        this.superClassName = superClassName;
+    }
+
     @Override
     public String toString() {
         return "ClassMetaInfo{" + "className='" + className + '\'' + ", isInterface=" + isInterface
-                + ", isAnnotation=" + isAnnotation + '}';
+                + ", isAnnotation=" + isAnnotation + ", superClassName='" + superClassName + '\''
+                + '}';
     }
 }

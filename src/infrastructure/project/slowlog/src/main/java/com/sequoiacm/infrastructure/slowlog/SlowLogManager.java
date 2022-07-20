@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public final class SlowLogManager {
@@ -57,6 +58,10 @@ public final class SlowLogManager {
     }
 
     private static void modifyClass(List<ClassMetaInfo> classMetaInfoList, ClassPool classPool) {
+        if (classMetaInfoList == null) {
+            return;
+        }
+        classMetaInfoList = sortClasses(classMetaInfoList);
         String currentClassName = null;
         String currentMethodName = null;
         try {
@@ -110,6 +115,24 @@ public final class SlowLogManager {
                     + currentClassName + ", currentMethod=" + currentMethodName, e);
         }
 
+    }
+
+    private static List<ClassMetaInfo> sortClasses(List<ClassMetaInfo> classMetaInfoList) {
+        List<ClassMetaInfo> sortedList = new LinkedList<>();
+        for (ClassMetaInfo classMetaInfo : classMetaInfoList) {
+            String superClassName = classMetaInfo.getSuperClassName();
+            int superClassPos = -1;
+            if (superClassName != null) {
+                for (int i = 0; i < sortedList.size(); i++) {
+                    if (sortedList.get(i).getClassName().equals(superClassName)) {
+                        superClassPos = i;
+                        break;
+                    }
+                }
+            }
+            sortedList.add(superClassPos + 1, classMetaInfo);
+        }
+        return sortedList;
     }
 
     public static SlowLogContext getCurrentContext() {
