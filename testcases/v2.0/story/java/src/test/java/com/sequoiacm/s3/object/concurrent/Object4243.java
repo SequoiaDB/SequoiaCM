@@ -69,7 +69,7 @@ public class Object4243 extends TestScmBase {
         ScmFile file = createScmFile();
         ScmId fileId = file.getFileId();
 
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         AttachFile t1 = new AttachFile( fileId, bucketNameA );
         AttachFile t2 = new AttachFile( fileId, bucketNameA );
         AttachFile t3 = new AttachFile( fileId, bucketNameB );

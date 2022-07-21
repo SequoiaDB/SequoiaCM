@@ -30,7 +30,7 @@ public class CreateBucket3275 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         CreateThread t1 = new CreateThread();
         CreateThread t2 = new CreateThread();
         te.addWorker( t1 );

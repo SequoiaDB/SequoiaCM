@@ -51,7 +51,7 @@ public class Bucket4234 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         ScmListBuckets t1 = new ScmListBuckets();
         ScmCountBuckets t2 = new ScmCountBuckets();
         CreateS3Bucket t3 = new CreateS3Bucket();

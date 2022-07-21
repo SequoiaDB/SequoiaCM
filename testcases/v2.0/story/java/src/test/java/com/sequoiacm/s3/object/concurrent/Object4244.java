@@ -62,7 +62,7 @@ public class Object4244 extends TestScmBase {
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         ScmId fileId = createScmFile( bucket );
 
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         DetachFile t1 = new DetachFile();
         DetachFile t2 = new DetachFile();
         te.addWorker( t1 );

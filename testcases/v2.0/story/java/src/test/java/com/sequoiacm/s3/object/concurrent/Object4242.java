@@ -53,7 +53,7 @@ public class Object4242 extends TestScmBase {
     //TODO: 待 null版本 代码合入再放开
     @Test( enabled = false)
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();
         ScmGetFile t2 = new ScmGetFile();
         te.addWorker( t1 );

@@ -29,7 +29,7 @@ public class CreateAndDropBucket3278 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         CreateBucket t1 = new CreateBucket();
         DropBucket t2 = new DropBucket();
         te.addWorker( t1 );

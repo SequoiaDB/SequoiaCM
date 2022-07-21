@@ -44,7 +44,7 @@ public class Object4239 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();
         ScmDeleteFile t2 = new ScmDeleteFile();
         te.addWorker( t1 );
