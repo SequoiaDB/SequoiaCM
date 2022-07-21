@@ -56,6 +56,7 @@ public class FullText3058 extends TestScmBase {
     private String fileNameBase = "file3058-";
     private int fileNum = 100;
     private String rootDirId = null;
+    private String rootDirName = "/rootDir3058";
     private String dirName = "/dir3058";
     private String dirId = null;
     private BSONObject fileCondition = null;
@@ -66,7 +67,7 @@ public class FullText3058 extends TestScmBase {
         session = TestScmTools.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
-        rootDirId = ScmFactory.Directory.getInstance( ws, "/" ).getId();
+        rootDirId = ScmFactory.Directory.createInstance( ws, rootDirName ).getId();
         dirId = ScmFactory.Directory.createInstance( ws, dirName ).getId();
         prepareFile();
         // 创建索引
@@ -79,8 +80,7 @@ public class FullText3058 extends TestScmBase {
         ScmFactory.Fulltext.inspectIndex( ws );
     }
 
-    // 文件索引状态校验异常，已在问题单SEQUOIACM-779中跟踪，改用例暂时屏蔽
-    @Test(enabled = false)
+    @Test()
     private void test() throws Throwable {
         ThreadExecutor threadExec = new ThreadExecutor();
         // 全文检索
@@ -138,6 +138,7 @@ public class FullText3058 extends TestScmBase {
                 for ( ScmId fileId : fileIdList ) {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
                 }
+                ScmFactory.Directory.deleteInstance( ws, rootDirName );
                 ScmFactory.Directory.deleteInstance( ws, dirName );
                 ScmFactory.Fulltext.dropIndex( ws );
                 FullTextUtils.waitWorkSpaceIndexStatus( ws,
