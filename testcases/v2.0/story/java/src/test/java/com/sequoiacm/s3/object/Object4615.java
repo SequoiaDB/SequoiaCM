@@ -33,7 +33,8 @@ public class Object4615 extends TestScmBase {
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private boolean runSuccess = false;
-    private String bucketName = "桶名4615";
+    private String bucketNameA = "桶名4615";
+    private String bucketNameB = "bucket4615a";
     private String key = "aa/bb/对象4463";
     private File localPath = null;
     private String filePath = null;
@@ -52,8 +53,8 @@ public class Object4615 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client, bucketName );
-        S3Utils.deleteEmptyBucketsWithPrefix( s3Client, bucketName );
+        S3Utils.clearBucket( s3Client, bucketNameB );
+        S3Utils.deleteEmptyBucketsWithPrefix( s3Client, bucketNameB );
 
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
@@ -63,29 +64,19 @@ public class Object4615 extends TestScmBase {
     @Test
     public void test() throws ScmException, IOException {
         // scm create buckets
-        List< String > localBucketNames = new ArrayList<>();
-        for ( int i = 0; i < bucket_number; i++ ) {
-            String bucketNameN = bucketName + "-" + i;
-            ScmFactory.Bucket.createBucket( ws, bucketNameN );
-            localBucketNames.add( bucketNameN );
+        try {
+            ScmFactory.Bucket.createBucket( ws, bucketNameA );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError().getErrorType(),
+                    "INVALID_ARGUMENT" );
         }
 
-        List< String > scmBucketList = scmGetBuckets( bucketName );
-        // TODO: SEQUOIACM-935 修改后才能放开
-        // Assert.assertEqualsNoOrder( localBucketNames.toArray(),
-        // scmBucketList.toArray() );
-
-        List< String > s3BucketList = s3GetBuckets( bucketName );
-        Assert.assertEqualsNoOrder( localBucketNames.toArray(),
-                s3BucketList.toArray() );
-
-        ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
+        ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketNameB );
         List< String > keyList = createScmFiles( bucket );
 
         List< String > scmKeyList = scmGetFiles();
         // TODO: SEQUOIACM-935 修改后才能放开
-        // Assert.assertEqualsNoOrder( keyList.toArray(),
-        // scmKeyList.toArray() );
+        Assert.assertEqualsNoOrder( keyList.toArray(), scmKeyList.toArray() );
 
         List< String > s3KeyList = s3GetFiles();
         Assert.assertEqualsNoOrder( keyList.toArray(), s3KeyList.toArray() );
@@ -97,8 +88,7 @@ public class Object4615 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                S3Utils.clearBucket( s3Client, bucketName );
-                S3Utils.deleteEmptyBucketsWithPrefix( s3Client, bucketName );
+                S3Utils.clearBucket( s3Client, bucketNameB );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
@@ -125,38 +115,10 @@ public class Object4615 extends TestScmBase {
         return keyList;
     }
 
-    private List< String > s3GetBuckets( String bucketPrefix ) {
-        List< String > bucketNames = new ArrayList<>();
-        List< Bucket > buckets = s3Client.listBuckets();
-
-        for ( int i = 0; i < buckets.size(); i++ ) {
-            if ( buckets.get( i ).getName().startsWith( bucketPrefix ) ) {
-                bucketNames.add( buckets.get( i ).getName() );
-            }
-        }
-
-        return bucketNames;
-    }
-
-    private List< String > scmGetBuckets( String bucketPrefix )
-            throws ScmException {
-        List< String > bucketNames = new ArrayList<>();
-        ScmCursor< ScmBucket > bucketCursor = ScmFactory.Bucket
-                .listBucket( session, null, null );
-        while ( bucketCursor.hasNext() ) {
-            ScmBucket bucket = bucketCursor.getNext();
-            if ( bucket.getName().startsWith( bucketPrefix ) ) {
-                bucketNames.add( bucket.getName() );
-            }
-        }
-
-        return bucketNames;
-    }
-
     private List< String > scmGetFiles() throws ScmException {
         List< String > getKeyList = new ArrayList<>();
 
-        ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
+        ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketNameB );
         ScmCursor< ScmFileBasicInfo > filesCursor = bucket.listFile( null, null,
                 0, -1 );
         while ( filesCursor.hasNext() ) {
@@ -170,7 +132,7 @@ public class Object4615 extends TestScmBase {
     private List< String > s3GetFiles() {
         List< String > getKeyList = new ArrayList<>();
 
-        ObjectListing objectListing = s3Client.listObjects( bucketName );
+        ObjectListing objectListing = s3Client.listObjects( bucketNameB );
         for ( int i = 0; i < objectListing.getObjectSummaries().size(); i++ ) {
             getKeyList.add(
                     objectListing.getObjectSummaries().get( i ).getKey() );

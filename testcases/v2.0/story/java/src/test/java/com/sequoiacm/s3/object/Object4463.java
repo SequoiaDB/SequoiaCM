@@ -37,8 +37,8 @@ public class Object4463 extends TestScmBase {
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private boolean runSuccess = false;
-    private String bucketNameA = "bucket4463A";
-    private String bucketNameB = "bucket4463B";
+    private String bucketNameA = "bucket4463-a";
+    private String bucketNameB = "bucket4463-b";
     private String key = "aa/bb/object4463";
     private File localPath = null;
     private String filePath = null;

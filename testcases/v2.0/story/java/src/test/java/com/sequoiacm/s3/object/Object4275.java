@@ -61,7 +61,6 @@ public class Object4275 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
 
-        int siteNum = ScmInfo.getSiteNum();
         ws = ScmWorkspaceUtil.createS3WS( session, wsName );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
     }
@@ -88,7 +87,7 @@ public class Object4275 extends TestScmBase {
         Assert.assertEquals( userMeta.get( user_meta_key_b ),
                 user_meta_value_b );
         Assert.assertEquals( userMeta.get( user_meta_key_c ),
-                user_meta_value_c );
+                "" );
 
         runSuccess = true;
     }

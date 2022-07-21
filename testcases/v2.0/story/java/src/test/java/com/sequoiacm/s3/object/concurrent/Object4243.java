@@ -35,8 +35,8 @@ public class Object4243 extends TestScmBase {
     private ScmWorkspace ws = null;
     private boolean runSuccess = false;
     private String bucketName = "bucket4243";
-    private String bucketNameA = "bucket4243-A";
-    private String bucketNameB = "bucket4243-B";
+    private String bucketNameA = "bucket4243-a";
+    private String bucketNameB = "bucket4243-b";
     private String key = "aa/bb/object4243";
     private File localPath = null;
     private String filePath = null;

@@ -138,8 +138,9 @@ public class Bucket_Object4233 extends TestScmBase {
 
                 fileId = file.save();
             } catch ( ScmException e ) {
-                Assert.assertEquals( e.getError().getErrorDescription(),
+                Assert.assertEquals( e.getError().getErrorType(),
                         "BUCKET_NOT_EXISTS" );
+                saveResult( e.getErrorCode(), e );
             }
         }
     }
