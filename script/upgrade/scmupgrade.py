@@ -32,8 +32,7 @@ DICT_SVC = {
     "mq-server"         : { "dir" : "sequoiacm-mq",         "jars_lib" : "jars", "script" : "mqctl.sh",       "script_opt" : " -t all" },
     "om-server"         : { "dir" : "sequoiacm-om",         "jars_lib" : "jars", "script" : "omctl.sh",       "script_opt" : " -t all" },
     "s3-server"         : { "dir" : "sequoiacm-s3",         "jars_lib" : "jars", "script" : "s3ctl.sh",       "script_opt" : " -t all" },
-    "daemon"            : { "dir" : "daemon",               "jars_lib" : "jars", "script" : "scmd.sh",        "script_opt" : ""        },
-    "cloud-disk-server" : { "dir" : "sequoiacm-cloud-disk", "jars_lib" : "jars", "script" : "cdiskctl.sh",    "script_opt" : " -t all" }
+    "daemon"            : { "dir" : "daemon",               "jars_lib" : "jars", "script" : "scmd.sh",        "script_opt" : ""        }
 }
 
 def print_help():
@@ -44,15 +43,6 @@ def print_help():
     print(" --rollback        : rollback upgrade")
     print(" --start           : or restart the node after upgrade and rollback")
     print(" --dryrun          : dryrun mode")
-
-def untar_service_package(service):
-    print(" --help | -h     : print help message")
-    print(" --service       : update which service: %s" % DICT_SVC.keys())
-    print(" --install-path  : service install path")
-    print(" --nocheck       : do not check the matching between --service and --install-path")
-    print(" --rollback      : rollback upgrade")
-    print(" --start         : or restart the node after upgrade and rollback")
-    print(" --dryrun        : dryrun mode")
 
 def untar_service_package(service, service_dir_new):
     service_package = None
