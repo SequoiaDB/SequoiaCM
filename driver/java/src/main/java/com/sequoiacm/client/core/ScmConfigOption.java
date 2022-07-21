@@ -51,7 +51,7 @@ public class ScmConfigOption {
         }
 
         List<String> urlList = new ArrayList<String>();
-        urlList.add(url);
+        urlList.add(transformUrl(url));
         this.urlConfig = generateUrlConfig(region, zone, urlList);
         this.region = region;
         this.zone = zone;
@@ -86,6 +86,9 @@ public class ScmConfigOption {
             throw new ScmInvalidArgumentException("urlList is null or empty");
         }
 
+        for (int i = 0; i < urlList.size(); i++) {
+            urlList.set(i, transformUrl(urlList.get(i)));
+        }
         this.urlConfig = generateUrlConfig(region, zone, urlList);
         this.region = region;
         this.zone = zone;
@@ -116,17 +119,11 @@ public class ScmConfigOption {
      */
     public ScmConfigOption(ScmUrlConfig urlConfig, String region, String zone, String user,
             String passwd, ScmRequestConfig requestConfig) throws ScmException {
+        this(urlConfig.getUrl(), region, zone, user, passwd, requestConfig);
+
         if (null == urlConfig) {
             throw new ScmInvalidArgumentException("urlConfig is null");
         }
-
-        this.urlConfig = urlConfig;
-        this.region = region;
-        this.zone = zone;
-
-        this.user = user;
-        this.passwd = passwd;
-        this.requestConfig = requestConfig;
     }
 
     /**
@@ -228,6 +225,17 @@ public class ScmConfigOption {
      * @since 2.1
      */
     public ScmConfigOption() {
+    }
+
+    public String transformUrl(String url) throws ScmException {
+        if (null == url) {
+            throw new ScmInvalidArgumentException("url is null");
+        }
+        int index = url.indexOf('/');
+        if (index > -1) {
+            return url.substring(0, index) + url.substring(index).toLowerCase();
+        }
+        return url;
     }
 
     private ScmUrlConfig generateUrlConfig(String region, String zone, List<String> urlList)

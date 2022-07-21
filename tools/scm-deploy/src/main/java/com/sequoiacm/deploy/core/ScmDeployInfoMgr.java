@@ -635,6 +635,7 @@ public class ScmDeployInfoMgr {
     private void initSiteInfo(ScmDeployConfParser parser) {
         this.siteInfos = parser.getSeactionWithCheck(ConfFileDefine.SEACTION_SITES,
                 SiteInfo.CONVERTER);
+        Map<String, String> siteNameMap = new HashMap<>();
         for (SiteInfo siteInfo : siteInfos) {
             String siteName = siteInfo.getName();
             String datasourceName = siteInfo.getDatasourceName();
@@ -657,7 +658,15 @@ public class ScmDeployInfoMgr {
                 throw new IllegalArgumentException("invalid site info, unregnized datasouceName:"
                         + siteInfo.getDatasourceName() + ", site=" + siteInfo);
             }
-
+            String siteNameUpper = siteName.toUpperCase();
+            if (siteNameMap.containsKey(siteNameUpper)) {
+                if (siteNameMap.get(siteNameUpper).equals(siteName)) {
+                    throw new IllegalArgumentException("site exist:siteName=" + siteName);
+                }
+                throw new IllegalArgumentException(siteName + " and "
+                        + siteNameMap.get(siteNameUpper) + " toUpperCase are the same");
+            }
+            siteNameMap.put(siteNameUpper, siteName);
         }
 
         if (rootSite == null) {

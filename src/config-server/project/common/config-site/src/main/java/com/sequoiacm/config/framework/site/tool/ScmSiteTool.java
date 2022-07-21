@@ -28,6 +28,15 @@ public class ScmSiteTool {
                         "datasource already exist in other site, datasource =" + url);
             }
         }
+
+        for (Config config : allSiteConfigs) {
+            SiteConfig configItem = (SiteConfig) config;
+            if (configItem.getName().equalsIgnoreCase(siteConfig.getName())) {
+                throw new ScmConfigException(ScmConfError.SITE_EXIST,
+                        configItem.getName() + " is exist,you can't create site "
+                                + siteConfig.getName());
+            }
+        }
         return true;
     }
 
