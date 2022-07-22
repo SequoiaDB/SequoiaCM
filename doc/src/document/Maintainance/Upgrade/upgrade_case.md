@@ -26,19 +26,19 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
 1. 安装包解压缩
 
-   ```
+   ```lang-bash
    $ tar -zxvf sequoiacm-3.2.0-release.tar.gz -C /opt/scm_upgrade/
    ```
 
 2. 指定 /opt/scm_upgrade/sequoiacm/ 目录所属用户及用户组为 SequoiaCM 的安装用户、用户组
 
-   ```
+   ```lang-bash
    $ chown scmadmin:scmadmin_group /opt/scm_upgrade/sequoiacm/ -R
    ```
 
 3. 赋予升级脚本的可执行权限
 
-   ```
+   ```lang-bash
    $ chmod +x /opt/scm_upgrade/sequoiacm/scmupgrade.py
    ```
 
@@ -54,11 +54,8 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
    1). 在备中心 Cloud 组件服务所在主机（图示主机 C、D）上执行升级
 
-   ```
-   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service cloud \
-	--install-path /opt/sequoiacm/sequoiacm-cloud/ \
-	--start
+   ```lang-bash
+   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service cloud --install-path /opt/sequoiacm/sequoiacm-cloud/ --start
    ```
 
    > **Note：**
@@ -71,11 +68,8 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
    1). 在备中心配置服务所在主机上执行升级
 
-   ```
-   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service config-server \
-	--install-path /opt/sequoiacm/sequoiacm-config/ \
-	--start
+   ```lang-bash
+   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service config-server --install-path /opt/sequoiacm/sequoiacm-config/ --start
    ```
 
    2). 在主中心配置服务所在主机上执行升级
@@ -84,11 +78,8 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
    1). 在备中心内容服务所在主机上执行升级
 
-   ```
-   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service content-server \
-	--install-path /opt/sequoiacm/sequoiacm-content/ \
-	--start
+   ```lang-bash
+   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service content-server --install-path /opt/sequoiacm/sequoiacm-content/ --start
    ```
 
    2). 在主中心内容服务所在主机上执行升级
@@ -97,11 +88,8 @@ SequoiaCM 集群为两中心部署，每个服务均有一个节点实例落于�
 
    1). 在备中心调度服务所在主机上执行升级
 
-   ```
-   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service schedule-server \
-	--install-path /opt/sequoiacm/sequoiacm-schedule/ \
-	--start
+   ```lang-bash
+   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service schedule-server --install-path /opt/sequoiacm/sequoiacm-schedule/ --start
    ```
 
    2). 在主中心调度服务所在主机上执行升级

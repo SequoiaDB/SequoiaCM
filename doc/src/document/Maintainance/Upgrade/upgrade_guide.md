@@ -9,19 +9,19 @@ SequoiaCM 提供升级脚本 scmupgrade.py 辅助完成各个服务的升级，�
 
 1. 安装包解压缩
 
-   ```
+   ```lang-bash
    $ tar -zxvf sequoiacm-3.1.3-release.tar.gz -C /opt/scm_upgrade/
    ```
 
 2. 指定 /opt/scm_upgrade/sequioacm/ 目录所属用户及用户组为 SequoiaCM 的安装用户、用户组
 
-   ```
+   ```lang-bash
    $ chown scmadmin:scmadmin_group /opt/scm_upgrade/sequoiacm/ -R
    ```
 
 3. 赋予升级脚本的可执行权限
 
-   ```
+   ```lang-bash
    $ chmod +x /opt/scm_upgrade/sequoiacm/scmupgrade.py
    ```
 
@@ -45,7 +45,7 @@ scmupgrade.py
 
 1. 切换至 SequoiaCM 安装用户
 
-   ```
+   ```lang-bash
    $ su scmadmin
    ```
 
@@ -53,11 +53,8 @@ scmupgrade.py
 
 	**执行升级**
 
-   	```
-   	$ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service content-server \
-	--install-path /opt/sequoiacm/sequoiacm-content/ \
-	--start
+   	```lang-bash
+   	$ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service content-server --install-path /opt/sequoiacm/sequoiacm-content/ --start
    	```
 
 	> **Note：**
@@ -67,11 +64,8 @@ scmupgrade.py
 
 	**升级回滚**
 
-   ```
-   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py \
-	--service content-server \
-	--install-path /opt/sequoiacm/sequoiacm-content/ \
-	--rollback
+   ```lang-bash
+   $ /opt/scm_upgrade/sequoiacm/scmupgrade.py  --service content-server --install-path /opt/sequoiacm/sequoiacm-content/ --rollback
    ```
 
 	> **Note：**
@@ -82,13 +76,13 @@ scmupgrade.py
 
 	1）检查内容服务工具是否升级至目标版本
 
-	```
+	```lang-bash
     $ /opt/sequoiacm/sequoiacm-content/bin/scmctl.sh --version
     ```
 
 	2）若节点已启动，检查节点状态
 
-	```
+	```lang-bash
     $ /opt/sequoiacm/sequoiacm-content/bin/scmctl.sh list
     ```
 
