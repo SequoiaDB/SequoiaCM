@@ -86,9 +86,6 @@ public class ScmConfigOption {
             throw new ScmInvalidArgumentException("urlList is null or empty");
         }
 
-        for (int i = 0; i < urlList.size(); i++) {
-            urlList.set(i, transformUrl(urlList.get(i)));
-        }
         this.urlConfig = generateUrlConfig(region, zone, urlList);
         this.region = region;
         this.zone = zone;
