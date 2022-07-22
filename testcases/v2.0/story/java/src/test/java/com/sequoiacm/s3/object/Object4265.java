@@ -73,7 +73,19 @@ public class Object4265 extends TestScmBase {
                 throw e;
             }
         }
-
+        // 重新创建同名文件关联
+        file = ScmFactory.File.createInstance( ws );
+        file.setFileName( objectKey );
+        file.setContent( filePath );
+        fileId = file.save();
+        try {
+            ScmFactory.Bucket.attachFile( session, bucketNameA, fileId );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.FILE_EXIST ) ) {
+                throw e;
+            }
+        }
         runSuccess = true;
     }
 
@@ -81,6 +93,7 @@ public class Object4265 extends TestScmBase {
     public void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
                 S3Utils.clearBucket( session, bucketNameA );
                 S3Utils.clearBucket( session, bucketNameB );
