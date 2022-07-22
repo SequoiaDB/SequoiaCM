@@ -15,7 +15,7 @@ SequoiaCM 支持三种文件删除操作：
 
   - 启用版本控制：产生 Delete Marker 版本，不影响文件现有版本
 
-  - 暂停版本控制：产生 Delete Marker 版本，并删除文件现有版本中带 null 版本
+  - 暂停版本控制：产生 Delete Marker 版本，并删除文件现有版本中的 null 版本
 
  具体细节参考：[桶的版本控制介绍][bucket_version]
 
