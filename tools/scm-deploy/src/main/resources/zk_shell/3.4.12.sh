@@ -199,7 +199,7 @@ print-cmd)
     ;;
 stop)
     echo -n "Stopping zookeeper ... "
-    ZKBINDIR=`pwd`
+    #ZKBINDIR=`pwd`
     PORT=`grep "clientPort" $ZOOCFG | awk -F "=" '{print $2}'`
     DAEMONDIR=$ZOOBINDIR/../../daemon
     if [ ! -d $DAEMONDIR ];then
@@ -218,7 +218,7 @@ stop)
             exit 1
         fi
     fi
-    cd $ZKBINDIR
+    cd $ZOOBINDIR
     if [ ! -f "$ZOOPIDFILE" ]
     then
       echo "no zookeeper to stop (could not find file $ZOOPIDFILE)"

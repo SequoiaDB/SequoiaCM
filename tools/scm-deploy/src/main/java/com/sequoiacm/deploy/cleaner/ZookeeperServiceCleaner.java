@@ -30,7 +30,7 @@ public class ZookeeperServiceCleaner extends ServiceCleanerBase {
                 String lsZooCfg = "ls " + getInstallPath() + "/conf/zoo*";
                 String stopCmd = stopScript + " " + getStopScriptOption();
                 ssh.sudoSuExec(installUser,
-                        "for f in `" + lsZooCfg + "`; do " + stopCmd + "  $f; done", env);
+                        "for f in `" + lsZooCfg + " | grep -v zoo_sample.cfg`; do " + stopCmd + "  $f; done", env);
             }
         }
         catch (Exception e) {
