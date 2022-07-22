@@ -191,9 +191,7 @@ file.delete(true);
 ```
 >  **Note:**
 >
->  * ScmFactory.File.deleteInstance(ws, fileId, isPhysical) isPhysical 参数为 true 时表示物理删除，false 表示逻辑删除;
->
->  * ScmFile.delete(isPhysical) isPhysical 参数为 true 表示物理删除，false 表示逻辑删除。
+>  * 删除接口的 isPhysical 参数为 true 时表示物理删除（删除该文件所有版本），false 表示在版本控制下删除（仅当文件处于桶下时可以执行该操作，根据桶的版本控制状态进行处理）;
 
 * 异步缓存文件
 	

@@ -19,6 +19,7 @@
 |消息队列服务|scmServer:8710|提供集群内消息队列功能|
 |全文检索服务|scmServer:8610|提供文件的全文检索功能|
 |OM管理服务|scmServer:9000|提供SequoiaCM集群的可视化管理功能|
+|S3 服务|scmServer:16000|提供 S3 协议处理能力|
 
 >  **Note：**
 > 
@@ -165,6 +166,18 @@
     >  **Note：**
     > 
     >  * 本段配置用于描述站点下的内容服务节点数量及配置
+
+    9). S3 配置段:
+
+    ```
+    [s3node]
+    ZoneName, BindingSite, HostName,        Port,   CustomNodeConf, ServiceName,  ManagementPort, 
+    zone1,    rootSite,    scmServer,       16000 
+    ```
+
+    >  **Note：**
+    > 
+    >  * 本段配置 S3 服务节点的部署
    
     9). 基础服务节点配置段:
 
@@ -198,7 +211,7 @@
 
     使用浏览器登陆服务注册中心（http://scmServer:8800），确保规划的节点都已经注册到服务注册中心。
 
-2. 编辑工作区配置文件，创建一个名为test_ws的工作区
+2. 编辑工作区配置文件，创建一个名为 test_ws 的工作区
 
     ```
     $ vi /opt/data/sequoiacm/sequoiacm-deploy/conf/workspaces.json
@@ -210,7 +223,6 @@
             {
                 "name":"test_ws",
                 "description":"''",
-                "enable_directory": true,
                 "batch_sharding_type": "none",
                 "batch_file_name_unique": false,
                 "meta":{
@@ -223,7 +235,9 @@
                         "site":"rootSite",
                         "domain":"data_domain",
                     }
-                ]
+                ],
+                "enable_directory": false,
+                "preferred": "rootSite"
             }
         ]
     }
@@ -232,12 +246,14 @@
     > **Note:**
     >
     > * url 填写网关的地址，其中 rootsite 为主站点的服务名，在 url 中为全小写
-    >* userName 和 password 分别为系统默认的管理员用户密码
+    > * userName 和 password 分别为系统默认的管理员用户密码
     > * enable_directory 为是否开启目录功能，默认为 true
-    >* batch_sharding_type 为批次分区类型，默认为 none
+    > * batch_sharding_type 为批次分区类型，默认为 none
     > * batch_file_name_unique 为批次内文件名是否唯一，默认 false
-    >* meta 配置工作区元数据参数，其中 site 目前仅支持填写主站点，domain 填写元数据服务中的域，用于存储工作区元数据，该域需要用户预先手工创建
+    > * meta 配置工作区元数据参数，其中 site 目前仅支持填写主站点，domain 填写元数据服务中的域，用于存储工作区元数据，该域需要用户预先手工创建
     > * data 配置可供工作区存储文件内容数据的站点列表，目前需要强制包含主站点，domain 填写站点数据服务中的域，该域需要用户预先手工创建
+    > * 示例创建的工作区禁用了目录功能，如需启用请修改 enable_directory 为 true
+    > * preferred 属性表示通过 S3 协议访问该工作区的资源时，网关将会选择指定站点上的 S3 服务进行转发
     
 3. 创建工作区
 
@@ -250,7 +266,7 @@
     ```
     $ vi /opt/sequoiacm/sequoiacm-content/users.json
     {
-        "url":"server1:8080/rootsite",
+        "url":"scmServer:8080/rootsite",
         "adminUser":"admin",
         "adminPassword":"admin",
         "roles":[
@@ -282,9 +298,30 @@
     $ python /opt/sequoiacm/sequoiacm-content/createusers.py
     ```
 
+6. 为 S3 服务设置默认区域
+
+    ```
+    $ /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh  set-default-region --region test_ws --user admin --password admin --url scmServer:8080
+    ```
+
+    > **Note:**
+    >
+    > * S3 服务将 SequoiaCM 的工作区映射为 S3 Region，设置默认 Region 即向 S3 指定一个工作区（该工作区需要禁用目录）
+    > * 默认 Region 的作用是：后续在 S3 创建 Bucket 不指定 Region 时，将会落在该默认 Region 上
+
+7. 生成 S3 Access Key 和 Secret Key
+
+    ```
+    $ /opt/sequoiacm/sequoiacm-s3/bin/bin/s3admin.sh  refresh-accesskey --target-user admin --user admin --password admin --s3-url scmServer:16000
+    ```
+
+    > **Note:**
+    >
+    > * 该命令将会在控制台输出 Access Key 和 Secret Key，后续客户端访问 SequoiaCM S3 接口需要通过这对 Key 进行鉴权
+
 ###安装部署完毕###
 
-至此 SequoiaCM 系统已经安装完毕，可以使用 java 驱动连接 SequoiaCM 进行数据操作，操作示例详见[Java 开发基础][driver_operation]。
+至此 SequoiaCM 系统已经安装完毕，可以使用 SequoiaCM java 驱动或 S3 客户端连接 SequoiaCM 进行数据操作，操作示例详见[Java 开发基础][driver_operation]。
 
 ###卸载 SequoiaCM ###
 

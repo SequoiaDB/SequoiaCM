@@ -41,6 +41,12 @@
         "cn": "开发指南",
         "en": "Development",
         "contents": [{
+            "id": 1482332578,
+            "file": "overview",
+            "cn": "概述",
+            "en": "Overview"
+        },
+        {
             "id": 1501487716,
             "dir": "Java_Driver",
             "cn": "Java驱动",
@@ -74,6 +80,12 @@
                 "file": "file_operation",
                 "cn": "文件操作",
                 "en": "File Operation"
+            },
+            {
+                "id": 1535328124,
+                "file": "bucket_operation",
+                "cn": "桶操作",
+                "en": "Bucket Operation"
             },
             {
                 "id": 1535329104,
@@ -140,6 +152,30 @@
                 "file": "fulltext_operation",
                 "cn": "全文检索操作",
                 "en": "Fulltext Search Operation"
+            }]
+        },
+        {
+            "id": 1501486616,
+            "dir": "S3_Proxy",
+            "cn": "S3 接口",
+            "en": "S3 Proxy",
+            "contents": [{
+                "id": 1535448313,
+                "file": "Readme",
+                "cn": "概述",
+                "en": "Overview"
+            },
+            {
+                "id": 1532448453,
+                "file": "java_sdk_operation",
+                "cn": "Java 程序示例",
+                "en": "Java Sample"
+            },
+            {
+                "id": 1532448463,
+                "file": "s3_cmd_operation",
+                "cn": "S3Cmd 操作示例",
+                "en": "Java Sample"
             }]
         }]
     },
@@ -212,6 +248,12 @@
                 "file": "fulltext_server",
                 "cn": "全文检索服务",
                 "en": "Fulltext Search Service"
+            },
+            {
+                "id": 1534812444,
+                "file": "s3_server",
+                "cn": "S3 服务",
+                "en": "S3 Service"
             }]
         },
         {
@@ -238,6 +280,12 @@
                 "en": "File"
             },
             {
+                "id": 1551789804,
+                "file": "bucket",
+                "cn": "桶",
+                "en": "Bucket"
+            },
+            {
                 "id": 1551229805,
                 "file": "directory",
                 "cn": "目录",
@@ -261,6 +309,12 @@
             "file": "site_network",
             "cn": "站点网络模型",
             "en": "Site Network"
+        },
+        {
+            "id": 1535569943,
+            "file": "file_version",
+            "cn": "文件多版本",
+            "en": "File Multi Version"
         },
         {
             "id": 1535329943,
@@ -938,6 +992,72 @@
                   "file": "om_deploy_script",
                   "cn": "OM服务部署工具",
                   "en": "Om Deployment Script"
+              },
+              {
+                "id": 1631934896,
+                "dir": "S3admin",
+                "cn": "S3服务管理工具",
+                "en": "S3admin",
+                "contents": [{
+                    "id": 1631454683,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1632634712,
+                    "file": "createnode",
+                    "cn": "createnode",
+                    "en": "createnode"
+                },
+                {
+                    "id": 1632644712,
+                    "file": "set-default-region",
+                    "cn": "set-default-region",
+                    "en": "set-default-region"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "show-default-region",
+                    "cn": "show-default-region",
+                    "en": "show-default-region"
+                }]
+              },
+              {
+                  "id": 1631935648,
+                  "dir": "S3ctl",
+                  "cn": "S3服务节点管理工具",
+                  "en": "S3ctl",
+                  "contents": [{
+                      "id": 1631935609,
+                      "file": "Readme",
+                      "cn": "概述",
+                      "en": "Overview"
+                  },
+                  {
+                      "id": 1631234826,
+                      "file": "start",
+                      "cn": "start",
+                      "en": "start"
+                  },
+                  {
+                      "id": 1631344850,
+                      "file": "stop",
+                      "cn": "stop",
+                      "en": "stop"
+                  },
+                  {
+                      "id": 1613934875,
+                      "file": "list",
+                      "cn": "list",
+                      "en": "list"
+                  }]
+              },
+              {
+                  "id": 1636734885,
+                  "file": "s3_deploy_script",
+                  "cn": "S3服务部署工具",
+                  "en": "S3 Deployment Script"
               }]
         },
         {
@@ -1010,6 +1130,12 @@
                 "file": "om",
                 "cn": "OM管理服务",
                 "en": "Om Manager"
+            },
+            {
+                "id": 1631935276,
+                "file": "s3",
+                "cn": "S3服务",
+                "en": "S3 Service"
             },
             {
                 "id": 1640326131,

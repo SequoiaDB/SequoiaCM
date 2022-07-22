@@ -42,6 +42,39 @@ SequoiaCM 系统管理工具提供 SequoiaCM 业务部署，及节点管理等�
 |[节点管理工具][confctl]|confctl.sh|提供配置服务节点管理相关的功能|
 |[服务部署工具][conf_deploy]|deploy.py|提供配置服务部署的功能|
 
+##消息队列服务工具##
+
+|工具    |脚本名 |功能   |
+|--------|-------|-------|
+|[配置管理工具][mqadmin]|ftadmin.sh|提供消息队列服务管理功能|
+|[节点管理工具][mqctl]|ftctl.sh|提供消息队列服务节点管理相关的功能|
+|[服务部署工具][mq_deploy]|deploy.py|提供消息队列服务部署的功能|
+
+##全文检索服务工具##
+
+|工具    |脚本名 |功能   |
+|--------|-------|-------|
+|[配置管理工具][ftadmin]|ftadmin.sh|提供全文检索服务管理功能|
+|[节点管理工具][ftctl]|ftctl.sh|提供全文检索服务节点管理相关的功能|
+|[服务部署工具][ft_deploy]|deploy.py|提供全文检索服务部署的功能|
+
+##OM 服务工具##
+
+|工具    |脚本名 |功能   |
+|--------|-------|-------|
+|[配置管理工具][omadmin]|omadmin.sh|提供 OM 服务管理功能|
+|[节点管理工具][omctl]|omctl.sh|提供 OM 服务节点管理相关的功能|
+|[服务部署工具][om_deploy]|deploy.py|提供 OM 服务部署的功能|
+
+##S3 服务工具##
+
+|工具    |脚本名 |功能   |
+|--------|-------|-------|
+|[配置管理工具][s3admin]|s3admin.sh|提供 S3 服务管理功能|
+|[节点管理工具][s3ctl]|s3ctl.sh|提供 S3 服务节点管理相关的功能|
+|[服务部署工具][s3_deploy]|deploy.py|提供 S3 服务部署的功能|
+
+
 ##工具通用选项##
 
 
@@ -67,3 +100,19 @@ SequoiaCM 系统管理工具提供 SequoiaCM 业务部署，及节点管理等�
 [schctl]:Maintainance/Tools/Schadmin/Readme.md
 [schadmin]:Maintainance/Tools/Schadmin/Readme.md
 [sch_deploy]:Maintainance/Tools/schedule_deploy_script.md
+
+[omctl]:Maintainance/Tools/Omadmin/Readme.md
+[omadmin]:Maintainance/Tools/Omadmin/Readme.md
+[om_deploy]:Maintainance/Tools/om_deploy_script.md
+
+[ftctl]:Maintainance/Tools/Ftadmin/Readme.md
+[ftadmin]:Maintainance/Tools/Ftadmin/Readme.md
+[ft_deploy]:Maintainance/Tools/fulltext_deploy_script.md
+
+[mqctl]:Maintainance/Tools/Mqadmin/Readme.md
+[mqadmin]:Maintainance/Tools/Mqadmin/Readme.md
+[mq_deploy]:Maintainance/Tools/mq_deploy_script.md
+
+[s3ctl]:Maintainance/Tools/S3admin/Readme.md
+[s3admin]:Maintainance/Tools/S3admin/Readme.md
+[s3_deploy]:Maintainance/Tools/s3_deploy_script.md

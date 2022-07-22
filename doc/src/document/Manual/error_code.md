@@ -11,6 +11,7 @@
 | OPERATION_FORBIDDEN | -108 | 禁止该操作 |
 | OPERATION_UNAUTHORIZED | -109 | 未授角色该操作权限 |
 | OPERATION_TIMEOUT | -110 | 操作超时 |
+| RESOURCE_CONFLICT | -111 | 资源冲突，通常是由于并发访问同一个资源引起 |
 | ATTRIBUTE_FORMAT_ERROR | -130 | 参数格式错误 |
 | NO_OPERAND_FOR_KEY | -131 | key没有对应操作数 |
 | SESSION_CLOSED | -132 | 会话已关闭 |
@@ -24,6 +25,8 @@
 | METASOURCE_ERROR | -206 | 元数据服务错误 |
 | WORKSPACE_NOT_EMPTY | -207 | 工作区不为空 |
 | WORKSPACE_EXIST | -208 | 工作区已存在 |
+| METASOURCE_RECORD_EXIST | -209 | 元数据记录已存在 |
+| METASOURCE_TABLE_NOT_EXIST | -210 | 元数据表不存在 |
 | TASK_DUPLICATE | -220 | 任务已存在 |
 | TASK_NOT_EXIST | -221 | 任务不存在 |
 | DIR_EXIST | -240 | 目录已存在 |
@@ -43,6 +46,7 @@
 | FILE_NOT_IN_BATCH | -267 | 批次不存在该文件 |
 | FILE_CLASS_UNDEFINED | -268 | 文件模型未定义 |
 | BATCH_CLASS_UNDEFINED | -269 | 批次模型未定义 |
+| FILE_IN_ANOTHER_BUCKET | -270 | 文件已经关联在另一个桶上 |
 | PRIVILEGE_GRANT_FAILED | -280 | 授予权限失败 |
 | PRIVILEGE_REVOKE_FAILED | -281 | 移除权限失败 |
 | DATA_ERROR | -401 | 文件内容服务错误 |
@@ -57,6 +61,7 @@
 | DATA_BREAKPOINT_WRITE_ERROR | -410 | 断点文件写操作失败 |
 | DATA_IS_IN_USE | -411 | 文件内容正在使用 |
 | STORE_SPACE_IS_NOT_EXIST | -412 | 数据源的存储空间（如 CephS3 的 bucket）不存在 |
+| DATA_PIECES_INFO_OVERFLOW | -413 | 数据片段信息溢出 |
 | METADATA_CHECK_ERROR | -501 | 元数据参数校验错误 |
 | METADATA_CLASS_EXIST | -502 | 元数据模型已存在 |
 | METADATA_CLASS_NOT_EXIST | -503 | 元数据模型不存在 |
@@ -77,10 +82,14 @@
 | OUTPUT_STREAM_CLOSED | -610 | 输出流已关闭 | 
 | CONFIG_SERVER_ERROR | -700 | 配置服务错误 |
 | WORKSPACE_CACHE_EXPIRE | -701 | 工作区缓存区过期 |
+| BUCKET_EXISTS | -850 | 桶已存在 |
+| BUCKET_NOT_EXISTS | -851 | 桶不存在 |
+| BUCKET_NOT_EMPTY | -852 | 桶非空 |
 | FULL_TEXT_INDEX_ALREADY_CREATED | -900 | 全文索引已创建 |
 | FULL_TEXT_INDEX_IS_DELETING | -901 | 全文索引正在删除 |
 | FULL_TEXT_INDEX_IS_CREATING | -902 | 全文索引正在被创建 |
 | FILE_NOT_MEET_WORKSPACE_INDEX_MATCHER | -903 | 文件不符合工作区的索引条件 |
 | FULL_TEXT_INDEX_DISABLE | -904 | 全文索引功能未启动 |
 | FULL_TEXT_INDEX_CREATE_ERROR | -905 | 全文索引创建错误 |
+| S3_REGION_NOT_EXIST | -950 | S3 区域不存在 |
 

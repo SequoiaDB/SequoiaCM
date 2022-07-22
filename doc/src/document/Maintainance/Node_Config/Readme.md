@@ -17,6 +17,9 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
  |内容管理服务| Content Server    |负责文件、目录、批次管理    |
  |调度服务    | Schedule Server   |负责文件迁移、清理等功能    |
  |配置服务    | Config Server     |负责工作区配置管理等功能    |
+ |全文检索服务| Fulltext Server   |负责全文检索功能            |
+ |OM 服务     | OM Server         |负责WEB页面管理功能         |
+ |S3 服务     | S3 Server         |负责提供 S3 协议接口功能    |
 
 ##公共配置##
 

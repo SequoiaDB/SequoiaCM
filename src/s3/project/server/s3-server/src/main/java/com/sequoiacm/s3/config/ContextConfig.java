@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "scm.s3.context")
 public class ContextConfig {
     private int keepaliveTime = 60 * 1000 * 60;
-    private int cleanPeriod = 60 * 1000;
+    private int cleanPeriod = 60 * 1000 * 30;
 
     public int getCleanPeriod() {
         return cleanPeriod;
