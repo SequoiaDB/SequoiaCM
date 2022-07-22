@@ -1160,8 +1160,16 @@ class ScmFileImpl extends ScmFile {
         fileExternalData = BsonUtils.getBSONObject(fileBSON,
                 FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
 
-        basicInfo.setNullMarker(
-                BsonUtils.getBooleanOrElse(fileBSON, FieldName.FIELD_CLFILE_NULL_MARKER, false));
+        String versionSerialStr = BsonUtils.getString(fileBSON,
+                FieldName.FIELD_CLFILE_VERSION_SERIAL);
+        if (versionSerialStr != null) {
+            ScmVersionSerial versionSerial = new ScmVersionSerial(versionSerialStr);
+            basicInfo.setVersionSerial(versionSerial);
+        }
+        else {
+            basicInfo.setVersionSerial(
+                    new ScmVersionSerial(basicInfo.getMajorVersion(), basicInfo.getMinorVersion()));
+        }
     }
 
     @Override
@@ -1283,8 +1291,13 @@ class ScmFileImpl extends ScmFile {
     }
 
     @Override
-    public boolean isNullMarker() {
-        return basicInfo.isNullMarker();
+    public boolean isNullVersion() {
+        return basicInfo.isNullVersion();
+    }
+
+    @Override
+    public ScmVersionSerial getVersionSerial() {
+        return basicInfo.getVersionSerial();
     }
 
     protected void setBucketId(long bucketId) {

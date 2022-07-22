@@ -15,6 +15,7 @@ import com.sequoiacm.contentserver.dao.FileAddVersionDao;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.dao.FileInfoAndOpCompleteCallback;
 import com.sequoiacm.contentserver.dao.FileVersionDeleteDao;
+import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
@@ -23,6 +24,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.BreakpointFile;
+import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
@@ -57,7 +59,6 @@ import com.sequoiacm.metasource.TransactionContext;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -381,7 +382,11 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         originalFileObj.putAll(checkedFileObj);
         listenerMgr.preCreate(wsInfo, checkedFileObj);
         if (bucket.getVersionStatus() != ScmBucketVersionStatus.Enabled) {
-            checkedFileObj.put(FieldName.FIELD_CLFILE_NULL_MARKER, true);
+            checkedFileObj.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
+                    CommonDefine.File.NULL_VERSION_MAJOR);
+            checkedFileObj.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
+                    CommonDefine.File.NULL_VERSION_MINOR);
+            checkedFileObj.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, "1.0");
         }
         BSONObject bucketFileRel = ScmFileOperateUtils.createBucketFileRel(checkedFileObj);
         ContentModuleMetaSource metaSource = ScmContentModule.getInstance().getMetaService()
@@ -815,31 +820,16 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public BSONObject deleteFileVersionNullMarker(ScmUser user, String bucketName, String fileName)
+    public BSONObject deleteNullVersionFile(ScmUser user, String bucketName, String fileName)
             throws ScmServerException {
-        ScmBucket bucket = getBucket(bucketName);
-        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
-                bucket.getName(), ScmPrivilegeDefine.DELETE, "delete bucket file version");
-        BSONObject fileVersion = getFileNullMarkerVersion(user, bucketName, fileName);
-        FileVersionDeleteDao fileVersionDeleter = new FileVersionDeleteDao(bucket, fileName,
-                BsonUtils.getIntegerChecked(fileVersion, FieldName.FIELD_CLFILE_MAJOR_VERSION),
-                BsonUtils.getIntegerChecked(fileVersion, FieldName.FIELD_CLFILE_MINOR_VERSION),
-                listenerMgr, bucketInfoManager);
-        BSONObject ret = fileVersionDeleter.delete();
-        audit.info(ScmAuditType.DELETE_FILE, user, bucket.getWorkspace(), 0,
-                "delete file version in bucket: bucketName=" + bucketName + ", fileName=" + fileName
-                        + ", version=nullMarker");
-        return ret;
+        return deleteFileVersion(user, bucketName, fileName, CommonDefine.File.NULL_VERSION_MAJOR,
+                CommonDefine.File.NULL_VERSION_MINOR);
     }
 
     private BSONObject genFileAttachBucketUpdater(ScmBucket attachToBucket,
             ScmBucketAttachKeyType type, BSONObject fileRecord) {
         BSONObject newInfo = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
                 attachToBucket.getId());
-        if (attachToBucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
-            newInfo.put(FieldName.FIELD_CLFILE_NULL_MARKER, true);
-        }
-
         String etag = BsonUtils.getString(fileRecord, FieldName.FIELD_CLFILE_FILE_ETAG);
         if (etag == null) {
             String md5 = BsonUtils.getString(fileRecord, FieldName.FIELD_CLFILE_FILE_MD5);
@@ -888,7 +878,6 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
             BasicBSONObject fileIdAndMonthMatcher = new BasicBSONObject();
             ScmMetaSourceHelper.addFileIdAndCreateMonth(fileIdAndMonthMatcher, fileId);
-
             BSONObject latestFileVersion = fileAccessor.queryOne(fileIdAndMonthMatcher, null, null);
             if (latestFileVersion == null) {
                 ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
@@ -915,6 +904,22 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
                         failure);
                 return failure;
+            }
+
+            if (attachToBucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
+                if (!ScmFileVersionHelper.isSpecifiedVersion(latestFileVersion,
+                        CommonDefine.File.NULL_VERSION_MAJOR,
+                        CommonDefine.File.NULL_VERSION_MINOR)) {
+                    ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
+                            ScmError.OPERATION_UNSUPPORTED,
+                            "file is not null version, can not be attach to the bucket(version control is disabled):ws="
+                                    + wsInfo.getName() + ", bucket=" + attachToBucket.getName(),
+                            null);
+                    logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
+                            failure);
+                    transactionRollback(trans);
+                    return failure;
+                }
             }
 
             BSONObject latestVersionUpdater = genFileAttachBucketUpdater(attachToBucket,
@@ -1017,7 +1022,18 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     private boolean isFirstVersion(BSONObject file) {
         int majorVersion = BsonUtils.getIntegerChecked(file, FieldName.FIELD_CLFILE_MAJOR_VERSION);
         int minorVersion = BsonUtils.getIntegerChecked(file, FieldName.FIELD_CLFILE_MINOR_VERSION);
-        return majorVersion == 1 && minorVersion == 0;
+        if (majorVersion == 1 && minorVersion == 0) {
+            return true;
+        }
+        if (majorVersion == CommonDefine.File.NULL_VERSION_MAJOR
+                && minorVersion == CommonDefine.File.NULL_VERSION_MINOR) {
+            ScmVersion versionSerial = ScmFileVersionHelper.parseVersionSerial(
+                    BsonUtils.getStringChecked(file, FieldName.FIELD_CLFILE_VERSION_SERIAL));
+            if (versionSerial.getMajorVersion() == 1 && versionSerial.getMinorVersion() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ScmError getScmErrorFromException(Exception e) {
@@ -1044,6 +1060,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         return ret;
     }
 
+    @Override
     public BSONObject getFileVersion(String bucketName, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException {
         ScmBucket bucket = getBucket(bucketName);
@@ -1061,58 +1078,10 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public BSONObject getFileNullMarkerVersion(String bucketName, String fileName)
+    public BSONObject getFileNullVersion(ScmUser user, String bucketName, String fileName)
             throws ScmServerException {
-        BSONObject file = getFileVersion(bucketName, fileName, -1, -1);
-        if (file == null) {
-            throw new ScmServerException(ScmError.FILE_NOT_FOUND,
-                    "file not exist: bucket=" + bucketName + ", fileName=" + fileName);
-        }
-        if (BsonUtils.getBooleanOrElse(file, FieldName.FIELD_CLFILE_NULL_MARKER, false)) {
-            return file;
-        }
-
-        ScmBucket bucket = getBucket(bucketName);
-        ScmWorkspaceInfo ws = ScmContentModule.getInstance()
-                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
-        BasicBSONObject fileIdMatcher = new BasicBSONObject();
-        ScmMetaSourceHelper.addFileIdAndCreateMonth(fileIdMatcher,
-                BsonUtils.getStringChecked(file, FieldName.FIELD_CLFILE_ID));
-        BSONObject nullMarkerIsTrue = new BasicBSONObject(FieldName.FIELD_CLFILE_NULL_MARKER, true);
-        BasicBSONList andArr = new BasicBSONList();
-        andArr.add(fileIdMatcher);
-        andArr.add(nullMarkerIsTrue);
-        BSONObject matcher = new BasicBSONObject("$and", andArr);
-        try {
-            MetaFileHistoryAccessor fileHistoryAccessor = ScmContentModule.getInstance()
-                    .getMetaService().getMetaSource()
-                    .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), null);
-            BSONObject historyFile = fileHistoryAccessor.queryOne(matcher, null);
-            if (historyFile == null) {
-                throw new ScmServerException(ScmError.FILE_NOT_FOUND,
-                        "specify version not exist: bucket=" + bucketName + ", fileName="
-                                + fileName);
-            }
-            return historyFile;
-        }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(),
-                    "failed to query file in history table: ws=" + ws.getName() + ", matcher="
-                            + matcher,
-                    e);
-        }
-    }
-
-    @Override
-    public BSONObject getFileNullMarkerVersion(ScmUser user, String bucketName, String fileName)
-            throws ScmServerException {
-        ScmBucket bucket = getBucket(bucketName);
-        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
-                bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
-        BSONObject ret = getFileNullMarkerVersion(bucketName, fileName);
-        audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get null marker file in bucket: bucketName=" + bucketName + ", fileName=" + fileName);
-        return ret;
+        return getFileVersion(user, bucketName, fileName, CommonDefine.File.NULL_VERSION_MAJOR,
+                CommonDefine.File.NULL_VERSION_MINOR);
     }
 
     private void transactionRollback(TransactionContext transactionContext) {

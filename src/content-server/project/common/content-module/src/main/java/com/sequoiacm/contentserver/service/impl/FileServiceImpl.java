@@ -166,8 +166,8 @@ public class FileServiceImpl implements IFileService {
                 selector.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, null);
                 selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
                 selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
-                selector.put(FieldName.FIELD_CLFILE_NULL_MARKER, null);
                 selector.put(FieldName.FIELD_CLFILE_DELETE_MARKER, null);
+                selector.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, null);
             }
 
             if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
@@ -822,8 +822,8 @@ public class FileServiceImpl implements IFileService {
             // 在本地读取数据计算MD5
             ScmDataInfo dataInfo = new ScmDataInfo(fileInfo);
             md5 = ScmSystemUtils.calcMd5(ws, dataInfo);
-            contentModule.getMetaService().updateFileMd5(ws, fileId, majorVersion, minorVersion,
-                    md5);
+            contentModule.getMetaService().updateFileMd5(user.getUsername(), ws, fileId, majorVersion, minorVersion,
+                    dataInfo.getId(), md5);
         }
         else {
             // 发给远程站点，让远程站点执行计算或再转发

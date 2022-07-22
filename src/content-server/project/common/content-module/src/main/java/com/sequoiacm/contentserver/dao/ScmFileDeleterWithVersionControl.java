@@ -117,8 +117,6 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
             }
 
             BSONObject newFileVersion = createDeleteMarkerBSON();
-            ScmFileVersionHelper.resetNewFileVersion(newFileVersion, latestVersionInLock);
-
             FileAddVersionDao addVersionDao = new FileAddVersionDao(wsInfo, fileId, null,
                     bucketInfoMgr, listenerMgr);
             fileInfoAndOpCompleteCallback = addVersionDao

@@ -59,7 +59,6 @@ import com.sequoiacm.s3.scan.ListObjectVersionRecordCursorProvider;
 import com.sequoiacm.s3.scan.ListVersionRecordWrapper;
 import com.sequoiacm.s3.scan.RecordWrapper;
 import com.sequoiacm.s3.scan.S3ResourceScanner;
-import com.sequoiacm.s3.scan.S3ScanRecordCursorProvider;
 import com.sequoiacm.s3.scan.S3ScanResult;
 import com.sequoiacm.s3.service.BucketService;
 import com.sequoiacm.s3.service.ObjectService;
@@ -354,7 +353,7 @@ public class ObjServiceImpl implements ObjectService {
         }
         try {
             if (versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
-                return scmBucketService.getFileNullMarkerVersion(session.getUser(), bucketName,
+                return scmBucketService.getFileNullVersion(session.getUser(), bucketName,
                         objectName);
             }
             ScmVersion version = VersionUtil.parseVersion(versionId);
@@ -511,7 +510,7 @@ public class ObjServiceImpl implements ObjectService {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             if (versionId != null) {
                 if (versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
-                    deletedVersion = scmBucketService.deleteFileVersionNullMarker(session.getUser(),
+                    deletedVersion = scmBucketService.deleteNullVersionFile(session.getUser(),
                             bucketName, objectKey);
                 }
                 else {

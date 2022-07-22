@@ -5,6 +5,7 @@ import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
+import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
@@ -24,6 +25,7 @@ import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaBreakpointFileAccessor;
@@ -31,7 +33,6 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,12 +85,20 @@ public class FileContentUpdateDao {
                         "Uncompleted BreakpointFile: /%s/%s", ws.getName(), breakpointFileName));
             }
 
+            BSONObject currentLatestVersion = getCurrentFileAndCheckVersion();
+            Number bucketId = BsonUtils.getNumber(currentLatestVersion,
+                    FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+            if (bucketId != null && bucketInfoMgr.getBucketById(bucketId.longValue()) != null) {
+                option.setNeedMd5(true);
+            }
+
             if (option.isNeedMd5() && !breakpointFile.isNeedMd5()) {
                 throw new ScmInvalidArgumentException(String.format(
                         "BreakpointFile has no md5: /%s/%s", ws.getName(), breakpointFileName));
             }
 
-            return updateMeta(breakpointFile.getCreateTime(), breakpointFile.getDataId(),
+            return updateMeta(breakpointFile.getCreateTime(),
+                    breakpointFile.getDataId(),
                     breakpointFile.getUploadSize(), breakpointFile.getSiteId(), breakpointFileName,
                     breakpointFile.getMd5());
         }
@@ -101,7 +110,12 @@ public class FileContentUpdateDao {
 
     public BSONObject updateContent(InputStream is) throws ScmServerException {
         // check file exist, and check version
-        getCurrentFileAndCheckVersion();
+        BSONObject currentLatestVersion = getCurrentFileAndCheckVersion();
+        Number bucketId = BsonUtils.getNumber(currentLatestVersion,
+                FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (bucketId != null && bucketInfoMgr.getBucketById(bucketId.longValue()) != null) {
+            option.setNeedMd5(true);
+        }
 
         // write data
         Date createDate = new Date();
@@ -135,8 +149,8 @@ public class FileContentUpdateDao {
 
         // write meta
         try {
-            return updateMeta(createDate.getTime(), dataId, dataWriter.getSize(),
-                    contentModule.getLocalSite(), null, md5);
+            return updateMeta(createDate.getTime(), dataId,
+                    dataWriter.getSize(), contentModule.getLocalSite(), null, md5);
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
@@ -207,61 +221,56 @@ public class FileContentUpdateDao {
 
     // insert historyRec, update currentFileRec, delete breakFileRec, return
     // updated info
-    private BSONObject updateMeta(long createTime, String dataId, long dataSize, int siteId,
+    private BSONObject updateMeta(long createTime, String dataId,
+            long dataSize, int siteId,
             final String breakFileName, String md5) throws ScmServerException {
-        BSONObject newVersion = createNewVersion(dataId, siteId, dataSize, createTime, md5);
-        TransactionCallback transactionCallback = null;
-        if (breakFileName != null) {
-            transactionCallback = new TransactionCallback() {
-                @Override
-                public void beforeTransactionCommit(TransactionContext context)
-                        throws ScmServerException, ScmMetasourceException {
-                    MetaBreakpointFileAccessor breakpointAccessor = contentModule.getMetaService()
-                            .getMetaSource().getBreakpointFileAccessor(ws.getName(), context);
-                    breakpointAccessor.delete(breakFileName);
-                }
-            };
+        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
+        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
+        try {
+            BSONObject latestFileVersionInLock = ScmContentModule.getInstance().getMetaService()
+                    .getFileInfo(ws.getMetaLocation(), ws.getName(), fileId, -1, -1);
+            if (latestFileVersionInLock == null) {
+                throw new ScmServerException(ScmError.FILE_NOT_FOUND,
+                        "file not exist: ws=" + ws.getName() + ", fileId=" + fileId);
+            }
+            BSONObject newVersion = createNewVersionBSON(latestFileVersionInLock, dataId, siteId,
+                    dataSize, createTime, md5);
+            TransactionCallback transactionCallback = null;
+            if (breakFileName != null) {
+                transactionCallback = new TransactionCallback() {
+                    @Override
+                    public void beforeTransactionCommit(TransactionContext context)
+                            throws ScmServerException, ScmMetasourceException {
+                        MetaBreakpointFileAccessor breakpointAccessor = contentModule
+                                .getMetaService().getMetaSource()
+                                .getBreakpointFileAccessor(ws.getName(), context);
+                        breakpointAccessor.delete(breakFileName);
+                    }
+                };
+            }
+            FileAddVersionDao fileAddVersionDao = new FileAddVersionDao(ws, fileId,
+                    transactionCallback, bucketInfoMgr, listenerMgr);
+            FileInfoAndOpCompleteCallback ret = fileAddVersionDao.addVersion(
+                    FileAddVersionDao.Context.lockInCaller(newVersion, latestFileVersionInLock));
+            ret.getCallback().onComplete();
+            return ret.getFileInfo();
         }
-        FileAddVersionDao fileAddVersionDao = new FileAddVersionDao(ws, fileId,
-                transactionCallback, bucketInfoMgr, listenerMgr);
-        FileInfoAndOpCompleteCallback ret = fileAddVersionDao
-                .addVersion(FileAddVersionDao.Context.standard(newVersion));
-        ret.getCallback().onComplete();
-        return ret.getFileInfo();
+        finally {
+            writeLock.unlock();
+        }
+
     }
 
-    private BSONObject createNewVersion(String dataId, int siteId, long size, long createTime,
-            String md5) {
-        BSONObject newVersion = new BasicBSONObject();
-        // id
-        newVersion.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
-
-        // size
-        newVersion.put(FieldName.FIELD_CLFILE_FILE_SIZE, size);
-
-        // siteList
-        BSONObject sites = new BasicBSONList();
-        BSONObject oneSite = new BasicBSONObject();
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, createTime);
-        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, createTime);
-        sites.put("0", oneSite);
-        newVersion.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST, sites);
-
-        // data create time
-        newVersion.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, createTime);
-
-        // update user
-        newVersion.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, user);
-
-        // update time
-        newVersion.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, createTime);
-
-        if (md5 != null) {
-            newVersion.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
-        }
+    private BSONObject createNewVersionBSON(BSONObject currentLatestVersion, String dataId,
+            int siteId, long size, long createTime, String md5) throws ScmServerException {
+        BSONObject newVersion = ScmFileOperateUtils.formatFileObj(ws, currentLatestVersion, fileId,
+                new Date(BsonUtils.getNumberChecked(currentLatestVersion,
+                        FieldName.FIELD_CLFILE_INNER_CREATE_TIME).longValue()),
+                BsonUtils.getStringChecked(currentLatestVersion,
+                        FieldName.FIELD_CLFILE_INNER_USER));
+        ScmFileOperateUtils.addDataInfo(newVersion, dataId, new Date(createTime), siteId, size,
+                md5);
         return newVersion;
-
     }
 
     private BSONObject getCurrentFileAndCheckVersion() throws ScmServerException {

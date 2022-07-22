@@ -147,11 +147,6 @@ public class BucketController {
         else {
             overwriteOption = OverwriteOption.doNotOverwrite();
         }
-        if (!uploadConf.isNeedMd5()) {
-            throw new ScmServerException(ScmError.INVALID_ARGUMENT,
-                    "the file must be calc md5 when create in bucket: bucket=" + bucketName
-                            + ", file=" + fileInfo);
-        }
 
         BSONObject createdFile;
         InputStream is = request.getInputStream();
@@ -276,12 +271,12 @@ public class BucketController {
         return BsonUtils.getBooleanOrElse(file, FieldName.FIELD_CLFILE_DELETE_MARKER, false);
     }
 
-    @GetMapping(path = "/buckets/{name}/files", params = "action=get_null_marker_file")
-    public BSONObject getNullMarkerFile(@PathVariable("name") String bucketName,
+    @GetMapping(path = "/buckets/{name}/files", params = "action=get_file_null_version")
+    public BSONObject getNullVersionFile(@PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
             Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        BSONObject file = service.getFileNullMarkerVersion(user, bucketName, fileName);
+        BSONObject file = service.getFileNullVersion(user, bucketName, fileName);
         if (file == null) {
             throw new ScmFileNotFoundException(
                     "file not exist:bucket=" + bucketName + ",fileName=" + fileName);

@@ -1,6 +1,8 @@
 package com.sequoiacm.s3.common;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.s3.core.S3BasicObjectMeta;
@@ -84,7 +86,8 @@ public class FileMappingUtil {
         ret.setUser(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_INNER_USER));
         ret.setBucket(bucket);
         ret.setKey(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_NAME));
-        if (BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_NULL_MARKER, false)) {
+        if (ScmFileVersionHelper.isSpecifiedVersion(fileInfo, CommonDefine.File.NULL_VERSION_MAJOR,
+                CommonDefine.File.NULL_VERSION_MINOR)) {
             ret.setVersionId("null");
         }
         else {

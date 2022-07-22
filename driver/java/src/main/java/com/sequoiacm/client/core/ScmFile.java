@@ -8,6 +8,7 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmClassProperties;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTags;
+import com.sequoiacm.client.element.ScmVersionSerial;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.MimeType;
@@ -721,11 +722,11 @@ public abstract class ScmFile {
     public abstract String getNameBeforeAttach() throws ScmException;
 
     /**
-     * Return the file is null marker or not
+     * Return the file is null version or not
      * 
-     * @return return true if is null marker.
+     * @return return true if is null version.
      */
-    public abstract boolean isNullMarker();
+    public abstract boolean isNullVersion();
 
     abstract void setSize(long size);
 
@@ -788,4 +789,12 @@ public abstract class ScmFile {
      *             If error happens
      */
     public abstract InputStream getInputStreamFromLocalSite() throws ScmException;
+
+    /**
+     *
+     * Get the file version serial, useful for fetch the version serial of null version.
+     * 
+     * @return version serial.
+     */
+    public abstract ScmVersionSerial getVersionSerial();
 }

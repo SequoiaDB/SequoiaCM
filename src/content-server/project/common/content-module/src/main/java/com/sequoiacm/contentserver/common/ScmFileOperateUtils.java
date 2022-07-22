@@ -168,8 +168,11 @@ public class ScmFileOperateUtils {
                 fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME));
         ret.put(FieldName.BucketFile.FILE_DELETE_MARKER,
                 BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_DELETE_MARKER, false));
-        ret.put(FieldName.BucketFile.FILE_NULL_MARKER,
-                BsonUtils.getBooleanOrElse(fileInfo, FieldName.FIELD_CLFILE_NULL_MARKER, false));
+
+        String versionSerial = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_VERSION_SERIAL);
+        if (versionSerial != null) {
+            ret.put(FieldName.BucketFile.FILE_VERSION_SERIAL, versionSerial);
+        }
         return ret;
     }
 
@@ -236,6 +239,7 @@ public class ScmFileOperateUtils {
 
     public static BSONObject formatFileObj(ScmWorkspaceInfo ws, BSONObject fileObj, String fileId,
             Date fileCreateDate, String userName) throws ScmServerException {
+
         BSONObject result = new BasicBSONObject();
 
         String fieldName = FieldName.FIELD_CLFILE_NAME;
@@ -257,9 +261,7 @@ public class ScmFileOperateUtils {
         result.put(fieldName, fileObj.get(fieldName));
 
         Object classId = fileObj.get(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-        if (classId != null) {
-            result.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, classId);
-        }
+        result.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, classId);
 
         fieldName = FieldName.FIELD_CLFILE_PROPERTIES;
         BSONObject classValue = (BSONObject) fileObj.get(fieldName);
@@ -269,18 +271,11 @@ public class ScmFileOperateUtils {
         BSONObject tagsValue = (BSONObject) fileObj.get(fieldName);
         result.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue, fieldName));
 
-        fieldName = FieldName.FIELD_CLFILE_INNER_CREATE_TIME;
-        Object obj = fileObj.get(fieldName);
-        if (null != obj) {
-            result.put(fieldName, toLongValue(fieldName, obj));
-        }
         result.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
                 fileObj.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
 
         Object customMeta = fileObj.get(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
-        if (customMeta != null) {
-            result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMeta);
-        }
+        result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMeta);
 
         result.put(FieldName.FIELD_CLFILE_FILE_ETAG, fileObj.get(FieldName.FIELD_CLFILE_FILE_ETAG));
 
@@ -309,7 +304,7 @@ public class ScmFileOperateUtils {
         if (dirId == null || dirId.equals("")) {
             result.put(FieldName.FIELD_CLFILE_DIRECTORY_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
         }
-        else if (!ws.isEnableDirectory()) {
+        else if (!ws.isEnableDirectory() && !dirId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
             throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                     "can not specify parent directory for file");
         }
@@ -317,7 +312,8 @@ public class ScmFileOperateUtils {
         result.put(FieldName.FIELD_CLFILE_FILE_DATA_TYPE, ENDataType.Normal.getValue());
         result.put(FieldName.FIELD_CLFILE_FILE_SIZE, 0);
         result.put(FieldName.FIELD_CLFILE_FILE_MD5, null);
-        result.put(FieldName.FIELD_CLFILE_NULL_MARKER, false);
+        result.put(FieldName.FIELD_CLFILE_FILE_ETAG, null);
+        result.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, null);
         result.put(FieldName.FIELD_CLFILE_DELETE_MARKER, false);
         result.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null);
         return result;

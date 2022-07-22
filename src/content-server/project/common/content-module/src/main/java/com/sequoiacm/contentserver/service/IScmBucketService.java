@@ -50,10 +50,11 @@ public interface IScmBucketService {
     BSONObject getFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException;
 
-    BSONObject getFileNullMarkerVersion(ScmUser user, String bucket, String fileName)
-            throws ScmServerException;
+    BSONObject getFileVersion(String bucket, String fileName, int majorVersion,
+                              int minorVersion) throws ScmServerException;
 
-    BSONObject getFileNullMarkerVersion(String bucket, String fileName) throws ScmServerException;
+    BSONObject getFileNullVersion(ScmUser user, String bucket, String fileName)
+            throws ScmServerException;
 
     MetaCursor listFile(ScmUser user, String bucketName, BSONObject condition, BSONObject selector,
             BSONObject orderBy, long skip, long limit) throws ScmServerException;
@@ -76,6 +77,6 @@ public interface IScmBucketService {
     BSONObject deleteFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException;
 
-    BSONObject deleteFileVersionNullMarker(ScmUser user, String bucket, String fileName)
+    BSONObject deleteNullVersionFile(ScmUser user, String bucket, String fileName)
             throws ScmServerException;
 }

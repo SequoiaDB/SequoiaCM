@@ -2163,10 +2163,10 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BSONObject bucketGetFileWithNullMarker(String bucketName, String fileName)
+    public BSONObject bucketGetFileNullVersion(String bucketName, String fileName)
             throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
-                + "/files?action=get_null_marker_file&" + CommonDefine.RestArg.FILE_NAME + "="
+                + "/files?action=get_file_null_version&" + CommonDefine.RestArg.FILE_NAME + "="
                 + encode(fileName);
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);

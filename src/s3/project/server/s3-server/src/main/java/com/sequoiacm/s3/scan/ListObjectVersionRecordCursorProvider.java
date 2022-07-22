@@ -1,12 +1,15 @@
 package com.sequoiacm.s3.scan;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.IndexName;
+import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
@@ -18,8 +21,8 @@ import org.bson.types.BasicBSONList;
 
 public class ListObjectVersionRecordCursorProvider implements S3ScanRecordCursorProvider {
     private final ScmBucket bucket;
-    private MetaAccessor bucketFileAccessor;
-    private MetaFileHistoryAccessor historyFileAccessor;
+    private final MetaAccessor bucketFileAccessor;
+    private final MetaFileHistoryAccessor historyFileAccessor;
 
     public ListObjectVersionRecordCursorProvider(ScmBucket bucket)
             throws ScmServerException, ScmMetasourceException {
@@ -46,11 +49,22 @@ public class ListObjectVersionRecordCursorProvider implements S3ScanRecordCursor
                 andArr.add(matcher);
             }
             andArr.add(new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, bucket.getId()));
+
             BSONObject historyFileHint = new BasicBSONObject();
             historyFileHint.put("", IndexName.HistoryFile.NAME_VERSION_UNION_IDX);
+
+            BasicBSONObject historyOrderBy = new BasicBSONObject();
+            historyOrderBy.put(FieldName.BucketFile.FILE_NAME, 1);
+            historyOrderBy.put(FieldName.BucketFile.FILE_VERSION_SERIAL, -1);
+            historyOrderBy.put(FieldName.BucketFile.FILE_MAJOR_VERSION, -1);
+            historyOrderBy.put(FieldName.BucketFile.FILE_MINOR_VERSION, -1);
+
             MetaCursor historyFileCursor = historyFileAccessor
-                    .query(new BasicBSONObject("$and", andArr), orderby, historyFileHint, 0, -1);
-            return new ListVersionCursor(bucketFileCursor, historyFileCursor);
+                    .query(new BasicBSONObject("$and", andArr), historyOrderBy, historyFileHint, 0,
+                            -1);
+
+            return new ListVersionCursor(bucketFileCursor,
+                    new HistoryCursorWrapper(historyFileCursor));
         }
         catch (Exception e) {
             bucketFileCursor.close();
@@ -59,9 +73,123 @@ public class ListObjectVersionRecordCursorProvider implements S3ScanRecordCursor
     }
 }
 
+class StackStyleAccessCursor {
+    private final MetaCursor cursor;
+    private BSONObject current;
+
+    public StackStyleAccessCursor(MetaCursor cursor) {
+        this.cursor = cursor;
+    }
+
+    public BSONObject peek() throws ScmMetasourceException {
+        if (current != null) {
+            return current;
+        }
+
+        current = cursor.getNext();
+        return current;
+    }
+
+    public BSONObject pop() throws ScmMetasourceException {
+        if (current != null) {
+            BSONObject tmp = current;
+            current = null;
+            return tmp;
+        }
+
+        return cursor.getNext();
+    }
+
+    public void close() {
+        current = null;
+        cursor.close();
+    }
+}
+
+class HistoryCursorWrapper implements MetaCursor {
+    private final StackStyleAccessCursor historyCursor;
+
+    private BSONObject nullVersionRecord;
+    private ScmVersion nullVersionRecordVersionSerial;
+
+    public HistoryCursorWrapper(MetaCursor historyCursor) {
+        this.historyCursor = new StackStyleAccessCursor(historyCursor);
+    }
+
+    @Override
+    public boolean hasNext() throws ScmMetasourceException {
+        return historyCursor.peek() != null || nullVersionRecord != null;
+    }
+
+    @Override
+    public BSONObject getNext() throws ScmMetasourceException {
+        if (nullVersionRecord == null) {
+            BSONObject record = historyCursor.pop();
+            if (record == null) {
+                return null;
+            }
+            if (!isNullVersion(record)) {
+                return record;
+            }
+            nullVersionRecord = record;
+            nullVersionRecordVersionSerial = ScmFileVersionHelper.parseVersionSerial(BsonUtils
+                    .getStringChecked(nullVersionRecord, FieldName.FIELD_CLFILE_VERSION_SERIAL));
+        }
+
+        BSONObject next = historyCursor.peek();
+        if (isFrontNullVersion(next)) {
+            historyCursor.pop();
+            return next;
+        }
+
+        BSONObject tmp = nullVersionRecord;
+        nullVersionRecordVersionSerial = null;
+        nullVersionRecord = null;
+        return tmp;
+    }
+
+    private boolean isFrontNullVersion(BSONObject record) {
+        if (record == null) {
+            return false;
+        }
+        if (!isFileIdSameAsNullVersion(record)) {
+            return false;
+        }
+
+        return isFileVersionGreatThanNullVersion(record);
+    }
+
+    private boolean isFileIdSameAsNullVersion(BSONObject record) {
+        return record.get(FieldName.FIELD_CLFILE_ID)
+                .equals(nullVersionRecord.get(FieldName.FIELD_CLFILE_ID));
+    }
+
+    private boolean isFileVersionGreatThanNullVersion(BSONObject file) {
+        int major = BsonUtils.getNumberChecked(file, FieldName.FIELD_CLFILE_MAJOR_VERSION)
+                .intValue();
+        int minor = BsonUtils.getNumberChecked(file, FieldName.FIELD_CLFILE_MINOR_VERSION)
+                .intValue();
+        ScmVersion fileVersion = new ScmVersion(major, minor);
+        int res = fileVersion.compareTo(nullVersionRecordVersionSerial);
+        return res > 0;
+    }
+
+    private boolean isNullVersion(BSONObject record) {
+        return ScmFileVersionHelper.isSpecifiedVersion(record, CommonDefine.File.NULL_VERSION_MAJOR,
+                CommonDefine.File.NULL_VERSION_MINOR);
+    }
+
+    @Override
+    public void close() {
+        nullVersionRecord = null;
+        nullVersionRecordVersionSerial = null;
+        historyCursor.close();
+    }
+}
+
 class ListVersionCursor implements RecordWrapperCursor<ListVersionRecordWrapper> {
-    private MetaCursor bucketFileCursor;
-    private MetaCursor historyCursor;
+    private final MetaCursor bucketFileCursor;
+    private final MetaCursor historyCursor;
     private ListVersionRecordWrapper historyRecordWrapper;
     private ListVersionRecordWrapper bucketFileRecordWrapper;
 
@@ -136,15 +264,8 @@ class ListVersionCursor implements RecordWrapperCursor<ListVersionRecordWrapper>
             return getHistoryRecordAndSetNull();
         }
 
-        int historyRecMajorVersion = (int) historyRecordWrapper.getRecord().get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-        int historyRecMinorVersion = (int) historyRecordWrapper.getRecord().get(FieldName.FIELD_CLFILE_MINOR_VERSION);
-        ScmVersion historyRecVersion = new ScmVersion(historyRecMajorVersion,
-                historyRecMinorVersion);
-        int bucketRecMajorVersion = (int) bucketFileRecordWrapper
-                .getRecord().get(FieldName.BucketFile.FILE_MAJOR_VERSION);
-        int bucketRecMinorVersion = (int) bucketFileRecordWrapper
-                .getRecord().get(FieldName.BucketFile.FILE_MINOR_VERSION);
-        ScmVersion bucketRecVersion = new ScmVersion(bucketRecMajorVersion, bucketRecMinorVersion);
+        ScmVersion historyRecVersion = getVersionFromRecord(historyRecordWrapper.getRecord());
+        ScmVersion bucketRecVersion = getVersionFromRecord(bucketFileRecordWrapper.getRecord());
 
         int fileVersionCmpRes = historyRecVersion.compareTo(bucketRecVersion);
         if (fileVersionCmpRes > 0) {
@@ -155,6 +276,19 @@ class ListVersionCursor implements RecordWrapperCursor<ListVersionRecordWrapper>
         }
         historyRecordWrapper = null;
         return getBucketFileRecordAndSetNull();
+    }
+
+    private ScmVersion getVersionFromRecord(BSONObject record) {
+        if (ScmFileVersionHelper.isSpecifiedVersion(record, CommonDefine.File.NULL_VERSION_MAJOR,
+                CommonDefine.File.NULL_VERSION_MINOR)) {
+            return ScmFileVersionHelper.parseVersionSerial(
+                    BsonUtils.getStringChecked(record, FieldName.FIELD_CLFILE_VERSION_SERIAL));
+        }
+        int major = BsonUtils.getNumberChecked(record, FieldName.FIELD_CLFILE_MAJOR_VERSION)
+                .intValue();
+        int minor = BsonUtils.getNumberChecked(record, FieldName.FIELD_CLFILE_MINOR_VERSION)
+                .intValue();
+        return new ScmVersion(major, minor);
     }
 
     @Override

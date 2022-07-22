@@ -3,6 +3,7 @@ package com.sequoiacm.client.element;
 import java.util.Date;
 
 import com.sequoiacm.client.util.BsonUtils;
+import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.exception.ScmException;
@@ -23,7 +24,7 @@ public class ScmFileBasicInfo {
     private String user;
     private Date createDate;
     private boolean isDeleteMarker;
-    private boolean isNullMarker;
+    private ScmVersionSerial versionSerial;
 
     /**
      * Create a instance of ScmFileBasicInfo.
@@ -44,9 +45,15 @@ public class ScmFileBasicInfo {
         user = (String) bson.get(FieldName.FIELD_CLFILE_INNER_USER);
         createDate = new Date(
                 CommonHelper.toLongValue(bson.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
-        isNullMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_NULL_MARKER, false);
         isDeleteMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_DELETE_MARKER,
                 false);
+        String versionSerialStr = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_VERSION_SERIAL);
+        if (versionSerialStr != null) {
+            this.versionSerial = new ScmVersionSerial(versionSerialStr);
+        }
+        else {
+            this.versionSerial = new ScmVersionSerial(majorVersion, minorVersion);
+        }
     }
 
     /**
@@ -221,23 +228,40 @@ public class ScmFileBasicInfo {
         buf.append("user : " + user + " , ");
         buf.append("createDate : " + createDate + " , ");
         buf.append("mimeType : " + mimeType + " , ");
-        buf.append("null_marker : " + isNullMarker + " , ");
         buf.append("delete_marker : " + isDeleteMarker);
         buf.append("}");
         return buf.toString();
     }
 
     /**
-     * Return the file is null marker or not
+     * Return the file is null version or not
      *
-     * @return return true if is null marker.
+     * @return return true if is null version.
      */
-    public boolean isNullMarker() {
-        return isNullMarker;
+    public boolean isNullVersion() {
+        return majorVersion == CommonDefine.File.NULL_VERSION_MAJOR
+                && minorVersion == CommonDefine.File.NULL_VERSION_MINOR;
     }
 
-    public void setNullMarker(boolean isNullMarker) {
-        this.isNullMarker = isNullMarker;
+    /**
+     *
+     * Return the file version serial, useful for fetch the version serial of null
+     * version.
+     *
+     * @return version serial.
+     */
+    public ScmVersionSerial getVersionSerial() {
+        return versionSerial;
+    }
+
+    /**
+     * Sets the file of the version serial.
+     * 
+     * @param versionSerial
+     *            version serial.
+     */
+    public void setVersionSerial(ScmVersionSerial versionSerial) {
+        this.versionSerial = versionSerial;
     }
 
     /**

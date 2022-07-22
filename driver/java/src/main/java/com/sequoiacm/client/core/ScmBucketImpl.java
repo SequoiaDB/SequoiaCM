@@ -101,8 +101,8 @@ class ScmBucketImpl implements ScmBucket {
     }
 
     @Override
-    public ScmFile getFileWithNullMarker(String fileName) throws ScmException {
-        BSONObject fileInfo = session.getDispatcher().bucketGetFileWithNullMarker(name,
+    public ScmFile getNullVersionFile(String fileName) throws ScmException {
+        BSONObject fileInfo = session.getDispatcher().bucketGetFileNullVersion(name,
                 fileName);
         return createFileInstance(fileName, fileInfo);
     }

@@ -70,7 +70,7 @@ public interface ScmBucket {
     ScmFile getFile(String fileName, int majorVersion, int minorVersion) throws ScmException;
 
     /**
-     * Return a file version with the specified file name and null marker in the
+     * Return a file null version with the specified file name in the
      * bucket.
      *
      * @param fileName
@@ -79,7 +79,7 @@ public interface ScmBucket {
      * @throws ScmException
      *             if error happens.
      */
-    ScmFile getFileWithNullMarker(String fileName) throws ScmException;
+    ScmFile getNullVersionFile(String fileName) throws ScmException;
 
     /**
      * List files in the bucket.

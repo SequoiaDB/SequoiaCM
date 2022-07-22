@@ -11,9 +11,13 @@ import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.dao.FileInfoUpdater;
 import com.sequoiacm.contentserver.dao.FileInfoUpdaterFactory;
+import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
+import com.sequoiacm.contentserver.lock.ScmLockManager;
+import com.sequoiacm.contentserver.lock.ScmLockPath;
+import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.*;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
@@ -24,6 +28,8 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
@@ -2013,30 +2019,44 @@ public class ScmMetaService {
         }
     }
 
-    public void updateFileMd5(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, String md5) throws ScmServerException {
+    public void updateFileMd5(String user, ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
+            int minorVersion, String dataId, String md5) throws ScmServerException {
+        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
+        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
-            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
-                    wsInfo.getName(), null);
-            BSONObject ret = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
-                    new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5));
-            if (ret != null) {
+            BSONObject fileInfo = getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId,
+                    majorVersion, minorVersion, false);
+            if (fileInfo == null) {
+                throw new ScmFileNotFoundException("file not exist:workspace=" + wsInfo.getName()
+                        + ",fileId=" + fileId + ",version="
+                        + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+            }
+            // 锁内确认文件数据没有发生变化（桶内 -2.0 版本文件可以被重复覆盖，而文件的 ID、版本号不会发生变化，所以这里查出来的文件比对以下 data Id）
+            if (!BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID)
+                    .equals(dataId)) {
+                // 文件已经被另外一个线程覆盖了，直接返回
                 return;
             }
 
-            MetaFileHistoryAccessor historyAccessor = metasource
-                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
-            historyAccessor.updateMd5(fileId, majorVersion, minorVersion, md5);
+            // 当文件已经存在ETAG时，不能同时更新文件的ETAG，因为会破坏 S3 对象 ETAG 的定义（描述对象内容，相当于摘要）
+            BSONObject newFileInfo = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+            String etag = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_ETAG);
+            if (etag == null || etag.isEmpty()) {
+                newFileInfo.put(FieldName.FIELD_CLFILE_FILE_ETAG, SignUtil.toHex(md5));
+            }
+
+            FileInfoUpdater updater = FileInfoUpdaterFactory.create(newFileInfo);
+            updater.update(wsInfo, fileId, majorVersion, minorVersion, newFileInfo, user);
         }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(),
-                    "update md5 failed:fileId=" + fileId + ",majorVersion=" + majorVersion
-                            + ",minorVersion=" + minorVersion + ", md5=" + md5,
-                    e);
+        catch (ScmServerException e) {
+            throw e;
         }
         catch (Exception e) {
             throw new ScmSystemException("update md5 failed:fileId=" + fileId + ",majorVersion="
                     + majorVersion + ",minorVersion=" + minorVersion + ",md5=" + md5, e);
+        }
+        finally {
+            writeLock.unlock();
         }
     }
 

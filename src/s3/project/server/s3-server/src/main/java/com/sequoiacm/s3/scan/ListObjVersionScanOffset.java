@@ -1,10 +1,13 @@
 package com.sequoiacm.s3.scan;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.utils.VersionUtil;
 import org.bson.BSONObject;
@@ -69,11 +72,10 @@ public class ListObjVersionScanOffset extends S3ScanOffset {
         }
         if (versionIdMarker.equals(S3CommonDefine.NULL_VERSION_ID)) {
             try {
-                BSONObject file = scmBucketService.getFileNullMarkerVersion(bucketName,
-                        objKeyStartAfter);
-                this.scmVersionIdMarker = new ScmVersion(
-                        (int) file.get(FieldName.FIELD_CLFILE_MAJOR_VERSION),
-                        (int) file.get(FieldName.FIELD_CLFILE_MINOR_VERSION));
+                BSONObject file = scmBucketService.getFileVersion(bucketName, objKeyStartAfter,
+                        CommonDefine.File.NULL_VERSION_MAJOR, CommonDefine.File.NULL_VERSION_MINOR);
+                this.scmVersionIdMarker = ScmFileVersionHelper.parseVersionSerial(
+                        BsonUtils.getStringChecked(file, FieldName.FIELD_CLFILE_VERSION_SERIAL));
             }
             catch (ScmServerException e) {
                 if (e.getError() == ScmError.FILE_NOT_FOUND) {
@@ -117,9 +119,20 @@ public class ListObjVersionScanOffset extends S3ScanOffset {
         }
         if (keyCompareResult == 0) {
             if (hasSpecifyVersionMarker()) {
-                int majorVersion = (int) record.get(FieldName.BucketFile.FILE_MAJOR_VERSION);
-                int minorVersion = (int) record.get(FieldName.BucketFile.FILE_MINOR_VERSION);
-                if (!hasReachVersionMarker(majorVersion, minorVersion)) {
+                ScmVersion recordVersion;
+                if (ScmFileVersionHelper.isSpecifiedVersion(record,
+                        CommonDefine.File.NULL_VERSION_MAJOR,
+                        CommonDefine.File.NULL_VERSION_MINOR)) {
+                    recordVersion = ScmFileVersionHelper.parseVersionSerial(BsonUtils
+                            .getStringChecked(record, FieldName.FIELD_CLFILE_VERSION_SERIAL));
+                }
+                else {
+                    int majorVersion = (int) record.get(FieldName.BucketFile.FILE_MAJOR_VERSION);
+                    int minorVersion = (int) record.get(FieldName.BucketFile.FILE_MINOR_VERSION);
+                    recordVersion = new ScmVersion(majorVersion, minorVersion);
+                }
+
+                if (!hasReachVersionMarker(recordVersion)) {
                     return false;
                 }
                 hasReach = true;
@@ -131,8 +144,7 @@ public class ListObjVersionScanOffset extends S3ScanOffset {
         return true;
     }
 
-    private boolean hasReachVersionMarker(int majorVersion, int minorVersion) {
-        ScmVersion version = new ScmVersion(majorVersion, minorVersion);
+    private boolean hasReachVersionMarker(ScmVersion version) {
         if (version.compareTo(scmVersionIdMarker) >= 0) {
             return false;
         }
@@ -143,8 +155,6 @@ public class ListObjVersionScanOffset extends S3ScanOffset {
     public BSONObject getOrderBy() {
         BasicBSONObject orderBy = new BasicBSONObject();
         orderBy.put(FieldName.BucketFile.FILE_NAME, 1);
-        orderBy.put(FieldName.BucketFile.FILE_MAJOR_VERSION, -1);
-        orderBy.put(FieldName.BucketFile.FILE_MINOR_VERSION, -1);
         return orderBy;
     }
 

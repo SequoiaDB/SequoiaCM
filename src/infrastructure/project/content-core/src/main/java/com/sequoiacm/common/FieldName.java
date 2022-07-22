@@ -180,7 +180,7 @@ public class FieldName {
     public static final String FIELD_CLFILE_FILE_EXTERNAL_DATA = "external_data";
     public static final String FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH = "file_name_before_attach";
     public static final String FIELD_CLFILE_CUSTOM_METADATA = "custom_metadata";
-    public static final String FIELD_CLFILE_NULL_MARKER = "null_marker";
+    public static final String FIELD_CLFILE_VERSION_SERIAL = "version_serial";
     public static final String FIELD_CLFILE_DELETE_MARKER = "delete_marker";
 
     // CL_FILE only(file & document)
@@ -223,7 +223,6 @@ public class FieldName {
     public static final String FIELD_CLREL_MAJOR_VERSION = FIELD_CLFILE_MAJOR_VERSION;
     public static final String FIELD_CLREL_MINOR_VERSION = FIELD_CLFILE_MINOR_VERSION;
     public static final String FIELD_CLREL_FILE_MIME_TYPE = FIELD_CLFILE_FILE_MIME_TYPE;
-    public static final String FIELD_CLREL_FILE_NULL_MARKER = FIELD_CLFILE_NULL_MARKER;
     public static final String FIELD_CLREL_FILE_DELETE_MARKER = FIELD_CLFILE_DELETE_MARKER;
 
     public static final String FIELD_CLDIR_ID = "id";
@@ -507,7 +506,7 @@ public class FieldName {
         public static final String FILE_MIME_TYPE = FieldName.FIELD_CLFILE_FILE_MIME_TYPE;
         public static final String FILE_SIZE = FieldName.FIELD_CLFILE_FILE_SIZE;
         public static final String FILE_CREATE_TIME = FieldName.FIELD_CLFILE_INNER_CREATE_TIME;
-        public static final String FILE_NULL_MARKER = FieldName.FIELD_CLFILE_NULL_MARKER;
+        public static final String FILE_VERSION_SERIAL = FieldName.FIELD_CLFILE_VERSION_SERIAL;
         public static final String FILE_DELETE_MARKER = FieldName.FIELD_CLFILE_DELETE_MARKER;
     }
 }

@@ -347,7 +347,7 @@ public interface MessageDispatcher extends Closeable {
     BSONObject bucketGetFile(String bucketName, String fileName, int majorVersion, int minorVersion)
             throws ScmException;
 
-    BSONObject bucketGetFileWithNullMarker(String bucketName, String fileName)
+    BSONObject bucketGetFileNullVersion(String bucketName, String fileName)
             throws ScmException;
 
     BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,

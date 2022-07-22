@@ -85,6 +85,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
 
             indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_NAME, 1);
+            indexDef.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, -1);
             indexDef.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, -1);
             indexDef.put(FieldName.FIELD_CLFILE_MINOR_VERSION, -1);
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,

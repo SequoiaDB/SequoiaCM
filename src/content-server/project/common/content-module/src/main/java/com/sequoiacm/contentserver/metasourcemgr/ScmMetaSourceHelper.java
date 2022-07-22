@@ -59,8 +59,6 @@ public class ScmMetaSourceHelper {
                 FieldName.FIELD_CLREL_FILE_SIZE);
         FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE,
                 FieldName.FIELD_CLREL_FILE_MIME_TYPE);
-        FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_NULL_MARKER,
-                FieldName.FIELD_CLREL_FILE_NULL_MARKER);
         FILE_FIELD_MAP_REL_FIELD.put(FieldName.FIELD_CLFILE_DELETE_MARKER,
                 FieldName.FIELD_CLREL_FILE_DELETE_MARKER);
     }
@@ -83,8 +81,8 @@ public class ScmMetaSourceHelper {
         BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_INNER_USER,
                 FieldName.BucketFile.FILE_CREATE_USER);
         BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_FILE_ETAG, FieldName.BucketFile.FILE_ETAG);
-        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_NULL_MARKER,
-                FieldName.BucketFile.FILE_NULL_MARKER);
+        BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_VERSION_SERIAL,
+                FieldName.BucketFile.FILE_VERSION_SERIAL);
         BUCKET_FILE_REL_FIELD.put(FieldName.FIELD_CLFILE_DELETE_MARKER,
                 FieldName.BucketFile.FILE_DELETE_MARKER);
     }
@@ -342,8 +340,6 @@ public class ScmMetaSourceHelper {
                 fileInsertor.get(FieldName.FIELD_CLFILE_INNER_USER));
         relInsertor.put(FieldName.FIELD_CLREL_FILE_MIME_TYPE,
                 fileInsertor.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE));
-        relInsertor.put(FieldName.FIELD_CLREL_FILE_NULL_MARKER, BsonUtils
-                .getBooleanOrElse(fileInsertor, FieldName.FIELD_CLFILE_NULL_MARKER, false));
         relInsertor.put(FieldName.FIELD_CLREL_FILE_DELETE_MARKER, BsonUtils
                 .getBooleanOrElse(fileInsertor, FieldName.FIELD_CLFILE_DELETE_MARKER, false));
         return relInsertor;

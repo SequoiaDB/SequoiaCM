@@ -425,6 +425,8 @@ public class CommonDefine {
 
     public static class File {
         public static final int UNTIL_END_OF_FILE = -1;
+        public static final int NULL_VERSION_MAJOR = -2;
+        public static final int NULL_VERSION_MINOR = 0;
     }
 
     public static class Metrics {
