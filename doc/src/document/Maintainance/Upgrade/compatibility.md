@@ -27,7 +27,7 @@
 <br>
 3.2 版本引入了系统状态监控功能，需要依赖 service-center 存储节点列表，因此在升级到该版本前，请在 service-center 节点的配置文件中加入元数据服务的相关配置，配置示例如下（配置项的具体含义请参考 [cloud 节点配置][cloud_config]）：
    
-  ```
+  ```lang-ini
     # sequoiadb connection configure
     # connect timeout(ms)
     scm.store.sequoiadb.connectTimeout=10000
