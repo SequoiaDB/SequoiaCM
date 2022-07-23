@@ -135,7 +135,6 @@ public class Transfer_transferCond463 extends TestScmBase {
                     .is( file.getMimeType() )
                     .and( ScmAttributeName.File.MINOR_VERSION ).exists( 1 )
                     .and( ScmAttributeName.File.PROPERTIES ).exists( 1 )
-                    .and( ScmAttributeName.File.PROPERTY_TYPE ).exists( 0 )
                     .and( ScmAttributeName.File.SITE_LIST ).elemMatch( timeGt )
                     .and( ScmAttributeName.File.SITE_LIST ).elemMatch( timeLte )
                     .and( ScmAttributeName.File.SIZE ).exists( 1 )
