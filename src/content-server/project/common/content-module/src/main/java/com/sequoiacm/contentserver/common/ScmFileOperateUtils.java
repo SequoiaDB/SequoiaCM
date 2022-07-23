@@ -239,7 +239,13 @@ public class ScmFileOperateUtils {
 
     public static BSONObject formatFileObj(ScmWorkspaceInfo ws, BSONObject fileObj, String fileId,
             Date fileCreateDate, String userName) throws ScmServerException {
+        return formatFileObj(ws, fileObj, fileId, fileCreateDate, userName, userName,
+                fileCreateDate);
+    }
 
+    public static BSONObject formatFileObj(ScmWorkspaceInfo ws, BSONObject fileObj, String fileId,
+            Date fileCreateDate, String userName, String updateUser, Date fileUpdateDate)
+            throws ScmServerException {
         BSONObject result = new BasicBSONObject();
 
         String fieldName = FieldName.FIELD_CLFILE_NAME;
@@ -294,8 +300,8 @@ public class ScmFileOperateUtils {
         result.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateDate.getTime());
         result.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH,
                 ScmSystemUtils.getCurrentYearMonth(fileCreateDate));
-        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, userName);
-        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, fileCreateDate.getTime());
+        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, updateUser);
+        result.put(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, fileUpdateDate.getTime());
 
         result.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, ServiceDefine.FileStatus.NORMAL);
         result.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, "");

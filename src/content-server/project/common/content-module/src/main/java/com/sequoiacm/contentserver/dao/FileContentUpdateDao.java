@@ -263,12 +263,14 @@ public class FileContentUpdateDao {
 
     private BSONObject createNewVersionBSON(BSONObject currentLatestVersion, String dataId,
             int siteId, long size, long createTime, String md5) throws ScmServerException {
+        Date updateTime = new Date(createTime);
         BSONObject newVersion = ScmFileOperateUtils.formatFileObj(ws, currentLatestVersion, fileId,
                 new Date(BsonUtils.getNumberChecked(currentLatestVersion,
                         FieldName.FIELD_CLFILE_INNER_CREATE_TIME).longValue()),
                 BsonUtils.getStringChecked(currentLatestVersion,
-                        FieldName.FIELD_CLFILE_INNER_USER));
-        ScmFileOperateUtils.addDataInfo(newVersion, dataId, new Date(createTime), siteId, size,
+                        FieldName.FIELD_CLFILE_INNER_USER),
+                user, updateTime);
+        ScmFileOperateUtils.addDataInfo(newVersion, dataId, updateTime, siteId, size,
                 md5);
         return newVersion;
     }
