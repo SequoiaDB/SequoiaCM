@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.dao;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
@@ -208,6 +209,14 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
     private BSONObject createDeleteMarkerFile()
             throws ScmMetasourceException, ScmServerException, FileExistWhenCreateDeleteMarker {
         BSONObject deleteMarkerFile = createDeleteMarkerBSON();
+        if (bucket.getVersionStatus() == ScmBucketVersionStatus.Suspended) {
+            deleteMarkerFile.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
+                    CommonDefine.File.NULL_VERSION_MAJOR);
+            deleteMarkerFile.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
+                    CommonDefine.File.NULL_VERSION_MINOR);
+            deleteMarkerFile.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, "1.0");
+        }
+
         BSONObject bucketFileRel = ScmFileOperateUtils.createBucketFileRel(deleteMarkerFile);
         ContentModuleMetaSource metasource = contentModule.getMetaService().getMetaSource();
         TransactionContext trans = metasource.createTransactionContext();
