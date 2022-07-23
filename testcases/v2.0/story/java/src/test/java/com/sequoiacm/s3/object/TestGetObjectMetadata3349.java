@@ -47,8 +47,7 @@ public class TestGetObjectMetadata3349 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    // SEQUOIACM-770暂时屏蔽
-    @Test(enabled = false)
+    @Test
     public void test() throws IOException {
         List< String > expCommonPrefixesA = new ArrayList<>();
         List< String > expCommonPrefixesB = new ArrayList<>();
