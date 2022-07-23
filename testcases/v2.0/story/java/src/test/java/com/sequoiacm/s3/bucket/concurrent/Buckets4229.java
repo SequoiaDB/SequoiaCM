@@ -33,7 +33,7 @@ public class Buckets4229 extends TestScmBase {
     private ScmWorkspace ws = null;
     private boolean runSuccess = false;
     private String bucketName = "bucket4229";
-    private int bucket_number = 20000;
+    private int bucket_number = 200;
 
     @BeforeClass
     private void setUp() throws Exception {
