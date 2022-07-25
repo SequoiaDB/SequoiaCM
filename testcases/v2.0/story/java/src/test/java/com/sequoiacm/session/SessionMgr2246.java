@@ -73,8 +73,7 @@ public class SessionMgr2246 extends TestScmBase {
         }
     }
 
-    // SEQUOIACM-825 暂时屏蔽用例
-    @Test(enabled = false)
+    @Test
     private void testAuth() throws Exception {
         // close sessionMgr
         sessionMgr.close();
