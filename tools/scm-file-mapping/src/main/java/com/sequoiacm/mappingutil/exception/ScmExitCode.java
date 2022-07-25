@@ -10,4 +10,6 @@ public class ScmExitCode extends ScmBaseExitCode {
     public static int WORK_CONF_ERROR = 190;
 
     public static int WORK_PATH_CONFLICT = 220;
+
+    public static int BAD_CREDENTIAL = 240;
 }
