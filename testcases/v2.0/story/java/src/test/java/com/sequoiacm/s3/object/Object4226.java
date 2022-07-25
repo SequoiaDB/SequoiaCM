@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.*;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @descreption SCM-4226 :: S3接口创建S3文件，SCM API更新文件
+ * @descreption SCM-4226 S3接口创建S3文件，SCM API更新文件指定不计算MD5
  * @author Zhaoyujing
  * @Date 2020/5/10
  * @updateUser
@@ -117,7 +118,7 @@ public class Object4226 extends TestScmBase {
 
         // update content
         file.updateContent( new FileInputStream( filePath ),
-                new ScmUpdateContentOption( true ) );
+                new ScmUpdateContentOption( false ) );
 
         // update meta
         file.setMimeType( contentType_value2 );
