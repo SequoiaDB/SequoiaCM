@@ -159,7 +159,7 @@ public class ScmArgChecker {
             if (name.length() < 3 || name.length() > 63) {
                 return false;
             }
-            if (!name.matches("^[a-z0-9][a-z0-9.-_]+[a-z0-9]$")) {
+            if (!name.matches("^[a-z0-9][a-z0-9._-]+[a-z0-9]$")) {
                 return false;
             }
             return true;
