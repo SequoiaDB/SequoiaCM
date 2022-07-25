@@ -1,5 +1,7 @@
 package com.sequoiacm.s3.object;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -32,6 +34,7 @@ public class Object4265 extends TestScmBase {
     private final int fileSize = 1024 * 300;
     private File localPath = null;
     private String filePath = null;
+    private AmazonS3 s3Client;
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -48,12 +51,18 @@ public class Object4265 extends TestScmBase {
         // 清理环境
         S3Utils.clearBucket( session, bucketNameA );
         S3Utils.clearBucket( session, bucketNameB );
+        s3Client = S3Utils.buildS3Client();
     }
 
     @Test
     public void test() throws Exception {
         ScmFactory.Bucket.createBucket( ws, bucketNameA );
         ScmFactory.Bucket.createBucket( ws, bucketNameB );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketNameA,
+                BucketVersioningConfiguration.ENABLED );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketNameB,
+                BucketVersioningConfiguration.ENABLED );
+
         // 创建文件关联到桶A
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( objectKey );
@@ -99,6 +108,7 @@ public class Object4265 extends TestScmBase {
                 S3Utils.clearBucket( session, bucketNameB );
             }
         } finally {
+            s3Client.shutdown();
             session.close();
         }
     }

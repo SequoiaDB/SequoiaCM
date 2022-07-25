@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -64,6 +65,8 @@ public class Object4272 extends TestScmBase {
     @Test
     public void test() throws Exception {
         ScmFactory.Bucket.createBucket( ws, bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
 
         ScmId fileId;
         ScmFile file = ScmFactory.File.createInstance( ws );

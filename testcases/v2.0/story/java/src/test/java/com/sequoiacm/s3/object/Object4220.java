@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
@@ -55,6 +56,8 @@ public class Object4220 extends TestScmBase {
     public void test() throws Exception {
         // 创建桶
         ScmFactory.Bucket.createBucket( ws, bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
 
         // 创建SCM文件挂载
         ScmFile file = ScmFactory.File.createInstance( ws );
@@ -64,9 +67,9 @@ public class Object4220 extends TestScmBase {
         ScmFactory.Bucket.attachFile( session, bucketName, fileID );
 
         // S3接口删除
-        s3Client.deleteObject( bucketName, objectKey );
+        s3Client.deleteVersion( bucketName, objectKey, "1.0" );
 
-        //校验删除结果
+        // 校验删除结果
         Assert.assertFalse( s3Client.doesObjectExist( bucketName, objectKey ) );
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
         long fileNum = bucket.countFile( null );
