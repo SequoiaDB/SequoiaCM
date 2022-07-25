@@ -11,6 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -38,7 +39,10 @@ public class MappingOption {
         this.workPath = checkAndGetAbsolutePath(cl.getOptionValue(OPT_LONG_WORK_PATH),
                 OPT_LONG_WORK_PATH);
         this.workspace = cl.getOptionValue(OPT_LONG_WORKSPACE);
+        CommonUtils.assertTrue(!StringUtils.isEmpty(workspace),
+                OPT_LONG_WORKSPACE + " cannot be empty");
         this.bucket = cl.getOptionValue(OPT_LONG_BUCKET);
+        CommonUtils.assertTrue(!StringUtils.isEmpty(bucket), OPT_LONG_BUCKET + " cannot be empty");
         this.keyType = ScmBucketAttachKeyType.valueOf(cl.getOptionValue(OPT_LONG_KEY_TYPE));
 
         if (cl.hasOption(OPT_LONG_FILE_MATCHER)) {
