@@ -24,7 +24,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
         else if (is404Error(result)) {
             String serviceName = getServiceName(result);
             if (serviceName != null) {
-                result.put("message", serviceName + " is not exits");
+                result.put("message", serviceName + " is not exist");
             }
         }
         return result;
