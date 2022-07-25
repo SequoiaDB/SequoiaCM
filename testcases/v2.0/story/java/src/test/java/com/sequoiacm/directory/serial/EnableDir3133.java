@@ -95,7 +95,7 @@ public class EnableDir3133 extends TestScmBase {
         // 创建文件，设置目录属性
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( fileNameBase + "A" );
-        file.setDirectory( "000000000000000000000000" );
+        file.setDirectory( "000000000000000000000001" );
         try {
             file.save();
             Assert.fail( "exp failed but act success!!!" );
