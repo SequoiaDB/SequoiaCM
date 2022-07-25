@@ -312,7 +312,7 @@
 7. 生成 S3 Access Key 和 Secret Key
 
     ```
-    $ /opt/sequoiacm/sequoiacm-s3/bin/bin/s3admin.sh  refresh-accesskey --target-user admin --user admin --password admin --s3-url scmServer:16000
+    $ /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh  refresh-accesskey --target-user admin --user admin --password admin --s3-url scmServer:16000
     ```
 
     > **Note:**

@@ -1011,6 +1011,12 @@
                     "en": "createnode"
                 },
                 {
+                    "id": 1632655612,
+                    "file": "refresh-accesskey",
+                    "cn": "refresh-accesskey",
+                    "en": "refresh-accesskey"
+                },
+                {
                     "id": 1632644712,
                     "file": "set-default-region",
                     "cn": "set-default-region",
@@ -1132,7 +1138,7 @@
                 "en": "Om Manager"
             },
             {
-                "id": 1631935276,
+                "id": 1631933476,
                 "file": "s3",
                 "cn": "S3服务",
                 "en": "S3 Service"

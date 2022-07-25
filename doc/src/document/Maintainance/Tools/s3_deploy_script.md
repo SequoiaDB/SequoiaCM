@@ -46,4 +46,4 @@ S3 安装包下的 deploy.py 提供 S3 服务的部署功能，deploy.py 本质�
 >
 >  * deploy.py 目前只支持部署本机站点，所以 deploy.py 将会跳过 hostname 为非本机的节点配置。用户可以规划好配置文件后，拷贝到各个需要部署节点的机器上，分别执行 deploy.py。
 
-[config]:Maintainance/Node_Config/config.md
+[config]:Maintainance/Node_Config/s3.md
