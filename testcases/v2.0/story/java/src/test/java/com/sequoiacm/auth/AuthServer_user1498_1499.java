@@ -71,7 +71,7 @@ public class AuthServer_user1498_1499 extends TestScmBase {
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test() throws ScmException {
+    private void test() throws ScmException, InterruptedException {
         test_delUserByOrdinaryUser();
         test_delUsingUser();
         runSuccess = true;
@@ -91,7 +91,7 @@ public class AuthServer_user1498_1499 extends TestScmBase {
         ss.close();
     }
 
-    private void test_delUsingUser() throws ScmException {
+    private void test_delUsingUser() throws ScmException, InterruptedException {
         String username = NAME + "_1";
         List< ScmSession > ss = new ArrayList<>();
         for ( int i = 0; i < 10; i++ ) {
@@ -109,6 +109,8 @@ public class AuthServer_user1498_1499 extends TestScmBase {
             Assert.assertNotEquals( ssInfo.getUsername(), username );
 
         }
+        // SEQUOIACM-793 引入了缓存机制，需要睡眠61s
+        Thread.sleep( 61000 );
         for ( ScmSession tmpSS : ss ) {
             try {
                 ScmFactory.User.getUser( tmpSS, NAME + "_0" );

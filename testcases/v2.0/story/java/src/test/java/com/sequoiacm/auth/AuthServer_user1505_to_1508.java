@@ -89,7 +89,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
      * disabled user, and clean sessions
      */
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test_disabledUser01() throws ScmException {
+    private void test_disabledUser01() throws ScmException, InterruptedException {
         // ready sessions for clean sessions
         ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
         List< ScmSession > ss = new ArrayList<>();
@@ -121,6 +121,8 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
                 .listSessions( session, NAME );
         Assert.assertFalse( cursor.hasNext() );
+        // SEQUOIACM-793 引入了缓存机制，需要睡眠61s
+        Thread.sleep( 61000 );
         for ( ScmSession tmpSS : ss ) {
             try {
                 ScmFactory.User.getUser( tmpSS, NAME );

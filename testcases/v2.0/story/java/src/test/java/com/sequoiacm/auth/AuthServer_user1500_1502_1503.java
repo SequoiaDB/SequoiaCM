@@ -73,7 +73,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
     }
 
     @Test
-    private void test() throws ScmException {
+    private void test() throws ScmException, InterruptedException {
         test_alterPasswd01();
         test_alterPasswd02();
         test_alterPasswdForOrdinaryUser();
@@ -100,7 +100,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
     /*
      * different new and old password
      */
-    private void test_alterPasswd02() throws ScmException {
+    private void test_alterPasswd02() throws ScmException, InterruptedException {
         String username = NAME + "_0";
         ScmUser scmUser = ScmFactory.User.getUser( session, username );
 
@@ -136,6 +136,8 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
                 .listSessions( session, username );
         Assert.assertFalse( cursor.hasNext() );
+        // SEQUOIACM-793 引入了缓存机制，需要睡眠61s
+        Thread.sleep( 61000 );
         for ( ScmSession tmpSS : ss ) {
             try {
                 ScmFactory.User.getUser( tmpSS, username );
