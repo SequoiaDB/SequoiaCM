@@ -3,6 +3,7 @@
 # scmadmin Script
 # -----------------------------------------------------------------------------
 BINPATH=$(dirname $0)
+USER_WORKING_DIR=$(pwd)
 cd $BINPATH
 cd ../
 
@@ -22,4 +23,4 @@ if [ $? -ne 0 ]; then
 fi
 CLASSPATH="$JARPATH:${CSPATH}/jars/*"
 
-$JAVA -cp $CLASSPATH $MAINCLASS "$@"
+$JAVA -DuserWorkingDirectory=$USER_WORKING_DIR -cp $CLASSPATH $MAINCLASS "$@"
