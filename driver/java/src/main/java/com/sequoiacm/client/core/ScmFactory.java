@@ -131,14 +131,6 @@ public class ScmFactory {
         public static ScmFile getInstance(ScmWorkspace ws, ScmId fileId, int majorVersion,
                 int minorVersion) throws ScmException {
             checkArgNotNull("fileId", fileId);
-            if (majorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "majorVersion must be a non-negative integer:" + majorVersion);
-            }
-            if (minorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "minorVersion must be a non-negative integer:" + minorVersion);
-            }
             return innerGetInstance(ws, fileId.get(), null, majorVersion, minorVersion);
         }
 
@@ -183,14 +175,6 @@ public class ScmFactory {
         public static ScmFile getInstanceByPath(ScmWorkspace ws, String filePath, int majorVersion,
                 int minorVersion) throws ScmException {
             checkArgNotNull("filePath", filePath);
-            if (majorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "majorVersion must be a non-negative integer:" + majorVersion);
-            }
-            if (minorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "minorVersion must be a non-negative integer:" + minorVersion);
-            }
             return innerGetInstance(ws, null, filePath, majorVersion, minorVersion);
         }
 
@@ -467,14 +451,6 @@ public class ScmFactory {
          */
         public static void asyncTransfer(ScmWorkspace ws, ScmId fileId, int majorVersion,
                 int minorVersion, String targetSite) throws ScmException {
-            if (majorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "majorVersion must be a non-negative integer:" + majorVersion);
-            }
-            if (minorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "minorVersion must be a non-negative integer:" + minorVersion);
-            }
             _asyncTransfer(ws, fileId, majorVersion, minorVersion, targetSite);
         }
 
@@ -523,14 +499,6 @@ public class ScmFactory {
          */
         public static void asyncCache(ScmWorkspace ws, ScmId fileId, int majorVersion,
                 int minorVersion) throws ScmException {
-            if (majorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "majorVersion must be a non-negative integer:" + majorVersion);
-            }
-            if (minorVersion < 0) {
-                throw new ScmInvalidArgumentException(
-                        "minorVersion must be a non-negative integer:" + minorVersion);
-            }
             _asyncCache(ws, fileId, majorVersion, minorVersion);
         }
 
