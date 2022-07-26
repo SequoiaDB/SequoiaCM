@@ -65,7 +65,8 @@ public class UpdateFile2984 extends TestScmBase {
         fileId = createFile( ws, dir, filePath );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // SEQUOIACM-980
+    @Test(enabled = false, groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         String filePath = TestTools.LocalFile.getFileByType( FileType.PNG );
         ScmFile file = ScmFactory.File.getInstance( wsM, fileId );

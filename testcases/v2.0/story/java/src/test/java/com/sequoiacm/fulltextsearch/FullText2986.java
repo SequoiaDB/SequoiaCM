@@ -74,7 +74,8 @@ public class FullText2986 extends TestScmBase {
         FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
     }
 
-    @Test
+    // SEQUOIACM-980
+    @Test(enabled = false)
     private void test() throws Exception {
         // 创建文件,符合工作区索引条件
         ScmFile file = ScmFactory.File.createInstance( ws );

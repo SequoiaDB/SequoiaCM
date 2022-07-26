@@ -57,7 +57,8 @@ public class UpdateFile3158 extends TestScmBase {
         fileId = ScmFileUtils.create( ws, fileName, filePath );
     }
 
-    @Test
+    // SEQUOIACM-980
+    @Test(enabled = false)
     private void test() throws Exception {
         updateFileContent( FileType.XLSX, MimeType.DOCX );
         updateFileContent( FileType.JPEG, MimeType.JPEG );
