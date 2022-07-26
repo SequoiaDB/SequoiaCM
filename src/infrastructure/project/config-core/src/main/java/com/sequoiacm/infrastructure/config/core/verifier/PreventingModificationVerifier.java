@@ -31,7 +31,7 @@ public class PreventingModificationVerifier implements ScmConfigPropVerifier {
     private boolean matchExceptKeyPrefixes(String key) {
         if (exceptKeyPrefixes != null) {
             for (String exceptKeyPrefix : exceptKeyPrefixes) {
-                if (key.startsWith(exceptKeyPrefix)) {
+                if (key.startsWith(exceptKeyPrefix) && !key.equals(exceptKeyPrefix)) {
                     return true;
                 }
             }

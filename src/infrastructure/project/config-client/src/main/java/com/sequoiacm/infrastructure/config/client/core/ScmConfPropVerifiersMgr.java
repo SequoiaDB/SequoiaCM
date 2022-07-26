@@ -30,6 +30,7 @@ public class ScmConfPropVerifiersMgr {
     public void checkProps(Map<String, String> updateProps, List<String> deleteProps,
             boolean acceptUnrecognized) throws ScmConfigException {
         for (Entry<String, String> entry : updateProps.entrySet()) {
+            checkKey(entry.getKey());
             boolean isUnreognized = true;
             for (ScmConfigPropVerifier verifier : verifiers) {
                 VerifyResult res = verifier.verifyUpdate(entry.getKey(), entry.getValue());
@@ -53,6 +54,7 @@ public class ScmConfPropVerifiersMgr {
         }
 
         for (String deletedKey : deleteProps) {
+            checkKey(deletedKey);
             boolean isUnreognized = true;
             for (ScmConfigPropVerifier verifier : verifiers) {
                 VerifyResult res = verifier.verifyDeletion(deletedKey);
@@ -71,6 +73,12 @@ public class ScmConfPropVerifiersMgr {
                 throw new ScmConfigException(ScmConfError.INVALID_ARG,
                         "unrecognized config properties:" + deletedKey);
             }
+        }
+    }
+
+    private void checkKey(String key) throws ScmConfigException {
+        if (key == null || key.isEmpty() || key.contains("=")) {
+            throw new ScmConfigException(ScmConfError.INVALID_ARG, "invalid config key:" + key);
         }
     }
 }
