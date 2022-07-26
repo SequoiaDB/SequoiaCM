@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
@@ -17,6 +18,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.sql.BatchUpdateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +59,8 @@ public class Object4462 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
     }
 
     @Test

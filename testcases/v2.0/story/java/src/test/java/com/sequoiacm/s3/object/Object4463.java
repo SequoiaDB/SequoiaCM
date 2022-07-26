@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
@@ -69,6 +70,10 @@ public class Object4463 extends TestScmBase {
         // scm create buckets
         ScmFactory.Bucket.createBucket( ws, bucketNameA );
         ScmFactory.Bucket.createBucket( ws, bucketNameB );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketNameA,
+                BucketVersioningConfiguration.ENABLED );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketNameB,
+                BucketVersioningConfiguration.ENABLED );
 
         // scm create files ,file name
         List< ScmId > keyList = new ArrayList<>();

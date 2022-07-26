@@ -60,6 +60,7 @@ public class Object4244 extends TestScmBase {
     public void test() throws Exception {
         // scm create file
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
+        bucket.enableVersionControl();
         ScmId fileId = createScmFile( bucket );
 
         ThreadExecutor te = new ThreadExecutor();
@@ -70,7 +71,8 @@ public class Object4244 extends TestScmBase {
         te.run();
 
         if ( ( t1.getRetCode() != 0 ) && ( t2.getRetCode() != 0 ) ) {
-            Assert.fail( "all detach failed" );
+            Assert.fail( "all detach failed t1:" + t1.getThrowable() + " t2:"
+                    + t2.getThrowable() );
         }
         if ( t1.getRetCode() == 0 && t2.getRetCode() == 0 ) {
             Assert.fail( "all detach success" );

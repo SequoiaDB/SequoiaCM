@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -62,6 +63,8 @@ public class Object4218 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
     }
 
     @Test

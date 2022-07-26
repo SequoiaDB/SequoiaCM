@@ -51,8 +51,10 @@ public class Object4243 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         cleanBuckets( bucketName );
-        ScmFactory.Bucket.createBucket( ws, bucketNameA );
-        ScmFactory.Bucket.createBucket( ws, bucketNameB );
+        ScmBucket bucketA = ScmFactory.Bucket.createBucket( ws, bucketNameA );
+        bucketA.enableVersionControl();
+        ScmBucket bucketB = ScmFactory.Bucket.createBucket( ws, bucketNameB );
+        bucketB.enableVersionControl();
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

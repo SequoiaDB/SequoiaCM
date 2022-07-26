@@ -477,12 +477,23 @@ public class S3Utils extends TestScmBase {
      * @param bucketName
      * @param BucketVersionConf
      */
-    public static void updateBucketVersionConfig( AmazonS3 s3Client, String bucketName,
-            String BucketVersionConf ) {
+    public static void updateBucketVersionConfig( AmazonS3 s3Client,
+            String bucketName, String BucketVersionConf ) {
         BucketVersioningConfiguration config = new BucketVersioningConfiguration()
                 .withStatus( BucketVersionConf );
         s3Client.setBucketVersioningConfiguration(
                 new SetBucketVersioningConfigurationRequest( bucketName,
                         config ) );
+    }
+
+    public static void updateBucketVersionConfig( String bucketName,
+            String BucketVersionConf ) throws Exception {
+        AmazonS3 s3Client = S3Utils.buildS3Client();
+        try {
+            updateBucketVersionConfig( s3Client, bucketName,
+                    BucketVersionConf );
+        } finally {
+            s3Client.shutdown();
+        }
     }
 }

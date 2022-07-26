@@ -35,6 +35,7 @@ public class GetObject3310 extends TestScmBase {
         } catch ( AmazonS3Exception e ) {
             Assert.assertEquals( e.getErrorCode(), "NoSuchKey" );
         }
+        runSuccess = true;
     }
 
     @AfterClass

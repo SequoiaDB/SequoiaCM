@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
@@ -8,6 +9,7 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -57,6 +59,8 @@ public class Object4266_4267 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
     }
 
     @Test
@@ -65,8 +69,10 @@ public class Object4266_4267 extends TestScmBase {
         List< ScmId > fileIds = cleanAndCreateFile( null );
 
         // FILE_ID批量关联到S3桶,关联后校验重命名
-        ScmFactory.Bucket.attachFile( session, bucketName, fileIds,
-                ScmBucketAttachKeyType.FILE_ID );
+        List< ScmBucketAttachFailure > scmBucketAttachFailures = ScmFactory.Bucket
+                .attachFile( session, bucketName, fileIds,
+                        ScmBucketAttachKeyType.FILE_ID );
+        Assert.assertEquals( scmBucketAttachFailures.size(), 0 );
         for ( int i = 0; i < fileIds.size(); i++ ) {
             checkAttachFileByFileId( fileIds.get( i ), fileNameBase + i );
         }
@@ -75,8 +81,9 @@ public class Object4266_4267 extends TestScmBase {
         fileIds = cleanAndCreateFile( fileIds );
 
         // FILE_NAME批量关联到S3桶,关联后校验
-        ScmFactory.Bucket.attachFile( session, bucketName, fileIds,
-                ScmBucketAttachKeyType.FILE_NAME );
+        scmBucketAttachFailures = ScmFactory.Bucket.attachFile( session,
+                bucketName, fileIds, ScmBucketAttachKeyType.FILE_NAME );
+        Assert.assertEquals( scmBucketAttachFailures.size(), 0 );
         for ( int i = 0; i < fileIds.size(); i++ ) {
             checkAttachFileByFileName( fileIds.get( i ), fileNameBase + i );
         }

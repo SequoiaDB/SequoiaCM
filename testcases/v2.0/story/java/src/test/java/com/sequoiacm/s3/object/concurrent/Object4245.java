@@ -60,7 +60,8 @@ public class Object4245 extends TestScmBase {
     @Test
     public void test() throws Exception {
         // 创建桶
-        ScmFactory.Bucket.createBucket( ws, bucketName );
+        ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
+        bucket.enableVersionControl();
 
         // 创建SCM文件
         ScmFile file = ScmFactory.File.createInstance( ws );

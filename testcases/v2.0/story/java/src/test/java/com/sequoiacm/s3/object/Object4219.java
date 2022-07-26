@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -59,6 +60,8 @@ public class Object4219 extends TestScmBase {
     public void test() throws Exception {
         // 创建桶
         s3Client.createBucket( bucketName );
+        S3Utils.updateBucketVersionConfig( s3Client, bucketName,
+                BucketVersioningConfiguration.ENABLED );
 
         // 创建自由标签元数据
         Map< String, String > map = new HashMap<>();

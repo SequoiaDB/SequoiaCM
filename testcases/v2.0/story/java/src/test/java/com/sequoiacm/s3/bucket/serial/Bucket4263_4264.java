@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.bucket.serial;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -86,11 +87,14 @@ public class Bucket4263_4264 extends TestScmBase {
         // 在s3 ws中创建桶A
         ScmWorkspace s3Ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces,
                 adminSession );
-        ScmFactory.Bucket.createBucket( s3Ws, bucketNameA );
+        ScmBucket bucketA = ScmFactory.Bucket.createBucket( s3Ws, bucketNameA );
+        bucketA.enableVersionControl();
         // 在新建ws中创建桶B
         ScmWorkspace newWs = ScmFactory.Workspace.getWorkspace( wsName,
                 newUserSession );
-        ScmFactory.Bucket.createBucket( newWs, bucketNameB );
+        ScmBucket bucketB = ScmFactory.Bucket.createBucket( newWs,
+                bucketNameB );
+        bucketB.enableVersionControl();
 
         // 在新建ws中创建文件
         ScmFile file = ScmFactory.File.createInstance( newWs );

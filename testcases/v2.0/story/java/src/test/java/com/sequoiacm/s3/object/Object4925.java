@@ -72,6 +72,7 @@ public class Object4925 extends TestScmBase {
         // 校验更新后的fileId
         ScmId actfileId = S3Utils.queryS3Object( ws, objectKey );
         Assert.assertEquals( actfileId, expfileId );
+        runSuccess = true;
     }
 
     @AfterClass

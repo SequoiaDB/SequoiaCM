@@ -39,6 +39,7 @@ public class GetObject3309 extends TestScmBase {
                 Assert.fail( e.getMessage() );
             }
         }
+        runSuccess = true;
     }
 
     @AfterClass
