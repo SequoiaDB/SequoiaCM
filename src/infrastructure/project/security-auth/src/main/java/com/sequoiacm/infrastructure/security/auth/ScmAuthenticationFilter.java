@@ -7,9 +7,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
+import org.bson.BSONObject;
+import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +36,12 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
     private ScmSessionMgr sessionMgr;
 
     private ScmFeignClient feignClient;
+
+    @Value("${zuul.routes.login.path:/login}")
+    private String loginPath = "/login";
+
+    @Value("${zuul.routes.logout.path:/logout}")
+    private String logoutPath = "/logout";
 
     @Autowired
     public ScmAuthenticationFilter(ScmFeignClient feignClient) {
@@ -83,11 +93,30 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+
+        // cache user info when processing login requests
+        if (sessionMgr instanceof ScmSessionMgrWithSessionCache && isLoginRequest(request)) {
+            String loginSessionId = response.getHeader(RestField.SESSION_ATTRIBUTE);
+            String userJson = response.getHeader(RestField.USER_DETAILS);
+            if (loginSessionId == null || userJson == null) {
+                return;
+            }
+            BSONObject bsonObject = (BSONObject) JSON.parse(userJson);
+            ScmUser scmUser = ScmUserJsonDeserializer.deserialize(bsonObject);
+            ScmUserWrapper scmUserWrapper = new ScmUserWrapper(scmUser, bsonObject.toString());
+            ((ScmSessionMgrWithSessionCache) sessionMgr).putCache(loginSessionId, scmUserWrapper);
+        }
+
+    }
+
+    private boolean isLoginRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return matcher.match(loginPath, uri);
     }
 
     private boolean isLogoutRequest(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return matcher.match("/**/logout", uri);
+        return matcher.match(logoutPath, uri);
     }
 
     public void enableCache(long cacheTimeToLive) {

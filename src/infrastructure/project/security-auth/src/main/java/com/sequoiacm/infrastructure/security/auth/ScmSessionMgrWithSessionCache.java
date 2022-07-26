@@ -32,7 +32,7 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
         timer.schedule(new CleanCacheTask(this), 0, cacheTimeToLive / 2);
     }
 
-    private void putCache(String sessionId, ScmUserWrapper userWrapper) {
+    public void putCache(String sessionId, ScmUserWrapper userWrapper) {
         long timestamp = System.currentTimeMillis();
         ScmUser scmUser = userWrapper.getUser();
         SessionCache sessionCache = new SessionCache(cacheTimeToLive, timestamp,
