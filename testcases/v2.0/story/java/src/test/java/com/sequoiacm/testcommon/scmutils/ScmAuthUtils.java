@@ -44,7 +44,7 @@ import com.sequoiacm.testcommon.WsWrapper;
 
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
-    private static final int defaultTimeOut = 10 * 1000; // 10s
+    private static final int defaultTimeOut = 30 * 1000; // 10s
     private static final int sleepTime = 1000; // 1s
     private static RestTemplate rest;
 
