@@ -104,10 +104,14 @@ public class CreateObject3286 extends TestScmBase {
 
     @AfterClass
     private void tearDown() {
-        if ( runSuccess ) {
-            S3Utils.deleteAllObjectVersions( s3Client, bucketName );
-            s3Client.deleteBucket( bucketName );
-            TestTools.LocalFile.removeFile( localPath );
+        try {
+            if ( runSuccess ) {
+                S3Utils.deleteAllObjectVersions( s3Client, bucketName );
+                s3Client.deleteBucket( bucketName );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            s3Client.shutdown();
         }
     }
 

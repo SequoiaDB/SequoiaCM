@@ -62,7 +62,7 @@ public class QueryAndDropBucket3279 extends TestScmBase {
         public void run() throws Exception {
             AmazonS3 amazonS3 = S3Utils.buildS3Client();
             amazonS3.deleteBucket( bucketName );
-
+            amazonS3.shutdown();
         }
     }
 }

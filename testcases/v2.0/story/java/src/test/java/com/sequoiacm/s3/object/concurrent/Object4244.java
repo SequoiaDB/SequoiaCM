@@ -5,11 +5,14 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,8 +35,9 @@ public class Object4244 extends TestScmBase {
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private boolean runSuccess = false;
-    private String bucketName = "bucket4243";
-    private String key = "aa/bb/object4243";
+    private String bucketName = "bucket4244";
+    private String key = "aa/bb/object4244";
+    private ScmId fileId;
     private File localPath = null;
     private String filePath = null;
     private int fileSize = 1024 * 10;
@@ -61,7 +65,7 @@ public class Object4244 extends TestScmBase {
         // scm create file
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         bucket.enableVersionControl();
-        ScmId fileId = createScmFile( bucket );
+        fileId = createScmFile( bucket );
 
         ThreadExecutor te = new ThreadExecutor();
         DetachFile t1 = new DetachFile();
@@ -89,11 +93,18 @@ public class Object4244 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3Client, bucketName );
                 TestTools.LocalFile.removeFile( localPath );
+                try {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                } catch ( ScmException e ) {
+                    if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                        throw e;
+                    }
+                }
             }
         } finally {
             if ( s3Client != null ) {

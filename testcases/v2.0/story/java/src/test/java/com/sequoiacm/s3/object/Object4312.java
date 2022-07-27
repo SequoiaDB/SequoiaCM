@@ -121,6 +121,7 @@ public class Object4312 extends TestScmBase {
                 S3Utils.clearBucket( branchS3Client, bucketName );
             }
         } finally {
+            rootS3Client.shutdown();
             branchS3Client.shutdown();
             session.close();
         }

@@ -88,18 +88,27 @@ public class Bucket_Object4233 extends TestScmBase {
             ScmFile file = bucket.createFile( key );
             file.setFileName( key );
             file.setContent( filePath );
-            fileId = file.save();
+            ScmId fileId = file.save();
+            ScmFactory.File.deleteInstance( ws, fileId, true );
         }
-
         runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3Client, bucketName );
                 TestTools.LocalFile.removeFile( localPath );
+                if ( fileId != null ) {
+                    try {
+                        ScmFactory.File.deleteInstance( ws, fileId, true );
+                    } catch ( ScmException e ) {
+                        if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                            throw e;
+                        }
+                    }
+                }
             }
         } finally {
             if ( s3Client != null ) {

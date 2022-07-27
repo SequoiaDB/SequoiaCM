@@ -105,8 +105,12 @@ public class ListObjects3374 extends TestScmBase {
 
     @AfterClass
     private void tearDown() {
-        if ( runSuccess ) {
-            S3Utils.clearBucket( s3Client, bucketName );
+        try {
+            if ( runSuccess ) {
+                S3Utils.clearBucket( s3Client, bucketName );
+            }
+        } finally {
+            s3Client.shutdown();
         }
     }
 }
