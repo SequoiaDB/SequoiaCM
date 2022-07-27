@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 public class UploadScanClean {
     private static final Logger logger = LoggerFactory.getLogger(UploadScanClean.class);
-    public final static long MINUTE = 60 * 1000;
+    public final static long CLEAN_INTERVAL = 5 * 60 * 1000;
 
     @Autowired
     ScmLockManager lockManger;
@@ -56,7 +56,7 @@ public class UploadScanClean {
     @Autowired
     MultipartUploadProcessorMgr multipartUploadProcessorMgr;
 
-    @Scheduled(initialDelay = 1000 * 60, fixedDelay = MINUTE)
+    @Scheduled(initialDelay = CLEAN_INTERVAL, fixedDelay = CLEAN_INTERVAL)
     public void uploadScanClean() throws ScmServerException {
         MetaSource ms = metaSourceService.getMetaSource();
         ScmSite siteInfo = ScmContentModule.getInstance().getLocalSiteInfo();

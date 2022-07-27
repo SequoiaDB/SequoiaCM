@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "scm.s3.multipartupload")
 public class MultipartUploadConfig {
     private long incompletelifecycle = 3;
-    private long completereservetime = 1440;
+    private long completereservetime = 10;
 
     public void setIncompletelifecycle(long incompletelifecycle) {
         this.incompletelifecycle = incompletelifecycle;

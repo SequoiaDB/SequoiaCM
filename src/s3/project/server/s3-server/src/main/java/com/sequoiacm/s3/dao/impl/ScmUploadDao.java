@@ -167,7 +167,11 @@ public class ScmUploadDao implements UploadDao {
             indexDef.setUnique(true);
             indexDef.setUnionKeys(indexFiledList);
 
-            uploadMetaAccessor.ensureTable(Arrays.asList(indexDef));
+            IndexDef uploadIdIndexDef = new IndexDef();
+            uploadIdIndexDef.setUnique(false);
+            uploadIdIndexDef.setUnionKeys(Arrays.asList(UploadMeta.META_UPLOAD_ID));
+
+            uploadMetaAccessor.ensureTable(Arrays.asList(indexDef, uploadIdIndexDef));
         }
         catch (Exception e) {
             throw new S3ServerException(S3Error.METASOUCE_ERROR,
