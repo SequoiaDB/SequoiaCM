@@ -8,6 +8,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -92,11 +93,18 @@ public class Object4245 extends TestScmBase {
     }
 
     @AfterClass
-    public void tearDown() {
+    public void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3Client, bucketName );
                 TestTools.LocalFile.removeFile( localPath );
+                try {
+                    ScmFactory.File.deleteInstance( ws, fileID, true );
+                } catch ( ScmException e ) {
+                    if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                        throw e;
+                    }
+                }
             }
         } finally {
             session.close();

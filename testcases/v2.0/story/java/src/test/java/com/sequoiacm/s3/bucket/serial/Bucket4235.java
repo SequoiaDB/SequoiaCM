@@ -75,6 +75,7 @@ public class Bucket4235 extends TestScmBase {
                 clearBuckets();
             }
         } finally {
+            session.close();
             s3Client.shutdown();
         }
     }

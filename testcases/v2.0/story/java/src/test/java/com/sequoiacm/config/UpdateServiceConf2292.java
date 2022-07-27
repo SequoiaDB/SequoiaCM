@@ -37,7 +37,8 @@ public class UpdateServiceConf2292 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // CI-779
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testSingleService() throws ScmException {
         try {
             ScmConfigProperties confProp = ScmConfigProperties.builder()
@@ -60,7 +61,8 @@ public class UpdateServiceConf2292 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // CI-779
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testListService() throws ScmException {
         try {
             List< String > serviceList = new ArrayList< String >();

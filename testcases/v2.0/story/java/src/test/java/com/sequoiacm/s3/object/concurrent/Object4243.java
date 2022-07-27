@@ -6,6 +6,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
@@ -38,6 +39,7 @@ public class Object4243 extends TestScmBase {
     private String bucketNameA = "bucket4243-a";
     private String bucketNameB = "bucket4243-b";
     private String key = "aa/bb/object4243";
+    private ScmId fileId;
     private File localPath = null;
     private String filePath = null;
     private int fileSize = 1024 * 10;
@@ -69,7 +71,7 @@ public class Object4243 extends TestScmBase {
     public void test() throws Exception {
         // scm create file
         ScmFile file = createScmFile();
-        ScmId fileId = file.getFileId();
+        fileId = file.getFileId();
 
         ThreadExecutor te = new ThreadExecutor();
         AttachFile t1 = new AttachFile( fileId, bucketNameA );
@@ -92,11 +94,18 @@ public class Object4243 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 cleanBuckets( bucketName );
                 TestTools.LocalFile.removeFile( localPath );
+                try {
+                    ScmFactory.File.deleteInstance( ws, fileId, true );
+                } catch ( ScmException e ) {
+                    if ( e.getError() != ScmError.FILE_NOT_FOUND ) {
+                        throw e;
+                    }
+                }
             }
         } finally {
             if ( s3Client != null ) {
