@@ -62,13 +62,13 @@ ScmFile file = bucket.getNullVersionFile("fileName");
 
 // 物理删除文件（删除文件的所有版本，文件的所有相关数据都将被删除）
 ScmFile file = bucket.getFile("fileName");
-file.delete(true)
+file.delete(true);
 
 // 在版本控制下删除文件，根据桶的版本控制状态，将会有不同的表现：
 // Disabled：与物理删除表现一致
 // Suspended/Enabled：删除动作只是新增一个 DeletMarker 版本，历史版本仍然可以指定版本号进行访问
 ScmFile file = bucket.getFile("fileName");
-file.delete(false)
+file.delete(false);
 ```
 
 [java_api]:api/java/html/index.html
