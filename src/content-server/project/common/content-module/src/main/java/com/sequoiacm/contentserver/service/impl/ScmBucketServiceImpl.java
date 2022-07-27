@@ -367,7 +367,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 fileCreateDate, user.getUsername());
         ScmFileOperateUtils.addDataInfo(checkedFileObj, data.getDataInfo().getId(),
                 data.getDataInfo().getCreateTime(), data.getSiteId(), data.getSize(),
-                data.getMd5());
+                data.getMd5(), data.getEtag());
         checkedFileObj.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, bucket.getId());
 
         return insertMeta(bucket, wsInfo, checkedFileObj,

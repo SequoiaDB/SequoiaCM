@@ -219,13 +219,21 @@ public class ScmFileOperateUtils {
 
     public static void addDataInfo(BSONObject formatFileObject, String dataId, Date dataCreateTime,
             int siteId, long size, String md5) {
+        addDataInfo(formatFileObject, dataId, dataCreateTime, siteId, size, md5, null);
+    }
+
+    public static void addDataInfo(BSONObject formatFileObject, String dataId, Date dataCreateTime,
+            int siteId, long size, String md5, String etag) {
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
                 dataCreateTime.getTime());
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_SIZE, size);
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
-        if (md5 != null && md5.length() > 0) {
+        if (etag == null && md5 != null && md5.length() > 0) {
             formatFileObject.put(FieldName.FIELD_CLFILE_FILE_ETAG, SignUtil.toHex(md5));
+        }
+        else {
+            formatFileObject.put(FieldName.FIELD_CLFILE_FILE_ETAG, etag);
         }
 
         BSONObject oneSite = new BasicBSONObject();

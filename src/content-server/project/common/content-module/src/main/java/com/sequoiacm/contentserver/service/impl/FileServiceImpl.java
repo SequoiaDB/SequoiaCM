@@ -861,7 +861,7 @@ public class FileServiceImpl implements IFileService {
                 fileCreateDate, user.getUsername());
         ScmFileOperateUtils.addDataInfo(checkedFileObj, dataInfoDetail.getDataInfo().getId(),
                 dataInfoDetail.getDataInfo().getCreateTime(), dataInfoDetail.getSiteId(),
-                dataInfoDetail.getSize(), dataInfoDetail.getMd5());
+                dataInfoDetail.getSize(), dataInfoDetail.getMd5(), dataInfoDetail.getEtag());
 
         listenerMgr.preCreate(wsInfo, checkedFileObj);
 

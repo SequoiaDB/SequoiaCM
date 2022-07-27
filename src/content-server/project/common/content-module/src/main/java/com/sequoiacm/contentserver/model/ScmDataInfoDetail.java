@@ -5,6 +5,7 @@ import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 public class ScmDataInfoDetail {
 
     private String md5;
+    private String etag;
     private int siteId;
     private long size;
     private ScmDataInfo dataInfo;
@@ -39,6 +40,14 @@ public class ScmDataInfoDetail {
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
+
+    public String getEtag() {
+        return etag;
     }
 
     @Override

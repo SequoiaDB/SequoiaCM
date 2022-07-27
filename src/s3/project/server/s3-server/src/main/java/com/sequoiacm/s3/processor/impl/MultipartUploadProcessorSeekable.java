@@ -297,11 +297,12 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             response.seteTag(completeEtag);
 
             // update uploadMeta and write object meta
-            BSONObject file = buildFileInfoFromUpload(upload, completeEtag);
+            BSONObject file = buildFileInfoFromUpload(upload);
             ScmDataInfoDetail dataInfoDetail = new ScmDataInfoDetail(new ScmDataInfo(
                     DEFAULT_DATA_TYPE, destDataId, CommonHelper.getDate(dataCreateTime)));
             dataInfoDetail.setSiteId(upload.getSiteId());
             dataInfoDetail.setSize(copyAction.getCompleteSize());
+            dataInfoDetail.setEtag(completeEtag);
 
             BSONObject newFile = scmBucketService.createFile(session.getUser(), bucketName, file,
                     dataInfoDetail,
@@ -833,7 +834,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         }
     }
 
-    private BSONObject buildFileInfoFromUpload(UploadMeta upload, String etag) {
+    private BSONObject buildFileInfoFromUpload(UploadMeta upload) {
         S3BasicObjectMeta objectMeta = new S3BasicObjectMeta();
         objectMeta.setKey(upload.getKey());
         objectMeta.setContentType(upload.getContentType());
@@ -845,7 +846,6 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         objectMeta.setMetaList(upload.getMetaList());
 
         BSONObject ret = FileMappingUtil.buildFileInfo(objectMeta);
-        ret.put(FieldName.FIELD_CLFILE_FILE_ETAG, etag);
         return ret;
     }
 }
