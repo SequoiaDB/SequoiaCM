@@ -48,9 +48,10 @@ public class BucketController {
     @Autowired
     private IScmBucketService service;
 
-    @PostMapping("/buckets/{name}")
+    @PostMapping("/buckets")
     public ScmBucket createBucket(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String ws,
-            @PathVariable("name") String name, Authentication auth) throws ScmServerException {
+            @RequestParam(CommonDefine.RestArg.BUCKET_NAME) String name, Authentication auth)
+            throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         return service.createBucket(user, ws, name);
     }

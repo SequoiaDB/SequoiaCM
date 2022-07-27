@@ -2038,7 +2038,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject createBucket(String wsName, String name) throws ScmException {
-        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(name) + "?"
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + "?"
+                + CommonDefine.RestArg.BUCKET_NAME + "=" + encode(name) + "&"
                 + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(wsName);
         HttpPost request = new HttpPost(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.sequoiacm.cloud.gateway.*;
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,8 +46,8 @@ public class WebMvcConfig {
 
 
     @Bean
-    public DefaultErrorAttributes errorAttributes() {
-        return new ErrorAttributes();
+    public DefaultErrorAttributes errorAttributes(DiscoveryClient discoveryClient) {
+        return new ErrorAttributes(discoveryClient);
     }
 
     @Bean
