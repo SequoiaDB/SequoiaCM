@@ -23,7 +23,6 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
     private static final int fileNum = 500;
-    private boolean s3SessionExist = false;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -33,9 +32,6 @@ public class CheckResource extends TestScmBase {
     private void testRemainSession() throws Exception {
         List< String > sessionList = this.isRemainScmSession();
         int session_num = 0;
-        if ( s3SessionExist ) {
-            session_num = 1;
-        }
         if ( sessionList.size() > session_num ) {
             throw new Exception( "remain session \n" + sessionList );
         }
@@ -86,13 +82,9 @@ public class CheckResource extends TestScmBase {
                     if ( signatureInfo != null ) {
                         String accessKey = ( String ) signatureInfo
                                 .get( "accessKey" );
-                        if ( accessKey.equals( TestScmBase.s3AccessKeyID ) ) {
-                            s3SessionExist = true;
+                        if ( !accessKey.equals( TestScmBase.s3AccessKeyID ) ) {
                             sessionList.add( "[_id:" + ssId + ", createTime:"
                                     + ssCreateTime + ", s3]" );
-                        } else {
-                            sessionList.add( "[_id:" + ssId + ", createTime:"
-                                    + ssCreateTime + "]" );
                         }
                     } else {
                         sessionList.add( "[_id:" + ssId + ", createTime:"

@@ -82,5 +82,6 @@ public class QueryBucket3273 extends TestScmBase {
             }
         }
         Assert.assertTrue( flag );
+        session.close();
     }
 }

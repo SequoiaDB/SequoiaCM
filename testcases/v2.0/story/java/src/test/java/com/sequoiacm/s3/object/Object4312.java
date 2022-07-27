@@ -124,6 +124,7 @@ public class Object4312 extends TestScmBase {
             rootS3Client.shutdown();
             branchS3Client.shutdown();
             session.close();
+            branchSiteSession.close();
         }
     }
 
