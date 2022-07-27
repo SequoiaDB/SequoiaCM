@@ -30,7 +30,7 @@ System.out.println("update:dataId=" + file.getDataId()
 ```
 >  **Note:**
 >
->  * 当桶开启版本控制是，桶下创建同名文件也会为已有文件新增版本，见[桶操作示例][bucket_operation]
+>  * 当桶开启版本控制时，桶下创建同名文件也会为已有文件新增版本，见[桶操作示例][bucket_operation]
 >
 >  * major_version 表示主版本号
 > 
