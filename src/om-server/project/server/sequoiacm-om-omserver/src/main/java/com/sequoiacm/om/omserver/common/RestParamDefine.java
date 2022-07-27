@@ -26,6 +26,9 @@ public class RestParamDefine {
     // workspace
     public static final String STRICT_MODE = "strict_mode";
 
+    // bucket
+    public static final String BUCKET = "bucket";
+
     // user role
     public static final String USER_TYPE = "user_type";
     public static final String OLD_PASSWORD = "old_password";

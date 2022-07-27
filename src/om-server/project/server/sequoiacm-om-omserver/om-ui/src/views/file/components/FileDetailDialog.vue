@@ -7,7 +7,7 @@
       :visible.sync="detailDialogVisible"
       width="720px">
       <div class="detail-container">
-        <el-row>
+        <el-row v-if="!isNameMaster">
           <el-col :span="3"><span class="key">ID</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.id}}</span></el-col>
         </el-row>
@@ -15,9 +15,9 @@
           <el-col :span="3"><span class="key">文件名</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.name}}</span></el-col>
         </el-row>
-        <el-row v-if="curVersionFileDetail.bucket_id">
-          <el-col :span="3"><span class="key">所属桶 ID</span></el-col>
-          <el-col :span="21"><span class="value">{{curVersionFileDetail.bucket_id}}</span></el-col>
+        <el-row>
+          <el-col :span="3"><span class="key">所属桶</span></el-col>
+          <el-col :span="21"><span class="value">{{curVersionFileDetail.bucket_name?curVersionFileDetail.bucket_name:'无'}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="3"><span class="key">标题</span></el-col>
@@ -44,6 +44,31 @@
           <el-col :span="9"><span class="value">{{curVersionFileDetail.update_user}}</span></el-col>
           <el-col :span="3"><span class="key">更新时间</span></el-col>
           <el-col :span="9"><span class="value">{{$util.parseTime(curVersionFileDetail.update_time)}}</span></el-col>
+        </el-row>
+        <el-row v-if="customMetadataList.length!==0">
+          <el-col :span="3"><span class="key" style="line-height:30px;">自由标签</span></el-col>
+          <el-col :span="21">
+            <template>
+              <el-table
+                :data="customMetadataList"
+                border
+                size="mini"
+                max-height="200"
+                style="width: 80%">
+                <el-table-column
+                  prop="key"
+                  label="key"
+                  width="180"
+                  show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                  prop="value"
+                  label="value"
+                  show-overflow-tooltip>
+                </el-table-column>
+              </el-table>
+            </template>
+          </el-col>
         </el-row>
         <el-row v-if="curVersionFileDetail.tags.length!==0">
           <el-col :span="3"><span class="key" style="line-height:30px;">标签</span></el-col>
@@ -95,6 +120,10 @@
                 </el-option>
             </el-select>
           </el-col>
+        </el-row>
+        <el-row v-if="isNameMaster">
+          <el-col :span="3"><span class="key">ID</span></el-col>
+          <el-col :span="21"><span class="value">{{curVersionFileDetail.id}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="3"><span class="key">内容类型</span></el-col>
@@ -150,6 +179,10 @@ export default {
       type: Array,
       default: () => []
     },
+    isNameMaster: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return{
@@ -158,7 +191,8 @@ export default {
       curVersionFile: {},
       curVersionFileDetail: {
         tags: []
-      }
+      },
+      customMetadataList: []
     }
   },
   methods: {
@@ -180,8 +214,15 @@ export default {
     refreshFileDetail() {
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
         this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
+        let customMetadata = this.curVersionFileDetail.custom_metadata
+        this.customMetadataList = []
+        for (let key in customMetadata) {
+          let value = customMetadata[key]
+          this.customMetadataList.push({ 'key': key, 'value': value})
+        }
       })
     },
+    // 导出文件元数据
     handleExportMetadata() {
       let metadata = this.$util.toPrettyJson(this.curVersionFileDetail)
       var blob = new Blob([metadata], {type: 'text/json'})

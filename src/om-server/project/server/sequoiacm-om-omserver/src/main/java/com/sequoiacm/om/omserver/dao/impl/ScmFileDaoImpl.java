@@ -5,13 +5,10 @@ import java.io.InputStream;
 import java.util.*;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmClassProperties;
-import com.sequoiacm.client.element.ScmTags;
-import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.om.omserver.common.ScmFileUtil;
 import com.sequoiacm.om.omserver.module.*;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
@@ -59,6 +56,11 @@ public class ScmFileDaoImpl implements ScmFileDao {
             ScmFile file = ScmFactory.File.getInstance(ws, new ScmId(fileId), majorVersion,
                     minorVersion);
             OmFileDetail fileDetail = transformToFileDetail(file);
+            // set bucket name
+            if (fileDetail.getBucketId() != null) {
+                ScmBucket bucket = ScmFactory.Bucket.getBucket(con, fileDetail.getBucketId());
+                fileDetail.setBucketName(bucket.getName());
+            }
             // set class name
             if (!StringUtils.isEmpty(fileDetail.getClassId())) {
                 ScmClass scmClass = ScmFactory.Class.getInstance(ws,
@@ -97,9 +99,12 @@ public class ScmFileDaoImpl implements ScmFileDao {
             List<OmFileBasic> res = new ArrayList<>();
             while (cursor.hasNext()) {
                 ScmFileBasicInfo basicInfo = cursor.getNext();
+                if (basicInfo.isDeleteMarker()) {
+                    continue;
+                }
                 ScmFile file = ScmFactory.File.getInstance(ws, basicInfo.getFileId(),
                         basicInfo.getMajorVersion(), basicInfo.getMinorVersion());
-                res.add(transformToFileBasicInfo(file));
+                res.add(ScmFileUtil.transformToFileBasicInfo(file));
             }
             return res;
         }
@@ -118,49 +123,19 @@ public class ScmFileDaoImpl implements ScmFileDao {
     public void uploadFile(String wsName, OmFileInfo fileInfo, BSONObject uploadConfig,
             InputStream is) throws ScmInternalException {
         ScmSession con = session.getConnection();
-        ScmOutputStream scmOs = null;
         try {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, con);
-            // 创建文件实例
             ScmFile scmFile = ScmFactory.File.createInstance(ws);
-            // 设置文件属性
             scmFile.setFileName(fileInfo.getName());
-            scmFile.setMimeType(getMimeTypeByFileName(scmFile.getFileName()));
-            scmFile.setTitle(fileInfo.getTitle());
-            scmFile.setAuthor(fileInfo.getAuthor());
-            scmFile.setDirectory(fileInfo.getDirectoryId());
-            // 设置标签
-            ScmTags scmTags = new ScmTags();
-            scmTags.addTags(fileInfo.getTags());
-            scmFile.setTags(scmTags);
-            // 设置元数据
-            if (!StringUtils.isEmpty(fileInfo.getClassId())) {
-                ScmClassProperties classProperties = new ScmClassProperties(fileInfo.getClassId());
-                classProperties.addProperties(fileInfo.getClassProperties());
-                scmFile.setClassProperties(classProperties);
-            }
-            scmFile.setContent(is);
-            scmFile.save(getScmUploadConf(uploadConfig));
+            ScmFileUtil.createFile(scmFile, fileInfo, uploadConfig, is);
         }
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(), "failed to upload file, " + e.getMessage(),
                     e);
         }
-        finally {
-            if (scmOs != null) {
-                scmOs.cancel();
-            }
-        }
     }
 
-    private String getMimeTypeByFileName(String fileName) {
-        String[] nameSplit = fileName.split("\\.");
-        MimeType mimeType = null;
-        if (1 < nameSplit.length) {
-            mimeType = MimeType.getBySuffix(nameSplit[nameSplit.length - 1]);
-        }
-        return mimeType == null ? "" : mimeType.getType();
-    }
+
 
     @Override
     public OmFileContent downloadFile(String wsName, String fileId, int majorVersion,
@@ -222,32 +197,10 @@ public class ScmFileDaoImpl implements ScmFileDao {
 
     }
 
-    private ScmUploadConf getScmUploadConf(BSONObject uploadConfig) {
-        Boolean isOverwrite = BsonUtils.getBooleanOrElse(uploadConfig,
-                CommonDefine.RestArg.FILE_IS_OVERWRITE, false);
-        Boolean isNeedMd5 = BsonUtils.getBooleanOrElse(uploadConfig,
-                CommonDefine.RestArg.FILE_IS_NEED_MD5, false);
-        return new ScmUploadConf(isOverwrite, isNeedMd5);
-    }
-
     private ScmUpdateContentOption getScmUpdateContentOption(BSONObject updateContentOption) {
         Boolean isNeedMd5 = BsonUtils.getBooleanOrElse(updateContentOption,
                 CommonDefine.RestArg.FILE_IS_NEED_MD5, false);
         return new ScmUpdateContentOption(isNeedMd5);
-    }
-
-    private OmFileBasic transformToFileBasicInfo(ScmFile file) {
-        OmFileBasic omFileBasic = new OmFileBasic();
-        omFileBasic.setId(file.getFileId().get());
-        omFileBasic.setName(file.getFileName());
-        omFileBasic.setMimeType(file.getMimeType());
-        omFileBasic.setSize(file.getSize());
-        omFileBasic.setUser(file.getUser());
-        omFileBasic.setCreateTime(file.getCreateTime());
-        omFileBasic.setUpdateTime(file.getUpdateTime());
-        omFileBasic.setMajorVersion(file.getMajorVersion());
-        omFileBasic.setMinorVersion(file.getMinorVersion());
-        return omFileBasic;
     }
 
     private OmFileDetail transformToFileDetail(ScmFile file) throws ScmException {
@@ -270,6 +223,7 @@ public class ScmFileDaoImpl implements ScmFileDao {
         fileDetail.setSize(file.getSize());
         fileDetail.setMd5(file.getMd5());
         fileDetail.setTags(file.getTags() == null ? new HashSet<String>() : file.getTags().toSet());
+        fileDetail.setCustomMetadata(file.getCustomMetadata());
         fileDetail.setTitle(file.getTitle());
         fileDetail.setUpdateTime(file.getUpdateTime());
         fileDetail.setUpdateUser(file.getUpdateUser());

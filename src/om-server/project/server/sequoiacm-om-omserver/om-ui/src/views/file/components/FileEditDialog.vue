@@ -1,9 +1,9 @@
 <template>
   <div>
-    <!-- 文件编辑对话框 -->
+    <!-- 更新文件内容对话框 -->
     <el-dialog
       class="edit-dialog"
-      title="编辑文件"
+      title="更新文件"
       :visible.sync="editDialogVisible"
       width="600px">
         <el-form ref="form" :rules="rules" :model="form" size="small" label-width="110px" :disabled="updateForbidden">

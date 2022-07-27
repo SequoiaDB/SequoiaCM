@@ -1,6 +1,7 @@
 package com.sequoiacm.om.omserver.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,12 +42,20 @@ public class ScmMetaDataController {
             @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
             @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
             HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
-        long classCount = metaDataService.getClassCount(session, wsName, filter);
-        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(classCount));
-        if (classCount <= 0) {
-            return Collections.emptyList();
+        try {
+            long classCount = metaDataService.getClassCount(session, wsName, filter);
+            response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(classCount));
+            if (classCount <= 0) {
+                return Collections.emptyList();
+            }
+            return metaDataService.listClass(session, wsName, filter, orderBy, skip, limit);
         }
-        return metaDataService.listClass(session, wsName, filter, orderBy, skip, limit);
+        catch (ScmInternalException e) {
+            if (e.getErrorCode() == ScmError.OPERATION_UNAUTHORIZED.getErrorCode()) {
+                return new ArrayList<>();
+            }
+            throw e;
+        }
     }
 
 }

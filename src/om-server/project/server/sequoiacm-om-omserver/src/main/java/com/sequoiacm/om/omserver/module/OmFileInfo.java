@@ -22,6 +22,9 @@ public class OmFileInfo {
     @JsonProperty("tags")
     private Set<String> tags;
 
+    @JsonProperty("custom_metadata")
+    private Map<String, String> customMetadata;
+
     @JsonProperty("class_id")
     private String classId;
 
@@ -38,10 +41,6 @@ public class OmFileInfo {
 
     public String getDirectoryId() {
         return directoryId;
-    }
-
-    public void setDirectoryId(String directoryId) {
-        this.directoryId = directoryId;
     }
 
     public String getTitle() {
@@ -68,6 +67,10 @@ public class OmFileInfo {
         this.tags = tags;
     }
 
+    public Map<String, String> getCustomMetadata() {
+        return customMetadata;
+    }
+
     public String getClassId() {
         return classId;
     }
@@ -78,9 +81,5 @@ public class OmFileInfo {
 
     public Map<String, Object> getClassProperties() {
         return classProperties;
-    }
-
-    public void setClassProperties(Map<String, Object> classProperties) {
-        this.classProperties = classProperties;
     }
 }

@@ -121,14 +121,29 @@ export const constantRoutes = [
   {
     path: '/file',
     component: Layout,
-    meta: { title: '文件', icon: 'el-icon-time' },
+    meta: { title: '文件', icon: 'el-icon-document' },
     redirect: '/file/table',
     children: [
       {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/file/index'),
-        meta: { title: '文件管理', icon: 'el-icon-files', keepAlive:true }
+        meta: { title: '文件管理', icon: 'el-icon-document', keepAlive:true }
+      }
+    ]
+  },
+
+  {
+    path: '/object',
+    component: Layout,
+    meta: { title: '对象', icon: 'el-icon-takeaway-box' },
+    redirect: '/object/table',
+    children: [
+      {
+        path: 'table',
+        name: 'Table',
+        component: () => import('@/views/object/index'),
+        meta: { title: '桶对象管理', icon: 'el-icon-takeaway-box', keepAlive:true }
       }
     ]
   },

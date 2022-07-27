@@ -26,6 +26,9 @@ public class OmFileDetail extends OmFileBasic {
     @JsonProperty("bucket_id")
     private Long bucketId;
 
+    @JsonProperty("bucket_name")
+    private String bucketName;
+
     @JsonProperty("batch_id")
     private String batchId;
 
@@ -49,6 +52,9 @@ public class OmFileDetail extends OmFileBasic {
 
     @JsonProperty("tags")
     private Set<String> tags;
+
+    @JsonProperty("custom_metadata")
+    private Map<String, String> customMetadata;
 
     @JsonProperty("class_id")
     private String classId;
@@ -102,6 +108,14 @@ public class OmFileDetail extends OmFileBasic {
         this.bucketId = bucketId;
     }
 
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
     public Map<String, Object> getClassProperties() {
         return classProperties;
     }
@@ -116,6 +130,14 @@ public class OmFileDetail extends OmFileBasic {
 
     public void setTags(Set<String> tags) {
         this.tags = tags;
+    }
+
+    public Map<String, String> getCustomMetadata() {
+        return customMetadata;
+    }
+
+    public void setCustomMetadata(Map<String, String> customMetadata) {
+        this.customMetadata = customMetadata;
     }
 
     public String getBatchId() {

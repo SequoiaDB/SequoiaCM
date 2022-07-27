@@ -5,15 +5,15 @@
       <el-row :gutter="2">
         <el-col :span="8">
           <el-select 
-            id="query_file_select_workspace"
-            placeholder="请选择工作区"
-            v-model="currentWorkspace" 
+            id="query_file_select_bucket"
+            placeholder="请选择存储桶"
+            v-model="currentBucket" 
             size="small"
             style="width:100%"
             filterable
-            @change="onWorkspaceChange()">
+            @change="onBucketChange()">
             <el-option
-              v-for="item in workspaceList"
+              v-for="item in bucketList"
               :key="item"
               :label="item"
               :value="item">
@@ -22,7 +22,7 @@
         </el-col>
         <el-col :span="10">
           <el-input 
-            id="input_file_search_param"
+            id="input_object_search_param"
             :placeholder="currentFileSearchType.tip" 
             v-model="searchParam" 
             class="input-with-select"
@@ -50,33 +50,27 @@
           </el-input>
         </el-col>
         <el-col :span="3" >
-          <el-button id="btn_file_doSearch" @click="doSearch" type="primary" size="small" icon="el-icon-search" style="width:100%" :disabled="currentWorkspace===''">搜索</el-button>
+          <el-button id="btn_object_doSearch" @click="doSearch" type="primary" size="small" icon="el-icon-search" style="width:100%" :disabled="currentBucket===''">搜索</el-button>
         </el-col>
         <el-col :span="3" >
-          <el-button id="btn_file_resetSearch" @click="resetSearch" size="small" icon="el-icon-circle-close" style="width:100%" :disabled="currentWorkspace===''">重置</el-button>
+          <el-button id="btn_object_resetSearch" @click="resetSearch" size="small" icon="el-icon-circle-close" style="width:100%" :disabled="currentBucket===''">重置</el-button>
         </el-col>
       </el-row>
     </div>
     <!-- 表格部分 -->
-    <el-button id="btn_file_batch_deletion" type="danger" size="small" icon="el-icon-delete" @click="handleDeleteBtnClick(null)" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量删除</el-button>
-    <el-button id="btn_file_showCreateDialog" type="primary" size="small" icon="el-icon-upload2"  @click="handleUploadBtnClick" style="margin-bottom:10px" :disabled="currentWorkspace===''">上传文件</el-button>
+    <el-button id="btn_object_batch_deletion" type="danger" size="small" icon="el-icon-delete" @click="handleDeleteBtnClick(null)" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量删除</el-button>
+    <el-button id="btn_object_showCreateDialog" type="primary" size="small" icon="el-icon-upload2"  @click="handleUploadBtnClick" style="margin-bottom:10px" :disabled="currentBucket===''">上传文件</el-button>
     <el-table
         border
         :data="tableData"
         @sort-change="sortChange"
         @selection-change="selectionChange"
-        row-key="file_id"
+        row-key="object_id"
         v-loading="tableLoading"      
         style="width: 100%">
         <el-table-column 
           type="selection"
           width="50">
-        </el-table-column>
-        <el-table-column
-          prop="id"
-          label="文件ID"
-          sortable="custom"
-          width="230">
         </el-table-column>
         <el-table-column
           prop="name"
@@ -117,14 +111,13 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="245"
+          width="190"
           label="操作">
           <template slot-scope="scope">
             <el-button-group>
-              <el-button id="btn_file_showDetailDialog" size="mini" @click="handleShowBtnClick(scope.row)">查看</el-button>
-              <el-button id="btn_file_showEditDialog" size="mini" @click="handleEditBtnClick(scope.row)">更新</el-button>
-              <el-button id="btn_file_showDownloadDialog" size="mini" @click="handleDownloadBtnClick(scope.row)">下载</el-button>
-              <el-button id="btn_file_delete" type="danger" @click="handleDeleteBtnClick(scope.row)" size="mini">删除</el-button>
+              <el-button id="btn_object_showDetailDialog" size="mini" @click="handleShowBtnClick(scope.row)">查看</el-button>
+              <el-button id="btn_object_showDownloadDialog" size="mini" @click="handleDownloadBtnClick(scope.row)">下载</el-button>
+              <el-button id="btn_object_delete" type="danger" @click="handleDeleteBtnClick(scope.row)" size="mini">删除</el-button>
             </el-button-group>
           </template>
         </el-table-column>
@@ -142,32 +135,28 @@
     </el-pagination>
 
     <!-- 文件上传弹框 -->
-    <file-upload-dialog ref="fileUploadDialog" :workspaceList="workspaceList" :workspace="currentWorkspace" @refreshTable="queryTableData"></file-upload-dialog>
+    <file-upload-dialog ref="fileUploadDialog" :bucketList="bucketList" @refreshTable="queryTableData"></file-upload-dialog>
     <!-- 文件详情弹框 -->
-    <file-detail-dialog ref="fileDetailDialog" :multiVofCurFile="multiVofCurFile" :workspace="currentWorkspace"></file-detail-dialog>
+    <file-detail-dialog ref="fileDetailDialog" :multiVofCurFile="multiVofCurFile" :workspace="currentBucketDetail.workspace" :isNameMaster=true></file-detail-dialog>
     <!-- 文件下载弹框 -->
-    <file-download-dialog ref="fileDownloadDialog" :multiVofCurFile="multiVofCurFile" :workspace="currentWorkspace"></file-download-dialog>
-    <!-- 文件更新弹框 -->
-    <file-edit-dialog ref="fileEditDialog" :workspaceDetail="currentWorkspaceDetail" :fileId="currentFileId" @refreshTable="queryTableData" @update="changeUpdateStatus"></file-edit-dialog>
+    <file-download-dialog ref="fileDownloadDialog" :multiVofCurFile="multiVofCurFile" :workspace="currentBucketDetail.workspace"></file-download-dialog>
     <!-- 展示文件属性弹框 -->
-    <file-properties-dialog ref="filePropertiesDialog"></file-properties-dialog>
+    <file-properties-dialog ref="filePropertiesDialog" :isWorkspaceView="false"></file-properties-dialog>
   </div>
 </template>
 <script>
-import {queryWorkspaceList, queryWorkspaceBasic} from '@/api/workspace'
-import {queryFileList, deleteFiles} from '@/api/file'
-import {FILE_SCOPE_VAL_CURRENT, FILE_SCOPE_VAL_ALL, X_RECORD_COUNT} from '@/utils/common-define'
-import FileDetailDialog from './components/FileDetailDialog.vue'
+import {deleteFiles} from '@/api/file'
+import {queryUserRelatedBucket, queryBucketDetail, queryFileInBucket} from '@/api/bucket'
+import {X_RECORD_COUNT} from '@/utils/common-define'
+import FileDetailDialog from '../file/components/FileDetailDialog.vue'
 import FileUploadDialog from './components/FileUploadDialog.vue'
-import FileEditDialog from './components/FileEditDialog.vue'
-import FileDownloadDialog from './components/FileDownloadDialog.vue'
-import FilePropertiesDialog from './components/FilePropertiesDialog.vue' 
+import FileDownloadDialog from '../file/components/FileDownloadDialog.vue'
+import FilePropertiesDialog from '../file/components/FilePropertiesDialog.vue' 
 import {Loading } from 'element-ui';
 export default { 
   components: {
     FileDetailDialog,
     FileUploadDialog,
-    FileEditDialog,
     FileDownloadDialog,
     FilePropertiesDialog
   },
@@ -180,11 +169,6 @@ export default {
       },
       filter: {},
       fileSearchTypes: [
-        {
-          value: 'search_by_id',
-          label: '按 id',
-          tip: '请输入文件 ID'
-        },
         {
           value: 'search_by_name',
           label: '按文件名',
@@ -201,8 +185,9 @@ export default {
       searchParam: '',
       tableLoading: false,
       tableData: [],
-      workspaceList: [],
-      currentWorkspace: '',
+      bucketList: [],
+      currentBucket: '',
+      currentBucketDetail: {},
       currentWorkspaceDetail: {},
       currentFileId: '',
       fileContentUpdate: {
@@ -218,23 +203,23 @@ export default {
     init(){
       this.currentFileSearchType = this.fileSearchTypes[0]
       this.currentFileSearchTypeStr = this.currentFileSearchType.value
-      // 加载用户关联的工作区列表
-      queryWorkspaceList(1, -1, null, true).then(res => {
-        let workspaces = res.data
-        this.workspaceList = [];
-        // 默认选中第一个工作区，并加载该工作区的文件列表
-        if (workspaces && workspaces.length > 0) {
-          for (let ws of workspaces) {
-            this.workspaceList.push(ws.name)
-          }
-          this.currentWorkspace = this.workspaceList[0]
-          this.onWorkspaceChange()
+      // 加载用户关联的桶列表
+      queryUserRelatedBucket().then(res => {
+        let bucketList = res.data
+        // 默认选中第一个桶，并加载该桶下的文件列表
+        if (bucketList && bucketList.length > 0) {
+          this.bucketList = bucketList
+          this.currentBucket = this.bucketList[0]
+          this.onBucketChange()
         }
       })
     },
-    // 切换工作区
-    onWorkspaceChange() {
-      this.resetSearch()
+    // 切换桶
+    onBucketChange() {
+      queryBucketDetail(this.currentBucket).then(res => {
+        this.currentBucketDetail = JSON.parse(res.headers['bucket'])
+        this.resetSearch()
+      })
     },
     // 排序项发生变化 
     sortChange(column) {
@@ -254,48 +239,15 @@ export default {
     },
     // 查看文件详情
     handleShowBtnClick(row) {
-      var queryCondition = {}
-      queryCondition['id'] = row.id
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, queryCondition, null, 1, -1).then(res => {
-        this.sortByVersion(res.data)
-        this.multiVofCurFile = res.data;
-        this.$refs['fileDetailDialog'].show()
-      })
+      this.multiVofCurFile = []
+      this.multiVofCurFile.push(row)
+      this.$refs['fileDetailDialog'].show()
     },
     // 下载文件
     handleDownloadBtnClick(row) {
-      var queryCondition = {}
-      queryCondition['id'] = row.id
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, queryCondition, null, 1, -1).then(res => {
-       this.sortByVersion(res.data)
-        this.multiVofCurFile = res.data;
-        this.$refs['fileDownloadDialog'].show()
-      })
-    },
-    // 按版本号排序文件列表
-    sortByVersion(data) {
-      data.sort(function(a, b) {
-        if (b.major_version === a.major_version) {
-          return b.minor_version - a.minor_version;
-        }
-        return b.major_version - a.major_version;
-      })
-    },
-    // 更新文件内容
-    handleEditBtnClick(row) {
-      if (this.fileContentUpdate.status && this.fileContentUpdate.fileId !== row.id) {
-        this.$message.error('当前正在更新文件，ID：'+this.fileContentUpdate.fileId)
-        return
-      } 
-      queryWorkspaceBasic(this.currentWorkspace).then(res => {
-        this.currentWorkspaceDetail = JSON.parse(res.headers['workspace'])
-      })
-      this.currentFileId = row.id
-      this.$refs['fileEditDialog'].show()
-    },
-    // 子组件回调：监听文件更新状态
-    changeUpdateStatus(data) {
-      this.fileContentUpdate = data
+      this.multiVofCurFile = []
+      this.multiVofCurFile.push(row)
+      this.$refs['fileDownloadDialog'].show()
     },
     // 删除文件
     handleDeleteBtnClick(row) {
@@ -316,7 +268,7 @@ export default {
         type: 'warning'
       }).then(() => {
         let loadingInstance = Loading.service({ fullscreen: true, text: "正在删除中..." })
-        deleteFiles(this.currentWorkspace, _fileIdList).then(res => {
+        deleteFiles(this.currentBucketDetail.workspace, _fileIdList).then(res => {
           this.$message.success(`删除成功`)
           this.queryTableData()
         }).finally(() => {
@@ -327,14 +279,14 @@ export default {
     },
     // 查询文件列表（默认按id降序排序）
     queryTableData(prop = 'id', order = 'descending') {
-      if (!this.currentWorkspace) {
+      if (!this.currentBucket) {
         return
       }
       this.tableLoading = true
       // 添加排序参数
       let orderby = {}
       orderby[prop] = order === 'descending' ? -1 : 1 
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_CURRENT, this.filter, orderby, this.pagination.current, this.pagination.size).then(res => {
+      queryFileInBucket(this.currentBucket, this.filter, orderby, this.pagination.current, this.pagination.size).then(res => {
         let total = Number(res.headers[X_RECORD_COUNT])
         if (res.data.length == 0 && total > 0) {
           this.pagination.current--

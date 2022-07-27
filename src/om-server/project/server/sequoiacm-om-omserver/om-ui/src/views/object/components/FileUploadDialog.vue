@@ -7,17 +7,17 @@
       :visible.sync="uploadDialogVisible"
       width="650px">
         <el-form ref="form" :rules="rules" :model="form" size="small" label-width="110px" :disabled="uploadForbidden">
-          <el-form-item label="工作区" prop="workspace">
+          <el-form-item label="存储桶" prop="bucket">
             <el-select 
-              id="select_upload_workspace"
-              v-model="form.workspace" 
+              id="select_upload_bucket"
+              v-model="form.bucket" 
               size="small" 
-              placeholder="请选择工作区"  
+              placeholder="请选择存储桶"  
               clearable filterable 
               style="width:100%"
-              @change="onWorkspaceChange" >
+              @change="onBucketChange" >
                 <el-option
-                  v-for="item in workspaceList"
+                  v-for="item in bucketList"
                   :key="item"
                   :label="item"
                   :value="item">
@@ -26,9 +26,9 @@
           </el-form-item>
           <el-form-item label="存储站点" prop="site">
             <el-select 
-              id="select_upload_site"
+              id="select_upload_object_site"
               v-model="form.site" 
-              :no-data-text="form.workspace ? '无数据' : '请先选择工作区'"
+              :no-data-text="form.bucket ? '无数据' : '请先选择存储桶'"
               size="small" 
               placeholder="请选择存储站点" 
               clearable filterable 
@@ -38,26 +38,6 @@
                   :key="item"
                   :label="item"
                   :value="item">
-                </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="目录" v-if="workspaceDetail.enable_directory" prop="currentDirPath">
-            <el-select 
-              id="select_upload_directory"
-              size="small"
-              v-model="form.currentDirPath"
-              placeholder="请选择目录" 
-              ref="dirSelect"
-              clearable
-              @clear="handleDirClear"
-              style="width:100%">
-                <el-option :value="form.currentDirPath" :label="form.currentDirPath" class="directory-option">
-                  <directory-tree ref="directoryTree" 
-                    :isDirTreeShow="isDirTreeShow" 
-                    :currentWorkspace="form.workspace" 
-                    @changeSelectDir="changeSelectDir"
-                    @closeDirSelectionBox="closeDirSelectionBox">
-                  </directory-tree>
                 </el-option>
             </el-select>
           </el-form-item>
@@ -100,16 +80,11 @@
             >
             </el-input>
             <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
-          </el-form-item> 
-          <el-form-item label="上传配置项" prop="upload_conf">
-            <el-checkbox id="cb_upload_overwrite" label="覆盖旧文件" v-model="form.isOverwriteChecked"></el-checkbox>
-            <el-checkbox id="cb_upload_need_md5" label="计算MD5" v-model="form.isNeedMd5Checked"></el-checkbox>
           </el-form-item>
           <el-form-item label="自定义元数据" v-if="workspaceClassList.length > 0" prop="classId">
             <el-select 
               id="select_metadatas_class"
               v-model="form.classId"
-              :no-data-text="form.workspace ? '无数据' : '请先选择工作区'"
               size="small"
               placeholder="请选择元数据模型" 
               clearable filterable
@@ -186,20 +161,12 @@
 <script>
 import {queryWorkspaceBasic} from '@/api/workspace'
 import {queryClassList, queryClassDetail} from '@/api/metadata'
-import {uploadFile} from '@/api/file'
-import DirectoryTree from './DirectoryTree.vue'
+import {queryBucketDetail, createFileInBucket} from '@/api/bucket'
 export default {
-  components: {
-    DirectoryTree
-  },
   props: {
-    workspaceList: {
+    bucketList: {
       type: Array,
       default: () => []
-    },
-    workspace: {
-      type: String,
-      default: ''
     }
   },
   data() {
@@ -217,8 +184,9 @@ export default {
       ],
       uploadDialogVisible: false,
       uploadForbidden: false,
-      workspaceDetail: {},
-      isDirTreeShow: false,
+      currentBucket: '',
+      currentBucketDetail: {},
+      currentWorkspace: '',
       workspaceSiteList: [],
       workspaceClassList: [],
       classDetail: {},
@@ -226,13 +194,10 @@ export default {
       tagInputValue: '',
       uploadRequest: {},
       form: {
-        workspace: '',
+        bucket: '',
         site: '',
-        currentDirPath: '',
         title: '',
         author: '',
-        isOverwriteChecked: false,
-        isNeedMd5Checked: false,
         classId: '',
         selectAttributes: [],
         residualAttributes: [],  
@@ -243,11 +208,8 @@ export default {
         name: '',
       },
       rules: {
-        workspace: [
-          { required: true, message: '请选择工作区', trigger: 'none' },
-        ],
-        currentDirPath: [
-          { required: true, message: '请选择目录', trigger: 'change' },
+        bucket: [
+          { required: true, message: '请选择存储桶', trigger: 'none' },
         ],
         site: [
           { required: true, message: '请选择存储站点', trigger: 'change' },
@@ -272,23 +234,9 @@ export default {
       setTimeout(()=>{
         // 重置表单
         this.clearForm()
-        this.isDirTreeShow = false
         this.workspaceSiteList = []
         this.workspaceClassList = []
       }, 500)
-    },
-    // 重置选中目录
-    handleDirClear() {
-      this.form.currentSelectDir = ''
-      this.form.currentDirPath = ''
-      this.$refs['directoryTree'].setCurrentKey(null);
-    },
-    changeSelectDir(data) {
-      this.form.currentSelectDir=data.id
-      this.form.currentDirPath=data.path
-    },
-    closeDirSelectionBox() {
-      this.$refs.dirSelect.blur()
     },
     handleFileContentChange(file, fileList) {
       // 清除校验 场景：提交表单校验未选择文件内容，重新添加时清除校验信息
@@ -306,11 +254,12 @@ export default {
       this.form.fileContentList = []
     },
     _uploadFile(data) {
-      let ws = this.form.workspace
+      let bucketName = this.form.bucket
       let site = this.form.site
       let uploadConf = {
-        is_overwrite: this.form.isOverwriteChecked,
-        is_need_md5: this.form.isNeedMd5Checked
+        // 桶内上传文件必须计算 MD5 
+        is_overwrite: false,
+        is_need_md5: true
       }
       
       let attributeValid = true
@@ -336,7 +285,6 @@ export default {
         name: this.form.name,
         title: this.form.title,
         author: this.form.author,
-        directory_id: this.form.currentSelectDir,
         tags: this.form.tags,
         class_id: this.form.classId,
         custom_metadata,
@@ -345,7 +293,7 @@ export default {
       let desc=encodeURIComponent(this.$util.toPrettyJson(fileInfo))
 
       this.uploadForbidden = true
-      this.uploadRequest = uploadFile(ws, site, desc, uploadConf, data).then(res=>{
+      this.uploadRequest = createFileInBucket(bucketName, site, desc, uploadConf, data).then(res=>{
         this.$message.success("文件【" + this.form.name + "】上传成功")
         this.clear()
         this.close()
@@ -365,37 +313,34 @@ export default {
         }
       })
     },
-    // 选择工作区
-    onWorkspaceChange(workspace) {
+    // 选择存储桶
+    onBucketChange(bucket) {
       this.resetSite()
-      this.resetDirectory()
       this.resetClass()
-      if (!workspace) {
+      if (!bucket) {
         return
       }
-      queryWorkspaceBasic(workspace).then(res => {
-        this.workspaceDetail = JSON.parse(res.headers['workspace'])
-        let siteList = this.workspaceDetail['data_locations']
-        if (siteList && siteList.length > 0) {
-          for (let site of siteList) {
-            this.workspaceSiteList.push(site['site_name'])
+      this.currentBucket = bucket
+      queryBucketDetail(bucket).then(res => {
+        this.currentBucketDetail = JSON.parse(res.headers['bucket'])
+        this.currentWorkspace = this.currentBucketDetail.workspace
+        queryWorkspaceBasic(this.currentWorkspace).then(res => {
+          this.workspaceDetail = JSON.parse(res.headers['workspace'])
+          let siteList = this.workspaceDetail['data_locations']
+          if (siteList && siteList.length > 0) {
+            for (let site of siteList) {
+              this.workspaceSiteList.push(site['site_name'])
+            }
           }
-        }
+        })
+        queryClassList(this.currentWorkspace, null, null, 1, -1).then(res=>{
+          this.workspaceClassList = res.data;
+        })
       })
-      queryClassList(workspace, null, null, 1, -1).then(res=>{
-        this.workspaceClassList = res.data;
-      })
-      setTimeout(() => {
-        this.isDirTreeShow = true
-      }, 100)
     },
     resetSite() {
       this.workspaceSiteList = []
       this.form.site = ''
-    },
-    resetDirectory() {
-      this.form.currentDirPath = ''
-      this.isDirTreeShow = false
     },
     resetClass() {
       this.workspaceClassList = []
@@ -411,7 +356,7 @@ export default {
       if (!classId) {
         return;
       }
-      queryClassDetail(this.form.workspace, classId).then(res=>{
+      queryClassDetail(this.currentWorkspace, classId).then(res=>{
         this.classDetail = res.data
         let attrs = this.classDetail.attrs
         attrs.forEach((item) =>{
@@ -519,8 +464,6 @@ export default {
     clearForm() {
       if (this.$refs['form']) {
         this.$refs['form'].resetFields()
-        this.form.isOverwriteChecked = false
-        this.form.isNeedMd5Checked = false
       }
     }
   }
@@ -572,12 +515,6 @@ export default {
   width: 40%;
   margin-right: 5px;
   vertical-align: bottom;
-}
-.directory-option {
-  padding: 0px 0px;
-  height: auto; 
-  width: 480px; 
-  overflow: auto;
 }
 .scm-attribute >>> .el-form-item__label {
   color: rgb(97, 161, 161);
