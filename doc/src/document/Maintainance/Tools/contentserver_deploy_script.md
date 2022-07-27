@@ -131,17 +131,17 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
                 "domain": "domain1",
                 "meta_sharding_type": "year",
                 "meta_options": {
-                    collection_space: {LobPageSize:262144},
-                    collection: {ReplSize:-1}
+                    "collection_space": {"LobPageSize":262144},
+                    "collection": {"ReplSize":-1}
                 }
             },
             "data": [
                 {
                     "site": "rootSite",
-                    "domain": "domain2"
+                    "domain": "domain2",
                     "data_options": {
-                        collection_space: {LobPageSize:262144},
-                        collection: {ReplSize:-1}
+                        "collection_space": {"LobPageSize":262144},
+                        "collection": {"ReplSize":-1}
                     }
                 },
                 {
