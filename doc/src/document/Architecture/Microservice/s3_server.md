@@ -10,7 +10,24 @@ S3 服务负责对外提供标准的 S3 协议接口，基本架构如下：
 > **Note:**
 
 > * 网关将会解析 S3 请求所访问的 Bucket，根据 Bucket 所属工作区的 preferred 属性（该属性目前支持配置为某个站点名），路由到指定站点上的 S3 服务
-> * 当网关无法根据 S3 请求的 Bucket 信息进行路由时（该 S3 请求不包含 Bucket 信息、Bucket 不存在等），网关将会根据集群部署情况进行路由，优先选择当前网关所属机房下的 S3 服务。
+> * 当网关无法根据 S3 请求的 Bucket 信息进行路由时（该 S3 请求不包含 Bucket 信息、Bucket 不存在等），网关将会根据集群部署情况进行路由，优先选择当前网关所属机房下的 S3 服务
+> * 若通过 Nginx 代理访问网关，为防止 Nginx 改写 Host 请求头导致 S3 签名校验失败，请加入 Nginx 配置: proxy_set_header Host $host:$server_port 来规避 Host 的修改，示例配置如下：
+    
+``` 
+  upstream scmGateway {
+      server 192.168.10.100:8080;
+      server 192.168.10.101:8080;
+  }
+  server {
+      listen 8000;
+      server_name myServer;
+      location / {
+          proxy_pass http://scmGateway;
+          proxy_set_header Host $host:$server_port;
+      }
+  }
+```
+   
 
 
 S3 服务节点逻辑上可以看作是一个特殊的内容服务节点，它与内容服务节点具有相同的内核：

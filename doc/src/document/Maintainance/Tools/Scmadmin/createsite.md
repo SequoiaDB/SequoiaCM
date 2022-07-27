@@ -106,6 +106,22 @@ createsite 子命令提供创建站点的功能。
 > - 创建 CephS3 类型分站点，名称为 site4，数据服务的两个连接拥有相同的用户名和密码 dsuser 和 dspasswd 。
 > - CephS3 数据服务支持[主备库][primary_standby_cephs3]，以第一个 URL 作为主库，第二个 URL 作为备库。
 > - 当两个库用户名密码不一致时，可以将其拼接在 URL 上，如：accessKey:secretKeyFilePath@http://cephS3Server2:port 。连接 CephS3 时，会优先使用地址上拼接的用户名和密码，当地址上未拼接用户名和密码时，才使用 dsuser 和 dspasswd 。
+> - 若通过 Nginx 代理访问 ceph_s3，为防止 Nginx 改写 Host 请求头导致 S3 签名校验失败，请加入 Nginx 配置: proxy_set_header Host $host:$server_port 来规避 Host 的修改，示例配置如下：
+
+``` 
+  upstream cephS3Server {
+      server 192.168.10.100:8080;
+      server 192.168.10.101:8080;
+  }
+  server {
+      listen 8000;
+      server_name myServer;
+      location / {
+          proxy_pass http://cephS3Server;
+          proxy_set_header Host $host:$server_port;
+      }
+  }
+```
 
 ###4.Hdfs###
 数据存储服务类型为Hdfs时，不需要指定dsurl参数，但需要指定dsconf参数，dsconf参数为json格式，具体为连接Hdfs服务所需配置。建议参数列表如下：
