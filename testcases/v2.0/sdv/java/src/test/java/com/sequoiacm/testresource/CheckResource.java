@@ -27,7 +27,6 @@ import com.sequoiadb.base.Sequoiadb;
 public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
-    private boolean s3SessionExist = false;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
@@ -37,9 +36,6 @@ public class CheckResource extends TestScmBase {
     private void testRemainSession() throws Exception {
         List< String > sessionList = this.isRemainScmSession();
         int session_num = 0;
-        if ( s3SessionExist ) {
-            session_num = 1;
-        }
         if ( sessionList.size() > session_num ) {
             throw new Exception( "remain session \n" + sessionList );
         }
@@ -90,11 +86,7 @@ public class CheckResource extends TestScmBase {
                     if ( signatureInfo != null ) {
                         String secretKeyPrefix = ( String ) signatureInfo
                                 .get( "secretKeyPrefix" );
-                        if ( secretKeyPrefix.equals( "AWS4" ) ) {
-                            s3SessionExist = true;
-                            sessionList.add( "[_id:" + ssId + ", createTime:"
-                                    + ssCreateTime + ", s3]" );
-                        } else {
+                        if ( !secretKeyPrefix.equals( "AWS4" ) ) {
                             sessionList.add( "[_id:" + ssId + ", createTime:"
                                     + ssCreateTime + "]" );
                         }
