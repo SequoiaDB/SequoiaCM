@@ -39,7 +39,6 @@ public class WorkSpaces4996_4997_4998 extends TestScmBase {
     private void setUp() throws Exception {
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         rootSiteName = ScmInfo.getRootSite().getSiteName();
-        branchSiteName = ScmInfo.getBranchSite().getSiteName();
         ScmWorkspaceUtil.deleteWs( wsNameError, session );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.deleteWs( wsNameNull, session );
@@ -48,6 +47,7 @@ public class WorkSpaces4996_4997_4998 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test4996() throws Exception {
+        branchSiteName = ScmInfo.getBranchSite().getSiteName();
         ScmWorkspace wsNull = createWS( session, wsNameNull, null, false );
         Assert.assertNull( wsNull.getPreferred() );
         wsNull.updatePreferred( rootSiteName );
@@ -84,6 +84,7 @@ public class WorkSpaces4996_4997_4998 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test4998() throws Exception {
+        branchSiteName = ScmInfo.getBranchSite().getSiteName();
         ScmWorkspace wsDir = createWS( session, wsNameError, rootSiteName,
                 true );
         Assert.assertEquals( wsDir.getPreferred(), rootSiteName );
