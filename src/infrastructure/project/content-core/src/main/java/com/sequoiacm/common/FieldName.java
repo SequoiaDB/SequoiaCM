@@ -177,7 +177,10 @@ public class FieldName {
     public static final String FIELD_CLFILE_FILE_ETAG = "etag";
     public static final String FIELD_CLFILE_FILE_BUCKET_ID = "bucket_id";
 
+    // 不要在 external_data 内使用嵌套字段，ScmFileOperateUtils.formatFileObj
+    // 拷贝这个字段的值时，没有考虑嵌套字段的情况
     public static final String FIELD_CLFILE_FILE_EXTERNAL_DATA = "external_data";
+
     public static final String FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH = "file_name_before_attach";
     public static final String FIELD_CLFILE_CUSTOM_METADATA = "custom_metadata";
     public static final String FIELD_CLFILE_VERSION_SERIAL = "version_serial";

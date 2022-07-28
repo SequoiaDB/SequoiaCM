@@ -285,11 +285,20 @@ public class ScmFileOperateUtils {
         BSONObject tagsValue = (BSONObject) fileObj.get(fieldName);
         result.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue, fieldName));
 
+        BSONObject extData = BsonUtils.getBSON(fileObj, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+        BSONObject newExtData = new BasicBSONObject();
+        if (extData != null) {
+            newExtData.putAll(extData);
+        }
         result.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
-                fileObj.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
+                newExtData);
 
-        Object customMeta = fileObj.get(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
-        result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, customMeta);
+        BSONObject customMeta = BsonUtils.getBSON(fileObj, FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        BSONObject newCustomMeta = new BasicBSONObject();
+        if (customMeta != null) {
+            newCustomMeta.putAll(customMeta);
+        }
+        result.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, newCustomMeta);
 
         result.put(FieldName.FIELD_CLFILE_FILE_ETAG, fileObj.get(FieldName.FIELD_CLFILE_FILE_ETAG));
 
