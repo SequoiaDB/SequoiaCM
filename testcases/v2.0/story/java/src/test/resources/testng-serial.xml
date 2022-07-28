@@ -82,8 +82,11 @@
             <package name="com.sequoiacm.bigfile"/>
             <!--directory -->
             <package name="com.sequoiacm.directory.serial"/>
+
             <!--s3-->
             <package name="com.sequoiacm.s3.bucket.serial"/>
+            <package name="com.sequoiacm.s3.partupload.serial"/>
+
             <!-- statistics -->
             <package name="com.sequoiacm.statistics"/>
         </packages>

@@ -1,16 +1,13 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
@@ -18,6 +15,8 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
+import com.amazonaws.services.s3.model.*;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -465,6 +464,58 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * set the bucket versioning status
+     *
+     * @param s3Client
+     * @param bucketName
+     * @param status:"null","Suspended","Enable"
+     */
+    public static void setBucketVersioning( AmazonS3 s3Client,
+            String bucketName, String status ) {
+        BucketVersioningConfiguration configuration = new BucketVersioningConfiguration()
+                .withStatus( status );
+        SetBucketVersioningConfigurationRequest setBucketVersioningConfigurationRequest = new SetBucketVersioningConfigurationRequest(
+                bucketName, configuration );
+        s3Client.setBucketVersioningConfiguration(
+                setBucketVersioningConfigurationRequest );
+    }
+
+    /**
+     * get the file part MD5 value
+     *
+     * @author wangkexin
+     * @param file
+     * @param offset
+     *            offset value.
+     * @param partSize
+     *            file part size.
+     * @throws IOException
+     * @return md5 value
+     */
+    public static String getFilePartMD5( File file, long offset, long partSize )
+            throws IOException {
+        FileInputStream fileInputStream = null;
+        int length = ( int ) file.length();
+        try {
+            MessageDigest md5 = MessageDigest.getInstance( "MD5" );
+            fileInputStream = new FileInputStream( file );
+            byte[] buffer = new byte[ length ];
+            if ( fileInputStream.read( buffer ) != -1 ) {
+                md5.update( buffer, ( int ) offset, ( int ) partSize );
+            }
+            // 文件指定部分的md5值
+            return new String( Hex.encodeHex( md5.digest() ) );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if ( fileInputStream != null ) {
+                fileInputStream.close();
+            }
+        }
+    }
+
+    /**
      * @param session
      * @return
      * @throws ScmException
@@ -484,13 +535,43 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * read the entire file length after the seek, to compare the read result
+     *
+     * @author wuyan
+     * @param sourceFile
+     * @param size
+     *            seek size.
+     * @param outputFile
+     *            seek read than write file
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static void seekReadFile( String sourceFile, int size,
+            String outputFile ) throws FileNotFoundException, IOException {
+        try ( RandomAccessFile raf = new RandomAccessFile( sourceFile, "rw" ) ;
+                OutputStream fos = new FileOutputStream( outputFile )) {
+            raf.seek( size );
+            int readSize;
+            int off = 0;
+            int len = 1024 * 1024;
+            byte[] buf = new byte[ off + len ];
+            while ( true ) {
+                readSize = raf.read( buf, off, len );
+                if ( readSize <= 0 ) {
+                    break;
+                }
+                fos.write( buf, off, readSize );
+            }
+        }
+    }
+    /**
      * @descreption 修改桶版本控制状态
      * @param s3Client
      * @param bucketName
      * @param BucketVersionConf
      */
     public static void updateBucketVersionConfig( AmazonS3 s3Client,
-            String bucketName, String BucketVersionConf ) {
+                                                  String bucketName, String BucketVersionConf ) {
         BucketVersioningConfiguration config = new BucketVersioningConfiguration()
                 .withStatus( BucketVersionConf );
         s3Client.setBucketVersioningConfiguration(
@@ -499,7 +580,7 @@ public class S3Utils extends TestScmBase {
     }
 
     public static void updateBucketVersionConfig( String bucketName,
-            String BucketVersionConf ) throws Exception {
+                                                  String BucketVersionConf ) throws Exception {
         AmazonS3 s3Client = S3Utils.buildS3Client();
         try {
             updateBucketVersionConfig( s3Client, bucketName,

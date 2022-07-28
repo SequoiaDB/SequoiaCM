@@ -80,8 +80,7 @@ public class TestTools {
     /**
      * Returns the MD5 in base64 for the given filePath.
      */
-    public static String getMD5AsBase64( String filePath )
-            throws IOException {
+    public static String getMD5AsBase64( String filePath ) throws IOException {
         return Base64.encodeAsString( computeMD5Hash( new File( filePath ) ) );
     }
 
@@ -96,16 +95,14 @@ public class TestTools {
     /**
      * Returns the MD5 in base64 for the given file.
      */
-    public static String getMD5AsBase64( File file )
-            throws  IOException {
+    public static String getMD5AsBase64( File file ) throws IOException {
         return Base64.encodeAsString( computeMD5Hash( file ) );
     }
 
     /**
      * Computes the MD5 of the given file.
      */
-    public static byte[] computeMD5Hash( File file )
-            throws IOException {
+    public static byte[] computeMD5Hash( File file ) throws IOException {
         return computeMD5Hash( new FileInputStream( file ) );
     }
 
@@ -138,7 +135,6 @@ public class TestTools {
             }
         }
     }
-
 
     /**
      * random generate string
@@ -303,8 +299,7 @@ public class TestTools {
          * @throws IOException
          */
         public static void readFile( String filePath, int size, int len,
-                String downloadPath )
-                throws IOException {
+                String downloadPath ) throws IOException {
             RandomAccessFile raf = null;
             OutputStream fos = null;
             try {
@@ -539,6 +534,49 @@ public class TestTools {
             FileType[] fileTypes = FileType.values();
             int index = new Random().nextInt( fileTypes.length );
             return getFileByType( fileTypes[ index ] );
+        }
+    }
+
+    /**
+     * get part of the MD5 value for large files(file size more than 50M)
+     *
+     * @author wangkexin
+     * @param file
+     * @param offset
+     *            offset value.
+     * @param partsize
+     *            file part size.
+     * @throws IOException
+     * @return md5 value
+     */
+    public static String getLargeFilePartMD5( File file, long offset,
+            long partsize ) throws IOException {
+        FileInputStream fileInputStream = null;
+        try {
+            MessageDigest md5 = MessageDigest.getInstance( "MD5" );
+            fileInputStream = new FileInputStream( file );
+            fileInputStream.skip( offset );
+            int length = 0;
+            long readCount = 0;
+            int maxLength = 50 * 1024 * 1024;
+            byte[] buffer = new byte[ maxLength ];
+            while ( readCount < partsize ) {
+                int eachReadLength = ( int ) Math.min( ( partsize - readCount ),
+                        maxLength );
+                length = fileInputStream.read( buffer, 0, eachReadLength );
+                readCount += length;
+                if ( length != -1 ) {
+                    md5.update( buffer, 0, length );
+                }
+            }
+            return new String( Hex.encodeHex( md5.digest() ) );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if ( fileInputStream != null ) {
+                fileInputStream.close();
+            }
         }
     }
 }
