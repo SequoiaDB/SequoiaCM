@@ -3,6 +3,7 @@ package com.sequoiacm.s3.tools;
 import java.util.HashMap;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParam;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
@@ -22,7 +23,12 @@ public class S3Admin {
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
-                .addCloudParam().addServerPortParam(8002).addZkParam().get();
+                .addCloudParam().addServerPortParam(8002).addMetaDataParam().addZkParam()
+                .addParam(ScmNodeRequiredParam.keyParamInstance("scm.content-module.site",
+                        "-Dscm.content-module.site=rootsite"))
+                .addParam(ScmNodeRequiredParam.keyParamInstance("spring.application.name",
+                        "-Dspring.application.name=rootsite-s3"))
+                .get();
 
         nodeProperties.put("1", scmNodeRequiredParamGroup);
         try {

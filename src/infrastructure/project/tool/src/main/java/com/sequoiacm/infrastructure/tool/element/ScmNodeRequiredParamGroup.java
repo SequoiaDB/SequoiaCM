@@ -84,15 +84,25 @@ public class ScmNodeRequiredParamGroup {
                     ScmNodeRequiredParam.keyParamInstance("eureka.instance.metadata-map.zone",
                             "-Deureka.instance.metadata-map.zone=zone1"));
             paramGroup.addParam(ScmNodeRequiredParam.keyParamInstance("eureka.client.region",
-                    "-Deureka.client.region=beijing"));
+                    "-Deureka.client.region=DefaultRegion"));
 
             paramGroup.addParam(ScmNodeRequiredParam.preKeyParamInstance(
                     "eureka.client.availability-zones.",
-                    "-Deureka.client.availability-zones.beijing=zone1", "eureka.client.region"));
+                    "-Deureka.client.availability-zones.DefaultRegion=zone1", "eureka.client.region"));
             paramGroup
                     .addParam(ScmNodeRequiredParam.preKeyParamInstance("eureka.client.service-url.",
                             "-Deureka.client.service-url.zone1=http://localhost:8800/eureka/",
                             "eureka.instance.metadata-map.zone"));
+            return this;
+        }
+
+        public Builder addMetaDataParam() {
+            paramGroup.addParam(ScmNodeRequiredParam.keyParamInstance("scm.rootsite.meta.url",
+                    "-Dscm.rootsite.meta.url=metasource-sdb:11810"));
+            paramGroup.addParam(ScmNodeRequiredParam.keyParamInstance("scm.rootsite.meta.user",
+                    "-Dscm.rootsite.meta.user=sdbadmin"));
+            paramGroup.addParam(ScmNodeRequiredParam.keyParamInstance("scm.rootsite.meta.password",
+                    "-Dscm.rootsite.meta.password=/opt/sequoiacm/secret/metasource.pwd"));
             return this;
         }
 
