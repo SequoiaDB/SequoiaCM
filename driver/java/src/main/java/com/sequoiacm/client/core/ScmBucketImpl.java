@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.client.util.BsonUtils;
+import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.exception.ScmError;
@@ -81,12 +82,20 @@ class ScmBucketImpl implements ScmBucket {
 
     @Override
     public ScmFile getFile(String fileName) throws ScmException {
+        if (Strings.isEmpty(fileName)) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "The fileName is null or empty" + fileName);
+        }
         return getFile(fileName, -1, -1);
     }
 
     @Override
     public ScmFile getFile(String fileName, int majorVersion, int minorVersion)
             throws ScmException {
+        if (Strings.isEmpty(fileName)) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "The fileName is null or empty" + fileName);
+        }
         BSONObject fileInfo = session.getDispatcher().bucketGetFile(name, fileName, majorVersion,
                 minorVersion);
         return createFileInstance(fileName, fileInfo);
@@ -102,6 +111,10 @@ class ScmBucketImpl implements ScmBucket {
 
     @Override
     public ScmFile getNullVersionFile(String fileName) throws ScmException {
+        if (Strings.isEmpty(fileName)) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "The fileName is null or empty" + fileName);
+        }
         BSONObject fileInfo = session.getDispatcher().bucketGetFileNullVersion(name,
                 fileName);
         return createFileInstance(fileName, fileInfo);
@@ -136,12 +149,20 @@ class ScmBucketImpl implements ScmBucket {
     @Override
     public void deleteFileVersion(String fileName, int majorVersion, int minorVersion)
             throws ScmException {
+        if (Strings.isEmpty(fileName)) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "The fileName is null or empty" + fileName);
+        }
         session.getDispatcher().bucketDeleteFileVersion(this.name, fileName, majorVersion,
                 minorVersion);
     }
 
     @Override
     public void deleteFile(String fileName, boolean isPhysical) throws ScmException {
+        if (Strings.isEmpty(fileName)) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "The fileName is null or empty" + fileName);
+        }
         session.getDispatcher().bucketDeleteFile(this.name, fileName, isPhysical);
     }
 
