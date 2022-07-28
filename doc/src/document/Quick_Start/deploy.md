@@ -247,7 +247,7 @@
     >
     > * url 填写网关的地址，其中 rootsite 为主站点的服务名，在 url 中为全小写
     > * userName 和 password 分别为系统默认的管理员用户密码
-    > * enable_directory 为是否开启目录功能，默认为 true
+    > * enable_directory 为是否开启目录功能，默认为 false
     > * batch_sharding_type 为批次分区类型，默认为 none
     > * batch_file_name_unique 为批次内文件名是否唯一，默认 false
     > * meta 配置工作区元数据参数，其中 site 目前仅支持填写主站点，domain 填写元数据服务中的域，用于存储工作区元数据，该域需要用户预先手工创建
