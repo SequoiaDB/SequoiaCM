@@ -5,7 +5,7 @@
   1). 执行启动
 
   ```lang-bash
-  $ scmd.sh start
+  $ ./scmd.sh start
   ```
 
   > **Note：**
@@ -21,7 +21,7 @@
 - 关闭守护进程
 
   ```lang-bash
-  $ scmd.sh stop
+  $ ./scmd.sh stop
   ```
 
   > **Note：**
@@ -31,7 +31,7 @@
 ### 查看监控列表 ###
 
 ```lang-bash
-$ scmd.sh list
+$ ./scmd.sh list
 ```
 
 > **Note：**
@@ -48,13 +48,13 @@ $ scmd.sh list
     - 示例1：停止对本机内容服务节点的监控
 
   ```lang-bash
-  $ scmd.sh chstatus -t CONTENT-SERVER -s off
+  $ ./scmd.sh chstatus -t CONTENT-SERVER -s off
   ```
 
     - 示例2：停止对本机 15000 端口对应节点的监控
 
   ```lang-bash
-  $ scmd.sh chstatus -p 15000 -s off
+  $ ./scmd.sh chstatus -p 15000 -s off
   ```
 
 - 添加监控节点
@@ -62,7 +62,7 @@ $ scmd.sh list
     - 示例1：添加对本机一个内容服务节点的监控
 
   ```lang-bash
-  $ scmd.sh add -t CONTENT-SERVER -c /opt/sequoiacm/sequoiacm-content/conf/content-server/15000/application.properties -s on
+  $ ./scmd.sh add -t CONTENT-SERVER -c /opt/sequoiacm/sequoiacm-content/conf/content-server/15000/application.properties -s on
   ```
 
 ### 查看命令选项
@@ -70,7 +70,7 @@ $ scmd.sh list
 - 查看工具的子命令列表
 
   ```lang-bash
-  $ scmd.sh -h
+  $ ./scmd.sh -h
   ```
 
 - 查看子命令选项，以 add 为例
