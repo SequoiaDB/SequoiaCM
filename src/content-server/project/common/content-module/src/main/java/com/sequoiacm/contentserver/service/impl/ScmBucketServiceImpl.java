@@ -912,8 +912,9 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                         CommonDefine.File.NULL_VERSION_MINOR)) {
                     ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId,
                             ScmError.OPERATION_UNSUPPORTED,
-                            "file is not null version, can not be attach to the bucket(version control is disabled):ws="
-                                    + wsInfo.getName() + ", bucket=" + attachToBucket.getName(),
+                            "file is not null version, please enable versioning on the bucket:ws="
+                                    + wsInfo.getName() + ", bucket=" + attachToBucket.getName()
+                                    + ", versionStatus=" + attachToBucket.getVersionStatus(),
                             null);
                     logger.warn("failed to attach file: bucket={}, failure={}", attachToBucket,
                             failure);
@@ -998,7 +999,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             if (historyVersionCursor.hasNext()
                     && attachToBucket.getVersionStatus() != ScmBucketVersionStatus.Enabled) {
                 return new ScmBucketAttachFailure(fileId, ScmError.OPERATION_UNSUPPORTED,
-                        "file has multi version, can not attach to the bucket(version control is disabled):ws="
+                        "file has multi version, please enable versioning on the bucket:ws="
                                 + fileWs.getName() + ", bucketName=" + attachToBucket.getName()
                                 + ", versionStatus=" + attachToBucket.getVersionStatus(),
                         null);
