@@ -3,6 +3,7 @@ package com.sequoiacm.config.framework.workspace.dao;
 import java.util.Date;
 
 import com.sequoiacm.config.framework.workspace.checker.DataLocationConfigChecker;
+import com.sequoiacm.config.metasource.MetaSourceDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -91,6 +92,23 @@ public class CreateWorkspaceDao {
 
             lock.unlock();
             lock = null;
+
+            // 检查各个站点上是否存在同名工作区的数据表，如果存在则报错，这里主要规避以下问题：
+            // 1. 创建 ws1，ws1 在各个站点上创建了数据表 ws1_LOB
+            // 2. 删除 ws1，config-server 删除工作区元数据后，content-server 会开始异步删除各个站点上的数据表 ws1_LOB
+            // 3. 重建 ws1，用户立刻写入文件，数据落入 ws1_LOB，此时数据可能会被流程 2 中的 content-server 给删掉
+            // 所以这里创建 ws1 要检查各个站点上是否存在 ws1_LOB，不存在才允许建立 ws1
+            TableDao dataTableHistoryDao = workspaceMetaService.getDataTableNameHistoryDao();
+            BSONObject matcher = new BasicBSONObject(
+                    FieldName.FIELD_CLTABLE_NAME_HISTORY_WORKSPACE_NAME, wsConfig.getWsName());
+            long dataTableCount = dataTableHistoryDao.count(matcher);
+            if (dataTableCount > 0) {
+                throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                        "workspace " + wsConfig.getWsName()
+                                + " is deleting, please check the workspace in "
+                                + MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM + "."
+                                + MetaSourceDefine.SequoiadbTableName.CL_DATA_TABLE_NAME_HISTORY);
+            }
 
             // create ws table
             workspaceMetaService.createWorkspaceMetaTable(wsConfig);
