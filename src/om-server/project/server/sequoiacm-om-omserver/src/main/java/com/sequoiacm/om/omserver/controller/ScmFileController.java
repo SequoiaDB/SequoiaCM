@@ -1,11 +1,11 @@
 package com.sequoiacm.om.omserver.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
 import com.sequoiacm.om.omserver.common.CommonUtil;
+import com.sequoiacm.om.omserver.common.ScmOmInputStream;
 import com.sequoiacm.om.omserver.module.*;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class ScmFileController {
             @RequestHeader(value = RestParamDefine.FILE_DESCRIPTION, required = false) String desc,
             HttpServletRequest request)
             throws ScmInternalException, ScmOmServerException, IOException {
-        InputStream is = request.getInputStream();
+        ScmOmInputStream is = new ScmOmInputStream(request.getInputStream());
         try {
             OmFileInfo fileInfo = mapper.readValue(CommonUtil.urlDecode(desc), OmFileInfo.class);
             fileService.uploadFile(session, wsName, siteName, fileInfo, uploadConf, is);
@@ -108,7 +108,7 @@ public class ScmFileController {
             @RequestParam(value = RestParamDefine.FILE_UPDATE_CONTENT_OPTION, required = false, defaultValue = "{}") BSONObject updateContentOption,
             HttpServletRequest request)
             throws IOException, ScmOmServerException, ScmInternalException {
-        InputStream newFileContent = request.getInputStream();
+        ScmOmInputStream newFileContent = new ScmOmInputStream(request.getInputStream());
         try {
             fileService.updateFileContent(session, wsName, fileId, siteName, updateContentOption,
                     newFileContent);

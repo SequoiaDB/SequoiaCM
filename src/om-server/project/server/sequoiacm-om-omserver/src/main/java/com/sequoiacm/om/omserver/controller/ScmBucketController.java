@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.om.omserver.common.CommonUtil;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
+import com.sequoiacm.om.omserver.common.ScmOmInputStream;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmBucketDetail;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class ScmBucketController {
             @RequestHeader(value = RestParamDefine.FILE_DESCRIPTION, required = false) String desc,
             HttpServletRequest request)
             throws ScmInternalException, ScmOmServerException, IOException {
-        InputStream is = request.getInputStream();
+        ScmOmInputStream is = new ScmOmInputStream(request.getInputStream());
         try {
             OmFileInfo fileInfo = mapper.readValue(CommonUtil.urlDecode(desc), OmFileInfo.class);
             bucketService.createFile(session, bucketName, siteName, fileInfo, uploadConf, is);

@@ -27,8 +27,8 @@ public class CommonUtil {
 
     }
 
-    public static void consumeAndCloseResource(InputStream is) {
-        if (is == null) {
+    public static void consumeAndCloseResource(ScmOmInputStream is) {
+        if (is == null || is.isClosed()) {
             return;
         }
         try {
