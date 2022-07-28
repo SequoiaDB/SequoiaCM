@@ -44,8 +44,6 @@ public class Audit4293 extends TestScmBase {
 
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
-
-        session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 

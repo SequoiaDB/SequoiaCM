@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucket.concurrent;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
@@ -75,12 +76,20 @@ public class Bucket4232 extends TestScmBase {
     }
 
     @AfterClass
-    public void tearDown() {
+    public void tearDown() throws ScmException {
+        ScmSession session = TestScmTools.createSession();
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3Client, bucketName );
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( s3WorkSpaces, session );
+                ScmId scmId = S3Utils.queryS3Object( ws, objectKey );
+                if ( scmId != null ) {
+                    ScmFactory.File.deleteInstance( ws, scmId, true );
+                }
             }
         } finally {
+            session.close();
             s3Client.shutdown();
         }
     }
