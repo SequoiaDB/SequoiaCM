@@ -67,13 +67,25 @@ public class S3Utils extends TestScmBase {
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
             String S3URL ) {
+        ClientConfiguration config = new ClientConfiguration();
+        config.setUseExpectContinue( false );
+        config.setSocketTimeout( 300000 );
+        return buildS3Client( ACCESS_KEY, SECRET_KEY, S3URL, config );
+    }
+
+    /**
+     * @param ACCESS_KEY
+     * @param SECRET_KEY
+     * @param S3URL
+     * @return
+     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
+     */
+    public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
+            String S3URL, ClientConfiguration config ) {
         AWSCredentials credentials = new BasicAWSCredentials( ACCESS_KEY,
                 SECRET_KEY );
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
                 S3URL, clientRegion );
-        ClientConfiguration config = new ClientConfiguration();
-        config.setUseExpectContinue( false );
-        config.setSocketTimeout( 300000 );
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration( endpointConfiguration )
                 .withClientConfiguration( config )

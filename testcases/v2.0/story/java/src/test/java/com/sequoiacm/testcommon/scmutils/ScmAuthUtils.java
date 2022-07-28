@@ -7,11 +7,11 @@ import java.util.*;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.amazonaws.services.s3.model.ListBucketsRequest;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.springframework.http.HttpEntity;
@@ -363,34 +363,88 @@ public class ScmAuthUtils extends TestScmBase {
      */
     public static void checkPriorityByS3( String[] accessKeys, String wsName )
             throws Exception {
-        AmazonS3 s3Client = S3Utils.buildS3Client( accessKeys[ 0 ],
-                accessKeys[ 1 ] );
-        String bucketName = UUID.randomUUID().toString();
-        int times = 0;
+        ScmSession session = TestScmTools.createSession();
         try {
-            do {
-                try {
-                    s3Client.createBucket( bucketName, wsName );
-                    break;
-                } catch ( AmazonS3Exception e ) {
-                    if ( e.getErrorCode().equals( "AccessDenied" ) ) {
-                        Thread.sleep( 500 );
-                        times++;
-                        if ( times * 500 > 30000 ) {
-                            throw new Exception( "check priority time out,ws:"
-                                    + wsName + " s3User:"
-                                    + Arrays.toString( accessKeys ) );
-                        }
-                        continue;
-                    } else {
-                        throw e;
+            ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            List< ScmDataLocation > dataLocations = workspace
+                    .getDataLocations();
+            ClientConfiguration config = new ClientConfiguration();
+            config.setUseExpectContinue( false );
+            config.setSocketTimeout( 300000 );
+            List< String > waitCleanBuckets = new ArrayList<>();
+            for ( int i = 0; i < dataLocations.size(); i++ ) {
+                System.err.println( dataLocations.get( 0 ).getSiteName() );
+                // 设置优先site
+                config.addHeader( "x-scm-preferred",
+                        dataLocations.get( i ).getSiteName() );
+                // 建立连接
+                AmazonS3 s3Client = S3Utils.buildS3Client( accessKeys[ 0 ],
+                        accessKeys[ 1 ], S3Utils.getS3Url(), config );
+                // 创建桶，判断content-server权限已同步
+                String bucketName = checkPriorityByCreateBucket( s3Client,
+                        wsName );
+                // 上传对象，判断s3节点已同步
+                checkPriorityByPutObject( s3Client, bucketName );
+                // 把桶存起来，最后一个站点校验通过后再清理，因为清理操作需要走主站点
+                waitCleanBuckets.add( bucketName );
+                if ( i == ( dataLocations.size() - 1 ) ) {
+                    for ( String bucket : waitCleanBuckets ) {
+                        S3Utils.clearBucket( s3Client, bucket );
                     }
                 }
-            } while ( true );
+                s3Client.shutdown();
+            }
         } finally {
-            S3Utils.clearBucket( s3Client, bucketName );
-            s3Client.shutdown();
+            session.close();
         }
+    }
+
+    private static String checkPriorityByCreateBucket( AmazonS3 s3Client,
+            String wsName ) throws Exception {
+        String bucketName = UUID.randomUUID().toString();
+        int times = 0;
+        do {
+            try {
+                s3Client.createBucket( bucketName, wsName );
+                break;
+            } catch ( AmazonS3Exception e ) {
+                if ( e.getErrorCode().equals( "AccessDenied" ) ) {
+                    Thread.sleep( 500 );
+                    times++;
+                    if ( times * 500 > 30000 ) {
+                        throw new Exception( "create Bucket time out" );
+                    }
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
+        } while ( true );
+        return bucketName;
+    }
+
+    private static void checkPriorityByPutObject( AmazonS3 s3Client,
+            String bucketName ) throws Exception {
+        int times = 0;
+        String objectKey = UUID.randomUUID().toString();
+        do {
+            try {
+                s3Client.putObject( bucketName, objectKey, "test" );
+                break;
+            } catch ( AmazonS3Exception e ) {
+                if ( e.getErrorCode().equals( "AccessDenied" ) ) {
+                    Thread.sleep( 500 );
+                    times++;
+                    if ( times * 500 > 30000 ) {
+                        throw new Exception( "putObject time out" );
+                    }
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
+        } while ( true );
     }
 
     /**

@@ -76,8 +76,7 @@ public class WRDEmptyFile1108 extends TestScmBase {
         }
     }
 
-    // S3修改导致用例暂时屏蔽,单号:http://jira.web:8080/browse/SEQUOIACM-929
-    @Test(enabled = false, groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         writeAndCheck();
         readAndCheck();
@@ -149,7 +148,7 @@ public class WRDEmptyFile1108 extends TestScmBase {
         Assert.assertEquals( fileInfo2JSON.getIntValue( "size" ), fileSize );
     }
 
-    private void readAndCheck() throws IOException {
+    private void readAndCheck() throws Exception {
         String downloadPath;
         OutputStream fileStream = null;
         InputStream in = null;
@@ -160,7 +159,6 @@ public class WRDEmptyFile1108 extends TestScmBase {
                     .setApi( "files/" + fileId + "?workspace_name="
                             + ws.getName() )
                     .setRequestMethod( HttpMethod.GET )
-                    .setRequestHeaders( "Authorization", "Scm " + sessionId )
                     .setResponseType( Resource.class ).exec();
             fileStream = new FileOutputStream( new File( downloadPath ) );
             Resource rs = ( Resource ) resource.getBody();
@@ -176,10 +174,7 @@ public class WRDEmptyFile1108 extends TestScmBase {
             Assert.assertEquals( TestTools.getMD5( filePath ),
                     TestTools.getMD5( downloadPath ), "filePath = " + filePath
                             + ",downloadPath = " + downloadPath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        } finally {
+        }  finally {
             if ( fileStream != null ) {
                 fileStream.close();
             }

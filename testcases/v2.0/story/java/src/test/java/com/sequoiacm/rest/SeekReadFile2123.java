@@ -82,8 +82,7 @@ public class SeekReadFile2123 extends TestScmBase {
                 TestScmBase.scmUserName, TestScmBase.scmPassword );
     }
 
-    // S3修改导致用例暂时屏蔽,单号:http://jira.web:8080/browse/SEQUOIACM-929
-    @Test(enabled = false, groups = { "fourSite" })
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
         writeFile( restA );
         seekReadAndCheck( restB );
@@ -182,7 +181,6 @@ public class SeekReadFile2123 extends TestScmBase {
     private void deleteFile( RestWrapper rest ) throws Exception {
         rest.setApi( "files/" + fileId + "?workspace_name=" + wsp.getName()
                 + "&is_physical=true" ).setRequestMethod( HttpMethod.DELETE )
-                .setRequestHeaders( "Authorization", "Scm " + sessionId )
                 .setResponseType( Resource.class ).exec();
     }
 }

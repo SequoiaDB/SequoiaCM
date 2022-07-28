@@ -75,8 +75,7 @@ public class WRDBigFile1107 extends TestScmBase {
         }
     }
 
-    // S3修改导致用例暂时屏蔽,单号:http://jira.web:8080/browse/SEQUOIACM-929
-    @Test(enabled = false, groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         writeAndCheck();
         readAndCheck();
@@ -186,7 +185,6 @@ public class WRDBigFile1107 extends TestScmBase {
     private void deleteAndCheck() throws Exception {
         rest.setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
                 + "&is_physical=true" ).setRequestMethod( HttpMethod.DELETE )
-                .setRequestHeaders( "Authorization", "Scm " + sessionId )
                 .setResponseType( Resource.class ).exec();
         try {
             SiteWrapper[] expSites = { ScmInfo.getRootSite() };
