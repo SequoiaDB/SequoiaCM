@@ -96,7 +96,7 @@ public class MultipartUpload4411 extends TestScmBase {
                 AbortMultipartUploadRequest request = new AbortMultipartUploadRequest(
                         bucketName, keyName, uploadId );
                 s3Client.abortMultipartUpload( request );
-                s3Client.deleteObject( bucketName, keyName );
+                S3Utils.clearBucket( s3Client, bucketName );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
