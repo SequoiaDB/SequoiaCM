@@ -25,6 +25,7 @@ public class Bucket4257 extends TestScmBase {
     private final String bucketNameBase = "bucket4257no";
     private final String ignoreBuckeName = "bucket4257test";
     private List< String > bucketNames = new ArrayList<>();
+    private List< String > publicBuckets;
     private ScmSession session;
     private AmazonS3 s3Client = null;
     private final int bucketNum = 30;
@@ -32,6 +33,7 @@ public class Bucket4257 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
+        publicBuckets = S3Utils.getPublicBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
@@ -60,7 +62,8 @@ public class Bucket4257 extends TestScmBase {
 
         // 指定name忽略ignoreBuckeName，按name降序排序统计桶
         long buckeNum = ScmFactory.Bucket.countBucket( session, cond );
-        Assert.assertEquals( buckeNum, bucketNames.size() );
+        Assert.assertEquals( buckeNum - publicBuckets.size(),
+                bucketNames.size() );
 
         // 指定匹配条件和排序为null，列取所有桶
         scmBucketScmCursor = ScmFactory.Bucket.listBucket( session, null, null,
@@ -71,7 +74,8 @@ public class Bucket4257 extends TestScmBase {
 
         // 指定匹配条件和排序为null，统计所有桶
         buckeNum = ScmFactory.Bucket.countBucket( session, null );
-        Assert.assertEquals( buckeNum, bucketNames.size() );
+        Assert.assertEquals( buckeNum - publicBuckets.size(),
+                bucketNames.size() );
         runSuccess = true;
     }
 

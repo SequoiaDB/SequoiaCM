@@ -28,6 +28,7 @@ import java.util.List;
 public class Bucket4279 extends TestScmBase {
     private final String bucketName = "bucket4279no";
     private final String wsName = "ws4279";
+    private List< String > publicBuckets;
     private ScmSession session;
     private ScmSession newUserSession;
     private final String username = "user4279";
@@ -42,6 +43,7 @@ public class Bucket4279 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
+        publicBuckets = S3Utils.getPublicBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
 
         // 创建新ws、新用户并赋权
@@ -80,7 +82,7 @@ public class Bucket4279 extends TestScmBase {
         for ( Bucket bucket : buckets ) {
             actBucketNames.add( bucket.getName() );
         }
-        Assert.assertEquals( actBucketNames.size(), 0,
+        Assert.assertEquals( actBucketNames.size() - publicBuckets.size(), 0,
                 actBucketNames.toString() );
 
         // scm api列取桶
@@ -90,6 +92,8 @@ public class Bucket4279 extends TestScmBase {
         while ( cursor.hasNext() ) {
             actBucketNames.add( cursor.getNext().getName() );
         }
+        // 排除公共桶干扰
+        actBucketNames.removeAll( publicBuckets );
         // scm api可列取所有用户的桶
         Assert.assertEqualsNoOrder( actBucketNames.toArray(),
                 allBucketNames.toArray() );

@@ -673,4 +673,12 @@ public class S3Utils extends TestScmBase {
                 TestTools.getMD5( downloadPath ),
                 "---file downLoadPath = " + downloadPath );
     }
+
+    public static List< String > getPublicBuckets() {
+        List< String > publicBuckets = new ArrayList<>();
+        publicBuckets.add( TestScmBase.enableVerBucketName );
+        publicBuckets.add( TestScmBase.susVerBucketName );
+        publicBuckets.add( TestScmBase.bucketName );
+        return publicBuckets;
+    }
 }

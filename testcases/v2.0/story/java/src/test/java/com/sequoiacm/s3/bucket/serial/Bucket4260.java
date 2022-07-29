@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -23,6 +24,7 @@ import java.util.*;
 public class Bucket4260 extends TestScmBase {
     private final String bucketNameBase = "bucket4260no";
     private List< String > bucketNames = new ArrayList<>();
+    private List< String > publicBuckets;
     private ScmSession session;
     private final int bucketNum = 30;
     private ScmWorkspace ws;
@@ -30,6 +32,7 @@ public class Bucket4260 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
+        publicBuckets = S3Utils.getPublicBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         dropBuckets();

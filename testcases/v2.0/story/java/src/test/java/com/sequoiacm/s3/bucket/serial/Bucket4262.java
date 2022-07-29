@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -87,6 +88,7 @@ public class Bucket4262 extends TestScmBase {
     private void checkBucketNum() throws ScmException {
         long actBucketNum = ScmFactory.Bucket.countBucket( session,
                 s3WorkSpaces, TestScmBase.scmUserName );
-        Assert.assertEquals( actBucketNum, bucketNames.size() );
+        Assert.assertEquals( actBucketNum - S3Utils.getPublicBuckets().size(),
+                bucketNames.size() );
     }
 }

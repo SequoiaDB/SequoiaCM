@@ -26,6 +26,7 @@ public class Bucket4259 extends TestScmBase {
     private final String bucketNameBase = "bucket4259no";
     private List< String > adminUserBuckets = new ArrayList<>();
     private List< String > newUserBuckets = new ArrayList<>();
+    private List< String > publicBuckets;
     private ScmSession adminSession;
     private ScmSession newUserSession;
     private final int bucketNum = 30;
@@ -37,6 +38,7 @@ public class Bucket4259 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
+        publicBuckets = S3Utils.getPublicBuckets();
         adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
         // 新建用户赋予默认s3工作区权限
         ScmAuthUtils.createAdminUserGrant( adminSession, s3WorkSpaces, username,
@@ -70,8 +72,10 @@ public class Bucket4259 extends TestScmBase {
                         TestScmBase.scmUserName );
         S3Utils.checkBucketList( newWsBucketScmCursor, adminUserBuckets,
                 false );
-        Assert.assertEquals( ScmFactory.Bucket.countBucket( newUserSession,
-                s3WorkSpaces, TestScmBase.scmUserName ), bucketNum / 2 );
+        Assert.assertEquals(
+                ScmFactory.Bucket.countBucket( newUserSession, s3WorkSpaces,
+                        TestScmBase.scmUserName ) - publicBuckets.size(),
+                bucketNum / 2 );
 
         // 列取、统计新建user下的桶
         ScmCursor< ScmBucket > s3WsBucketScmCursor = ScmFactory.Bucket
