@@ -2,6 +2,7 @@ package com.sequoiacm.scheduletask;
 
 import java.io.File;
 
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -87,7 +88,18 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         cursor.close();
 
         // create ws
-        ScmWorkspaceUtil.createWS( ssA, wsName, ScmInfo.getSiteNum() );
+        for ( int i = 0; i < 20; i++ ) {
+            Thread.sleep( 1000 );
+            try {
+                ScmWorkspaceUtil.createWS( ssA, wsName, ScmInfo.getSiteNum() );
+                break;
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
+                    throw e;
+                }
+            }
+        }
+
         ScmWorkspaceUtil.wsSetPriority( ssA, wsName );
         // create file to make sure schedule is not running again
         ScmCursor< ScmTaskBasicInfo > cursor1 = ScmSystem.Task.listTask( ssA,
