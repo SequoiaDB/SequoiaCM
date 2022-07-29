@@ -135,19 +135,14 @@ public class Object4246 extends TestScmBase {
     class ScmUpdateFile {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            try {
                 ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 ScmFile file = bucket.getFile( key );
-                Thread.sleep( 10 );
+                Thread.sleep( 100 );
 
                 Map< String, String > customMeta = new HashMap<>();
                 customMeta.put( user_meta_key, user_meta_value2 );
                 file.setCustomMetadata( customMeta );
-            } catch ( ScmException e ) {
-                //TODO:SEQUOIACM-876修改后，根据新的错误描述修改判断值
-                Assert.assertEquals( e.getError().getErrorDescription(), "File not found" );
-            }
         }
     }
 }

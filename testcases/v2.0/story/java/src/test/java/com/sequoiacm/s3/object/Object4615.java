@@ -75,7 +75,6 @@ public class Object4615 extends TestScmBase {
         List< String > keyList = createScmFiles( bucket );
 
         List< String > scmKeyList = scmGetFiles();
-        // TODO: SEQUOIACM-935 修改后才能放开
         Assert.assertEqualsNoOrder( keyList.toArray(), scmKeyList.toArray() );
 
         List< String > s3KeyList = s3GetFiles();

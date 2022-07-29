@@ -39,10 +39,8 @@ public class Bucket4249 extends TestScmBase {
     private boolean runSuccess = false;
     private String bucketName = "bucket4249";
     private List< String > bucketNameList = new ArrayList<>();
-    private List< String > IllegalBucketNames = Arrays.asList( "\\", "%", ";",
+    private List< String > IllegalBucketNames = Arrays.asList( "/", "\\", "%", ";",
             ":", "*", "?", "<", ">", "|" );
-    // TODO:SEQUOIACM-860 修改后再加到IllegalBucketNames中
-    private String exIllegalName = "/";
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -53,7 +51,6 @@ public class Bucket4249 extends TestScmBase {
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsNameA, session );
         ScmWorkspaceUtil.deleteWs( wsNameB, session );
-        int siteNum = ScmInfo.getSiteNum();
 
         ws_test_A = ScmWorkspaceUtil.createS3WS( session, wsNameA );
         ScmWorkspaceUtil.wsSetPriority( session, wsNameA );
@@ -64,6 +61,15 @@ public class Bucket4249 extends TestScmBase {
 
     @Test
     public void test() throws ScmException, IOException {
+        try {
+            ScmFactory.Bucket.createBucket( null, bucketName );
+            Assert.fail(
+                    "Create bucket: " + bucketName + " should be failed" );
+        } catch ( ScmException e ) {
+            System.out.println( "Create bucket: " + bucketName + ", error:"
+                    + e.getError().getErrorDescription() );
+        }
+
         bucketNameList.add( "" );
         for ( String illegalChar : IllegalBucketNames ) {
             bucketNameList.add( bucketName + illegalChar );
@@ -77,8 +83,7 @@ public class Bucket4249 extends TestScmBase {
                 Assert.fail(
                         "Create bucket: " + illegalName + " should be failed" );
             } catch ( ScmException e ) {
-                System.out.println( "Create bucket: " + illegalName + ", error:"
-                        + e.getError().getErrorDescription() );
+                Assert.assertEquals( e.getError().getErrorType(), "INVALID_ARGUMENT");
             }
         }
 

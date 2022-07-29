@@ -81,7 +81,6 @@ public class Object4282 extends TestScmBase {
         } catch ( ScmException e ) {
             System.out.println( "create file:" + bucketName + ", error:"
                     + e.getError().getErrorDescription() );
-            // TODO: SEQUOIACM-860 整改错误码后，需要调整错误描述
             Assert.assertEquals( "Invalid argument",
                     e.getError().getErrorDescription() );
         }

@@ -50,8 +50,7 @@ public class Object4242 extends TestScmBase {
         s3Client.putObject( bucketName, key, text1 );
     }
 
-    //TODO: 待 null版本 代码合入再放开
-    @Test( enabled = false)
+    @Test
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();
