@@ -416,11 +416,14 @@ public class S3Utils extends TestScmBase {
             while ( scmBucketScmCursor.hasNext() ) {
                 actBucketNames.add( scmBucketScmCursor.getNext().getName() );
             }
+            String message = "act:" + actBucketNames.toString() + " exp:"
+                    + expBucketNames.toString();
             if ( sort ) {
-                Assert.assertEquals( actBucketNames, expBucketNames );
+
+                Assert.assertEquals( actBucketNames, expBucketNames, message );
             } else {
                 Assert.assertEqualsNoOrder( actBucketNames.toArray(),
-                        expBucketNames.toArray() );
+                        expBucketNames.toArray(), message );
             }
         } finally {
             scmBucketScmCursor.close();
@@ -564,6 +567,7 @@ public class S3Utils extends TestScmBase {
             }
         }
     }
+
     /**
      * @descreption 修改桶版本控制状态
      * @param s3Client
@@ -571,7 +575,7 @@ public class S3Utils extends TestScmBase {
      * @param BucketVersionConf
      */
     public static void updateBucketVersionConfig( AmazonS3 s3Client,
-                                                  String bucketName, String BucketVersionConf ) {
+            String bucketName, String BucketVersionConf ) {
         BucketVersioningConfiguration config = new BucketVersioningConfiguration()
                 .withStatus( BucketVersionConf );
         s3Client.setBucketVersioningConfiguration(
@@ -580,7 +584,7 @@ public class S3Utils extends TestScmBase {
     }
 
     public static void updateBucketVersionConfig( String bucketName,
-                                                  String BucketVersionConf ) throws Exception {
+            String BucketVersionConf ) throws Exception {
         AmazonS3 s3Client = S3Utils.buildS3Client();
         try {
             updateBucketVersionConfig( s3Client, bucketName,

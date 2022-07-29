@@ -80,7 +80,8 @@ public class Bucket4279 extends TestScmBase {
         for ( Bucket bucket : buckets ) {
             actBucketNames.add( bucket.getName() );
         }
-        Assert.assertEquals( actBucketNames.size(), 0 );
+        Assert.assertEquals( actBucketNames.size(), 0,
+                actBucketNames.toString() );
 
         // scm api列取桶
         actBucketNames = new ArrayList<>();
