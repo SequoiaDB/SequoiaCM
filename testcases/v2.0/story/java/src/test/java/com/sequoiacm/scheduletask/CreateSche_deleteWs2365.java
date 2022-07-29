@@ -88,7 +88,8 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         cursor.close();
 
         // create ws
-        for ( int i = 0; i < 20; i++ ) {
+        int time = 0;
+        while ( true ) {
             Thread.sleep( 1000 );
             try {
                 ScmWorkspaceUtil.createWS( ssA, wsName, ScmInfo.getSiteNum() );
@@ -97,6 +98,11 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
                 if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
                     throw e;
                 }
+            }
+            if ( time < 60 ) {
+                time++;
+            } else {
+                throw new Exception( "createWs timeout !" );
             }
         }
 
