@@ -1,27 +1,24 @@
 package com.sequoiacm.testcommon;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.amazonaws.services.s3.AmazonS3;
+import com.sequoiacm.client.common.ScmType.SessionType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.apache.log4j.Logger;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
-import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.element.ScmWorkspaceInfo;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
-import com.sequoiadb.threadexecutor.ThreadExecutor;
-import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
@@ -52,6 +49,10 @@ public class TestScmBase {
     protected static String s3ClientUrl;
     protected static String s3WorkSpaces;
     protected static List< String > serviceList;
+
+    protected static String bucketName;
+    protected static String enableVerBucketName;
+    protected static String susVerBucketName;
 
     protected static String ldapUserName;
     protected static String ldapPassword;
@@ -100,13 +101,17 @@ public class TestScmBase {
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
 
+        bucketName = "commbucket";
+        enableVerBucketName = "commbucketwithversion";
+        susVerBucketName = "commsuspendedbucket";
+
         // TODO schedulePreferredZone特性需要，暂时写死，后续替换为xml传参形式
         zone1 = "zone1";
         zone2 = "zone2";
         defaultRegion = "DefaultRegion";
 
-        //TODO:SEQUOIACM-936 暂时关闭缓存
-        ScmFactory.Workspace.setKeepAliveTime(0);
+        // TODO:SEQUOIACM-936 暂时关闭缓存
+        ScmFactory.Workspace.setKeepAliveTime( 0 );
         // initialize scmInfo
         ScmSession session = null;
         try {
@@ -136,6 +141,9 @@ public class TestScmBase {
                 }
                 WsPool.init( wsNames );
             }
+
+            // 创建S3公共桶
+            createS3CommBucket( session );
         } finally {
             if ( null != session ) {
                 session.close();
@@ -147,6 +155,45 @@ public class TestScmBase {
     public static void finiSuite() throws Exception {
         if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
             WsPool.destroy();
+        }
+    }
+
+    private static void createS3CommBucket( ScmSession session )
+            throws Exception {
+        AmazonS3 s3Client = null;
+        try {
+            // clean up existing buckets
+            s3Client = S3Utils.buildS3Client();
+
+            if ( s3Client.doesBucketExistV2( bucketName ) ) {
+                S3Utils.deleteAllObjects( s3Client, bucketName );
+                s3Client.deleteBucket( bucketName );
+            }
+            if ( s3Client.doesBucketExistV2( enableVerBucketName ) ) {
+                S3Utils.deleteAllObjectVersions( s3Client,
+                        enableVerBucketName );
+                s3Client.deleteBucket( enableVerBucketName );
+            }
+
+            if ( s3Client.doesBucketExistV2( susVerBucketName ) ) {
+                S3Utils.deleteAllObjectVersions( s3Client, susVerBucketName );
+                s3Client.deleteBucket( susVerBucketName );
+            }
+
+            // create bucket
+            s3Client.createBucket( bucketName );
+            // create bucket by enable versioning
+            s3Client.createBucket( enableVerBucketName );
+            S3Utils.setBucketVersioning( s3Client, enableVerBucketName,
+                    "Enabled" );
+            // create bucket by enable versioning
+            s3Client.createBucket( susVerBucketName );
+            S3Utils.setBucketVersioning( s3Client, susVerBucketName,
+                    "Suspended" );
+        } finally {
+            if ( s3Client != null ) {
+                s3Client.shutdown();
+            }
         }
     }
 

@@ -1,26 +1,5 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.io.*;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
-import org.bson.BSONObject;
-import com.amazonaws.services.s3.model.*;
-import org.apache.commons.codec.binary.Hex;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.testng.Assert;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -28,8 +7,24 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.*;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import org.bson.BSONObject;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.testng.Assert;
+
+import org.apache.commons.codec.binary.Hex;
+import java.security.MessageDigest;
+import java.io.*;
+import java.util.*;
 
 public class S3Utils extends TestScmBase {
     private static String clientRegion = "us-east-1";
@@ -134,7 +129,6 @@ public class S3Utils extends TestScmBase {
                 deleteAllObjects( s3Client, bucketName );
             } else {
                 deleteAllObjectVersions( s3Client, bucketName );
-                ;
             }
             s3Client.deleteBucket( bucketName );
         }
@@ -592,5 +586,91 @@ public class S3Utils extends TestScmBase {
         } finally {
             s3Client.shutdown();
         }
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件方式
+     * @param bucket
+     * @param fileName
+     * @param filePath
+     * @return fileId
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            String filePath ) throws ScmException {
+        ScmFile file = bucket.createFile( fileName );
+        file.setContent( filePath );
+        file.setFileName( fileName );
+        file.setTitle( fileName );
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件流方式
+     * @param bucket
+     * @param fileName
+     * @param data
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            byte[] data ) throws ScmException {
+        return createFile( bucket, fileName, data, fileName );
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件流方式
+     * @param bucket
+     * @param fileName
+     * @param data
+     * @param authorName
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            byte[] data, String authorName ) throws ScmException {
+        ScmFile file = bucket.createFile( fileName );
+        new Random().nextBytes( data );
+        file.setContent( new ByteArrayInputStream( data ) );
+        file.setFileName( fileName );
+        file.setAuthor( authorName );
+        file.setTitle( "sequoiacm" );
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption 校验scm桶下文件内容，通过文件流方式比较
+     * @param file
+     *            获取文件实例
+     * @param fileDatas
+     *            预期数据内容
+     * @throws ScmException
+     */
+    public static void checkFileContent( ScmFile file, byte[] fileDatas )
+            throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        file.getContent( outputStream );
+        byte[] downloadData = outputStream.toByteArray();
+        VersionUtils.assertByteArrayEqual( downloadData, fileDatas );
+    }
+
+    /**
+     * @descreption 校验scm桶下文件内容，通过文件方式比较
+     * @param file
+     *            获取文件实例
+     * @param filePath
+     *            预期对比文件路径
+     * @param localPath
+     *            下载文件路径
+     * @throws ScmException
+     */
+    public static void checkFileContent( ScmFile file, String filePath,
+            File localPath ) throws Exception {
+        String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
+                TestTools.getMethodName(), Thread.currentThread().getId() );
+        file.getContent( downloadPath );
+        Assert.assertEquals( TestTools.getMD5( filePath ),
+                TestTools.getMD5( downloadPath ),
+                "---file downLoadPath = " + downloadPath );
     }
 }
