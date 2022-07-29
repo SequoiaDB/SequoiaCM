@@ -58,6 +58,8 @@ public class ScmFile4770 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
+        System.out.println("----filesize1="+fileSize + "---" + TestTools.getMD5(filePath));
+        System.out.println("----filesize2="+updateSize +"---"+ TestTools.getMD5(updatePath));
         int currentVersion = 3;
         scmBucket.deleteFileVersion( fileName, currentVersion, 0 );
         try {
@@ -77,7 +79,7 @@ public class ScmFile4770 extends TestScmBase {
         int newhistroyVersion = 1;
         ScmFile file1 = scmBucket.getFile( fileName, newhistroyVersion, 0 );
         Assert.assertEquals( file1.getSize(), fileSize );
-        S3Utils.checkFileContent( file, filePath, localPath );
+        S3Utils.checkFileContent( file1, filePath, localPath );
         runSuccess = true;
     }
 

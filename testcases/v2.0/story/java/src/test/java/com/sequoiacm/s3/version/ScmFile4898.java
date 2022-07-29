@@ -70,7 +70,7 @@ public class ScmFile4898 extends TestScmBase {
             scmBucket.getNullVersionFile( null );
             Assert.fail( "get nullVersionFile should be fail!" );
         } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.FILE_NOT_FOUND.getErrorType(),
+            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT.getErrorType(),
                     "errorMsg: " + e.getMessage() + ", errorCode="
                             + e.getError() );
         }
@@ -80,7 +80,7 @@ public class ScmFile4898 extends TestScmBase {
             scmBucket.getNullVersionFile( "" );
             Assert.fail( "get nullVersionFile should be fail!" );
         } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.FILE_NOT_FOUND.getErrorType(),
+            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT.getErrorType(),
                     "errorMsg: " + e.getMessage() + ", errorCode="
                             + e.getError() );
         }

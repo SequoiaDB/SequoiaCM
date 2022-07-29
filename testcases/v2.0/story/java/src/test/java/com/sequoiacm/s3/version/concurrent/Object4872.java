@@ -21,9 +21,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * @Description: SCM-4872 :: 开启版本控制，并发列取文件版本列表
@@ -116,7 +117,7 @@ public class Object4872 extends TestScmBase {
                     .listInstance( ws, ScmType.ScopeType.SCOPE_ALL, condition );
             int curVersion = 2;
             int hisVersion = 1;
-            List< String > actFileNames = new ArrayList<>();
+            HashSet<String> actFileNames = new HashSet<>();
             while ( cursor.hasNext() ) {
                 ScmFileBasicInfo file = cursor.getNext();
                 int version = file.getMajorVersion();
@@ -130,11 +131,10 @@ public class Object4872 extends TestScmBase {
             }
             cursor.close();
 
-            List< String > actFileNamelist = actFileNames.stream().distinct()
-                    .collect( Collectors.toList() );
-            Assert.assertEqualsNoOrder( actFileNamelist.toArray(),
+
+            Assert.assertEqualsNoOrder( actFileNames.toArray(),
                     expKeys.toArray(),
-                    "act fileName are :" + actFileNamelist.toString() );
+                    "act fileName are :" + actFileNames.toString() );
         }
     }
 
@@ -144,7 +144,7 @@ public class Object4872 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
-            List< String > actKeyNames = new ArrayList<>();
+            HashSet<String> actKeyNames = new HashSet<>();
             VersionListing verList = s3Client.listVersions(
                     new ListVersionsRequest().withBucketName( bucketName ) );
             while ( true ) {
@@ -179,10 +179,8 @@ public class Object4872 extends TestScmBase {
                 }
             }
 
-            List< String > actFileNamelist = actKeyNames.stream().distinct()
-                    .collect( Collectors.toList() );
-            Assert.assertEqualsNoOrder( actFileNamelist.toArray(), expKeys.toArray(),
-                    "act fileName are :" + actFileNamelist.toString() );
+            Assert.assertEqualsNoOrder( actKeyNames.toArray(), expKeys.toArray(),
+                    "act fileName are :" + actKeyNames.toString() );
         }
 
     }

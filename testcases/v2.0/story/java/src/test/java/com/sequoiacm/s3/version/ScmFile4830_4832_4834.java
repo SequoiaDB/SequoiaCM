@@ -17,9 +17,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * @Description SCM-4830 :: 指定当前版本列取文件，其中当前版本为deleteMarker标记 ; SCM-4832 ::
@@ -142,7 +143,8 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
                 .get();
         ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
                 ScmType.ScopeType.SCOPE_HISTORY, condition );
-        List< String > actFileNames = new ArrayList<>();
+
+        HashSet<String> actFileNames = new HashSet<>();
         int size = 0;
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
@@ -156,9 +158,7 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
         }
         cursor.close();
 
-        List< String > actFileNamelist = actFileNames.stream().distinct()
-                .collect( Collectors.toList() );
-        Assert.assertEqualsNoOrder( actFileNamelist.toArray(),
+        Assert.assertEqualsNoOrder( actFileNames.toArray(),
                 expectFileNames.toArray(),
                 "query cond :" + condition.toString() );
         // exist history version file
@@ -178,7 +178,7 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
                 .get();
         ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
                 ScmType.ScopeType.SCOPE_ALL, condition );
-        List< String > actFileNames = new ArrayList<>();
+        HashSet<String> actFileNames = new HashSet<>();
         int size = 0;
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
@@ -188,11 +188,10 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
         }
         cursor.close();
 
-        List< String > actFileNamelist = actFileNames.stream().distinct()
-                .collect( Collectors.toList() );
-        Assert.assertEqualsNoOrder( actFileNamelist.toArray(),
+
+        Assert.assertEqualsNoOrder( actFileNames.toArray(),
                 expectFileNames.toArray(),
-                "act fileName are :" + actFileNamelist.toString()
+                "act fileName are :" + actFileNames.toString()
                         + " , query cond :" + condition.toString() );
 
         // exist all version file
