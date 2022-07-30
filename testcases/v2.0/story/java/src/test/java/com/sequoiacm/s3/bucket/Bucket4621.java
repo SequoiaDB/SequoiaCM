@@ -2,8 +2,8 @@ package com.sequoiacm.s3.bucket;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
@@ -39,6 +39,7 @@ public class Bucket4621 extends TestScmBase {
         S3Utils.clearBucket( s3A, bucketName );
 
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        ScmAuthUtils.deleteUser( session, userName );
         ScmAuthUtils.createUser( session, userName, passWord );
 
         accessKeys = ScmAuthUtils.refreshAccessKey( session, userName, passWord,
@@ -59,7 +60,8 @@ public class Bucket4621 extends TestScmBase {
 
         try {
             S3Utils.setBucketVersioning( s3B, bucketName, "Suspended" );
-            Assert.fail("set bucket versioning configuration should be failed");
+            Assert.fail(
+                    "set bucket versioning configuration should be failed" );
         } catch ( AmazonS3Exception e ) {
             Assert.assertEquals( e.getStatusCode(), 403 );
             Assert.assertEquals( e.getErrorCode(), "AccessDenied" );
@@ -67,7 +69,8 @@ public class Bucket4621 extends TestScmBase {
 
         try {
             s3B.getBucketVersioningConfiguration( bucketName );
-            Assert.fail("get bucket versioning configuration should be failed");
+            Assert.fail(
+                    "get bucket versioning configuration should be failed" );
         } catch ( AmazonS3Exception e ) {
             Assert.assertEquals( e.getStatusCode(), 403 );
             Assert.assertEquals( e.getErrorCode(), "AccessDenied" );
@@ -77,10 +80,11 @@ public class Bucket4621 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3A, bucketName );
+                ScmAuthUtils.deleteUser( session, userName );
             }
         } finally {
             if ( s3A != null ) {
@@ -88,6 +92,9 @@ public class Bucket4621 extends TestScmBase {
             }
             if ( s3B != null ) {
                 s3B.shutdown();
+            }
+            if ( session != null ) {
+                session.close();
             }
         }
     }

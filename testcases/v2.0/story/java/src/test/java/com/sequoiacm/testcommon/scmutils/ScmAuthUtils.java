@@ -566,6 +566,24 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
+     * 删除用户
+     *
+     * @param session
+     * @param username
+     * @return
+     * @throws ScmException
+     */
+    public static void deleteUser( ScmSession session, String username ) throws ScmException {
+        try {
+            ScmFactory.User.deleteUser( session, username );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                throw e;
+            }
+        }
+    }
+
+    /**
      * 创建角色
      * 
      * @param session
