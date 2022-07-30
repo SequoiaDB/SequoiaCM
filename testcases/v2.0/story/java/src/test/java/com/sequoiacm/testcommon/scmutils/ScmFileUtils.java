@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -22,6 +19,7 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
+import org.bson.BasicBSONObject;
 
 public class ScmFileUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmFileUtils.class );
@@ -72,6 +70,29 @@ public class ScmFileUtils extends TestScmBase {
             }
             if ( session != null ) {
                 session.close();
+            }
+        }
+    }
+
+    public static void cleanFile( ScmWorkspace work, String fileName )
+            throws ScmException {
+        ScmCursor< ScmFileBasicInfo > cursor = null;
+        try {
+            BSONObject matchByName = new BasicBSONObject();
+            matchByName.put( ScmAttributeName.File.FILE_NAME, fileName );
+            cursor = ScmFactory.File.listInstance( work,
+                    ScmType.ScopeType.SCOPE_CURRENT, matchByName );
+            while ( cursor.hasNext() ) {
+                ScmFileBasicInfo fileInfo = cursor.getNext();
+                ScmId fileId = fileInfo.getFileId();
+                ScmFactory.File.deleteInstance( work, fileId, true );
+            }
+        } catch ( ScmException e ) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
             }
         }
     }

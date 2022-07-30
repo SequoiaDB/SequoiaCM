@@ -1,5 +1,6 @@
 package com.sequoiacm.testcommon.scmutils;
 
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -7,16 +8,19 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -122,7 +126,7 @@ public class S3Utils extends TestScmBase {
      * @param s3Client,bucketName
      */
     public static void clearBucket( AmazonS3 s3Client, String bucketName ) {
-        if ( s3Client.doesBucketExistV2( bucketName ) ) {
+        if ( s3Client.doesBucketExist( bucketName ) ) {
             String bucketVerStatus = s3Client
                     .getBucketVersioningConfiguration( bucketName ).getStatus();
             if ( bucketVerStatus == "Off" ) {
@@ -589,6 +593,7 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+<<<<<<< HEAD
      * @descreption scm桶下创建文件，使用文件方式
      * @param bucket
      * @param fileName
@@ -675,10 +680,60 @@ public class S3Utils extends TestScmBase {
     }
 
     public static List< String > getPublicBuckets() {
-        List< String > publicBuckets = new ArrayList<>();
-        publicBuckets.add( TestScmBase.enableVerBucketName );
-        publicBuckets.add( TestScmBase.susVerBucketName );
-        publicBuckets.add( TestScmBase.bucketName );
+        List<String> publicBuckets = new ArrayList<>();
+        publicBuckets.add(TestScmBase.enableVerBucketName);
+        publicBuckets.add(TestScmBase.susVerBucketName);
+        publicBuckets.add(TestScmBase.bucketName);
         return publicBuckets;
+    }
+
+    public static String getRandomString( int length ) {
+        String str = "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for ( int i = 0; i < length; i++ ) {
+            int number = random.nextInt( str.length() );
+            sb.append( str.charAt( number ) );
+        }
+        return sb.toString();
+    }
+
+    public static List< ScmFileBasicInfo > getVersionList( ScmSession session,
+            ScmWorkspace ws, String bucketName ) throws ScmException {
+        List< ScmFileBasicInfo > fileList = new ArrayList<>();
+        ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
+        BSONObject orderByName = new BasicBSONObject();
+        orderByName.put( ScmAttributeName.File.FILE_NAME, 1 );
+        BSONObject orderByVersion = new BasicBSONObject();
+        orderByVersion.put( ScmAttributeName.File.MAJOR_VERSION, -1 );
+        ScmCursor< ScmFileBasicInfo > fileCursor = bucket.listFile( null,
+                orderByName, 0, -1 );
+        while ( fileCursor.hasNext() ) {
+            List< ScmFileBasicInfo > fileVersions = new ArrayList<>();
+            ScmFileBasicInfo curFile = fileCursor.getNext();
+            fileList.add( curFile );
+            ScmId fileId = curFile.getFileId();
+            ScmCursor< ScmFileBasicInfo > versionCursor = ScmFactory.File
+                    .listInstance( ws, ScmType.ScopeType.SCOPE_HISTORY,
+                            ScmQueryBuilder
+                                    .start( ScmAttributeName.File.FILE_ID )
+                                    .is( fileId.toString() ).get(),
+                            orderByVersion, 0, -1 );
+            while ( versionCursor.hasNext() ) {
+                fileVersions.add( versionCursor.getNext() );
+            }
+            Collections.sort( fileVersions,
+                    new Comparator< ScmFileBasicInfo >() {
+                        @Override
+                        public int compare( ScmFileBasicInfo o1,
+                                ScmFileBasicInfo o2 ) {
+                            return o2.getVersionSerial().getMajorSerial()
+                                    - o1.getVersionSerial().getMajorSerial();
+                        }
+                    } );
+            fileList.addAll( fileVersions );
+        }
+
+        return fileList;
     }
 }
