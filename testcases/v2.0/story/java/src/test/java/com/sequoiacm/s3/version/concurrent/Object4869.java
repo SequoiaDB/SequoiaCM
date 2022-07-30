@@ -87,6 +87,9 @@ public class Object4869 extends TestScmBase {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 

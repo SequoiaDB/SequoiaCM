@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * @Description: SCM-4872 :: 开启版本控制，并发列取文件版本列表
  * @author wuyan
@@ -103,6 +102,9 @@ public class Object4872 extends TestScmBase {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 
@@ -117,7 +119,7 @@ public class Object4872 extends TestScmBase {
                     .listInstance( ws, ScmType.ScopeType.SCOPE_ALL, condition );
             int curVersion = 2;
             int hisVersion = 1;
-            HashSet<String> actFileNames = new HashSet<>();
+            HashSet< String > actFileNames = new HashSet<>();
             while ( cursor.hasNext() ) {
                 ScmFileBasicInfo file = cursor.getNext();
                 int version = file.getMajorVersion();
@@ -131,7 +133,6 @@ public class Object4872 extends TestScmBase {
             }
             cursor.close();
 
-
             Assert.assertEqualsNoOrder( actFileNames.toArray(),
                     expKeys.toArray(),
                     "act fileName are :" + actFileNames.toString() );
@@ -144,7 +145,7 @@ public class Object4872 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
-            HashSet<String> actKeyNames = new HashSet<>();
+            HashSet< String > actKeyNames = new HashSet<>();
             VersionListing verList = s3Client.listVersions(
                     new ListVersionsRequest().withBucketName( bucketName ) );
             while ( true ) {
@@ -179,7 +180,8 @@ public class Object4872 extends TestScmBase {
                 }
             }
 
-            Assert.assertEqualsNoOrder( actKeyNames.toArray(), expKeys.toArray(),
+            Assert.assertEqualsNoOrder( actKeyNames.toArray(),
+                    expKeys.toArray(),
                     "act fileName are :" + actKeyNames.toString() );
         }
 

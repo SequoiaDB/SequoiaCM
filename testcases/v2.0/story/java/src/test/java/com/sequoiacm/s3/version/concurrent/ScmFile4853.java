@@ -89,6 +89,9 @@ public class ScmFile4853 extends TestScmBase {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 

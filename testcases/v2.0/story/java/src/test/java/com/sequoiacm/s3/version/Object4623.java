@@ -54,8 +54,8 @@ public class Object4623 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-               // s3Client.deleteVersion( TestScmBase.susVerBucketName, keyName,
-              //          "1.0" );
+                s3Client.deleteVersion( TestScmBase.susVerBucketName, keyName,
+                        "null" );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {

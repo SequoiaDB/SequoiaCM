@@ -105,6 +105,9 @@ public class ScmFile4850 extends TestScmBase {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 

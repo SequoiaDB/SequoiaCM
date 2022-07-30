@@ -102,6 +102,7 @@ public class Object4272 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
+                S3Utils.clearBucket( session, bucketName );
                 ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
             }

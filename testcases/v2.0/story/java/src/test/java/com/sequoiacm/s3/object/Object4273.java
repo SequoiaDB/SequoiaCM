@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -77,6 +78,7 @@ public class Object4273 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
+                S3Utils.clearBucket(session, bucketName);
                 ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
             }

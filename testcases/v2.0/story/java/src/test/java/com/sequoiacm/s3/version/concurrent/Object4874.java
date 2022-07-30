@@ -92,6 +92,9 @@ public class Object4874 extends TestScmBase {
             if ( s3Client != null ) {
                 s3Client.shutdown();
             }
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 

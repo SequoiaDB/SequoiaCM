@@ -7,6 +7,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -77,7 +78,7 @@ public class Object4282 extends TestScmBase {
             fileB.setFileName( key + "/" );
             fileB.setContent( filePath );
             fileB.save();
-            Assert.fail("'/' is invalid in file name if directory is enable");
+            Assert.fail( "'/' is invalid in file name if directory is enable" );
         } catch ( ScmException e ) {
             System.out.println( "create file:" + bucketName + ", error:"
                     + e.getError().getErrorDescription() );
@@ -98,6 +99,7 @@ public class Object4282 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
+                S3Utils.clearBucket( session, bucketName );
                 ScmWorkspaceUtil.deleteWs( wsNameA, session );
                 ScmWorkspaceUtil.deleteWs( wsNameB, session );
                 TestTools.LocalFile.removeFile( localPath );

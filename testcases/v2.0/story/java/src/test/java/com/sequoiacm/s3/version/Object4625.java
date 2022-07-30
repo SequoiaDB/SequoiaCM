@@ -1,19 +1,18 @@
 package com.sequoiacm.s3.version;
 
-import java.io.File;
-import java.util.Date;
-
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
+import java.io.File;
+import java.util.Date;
 
 /**
  * @Description SCM-4625 :: 更新桶状态为开启（disable->enable），更新同名文件
@@ -65,8 +64,7 @@ public class Object4625 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                S3Utils.deleteObjectAllVersions( s3Client, bucketName,
-                        keyName );
+                S3Utils.clearBucket(s3Client, bucketName);
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {

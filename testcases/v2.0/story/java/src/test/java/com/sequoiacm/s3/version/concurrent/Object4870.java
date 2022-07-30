@@ -29,8 +29,8 @@ public class Object4870 extends TestScmBase {
     private boolean runSuccess = false;
     private String bucketName = "bucket4870";
     private String keyName = "key4870";
-    private int fileSize = 1024 * 1024 ;
-    private int updateSize = 1024 * 1024 * 2 ;
+    private int fileSize = 1024 * 1024;
+    private int updateSize = 1024 * 1024 * 2;
     private File localPath = null;
     private String filePath = null;
     private String updatePath = null;
@@ -60,7 +60,7 @@ public class Object4870 extends TestScmBase {
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
         s3Client = S3Utils.buildS3Client();
-        s3Client.putObject(bucketName, keyName, "");
+        s3Client.putObject( bucketName, keyName, "" );
     }
 
     @Test
@@ -86,6 +86,9 @@ public class Object4870 extends TestScmBase {
         } finally {
             if ( s3Client != null ) {
                 s3Client.shutdown();
+            }
+            if ( session != null ) {
+                session.close();
             }
         }
     }
@@ -120,7 +123,7 @@ public class Object4870 extends TestScmBase {
         String currentVersion = "3.0";
         String historyVersion1 = "2.0";
         String historyVersion2 = "1.0";
-        String file0Md5 = TestTools.getMD5("".getBytes());
+        String file0Md5 = TestTools.getMD5( "".getBytes() );
         String file1Md5 = TestTools.getMD5( filePath );
         String file2Md5 = TestTools.getMD5( updatePath );
 
@@ -156,7 +159,7 @@ public class Object4870 extends TestScmBase {
     }
 
     private void getObjectAndCheckResult( String version, String fileMd5,
-                                          long size ) throws Exception {
+            long size ) throws Exception {
         GetObjectRequest request = new GetObjectRequest( bucketName, keyName,
                 version );
         S3Object object = s3Client.getObject( request );

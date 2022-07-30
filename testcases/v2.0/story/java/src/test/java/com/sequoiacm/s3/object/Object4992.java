@@ -78,7 +78,12 @@ public class Object4992 extends TestScmBase {
                 ScmWorkspaceUtil.deleteWs( wsName, session );
             }
         } finally {
-            s3Client.shutdown();
+            if( s3Client != null ){
+                s3Client.shutdown();
+            }
+            if( session != null ){
+                session.close();
+            }
         }
     }
 

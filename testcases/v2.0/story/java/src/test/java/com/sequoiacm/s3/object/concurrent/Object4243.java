@@ -97,7 +97,9 @@ public class Object4243 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess ) {
-                cleanBuckets( bucketName );
+                S3Utils.clearBucket(s3Client, bucketName);
+                S3Utils.clearBucket(s3Client, bucketNameA);
+                S3Utils.clearBucket(s3Client, bucketNameB);
                 TestTools.LocalFile.removeFile( localPath );
                 try {
                     ScmFactory.File.deleteInstance( ws, fileId, true );
