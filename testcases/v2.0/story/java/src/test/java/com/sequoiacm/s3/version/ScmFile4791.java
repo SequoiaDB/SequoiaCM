@@ -1,11 +1,5 @@
 package com.sequoiacm.s3.version;
 
-import org.bson.BSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
@@ -15,8 +9,12 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * @Description SCM-4791 :: 获取版本文件执行物理删除
@@ -41,7 +39,6 @@ public class ScmFile4791 extends TestScmBase {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
-        S3Utils.clearBucket( session, bucketName );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,

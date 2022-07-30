@@ -42,7 +42,6 @@ public class ScmFile4789 extends TestScmBase {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
-        S3Utils.clearBucket( session, bucketName );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
 

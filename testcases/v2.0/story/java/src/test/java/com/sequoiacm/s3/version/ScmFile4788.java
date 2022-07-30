@@ -60,7 +60,6 @@ public class ScmFile4788 extends TestScmBase {
     @Test
     public void test() throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-        System.out.println( "---delete version =" + file.getMajorVersion() );
         file.deleteVersion();
 
         // 检查当前文件版本信息
