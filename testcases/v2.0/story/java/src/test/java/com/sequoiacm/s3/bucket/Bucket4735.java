@@ -1,11 +1,5 @@
 package com.sequoiacm.s3.bucket;
 
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.sequoiacm.client.core.ScmBucket;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -15,6 +9,12 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * @Descreption SCM-4735 :: 不同用户设置/获取桶版本控制状态
@@ -36,9 +36,9 @@ public class Bucket4735 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         sessionA = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUserGrant( sessionA, s3WorkSpaces, username,
-                password );
-        sessionB = TestScmTools.createSession( ScmInfo.getRootSite(), username,
+        S3Utils.clearBucket( sessionA, bucketName );
+        ScmAuthUtils.createUser( sessionA, username, password );
+        sessionB = TestScmTools.createSession( ScmInfo.getSite(), username,
                 password );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
     }
