@@ -42,17 +42,16 @@ public class ScmFile4899 extends TestScmBase {
         S3Utils.createFile( scmBucket, fileName, filedata );
     }
 
-    //http://jira.web:8080/browse/SEQUOIACM-979
-    @Test(enabled = false)
+    @Test
     public void test() throws Exception {
         // fileName为null
         try {
             scmBucket.deleteFileVersion( null, 1, 0 );
             Assert.fail( "delete version should be fail!" );
         } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT,
-                    "errorMsg: " + e.getMessage() + ", errorCode="
-                            + e.getError() );
+            Assert.assertEquals( e.getErrorType(),
+                    ScmError.INVALID_ARGUMENT.getErrorType(), "errorMsg: "
+                            + e.getMessage() + ", errorCode=" + e.getError() );
         }
 
         // fileName为空串
@@ -60,31 +59,14 @@ public class ScmFile4899 extends TestScmBase {
             scmBucket.deleteFileVersion( "", 1, 0 );
             Assert.fail( "delete version should be fail!" );
         } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT,
-                    "errorMsg: " + e.getMessage() + ", errorCode="
-                            + e.getError() );
+            Assert.assertEquals( e.getErrorType(),
+                    ScmError.INVALID_ARGUMENT.getErrorType(), "errorMsg: "
+                            + e.getMessage() + ", errorCode=" + e.getError() );
         }
 
-        // 版本不存在
-        try {
-            scmBucket.deleteFileVersion( fileName, 5, 0 );
-            Assert.fail( "delete version should be fail!" );
-        } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT,
-                    "errorMsg: " + e.getMessage() + ", errorCode="
-                            + e.getError() );
-        }
-
-        // 文件名不存在
-        try {
-            scmBucket.deleteFileVersion( "test", 1, 0 );
-            Assert.fail( "get file with deleteMarker should be fail!" );
-        } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorType(), ScmError.INVALID_ARGUMENT,
-                    "errorMsg: " + e.getMessage() + ", errorCode="
-                            + e.getError() );
-        }
-
+        // 同s3，不校验忽略错误
+        scmBucket.deleteFileVersion( fileName, 5, 0 );
+        scmBucket.deleteFileVersion( "test", 1, 0 );
         // 获取文件还存在未删除
         ScmFile file = scmBucket.getFile( fileName );
         Assert.assertEquals( file.getMajorVersion(), 1 );
