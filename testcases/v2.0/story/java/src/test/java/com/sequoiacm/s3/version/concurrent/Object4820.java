@@ -46,7 +46,7 @@ public class Object4820 extends TestScmBase {
 
         s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
-        S3Utils.setBucketVersioning(s3Client, bucketName, "Enabled");
+        S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
         s3Client.putObject( bucketName, keyName, new File( filePath ) );
         s3Client.putObject( bucketName, keyName, new File( updatePath ) );
     }
@@ -126,7 +126,8 @@ public class Object4820 extends TestScmBase {
                 S3Object object = s3Client.getObject( request );
                 checkGetObjectResult( object, bucketName, keyName, version );
             } catch ( AmazonS3Exception e ) {
-                if ( !e.getErrorCode().equals( "NoSuchKey" ) ) {
+                if ( !e.getErrorCode().equals( "NoSuchKey" )
+                        && !e.getErrorCode().equals( "NoSuchVersion" ) ) {
                     throw e;
                 }
             } finally {
