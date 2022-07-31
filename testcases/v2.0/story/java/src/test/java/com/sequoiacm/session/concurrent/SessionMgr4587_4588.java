@@ -40,7 +40,7 @@ public class SessionMgr4587_4588 extends TestScmBase {
         sessionMgrA = createSessionMgr();
         sessionMgrB = createSessionMgr();
 
-        ThreadExecutor teSession = new ThreadExecutor( 10000 );
+        ThreadExecutor teSession = new ThreadExecutor( );
         GetSession t1 = new GetSession( ScmType.SessionType.AUTH_SESSION );
         GetSession t2 = new GetSession( ScmType.SessionType.AUTH_SESSION );
         GetSession t3 = new GetSession( ScmType.SessionType.NOT_AUTH_SESSION );
@@ -49,7 +49,7 @@ public class SessionMgr4587_4588 extends TestScmBase {
         teSession.addWorker( t3 );
         teSession.run();
 
-        ThreadExecutor teSessionMgr = new ThreadExecutor( 10000 );
+        ThreadExecutor teSessionMgr = new ThreadExecutor( );
         CloseSessionMgr t4 = new CloseSessionMgr( sessionMgrA );
         CloseSessionMgr t5 = new CloseSessionMgr( sessionMgrA );
         CloseSessionMgr t6 = new CloseSessionMgr( sessionMgrB );

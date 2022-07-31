@@ -38,7 +38,7 @@ public class SessionMgr4590 extends TestScmBase {
     private void test() throws Exception {
         sessionMgr = createSessionMgr();
 
-        ThreadExecutor teSession = new ThreadExecutor( 10000 );
+        ThreadExecutor teSession = new ThreadExecutor( );
         GetSession t1 = new GetSession();
         CloseSessionMgr t2 = new CloseSessionMgr();
         teSession.addWorker( t1 );

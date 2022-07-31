@@ -68,14 +68,14 @@ public class Object4811 extends TestScmBase {
         teA.run();
 
         // test b : Getting object with the same versionId
-        ThreadExecutor teB = new ThreadExecutor( 10000 );
+        ThreadExecutor teB = new ThreadExecutor( );
         for ( int i = 0; i < threadNum; i++ ) {
             teB.addWorker( new GetSameVersionThread() );
         }
         teB.run();
 
         // test c : Getting object with the different versionId
-        ThreadExecutor teC = new ThreadExecutor( 10000 );
+        ThreadExecutor teC = new ThreadExecutor( );
         for ( int i = 0; i < threadNum; i++ ) {
             teC.addWorker(
                     new GetDiffVersionThread( ( i % versionNum + 1 ) + ".0" ) );

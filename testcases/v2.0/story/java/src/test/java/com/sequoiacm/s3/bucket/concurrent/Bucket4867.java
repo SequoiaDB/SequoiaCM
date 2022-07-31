@@ -49,7 +49,7 @@ public class Bucket4867 extends TestScmBase {
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor es = new ThreadExecutor( 10000 );
+        ThreadExecutor es = new ThreadExecutor();
         CreateS3Bucket createS3Bucket = new CreateS3Bucket();
         CreateSCMBucket createSCMBucket = new CreateSCMBucket();
         es.addWorker( createS3Bucket );

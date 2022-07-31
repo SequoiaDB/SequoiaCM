@@ -30,12 +30,12 @@ public class Bucket4806 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
-        S3Utils.clearBucket( s3Client, bucketName);
+        S3Utils.clearBucket( s3Client, bucketName );
     }
 
     @Test
     public void test() throws Exception {
-        ThreadExecutor te = new ThreadExecutor( 10000 );
+        ThreadExecutor te = new ThreadExecutor();
         CreateBucket t1 = new CreateBucket();
         CreateBucket t2 = new CreateBucket();
         te.addWorker( t1 );
@@ -74,7 +74,7 @@ public class Bucket4806 extends TestScmBase {
                 s3Client.createBucket( bucketName );
                 S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
             } catch ( AmazonS3Exception e ) {
-                System.out.println("error:" + e.getErrorCode());
+                System.out.println( "error:" + e.getErrorCode() );
                 saveResult( e.getStatusCode(), e );
             } finally {
                 if ( s3Client != null ) {
