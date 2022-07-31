@@ -3,6 +3,8 @@ package com.sequoiacm.batch.serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,8 +58,26 @@ public class Batch3106 extends TestScmBase {
     @Test(dataProvider = "shardingTypeProvider")
     private void test( ScmShardingType type ) throws Exception {
         // 指定batch_sharding_type为YEAR,设置batch_id_time_regexp、batch_id_time_parttern
-        ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
-                type, ".*", "yyyyMMdd", false );
+        int times = 0;
+        do {
+            try {
+                ws = ScmWorkspaceUtil.createWS( session, wsName,
+                        ScmInfo.getSiteNum(), type, ".*", "yyyyMMdd", false );
+                break;
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
+                    throw e;
+                } else {
+                    times++;
+                    Thread.sleep( 1000 );
+                }
+                if ( times >= 120 ) {
+                    throw new Exception(
+                            "createWS time out, final Exception message is :"
+                                    + e.getMessage() );
+                }
+            }
+        } while ( true );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
 
         // 创建文件
