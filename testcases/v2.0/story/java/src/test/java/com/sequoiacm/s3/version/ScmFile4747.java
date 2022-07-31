@@ -72,6 +72,7 @@ public class ScmFile4747 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
+                TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
             if ( session != null ) {

@@ -46,6 +46,7 @@ public class Object4817 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         s3Client = S3Utils.buildS3Client();
+        S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
         BucketVersioningConfiguration configuration = new BucketVersioningConfiguration()
                 .withStatus( "Enabled" );
