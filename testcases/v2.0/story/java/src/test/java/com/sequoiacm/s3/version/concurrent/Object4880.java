@@ -1,12 +1,12 @@
 package com.sequoiacm.s3.version.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.client.core.ScmBucket;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
@@ -22,7 +22,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @descreption SCM-4880 :: 并发更新和获取相同文件
@@ -76,7 +75,7 @@ public class Object4880 extends TestScmBase {
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         te.addWorker( new CreateFileThread() );
-        te.addWorker( new GetObjectThread());
+        te.addWorker( new GetObjectThread() );
         te.run();
 
         checkFileList();
@@ -96,36 +95,58 @@ public class Object4880 extends TestScmBase {
                 session.close();
             }
 
-            if (s3Client != null) {
+            if ( s3Client != null ) {
                 s3Client.shutdown();
             }
         }
     }
 
     private void checkFileList() {
-        VersionListing versionListing = s3Client.listVersions(bucketName, null);
-        Assert.assertEquals(versionListing.getVersionSummaries().size(), 4);
-        Assert.assertEquals(versionListing.getVersionSummaries().get(0).getVersionId(), "4.0");
-        Assert.assertEquals(versionListing.getVersionSummaries().get(1).getVersionId(), "3.0");
-        Assert.assertEquals(versionListing.getVersionSummaries().get(2).getVersionId(), "2.0");
-        Assert.assertEquals(versionListing.getVersionSummaries().get(3).getVersionId(), "1.0");
+        VersionListing versionListing = s3Client.listVersions( bucketName,
+                null );
+        Assert.assertEquals( versionListing.getVersionSummaries().size(), 4 );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 0 ).getVersionId(),
+                "4.0" );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 1 ).getVersionId(),
+                "3.0" );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 2 ).getVersionId(),
+                "2.0" );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 3 ).getVersionId(),
+                "1.0" );
     }
 
     private class CreateFileThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            ScmBucket bucket = ScmFactory.Bucket.getBucket(session,
-                        bucketName);
-            S3Utils.createFile(bucket, keyName, updatePath);
+            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                    bucketName );
+            S3Utils.createFile( bucket, keyName, updatePath );
         }
     }
 
     private class GetObjectThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            String downFileMd5 = S3Utils.getMd5OfObject( s3Client, localPath,
-                    bucketName, keyName );
-            Assert.assertEquals( downFileMd5, TestTools.getMD5( filePath ) );
+            S3Object object = s3Client.getObject( bucketName, keyName );
+            String version = object.getObjectMetadata().getVersionId();
+            String updateVersion = "4.0";
+            String historyVersion = "3.0";
+            if ( version.equals( updateVersion ) ) {
+                String downFileMd5 = S3Utils.getMd5OfObject( s3Client,
+                        localPath, bucketName, keyName, version );
+                Assert.assertEquals( downFileMd5,
+                        TestTools.getMD5( updatePath ) );
+            } else {
+                Assert.assertEquals( version, historyVersion );
+                String downFileMd5 = S3Utils.getMd5OfObject( s3Client,
+                        localPath, bucketName, keyName, version );
+                Assert.assertEquals( downFileMd5,
+                        TestTools.getMD5( filePath ) );
+            }
         }
     }
 }
