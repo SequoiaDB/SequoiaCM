@@ -5,10 +5,8 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -64,25 +62,8 @@ public class ScmFile4851 extends TestScmBase {
         es.addWorker( createFile );
         es.addWorker( deleteFile );
         es.run();
-        if ( createFile.getRetCode() != 0 ) {
-            // RESOUCE_CONFLICT(-111)
-            Assert.assertEquals( createFile.getRetCode(), -111 );
-            // 获取当前版本文件不存在为删除标记
-            try {
-                scmBucket.getFile( fileName );
-                Assert.fail( "get file with deleteMarker should be fail!" );
-            } catch ( ScmException e ) {
-                Assert.assertEquals( e.getErrorType(),
-                        ScmError.FILE_NOT_FOUND.getErrorType(),
-                        "errorMsg: " + e.getMessage() + ", errorCode="
-                                + e.getError() );
-            }
-        } else {
-            Assert.assertEquals( createFile.getRetCode(), 0 );
-            Assert.assertEquals( deleteFile.getRetCode(), 0 );
-            checkResult();
-        }
 
+        checkResult();
         runSuccess = true;
     }
 
@@ -100,7 +81,7 @@ public class ScmFile4851 extends TestScmBase {
         }
     }
 
-    private class CreateFile extends ResultStore {
+    private class CreateFile {
         private String fileName;
 
         private CreateFile( String fileName ) {
@@ -108,22 +89,20 @@ public class ScmFile4851 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() {
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 fileId = S3Utils.createFile( scmBucket, fileName, filePath );
-            } catch ( ScmException e ) {
-                saveResult( e.getErrorCode(), e );
             } finally {
                 session.close();
             }
         }
     }
 
-    private class DeleteFile extends ResultStore {
+    private class DeleteFile {
         private String fileName;
 
         private DeleteFile( String fileName ) {
@@ -131,15 +110,13 @@ public class ScmFile4851 extends TestScmBase {
         }
 
         @ExecuteOrder(step = 1)
-        private void exec() {
+        private void exec() throws ScmException {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 scmBucket.deleteFile( fileName, false );
-            } catch ( ScmException e ) {
-                saveResult( e.getErrorCode(), e );
             } finally {
                 session.close();
             }
