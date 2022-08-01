@@ -99,7 +99,7 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
                     throw e;
                 }
             }
-            if ( time < 60 ) {
+            if ( time < 120 ) {
                 time++;
             } else {
                 throw new Exception( "createWs timeout !" );
