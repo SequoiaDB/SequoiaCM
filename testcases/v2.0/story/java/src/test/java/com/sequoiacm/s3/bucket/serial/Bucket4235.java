@@ -31,14 +31,14 @@ public class Bucket4235 extends TestScmBase {
     private int baseBucketNum = 15;
     private int addBucketNum = 10;
     private int deleteBucketNum = 5;
-    private List< String > publicBuckets;
+    private List< String > envBuckets;
     private ScmSession session;
     private AmazonS3 s3Client;
     private boolean runSuccess = false;
 
     @BeforeClass
     public void setUp() throws Exception {
-        publicBuckets = S3Utils.getPublicBuckets();
+        envBuckets = S3Utils.getEnvBuckets();
         s3Client = S3Utils.buildS3Client();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         clearBuckets();
@@ -65,7 +65,7 @@ public class Bucket4235 extends TestScmBase {
         for ( Bucket bucket : buckets ) {
             actBucketNames.add( bucket.getName() );
         }
-        actBucketNames.removeAll( publicBuckets );
+        actBucketNames.removeAll( envBuckets );
         Assert.assertEqualsNoOrder( actBucketNames.toArray(),
                 bucketNames.toArray() );
         runSuccess = true;

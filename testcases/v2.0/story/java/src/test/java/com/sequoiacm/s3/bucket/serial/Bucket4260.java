@@ -24,7 +24,7 @@ import java.util.*;
 public class Bucket4260 extends TestScmBase {
     private final String bucketNameBase = "bucket4260no";
     private List< String > bucketNames = new ArrayList<>();
-    private List< String > publicBuckets;
+    private List< String > envBuckets;
     private ScmSession session;
     private final int bucketNum = 30;
     private ScmWorkspace ws;
@@ -32,7 +32,7 @@ public class Bucket4260 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        publicBuckets = S3Utils.getPublicBuckets();
+        envBuckets = S3Utils.getEnvBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         dropBuckets();

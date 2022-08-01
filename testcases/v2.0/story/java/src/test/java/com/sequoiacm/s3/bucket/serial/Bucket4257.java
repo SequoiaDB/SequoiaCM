@@ -25,7 +25,7 @@ public class Bucket4257 extends TestScmBase {
     private final String bucketNameBase = "bucket4257no";
     private final String ignoreBuckeName = "bucket4257test";
     private List< String > bucketNames = new ArrayList<>();
-    private List< String > publicBuckets;
+    private List< String > envBuckets;
     private ScmSession session;
     private AmazonS3 s3Client = null;
     private final int bucketNum = 30;
@@ -33,7 +33,7 @@ public class Bucket4257 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        publicBuckets = S3Utils.getPublicBuckets();
+        envBuckets = S3Utils.getEnvBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
@@ -58,11 +58,12 @@ public class Bucket4257 extends TestScmBase {
         ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
                 .listBucket( session, cond, orderBy, 0, -1 );
         Collections.sort( bucketNames, new StringComparator() );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, true );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, true,
+                envBuckets );
 
         // 指定name忽略ignoreBuckeName，按name降序排序统计桶
         long buckeNum = ScmFactory.Bucket.countBucket( session, cond );
-        Assert.assertEquals( buckeNum - publicBuckets.size(),
+        Assert.assertEquals( buckeNum - envBuckets.size(),
                 bucketNames.size() );
 
         // 指定匹配条件和排序为null，列取所有桶
@@ -70,11 +71,12 @@ public class Bucket4257 extends TestScmBase {
                 0, -1 );
         // 预期结果在这里添加ignoreBucket，同时清理方法可以直接使用这个集合清理所有测试桶
         bucketNames.add( ignoreBuckeName );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false,
+                envBuckets );
 
         // 指定匹配条件和排序为null，统计所有桶
         buckeNum = ScmFactory.Bucket.countBucket( session, null );
-        Assert.assertEquals( buckeNum - publicBuckets.size(),
+        Assert.assertEquals( buckeNum - envBuckets.size(),
                 bucketNames.size() );
         runSuccess = true;
     }

@@ -26,7 +26,7 @@ public class Bucket4222 extends TestScmBase {
     private final String bucketName = "bucket4222no";
     private List< String > expBucektNames = new ArrayList<>();
     private List< String > actBucektNames = new ArrayList<>();
-    private List< String > publicBuckets;
+    private List< String > envBuckets;
     private ScmSession session;
     private AmazonS3 s3Client;
     private int bucketNum = 10;
@@ -34,7 +34,7 @@ public class Bucket4222 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        publicBuckets = S3Utils.getPublicBuckets();
+        envBuckets = S3Utils.getEnvBuckets();
         SiteWrapper rootSite = ScmInfo.getRootSite();
         session = TestScmTools.createSession( rootSite );
         s3Client = S3Utils.buildS3Client();
@@ -58,7 +58,7 @@ public class Bucket4222 extends TestScmBase {
             actBucektNames.add( scmBucketScmCursor.getNext().getName() );
         }
         scmBucketScmCursor.close();
-        actBucektNames.removeAll( publicBuckets );
+        actBucektNames.removeAll( envBuckets );
         Assert.assertEqualsNoOrder( actBucektNames.toArray(),
                 expBucektNames.toArray() );
 
@@ -80,7 +80,7 @@ public class Bucket4222 extends TestScmBase {
         // 统计桶
         long num = ScmFactory.Bucket.countBucket( session, s3WorkSpaces,
                 TestScmBase.scmUserName );
-        Assert.assertEquals( num - publicBuckets.size(), bucketNum / 2 );
+        Assert.assertEquals( num - envBuckets.size(), bucketNum / 2 );
         runSuccess = true;
     }
 

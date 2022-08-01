@@ -24,7 +24,7 @@ public class Bucket4261 extends TestScmBase {
     private final String bucketNameBase = "bucket4261no";
     private final String ignoreBuckeName = "bucket4261test";
     private List< String > bucketNames = new ArrayList<>();
-    private List< String > publicBuckets;
+    private List< String > envBuckets;
     private ScmSession session;
     private AmazonS3 s3Client = null;
     private final int bucketNum = 30;
@@ -32,7 +32,7 @@ public class Bucket4261 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        publicBuckets = S3Utils.getPublicBuckets();
+        envBuckets = S3Utils.getEnvBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
@@ -59,19 +59,21 @@ public class Bucket4261 extends TestScmBase {
         ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
                 .listBucket( session, cond, orderBy, skip, limit );
         // 需要处理公共桶干扰排序的问题
-        bucketNames.addAll( publicBuckets );
+        bucketNames.addAll( envBuckets );
         Collections.sort( bucketNames, new StringComparator() );
         List< String > expBucketNames = bucketNames.subList( skip,
                 skip + limit );
-        S3Utils.checkBucketList( scmBucketScmCursor, expBucketNames, true );
+        S3Utils.checkBucketList( scmBucketScmCursor, expBucketNames, true,
+                envBuckets );
 
         // 指定匹配条件和排序为null，列取所有
         scmBucketScmCursor = ScmFactory.Bucket.listBucket( session, null, null,
                 0, -1 );
         // 预期结果在这里添加ignoreBucket，同时清理方法可以直接使用这个集合清理所有测试桶
         bucketNames.add( ignoreBuckeName );
-        bucketNames.removeAll( publicBuckets );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false );
+        bucketNames.removeAll( envBuckets );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false,
+                envBuckets );
         runSuccess = true;
     }
 

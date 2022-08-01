@@ -28,10 +28,12 @@ public class Bucket4262 extends TestScmBase {
     private final int baseBucketNum = 30;
     private final int insBucketNum = 10;
     private ScmWorkspace ws;
+    private List< String > envBuckets;
     private boolean runSuccess = false;
 
     @BeforeClass
     public void setUp() throws Exception {
+        envBuckets = S3Utils.getEnvBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         dropBuckets();
@@ -88,7 +90,7 @@ public class Bucket4262 extends TestScmBase {
     private void checkBucketNum() throws ScmException {
         long actBucketNum = ScmFactory.Bucket.countBucket( session,
                 s3WorkSpaces, TestScmBase.scmUserName );
-        Assert.assertEquals( actBucketNum - S3Utils.getPublicBuckets().size(),
+        Assert.assertEquals( actBucketNum - envBuckets.size(),
                 bucketNames.size() );
     }
 }

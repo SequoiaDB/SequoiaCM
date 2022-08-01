@@ -1,6 +1,5 @@
 package com.sequoiacm.testcommon.scmutils;
 
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -15,7 +14,6 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.FieldName;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -408,7 +406,8 @@ public class S3Utils extends TestScmBase {
 
     public static void checkBucketList(
             ScmCursor< ScmBucket > scmBucketScmCursor,
-            List< String > expBucketNames, boolean sort ) throws ScmException {
+            List< String > expBucketNames, boolean sort,
+            List< String > ignoreBuckets ) throws ScmException {
         try {
             List< String > actBucketNames = new ArrayList<>();
             while ( scmBucketScmCursor.hasNext() ) {
@@ -416,8 +415,8 @@ public class S3Utils extends TestScmBase {
             }
             String message = "act:" + actBucketNames.toString() + " exp:"
                     + expBucketNames.toString();
+            actBucketNames.removeAll( ignoreBuckets );
             if ( sort ) {
-
                 Assert.assertEquals( actBucketNames, expBucketNames, message );
             } else {
                 Assert.assertEqualsNoOrder( actBucketNames.toArray(),
@@ -426,6 +425,13 @@ public class S3Utils extends TestScmBase {
         } finally {
             scmBucketScmCursor.close();
         }
+    }
+
+    public static void checkBucketList(
+            ScmCursor< ScmBucket > scmBucketScmCursor,
+            List< String > expBucketNames, boolean sort ) throws ScmException {
+        checkBucketList( scmBucketScmCursor, expBucketNames, sort,
+                new ArrayList< String >() );
     }
 
     /**
@@ -593,7 +599,6 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-<<<<<<< HEAD
      * @descreption scm桶下创建文件，使用文件方式
      * @param bucket
      * @param fileName
@@ -679,12 +684,18 @@ public class S3Utils extends TestScmBase {
                 "---file downLoadPath = " + downloadPath );
     }
 
-    public static List< String > getPublicBuckets() {
-        List<String> publicBuckets = new ArrayList<>();
-        publicBuckets.add(TestScmBase.enableVerBucketName);
-        publicBuckets.add(TestScmBase.susVerBucketName);
-        publicBuckets.add(TestScmBase.bucketName);
-        return publicBuckets;
+    public static List< String > getEnvBuckets() throws Exception {
+        List< String > envBuckets = new ArrayList<>();
+        AmazonS3 s3Client = buildS3Client();
+        try {
+            List< Bucket > buckets = s3Client.listBuckets();
+            for ( Bucket bucket : buckets ) {
+                envBuckets.add( bucket.getName() );
+            }
+        } finally {
+            s3Client.shutdown();
+        }
+        return envBuckets;
     }
 
     public static String getRandomString( int length ) {
