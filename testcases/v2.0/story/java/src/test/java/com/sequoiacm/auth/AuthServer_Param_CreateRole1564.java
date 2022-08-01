@@ -97,6 +97,17 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
                 }
             }
         }
+
+        // 问题单SEQUOIACM-1003补充测试点
+        String roleName = ".";
+        try {
+            ScmFactory.Role.createRole( session, roleName, "" );
+            Assert.fail( "exp fail but act success!!! roleName = " + roleName );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                throw e;
+            }
+        }
     }
 
     @AfterClass(alwaysRun = true)
