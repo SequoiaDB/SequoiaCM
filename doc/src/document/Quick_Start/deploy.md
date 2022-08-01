@@ -23,7 +23,8 @@
 
 >  **Note：**
 > 
->  * 本节假定用户已经部署了版本匹配的 SequoiaDB 和 Elasticsearch，同时为 Elasticsearch 安装了 IK 中文分词器
+>  * 本节假定用户已经部署了版本匹配的 SequoiaDB
+>  * 如果需要支持全文检索服务，需先部署版本匹配的 Elasticsearch，同时为 Elasticsearch 安装 IK 中文分词器
 >  * 如果需要支持图片文件的全文检索，用户还需要自行在全文检索服务所在机器上安装 Tessract 图片识别引擎
 >  * 请确保 SequoiaDB 为集群模式部署，并且已经开启事务功能，本章节假定 SequoiaDB 的用户名密码均为 sdbadmin
 >  * 后续介绍的安装部署命令均在 scmServer 机器上执行
