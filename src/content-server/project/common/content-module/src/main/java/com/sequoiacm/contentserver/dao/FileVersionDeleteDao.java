@@ -129,8 +129,17 @@ public class FileVersionDeleteDao {
                                     FieldName.FIELD_CLFILE_MAJOR_VERSION),
                             BsonUtils.getIntegerChecked(latestVersionInHistory,
                                     FieldName.FIELD_CLFILE_MINOR_VERSION));
-                    ScmFileVersionHelper.updateLatestVersionAsNewVersion(wsInfo, fileId,
-                            latestVersionInHistory, latestVersion, trans);
+                    boolean isSuccess = ScmFileVersionHelper.updateLatestVersionAsNewVersion(wsInfo,
+                            fileId, latestVersionInHistory, latestVersion, trans);
+                    if (!isSuccess) {
+                        // 更新最新表时，发现文件记录不存在
+                        // 理论上不会出现这个场景，因为我们拿着文件锁，没有人能删除这个文件，另外这个文件有多个版本，不可能访问的是文件创建阶段的脏数据
+                        logger.info(
+                                "file not exist, ignore delete file version: ws={}, fileId={}, fileVersion={}.{}",
+                                wsInfo.getName(), fileId, majorVersion, minorVersion);
+                        rollbackTrans(trans);
+                        return null;
+                    }
                 }
                 else {
                     // 历史表上没有记录，直接删除最新表记录

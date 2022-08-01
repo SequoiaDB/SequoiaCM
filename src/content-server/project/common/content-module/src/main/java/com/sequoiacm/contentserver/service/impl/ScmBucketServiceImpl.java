@@ -406,6 +406,9 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             catch (ScmMetasourceException e) {
                 transactionRollback(trans);
                 if (e.getScmError() == ScmError.METASOURCE_RECORD_EXIST) {
+                    logger.debug(
+                            "failed to create new file, bucket file relation exist: bucket={}, fileName={}",
+                            bucket.getName(), checkedFileObj.get(FieldName.FIELD_CLFILE_NAME), e);
                     if (overwriteOption.isOverwrite()) {
                         overwriteFile(wsInfo, bucket, bucketFileRel, checkedFileObj,
                                 transactionCallback, overwriteOption);
@@ -422,12 +425,12 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                     catch (ScmServerException ex) {
                         if (ex.getError() == ScmError.FILE_NOT_FOUND) {
                             // 创建文件时发现桶下已存在同名文件，这里尝试给已存在的文件新增版本，又发生了文件不存在的错误，不再重试，报错
-                            throw new ScmServerException(ScmError.RESOUCE_CONFLICT,
+                            throw new ScmServerException(ScmError.RESOURCE_CONFLICT,
                                     "failed to create new version for file, file is busy: ws="
                                             + wsInfo.getName() + ", bucket=" + bucket.getName()
                                             + ", fileName="
                                             + checkedFileObj.get(FieldName.FIELD_CLFILE_NAME),
-                                    e);
+                                    ex);
                         }
                         throw ex;
                     }

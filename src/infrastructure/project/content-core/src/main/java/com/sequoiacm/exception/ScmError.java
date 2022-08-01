@@ -18,7 +18,7 @@ public enum ScmError {
     OPERATION_FORBIDDEN(-108, "Operation forbidden"),
     OPERATION_UNAUTHORIZED(-109, "Unauthorized operation"),
     OPERATION_TIMEOUT(-110, "Operation timeout"),
-    RESOUCE_CONFLICT(-111, "Resource conflict"),
+    RESOURCE_CONFLICT(-111, "Resource conflict"),
 
     ATTRIBUTE_FORMAT_ERROR(-130, "Attribute format error"),
     NO_OPERAND_FOR_KEY(-131, "No operand for key"),

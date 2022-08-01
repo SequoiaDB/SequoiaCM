@@ -138,14 +138,14 @@ public class FileAddVersionDao {
                 newFileVersion.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
                         CommonDefine.File.NULL_VERSION_MINOR);
                 // 更新操作，将新版元数据覆盖到最新表的记录上
-                ScmFileVersionHelper.updateLatestVersionAsNewVersion(ws, fileId, newFileVersion,
-                        latestFileVersion, transactionContext);
+                updateLatestVersionAsNewVersion(newFileVersion, latestFileVersion,
+                        transactionContext);
             }
             else if (versionStatus == ScmBucketVersionStatus.Enabled) {
                 ScmFileVersionHelper.insertVersionToHistory(ws, latestFileVersion,
                         transactionContext);
-                ScmFileVersionHelper.updateLatestVersionAsNewVersion(ws, fileId, newFileVersion,
-                        latestFileVersion, transactionContext);
+                updateLatestVersionAsNewVersion(newFileVersion, latestFileVersion,
+                        transactionContext);
             }
             else {
                 throw new ScmServerException(ScmError.SYSTEM_ERROR,
@@ -184,6 +184,21 @@ public class FileAddVersionDao {
             });
         }
         return new FileInfoAndOpCompleteCallback(newFileVersion, operationCompleteCallback);
+    }
+
+    private void updateLatestVersionAsNewVersion(BSONObject newFileVersion,
+            BSONObject latestFileVersion, TransactionContext transactionContext)
+            throws ScmMetasourceException, ScmServerException {
+        boolean updateSuccess = ScmFileVersionHelper.updateLatestVersionAsNewVersion(ws, fileId,
+                newFileVersion, latestFileVersion, transactionContext);
+        if (!updateSuccess) {
+            // 即便我们拿着文件锁，这里更新最新表文件记录还是有可能会出现文件不存在的场景（脏读）：
+            // A 线程全新创建 file1，当最新表记录和关系表记录都写入到表里面时，事务尚未提交
+            // B 线程给 file1 加个版本，当 B 线程将最新表记录，拷贝一份插入到历史表，进到这个函数准备将新增的版本更新至最新表
+            // 此时 A 线程事务发生了回滚，B 线程在这里就会发现更新不到记录，所以抛个异常，让外面回滚 B 线程的所有操作，否则会引起元数据紊乱
+            throw new ScmServerException(ScmError.FILE_NOT_FOUND,
+                    "file not found: ws=" + ws.getName() + ", fileId=" + fileId);
+        }
     }
 
     private void checkFileMd5EtagExist(BSONObject newFileVersion) throws ScmServerException {

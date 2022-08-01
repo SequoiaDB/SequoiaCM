@@ -126,7 +126,8 @@ public class ScmFileVersionHelper {
         return true;
     }
 
-    public static void updateLatestVersionAsNewVersion(ScmWorkspaceInfo ws, String fileId,
+    // 文件存在并更新成功返回 true，文件不存在返回 false
+    public static boolean updateLatestVersionAsNewVersion(ScmWorkspaceInfo ws, String fileId,
             BSONObject newFileVersion, BSONObject latestFileVersion,
             TransactionContext transactionContext)
             throws ScmMetasourceException, ScmServerException {
@@ -135,11 +136,15 @@ public class ScmFileVersionHelper {
         BSONObject matcher = new BasicBSONObject();
         SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
 
-        accessor.update(matcher, new BasicBSONObject("$set", newFileVersion));
+        BSONObject oldRecord = accessor.queryAndUpdate(matcher, new BasicBSONObject("$set", newFileVersion), null);
+        if(oldRecord == null){
+            return false;
+        }
         ScmFileOperateUtils.updateBucketFileForUpdateFile(newFileVersion, latestFileVersion,
                 transactionContext);
         ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, latestFileVersion, newFileVersion,
                 transactionContext);
+        return true;
     }
 
     // return old
