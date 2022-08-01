@@ -54,7 +54,8 @@ public class ScmFile4851 extends TestScmBase {
         scmBucket.enableVersionControl();
     }
 
-    @Test
+    // SEQUOIACM-1006
+    @Test(enabled = false)
     public void testCreateObject() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         CreateFile createFile = new CreateFile( fileName );

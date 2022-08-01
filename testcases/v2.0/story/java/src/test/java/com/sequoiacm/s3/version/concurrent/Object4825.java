@@ -14,7 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * @descreption SCM-4825 ::  禁用版本控制，并发增加和删除相同对象
+ * @descreption SCM-4825 :: 禁用版本控制，并发增加和删除相同对象
  * @author Zhaoyujing
  * @Date 2020/7/13
  * @updateUser
@@ -37,13 +37,14 @@ public class Object4825 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Suspended" );
     }
 
-    @Test
+    // SEQUOIACM-1006
+    @Test(enabled = false)
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         CreateObjectThread createObject = new CreateObjectThread();
         DeleteObjectThread deleteObject = new DeleteObjectThread();
-        te.addWorker(createObject);
-        te.addWorker(deleteObject);
+        te.addWorker( createObject );
+        te.addWorker( deleteObject );
         te.run();
 
         if ( s3Client.doesObjectExist( bucketName, keyName ) ) {
@@ -60,7 +61,7 @@ public class Object4825 extends TestScmBase {
     private void tearDown() {
         try {
             if ( runSuccess ) {
-                S3Utils.clearBucket(s3Client, bucketName);
+                S3Utils.clearBucket( s3Client, bucketName );
             }
         } finally {
             if ( s3Client != null ) {
