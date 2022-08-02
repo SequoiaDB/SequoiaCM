@@ -58,7 +58,7 @@ File 与 Object 的元数据映射
 |S3 Object |SequoiaCM File         | 备注 |
 |----------|-----------------------|------|
 |key       |name                   ||
-|user meta data|custom meta data   ||
+|user meta data|custom meta   ||
 |etag      | md5 |  S3 通过分段上传创建的对象没有这个映射关系|
 |size      |size||
 |content type | mime type||

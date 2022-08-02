@@ -20,7 +20,7 @@ File （文件）是工作区的一个最基本的存储单元，用于存储用
 |batch_id|string|所属批次|
 |data_id|string|文件内容 id|
 |class_properties|object|用户自定义的元数据|
-|custom_meta|object|自由标签|
+|custom_meta|object|自由元数据|
 |major_version|int|文件主版本号|
 |minor_version|int|文件次版本号|
 |site_list|array|文件内容所在的站点列表|
@@ -64,9 +64,9 @@ File （文件）是工作区的一个最基本的存储单元，用于存储用
 >
 >  * 断点文件目前只允许在 SequoiaDB 、Ceph S3 存储类型的站点上创建（在Ceph S3 站点创建断点文件，客户端指定的分段大小需要是 5m 的整数倍）
 
-## 自由标签（custom meta） ##
+## 自由元数据（custom meta） ##
  
-自由标签是一组由用户创建文件时指定的字符串键值对，当文件映射为 S3 协议的对象时，自由标签映射为 S3 对象自定义元数据
+自由元数据是一组由用户创建文件时指定的字符串键值对，当文件映射为 S3 协议的对象时，自由元数据映射为 S3 对象自定义元数据
 
 ## 用户自定义的元数据（class properties）##
 
