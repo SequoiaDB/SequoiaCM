@@ -101,9 +101,12 @@ public class TestScmBase {
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
 
-        bucketName = "commbucket";
-        enableVerBucketName = "commbucketwithversion";
-        susVerBucketName = "commsuspendedbucket";
+        // CI分发到不同机器上执行存在并发问题，需要使用不同的桶名规避
+        bucketName = "commbucket" + InetAddress.getLocalHost().getHostAddress();
+        enableVerBucketName = "commbucketwithversion"
+                + InetAddress.getLocalHost().getHostAddress();
+        susVerBucketName = "commsuspendedbucket"
+                + InetAddress.getLocalHost().getHostAddress();
 
         // TODO schedulePreferredZone特性需要，暂时写死，后续替换为xml传参形式
         zone1 = "zone1";
