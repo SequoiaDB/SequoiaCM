@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -11,6 +12,8 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @Description:SCM-1467:createInstance接口参数校验
@@ -27,8 +30,8 @@ public class Param_CreateInstance1467 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getSite();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

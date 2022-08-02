@@ -1,7 +1,10 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.File;
+import java.util.List;
+import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -43,7 +46,7 @@ public class Cursor1471 extends TestScmBase {
 
     @BeforeClass
     private void setUp() {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -54,7 +57,7 @@ public class Cursor1471 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            site = ScmInfo.getSite();
+            site = DBSites.get( new Random().nextInt( DBSites.size() ) );
             wsp = ScmInfo.getWs();
             session = TestScmTools.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

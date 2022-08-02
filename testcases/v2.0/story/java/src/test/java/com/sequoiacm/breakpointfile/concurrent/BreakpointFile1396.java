@@ -5,6 +5,8 @@ package com.sequoiacm.breakpointfile.concurrent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,6 +28,7 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 
 /**
  * @Description BreakpointFile1396.java, 并发续传同一个文件
@@ -46,7 +49,7 @@ public class BreakpointFile1396 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -57,7 +60,7 @@ public class BreakpointFile1396 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
 
-        site = ScmInfo.getSite();
+        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

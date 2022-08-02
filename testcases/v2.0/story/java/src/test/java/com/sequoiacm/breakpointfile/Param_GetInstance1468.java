@@ -1,7 +1,10 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,8 +36,8 @@ public class Param_GetInstance1468 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getSite();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

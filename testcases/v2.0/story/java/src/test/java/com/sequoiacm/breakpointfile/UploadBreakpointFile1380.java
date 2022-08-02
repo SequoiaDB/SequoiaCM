@@ -3,7 +3,10 @@ package com.sequoiacm.breakpointfile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +50,8 @@ public class UploadBreakpointFile1380 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
+                .checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -57,7 +61,7 @@ public class UploadBreakpointFile1380 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
 
-        site = ScmInfo.getSite();
+        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

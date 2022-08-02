@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -54,7 +56,7 @@ public class SetContentBreakpointFile1378 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -64,7 +66,12 @@ public class SetContentBreakpointFile1378 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
 
-        branSites = ScmInfo.getBranchSites( branSitesNum );
+        DBSites.remove( 0 );
+        if ( DBSites.size() < 2 ) {
+            throw new SkipException( "need two DBSites, skip!" );
+        }
+
+        branSites = DBSites;
         wsp = ScmInfo.getWs();
         sessionA = TestScmTools.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
