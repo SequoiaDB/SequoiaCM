@@ -27,12 +27,13 @@ import com.sequoiacm.testcommon.WsWrapper;
 public class StatisticsFile3600 extends TestScmBase {
     private SiteWrapper site = null;
     private WsWrapper wsp = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private Date beginDate = null;
     private Date endDate = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         calendar.set( Calendar.YEAR, calendar.get( Calendar.YEAR ) + 1 );

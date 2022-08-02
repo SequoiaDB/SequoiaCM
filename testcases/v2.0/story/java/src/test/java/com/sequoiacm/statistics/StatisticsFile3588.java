@@ -57,12 +57,13 @@ public class StatisticsFile3588 extends TestScmBase {
     private int fileNums = 10;
     private int totalUploadTime = 0;
     private int totalDownloadTime = 0;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private File localPath = null;
     private String filePath = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         if ( ScmInfo.getWsNum() < 2 ) {
             throw new SkipException( "need 2 wss!!!!" );
         }

@@ -53,11 +53,12 @@ public class StatisticsFile3858 extends TestScmBase {
     private int fileNums = 0;
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private List< String > filePathList = new ArrayList<>();
 
     @BeforeClass
     public void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );
 

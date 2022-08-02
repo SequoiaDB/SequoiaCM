@@ -28,12 +28,13 @@ import com.sequoiacm.testcommon.TestScmTools;
 public class Param_Statistician3615 extends TestScmBase {
     private SiteWrapper site;
     private ScmSession session;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private Date endDate = null;
     private Date beginDate = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         calendar.set( Calendar.HOUR_OF_DAY,

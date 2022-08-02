@@ -60,11 +60,12 @@ public class StatisticsFile3818 extends TestScmBase {
     private List< Integer > uploadTime2 = new ArrayList<>();
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private List< String > filePathList = new ArrayList<>();
 
     @BeforeClass
     public void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         if ( ScmInfo.getWsNum() < 2 ) {
             throw new SkipException( "need 2 wss!!!!" );
         }

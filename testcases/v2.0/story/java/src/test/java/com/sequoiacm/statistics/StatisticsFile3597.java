@@ -49,7 +49,7 @@ public class StatisticsFile3597 extends TestScmBase {
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private String fileName = "file3597";
     private int fileSize = 200 * 1024;
     private int requestCount = 0;
@@ -61,6 +61,7 @@ public class StatisticsFile3597 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

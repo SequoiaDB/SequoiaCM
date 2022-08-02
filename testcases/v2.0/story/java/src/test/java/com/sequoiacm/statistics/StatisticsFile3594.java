@@ -62,12 +62,13 @@ public class StatisticsFile3594 extends TestScmBase {
     private int fileSize = 701 * 1024;
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private File localPath = null;
     private String filePath = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         List<SiteWrapper> siteList = ScmInfo.getAllSites();
         for ( SiteWrapper siteWrapper : siteList ) {
             if ( siteWrapper.getDataType()

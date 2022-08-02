@@ -44,7 +44,7 @@ public class StatisticsFile3595 extends TestScmBase {
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private String fileName = "file3595";
     private int totalDownloadTime = 0;
     private ScmId fileId = null;
@@ -53,6 +53,7 @@ public class StatisticsFile3595 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

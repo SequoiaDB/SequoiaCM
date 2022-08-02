@@ -51,7 +51,7 @@ public class StatisticsFile3590 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList<>();
     private int fileSize = 200 * 1024;
     private int fileNum = 10;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private Date beginDate = null;
     private Date endDate = null;
     private File localPath = null;
@@ -66,6 +66,7 @@ public class StatisticsFile3590 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
+        calendar = Calendar.getInstance();
         site = ScmInfo.getRootSite();
         session = TestScmTools.createSession( site );
         wsp = ScmInfo.getWs();

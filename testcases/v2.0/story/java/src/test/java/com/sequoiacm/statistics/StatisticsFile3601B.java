@@ -55,7 +55,7 @@ public class StatisticsFile3601B extends TestScmBase {
     private WsWrapper wsp = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private String fileNameBase = "file3601B";
     private int fileNum = 50;
     private List< ScmId > fileIdList = new ArrayList<>();
@@ -66,6 +66,7 @@ public class StatisticsFile3601B extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         if ( TestScmBase.gateWayList.size() < 2 ) {
             throw new SkipException( "网关节点少于2个,跳过此用例!!!" );
         }

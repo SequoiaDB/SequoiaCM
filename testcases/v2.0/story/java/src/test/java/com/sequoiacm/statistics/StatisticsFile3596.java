@@ -54,10 +54,11 @@ public class StatisticsFile3596 extends TestScmBase {
     private int totalDownloadTime = 0;
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

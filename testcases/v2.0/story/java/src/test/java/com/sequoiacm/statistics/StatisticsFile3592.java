@@ -67,7 +67,7 @@ public class StatisticsFile3592 extends TestScmBase {
     private int totalDownloadTime = 0;
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private File localPath = null;
     private List< String > filePathList = new ArrayList<>();
 
@@ -84,6 +84,7 @@ public class StatisticsFile3592 extends TestScmBase {
             totalFileSize += fileSizes[ i ];
             filePathList.add( filePath );
         }
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         // 创建用户和角色

@@ -68,12 +68,13 @@ public class StatisticsFile3616 extends TestScmBase {
     private int totalDownloadTime = 0;
     private Date endDate = null;
     private Date beginDate = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private File localPath = null;
     private List< String > filePathList = new ArrayList<>();
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

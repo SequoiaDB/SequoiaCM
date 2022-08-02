@@ -26,12 +26,13 @@ import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 public class StatisticsFile3591 extends TestScmBase {
     private SiteWrapper site = null;
     private ScmSession session = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private Date beginDate = null;
     private Date endDate = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         // 删除统计表中所有统计信息

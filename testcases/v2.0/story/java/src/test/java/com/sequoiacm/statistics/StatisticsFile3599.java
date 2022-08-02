@@ -28,12 +28,13 @@ public class StatisticsFile3599 extends TestScmBase {
     private SiteWrapper site = null;
     private WsWrapper wsp = null;
     private ScmSession session = null;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = null;
     private Date beginDate = null;
     private Date endDate = null;
 
     @BeforeClass
     private void setUp() throws Exception {
+        calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createNoAuthSession( site );
