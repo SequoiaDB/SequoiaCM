@@ -42,7 +42,8 @@ public class UpdateAndDeleteObject3386 extends TestScmBase {
         }
     }
 
-    @Test
+    // TODO: 受SEQUOIACM-1007影响暂时屏蔽
+    @Test(enabled = false)
     public void testCreateAndDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( String keyName : keyNameList ) {
