@@ -37,13 +37,16 @@ public class Bucket4257 extends TestScmBase {
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
-            String buckeName = bucketNameBase + i;
+            String bucketName = bucketNameBase + i;
             S3Utils.clearBucket( s3Client, bucketNameBase + i );
-            s3Client.createBucket( buckeName );
-            bucketNames.add( buckeName );
+            s3Client.createBucket( bucketName );
+            bucketNames.add( bucketName );
         }
         S3Utils.clearBucket( s3Client, ignoreBuckeName );
         s3Client.createBucket( ignoreBuckeName );
+        // 排除自己残留导致的错误排除
+        envBuckets.removeAll( bucketNames );
+        envBuckets.remove( ignoreBuckeName );
     }
 
     @Test
@@ -57,27 +60,25 @@ public class Bucket4257 extends TestScmBase {
                 .start( ScmAttributeName.Bucket.NAME ).is( -1 ).get();
         ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
                 .listBucket( session, cond, orderBy, 0, -1 );
+        // 在预期结果中处理环境残留的干扰
+        bucketNames.addAll( envBuckets );
         Collections.sort( bucketNames, new StringComparator() );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, true,
-                envBuckets );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, true );
 
         // 指定name忽略ignoreBuckeName，按name降序排序统计桶
-        long buckeNum = ScmFactory.Bucket.countBucket( session, cond );
-        Assert.assertEquals( buckeNum - envBuckets.size(),
-                bucketNames.size() );
+        long bucketNum = ScmFactory.Bucket.countBucket( session, cond );
+        Assert.assertEquals( bucketNum, bucketNames.size() );
 
         // 指定匹配条件和排序为null，列取所有桶
         scmBucketScmCursor = ScmFactory.Bucket.listBucket( session, null, null,
                 0, -1 );
         // 预期结果在这里添加ignoreBucket，同时清理方法可以直接使用这个集合清理所有测试桶
         bucketNames.add( ignoreBuckeName );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false,
-                envBuckets );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false );
 
         // 指定匹配条件和排序为null，统计所有桶
-        buckeNum = ScmFactory.Bucket.countBucket( session, null );
-        Assert.assertEquals( buckeNum - envBuckets.size(),
-                bucketNames.size() );
+        bucketNum = ScmFactory.Bucket.countBucket( session, null );
+        Assert.assertEquals( bucketNum, bucketNames.size() );
         runSuccess = true;
     }
 
@@ -85,8 +86,9 @@ public class Bucket4257 extends TestScmBase {
     public void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                for ( String buckeName : bucketNames ) {
-                    S3Utils.clearBucket( s3Client, buckeName );
+                bucketNames.removeAll( envBuckets );
+                for ( String bucketName : bucketNames ) {
+                    S3Utils.clearBucket( s3Client, bucketName );
                 }
             }
         } finally {

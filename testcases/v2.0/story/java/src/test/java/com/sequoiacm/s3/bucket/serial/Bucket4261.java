@@ -43,6 +43,9 @@ public class Bucket4261 extends TestScmBase {
         }
         S3Utils.clearBucket( s3Client, ignoreBuckeName );
         s3Client.createBucket( ignoreBuckeName );
+        // 排除自己残留导致的错误排除
+        envBuckets.removeAll( bucketNames );
+        envBuckets.remove( ignoreBuckeName );
     }
 
     @Test
@@ -58,22 +61,19 @@ public class Bucket4261 extends TestScmBase {
                 .start( ScmAttributeName.Bucket.NAME ).is( -1 ).get();
         ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
                 .listBucket( session, cond, orderBy, skip, limit );
-        // 需要处理公共桶干扰排序的问题
+        // 需要在预期结果中排除公共桶的干，在清理
         bucketNames.addAll( envBuckets );
         Collections.sort( bucketNames, new StringComparator() );
         List< String > expBucketNames = bucketNames.subList( skip,
                 skip + limit );
-        S3Utils.checkBucketList( scmBucketScmCursor, expBucketNames, true,
-                envBuckets );
+        S3Utils.checkBucketList( scmBucketScmCursor, expBucketNames, true );
 
         // 指定匹配条件和排序为null，列取所有
         scmBucketScmCursor = ScmFactory.Bucket.listBucket( session, null, null,
                 0, -1 );
         // 预期结果在这里添加ignoreBucket，同时清理方法可以直接使用这个集合清理所有测试桶
         bucketNames.add( ignoreBuckeName );
-        bucketNames.removeAll( envBuckets );
-        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false,
-                envBuckets );
+        S3Utils.checkBucketList( scmBucketScmCursor, bucketNames, false );
         runSuccess = true;
     }
 
@@ -81,8 +81,9 @@ public class Bucket4261 extends TestScmBase {
     public void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                for ( String buckeName : bucketNames ) {
-                    S3Utils.clearBucket( s3Client, buckeName );
+                bucketNames.removeAll( envBuckets );
+                for ( String bucketName : bucketNames ) {
+                    S3Utils.clearBucket( s3Client, bucketName );
                 }
             }
         } finally {

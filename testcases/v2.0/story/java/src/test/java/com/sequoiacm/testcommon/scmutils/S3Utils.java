@@ -413,14 +413,18 @@ public class S3Utils extends TestScmBase {
             while ( scmBucketScmCursor.hasNext() ) {
                 actBucketNames.add( scmBucketScmCursor.getNext().getName() );
             }
-            String message = "act:" + actBucketNames.toString() + " exp:"
-                    + expBucketNames.toString();
-            actBucketNames.removeAll( ignoreBuckets );
             if ( sort ) {
-                Assert.assertEquals( actBucketNames, expBucketNames, message );
+                // 排序用例无法靠公共方法处理环境桶干扰，需要用例自己解决
+                Assert.assertEquals( actBucketNames, expBucketNames,
+                        "act:" + actBucketNames.toString() + " exp:"
+                                + expBucketNames.toString() );
             } else {
+                // 非排序用例可以依赖该方法处理环境桶干扰
+                actBucketNames.removeAll( ignoreBuckets );
                 Assert.assertEqualsNoOrder( actBucketNames.toArray(),
-                        expBucketNames.toArray(), message );
+                        expBucketNames.toArray(),
+                        "act:" + actBucketNames.toString() + " exp:"
+                                + expBucketNames.toString() );
             }
         } finally {
             scmBucketScmCursor.close();
