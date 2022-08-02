@@ -72,7 +72,18 @@
 <br>
  为支撑系统状态监控，3.2 版本的微服务节点会额外占用一个管理端口号，默认为 server.port + 1，在升级前请确保同一台机器上，各节点的管理端口不会与已有端口产生冲突。如遇冲突，请通过 management.port 配置项显示指定节点的管理端口号。
 
+- ***调度任务支持同名限制***
+<br>
+3.2 版本支持限制同一工作区下调度任务不能重名，若升级后需要引入这一限制，可以手工为调度任务表创建唯一索引
 
+  ```lang-javascript
+    db.SCMSYSTEM.SCHEDULE.createIndex('idx_workspace_schedule_name', { workspace: 1, name: 1 }, { 'Unique': true })
+   ```
+
+    > **Note:**
+    >
+    > - 若创建索引时，已存在重名任务冲突。在不影响原有业务的前提下，排查并修改冲突的调度任务名后，重新创建索引。
+    > 	
 
 
 [cloud_config]:Maintainance/Node_Config/cloud.md
