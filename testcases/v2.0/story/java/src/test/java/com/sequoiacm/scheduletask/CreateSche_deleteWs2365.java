@@ -72,7 +72,8 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, ssA );
     }
 
-    @Test(groups = { "twoSite", "fourSite", "star" })
+    //问题单SEQUOIACM-1013屏蔽用例
+    @Test(groups = { "twoSite", "fourSite", "star" }, enabled = false)
     private void test() throws Exception {
         ScmFileUtils.create( ws, name, filePath );
         // create schedule
