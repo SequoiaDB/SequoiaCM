@@ -50,7 +50,8 @@ public class Object4242 extends TestScmBase {
         s3Client.putObject( bucketName, key, text1 );
     }
 
-    @Test
+    // TODO: SEQUOIACM-1014
+    @Test(enabled = false)
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();
