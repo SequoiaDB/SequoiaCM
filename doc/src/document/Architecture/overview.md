@@ -6,7 +6,7 @@ SequoiaCM 是基于 Spring Cloud 微服务框架开发的分布式企业内容�
 ##对外接口##
 
 - SequoiaCM 原生 java 驱动接口
-= 标准 S3 协议接口
+- 标准 S3 协议接口
 
 ##微服务##
 
