@@ -128,6 +128,10 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
             logger.debug(
                     "failed to create delete marker file cause by file exist, try delete again: bucket={}, fileName={}",
                     bucket.getName(), fileName, retryException);
+            if (wLock != null) {
+                wLock.unlock();
+                wLock = null;
+            }
             return delete();
         }
         catch (ScmServerException e) {
