@@ -67,7 +67,8 @@ public class DeleteAndAttach1308 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1019暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         AttachThread attachThrd = new AttachThread();
         DeleteThread deleteThrd = new DeleteThread();
