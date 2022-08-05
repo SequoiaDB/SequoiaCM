@@ -89,20 +89,21 @@ public class ScmFile4862 extends TestScmBase {
                 bucketName );
 
         Assert.assertEquals( fileList.size(), 1 );
-        ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
-        ScmFile scmFile = bucket.getFile( keyName );
-        if ( !scmFile.isDeleted()) {
+        if ( !fileList.get( 0 ).isDeleteMarker() ) {
+            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                    bucketName );
+            ScmFile scmFile = bucket.getFile( keyName );
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
-                    Thread.currentThread().getId());
+                    Thread.currentThread().getId() );
             OutputStream fileOutputStream = new FileOutputStream(
-                    downloadPath);
-            scmFile.getContent(fileOutputStream);
+                    downloadPath );
+            scmFile.getContent( fileOutputStream );
             fileOutputStream.close();
 
-            String downloadMD5 = TestTools.getMD5(downloadPath);
-            String fileMD5 = TestTools.getMD5(filePath);
-            Assert.assertEquals(fileMD5, downloadMD5);
+            String downloadMD5 = TestTools.getMD5( downloadPath );
+            String fileMD5 = TestTools.getMD5( filePath );
+            Assert.assertEquals( fileMD5, downloadMD5 );
         }
     }
 
