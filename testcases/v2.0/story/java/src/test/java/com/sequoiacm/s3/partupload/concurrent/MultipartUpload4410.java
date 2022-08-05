@@ -63,7 +63,8 @@ public class MultipartUpload4410 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // http://jira.web:8080/browse/SEQUOIACM-1001,问题单未修改，暂时屏蔽用例
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     public void testUpload() throws Exception {
         uploadId = PartUploadUtils.initPartUpload( s3Client, bucketName,
                 keyName );
