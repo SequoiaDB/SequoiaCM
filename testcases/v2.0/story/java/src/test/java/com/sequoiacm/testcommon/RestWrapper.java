@@ -26,7 +26,7 @@ public class RestWrapper {
         factory.setConnectionRequestTimeout( 10000 );
         factory.setConnectTimeout( 10000 );
         factory.setBufferRequestBody( false );
-        factory.setReadTimeout( 30000 );
+        factory.setReadTimeout( 60000 );
         rest = new RestTemplate( factory );
     }
 
