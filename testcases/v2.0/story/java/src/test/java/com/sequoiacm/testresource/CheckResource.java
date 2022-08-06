@@ -23,9 +23,11 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
     private static final int fileNum = 500;
+    private Sequoiadb db = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() {
+        db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -45,16 +47,25 @@ public class CheckResource extends TestScmBase {
         }
     }
 
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    private void testRemainBuckets() throws Exception {
+        List< String > buckets = this.isRemainBuckets();
+        if ( buckets.size() > 0 ) {
+            throw new Exception( "remain s3 buckets \n" + buckets );
+        }
+    }
+
     @AfterClass(alwaysRun = true)
     private void tearDown() {
+        if ( db != null ) {
+            db.close();
+        }
     }
 
     private List< String > isRemainScmSession() {
-        Sequoiadb db = null;
         DBCursor cursor = null;
         List< String > sessionList = new ArrayList<>();
         try {
-            db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
             CollectionSpace cs = db.getCollectionSpace( TestSdbTools.SCM_CS );
             DBCollection cl = cs.getCollection( TestSdbTools.SCM_CL_SESSION );
 
@@ -96,41 +107,88 @@ public class CheckResource extends TestScmBase {
             if ( null != cursor ) {
                 cursor.close();
             }
-            if ( null != db ) {
-                db.close();
-            }
         }
         return sessionList;
     }
 
-    private List< String > isRemainScmFile() throws Exception {
-        List< String > fileList = new ArrayList<>();
-        Sequoiadb db = null;
+    private List< String > isRemainBuckets() {
+        List< String > bucketNames = new ArrayList<>();
         DBCursor wsCursor = null;
         try {
-            db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
             wsCursor = db.getCollectionSpace( "SCMSYSTEM" )
-                    .getCollection( "WORKSPACE" ).query();
+                    .getCollection( "BUCKET" ).query();
             while ( wsCursor.hasNext() ) {
                 BSONObject info = wsCursor.getNext();
-                String wsName = ( String ) info.get( "name" );
-                getFileInfo( db, wsName, fileList );
+                String bucket = ( String ) info.get( "name" );
+                // 排除公共桶的干扰
+                if ( !( bucket.contains( "comm" ) ) ) {
+                    bucketNames.add( bucket );
+                }
             }
         } finally {
             if ( wsCursor != null ) {
                 wsCursor.close();
             }
-            if ( db != null ) {
-                db.close();
+        }
+        return bucketNames;
+    }
+
+    private List< String > isRemainScmFile() {
+        List< String > fileList = new ArrayList<>();
+        DBCursor wsCursor = null;
+        try {
+            wsCursor = db.getCollectionSpace( "SCMSYSTEM" )
+                    .getCollection( "WORKSPACE" ).query();
+            while ( wsCursor.hasNext() ) {
+                BSONObject info = wsCursor.getNext();
+                String wsName = ( String ) info.get( "name" );
+                fileList.addAll( getFileInfo( db, wsName ) );
+                fileList.addAll( getHistoryFileInfo( db, wsName ) );
+            }
+        } finally {
+            if ( wsCursor != null ) {
+                wsCursor.close();
             }
         }
         return fileList;
     }
 
-    private void getFileInfo( Sequoiadb db, String wsName,
-            List< String > fileList ) {
-        DBCollection cl = db.getCollectionSpace( wsName + "_META" )
-                .getCollection( "FILE" );
+    /**
+     * @descreption 遍历工作区下历史版本集合
+     * @param db
+     * @param wsName
+     * @return
+     */
+    private List< String > getHistoryFileInfo( Sequoiadb db, String wsName ) {
+        String csName = wsName + "_META";
+        String clName = "FILE_HISTORY";
+        return queryCl( db, csName, clName );
+    }
+
+    /**
+     * @descreption 遍历工作区下当前版本集合
+     * @param db
+     * @param wsName
+     * @return
+     */
+    private List< String > getFileInfo( Sequoiadb db, String wsName ) {
+        String csName = wsName + "_META";
+        String clName = "FILE";
+        return queryCl( db, csName, clName );
+    }
+
+    /**
+     * @descreption 根据集合名遍历记录
+     * @param db
+     * @param csName
+     * @param clName
+     * @return
+     */
+    private List< String > queryCl( Sequoiadb db, String csName,
+            String clName ) {
+        List< String > fileList = new ArrayList<>();
+        DBCollection cl = db.getCollectionSpace( csName )
+                .getCollection( clName );
         long cnt = cl.getCount();
         DBCursor infoCursor = null;
         try {
@@ -140,21 +198,11 @@ public class CheckResource extends TestScmBase {
                     while ( infoCursor.hasNext() ) {
                         BSONObject info = infoCursor.getNext();
                         String name = ( String ) info.get( "name" );
-                        fileList.add( name );
-                        logger.error( "remain scmfile \nwsName = " + wsName
-                                + ",fileInfo = " + info.toString() );
+                        int version = ( int ) info.get( "major_version" );
+                        fileList.add( name + "-" + version );
+                        logger.error( "remain scmfile \nfileInfo = "
+                                + info.toString() );
                     }
-                } else {
-                    while ( infoCursor.hasNext() ) {
-                        BSONObject info = infoCursor.getNext();
-                        String name = ( String ) info.get( "name" );
-                        fileList.add( name );
-                    }
-                    logger.error( "remain scmfile \nwsName = " + wsName
-                            + ", remainNum = " + cnt + ", " + "scmfile name = "
-                            + fileList.subList(
-                                    ( int ) ( fileList.size() - cnt ),
-                                    fileList.size() ) );
                 }
             }
         } finally {
@@ -162,5 +210,6 @@ public class CheckResource extends TestScmBase {
                 infoCursor.close();
             }
         }
+        return fileList;
     }
 }
