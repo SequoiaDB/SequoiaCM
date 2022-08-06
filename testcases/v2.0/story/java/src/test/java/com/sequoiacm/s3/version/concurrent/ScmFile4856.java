@@ -66,7 +66,8 @@ public class ScmFile4856 extends TestScmBase {
         S3Utils.createFile( scmBucket, fileName, updatePath );
     }
 
-    @Test
+    //http://jira.web:8080/browse/SEQUOIACM-1014
+    @Test(enabled = false)
     public void testCreateObject() throws Exception {
         int version = 2;
         ThreadExecutor es = new ThreadExecutor();

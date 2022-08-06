@@ -58,7 +58,8 @@ public class ScmFile4862 extends TestScmBase {
         bucket.suspendVersionControl();
     }
 
-    @Test
+    //TODO:http://jira.web:8080/browse/SEQUOIACM-1007
+    @Test(enabled = false)
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         te.addWorker( new DeleteFileThread() );
