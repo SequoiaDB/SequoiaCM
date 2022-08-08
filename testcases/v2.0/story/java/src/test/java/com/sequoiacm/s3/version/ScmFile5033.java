@@ -97,7 +97,8 @@ public class ScmFile5033 extends TestScmBase {
 
     private void asyncTransferCurrentVersionFile( int majorVersion )
             throws Exception {
-        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0 );
+        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0,
+                rootSite.getSiteName() );
 
         // wait task finished
         int sitenums = 2;
