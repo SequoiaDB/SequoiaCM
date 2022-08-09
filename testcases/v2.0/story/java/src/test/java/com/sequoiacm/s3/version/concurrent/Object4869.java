@@ -63,7 +63,8 @@ public class Object4869 extends TestScmBase {
 
     }
 
-    @Test
+    //SEQUOIACM-1025暂时屏蔽
+    @Test(enabled = false)
     public void testCreateObject() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         S3CreateObject s3CreateObject = new S3CreateObject( keyName );
