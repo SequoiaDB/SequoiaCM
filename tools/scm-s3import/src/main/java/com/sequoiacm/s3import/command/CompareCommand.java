@@ -105,7 +105,7 @@ public class CompareCommand extends SubCommand {
             S3Bucket checkS3Bucket = checkS3BucketList.get(i);
             if (!s3Bucket.equals(checkS3Bucket)) {
                 throw new ScmToolsException(
-                        "The bucket has not been compare or the target bucket name is inconsistent, bucket="
+                        "The working directories of the 'src' bucket and 'dest' bucket in the record are inconsistent with the previous one.If you want to continue,you will need to change the working directory, bucket="
                                 + s3Bucket.getName() + ", dest_bucket=" + s3Bucket.getDestName(),
                         S3ImportExitCode.INVALID_ARG);
             }
