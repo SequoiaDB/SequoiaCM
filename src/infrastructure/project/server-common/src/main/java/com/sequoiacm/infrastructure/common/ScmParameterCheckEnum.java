@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 public enum ScmParameterCheckEnum {
 
     CircuitBreakerEnabled("hystrix.command.default.circuitBreaker.enabled", new CheckIsBoolean()),
+    MetricsRollingStatsTimeInMilliseconds("hystrix.command.default.metrics.rollingStats.timeInMilliseconds", new CheckIsNaturalNumberAndRange(
+            1, Integer.MAX_VALUE)),
     BreakerRequestVolumeThreshold("hystrix.command.default.circuitBreaker.requestVolumeThreshold", new CheckIsNaturalNumberAndRange(
             1, Integer.MAX_VALUE)),
     CircuitBreakerErrorThresholdPercentage("hystrix.command.default.circuitBreaker.errorThresholdPercentage", new CheckIsNaturalNumberAndRange(
