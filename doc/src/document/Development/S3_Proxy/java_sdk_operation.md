@@ -2,7 +2,7 @@
 
 ## S3 Java SDK 依赖##
 
--  **通过 Maven 引如 SDK 依赖**
+-  **通过 Maven 引入 SDK 依赖**
 
 ```lang-xml
 <dependency>
