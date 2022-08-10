@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-infrastructure</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.1</version>
     </parent>
     <artifactId>sequoiacm-infrastructure-config-client</artifactId>
     <name>SequoiaCM Infrastructure Config Client</name>
