@@ -246,11 +246,10 @@ class ScmBatchImpl implements ScmBatch {
             throw new ScmException(ScmError.INVALID_ID, "the file to be attached cannot be null");
         }
 
+        ScmFile file = ScmFactory.File.getInstance(ws, fileId);
         getSession().getDispatcher().batchAttachFile(getWorkspaceName(), getId().get(),
                 fileId.get());
-
         // add file to fileList
-        ScmFile file = ScmFactory.File.getInstance(ws, fileId);
         addFile(file);
     }
 
