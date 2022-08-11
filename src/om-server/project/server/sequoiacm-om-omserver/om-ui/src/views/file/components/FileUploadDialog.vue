@@ -133,7 +133,7 @@
                     v-if="attr.type==='BOOLEAN'"
                     v-model="attr.value" 
                     size="medium" 
-                    style="width: 200px;" >
+                    style="width: 200px;">
                     <el-option
                       v-for="item in booleanType"
                       :key="item.value"
@@ -141,6 +141,17 @@
                       :value="item.value">
                     </el-option>
                   </el-select>
+                  <el-date-picker
+                    id="attr_date_val_picker"
+                    v-else-if="attr.type==='DATE'"
+                    v-model="attr.value"
+                    type="datetime"
+                    value-format="yyyy-MM-dd-HH:mm:ss.SSS"
+                    placeholder="选择日期时间"
+                    align="right"
+                    :picker-options="pickerOptions"
+                    style="width: 200px;">
+                  </el-date-picker>
                   <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>        
                   <el-button id="btn_delete_attr_option" v-if="!attr.required" size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C;margin-left: 5px" @click="removeAttributes(attr)">删除</el-button>
               </el-form-item>
@@ -211,6 +222,28 @@ export default {
       }
     }
     return{
+      pickerOptions: {
+        shortcuts: [{
+          text: '今天',
+          onClick(picker) {
+            picker.$emit('pick', new Date());
+          }
+        }, {
+          text: '昨天',
+          onClick(picker) {
+            const date = new Date();
+            date.setTime(date.getTime() - 3600 * 1000 * 24);
+            picker.$emit('pick', date);
+          }
+        }, {
+          text: '一周前',
+          onClick(picker) {
+            const date = new Date();
+            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', date);
+          }
+        }]
+      },
       booleanType: [ 
         { value: 'true' },
         { value: 'false' }
@@ -317,11 +350,11 @@ export default {
       let classProperties = new Map()
       this.form.selectAttributes.forEach((item) =>{
         if (!this.checkAttributeVal(item)) {
-          this.$message.error("元数据属性 " + item.name + " 要求的类型为：" + item.type)
+          this.$message.error("元数据未填写或填写类型不正确，属性 " + item.name + " 要求的类型为：" + item.type)
           attributeValid = false
           return
         }
-        classProperties.set(item. name, this.convertAttributeVal(item))
+        classProperties.set(item.name, this.convertAttributeVal(item))
       })
       let class_properties = this.$util.mapToObject(classProperties)
       if (!attributeValid) {
@@ -442,6 +475,8 @@ export default {
           return regs.test(attr.value)
         case 'BOOLEAN':
           return attr.value === 'false' || attr.value === 'true'
+        case 'DATE':
+          return attr.value != undefined && attr.value != null
         default:
           return true
       }
