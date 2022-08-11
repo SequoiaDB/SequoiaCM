@@ -138,8 +138,9 @@ public class FileCacheDao {
                     dataInfo);
         }
         catch (ScmDatasourceException e) {
+            logger.error("create data writer fail:id={},type={},createTime={}", dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime());
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
-                    "failed to create data writer");
+                    "failed to create data writer", e);
         }
         return writer;
     }
