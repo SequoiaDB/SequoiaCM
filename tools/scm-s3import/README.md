@@ -124,27 +124,27 @@
 
 工程配置 s3import.properties
 
-|配置项                        |类型    |说明              |
-|------------------------------|--------|------------------|
-|src.s3.url                    |str     |源 S3 系统地址|
-|src.s3.accessKey              |str     |源 S3 系统访问密钥|
-|src.s3.secretKey              |str     |源 S3 系统访问密钥|
-|src.s3.key-file               |str     |源 S3 系统访问密钥文件路径（优先使用文件中的密钥连接 S3，若此项为空，则使用明文密钥对）|
-|src.s3.client.maxErrorRetry   |num     |工具执行时请求源 S3 的失败重试次数，默认值：3|
-|src.s3.client.signerOverride  |str     |S3 驱动签名配置，默认值：S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
-|src.s3.client.connTimeout     |num     |工具执行时与源 S3 建立连接的超时时长，默认值为：10000，单位：毫秒|
-|src.s3.client.socketTimeout   |num     |工具执行时与源 S3 的 socket 连接超时时长，默认值为：50000，单位：毫秒|
-|src.s3.client.connTTL         |num     |S3 驱动连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒|
-|dest.s3.url                   |str     |目标 S3 地址|
-|dest.s3.accessKey             |str     |目标 S3 系统访问密钥|
-|dest.s3.secretKey             |str     |目标 S3 系统访问密钥|
-|dest.s3.key-file              |str     |目标 S3 系统访问密钥文件路径（优先使用文件中的密钥连接 S3，若此项为空，则使用明文密钥对）|
-|dest.s3.client.maxErrorRetry  |num     |工具执行时请求目标 S3 的失败重试次数，默认值：3|
-|dest.s3.client.signerOverride |str     |S3 驱动签名配置，默认值：S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
-|dest.s3.client.connTimeout    |num     |工具执行时与目标 S3 建立连接的超时时长，默认值为：10000，单位：毫秒|
-|dest.s3.client.socketTimeout  |num     |工具执行时与目标 S3 的 socket 连接超时时长，默认值为：50000，单位：毫秒|
-|dest.s3.client.connTTL        |num     |S3 驱动连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒|
-|batch_size                    |num     |批次大小，默认值：500
-|max_fail_count                |num     |最大失败数，超过此阈值进程退出，默认值：100|
-|work_count                    |num     |最大并发数，默认值：50
-|strict_comparison_mode        |boolean |严格比对模式。默认值：false<br>- true：比对数据时分别下载两端对象内容，计算并比对 md5<br>- flase：比对数据时校验两端对象的 eTag
+| 配置项                           | 类型      | 说明                                                                                                                                     |
+|-------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|
+| src.s3.url                    | str     | 源 S3 系统地址                                                                                                                              |
+| src.s3.accessKey              | str     | 源 S3 系统访问密钥                                                                                                                            |
+| src.s3.secretKey              | str     | 源 S3 系统访问密钥                                                                                                                            |
+| src.s3.key-file               | str     | 源 S3 系统访问密钥文件路径（优先使用文件中的密钥连接 S3，若此项为空，则使用明文密钥对）密钥生成：在内容管理服务目录下，输入 ./bin/scmadmin.sh encrypt -u admin -p admin 生成；密钥生成后，将生成的密钥放到密钥文件里面  |
+| src.s3.client.maxErrorRetry   | num     | 工具执行时请求源 S3 的失败重试次数，默认值：3                                                                                                              |
+| src.s3.client.signerOverride  | str     | S3 驱动签名配置，默认值：v4版本签名，可取值：V2/V4                                                                                                         |
+| src.s3.client.connTimeout     | num     | 工具执行时与源 S3 建立连接的超时时长，默认值为：10000，单位：毫秒                                                                                                  |
+| src.s3.client.socketTimeout   | num     | 工具执行时与源 S3 的 socket 连接超时时长，默认值为：50000，单位：毫秒                                                                                            |
+| src.s3.client.connTTL         | num     | S3 驱动连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒                                                                                                     |
+| dest.s3.url                   | str     | 目标 S3 地址                                                                                                                               |
+| dest.s3.accessKey             | str     | 目标 S3 系统访问密钥                                                                                                                           |
+| dest.s3.secretKey             | str     | 目标 S3 系统访问密钥                                                                                                                           |
+| dest.s3.key-file              | str     | 目标 S3 系统访问密钥文件路径（优先使用文件中的密钥连接 S3，若此项为空，则使用明文密钥对）密钥生成：在内容管理服务目录下，输入 ./bin/scmadmin.sh encrypt -u admin -p admin 生成；密钥生成后，将生成的密钥放到密钥文件里面 |
+| dest.s3.client.maxErrorRetry  | num     | 工具执行时请求目标 S3 的失败重试次数，默认值：3                                                                                                             |
+| dest.s3.client.signerOverride | str     | S3 驱动签名配置，默认值：S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法                                                                                   |
+| dest.s3.client.connTimeout    | num     | 工具执行时与目标 S3 建立连接的超时时长，默认值为：10000，单位：毫秒                                                                                                 |
+| dest.s3.client.socketTimeout  | num     | 工具执行时与目标 S3 的 socket 连接超时时长，默认值为：50000，单位：毫秒                                                                                           |
+| dest.s3.client.connTTL        | num     | S3 驱动连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒                                                                                                     |
+| batch_size                    | num     | 批次大小，默认值：500，有效范围：[1 - 10000]                                                                                                          |
+| max_fail_count                | num     | 最大失败数，超过此阈值进程退出，最小值：1，默认值：100                                                                                                          |
+| work_count                    | num     | 最大并发数，默认值：50，有效范围：[1 - 100]                                                                                                            |
+| strict_comparison_mode        | boolean | 严格比对模式。默认值：false<br>- true：比对数据时分别下载两端对象内容，计算并比对 md5<br>- flase：比对数据时校验两端对象的 eTag                                                      |

@@ -5,14 +5,14 @@ import com.amazonaws.retry.PredefinedRetryPolicies;
 
 public class S3ConnectionConf {
 
-    static final String DEFAULT_SIGNER_OVERRIDE = "S3SignerType";
+    static final String V2_SIGNER_OVERRIDE = "S3SignerType";
     static final String CONF_KEY_SIGNER_OVERRIDE = "signerOverride";
     static final String CONF_KEY_SOCKET_TIMEOUT = "socketTimeout";
     static final String CONF_KEY_CONN_TTL = "connTTL";
     static final String CONF_KEY_CONN_TIMEOUT = "connTimeout";
     static final String CONF_KEY_MAX_ERROR_RETRY = "maxErrorRetry";
 
-    private String s3SignerOverride = DEFAULT_SIGNER_OVERRIDE;
+    private String s3SignerOverride;
     private int socketTimeout = ClientConfiguration.DEFAULT_SOCKET_TIMEOUT;
     private int maxConnection = ClientConfiguration.DEFAULT_MAX_CONNECTIONS;
     private long connectionTTL = ClientConfiguration.DEFAULT_CONNECTION_TTL;
@@ -21,7 +21,15 @@ public class S3ConnectionConf {
 
     public boolean addConnectConf(String key, String value) {
         if (key.equals(CONF_KEY_SIGNER_OVERRIDE)) {
-            this.s3SignerOverride = value;
+            if (value != null && !value.trim().equals("")){
+                if (!value.equals("V2") && !value.equals("V4")){
+                    throw new IllegalArgumentException("s3 " + CONF_KEY_SIGNER_OVERRIDE
+                        +" out of range. valid range: V2/V4: " + value);
+                }
+                else if (value.equals("V2")){
+                    this.s3SignerOverride = V2_SIGNER_OVERRIDE;
+                }
+            }
         }
         else if (key.equals(CONF_KEY_SOCKET_TIMEOUT)) {
             this.socketTimeout = Integer.parseInt(value);

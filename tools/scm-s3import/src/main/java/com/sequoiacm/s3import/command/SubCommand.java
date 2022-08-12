@@ -102,7 +102,7 @@ public abstract class SubCommand {
         ops.addOption(Option.builder().longOpt(CommonDefine.Option.WORK_PATH).hasArg(true)
                 .desc("the working path of this execution").build());
         ops.addOption(Option.builder().longOpt(CommonDefine.Option.MAX_EXEC_TIME).hasArg(true)
-                .desc("maximum time for this execution").build());
+                .desc("maximum time for this execution, unit: second").build());
         ops.addOption(Option.builder().longOpt(CommonDefine.Option.CONF).hasArg(true)
                 .desc("the custom configuration file path, sample:"
                         + new File(ImportPathConfig.getInstance().getConfPath()))

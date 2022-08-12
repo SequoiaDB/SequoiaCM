@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.module.S3Bucket;

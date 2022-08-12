@@ -4,7 +4,9 @@ import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.s3import.common.CommonDefine;
 import com.sequoiacm.s3import.common.CommonUtils;
+import com.sequoiacm.s3import.common.convertor.ArgumentConvertor;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import org.springframework.util.StringUtils;
 
@@ -114,16 +116,16 @@ public class ImportToolProps {
                 }
             }
             else if (key.equals(BATCH_SITE)) {
-                this.batchSize = Integer.parseInt(value);
+                this.batchSize = (int) ArgumentConvertor.getParse(BATCH_SITE, value);
             }
             else if (key.equals(MAX_FAIL_COUNT)) {
-                this.maxFailCount = Integer.parseInt(value);
+                this.maxFailCount = (int) ArgumentConvertor.getParse(MAX_FAIL_COUNT, value);
             }
             else if (key.equals(WORK_COUNT)) {
-                this.workCount = Integer.parseInt(value);
+                this.workCount = (int) ArgumentConvertor.getParse(WORK_COUNT, value);
             }
             else if (key.equals(STRICT_COMPARISON_MODE)) {
-                this.strictComparisonMode = Boolean.parseBoolean(value);
+                this.strictComparisonMode = (boolean) ArgumentConvertor.getParse(STRICT_COMPARISON_MODE, value);
             }
             else {
                 isIllegalKey = true;
@@ -135,20 +137,8 @@ public class ImportToolProps {
             }
         }
 
-        checkProp();
         parseKeyFile(srcS3);
         parseKeyFile(destS3);
-    }
-
-    private void checkProp() throws ScmToolsException {
-        CommonUtils.assertTrue(batchSize >= 1 && batchSize <= 10000, BATCH_SITE
-                        + " must be greater than or equals to 1 and less than or equal to 10000: "
-                        + batchSize);
-        CommonUtils.assertTrue(maxFailCount >= 1,
-                MAX_FAIL_COUNT + " must be greater than or equals to 1: " + maxFailCount);
-        CommonUtils.assertTrue(workCount >= 1 && workCount <= 100, WORK_COUNT
-                        + " must be greater than or equals to 1 and less than or equal to 100: "
-                        + workCount);
     }
 
     public void parseKeyFile(S3ServerInfo s3ServerInfo) {
