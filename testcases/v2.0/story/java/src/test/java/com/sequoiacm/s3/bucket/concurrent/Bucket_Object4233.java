@@ -137,10 +137,10 @@ public class Bucket_Object4233 extends TestScmBase {
     class CreateScmFile extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
-                    bucketName );
-            ScmFile file = bucket.createFile( key );
             try {
+                ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                        bucketName );
+                ScmFile file = bucket.createFile( key );
                 file.setFileName( key );
                 file.setAuthor( "author4233" );
                 file.setContent( filePath );
