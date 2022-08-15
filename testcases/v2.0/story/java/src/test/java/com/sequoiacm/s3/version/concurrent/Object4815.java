@@ -44,7 +44,8 @@ public class Object4815 extends TestScmBase {
         S3Utils.setBucketVersioning(s3Client, bucketName, "Enabled");
     }
 
-    @Test
+    //SEQUOIACM-1007 暂时屏蔽
+    @Test(enabled = false)
     public void testCreateObject() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         CreateObject createObject = new CreateObject( keyName );
