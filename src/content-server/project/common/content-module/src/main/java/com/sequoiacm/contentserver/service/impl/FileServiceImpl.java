@@ -954,4 +954,17 @@ public class FileServiceImpl implements IFileService {
                 + ", fileId=" + fileId + ", version=" + majorVersion + "." + minorVersion);
         return ret;
     }
+
+    @Override
+    public void deleteFileByPath(String sessionId, String userDetail, ScmUser user, String workspaceName,
+            String filePath, int majorVersion, int minorVersion, Boolean isPhysical)
+            throws ScmServerException {
+        BSONObject file = getFileInfoByPath(user, workspaceName, filePath, majorVersion,
+                minorVersion, false);
+        String fileId = BsonUtils.getString(file, FieldName.FIELD_CLFILE_ID);
+        deleteFile(sessionId, userDetail, workspaceName, fileId,
+                majorVersion, minorVersion, isPhysical);
+        audit.info(ScmAuditType.DELETE_FILE, user, workspaceName, 0,
+                "delete file by path=" + filePath);
+    }
 }

@@ -452,6 +452,24 @@ public class FileController {
                 version.getMajorVersion(), version.getMinorVersion(), isPhysical);
     }
 
+    @DeleteMapping(value = "/files", params = "file_path")
+    public void deleteFileByPath(@RequestParam("file_path") String filePath,
+                                 @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+                                 @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") Integer majorVersion,
+                                 @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") Integer minorVersion,
+                                 @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") Boolean isPhysical,
+                                 @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+                                 @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response, Authentication auth)
+            throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        ScmVersion version = new ScmVersion(majorVersion, minorVersion);
+        filePath = ScmSystemUtils.formatFilePath(filePath);
+        fileService.deleteFileByPath(sessionId, userDetail, user, workspaceName, filePath,
+                version.getMajorVersion(), version.getMinorVersion(), isPhysical);
+    }
+
     @RequestMapping(value = "/files", method = RequestMethod.HEAD)
     public ResponseEntity<String> countFile(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,

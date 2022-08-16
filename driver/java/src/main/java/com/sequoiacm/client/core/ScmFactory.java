@@ -227,7 +227,7 @@ public class ScmFactory {
          * @param minorVersion
          *            The minor version of the file.
          * @param isPhysical
-         *            is physical or logical
+         *            is physical or version deletion
          * @throws ScmException
          *             if error happens
          * @since 2.1
@@ -251,7 +251,7 @@ public class ScmFactory {
          * @param fileId
          *            The ID(GUID) of the file instance.
          * @param isPhysical
-         *            is physical or logical
+         *            is physical or version deletion
          * @throws ScmException
          *             if error happens
          * @since 2.1
@@ -259,6 +259,51 @@ public class ScmFactory {
         public static void deleteInstance(ScmWorkspace ws, ScmId fileId, boolean isPhysical)
                 throws ScmException {
             deleteInstance(ws, fileId, -1, -1, isPhysical);
+        }
+
+        /**
+         * delete a file by path.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
+         * @param filePath
+         *            The filePath of the file instance.
+         * @param isPhysical
+         *            is physical or version deletion
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2.1
+         */
+        public static void deleteInstanceByPath(ScmWorkspace ws, String filePath, boolean isPhysical)
+                throws ScmException {
+            deleteInstanceByPath(ws, filePath, -1, -1, isPhysical);
+        }
+
+        /**
+         * delete a file by path.
+         *
+         * @param ws
+         *            The ScmWorkspace object for the workspace in which this class
+         *            instance is to be located.
+         * @param filePath
+         *            The filePath of the file instance.
+         * @param majorVersion
+         *            The major version of the file.
+         * @param minorVersion
+         *            The minor version of the file.
+         * @param isPhysical
+         *            is physical or version deletion
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2.1
+         */
+        private static void deleteInstanceByPath(ScmWorkspace ws, String filePath, int majorVersion, int minorVersion, boolean isPhysical)
+                throws ScmException {
+            checkArgNotNull("workspace", ws);
+            checkArgNotNull("filePath", filePath);
+            ScmSession session = ws.getSession();
+            session.getDispatcher().deleteFileByPath(ws.getName(), filePath, majorVersion, minorVersion, isPhysical);
         }
 
         /**

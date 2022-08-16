@@ -101,6 +101,9 @@ public interface MessageDispatcher extends Closeable {
     void deleteFile(String workspaceName, String fileID, int majorVersion, int minorVersion,
             boolean isPhysical) throws ScmException;
 
+    void deleteFileByPath(String workspaceName, String filePath, int majorVersion, int minorVersion,
+            boolean isPhysical) throws ScmException;
+
     List<BSONObject> reloadBizConf(int scope, int id) throws ScmException;
 
     BsonReader getNodeList(BSONObject condition) throws ScmException;

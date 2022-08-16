@@ -777,7 +777,17 @@ public class RestDispatcher implements MessageDispatcher {
             boolean isPhysical) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + fileID + "?workspace_name="
                 + encode(workspaceName) + "&" + CommonDefine.RestArg.FILE_IS_PHYSICAL + "="
-                + isPhysical;
+                + isPhysical + "&majorVersion=" + majorVersion + "&minorVersion=" + minorVersion;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void deleteFileByPath(String workspaceName, String filePath, int majorVersion, int minorVersion,
+             boolean isPhysical) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + FILE + "?workspace_name="
+                + encode(workspaceName) + "&" + CommonDefine.RestArg.FILE_IS_PHYSICAL + "="
+                + isPhysical + "&file_path=" + filePath + "&majorVersion=" + majorVersion + "&minorVersion=" + minorVersion;
         HttpDelete request = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }

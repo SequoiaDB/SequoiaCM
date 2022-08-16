@@ -46,6 +46,9 @@ public interface IFileService {
     void deleteFile(String sessionid, String userDetail, String workspaceName, String fileId,
             int majorVersion, int minorVersion, boolean isPhysical) throws ScmServerException;
 
+    void deleteFileByPath(String sessionId, String userDetail, ScmUser user, String workspaceName, String filePath, int majorVersion,
+                          int minorVersion, Boolean isPhysical) throws ScmServerException;
+
     long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition)
             throws ScmServerException;
     
