@@ -1,9 +1,10 @@
 package com.sequoiacm.s3.version;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
-import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
-import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.core.ScmBucket;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -13,6 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @Description SCM-4802 :: S3接口创建多版本文件，SCM API获取版本文件
@@ -32,8 +34,6 @@ public class Object4802 extends TestScmBase {
     private String updatePath = null;
     private ScmSession session;
     private SiteWrapper site = null;
-    private ScmWorkspace ws = null;
-    private ScmBucket scmBucket = null;
     private ScmId fileId = null;
 
     @BeforeClass
@@ -52,17 +52,10 @@ public class Object4802 extends TestScmBase {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         S3Utils.clearBucket( session, bucketName );
-        ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
-        S3Utils.clearBucket( session, bucketName );
 
         s3Client = S3Utils.buildS3Client();
         s3Client.createBucket( bucketName );
-        BucketVersioningConfiguration configuration = new BucketVersioningConfiguration()
-                .withStatus( "Enabled" );
-        SetBucketVersioningConfigurationRequest setBucketVersioningConfigurationRequest = new SetBucketVersioningConfigurationRequest(
-                bucketName, configuration );
-        s3Client.setBucketVersioningConfiguration(
-                setBucketVersioningConfigurationRequest );
+        S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
         s3Client.putObject( bucketName, keyName, new File( filePath ) );
         s3Client.putObject( bucketName, keyName, new File( updatePath ) );
     }
@@ -78,17 +71,20 @@ public class Object4802 extends TestScmBase {
         // testa：不指定版本获取文件，检查属性和内容
         ScmFile file = scmBucket.getFile( keyName );
         fileId = file.getFileId();
-        checkFileAttributes( file, currentVersion, updateSize, bucketId );
+        checkFileAttributes( file, currentVersion, updateSize, bucketId,
+                updatePath );
         S3Utils.checkFileContent( file, updatePath, localPath );
 
         // testb：指定最新版本获取文件，检查属性和内容
         ScmFile file1 = scmBucket.getFile( keyName, currentVersion, 0 );
-        checkFileAttributes( file1, currentVersion, updateSize, bucketId );
+        checkFileAttributes( file1, currentVersion, updateSize, bucketId,
+                updatePath );
         S3Utils.checkFileContent( file1, updatePath, localPath );
 
         // testc：指定历史版本获取文件，检查属性和内容
         ScmFile file2 = scmBucket.getFile( keyName, historyVersion, 0 );
-        checkFileAttributes( file2, historyVersion, fileSize, bucketId );
+        checkFileAttributes( file2, historyVersion, fileSize, bucketId,
+                filePath );
         S3Utils.checkFileContent( file2, filePath, localPath );
         runSuccess = true;
     }
@@ -111,7 +107,7 @@ public class Object4802 extends TestScmBase {
     }
 
     private void checkFileAttributes( ScmFile file, int fileVersion,
-            long fileSize, long bucketId ) {
+            long fileSize, long bucketId, String path ) throws IOException {
         Assert.assertEquals( file.getWorkspaceName(), s3WorkSpaces );
         Assert.assertEquals( file.getFileId(), fileId );
         Assert.assertEquals( file.getFileName(), keyName );
@@ -121,5 +117,6 @@ public class Object4802 extends TestScmBase {
         Assert.assertEquals( file.getMinorVersion(), 0 );
         Assert.assertEquals( file.getMajorVersion(), fileVersion );
         Assert.assertFalse( file.isNullVersion() );
+        Assert.assertEquals( file.getMd5(), TestTools.getMD5AsBase64( path ) );
     }
 }

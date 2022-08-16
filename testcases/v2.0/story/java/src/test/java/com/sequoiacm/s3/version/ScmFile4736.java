@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +106,13 @@ public class ScmFile4736 extends TestScmBase {
     private void checkFile( ScmBucket bucket, String objectName, String path )
             throws Exception {
         ScmFile file = bucket.getFile( objectName );
-        file.getMd5();
+        //检查元数据信息
+        String fileMd5 = file.getMd5();
+        String expFileMd5 = TestTools.getMD5AsBase64( path );
+        Assert.assertEquals(fileMd5, expFileMd5);
+        Assert.assertEquals(file.getSize(), updateSize);
+
+        //检查内容信息
         String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
                 TestTools.getMethodName(), Thread.currentThread().getId() );
         OutputStream fileOutputStream = new FileOutputStream( downloadPath );

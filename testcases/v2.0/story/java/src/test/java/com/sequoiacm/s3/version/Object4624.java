@@ -13,6 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -73,7 +74,7 @@ public class Object4624 extends TestScmBase {
         }
     }
 
-    private void updateObjectWithSameContent() {
+    private void updateObjectWithSameContent() throws IOException {
         S3Object object = s3Client.getObject( bucketName, keyName );
         Date createDate = object.getObjectMetadata().getLastModified();
 
@@ -82,19 +83,36 @@ public class Object4624 extends TestScmBase {
         String updateVersionId = "2.0";
         Assert.assertEquals( result.getVersionId(), updateVersionId );
 
-        // check the modify date
         S3Object updateObject = s3Client.getObject( bucketName, keyName );
+        Assert.assertEquals(
+                updateObject.getObjectMetadata().getContentLength(), fileSize );
+        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),
+                TestTools.getMD5( filePath ) );
+        Assert.assertEquals( updateObject.getObjectMetadata().getVersionId(),
+                updateVersionId );
+
+        // check the modify date
         Date updateDate = updateObject.getObjectMetadata().getLastModified();
         Assert.assertFalse( updateDate.before( createDate ),
                 "updateDate must be grater than createDate! " + "updateDate:"
                         + updateDate + "\t createDate:" + createDate );
     }
 
-    private void updateObjectWithDiffContent() {
+    private void updateObjectWithDiffContent() throws IOException {
         PutObjectResult result = s3Client.putObject( bucketName, keyName,
                 new File( updatePath ) );
-        // check the versionId, should be 2
-        Assert.assertEquals( result.getVersionId(), "3.0" );
+        // check the versionId, should be 3
+        String updateVersionId = "3.0";
+        Assert.assertEquals( result.getVersionId(), updateVersionId );
+
+        S3Object updateObject = s3Client.getObject( bucketName, keyName );
+        Assert.assertEquals(
+                updateObject.getObjectMetadata().getContentLength(),
+                updateSize );
+        Assert.assertEquals( updateObject.getObjectMetadata().getETag(),
+                TestTools.getMD5( updatePath ) );
+        Assert.assertEquals( updateObject.getObjectMetadata().getVersionId(),
+                updateVersionId );
     }
 
     private void checkObjectContent() throws Exception {

@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @Description SCM-5017:S3接口当前版本和历史版本都存null版本文件，SCM API获取/更新/删除文件
@@ -75,7 +76,8 @@ public class Object5017 extends TestScmBase {
         ScmFile file = scmBucket.getFile( keyName, currentVersion, 0 );
         fileId = file.getFileId();
         int serialVersion = 3;
-        checkFileAttributes( file, currentVersion, updateSize, serialVersion );
+        checkFileAttributes( file, currentVersion, updateSize, serialVersion,
+                updatePath );
         S3Utils.checkFileContent( file, updatePath, localPath );
 
         // 检查更新后属性，当前版本为更新文件，原文件为历史版本
@@ -83,7 +85,7 @@ public class Object5017 extends TestScmBase {
         ScmFile curfile = scmBucket.getFile( keyName );
         curfile.updateContent( filePath );
         checkFileAttributes( curfile, currentVersion, fileSize,
-                newSerialVersion );
+                newSerialVersion, filePath );
         S3Utils.checkFileContent( curfile, filePath, localPath );
 
         // 指定删除null版本（-2）
@@ -91,7 +93,8 @@ public class Object5017 extends TestScmBase {
         // 获取当前版本为v2版本
         int version = 2;
         ScmFile newCurFile = scmBucket.getFile( keyName );
-        checkFileAttributes( newCurFile, version, updateSize, version );
+        checkFileAttributes( newCurFile, version, updateSize, version,
+                updatePath );
         S3Utils.checkFileContent( newCurFile, updatePath, localPath );
         checklistInstance( version );
         runSuccess = true;
@@ -115,7 +118,8 @@ public class Object5017 extends TestScmBase {
     }
 
     private void checkFileAttributes( ScmFile file, int fileVersion,
-            long fileSize, int majorSerialVersion ) {
+            long fileSize, int majorSerialVersion, String path )
+            throws IOException {
         Assert.assertEquals( file.getWorkspaceName(), s3WorkSpaces );
         Assert.assertEquals( file.getFileId(), fileId );
         Assert.assertEquals( file.getFileName(), keyName );
@@ -126,6 +130,7 @@ public class Object5017 extends TestScmBase {
         Assert.assertEquals( file.getMajorVersion(), fileVersion );
         Assert.assertEquals( file.getVersionSerial().getMajorSerial(),
                 majorSerialVersion );
+        Assert.assertEquals( file.getMd5(), TestTools.getMD5AsBase64( path ) );
         if ( file.getMajorVersion() == -2 ) {
             Assert.assertTrue( file.isNullVersion() );
         } else {

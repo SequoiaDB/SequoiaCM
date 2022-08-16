@@ -6,7 +6,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
@@ -17,10 +16,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @descreption SCM-4841 :: 开启版本控制，并发更新相同文件
@@ -37,40 +37,37 @@ public class ScmFile4841 extends TestScmBase {
     private boolean runSuccess = false;
     private String bucketName = "bucket4841";
     private String keyName = "aa/bb/object4841";
-    private int fileSize = 1024 * 1024;
-    private File localPath = null;
-    private String filePath = null;
+    private int fileSize = 1024;
+    private byte[] fileDatas = new byte[ fileSize ];
     private int versionNum = 10;
+    private HashMap< String, byte[] > fileSizeAndContent = new HashMap<>();
 
     @BeforeClass
     private void setUp() throws Exception {
-        localPath = new File( TestScmBase.dataDirectory + File.separator
-                + TestTools.getClassName() );
-        filePath = localPath + File.separator + "localFile_" + fileSize
-                + ".txt";
-        TestTools.LocalFile.removeFile( localPath );
-        TestTools.LocalFile.createDir( localPath.toString() );
-        TestTools.LocalFile.createFile( filePath, fileSize );
-
         session = TestScmTools.createSession( ScmInfo.getSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         bucket.enableVersionControl();
-        S3Utils.createFile( bucket, keyName, filePath );
+
+        S3Utils.createFile( bucket, keyName, fileDatas, keyName );
+        fileSizeAndContent.put( fileSize + "", fileDatas );
     }
 
     @Test(groups = { GroupTags.base })
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         for ( int i = 0; i < versionNum; i++ ) {
-            te.addWorker( new UpdateFileThread( keyName ) );
+            int filesize = 100 + i;
+            byte[] updateDatas = new byte[ filesize ];
+            new Random().nextBytes( updateDatas );
+            fileSizeAndContent.put( filesize + "", updateDatas );
+            te.addWorker( new UpdateFileThread( keyName, updateDatas ) );
         }
         te.run();
 
         checkFileList();
-
         runSuccess = true;
     }
 
@@ -79,7 +76,6 @@ public class ScmFile4841 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
-                TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
             if ( session != null ) {
@@ -95,48 +91,45 @@ public class ScmFile4841 extends TestScmBase {
                 bucketName );
         Assert.assertEquals( fileList.size(), versionNum + 1 );
 
-        String fileMD5 = TestTools.getMD5( filePath );
         for ( ScmFileBasicInfo file : fileList ) {
             Assert.assertEquals( file.getMajorVersion(), count );
             Assert.assertEquals( file.getFileName(), keyName );
 
             ScmFile scmFile = bucket.getFile( file.getFileName(),
                     file.getMajorVersion(), file.getMinorVersion() );
-            String downloadPath = TestTools.LocalFile.initDownloadPath(
-                    localPath, TestTools.getMethodName(),
-                    Thread.currentThread().getId() );
-            OutputStream fileOutputStream = new FileOutputStream(
-                    downloadPath );
-            scmFile.getContent( fileOutputStream );
-            fileOutputStream.close();
-            String downloadMD5 = TestTools.getMD5( downloadPath );
-            Assert.assertEquals( fileMD5, downloadMD5 );
-
+            long size = scmFile.getSize();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            scmFile.getContent( outputStream );
+            byte[] downloadData = outputStream.toByteArray();
+            Assert.assertEquals( downloadData,
+                    fileSizeAndContent.get( size + "" ),
+                    "---file size=" + size );
             count--;
         }
     }
 
     private class UpdateFileThread extends ResultStore {
         String key;
+        byte[] content;
 
-        UpdateFileThread( String key ) {
+        UpdateFileThread( String key, byte[] content ) {
             this.key = key;
+            this.content = content;
         }
 
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            ScmSession session= null;
+            ScmSession session = null;
             try {
-                session = TestScmTools.createSession(ScmInfo.getSite());
-                ScmBucket bucket = ScmFactory.Bucket.getBucket(session,
-                        bucketName);
-                ScmFile file = bucket.createFile(key);
-                file.setContent( filePath );
+                session = TestScmTools.createSession( ScmInfo.getSite() );
+                ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                        bucketName );
+                ScmFile file = bucket.createFile( key );
+                file.setContent( new ByteArrayInputStream( content ) );
                 file.setAuthor( "author4841" );
-
                 file.save();
             } finally {
-                if (session != null){
+                if ( session != null ) {
                     session.close();
                 }
             }

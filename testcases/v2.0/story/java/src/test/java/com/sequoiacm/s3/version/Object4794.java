@@ -12,6 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @Description SCM-4794 :: SCM创建版本文件，S3更新版本文件
@@ -66,13 +67,13 @@ public class Object4794 extends TestScmBase {
         // 获取当前版本信息检查属性和内容
         int currentVersion = 2;
         ScmFile file = scmBucket.getFile( keyName );
-        checkFileAttributes( file, currentVersion, updateSize );
+        checkFileAttributes( file, currentVersion, updateSize, updatePath );
         S3Utils.checkFileContent( file, updatePath, localPath );
 
         // 获取历史版本属性信息和内容
         int historyVersion = 1;
         ScmFile file1 = scmBucket.getFile( keyName, historyVersion, 0 );
-        checkFileAttributes( file1, historyVersion, fileSize );
+        checkFileAttributes( file1, historyVersion, fileSize, filePath );
         S3Utils.checkFileContent( file1, filePath, localPath );
         runSuccess = true;
     }
@@ -94,7 +95,8 @@ public class Object4794 extends TestScmBase {
         }
     }
 
-    private void checkFileAttributes( ScmFile file, int version, long size ) {
+    private void checkFileAttributes( ScmFile file, int version, long size,
+            String path ) throws IOException {
         Assert.assertEquals( file.getWorkspaceName(), s3WorkSpaces );
         Assert.assertEquals( file.getFileId(), fileId );
         Assert.assertEquals( file.getFileName(), keyName );
@@ -104,5 +106,6 @@ public class Object4794 extends TestScmBase {
         Assert.assertEquals( file.getMinorVersion(), 0 );
         Assert.assertEquals( file.getMajorVersion(), version );
         Assert.assertFalse( file.isNullVersion() );
+        Assert.assertEquals( file.getMd5(), TestTools.getMD5AsBase64( path ) );
     }
 }

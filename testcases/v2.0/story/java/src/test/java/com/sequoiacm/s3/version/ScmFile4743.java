@@ -63,11 +63,11 @@ public class ScmFile4743 extends TestScmBase {
 
         bucket.enableVersionControl();
 
-        S3Utils.createFile(bucket, key, filePath);
+        S3Utils.createFile( bucket, key, filePath );
 
         bucket.suspendVersionControl();
 
-        S3Utils.createFile(bucket, key, updatePath);
+        S3Utils.createFile( bucket, key, updatePath );
 
         checkFile();
 
@@ -93,6 +93,9 @@ public class ScmFile4743 extends TestScmBase {
     private void checkFile() throws Exception {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
         ScmFile scmFile = bucket.getFile( key );
+        Assert.assertEquals( scmFile.getMd5(),
+                TestTools.getMD5AsBase64( updatePath ) );
+        Assert.assertEquals( scmFile.getSize(), updateSize );
         String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
                 TestTools.getMethodName(), Thread.currentThread().getId() );
         OutputStream fileOutputStream = new FileOutputStream( downloadPath );
@@ -105,11 +108,13 @@ public class ScmFile4743 extends TestScmBase {
     }
 
     private void checkFileList() throws Exception {
-        List<ScmFileBasicInfo> fileList = S3Utils.getVersionList(session, ws, bucketName);
+        List< ScmFileBasicInfo > fileList = S3Utils.getVersionList( session, ws,
+                bucketName );
 
         Assert.assertFalse( fileList.get( 0 ).isDeleteMarker() );
         Assert.assertTrue( fileList.get( 0 ).isNullVersion() );
-        Assert.assertEquals( fileList.get( 0 ).getVersionSerial().getMajorSerial(), 2 );
+        Assert.assertEquals(
+                fileList.get( 0 ).getVersionSerial().getMajorSerial(), 2 );
 
         Assert.assertFalse( fileList.get( 1 ).isDeleteMarker() );
         Assert.assertFalse( fileList.get( 1 ).isNullVersion() );

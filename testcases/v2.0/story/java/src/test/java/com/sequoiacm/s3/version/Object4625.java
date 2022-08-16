@@ -80,12 +80,24 @@ public class Object4625 extends TestScmBase {
         S3Object object = s3Client.getObject( bucketName, keyName );
         Date updateDate = object.getObjectMetadata().getLastModified();
         String newVersionId = object.getObjectMetadata().getVersionId();
+        Assert.assertEquals(
+                object.getObjectMetadata().getContentLength(),
+                updateSize );
+        Assert.assertEquals( object.getObjectMetadata().getETag(),
+                TestTools.getMD5( updatePath ) );
 
         // 获取对象历史版本为null-marker标记
         GetObjectRequest request = new GetObjectRequest( bucketName, keyName,
                 "null" );
         S3Object oldObject = s3Client.getObject( request );
         Date createDate = oldObject.getObjectMetadata().getLastModified();
+        Assert.assertEquals(
+                oldObject.getObjectMetadata().getContentLength(),
+                fileSize );
+        Assert.assertEquals( oldObject.getObjectMetadata().getETag(),
+                TestTools.getMD5( filePath ) );
+        Assert.assertEquals( oldObject.getObjectMetadata().getVersionId(),
+                "null");
 
         String updateVersionId = "2.0";
         Assert.assertEquals( newVersionId, updateVersionId );

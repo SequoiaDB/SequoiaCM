@@ -6,7 +6,6 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
@@ -14,10 +13,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
- * @descreption SCM-4823 :: 禁用版本控制，并发删除和获取对象列表
+ * @descreption SCM-4823:禁用版本控制，并发更新相同对象
  * @author Zhaoyujing
  * @Date 2020/7/13
  * @updateUser
@@ -32,7 +32,8 @@ public class Object4823 extends TestScmBase {
     private String oldContent = "oldContent4823";
     private String newContent = "newContent4823";
     private AmazonS3 s3Client = null;
-    private int threadNum = 50;
+    private int threadNum = 10;
+    private HashMap< String, String > fileSizeAndMd5s = new HashMap<>();
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -46,7 +47,10 @@ public class Object4823 extends TestScmBase {
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         for ( int i = 0; i < threadNum; i++ ) {
-            te.addWorker( new UpdateObjectThread() );
+            String currContent = newContent + "."
+                    + S3Utils.getRandomString( i );
+            fileSizeAndMd5s.put( currContent.length() + "", currContent );
+            te.addWorker( new UpdateObjectThread( currContent ) );
         }
         te.run();
 
@@ -68,10 +72,13 @@ public class Object4823 extends TestScmBase {
     }
 
     private void checkUpdateObjectResult() {
-        S3Object obj = s3Client.getObject( bucketName, keyName );
-        ObjectMetadata metadata = obj.getObjectMetadata();
+        S3Object object = s3Client.getObject( bucketName, keyName );
+        long size = object.getObjectMetadata().getContentLength();
+        String expContent = fileSizeAndMd5s.get( size + "" );
+        ObjectMetadata metadata = object.getObjectMetadata();
         Assert.assertEquals( metadata.getETag(),
-                TestTools.getMD5( newContent.getBytes() ) );
+                TestTools.getMD5( expContent.getBytes() ),
+                "---size" + size + "---content=" + expContent );
         Assert.assertEquals( metadata.getVersionId(), "null" );
 
         ListVersionsRequest req = new ListVersionsRequest()
@@ -83,12 +90,18 @@ public class Object4823 extends TestScmBase {
                 "the number of object version is incorrect!" );
     }
 
-    private class UpdateObjectThread extends ResultStore {
+    private class UpdateObjectThread {
+        String content;
+
+        public UpdateObjectThread( String content ) {
+            this.content = content;
+        }
+
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
             AmazonS3 s3Client = S3Utils.buildS3Client();
             try {
-                s3Client.putObject( bucketName, keyName, newContent );
+                s3Client.putObject( bucketName, keyName, content );
             } finally {
                 if ( s3Client != null ) {
                     s3Client.shutdown();
