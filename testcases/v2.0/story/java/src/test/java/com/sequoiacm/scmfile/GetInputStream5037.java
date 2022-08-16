@@ -6,7 +6,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -15,6 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -75,13 +75,13 @@ public class GetInputStream5037 extends TestScmBase {
         // 主站点下载
         ScmFile rootSiteFile = ScmFactory.File.getInstance( rootSiteWs,
                 fileId );
-        S3Utils.inputStream2File( rootSiteFile.getInputStream(), downloadPath );
+        inputStream2File( rootSiteFile.getInputStream(), downloadPath );
         checkFileMd5();
 
         // 分站点，不缓存下载
         ScmFile branchSiteFile = ScmFactory.File.getInstance( branchSiteWs,
                 fileId );
-        S3Utils.inputStream2File( branchSiteFile.getInputStream(
+        inputStream2File( branchSiteFile.getInputStream(
                 CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE ),
                 downloadPath );
         checkFileMd5();
@@ -124,5 +124,23 @@ public class GetInputStream5037 extends TestScmBase {
         String expMd5 = TestTools.getMD5( filePath );
         Assert.assertEquals( actMd5, expMd5 );
         TestTools.LocalFile.removeFile( downloadPath );
+    }
+
+    private static String inputStream2File( InputStream inputStream,
+            String downloadPath ) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream( downloadPath, true );
+            byte[] read_buf = new byte[ 1024 ];
+            int read_len = 0;
+            while ( ( read_len = inputStream.read( read_buf ) ) > -1 ) {
+                fos.write( read_buf, 0, read_len );
+            }
+        } finally {
+            if ( fos != null ) {
+                fos.close();
+            }
+        }
+        return downloadPath;
     }
 }

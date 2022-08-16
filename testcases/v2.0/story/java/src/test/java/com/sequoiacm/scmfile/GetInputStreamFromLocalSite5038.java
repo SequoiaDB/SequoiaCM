@@ -3,10 +3,8 @@ package com.sequoiacm.scmfile;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -15,7 +13,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @descreption SCM-5038:getInputStreamFromLocalSite接口测试
@@ -74,7 +74,7 @@ public class GetInputStreamFromLocalSite5038 extends TestScmBase {
         // 主站点下载
         ScmFile rootSiteFile = ScmFactory.File.getInstance( rootSiteWs,
                 fileId );
-        S3Utils.inputStream2File( rootSiteFile.getInputStreamFromLocalSite(),
+        inputStream2File( rootSiteFile.getInputStreamFromLocalSite(),
                 downloadPath );
         Assert.assertEquals( TestTools.getMD5( filePath ),
                 TestTools.getMD5( downloadPath ) );
@@ -104,4 +104,23 @@ public class GetInputStreamFromLocalSite5038 extends TestScmBase {
             }
         }
     }
+
+    private static String inputStream2File( InputStream inputStream,
+            String downloadPath ) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream( downloadPath, true );
+            byte[] read_buf = new byte[ 1024 ];
+            int read_len = 0;
+            while ( ( read_len = inputStream.read( read_buf ) ) > -1 ) {
+                fos.write( read_buf, 0, read_len );
+            }
+        } finally {
+            if ( fos != null ) {
+                fos.close();
+            }
+        }
+        return downloadPath;
+    }
+
 }
