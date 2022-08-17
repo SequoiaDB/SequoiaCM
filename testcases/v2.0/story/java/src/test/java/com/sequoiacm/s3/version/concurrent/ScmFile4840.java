@@ -59,7 +59,8 @@ public class ScmFile4840 extends TestScmBase {
         bucket.enableVersionControl();
     }
 
-    @Test
+    //SEQUOIACM-1025暂时屏蔽
+    @Test(enabled = false)
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         for ( int i = 0; i < versionNums; i++ ) {
