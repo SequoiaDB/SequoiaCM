@@ -452,7 +452,8 @@ public class FileController {
                 version.getMajorVersion(), version.getMinorVersion(), isPhysical);
     }
 
-    @DeleteMapping(value = "/files", params = "file_path")
+    @DeleteMapping(value = "/files", params = "action=" +
+            CommonDefine.RestArg.ACTION_DELETE_FILE_BY_PATH)
     public void deleteFileByPath(@RequestParam("file_path") String filePath,
                                  @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
                                  @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") Integer majorVersion,

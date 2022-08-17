@@ -377,6 +377,7 @@ public class CommonDefine {
         public static final String ACTION_GET_SITE_STRATEGY = "get_site_strategy";
         public static final String ACTION_GET_CONTENT_LOCATION = "get_content_location";
         public static final String ACTION_DELETE_VERSION = "delete_version";
+        public static final String ACTION_DELETE_FILE_BY_PATH = "delete_file_by_path";
 
         public static final String SITE_STRATEGY = "strategy";
 
