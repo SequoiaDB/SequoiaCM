@@ -112,6 +112,10 @@ export default {
     },
     // 下载文件
     handleDownloadFile() {
+      if (this.curVersionFile.delete_marker) {
+        this.$message.warning(`当前版本为 deleteMarker，无法下载`)
+        return
+      }
       let downloadURL = '/api/v1/files/id/' + this.curVersionFile.id;
       downloadURL += '?workspace=' + this.workspace;
       downloadURL += '&site_name=' + this.curVersionFileDetail.sites[0].site_name;
@@ -122,6 +126,12 @@ export default {
     },
     // 刷新文件页面
     refreshFileDetail() {
+      if (this.curVersionFile.delete_marker) {
+        this.curVersionFileDetail = {}
+        this.curVersionFileDetail.tags = []
+        Object.assign(this.curVersionFileDetail, this.curVersionFile)
+        return
+      }
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
         this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
       })

@@ -32,6 +32,9 @@ public class OmFileBasic {
     @JsonProperty("update_time")
     private Date updateTime;
 
+    @JsonProperty("delete_marker")
+    private boolean isDeleteMarker;
+
     public String getName() {
         return name;
     }
@@ -102,5 +105,13 @@ public class OmFileBasic {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public boolean isDeleteMarker() {
+        return isDeleteMarker;
+    }
+
+    public void setDeleteMarker(boolean deleteMarker) {
+        isDeleteMarker = deleteMarker;
     }
 }

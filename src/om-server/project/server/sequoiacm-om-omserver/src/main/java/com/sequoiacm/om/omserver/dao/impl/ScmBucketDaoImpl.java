@@ -67,6 +67,10 @@ public class ScmBucketDaoImpl implements ScmBucketDao {
             List<OmFileBasic> res = new ArrayList<>();
             while (cursor.hasNext()) {
                 ScmFileBasicInfo fileBasicInfo = cursor.getNext();
+                if (fileBasicInfo.isDeleteMarker()) {
+                    res.add(ScmFileUtil.transformToFileBasicInfo(fileBasicInfo));
+                    continue;
+                }
                 ScmFile file = bucket.getFile(fileBasicInfo.getFileName(),
                         fileBasicInfo.getMajorVersion(), fileBasicInfo.getMinorVersion());
                 res.add(ScmFileUtil.transformToFileBasicInfo(file));

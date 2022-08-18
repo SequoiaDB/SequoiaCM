@@ -15,9 +15,9 @@
           <el-col :span="3"><span class="key">文件名</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.name}}</span></el-col>
         </el-row>
-        <el-row>
+        <el-row v-if="curVersionFileDetail.bucket_name">
           <el-col :span="3"><span class="key">所属桶</span></el-col>
-          <el-col :span="21"><span class="value">{{curVersionFileDetail.bucket_name?curVersionFileDetail.bucket_name:'无'}}</span></el-col>
+          <el-col :span="21"><span class="value">{{curVersionFileDetail.bucket_name}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="3"><span class="key">标题</span></el-col>
@@ -212,6 +212,13 @@ export default {
       this.refreshFileDetail()
     },
     refreshFileDetail() {
+      if (this.curVersionFile.delete_marker) {
+        this.curVersionFileDetail = {}
+        this.curVersionFileDetail.tags = []
+        Object.assign(this.curVersionFileDetail, this.curVersionFile)
+        this.$message.warning(`当前版本为 deleteMarker`)
+        return
+      }
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
         this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
         let customMetadata = this.curVersionFileDetail.custom_metadata

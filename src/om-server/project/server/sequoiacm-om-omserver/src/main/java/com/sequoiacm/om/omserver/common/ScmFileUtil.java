@@ -2,6 +2,7 @@ package com.sequoiacm.om.omserver.common;
 
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.element.ScmClassProperties;
+import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
@@ -17,6 +18,21 @@ import java.io.InputStream;
 
 public class ScmFileUtil {
 
+    public static OmFileBasic transformToFileBasicInfo(ScmFileBasicInfo fileBasicInfo) {
+        OmFileBasic omFileBasic = new OmFileBasic();
+        omFileBasic.setId(fileBasicInfo.getFileId().get());
+        omFileBasic.setName(fileBasicInfo.getFileName());
+        omFileBasic.setMimeType(fileBasicInfo.getMimeType());
+        omFileBasic.setSize(0);
+        omFileBasic.setUser(fileBasicInfo.getUser());
+        omFileBasic.setCreateTime(fileBasicInfo.getCreateDate());
+        omFileBasic.setUpdateTime(fileBasicInfo.getCreateDate());
+        omFileBasic.setMajorVersion(fileBasicInfo.getMajorVersion());
+        omFileBasic.setMinorVersion(fileBasicInfo.getMinorVersion());
+        omFileBasic.setDeleteMarker(fileBasicInfo.isDeleteMarker());
+        return omFileBasic;
+    }
+
     public static OmFileBasic transformToFileBasicInfo(ScmFile file) {
         OmFileBasic omFileBasic = new OmFileBasic();
         omFileBasic.setId(file.getFileId().get());
@@ -28,6 +44,7 @@ public class ScmFileUtil {
         omFileBasic.setUpdateTime(file.getUpdateTime());
         omFileBasic.setMajorVersion(file.getMajorVersion());
         omFileBasic.setMinorVersion(file.getMinorVersion());
+        omFileBasic.setDeleteMarker(file.isDeleted());
         return omFileBasic;
     }
 

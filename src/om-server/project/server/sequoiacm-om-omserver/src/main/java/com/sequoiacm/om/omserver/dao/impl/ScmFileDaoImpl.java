@@ -100,6 +100,7 @@ public class ScmFileDaoImpl implements ScmFileDao {
             while (cursor.hasNext()) {
                 ScmFileBasicInfo basicInfo = cursor.getNext();
                 if (basicInfo.isDeleteMarker()) {
+                    res.add(ScmFileUtil.transformToFileBasicInfo(basicInfo));
                     continue;
                 }
                 ScmFile file = ScmFactory.File.getInstance(ws, basicInfo.getFileId(),
