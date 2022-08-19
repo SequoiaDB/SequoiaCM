@@ -12,7 +12,7 @@ def update_xml(path='pom.xml', key='scmdriver.version', val='3.1.1'):
     if len(rootNode) is 1:
         rootNode[0].firstChild.data = val
         with open(path, 'w') as f:
-            dom_tree.writexml(f, addindent=' ', encoding='utf-8')
+            dom_tree.writexml(f, encoding='utf-8')
     else:
         raise Exception("the key is not found or has more than one,path=" + path + ",key = " + key + ",val = " + val)
 

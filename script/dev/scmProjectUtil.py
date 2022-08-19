@@ -69,13 +69,30 @@ class ScmProjectUtil:
         
     def getTestModules(self):
         return self.__testModulePomPaths.keys()
-        
+
+    def extractingFiles(self, dependencyPath, targetDir):
+        if not os.path.exists(targetDir):
+            os.makedirs(targetDir)
+        path = dependencyPath.rfind(os.sep)
+        if path != -1:
+            pattern = dependencyPath[path+1:len(dependencyPath)]
+        else:
+            pattern = dependencyPath
+        files = glob.glob(dependencyPath)
+        for file in files:
+            if os.path.isdir(file):
+                self.extractingFiles(file + os.sep + pattern, targetDir)
+            else:
+                print("copy test dependency:" + file)
+                targetFileDir = targetDir + os.path.basename(file)
+                shutil.copyfile(file, targetFileDir)
+
     def __copyTestDependencies(self):
         for dependencyPath in self.__testDependencies:
             for file in glob.glob(dependencyPath):
-                print("copy test dependency:" + file)
-                shutil.copyfile(file, self.__testLibPath + os.sep + os.path.basename(file))  
-        
+                path = self.__testLibPath + os.sep
+                self.extractingFiles(dependencyPath, path)
+
     def compileTest(self):
         self.__copyTestDependencies()
         for testModuleName in self.__testModulePomPaths.keys():
