@@ -81,7 +81,6 @@ public class MigrateCommand extends SubCommand {
         finally {
             fileResource.release();
         }
-
         if (checkS3BucketList.size() != bucketList.size()) {
             throw new ScmToolsException(
                     "Is inconsistent with the bucket list of the last migration, bucketList="
@@ -89,6 +88,8 @@ public class MigrateCommand extends SubCommand {
                             + CommonUtils.bucketListToStr(checkS3BucketList),
                     S3ImportExitCode.INVALID_ARG);
         }
+        // 记录用户原来的桶数据
+        String originalData = CommonUtils.bucketListToStr(checkS3BucketList);
         Collections.sort(bucketList);
         Collections.sort(checkS3BucketList);
         for (int i = 0; i < bucketList.size(); i++) {
@@ -96,8 +97,8 @@ public class MigrateCommand extends SubCommand {
             S3Bucket checkS3Bucket = checkS3BucketList.get(i);
             if (!s3Bucket.equals(checkS3Bucket)) {
                 throw new ScmToolsException(
-                        "The working directories of the 'src' bucket and 'dest' bucket in the record are inconsistent with the previous one.If you want to continue,you will need to change the working directory, bucket="
-                                + s3Bucket.getName() + ", dest_bucket=" + s3Bucket.getDestName(),
+                        "The current working directory is already occupied by " + originalData
+                                + " ,please specify another working directory.",
                         S3ImportExitCode.INVALID_ARG);
             }
             s3Bucket.setProgress(checkS3Bucket.getProgress());

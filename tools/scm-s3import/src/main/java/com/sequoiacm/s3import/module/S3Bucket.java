@@ -142,4 +142,12 @@ public class S3Bucket implements Comparable<S3Bucket> {
         }
         return this.name.compareTo(o.name);
     }
+
+    @Override
+    public String toString() {
+        if (destName != null) {
+            return  name + ":" + destName;
+        }
+        return name;
+    }
 }

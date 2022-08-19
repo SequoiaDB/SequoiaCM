@@ -114,7 +114,7 @@ public class CommonUtils {
             if (i != 0) {
                 str.append(", ");
             }
-            str.append(bucketList.get(i).getName());
+            str.append(bucketList.get(i));
         }
         return str.append("]").toString();
     }
