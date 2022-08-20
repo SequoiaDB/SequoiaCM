@@ -48,8 +48,7 @@
 - 删除单个文件：点击操作栏的 **删除** 按钮，在弹出的提示框中点击 **确认** 按钮即可删除该文件。
 - 批量删除文件：在左侧勾选框勾选多个文件后，点击 **批量删除** 按钮，并在弹出的提示框中点击 **确认** 按钮即可批量删除文件。
 
-[^_^]:
-    本文使用到的所有链接
+
 [file_list]:Om/Operation/file_list.png
 [file_list_by_json]:Om/Operation/file_list_by_json.png
 [file_detail]:Om/Operation/file_detail.png

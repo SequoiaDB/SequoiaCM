@@ -57,5 +57,5 @@ ScmFactory.Workspace.deleteWorkspace(session, "test_ws", true);
 ```
 
 [java_api]:api/java/html/index.html
-[directory]:Architecture/Bussiness_Concept/directory.md
-[batch]:Architecture/Bussiness_Concept/batch.md
+[directory]:Architecture/Business_Concept/directory.md
+[batch]:Architecture/Business_Concept/batch.md

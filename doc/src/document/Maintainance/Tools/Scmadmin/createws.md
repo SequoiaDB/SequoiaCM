@@ -177,6 +177,6 @@ sharding 类型说明：
 > * 工作区的目录功能不开启
 
 
-[directory]:Architecture/Bussiness_Concept/directory.md
-[batch]:Architecture/Bussiness_Concept/batch.md
+[directory]:Architecture/Business_Concept/directory.md
+[batch]:Architecture/Business_Concept/batch.md
 

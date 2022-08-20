@@ -29,4 +29,4 @@ SequoiaCM 支持三种文件删除操作：
 - 不管是历史版本还是最新版本，其文件内容数据均保存在文件数据表中
 
 [file_version]:Architecture/file_version.png
-[bucket_version]:Architecture/Bussiness_Concept/bucket.md
+[bucket_version]:Architecture/Business_Concept/bucket.md

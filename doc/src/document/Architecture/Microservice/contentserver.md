@@ -9,4 +9,4 @@
 
 
 [contentserver]:Architecture/Microservice/contentserver.png
-[site]:Architecture/Bussiness_Concept/site.md
+[site]:Architecture/Business_Concept/site.md
