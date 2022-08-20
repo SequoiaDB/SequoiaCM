@@ -6,6 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 
+class CleanCounterContext{
+    long deleteCount =0;
+    long total = 0;
+
+}
 public class CuratorCleanJob extends ScmTimerTask {
     private static final Logger logger = LoggerFactory.getLogger(CuratorCleanJob.class);
     private CuratorLockFactory curatorLockFactory;
@@ -16,7 +21,7 @@ public class CuratorCleanJob extends ScmTimerTask {
     private int cleanCount = 0;
 
     public CuratorCleanJob(CuratorLockFactory curatorLockFactory, long maxResidualTime,
-            int maxChildNum, int cleanAllCountPeriod, boolean enablePathBuffer) {
+                           int maxChildNum, int cleanAllCountPeriod, boolean enablePathBuffer) {
         this.curatorLockFactory = curatorLockFactory;
         this.maxResidualTime = maxResidualTime;
         this.maxChildNum = maxChildNum;
@@ -28,19 +33,21 @@ public class CuratorCleanJob extends ScmTimerTask {
 
     @Override
     public void run() {
-        logger.debug("cleanup start");
+        logger.info("cleanup start");
         try {
             CuratorFramework curatorClient = curatorLockFactory.getCuratorClient();
             String rootPath = CuratorLockTools.getRootPath();
+
+            long count = 0;
             if (cleanCount == cleanAllCountPeriod) {
-                zkCleaner.clearResidualNode(curatorClient, rootPath, maxResidualTime);
+                count = zkCleaner.clearResidualNode(curatorClient, rootPath, maxResidualTime);
                 cleanCount = 0;
             }
             else {
-                zkCleaner.cleanPathSetNode(curatorClient, maxChildNum, maxResidualTime);
+                count = zkCleaner.cleanPathSetNode(curatorClient, maxChildNum, maxResidualTime);
                 cleanCount++;
             }
-            logger.debug("cleanup end");
+            logger.info("cleanup end, delete node: {}", count);
         }
         catch (Exception e) {
             logger.error("execute CuratorCleanJob failed", e);

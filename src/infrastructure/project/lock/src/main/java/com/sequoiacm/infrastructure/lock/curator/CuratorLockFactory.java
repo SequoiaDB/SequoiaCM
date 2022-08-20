@@ -19,7 +19,7 @@ public class CuratorLockFactory implements LockFactory {
     private ScmTimer t;
 
     public CuratorLockFactory(String zkUrl) throws Exception {
-       this(zkUrl, new ZkAcl());
+        this(zkUrl, new ZkAcl());
     }
 
     public CuratorLockFactory(String zkUrl, ZkAcl acl) throws Exception {
@@ -57,6 +57,9 @@ public class CuratorLockFactory implements LockFactory {
 
     @Override
     public void close() {
+        if (t != null) {
+            t.cancel();
+        }
         closeClient(client);
     }
 

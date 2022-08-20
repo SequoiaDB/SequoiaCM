@@ -14,6 +14,15 @@ public class ScmLockConfig {
     private int clenaJobChildThreshold = 1000;
     private int clenaJobCountThreshold = 12 * 60;
     private ZkAcl acl = new ZkAcl();
+    private boolean disableJob = false;
+
+    public void setDisableJob(boolean disableJob) {
+        this.disableJob = disableJob;
+    }
+
+    public boolean isDisableJob() {
+        return disableJob;
+    }
 
     public String getUrls() {
         return urls;

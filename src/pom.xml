@@ -47,9 +47,11 @@
         <module>../tools/scm-deploy</module>
         <module>../tools/scm-s3import</module>
         <module>../tools/scm-file-mapping</module>
+        <module>../tools/scm-clean-file</module>
+        <module>../tools/scm-transfer-file</module>
+        <module>../tools/transfer-clean-script</module>
         <module>./monitor-daemon/project</module>
     </modules>
-
 
     <build>
         <plugins>

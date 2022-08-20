@@ -123,7 +123,12 @@
 			{
 				"type": "copy",
 				"src": "../../tools/scm-s3import/target/sequoiacm-s3import"
-			}]
+			},
+			{
+				"type": "copy",
+				"src": "../../tools/transfer-clean-script/target/sequoiacm-transfer-clean-file"
+			}
+			]
 		},
 		{
 			"type": "copy",

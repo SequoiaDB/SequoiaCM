@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CuratorZKCleaner {
+    private static int printCount = 10000;
+    private int innerCounter = 0;
     private static final Logger logger = LoggerFactory.getLogger(CuratorZKCleaner.class);
     // buffer record clean path
     private CleanPathBuffer cleanPathBuffer;
@@ -39,8 +41,9 @@ public class CuratorZKCleaner {
         }
     }
 
-    public void cleanPathSetNode(CuratorFramework client, int maxChildNum, long maxResidualTime)
+    public long cleanPathSetNode(CuratorFramework client, int maxChildNum, long maxResidualTime)
             throws Exception {
+        long count = 0;
         if (usePathBuffer) {
             Set<String> cleanPathSet = cleanPathBuffer.getAndClear();
             try {
@@ -52,21 +55,22 @@ public class CuratorZKCleaner {
                         it.remove();
                     }
                     else {
-                        cleanChildNode(client, ckStat, path, maxChildNum, maxResidualTime);
+                        count += cleanChildNode(client, ckStat, path, maxChildNum, maxResidualTime);
                     }
                 }
             }
             finally {
                 cleanPathBuffer.putSet(cleanPathSet);
             }
-
         }
+
+        return count;
     }
 
-    private void cleanChildNode(CuratorFramework client, Stat ckStat, String path, int maxChildNum,
-            long maxResidualTime) throws Exception {
+    private long cleanChildNode(CuratorFramework client, Stat ckStat, String path, int maxChildNum,
+                                long maxResidualTime) throws Exception {
         if (ckStat.getNumChildren() <= maxChildNum) {
-            return;
+            return 0;
         }
         long ephemeralOwner = ckStat.getEphemeralOwner();
         if (ephemeralOwner == 0) {
@@ -75,8 +79,9 @@ public class CuratorZKCleaner {
                 childNodes = CuratorZKBase.getChildren(client, path);
             }
             catch (NoNodeException e) {
-                return;
+                return 0;
             }
+            int count = 0;
             for (String childNode : childNodes) {
                 String childParentPath = path + CuratorLockProperty.LOCK_PATH_SEPERATOR + childNode;
                 Stat childStat = CuratorZKBase.exists(client, childParentPath);
@@ -84,14 +89,18 @@ public class CuratorZKCleaner {
                     continue;
                 }
                 if (childStat.getNumChildren() == 0) {
-                    checkDeleteNode(client, childParentPath, maxResidualTime, childStat);
+                    if (checkDeleteNode(client, childParentPath, maxResidualTime, childStat)) {
+                        count++;
+                    }
                 }
             }
+            return count;
         }
+        return 0;
     }
 
-    private void checkDeleteNode(CuratorFramework client, String path, long maxResidualTime,
-            Stat ckStat) throws Exception {
+    private boolean checkDeleteNode(CuratorFramework client, String path, long maxResidualTime,
+                                    Stat ckStat) throws Exception {
         if (ckStat.getEphemeralOwner() == 0) {
             long zkNodeMtimeMS = ckStat.getMtime();
             long sysTimeMS = System.currentTimeMillis();
@@ -99,25 +108,34 @@ public class CuratorZKCleaner {
             if (nodeLifeTimeMS > maxResidualTime) {
                 try {
                     CuratorZKBase.deleteNode(client, path);
+                    innerCounter++;
+                    if (innerCounter % printCount == 0) {
+                        logger.info("zk cleaner delete 1w node count");
+                    }
+                    return true;
                 }
                 catch (NoNodeException e) {
-                    return;
+                    return false;
                 }
                 catch (NotEmptyException e) {
-                    return;
+                    return false;
                 }
             }
         }
+        return false;
     }
 
-    public void clearResidualNode(CuratorFramework client, String path, long maxResidualTime)
+    public long clearResidualNode(CuratorFramework client, String path, long maxResidualTime)
             throws Exception {
+        long count = 0;
         Stat ckStat = CuratorZKBase.exists(client, path);
         if (ckStat == null) {
-            return;
+            return count;
         }
         if (ckStat.getNumChildren() == 0) {
-            checkDeleteNode(client, path, maxResidualTime, ckStat);
+            if (checkDeleteNode(client, path, maxResidualTime, ckStat)) {
+                count++;
+            }
         }
         else {
             List<String> childNodes = null;
@@ -125,14 +143,17 @@ public class CuratorZKCleaner {
                 childNodes = CuratorZKBase.getChildren(client, path);
             }
             catch (NoNodeException e) {
-                return;
+                return count;
             }
             for (String childNode : childNodes) {
                 String childParentPath = path + CuratorLockProperty.LOCK_PATH_SEPERATOR + childNode;
-                clearResidualNode(client, childParentPath, maxResidualTime);
+                count += clearResidualNode(client, childParentPath, maxResidualTime);
             }
-            checkDeleteNode(client, path, maxResidualTime, ckStat);
+            if (checkDeleteNode(client, path, maxResidualTime, ckStat)) {
+                count++;
+            }
         }
+        return count;
     }
 
     class CleanPathBuffer {

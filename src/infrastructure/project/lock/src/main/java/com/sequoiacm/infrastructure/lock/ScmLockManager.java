@@ -26,10 +26,12 @@ public class ScmLockManager {
                 if (innerFactory == null) {
                     innerFactory = new CuratorLockFactory(lockConfig.getUrls(),
                             lockConfig.getAcl());
-                    innerFactory.startCleanJob(lockConfig.getCleanJobPeriod(),
-                            lockConfig.getCleanJobResidualTime(),
-                            lockConfig.getClenaJobChildThreshold(),
-                            lockConfig.getClenaJobCountThreshold());
+                    if (!lockConfig.isDisableJob()) {
+                        innerFactory.startCleanJob(lockConfig.getCleanJobPeriod(),
+                                lockConfig.getCleanJobResidualTime(),
+                                lockConfig.getClenaJobChildThreshold(),
+                                lockConfig.getClenaJobCountThreshold());
+                    }
                 }
             }
         }
@@ -50,6 +52,10 @@ public class ScmLockManager {
             innerFactory.close();
             innerFactory = null;
         }
+    }
+
+    public void close() {
+        closeLockFactory();
     }
 
     public ScmLock acquiresReadLock(ScmLockPath lockPath) throws ScmLockException {
