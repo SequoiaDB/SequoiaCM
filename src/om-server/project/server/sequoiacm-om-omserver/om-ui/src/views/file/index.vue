@@ -4,10 +4,10 @@
     <div class="search-box">
       <el-row :gutter="2">
         <el-col :span="8">
-          <el-select 
+          <el-select
             id="query_file_select_workspace"
             placeholder="请选择工作区"
-            v-model="currentWorkspace" 
+            v-model="currentWorkspace"
             size="small"
             style="width:100%"
             filterable
@@ -21,22 +21,22 @@
           </el-select>
         </el-col>
         <el-col :span="10">
-          <el-input 
+          <el-input
             id="input_file_search_param"
-            :placeholder="currentFileSearchType.tip" 
-            v-model="searchParam" 
+            :placeholder="currentFileSearchType.tip"
+            v-model="searchParam"
             class="input-with-select"
             size="small"
             @keyup.enter.native="doSearch">
             <i
-              class="el-input__icon el-icon-question" 
+              class="el-input__icon el-icon-question"
               slot="suffix"
               v-if="currentFileSearchTypeStr === 'search_by_json'"
               @click="handleQuestionIconClick">
             </i>
-            <el-select 
-              id="search_type_select" 
-              v-model="currentFileSearchTypeStr" 
+            <el-select
+              id="search_type_select"
+              v-model="currentFileSearchTypeStr"
               slot="prepend"
               size="small"
               @change="onSearchTypeChange()">
@@ -66,9 +66,9 @@
         @sort-change="sortChange"
         @selection-change="selectionChange"
         row-key="file_id"
-        v-loading="tableLoading"      
+        v-loading="tableLoading"
         style="width: 100%">
-        <el-table-column 
+        <el-table-column
           type="selection"
           width="50">
         </el-table-column>
@@ -161,9 +161,9 @@ import FileDetailDialog from './components/FileDetailDialog.vue'
 import FileUploadDialog from './components/FileUploadDialog.vue'
 import FileEditDialog from './components/FileEditDialog.vue'
 import FileDownloadDialog from './components/FileDownloadDialog.vue'
-import FilePropertiesDialog from './components/FilePropertiesDialog.vue' 
+import FilePropertiesDialog from './components/FilePropertiesDialog.vue'
 import {Loading } from 'element-ui';
-export default { 
+export default {
   components: {
     FileDetailDialog,
     FileUploadDialog,
@@ -173,7 +173,7 @@ export default {
   },
   data(){
     return {
-      pagination:{ 
+      pagination:{
         current: 1, //当前页
         size: 12, //每页大小
         total: 0, //总数据条数
@@ -211,6 +211,10 @@ export default {
       },
       fileIdList: [],
       multiVofCurFile: [],
+      orderParam: { //记录排序参数
+              prop: 'id',
+              order: -1
+      },
     }
   },
   methods:{
@@ -236,9 +240,10 @@ export default {
     onWorkspaceChange() {
       this.resetSearch()
     },
-    // 排序项发生变化 
+    // 排序项发生变化
     sortChange(column) {
       const { order = '', prop = ''} = column;
+      this.orderParam = column;
       this.queryTableData(prop, order)
     },
     // 文件列表选择项发生变化
@@ -286,7 +291,7 @@ export default {
       if (this.fileContentUpdate.status && this.fileContentUpdate.fileId !== row.id) {
         this.$message.error('当前正在更新文件，ID：'+this.fileContentUpdate.fileId)
         return
-      } 
+      }
       queryWorkspaceBasic(this.currentWorkspace).then(res => {
         this.currentWorkspaceDetail = JSON.parse(res.headers['workspace'])
       })
@@ -333,7 +338,7 @@ export default {
       this.tableLoading = true
       // 添加排序参数
       let orderby = {}
-      orderby[prop] = order === 'descending' ? -1 : 1 
+      orderby[prop] = order === 'descending' ? -1 : 1
       queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_CURRENT, this.filter, orderby, this.pagination.current, this.pagination.size).then(res => {
         let total = Number(res.headers[X_RECORD_COUNT])
         if (res.data.length == 0 && total > 0) {
@@ -394,11 +399,12 @@ export default {
       this.filter = {}
       this.pagination.current = 1
       this.queryTableData()
+      this.orderParam = {prop: 'id',order: -1}
     },
     // 当前页变化时
     handleCurrentChange(currentPage) {
       this.pagination.current = currentPage
-      this.queryTableData()
+      this.queryTableData(this.orderParam.prop,this.orderParam.order)
     }
   },
   activated() {
@@ -417,5 +423,5 @@ export default {
 }
 .input-with-select >>> .el-input-group__prepend {
   background-color: #fff;
-} 
+}
 </style>
