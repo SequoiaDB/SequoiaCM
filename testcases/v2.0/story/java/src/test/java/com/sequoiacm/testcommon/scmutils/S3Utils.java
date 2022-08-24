@@ -16,6 +16,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -690,14 +691,16 @@ public class S3Utils extends TestScmBase {
 
     public static List< String > getEnvBuckets() throws Exception {
         List< String > envBuckets = new ArrayList<>();
-        AmazonS3 s3Client = buildS3Client();
+        ScmSession session = TestScmTools.createSession();
+        ScmCursor< ScmBucket > cursor = ScmFactory.Bucket.listBucket( session,
+                null, null, 0, -1 );
         try {
-            List< Bucket > buckets = s3Client.listBuckets();
-            for ( Bucket bucket : buckets ) {
-                envBuckets.add( bucket.getName() );
+            while ( cursor.hasNext() ) {
+                envBuckets.add( cursor.getNext().getName() );
             }
         } finally {
-            s3Client.shutdown();
+            cursor.close();
+            session.close();
         }
         return envBuckets;
     }

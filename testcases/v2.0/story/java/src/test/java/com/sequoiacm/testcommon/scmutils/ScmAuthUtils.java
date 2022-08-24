@@ -497,30 +497,26 @@ public class ScmAuthUtils extends TestScmBase {
         String bucketName = UUID.randomUUID().toString();
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         int times = 0;
-        try {
-            do {
-                try {
-                    ScmFactory.Bucket.createBucket( ws, bucketName );
-                    break;
-                } catch ( ScmException e ) {
-                    if ( e.getError()
-                            .equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
-                        Thread.sleep( 500 );
-                        times++;
-                        if ( times * 500 > 30000 ) {
-                            throw new Exception( "check priority time out,ws:"
-                                    + wsName + " session User:"
-                                    + session.getUser() );
-                        }
-                        continue;
-                    } else {
-                        throw e;
+        do {
+            try {
+                ScmFactory.Bucket.createBucket( ws, bucketName );
+                ScmFactory.Bucket.deleteBucket( session, bucketName );
+                break;
+            } catch ( ScmException e ) {
+                if ( e.getError().equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
+                    Thread.sleep( 500 );
+                    times++;
+                    if ( times * 500 > 30000 ) {
+                        throw new Exception( "check priority time out,ws:"
+                                + wsName + " session User:"
+                                + session.getUser() );
                     }
+                    continue;
+                } else {
+                    throw e;
                 }
-            } while ( true );
-        } finally {
-            ScmFactory.Bucket.deleteBucket( session, bucketName );
-        }
+            }
+        } while ( true );
     }
 
     /**
@@ -573,7 +569,8 @@ public class ScmAuthUtils extends TestScmBase {
      * @return
      * @throws ScmException
      */
-    public static void deleteUser( ScmSession session, String username ) throws ScmException {
+    public static void deleteUser( ScmSession session, String username )
+            throws ScmException {
         try {
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
