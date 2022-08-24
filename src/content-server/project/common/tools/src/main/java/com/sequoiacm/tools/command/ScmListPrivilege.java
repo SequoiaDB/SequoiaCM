@@ -3,6 +3,7 @@ package com.sequoiacm.tools.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.infrastructure.common.printor.ListLine;
 import com.sequoiacm.infrastructure.common.printor.ListTable;
 import com.sequoiacm.infrastructure.common.printor.ScmCommonPrintor;
@@ -86,7 +87,16 @@ public class ScmListPrivilege extends ScmTool {
                 l.addItem(resource.getType());
                 l.addItem(resource.toStringFormat());
 
-                l.addItem(p.getPrivilegeType().getPriv());
+                List<ScmPrivilegeType> privilegeTypes = p.getPrivilegeTypes();
+                int privilegeTypesSize = privilegeTypes.size();
+                StringBuilder privileges = new StringBuilder();
+                for (int index = 0; index < privilegeTypesSize; index++) {
+                    if (index != 0) {
+                        privileges.append("|");
+                    }
+                    privileges.append(privilegeTypes.get(index));
+                }
+                l.addItem(privileges.toString());
 
                 t.addLine(l);
             }

@@ -4,6 +4,8 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.exception.ScmException;
 
+import java.util.List;
+
 /**
  * SCM privilege.
  *
@@ -66,7 +68,19 @@ public interface ScmPrivilege {
     /**
      * Get the privilege type of the privilege.
      *
+     * This method is obsolete, because unknown is returned
+     * when it is not a single privilege value, please use
+     * the getPrivilegeTypes
+     *
      * @return privilege type.
      */
+    @Deprecated
     public ScmPrivilegeType getPrivilegeType();
+
+    /**
+     * Get the privilege type list of the privilege.
+     *
+     * @return privilege type list.
+     */
+    public List<ScmPrivilegeType> getPrivilegeTypes();
 }

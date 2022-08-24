@@ -8,6 +8,9 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.common.FieldName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class ScmPrivilegeImpl implements ScmPrivilege {
     private static final String ROLE_TYPE_ROLE = "role";
 
@@ -87,4 +90,17 @@ class ScmPrivilegeImpl implements ScmPrivilege {
         return ScmPrivilegeType.getType(privilege);
     }
 
+    @Override
+    public List<ScmPrivilegeType> getPrivilegeTypes(){
+        List<ScmPrivilegeType> privilegeTypes = new ArrayList<ScmPrivilegeType>();
+        String[] privArray = privilege.split("\\|");
+        for (String onePriv : privArray) {
+            onePriv = onePriv.trim();
+            if (onePriv.length() == 0){
+                continue;
+            }
+            privilegeTypes.add(ScmPrivilegeType.getType(onePriv));
+        }
+        return privilegeTypes;
+    }
 }
