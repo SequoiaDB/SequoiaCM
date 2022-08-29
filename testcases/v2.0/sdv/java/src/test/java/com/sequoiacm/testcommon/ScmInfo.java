@@ -240,7 +240,7 @@ public class ScmInfo {
         int maxWsNum = wsList.size();
         if ( num > maxWsNum ) {
             throw new IllegalArgumentException(
-                    "error, num > maxBranchSiteNum" );
+                    "error, num > maxWsNum" );
         }
 
         List< WsWrapper > wss = new ArrayList<>();

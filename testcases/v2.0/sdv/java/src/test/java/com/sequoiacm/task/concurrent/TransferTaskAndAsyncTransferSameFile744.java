@@ -1,11 +1,13 @@
 package com.sequoiacm.task.concurrent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -61,61 +63,50 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready local file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready local file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
-            // node = branceSite.getNode();
-            ws_T = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
+        // node = branceSite.getNode();
+        ws_T = ScmInfo.getWs();
 
-            BSONObject cond = ScmQueryBuilder.start()
-                    .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        BSONObject cond = ScmQueryBuilder.start()
+                .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
 
-            // login
-            sessionA = TestScmTools.createSession( branceSite );
-            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        // login
+        sessionA = TestScmTools.createSession( branceSite );
+        wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            // ready file
-            this.writeFile();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // ready file
+        this.writeFile();
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            StartTransferTask transferTask = new StartTransferTask();
-            transferTask.start();
+        StartTransferTask transferTask = new StartTransferTask();
+        transferTask.start();
 
-            AsyncTransfer asyncTransfer = new AsyncTransfer();
-            asyncTransfer.start();
+        AsyncTransfer asyncTransfer = new AsyncTransfer();
+        asyncTransfer.start();
 
-            if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
-                Assert.fail( transferTask.getErrorMsg()
-                        + asyncTransfer.getErrorMsg() );
-            }
-
-            // check results
-            SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList,
-                    localPath, filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+        if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
+            Assert.fail(
+                    transferTask.getErrorMsg() + asyncTransfer.getErrorMsg() );
         }
 
+        // check results
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList, expSiteList, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -129,8 +120,6 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
                 TestSdbTools.Task.deleteMeta( taskId );
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -157,13 +146,10 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
         while ( true ) {
             ScmTask task = ScmSystem.Task.getTask( session, taskId );
             if ( CommonDefine.TaskRunningFlag.SCM_TASK_FINISH == task
-                    .getRunningFlag() ) {
+                    .getRunningFlag()
+                    || CommonDefine.TaskRunningFlag.SCM_TASK_ABORT == task
+                            .getRunningFlag() ) {
                 break;
-            } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_ABORT == task
-                    .getRunningFlag() ) {
-                throw new Exception(
-                        "failed, the task running flag is abort, task info : "
-                                + "\n" + task.toString() );
             } else if ( CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == task
                     .getRunningFlag() ) {
                 throw new Exception(
@@ -193,7 +179,9 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                taskId = ScmSystem.Task.startTransferTask( wsA, condition );
+                taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
                 waitTaskFinish( sessionA, taskId );
 
                 // check task info
@@ -222,7 +210,8 @@ public class TransferTaskAndAsyncTransferSameFile744 extends TestScmBase {
 
                 for ( int i = 0; i < fileNum; i++ ) {
                     int j = new Random().nextInt( fileNum );
-                    ScmFactory.File.asyncTransfer( wsA, fileIdList.get( j ) );
+                    ScmFactory.File.asyncTransfer( wsA, fileIdList.get( j ),
+                            rootSite.getSiteName() );
                     SiteWrapper[] expSiteList = { rootSite, branceSite };
                     ScmTaskUtils.waitAsyncTaskFinished( wsA,
                             fileIdList.get( j ), expSiteList.length );

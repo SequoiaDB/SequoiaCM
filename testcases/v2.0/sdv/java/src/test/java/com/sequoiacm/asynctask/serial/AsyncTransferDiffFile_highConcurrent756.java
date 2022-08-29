@@ -1,6 +1,7 @@
 package com.sequoiacm.asynctask.serial;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,53 +61,40 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        try {
-            // ready localfile
-            localPath = new File( TestScmBase.dataDirectory + File.separator
-                    + TestTools.getClassName() );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            for ( int i = 0; i < fileNum; i++ ) {
-                String filePath = localPath + File.separator + "localFile_"
-                        + fileSize + i + ".txt";
-                TestTools.LocalFile.createFile( filePath, fileSize + i );
-                filePathList.add( filePath );
-            }
-
-            rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
-            ws_T = ScmInfo.getWs();
-
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
-
-            // login
-            sessionA = TestScmTools.createSession( branceSite );
-            ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-
-            // ready scmfile
-            writeFileFromA();
-        } catch ( Exception e ) {
-            if ( sessionA != null ) {
-                sessionA.close();
-            }
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
+    private void setUp() throws ScmException, IOException {
+        // ready localfile
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        for ( int i = 0; i < fileNum; i++ ) {
+            String filePath = localPath + File.separator + "localFile_"
+                    + fileSize + i + ".txt";
+            TestTools.LocalFile.createFile( filePath, fileSize + i );
+            filePathList.add( filePath );
         }
+
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
+        ws_T = ScmInfo.getWs();
+
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( author ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
+
+        // login
+        sessionA = TestScmTools.createSession( branceSite );
+        ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+
+        // ready scmfile
+        writeFileFromA();
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() {
-        try {
-            AsyncTransferThread aThread = new AsyncTransferThread();
-            aThread.start( threadNum );
-            Assert.assertTrue( aThread.isSuccess(), aThread.getErrorMsg() );
-            checkDeletion();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void test() throws ScmException {
+        AsyncTransferThread aThread = new AsyncTransferThread();
+        aThread.start( threadNum );
+        Assert.assertTrue( aThread.isSuccess(), aThread.getErrorMsg() );
+        checkDeletion();
         runSuccess = true;
     }
 
@@ -116,9 +104,6 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
             if ( runSuccess || forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -157,7 +142,8 @@ public class AsyncTransferDiffFile_highConcurrent756 extends TestScmBase {
                 int i = fileNo.getAndIncrement();
                 synchronized ( fileIdList ) {
                     ScmId fileId = fileIdList.get( i );
-                    ScmFactory.File.asyncTransfer( wsA, fileId );
+                    ScmFactory.File.asyncTransfer( wsA, fileId,
+                            rootSite.getSiteName() );
                     checkAsyncTransfer( fileId, i );
                     ScmFactory.File.getInstance( wsA, fileId ).delete( true );
                 }

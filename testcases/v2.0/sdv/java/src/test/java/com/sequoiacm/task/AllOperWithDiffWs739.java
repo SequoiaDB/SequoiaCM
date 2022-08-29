@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -80,18 +81,14 @@ public class AllOperWithDiffWs739 extends TestScmBase {
 
     @Test(groups = { "fourSite" })
     private void test() {
-        try {
-            DoAll dThread1 = new DoAll( ws_TList.get( 0 ).getName() );
-            dThread1.start();
+        DoAll dThread1 = new DoAll( ws_TList.get( 0 ).getName() );
+        dThread1.start();
 
-            DoAll dThread2 = new DoAll( ws_TList.get( 1 ).getName() );
-            dThread2.start();
+        DoAll dThread2 = new DoAll( ws_TList.get( 1 ).getName() );
+        dThread2.start();
 
-            if ( !( dThread1.isSuccess() && dThread2.isSuccess() ) ) {
-                Assert.fail( dThread1.getErrorMsg() + dThread2.getErrorMsg() );
-            }
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+        if ( !( dThread1.isSuccess() && dThread2.isSuccess() ) ) {
+            Assert.fail( dThread1.getErrorMsg() + dThread2.getErrorMsg() );
         }
         runSuccess = true;
     }
@@ -139,7 +136,7 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             sinleTransfer();
         }
 
-        public void write() {
+        public void write() throws ScmException {
             ScmSession session = null;
             // login
             try {
@@ -153,9 +150,6 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                 file.setAuthor( author );
                 fileId = file.save();
                 setFileId( fileId );
-            } catch ( ScmException e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( session != null ) {
                     session.close();
@@ -163,7 +157,7 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             }
         }
 
-        public void read() {
+        public void read() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
@@ -174,9 +168,6 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                         TestTools.getMethodName(),
                         Thread.currentThread().getId() );
                 file.getContent( downloadPath );
-            } catch ( Exception e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( null != session ) {
                     session.close();
@@ -184,7 +175,7 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             }
         }
 
-        public void transfer() {
+        public void transfer() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
@@ -193,13 +184,10 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task.startTransferTask( ws,
-                        condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
                 ScmTaskUtils.waitTaskFinish( session, taskId );
-
-            } catch ( Exception e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( null != session ) {
                     session.close();
@@ -207,7 +195,7 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             }
         }
 
-        public void clean() {
+        public void clean() throws Exception {
             ScmSession session = null;
             ScmId taskId = null;
             try {
@@ -219,9 +207,6 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                         .get();
                 taskId = ScmSystem.Task.startCleanTask( ws, condition );
                 ScmTaskUtils.waitTaskFinish( session, taskId );
-            } catch ( Exception e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( null != session ) {
                     session.close();
@@ -229,7 +214,7 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             }
         }
 
-        public void cache() {
+        public void cache() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
@@ -240,9 +225,6 @@ public class AllOperWithDiffWs739 extends TestScmBase {
                         branceSiteList.get( 1 ) };
                 ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
                         expSiteList.length );
-            } catch ( Exception e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( null != session ) {
                     session.close();
@@ -250,22 +232,20 @@ public class AllOperWithDiffWs739 extends TestScmBase {
             }
         }
 
-        public void sinleTransfer() {
+        public void sinleTransfer() throws Exception {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( branceSiteList.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
-                ScmFactory.File.asyncTransfer( ws, fileId );
+                ScmFactory.File.asyncTransfer( ws, fileId,
+                        rootSite.getSiteName() );
                 SiteWrapper[] expSiteList = { rootSite, branceSiteList.get( 0 ),
                         branceSiteList.get( 1 ) };
                 ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
                         expSiteList.length );
                 ScmFileUtils.checkMeta( ws, fileId, expSiteList );
                 ScmFileUtils.checkData( ws, fileId, localPath, downloadPath );
-            } catch ( Exception e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
             } finally {
                 if ( null != session ) {
                     session.close();

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -50,34 +51,30 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() throws ScmException {
+    private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branSites = ScmInfo.getBranchSites( branSitesNum );
-            wsp = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branSites = ScmInfo.getBranchSites( branSitesNum );
+        wsp = ScmInfo.getWs();
 
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            ScmFileUtils.cleanFile( wsp, cond );
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( author ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
 
-            prepareFiles( rootSite );
-            prepareFiles( branSites.get( 0 ) );
-            prepareFiles( branSites.get( 1 ) );
-        } catch ( IOException e ) {
-            Assert.fail( e.getMessage() );
-        }
+        prepareFiles( rootSite );
+        prepareFiles( branSites.get( 0 ) );
+        prepareFiles( branSites.get( 1 ) );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { GroupTags.fourSite, GroupTags.star })
+    private void testStar() throws Exception {
         ReadScmFile rThread1 = new ReadScmFile( branSites.get( 2 ),
                 fileIdList.get( 0 ) );
         rThread1.start( 3 );
@@ -100,25 +97,72 @@ public class CenterAReaddiffCenterFile728 extends TestScmBase {
         checkResult( fileIdList.get( 1 ) );
         checkResult( fileIdList.get( 2 ) );
 
-        checkMetadataAndLobs();
+        // 跨中心读后，存在原主站点和新branchSite2
+        SiteWrapper[] file0expSites = { rootSite, branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 0 ), file0expSites,
+                localPath, filePath );
 
+        // 跨中心读后，存在原主站branchSite0和新branchSite2，星状下主站点还缓存一份
+        SiteWrapper[] file1expSites = { branSites.get( 0 ), rootSite,
+                branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 1 ), file1expSites,
+                localPath, filePath );
+
+        // 跨中心读后，存在原主站branchSite1和新branchSite2，星状下主站点还缓存一份
+        SiteWrapper[] file2expSites = { branSites.get( 1 ), rootSite,
+                branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 2 ), file2expSites,
+                localPath, filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    private void testNet() throws Exception {
+        ReadScmFile rThread1 = new ReadScmFile( branSites.get( 2 ),
+                fileIdList.get( 0 ) );
+        rThread1.start( 3 );
+
+        ReadScmFile rThread2 = new ReadScmFile( branSites.get( 2 ),
+                fileIdList.get( 1 ) );
+        rThread2.start( 3 );
+
+        ReadScmFile rThread3 = new ReadScmFile( branSites.get( 2 ),
+                fileIdList.get( 2 ) );
+        rThread3.start( 3 );
+
+        if ( !( rThread1.isSuccess() && rThread2.isSuccess()
+                && rThread3.isSuccess() ) ) {
+            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg()
+                    + rThread3.getErrorMsg() );
+        }
+
+        checkResult( fileIdList.get( 0 ) );
+        checkResult( fileIdList.get( 1 ) );
+        checkResult( fileIdList.get( 2 ) );
+        // 跨中心读后，存在原主站点和新branchSite2
+        SiteWrapper[] file0expSites = { rootSite, branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 0 ), file0expSites,
+                localPath, filePath );
+        // 跨中心读后，存在原主站branchSite0和新branchSite2
+        SiteWrapper[] file1expSites = { branSites.get( 0 ),
+                branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 1 ), file1expSites,
+                localPath, filePath );
+        // 跨中心读后，存在原主站branchSite1和新branchSite2
+        SiteWrapper[] file2expSites = { branSites.get( 1 ),
+                branSites.get( 2 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList.get( 2 ), file2expSites,
+                localPath, filePath );
         runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
-    private void tearDown() {
-        try {
-            if ( runSuccess || forceClear ) {
-                BSONObject cond = ScmQueryBuilder
-                        .start( ScmAttributeName.File.AUTHOR ).is( author )
-                        .get();
-                ScmFileUtils.cleanFile( wsp, cond );
-                TestTools.LocalFile.removeFile( localPath );
-            }
-        } catch ( BaseException | ScmException e ) {
-            Assert.fail( e.getMessage() );
-        } finally {
-
+    private void tearDown() throws ScmException {
+        if ( runSuccess || forceClear ) {
+            BSONObject cond = ScmQueryBuilder
+                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
+            ScmFileUtils.cleanFile( wsp, cond );
+            TestTools.LocalFile.removeFile( localPath );
         }
     }
 

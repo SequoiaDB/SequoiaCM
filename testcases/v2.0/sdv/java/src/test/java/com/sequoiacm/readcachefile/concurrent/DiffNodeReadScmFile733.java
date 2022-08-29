@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -53,48 +54,55 @@ public class DiffNodeReadScmFile733 extends TestScmBase {
     private ScmId fileId = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException, IOException {
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branSites = ScmInfo.getBranchSites( branSitesNum );
-            wsp = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branSites = ScmInfo.getBranchSites( branSitesNum );
+        wsp = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
-            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-            prepareFiles( wsA );
-        } catch ( IOException | ScmException e ) {
-            Assert.fail( e.getMessage() );
-        }
+        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        prepareFiles( wsA );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() {
-        try {
-            ReadScmFile rThread1 = new ReadScmFile( branSites.get( 1 ),
-                    fileId );
-            rThread1.start( 10 );
+    @Test(groups = { GroupTags.fourSite, GroupTags.star })
+    private void testStar() throws Exception {
+        ReadScmFile rThread1 = new ReadScmFile( branSites.get( 1 ), fileId );
+        rThread1.start( 10 );
 
-            ReadScmFile rThread2 = new ReadScmFile( branSites.get( 1 ),
-                    fileId );
-            rThread2.start( 10 );
+        ReadScmFile rThread2 = new ReadScmFile( branSites.get( 1 ), fileId );
+        rThread2.start( 10 );
 
-            if ( !( rThread1.isSuccess() && rThread2.isSuccess() ) ) {
-                Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() );
-            }
-
-            checkResult();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+        if ( !( rThread1.isSuccess() && rThread2.isSuccess() ) ) {
+            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() );
         }
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        checkResult( expSites );
+        runSuccess = true;
+    }
+
+    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    private void testNet() throws Exception {
+        ReadScmFile rThread1 = new ReadScmFile( branSites.get( 1 ), fileId );
+        rThread1.start( 10 );
+
+        ReadScmFile rThread2 = new ReadScmFile( branSites.get( 1 ), fileId );
+        rThread2.start( 10 );
+
+        if ( !( rThread1.isSuccess() && rThread2.isSuccess() ) ) {
+            Assert.fail( rThread1.getErrorMsg() + rThread2.getErrorMsg() );
+        }
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        checkResult( expSites );
         runSuccess = true;
     }
 
@@ -133,17 +141,10 @@ public class DiffNodeReadScmFile733 extends TestScmBase {
         }
     }
 
-    private void checkResult() {
-        try {
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
-            ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, expSites.length );
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    private void checkResult( SiteWrapper[] expSites ) throws Exception {
+        ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, expSites.length );
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
     }
 
     private class ReadScmFile extends TestThreadBase {

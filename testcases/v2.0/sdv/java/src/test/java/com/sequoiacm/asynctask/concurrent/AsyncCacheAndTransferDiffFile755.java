@@ -84,21 +84,17 @@ public class AsyncCacheAndTransferDiffFile755 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() {
-        try {
-            CacheFile cThread = new CacheFile();
-            cThread.start( 5 );
+    private void test() throws Exception {
+        CacheFile cThread = new CacheFile();
+        cThread.start( 5 );
 
-            TransferFile tThread = new TransferFile();
-            tThread.start( 5 );
+        TransferFile tThread = new TransferFile();
+        tThread.start( 5 );
 
-            if ( !( cThread.isSuccess() && tThread.isSuccess() ) ) {
-                Assert.fail( cThread.getErrorMsg() + tThread.getErrorMsg() );
-            }
-            checkResult();
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+        if ( !( cThread.isSuccess() && tThread.isSuccess() ) ) {
+            Assert.fail( cThread.getErrorMsg() + tThread.getErrorMsg() );
         }
+        checkResult();
         runSuccess = true;
     }
 
@@ -145,25 +141,21 @@ public class AsyncCacheAndTransferDiffFile755 extends TestScmBase {
         }
     }
 
-    private void checkResult() {
-        try {
-            SiteWrapper[] expSiteList = { rootSite, branceSite };
-            for ( ScmId fileId : fileIdList1 ) {
-                ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
-                        expSiteList.length );
-            }
-            ScmFileUtils.checkMetaAndData( ws_T, fileIdList1, expSiteList,
-                    localPath, filePath );
-
-            for ( ScmId fileId : fileIdList2 ) {
-                ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
-                        expSiteList.length );
-            }
-            ScmFileUtils.checkMetaAndData( ws_T, fileIdList2, expSiteList,
-                    localPath, filePath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+    private void checkResult() throws Exception {
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        for ( ScmId fileId : fileIdList1 ) {
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
         }
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList1, expSiteList,
+                localPath, filePath );
+
+        for ( ScmId fileId : fileIdList2 ) {
+            ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId,
+                    expSiteList.length );
+        }
+        ScmFileUtils.checkMetaAndData( ws_T, fileIdList2, expSiteList,
+                localPath, filePath );
     }
 
     private class CacheFile extends TestThreadBase {
@@ -196,7 +188,8 @@ public class AsyncCacheAndTransferDiffFile755 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
                 for ( ScmId fileId : fileIdList2 ) {
-                    ScmFactory.File.asyncTransfer( ws, fileId );
+                    ScmFactory.File.asyncTransfer( ws, fileId,
+                            rootSite.getSiteName() );
                 }
             } catch ( Exception e ) {
                 Assert.fail( e.getMessage() );

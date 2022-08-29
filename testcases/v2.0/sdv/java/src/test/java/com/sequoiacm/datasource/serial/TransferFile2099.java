@@ -145,7 +145,8 @@ public class TransferFile2099 extends TestScmBase {
                 .put( ScmAttributeName.File.SIZE )
                 .greaterThanEquals( fileSize2 )
                 .put( ScmAttributeName.File.AUTHOR ).is( fileName ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, taskCondition );
+        taskId = ScmSystem.Task.startTransferTask( ws, taskCondition,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );

@@ -1,4 +1,4 @@
-package com.sequoiacm.testcommon;
+package com.sequoiacm.testcommon.listener;
 
 import java.lang.reflect.Field;
 

@@ -76,9 +76,9 @@ public class WriteAndRead729 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws ScmException {
         ReadFile rThread = new ReadFile();
-        rThread.start( 100 );
+        rThread.start( 50 );
         WriteFile wThread = new WriteFile();
-        wThread.start( 100 );
+        wThread.start( 50 );
         boolean rflag = rThread.isSuccess();
         boolean wflag = rThread.isSuccess();
         Assert.assertEquals( rflag, true, rThread.getErrorMsg() );

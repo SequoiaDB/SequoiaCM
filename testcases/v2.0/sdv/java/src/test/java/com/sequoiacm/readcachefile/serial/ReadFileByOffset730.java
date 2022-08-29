@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.common.CommonDefine;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -72,7 +74,7 @@ public class ReadFileByOffset730 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         try {
             ReadFile rThread = new ReadFile();
@@ -136,9 +138,9 @@ public class ReadFileByOffset730 extends TestScmBase {
                         Thread.currentThread().getId() );
 
                 // FIXME: seek is forbidden. testcase has to be designed again.
-                // sis = ScmFactory.File.createInputStream(InputStreamType
-                // .SEEKABLE, scmfile);
-                // sis.seek(SeekType.SCM_FILE_SEEK_SET, seekSize);
+                sis = ScmFactory.File
+                        .createInputStream( ScmType.InputStreamType.SEEKABLE, scmfile );
+                sis.seek( CommonDefine.SeekType.SCM_FILE_SEEK_SET, seekSize );
                 String tmpPath;
                 this.readScmFileByOff( sis, downloadPath );
                 tmpPath = TestTools.LocalFile.initDownloadPath( localPath,

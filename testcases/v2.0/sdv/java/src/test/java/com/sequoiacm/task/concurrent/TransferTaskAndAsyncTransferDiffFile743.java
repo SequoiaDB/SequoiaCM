@@ -1,10 +1,12 @@
 package com.sequoiacm.task.concurrent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,57 +61,47 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
     private WsWrapper ws_T = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            // ready local file
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        // ready local file
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branceSite = ScmInfo.getBranchSite();
-            // node = branceSite.getNode();
-            ws_T = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
+        // node = branceSite.getNode();
+        ws_T = ScmInfo.getWs();
 
-            BSONObject ors1 = ScmQueryBuilder.start()
-                    .put( ScmAttributeName.File.AUTHOR ).is( author1 ).get();
-            BSONObject ors2 = ScmQueryBuilder.start()
-                    .put( ScmAttributeName.File.AUTHOR ).is( author2 ).get();
-            BSONObject cond = ScmQueryBuilder.start().or( ors1, ors2 ).get();
-            ScmFileUtils.cleanFile( ws_T, cond );
+        BSONObject ors1 = ScmQueryBuilder.start()
+                .put( ScmAttributeName.File.AUTHOR ).is( author1 ).get();
+        BSONObject ors2 = ScmQueryBuilder.start()
+                .put( ScmAttributeName.File.AUTHOR ).is( author2 ).get();
+        BSONObject cond = ScmQueryBuilder.start().or( ors1, ors2 ).get();
+        ScmFileUtils.cleanFile( ws_T, cond );
 
-            // login
-            sessionA = TestScmTools.createSession( branceSite );
-            wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
+        // login
+        sessionA = TestScmTools.createSession( branceSite );
+        wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            // ready file
-            this.writeFile();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // ready file
+        this.writeFile();
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        try {
-            StartTransferTask transferTask = new StartTransferTask();
-            transferTask.start();
+        StartTransferTask transferTask = new StartTransferTask();
+        transferTask.start();
 
-            AsyncTransfer asyncTransfer = new AsyncTransfer();
-            asyncTransfer.start();
+        AsyncTransfer asyncTransfer = new AsyncTransfer();
+        asyncTransfer.start();
 
-            if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
-                Assert.fail( transferTask.getErrorMsg()
-                        + asyncTransfer.getErrorMsg() );
-            }
-
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+        if ( !( transferTask.isSuccess() && asyncTransfer.isSuccess() ) ) {
+            Assert.fail(
+                    transferTask.getErrorMsg() + asyncTransfer.getErrorMsg() );
         }
 
         runSuccess = true;
@@ -124,8 +116,6 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
                 }
                 TestTools.LocalFile.removeFile( localPath );
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
@@ -165,7 +155,8 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author1 )
                         .get();
-                taskId = ScmSystem.Task.startTransferTask( wsA, condition );
+                taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
                 ScmTaskUtils.waitTaskFinish( sessionA, taskId );
                 // check task info
@@ -199,7 +190,8 @@ public class TransferTaskAndAsyncTransferDiffFile743 extends TestScmBase {
                 wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
 
                 for ( int i = fileNum / 2; i < fileNum; i++ ) {
-                    ScmFactory.File.asyncTransfer( wsA, fileIdList.get( i ) );
+                    ScmFactory.File.asyncTransfer( wsA, fileIdList.get( i ),
+                            rootSite.getSiteName() );
                     // check results
                     SiteWrapper[] expSiteList = { rootSite, branceSite };
                     ScmTaskUtils.waitAsyncTaskFinished( wsA,

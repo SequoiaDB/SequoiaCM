@@ -6,6 +6,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -80,32 +83,50 @@ public class ReadSameFileByAllWay726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" }, enabled = false)
-    private void test() throws Exception {
-        try {
-            GetContentThd1 gThd1 = new GetContentThd1();
-            GetContentThd2 gThd2 = new GetContentThd2();
-            ScmInputStreamThd1 sThd1 = new ScmInputStreamThd1();
-            ScmInputStreamThd3 sThd3 = new ScmInputStreamThd3();
+    @Test(groups = { GroupTags.fourSite, GroupTags.star })
+    private void testStar() throws Exception {
+        GetContentThd1 gThd1 = new GetContentThd1();
+        GetContentThd2 gThd2 = new GetContentThd2();
+        ScmInputStreamThd1 sThd1 = new ScmInputStreamThd1();
+        ScmInputStreamThd3 sThd3 = new ScmInputStreamThd3();
 
-            gThd1.start();
-            gThd2.start();
-            sThd1.start();
-            sThd3.start();
+        gThd1.start();
+        gThd2.start();
+        sThd1.start();
+        sThd3.start();
 
-            Assert.assertTrue( gThd1.isSuccess(), gThd1.getErrorMsg() );
-            Assert.assertTrue( gThd2.isSuccess(), gThd2.getErrorMsg() );
-            Assert.assertTrue( sThd1.isSuccess(), sThd1.getErrorMsg() );
-            Assert.assertTrue( sThd3.isSuccess(), sThd3.getErrorMsg() );
+        Assert.assertTrue( gThd1.isSuccess(), gThd1.getErrorMsg() );
+        Assert.assertTrue( gThd2.isSuccess(), gThd2.getErrorMsg() );
+        Assert.assertTrue( sThd1.isSuccess(), sThd1.getErrorMsg() );
+        Assert.assertTrue( sThd3.isSuccess(), sThd3.getErrorMsg() );
 
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    private void testNet() throws Exception {
+        GetContentThd1 gThd1 = new GetContentThd1();
+        GetContentThd2 gThd2 = new GetContentThd2();
+        ScmInputStreamThd1 sThd1 = new ScmInputStreamThd1();
+        ScmInputStreamThd3 sThd3 = new ScmInputStreamThd3();
+
+        gThd1.start();
+        gThd2.start();
+        sThd1.start();
+        sThd3.start();
+
+        Assert.assertTrue( gThd1.isSuccess(), gThd1.getErrorMsg() );
+        Assert.assertTrue( gThd2.isSuccess(), gThd2.getErrorMsg() );
+        Assert.assertTrue( sThd1.isSuccess(), sThd1.getErrorMsg() );
+        Assert.assertTrue( sThd3.isSuccess(), sThd3.getErrorMsg() );
+
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -233,9 +254,9 @@ public class ReadSameFileByAllWay726 extends TestScmBase {
                         Thread.currentThread().getId() );
 
                 // FIXME: seek is forbidden. testcase has to be designed again.
-                // sis = ScmFactory.File.createInputStream(InputStreamType
-                // .SEEKABLE, scmfile);
-                // sis.seek(SeekType.SCM_FILE_SEEK_SET, seekSize);
+                sis = ScmFactory.File.createInputStream(
+                        ScmType.InputStreamType.SEEKABLE, scmfile );
+                sis.seek( CommonDefine.SeekType.SCM_FILE_SEEK_SET, seekSize );
                 fos = new FileOutputStream( new File( downloadPath ) );
                 byte[] buffer = new byte[ off + len ];
                 int curOff = 0;

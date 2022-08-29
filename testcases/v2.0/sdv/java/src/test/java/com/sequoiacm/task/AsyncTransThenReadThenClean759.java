@@ -90,7 +90,8 @@ public class AsyncTransThenReadThenClean759 extends TestScmBase {
     private void test() throws Exception {
         try {
             // asyncTransfer
-            ScmFactory.File.asyncTransfer( wsA, fileId );
+            ScmFactory.File.asyncTransfer( wsA, fileId,
+                    rootSite.getSiteName() );
             int expSiteNum = 2;
             ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, expSiteNum );
             // check results

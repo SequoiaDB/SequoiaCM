@@ -150,7 +150,8 @@ public class TransferAndCleanFile2060 extends TestScmBase {
                 .is( scmDir.getId() ).put( ScmAttributeName.File.SIZE )
                 .is( writeData1.length ).put( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
-        transferTaskId = ScmSystem.Task.startTransferTask( ws, condition );
+        transferTaskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, transferTaskId );

@@ -155,7 +155,7 @@ public class AsyncTransferAndReadDiffFile758 extends TestScmBase {
                 session = TestScmTools.createSession( branceSite );
                 ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                         session );
-                ScmFactory.File.asyncTransfer( ws, fileIdList.get( 0 ) );
+                ScmFactory.File.asyncTransfer( ws, fileIdList.get( 0 ),rootSite.getSiteName() );
             } catch ( ScmException e ) {
                 throw e;
             } finally {

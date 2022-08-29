@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -31,6 +34,7 @@ import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiadb.exception.BaseException;
 
 /**
@@ -39,12 +43,9 @@ import com.sequoiadb.exception.BaseException;
  * @date 2017.8.14
  */
 
-public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
-    private final int branSitesNum = 2;
+public class TD738_ReadAndCleanAndTransferInDiffWsNet extends TestScmBase {
     private final int wsNum = 3;
     private boolean runSuccess = false;
-    private SiteWrapper rootSite = null;
-    private List< SiteWrapper > branSites = null;
     private List< WsWrapper > wsList = null;
     private String author = "TD738";
     private List< ScmId > fileIdList1 = new ArrayList< ScmId >();
@@ -62,10 +63,10 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         try {
-            rootSite = ScmInfo.getRootSite();
-            branSites = ScmInfo.getBranchSites( branSitesNum );
-            wsList = ScmInfo.getWss( wsNum );
-
+            if ( ScmInfo.getWsNum() < wsNum ) {
+                throw new SkipException( "Skip!" );
+            }
+            wsList = ScmInfo.getWss( 3 );
             TestTools.LocalFile.removeFile( localPath );
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
@@ -74,7 +75,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.net })
     private void test() {
         try {
             CrossReadFileInWs readInWs = new CrossReadFileInWs();
@@ -105,7 +106,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         ScmSession sessionM = null;
         try {
             if ( runSuccess || forceClear ) {
-                sessionM = TestScmTools.createSession( rootSite );
+                sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
 
                 ScmWorkspace ws1 = ScmFactory.Workspace
                         .getWorkspace( wsList.get( 0 ).getName(), sessionM );
@@ -164,6 +165,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
 
     private class CrossReadFileInWs extends TestThreadBase {
         private WsWrapper wsp = wsList.get( 0 );
+        private List< SiteWrapper > sites = ScmNetUtils.getSortSites( wsp );
 
         /**
          * write scmfile from centerA
@@ -173,7 +175,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         public CrossReadFileInWs() throws ScmException {
             ScmSession sessionA = null;
             try {
-                sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+                sessionA = TestScmTools.createSession( sites.get( 0 ) );
                 ScmWorkspace wsA = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 writeFile( wsA, fileIdList1 );
@@ -192,14 +194,13 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         public void exec() throws Exception {
             ScmSession sessionB = null;
             try {
-                sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+                sessionB = TestScmTools.createSession( sites.get( 1 ) );
                 ScmWorkspace wsB = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionB );
                 readFile( wsB, fileIdList1 );
 
                 // check results
-                SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                        branSites.get( 1 ) };
+                SiteWrapper[] expSites = { sites.get( 0 ), sites.get( 1 ) };
                 ScmFileUtils.checkMetaAndData( wsp, fileIdList1, expSites,
                         localPath, filePath );
                 System.out.println( "read is ok." );
@@ -215,6 +216,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         private WsWrapper wsp = wsList.get( 1 );
         private ScmSession sessionA = null;
         private ScmWorkspace wsA = null;
+        private List< SiteWrapper > sites = ScmNetUtils.getSortSites( wsp );
 
         /**
          * write scmfile from centerA
@@ -223,7 +225,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
          */
         public StartTransferTaskInWs2() throws ScmException {
             try {
-                sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+                sessionA = TestScmTools.createSession( sites.get( 0 ) );
                 wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                         sessionA );
                 writeFile( wsA, fileIdList2 );
@@ -242,9 +244,8 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task.startTransferTask( wsA,
-                        condition );
-
+                ScmId taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScopeType.SCOPE_CURRENT, sites.get( 1 ).getSiteName() );
                 // check task info
                 ScmTask taskInfo = null;
                 while ( true ) {
@@ -262,7 +263,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
                 Assert.assertEquals( taskInfo.getType(),
                         CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE );
 
-                SiteWrapper[] expSites = { rootSite, branSites.get( 0 ) };
+                SiteWrapper[] expSites = { sites.get( 0 ), sites.get( 1 ) };
                 ScmFileUtils.checkMetaAndData( wsp, fileIdList2, expSites,
                         localPath, filePath );
                 System.out.println( "transfer is ok." );
@@ -279,6 +280,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
         // private NodeWrapper node = branSites.get(0).getNode();
         private ScmSession sessionA = null;
         private ScmWorkspace wsA = null;
+        private List< SiteWrapper > sites = ScmNetUtils.getCleanSites( wsp );
 
         /**
          * step1.write scmfile from centerA step2.read scmfile from centerB
@@ -287,7 +289,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
          */
         public StartCleanTaskInWs3() throws Exception {
             try {
-                sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+                sessionA = TestScmTools.createSession( sites.get( 0 ) );
                 wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                         sessionA );
                 writeFile( wsA, fileIdList3 );
@@ -297,7 +299,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
 
             ScmSession sessionM = null;
             try {
-                sessionM = TestScmTools.createSession( rootSite );
+                sessionM = TestScmTools.createSession( sites.get( 1 ) );
                 ScmWorkspace wsM = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionM );
                 readFile( wsM, fileIdList3 );
@@ -337,7 +339,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
                 Assert.assertEquals( taskInfo.getType(),
                         CommonDefine.TaskType.SCM_TASK_CLEAN_FILE );
 
-                SiteWrapper[] expSites = { rootSite };
+                SiteWrapper[] expSites = { sites.get( 1 ) };
                 ScmFileUtils.checkMetaAndData( wsp, fileIdList3, expSites,
                         localPath, filePath );
                 System.out.println( "clean is ok." );
@@ -348,5 +350,4 @@ public class TD738_ReadAndCleanAndTransferInDiffWs extends TestScmBase {
             }
         }
     }
-
 }

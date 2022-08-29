@@ -6,37 +6,29 @@
    <parameter name="DATADIR" value="/tmp/ci_cm" />
    <parameter name="NTPSERVER" value="192.168.20.11" />
    <parameter name="LOCALHOSTNAME" value="localhost" />
-   
+
    <parameter name="SSHUSER" value="root" />
    <parameter name="SSHPASSWD" value="jenkins" />
-   
+
    <parameter name="MAINSDBURL" value="mainSiteHostName:11810" />
    <parameter name="SDBUSER" value="sdbadmin" />
    <parameter name="SDBPASSWD" value="sequoiadb" />
-   
+
+   <parameter name="SITES" value="XXXX"/>
    <parameter name="GATEWAYS" value="GATEWAYURLS"/>
    <parameter name="ROOTSITESVCNAME" value="rootsite"/>
    <parameter name="SCMUSER" value="admin" />
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
-   
+
    <parameter name="LDAPUSER" value="ldapadmin" />
    <parameter name="LDAPPASSWD" value="admin" />
-   <listeners> 
-      <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>
+   <listeners>
+      <listener class-name="com.sequoiacm.testcommon.listener.TestScmListener"/>
+      <listener class-name="com.sequoiacm.testcommon.listener.GroupListener"/>
    </listeners>
 
-   <test name="parralclass" preserve-order="true">
-      <method-selectors>
-         <method-selector>
-            <script language="beanshell">
-               <![CDATA[
-               groups.containsKey("XXXX")||groups.isEmpty();
-               ]]>
-            </script>
-         </method-selector>
-      </method-selectors>
-      
+   <test name="parralclass" parallel="classes" thread-count="5">
       <packages>
          <package name="com.sequoiacm.asynctask.concurrent" />
          <package name="com.sequoiacm.readcachefile" />
@@ -45,9 +37,9 @@
          <package name="com.sequoiacm.scmfile.oper" />
          <package name="com.sequoiacm.batch" />
          <package name="com.sequoiacm.batch.concurrent" />
-         <package name="com.sequoiacm.directory" />  
-         <package name="com.sequoiacm.datasource" />    
-         <package name="com.sequoiacm.breakpointfile" />    
+         <package name="com.sequoiacm.directory" />
+         <package name="com.sequoiacm.datasource" />
+         <package name="com.sequoiacm.breakpointfile" />
       </packages>
    </test>
 

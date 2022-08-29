@@ -131,7 +131,8 @@ public class UpdateAndAsyncTransferFile2059 extends TestScmBase {
 
     private void asyncTransferCurrentVersionFile( ScmWorkspace ws,
             int majorVersion ) throws Exception {
-        ScmFactory.File.asyncTransfer( ws, fileId, majorVersion, 0 );
+        ScmFactory.File.asyncTransfer( ws, fileId, majorVersion, 0,
+                rootSite.getSiteName() );
 
         // wait task finished
         int sitenums = 2;

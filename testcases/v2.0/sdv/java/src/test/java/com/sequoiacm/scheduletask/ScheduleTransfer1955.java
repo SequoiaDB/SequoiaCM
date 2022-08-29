@@ -103,7 +103,6 @@ public class ScheduleTransfer1955 extends TestScmBase {
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
                 .lessThan( fileNum / 2 ).and( "tags" )
                 .in( tagList.subList( 0, fileNum / 2 ) ).get();
-        System.out.println( "cond = " + queryCond.toString() );
         createScheduleTask( queryCond );
         SiteWrapper[] expSites = { rootSite, site };
         ScmScheduleUtils.checkScmFile( ws, fileIdList.subList( 0, fileNum / 2 ),

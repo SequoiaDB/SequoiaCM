@@ -123,9 +123,6 @@ public class TD886_WRDFromNodePool extends TestScmBase {
             try {
                 // login
                 ScmConfigOption opt = new ScmConfigOption();
-                // List<NodeWrapper> nodes = site.getNodes(2);
-                // opt.addUrl(nodes.get(0).getHost()+":"+nodes.get(0).getPort());
-                // opt.addUrl(nodes.get(1).getHost()+":"+nodes.get(1).getPort());
                 for ( String gateWay : gateWayList ) {
                     opt.addUrl( gateWay + "/" + site.getSiteServiceName() );
                 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,6 +48,7 @@ public class ComprehensiveReadFile735 extends TestScmBase {
     private boolean runSuccess = false;
     private SiteWrapper rootSite = null;
     private List< SiteWrapper > branSites = null;
+    private SiteWrapper[] expSites = null;
     private WsWrapper wsp = null;
     private File localPath = null;
     private String filePath = null;
@@ -79,19 +81,28 @@ public class ComprehensiveReadFile735 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
-        try {
-            SceneThread4 sThd4 = new SceneThread4();
-            SceneThread5 sThd5 = new SceneThread5();
-            sThd4.start();
-            sThd5.start();
-            Assert.assertTrue( sThd4.isSuccess(), sThd4.getErrorMsg() );
-            Assert.assertTrue( sThd5.isSuccess(), sThd5.getErrorMsg() );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    @Test(groups = { GroupTags.fourSite, GroupTags.star })
+    private void testStar() throws Exception {
+        expSites = new SiteWrapper[] { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        SceneThread4 sThd4 = new SceneThread4();
+        SceneThread5 sThd5 = new SceneThread5();
+        sThd4.start();
+        sThd5.start();
+        Assert.assertTrue( sThd4.isSuccess(), sThd4.getErrorMsg() );
+        Assert.assertTrue( sThd5.isSuccess(), sThd5.getErrorMsg() );
+        runSuccess = true;
+    }
+
+    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    private void testNet() throws Exception {
+        expSites = new SiteWrapper[] { branSites.get( 0 ), branSites.get( 1 ) };
+        SceneThread4 sThd4 = new SceneThread4();
+        SceneThread5 sThd5 = new SceneThread5();
+        sThd4.start();
+        sThd5.start();
+        Assert.assertTrue( sThd4.isSuccess(), sThd4.getErrorMsg() );
+        Assert.assertTrue( sThd5.isSuccess(), sThd5.getErrorMsg() );
         runSuccess = true;
     }
 
@@ -159,9 +170,8 @@ public class ComprehensiveReadFile735 extends TestScmBase {
     }
 
     private void checkMetaAndLob( List< ScmId > fileIdList,
-            List< String > filePathList ) throws Exception {
-        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                branSites.get( 1 ) };
+            List< String > filePathList, SiteWrapper[] expSites )
+            throws Exception {
         ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
                 filePath );
     }
@@ -180,7 +190,7 @@ public class ComprehensiveReadFile735 extends TestScmBase {
                 ssB = TestScmTools.createSession( branSites.get( 1 ) );
                 writeFile( ssA, fileIdList4, filePathList4, 40 );
                 readFile( ssB, fileIdList4, filePathList4 );
-                checkMetaAndLob( fileIdList4, filePathList4 );
+                checkMetaAndLob( fileIdList4, filePathList4, expSites );
             } finally {
                 if ( null != ssA ) {
                     ssA.close();
@@ -207,10 +217,10 @@ public class ComprehensiveReadFile735 extends TestScmBase {
                 ssB = TestScmTools.createSession( branSites.get( 1 ) );
                 writeFile( ssA, fileIdList5, filePathList5, 20 );
                 readFile( ssB, fileIdList5, filePathList5 );
-                checkMetaAndLob( fileIdList5, filePathList5 );
+                checkMetaAndLob( fileIdList5, filePathList5, expSites );
                 writeFile( ssB, fileIdList5, filePathList5, 20 );
                 readFile( ssA, fileIdList5, filePathList5 );
-                checkMetaAndLob( fileIdList5, filePathList5 );
+                checkMetaAndLob( fileIdList5, filePathList5, expSites );
             } finally {
                 if ( null != ssA ) {
                     ssA.close();

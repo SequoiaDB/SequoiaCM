@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,6 +40,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+
+import javax.swing.*;
 
 /**
  * @Description:SCM-1956 :: 创建异步调度任务，设置类型为清理，条件为自定义属性和标签
@@ -100,16 +103,37 @@ public class ScheduleClean1956 extends TestScmBase {
         readFile( fileIdList );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
+    @Test(groups = { "fourSite", GroupTags.star })
+    private void testStar() throws Exception {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
                 .lessThan( fileNum / 2 ).and( ScmAttributeName.File.TAGS )
                 .in( tagList.subList( 0, fileNum / 2 ) ).get();
-        System.out.println( "cond = " + queryCond.toString() );
         createScheduleTask( queryCond );
-        checkResult( fileIdList.subList( fileNum / 2, fileNum ), false );
-        checkResult( fileIdList.subList( 0, fileNum / 2 ), true );
+        SiteWrapper[] expSites = { ScmInfo.getRootSite(), site1, site2 };
+        ScmScheduleUtils.checkScmFile( ws,
+                fileIdList.subList( fileNum / 2, fileNum ), expSites );
+
+        SiteWrapper[] expCleanSites = { ScmInfo.getRootSite(), site2 };
+        ScmScheduleUtils.checkScmFile( ws, fileIdList.subList( 0, fileNum / 2 ),
+                expCleanSites );
+        runSuccess = true;
+    }
+
+    @Test(groups = { "fourSite", GroupTags.net })
+    private void testNet() throws Exception {
+        BSONObject queryCond = ScmQueryBuilder
+                .start( ScmAttributeName.File.PROPERTIES + "." + name )
+                .lessThan( fileNum / 2 ).and( ScmAttributeName.File.TAGS )
+                .in( tagList.subList( 0, fileNum / 2 ) ).get();
+        createScheduleTask( queryCond );
+        SiteWrapper[] expSites = { site1, site2 };
+        ScmScheduleUtils.checkScmFile( ws,
+                fileIdList.subList( fileNum / 2, fileNum ), expSites );
+
+        SiteWrapper[] expCleanSites = { site2 };
+        ScmScheduleUtils.checkScmFile( ws, fileIdList.subList( 0, fileNum / 2 ),
+                expCleanSites );
         runSuccess = true;
     }
 

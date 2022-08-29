@@ -133,7 +133,8 @@ public class TransferFileByBatchCond2082 extends TestScmBase {
         condition = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.BATCH_ID ).is( batchId.toString() )
                 .get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition );
+        taskId = ScmSystem.Task.startTransferTask( ws, condition,
+                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );

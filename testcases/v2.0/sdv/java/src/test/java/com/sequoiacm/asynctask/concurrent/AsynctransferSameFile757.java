@@ -149,7 +149,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
                 ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                         session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
-                    ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
+                    ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ),
+                            rootSite.getSiteName() );
                 }
             } catch ( ScmException e ) {
                 throw e;
@@ -171,7 +172,8 @@ public class AsynctransferSameFile757 extends TestScmBase {
                 ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                         session );
                 for ( int i = 0; i < fileIdList.size(); ++i ) {
-                    ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ) );
+                    ScmFactory.File.asyncTransfer( ws, fileIdList.get( i ),
+                            rootSite.getSiteName() );
                 }
             } catch ( ScmException e ) {
                 throw e;

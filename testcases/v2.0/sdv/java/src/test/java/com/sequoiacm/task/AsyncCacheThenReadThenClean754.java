@@ -83,7 +83,7 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() {
+    private void test() throws Exception {
         cache();
         read();
         clean();
@@ -111,19 +111,13 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
         }
     }
 
-    public void cache() {
-        try {
-            ScmFactory.File.asyncCache( ws, fileId );
-            // checkResult();
-            SiteWrapper[] expSiteList = { rootSite, branceSite };
-            ScmTaskUtils.waitAsyncTaskFinished( ws, fileId,
-                    expSiteList.length );
-            ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
-                    filePath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+    public void cache() throws Exception {
+        ScmFactory.File.asyncCache( ws, fileId );
+        // checkResult();
+        SiteWrapper[] expSiteList = { rootSite, branceSite };
+        ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, expSiteList.length );
+        ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList, localPath,
+                filePath );
     }
 
     private void read() {
@@ -154,7 +148,7 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
         }
     }
 
-    private void write() {
+    private void write() throws ScmException {
         ScmSession session = null;
         try {
             // login
@@ -169,8 +163,6 @@ public class AsyncCacheThenReadThenClean754 extends TestScmBase {
                 file.setAuthor( author );
                 fileId = file.save();
             }
-        } catch ( ScmException e ) {
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();

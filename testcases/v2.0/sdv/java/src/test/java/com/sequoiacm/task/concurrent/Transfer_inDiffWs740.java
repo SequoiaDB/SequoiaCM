@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -177,8 +178,9 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task.startTransferTask( wsA,
-                        condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT,
+                        rootSite.getSiteName() );
 
                 // check task info
                 ScmTask taskInfo = null;
@@ -221,8 +223,8 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task.startTransferTask( wsA,
-                        condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
                 // check task info
                 ScmTask taskInfo = null;
@@ -265,8 +267,8 @@ public class Transfer_inDiffWs740 extends TestScmBase {
                 BSONObject condition = ScmQueryBuilder
                         .start( ScmAttributeName.File.AUTHOR ).is( author )
                         .get();
-                ScmId taskId = ScmSystem.Task.startTransferTask( wsA,
-                        condition );
+                ScmId taskId = ScmSystem.Task.startTransferTask( wsA, condition,
+                        ScmType.ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
 
                 // check task info
                 ScmTask taskInfo = null;

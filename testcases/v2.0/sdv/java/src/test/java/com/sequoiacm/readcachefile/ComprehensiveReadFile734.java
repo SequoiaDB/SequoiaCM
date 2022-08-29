@@ -1,11 +1,13 @@
 package com.sequoiacm.readcachefile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -61,62 +63,86 @@ public class ComprehensiveReadFile734 extends TestScmBase {
     private String filePath = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
-        try {
-            TestTools.LocalFile.removeFile( localPath );
-            TestTools.LocalFile.createDir( localPath.toString() );
-            TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
 
-            rootSite = ScmInfo.getRootSite();
-            branSites = ScmInfo.getBranchSites( branSitesNum );
-            wsp = ScmInfo.getWs();
+        rootSite = ScmInfo.getRootSite();
+        branSites = ScmInfo.getBranchSites( branSitesNum );
+        wsp = ScmInfo.getWs();
 
-            ssA = TestScmTools.createSession( branSites.get( 0 ) );
-            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssA );
+        ssA = TestScmTools.createSession( branSites.get( 0 ) );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssA );
 
-            ssB = TestScmTools.createSession( branSites.get( 1 ) );
-            wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssB );
+        ssB = TestScmTools.createSession( branSites.get( 1 ) );
+        wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssB );
 
-            BSONObject cond = ScmQueryBuilder
-                    .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
-            ScmFileUtils.cleanFile( wsp, cond );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( author ).get();
+        ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite" })
-    private void test() throws Exception {
-        try {
-            writeFile( wsB );
-            List< List< ScmFileLocation > > befLocLists = getLocationLists(
-                    fileIdList );
+    @Test(groups = { GroupTags.fourSite, GroupTags.star })
+    private void testStar() throws Exception {
+        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
 
-            readFile( wsA );
-            List< List< ScmFileLocation > > aftLocLists = getLocationLists(
-                    fileIdList );
+        writeFile( wsB );
+        List< List< ScmFileLocation > > befLocLists = getLocationLists(
+                fileIdList );
 
-            checkLocationLists1( befLocLists, aftLocLists );
-            checkMetaAndLob();
+        readFile( wsA );
+        List< List< ScmFileLocation > > aftLocLists = getLocationLists(
+                fileIdList );
 
-            // write more file, and read all file
-            writeFile( wsA );
-            befLocLists = getLocationLists( fileIdList );
+        checkLocationLists1( befLocLists, aftLocLists );
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
+                filePath );
 
-            readFile( wsB );
-            aftLocLists = getLocationLists( fileIdList );
+        // write more file, and read all file
+        writeFile( wsA );
+        befLocLists = getLocationLists( fileIdList );
 
-            checkLocationLists2( befLocLists, aftLocLists );
-            checkMetaAndLob();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        readFile( wsB );
+        aftLocLists = getLocationLists( fileIdList );
+
+        checkLocationLists2( befLocLists, aftLocLists );
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
+                filePath );
+        runSuccess = true;
+    }
+
+    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    private void testNet() throws Exception {
+        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+
+        writeFile( wsB );
+        List< List< ScmFileLocation > > befLocLists = getLocationLists(
+                fileIdList );
+
+        readFile( wsA );
+        List< List< ScmFileLocation > > aftLocLists = getLocationLists(
+                fileIdList );
+
+        checkLocationLists1( befLocLists, aftLocLists );
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
+                filePath );
+
+        // write more file, and read all file
+        writeFile( wsA );
+        befLocLists = getLocationLists( fileIdList );
+
+        readFile( wsB );
+        aftLocLists = getLocationLists( fileIdList );
+
+        checkLocationLists2( befLocLists, aftLocLists );
+        ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
+                filePath );
         runSuccess = true;
     }
 
@@ -168,13 +194,6 @@ public class ComprehensiveReadFile734 extends TestScmBase {
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         }
-    }
-
-    private void checkMetaAndLob() throws Exception {
-        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                branSites.get( 1 ) };
-        ScmFileUtils.checkMetaAndData( wsp, fileIdList, expSites, localPath,
-                filePath );
     }
 
     private void checkLocationLists1(

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -49,35 +50,12 @@ public class WriteAndReadFromDiffDatasource2097 extends TestScmBase {
     private byte[] writeData = new byte[ 1024 * 1024 * 2 ];
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > siteList = ScmInfo.getAllSites();
-        for ( int i = 0; i < siteList.size(); i++ ) {
-            DatasourceType dataType = siteList.get( i ).getDataType();
-            if ( dataType.equals( DatasourceType.SEQUOIADB ) ) {
-                SiteWrapper dbsite = siteList.get( i );
-                sites.add( dbsite );
-            } else if ( dataType.equals( DatasourceType.HDFS ) ) {
-                SiteWrapper hdfssite = siteList.get( i );
-                sites.add( hdfssite );
-            } else if ( dataType.equals( DatasourceType.HBASE ) ) {
-                SiteWrapper hbasesite = siteList.get( i );
-                sites.add( hbasesite );
-            } else {
-                Assert.fail( "get site fail!" );
-            }
-        }
-
-        // random selection of two sites
-        int max = sites.size();
-        int min = 0;
-        int num = 2;
-        int[] index = randomCommon( max, min, num );
+    private void setUp() throws ScmException {
+        sites = ScmInfo.getAllSites();
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( sites.get( index[ 0 ] ) );
-        System.out.println( "--A=" + sessionA.getUrl() );
+        sessionA = TestScmTools.createSession( sites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( sites.get( index[ 1 ] ) );
-        System.out.println( "--B=" + sessionB.getUrl() );
+        sessionB = TestScmTools.createSession( sites.get( 1 ) );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -85,7 +63,7 @@ public class WriteAndReadFromDiffDatasource2097 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     private void test() throws Exception {
         fileId = VersionUtils.createFileByStream( wsB, fileName, writeData,
                 authorName );

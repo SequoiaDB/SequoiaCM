@@ -3,6 +3,7 @@ package com.sequoiacm.datasource;
 import java.io.IOException;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -84,7 +85,7 @@ public class AsyncTransferFile2098 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     private void test() throws Exception {
         asyncTransferFile( wsA );
 
@@ -116,7 +117,7 @@ public class AsyncTransferFile2098 extends TestScmBase {
     }
 
     private void asyncTransferFile( ScmWorkspace ws ) throws Exception {
-        ScmFactory.File.asyncTransfer( ws, fileId );
+        ScmFactory.File.asyncTransfer( ws, fileId, rootSite.getSiteName() );
 
         int sitenums = 2;
         ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, sitenums );
