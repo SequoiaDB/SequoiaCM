@@ -11,6 +11,7 @@ import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.privilege.ScmAllWorkspaceResource;
 import com.sequoiacm.client.element.privilege.ScmBucketResource;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmWorkspaceResource;
 import com.sequoiacm.client.exception.ScmException;
@@ -170,6 +171,12 @@ public class ScmBucketDaoImpl implements ScmBucketDao {
 
     private Set<String> getPrivilegeRelatedBuckets(ScmPrivilege privilege) throws ScmException {
         Set<String> buckets = new HashSet<>();
+        List<ScmPrivilegeType> privilegeTypes = privilege.getPrivilegeTypes();
+        if (!privilegeTypes.contains(ScmPrivilegeType.READ)
+                && !privilegeTypes.contains(ScmPrivilegeType.ALL)) {
+            return buckets;
+        }
+
         ScmResource resource = privilege.getResource();
         if (!(resource instanceof ScmAllWorkspaceResource
                 || resource instanceof ScmWorkspaceResource
