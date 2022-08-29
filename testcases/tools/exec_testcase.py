@@ -192,7 +192,7 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
     for dir in os.listdir(testcaseDir):
         srcXmlFile="testng.xml"
         if SCM_DEPLOY_NET == "true" and dir == "sdv":
-            srcXmlFile="testng-net.xml"
+            srcXmlFile="testng.xml"
         xmlDir = testcaseDir+"/"+dir+"/java/src/test/resources"
         if not os.path.exists(xmlDir+"/"+srcXmlFile):
             continue
@@ -221,8 +221,7 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         replaceTestngStr(xmlDir+"/proxy.xml", "GATEWAYURLS", gatewayurls)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
-        if dir != "sdv":
-            replaceIgnoreByDeployModel(SCM_DEPLOY_NET,xmlDir+"/proxy.xml")
+
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+controlhost+".xml")
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+mainsitehost+".xml")
         replaceTestngStr(xmlDir+"/testng_"+controlhost+".xml", "localhost", controlhost)
@@ -231,7 +230,7 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         #if serial testcase is exists,then  deal with testng-serial.xml
         srcXmlFile="testng-serial.xml"
         if SCM_DEPLOY_NET == "true" and dir == "sdv":
-            srcXmlFile="testng-net-serial.xml"
+            srcXmlFile="testng-serial.xml"
         if os.path.exists(xmlDir+"/"+srcXmlFile):
             shutil.copy(xmlDir+"/"+srcXmlFile,xmlDir+"/proxy-serial.xml")
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "XXXX", destgroup)
@@ -240,8 +239,6 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3PASSWORD", S3_SECRETKEY)
-            if dir != "sdv":
-                replaceIgnoreByDeployModel(SCM_DEPLOY_NET,xmlDir+"/proxy-serial.xml")
           
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
@@ -286,12 +283,6 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
                        file.close()                
     displayInfo("End divide testng.xml")
 
-def replaceIgnoreByDeployModel(isNetMode, xmlFile):
-    if isNetMode == "true":
-        caseType = "star"
-    else :
-        caseType = "net"
-    replaceTestngStr(xmlFile, "\${IGNORE}", caseType)
                  
 def execTestcase():
     if EXEC_MODE == "p":
