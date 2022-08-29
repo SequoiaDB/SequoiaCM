@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -83,7 +84,7 @@ public class StatisticsFileTraffic2233 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // get file_delta before create file
         HashMap< String, Long > firstmap = StatisticsUtils

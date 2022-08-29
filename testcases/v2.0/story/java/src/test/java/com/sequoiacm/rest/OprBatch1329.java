@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -69,7 +70,7 @@ public class OprBatch1329 extends TestScmBase {
         fileId = upload( filePath, ws, desc.toString() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // SCM-1329: create batch
         String response = rest.setRequestMethod( HttpMethod.POST )
@@ -169,7 +170,7 @@ public class OprBatch1329 extends TestScmBase {
     }
 
     private String upload( String filePath, WsWrapper ws, String desc )
-            throws HttpClientErrorException,FileNotFoundException {
+            throws HttpClientErrorException, FileNotFoundException {
         File file = new File( filePath );
         // FileSystemResource resource = new FileSystemResource(file);
         String wResponse = rest.setApi( "files?workspace_name=" + ws.getName() )

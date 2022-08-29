@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;

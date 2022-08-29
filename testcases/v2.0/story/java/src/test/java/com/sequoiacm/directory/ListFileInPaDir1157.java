@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -75,7 +76,7 @@ public class ListFileInPaDir1157 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testCondIsNull() {
         try {
             int i = 0;
@@ -96,7 +97,7 @@ public class ListFileInPaDir1157 extends TestScmBase {
         runSuccess1 = true;
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testCond() {
         String dirName = "1157_e";
         int expDirNum = 1;

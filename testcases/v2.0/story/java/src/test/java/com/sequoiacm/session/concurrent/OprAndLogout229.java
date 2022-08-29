@@ -3,6 +3,7 @@ package com.sequoiacm.session.concurrent;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -72,7 +73,7 @@ public class OprAndLogout229 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         ScmSession sessionB = null;
         try {

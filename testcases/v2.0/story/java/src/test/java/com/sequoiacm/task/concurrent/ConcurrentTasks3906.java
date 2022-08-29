@@ -6,6 +6,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
@@ -75,7 +76,7 @@ public class ConcurrentTasks3906 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.base })
     public void test() throws Exception {
         // 分站点1创建文件缓存至主站点
         ScmId fileId = ScmFileUtils.create( branchSite1Ws, fileName, filePath );

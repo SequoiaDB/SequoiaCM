@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -94,7 +95,7 @@ public class Transfer_stopInitTask414 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws ScmException {
         // it is difficult to meet with init status
         ScmId taskId = stopAndStartTask();

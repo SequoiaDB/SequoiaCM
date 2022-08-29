@@ -3,6 +3,7 @@ package com.sequoiacm.statistics;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

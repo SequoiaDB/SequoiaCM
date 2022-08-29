@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,7 +62,7 @@ public class DefineAttr_Class_Delete1845_1853 extends TestScmBase {
         expClass.attachAttr( expAttr.getId() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         // delete class that has attached attr
         ScmFactory.Class.deleteInstance( ws, expClass.getId() );

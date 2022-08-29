@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucket;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -30,7 +31,7 @@ public class Bucket4254 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 创建桶
         ScmFactory.Bucket.createBucket( ws, bucketName );

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.net.URLDecoder;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
@@ -55,7 +56,7 @@ public class UpdateFileInfo1207 extends TestScmBase {
         fileId = createFile( ws, filePath );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testChinese() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.PUT )
                 .setApi( "files/" + fileId + "?workspace_name=" + ws.getName()
@@ -69,7 +70,7 @@ public class UpdateFileInfo1207 extends TestScmBase {
         Assert.assertEquals( obj.getString( "author" ), "新的中文名1207" );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testInvaild() throws Exception {
         try {
             rest.setRequestMethod( HttpMethod.PUT )

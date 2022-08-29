@@ -2,6 +2,7 @@ package com.sequoiacm.definemeta;
 
 import java.util.Set;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +48,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
         this.prepareBatch();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws ScmException {
         ScmTags tags = new ScmTags();
         // testValueIsDot
@@ -95,7 +96,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
                 batch.getTags().toString() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testTagIsNull1() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
@@ -128,7 +129,7 @@ public class DefineAttr_Param_Tag1839 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testValueIsBlankStr() throws ScmException {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );

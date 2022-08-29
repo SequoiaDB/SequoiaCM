@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,7 +85,7 @@ public class OverWriteFile2562 extends TestScmBase {
         prepareFileWithBatch();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( fileName );

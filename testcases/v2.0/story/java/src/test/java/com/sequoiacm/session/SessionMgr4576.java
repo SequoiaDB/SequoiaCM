@@ -6,6 +6,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,7 +35,7 @@ public class SessionMgr4576 extends TestScmBase {
         sessionMgr = createSessionMgr();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 生成的第一批session，close后回池，在有效期内仍可获得
         List< ScmSession > sessionList1st = new ArrayList<>();

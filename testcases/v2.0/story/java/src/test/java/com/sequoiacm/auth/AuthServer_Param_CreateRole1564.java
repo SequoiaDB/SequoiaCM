@@ -9,6 +9,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +31,7 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testRoleNameExist() throws ScmException {
         String roleName = "CreateRole1564";
         ScmRole role = null;
@@ -49,7 +50,7 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testRoleIsNull() throws ScmException {
         String roleName = null;
         try {
@@ -62,7 +63,7 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test3() throws ScmException {
         String roleName = " Role1564 中文.!@#$*()_+::<>\"test";
         // 创建
@@ -84,7 +85,7 @@ public class AuthServer_Param_CreateRole1564 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void teste4() throws ScmException {
         String[] chars = { "/", "%", "\\", ";" };
         for ( String c : chars ) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -66,7 +67,7 @@ public class OverWriteFile2675 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test // over write file by stream
+    @Test(groups = { GroupTags.base }) // over write file by stream
     private void test1() throws Exception {
         ScmFile scmFile = ScmFactory.File.createInstance( ws );
         scmFile.setFileName( fileNames[ 0 ] );

@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.PartETag;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -50,7 +51,7 @@ public class MultipartUpload4341 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void uploadPartsB() throws Exception {
         File file = new File( filePath );
         // test a: the specified partNums is less than the partNums actually

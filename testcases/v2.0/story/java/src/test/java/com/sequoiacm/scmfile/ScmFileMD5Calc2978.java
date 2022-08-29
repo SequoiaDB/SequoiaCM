@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,7 +56,7 @@ public class ScmFileMD5Calc2978 extends TestScmBase {
         new Random().nextBytes( bytes );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         createBreakpointFile();
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

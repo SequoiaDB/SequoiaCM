@@ -3,6 +3,7 @@ package com.sequoiacm.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,7 +35,7 @@ public class Param_Properties2314 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNull() {
         try {
             Map< String, String > conf = new HashMap< String, String >();

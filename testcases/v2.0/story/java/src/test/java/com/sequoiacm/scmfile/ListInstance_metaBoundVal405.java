@@ -1,5 +1,6 @@
 package com.sequoiacm.scmfile;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -62,7 +63,7 @@ public class ListInstance_metaBoundVal405 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         try {
             BSONObject cond = ScmQueryBuilder

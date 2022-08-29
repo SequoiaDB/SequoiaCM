@@ -3,6 +3,7 @@ package com.sequoiacm.task;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -75,7 +76,7 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void testGetTaskInfo() {
         try {
             // startTask

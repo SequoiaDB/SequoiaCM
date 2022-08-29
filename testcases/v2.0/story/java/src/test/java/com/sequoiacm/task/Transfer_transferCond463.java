@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -103,7 +104,7 @@ public class Transfer_transferCond463 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void testAllAttr() throws Exception {
         try {
             // search file created in last 1 hour

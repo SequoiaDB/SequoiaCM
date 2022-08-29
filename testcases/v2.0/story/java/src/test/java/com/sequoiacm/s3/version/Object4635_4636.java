@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -57,7 +58,7 @@ public class Object4635_4636 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // create multiple versions object in bucket
         for ( int i = 0; i < fileNum; i++ ) {

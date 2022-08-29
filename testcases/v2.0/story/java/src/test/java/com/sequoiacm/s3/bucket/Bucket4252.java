@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
@@ -53,7 +54,7 @@ public class Bucket4252 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException, IOException {
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws_test,
                 bucketName );

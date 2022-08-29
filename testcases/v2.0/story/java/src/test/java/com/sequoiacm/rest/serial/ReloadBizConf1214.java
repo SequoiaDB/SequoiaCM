@@ -1,5 +1,6 @@
 package com.sequoiacm.rest.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,7 +34,7 @@ public class ReloadBizConf1214 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     // create and delete workspace is very hard. as scm driver testcases have
     // tested it in detail,
     // this test just check the return value.

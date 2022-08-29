@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class AuthServer_Param_DeleteUser1559 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testInexistUser1() {
         String username = "inexist";
         try {
@@ -49,7 +50,7 @@ public class AuthServer_Param_DeleteUser1559 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testIsNull() {
         String username = null;
         try {

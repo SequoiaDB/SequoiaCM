@@ -1,5 +1,6 @@
 package com.sequoiacm.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -61,7 +62,7 @@ public class ListInstanceByScope1683 extends TestScmBase {
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         listInstanceByHistoryVersion();
         listInstanceByAllVersion();

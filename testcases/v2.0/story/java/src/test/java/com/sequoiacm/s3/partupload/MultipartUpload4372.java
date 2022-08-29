@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PartListing;
 import com.amazonaws.services.s3.model.PartSummary;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -80,8 +81,8 @@ public class MultipartUpload4372 extends TestScmBase {
                 file );
     }
 
-    @Test(groups = { "oneSite", "twoSite",
-            "fourSite" }, dataProvider = "partNumberMarkerProvider")
+    @Test(groups = {
+            GroupTags.base }, dataProvider = "partNumberMarkerProvider")
     public void testListParts( Integer partNumberMarker,
             List< Integer > expPartNumbersList ) {
         ListPartsRequest request = new ListPartsRequest( bucketName, keyName,

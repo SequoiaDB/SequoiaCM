@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -69,7 +70,7 @@ public class DefineAttr_class_getClassInfo1722 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test_getInstance() throws ScmException {
         try {
             ScmClass scmClass = ScmFactory.Class.getInstance( ws,
@@ -90,7 +91,7 @@ public class DefineAttr_class_getClassInfo1722 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test_listInstance() throws ScmException {
         try {
             BSONObject matcher = ScmQueryBuilder

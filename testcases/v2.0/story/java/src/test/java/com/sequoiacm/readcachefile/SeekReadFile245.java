@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -83,7 +84,7 @@ public class SeekReadFile245 extends TestScmBase {
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.base })
     private void test() throws Exception {
         this.readFileFromB( wsB );
         runSuccess = true;

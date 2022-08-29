@@ -9,6 +9,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
@@ -45,7 +46,7 @@ public class DefaultRegion4251 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException, IOException {
         ScmFactory.S3.setDefaultRegion( session, wsName );
 

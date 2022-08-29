@@ -11,6 +11,7 @@ import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -71,7 +72,7 @@ public class Object4246 extends TestScmBase {
         s3Client.putObject( bucketName, key, "aaa" );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();

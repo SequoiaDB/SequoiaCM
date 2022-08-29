@@ -2,6 +2,7 @@ package com.sequoiacm.rest;
 
 import java.net.URLDecoder;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -46,7 +47,7 @@ public class CrudDirectory2198 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // create directory by fullPath
         String response = rest.setRequestMethod( HttpMethod.POST )

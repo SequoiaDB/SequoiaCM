@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -38,7 +39,7 @@ public class Object4825 extends TestScmBase {
     }
 
     // SEQUOIACM-1006
-    @Test(enabled = false)
+    @Test(groups = { GroupTags.base }, enabled = false)
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         CreateObjectThread createObject = new CreateObjectThread();

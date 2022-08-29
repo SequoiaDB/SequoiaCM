@@ -8,6 +8,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -61,7 +62,7 @@ public class ScmFile4752 extends TestScmBase {
         bucket.suspendVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // scm create files ,file name
         List< ScmId > keyList = new ArrayList<>();

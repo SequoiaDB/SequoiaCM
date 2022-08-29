@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
 import com.amazonaws.util.Md5Utils;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.core.io.Resource;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +82,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // 有效期内获取对象、对象内容为文件、禁用版本控制
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test1() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 * 60 * 60 );

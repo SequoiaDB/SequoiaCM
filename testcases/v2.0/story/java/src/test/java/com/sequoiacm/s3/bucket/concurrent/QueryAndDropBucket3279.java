@@ -2,6 +2,7 @@ package com.sequoiacm.s3.bucket.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -27,7 +28,7 @@ public class QueryAndDropBucket3279 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         GetBucket t1 = new GetBucket();

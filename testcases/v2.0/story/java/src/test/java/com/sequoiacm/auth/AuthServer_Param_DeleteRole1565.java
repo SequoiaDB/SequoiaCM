@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,7 +37,7 @@ public class AuthServer_Param_DeleteRole1565 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testRoleNameInexist() {
         String rolename = "DeleteRole1565";
         try {
@@ -49,7 +50,7 @@ public class AuthServer_Param_DeleteRole1565 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testRoleIsNull() {
         ScmRole role = null;
         try {

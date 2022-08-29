@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +60,7 @@ public class AuthWs_Dir2795 extends TestScmBase {
         prepareUser();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 创建目录
         for ( String dir : dirPaths ) {

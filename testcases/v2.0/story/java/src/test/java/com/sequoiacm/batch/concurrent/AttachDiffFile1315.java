@@ -3,6 +3,7 @@ package com.sequoiacm.batch.concurrent;
 import java.util.List;
 import java.util.Stack;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -63,7 +64,7 @@ public class AttachDiffFile1315 extends TestScmBase {
         batchId = batch.save();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         AttachThread attachThrd = new AttachThread();
         attachThrd.start( threadNum );

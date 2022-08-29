@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +65,7 @@ public class Scmfile936_writeByOutputStream_byOff01 extends TestScmBase {
     }
 
     // 1）off=0,len=文件大小；
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmOutputStream sos = null;
         try {

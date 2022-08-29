@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -50,7 +51,7 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         // testcase1387:delete breakpointfile
         createAndDeleteBreakpointFile();

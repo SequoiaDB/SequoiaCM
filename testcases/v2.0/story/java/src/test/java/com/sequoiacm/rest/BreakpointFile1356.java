@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -70,7 +71,7 @@ public class BreakpointFile1356 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
 
         // 创建空的断点文件

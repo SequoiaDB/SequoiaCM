@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import com.amazonaws.services.s3.model.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +55,7 @@ public class MultipartUpload4452 extends TestScmBase {
         s3Client.putObject( sourceBucketName, sourceKey, new File( filePath ) );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 指定文件范围大于的文件大小
         uploadPartCopy( sourceBucketName, sourceKey, targetBucketName,

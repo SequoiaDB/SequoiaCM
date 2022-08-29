@@ -2,6 +2,7 @@ package com.sequoiacm.auth;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
@@ -53,7 +54,7 @@ public class S3AuthServer3620 extends TestScmBase {
                 { "HmacSHA384" }, { "HmacSHA512" } };
     }
 
-    @Test(dataProvider = "dataProvider")
+    @Test(dataProvider = "dataProvider", groups = { GroupTags.base })
     private void test( String algorithm ) throws Exception {
         // 计算签名
         String prefix = "prefix";

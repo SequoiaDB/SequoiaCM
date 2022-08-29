@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -82,7 +83,7 @@ public class CopyObject3564 extends TestScmBase {
         httpExpiresDate = new Date( timestamp );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCopyObject() throws Exception {
         // put user-defined metadata
         Map< String, String > destObjectMeta = setUserDefinedMetaData();

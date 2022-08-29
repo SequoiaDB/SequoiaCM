@@ -3,6 +3,7 @@ package com.sequoiacm.batch.concurrent;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -61,7 +62,7 @@ public class AttachAndDetach1314 extends TestScmBase {
         batchId = batch.save();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         AttachThread attachThrd = new AttachThread();
         DetachThread detachThrd = new DetachThread();

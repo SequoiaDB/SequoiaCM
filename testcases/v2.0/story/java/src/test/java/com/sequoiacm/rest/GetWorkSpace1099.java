@@ -5,6 +5,7 @@ package com.sequoiacm.rest;
 
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -40,7 +41,7 @@ public class GetWorkSpace1099 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // getwsList(match all)
         String response1 = rest.setApi( "workspaces" )

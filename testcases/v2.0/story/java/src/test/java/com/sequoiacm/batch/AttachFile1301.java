@@ -2,6 +2,7 @@ package com.sequoiacm.batch;
 
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +50,7 @@ public class AttachFile1301 extends TestScmBase {
     }
 
     // TODO: fail for SEQUOIACM-242
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmBatch batchA = ScmFactory.Batch.createInstance( ws );
         batchA.setName( batchName );

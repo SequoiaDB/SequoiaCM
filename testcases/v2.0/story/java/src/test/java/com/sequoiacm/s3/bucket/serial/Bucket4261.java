@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucket.serial;
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class Bucket4261 extends TestScmBase {
         envBuckets.remove( ignoreBuckeName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 指定name忽略ignoreBuckeName，按name降序排序，skip 5，limit 3
         int skip = 5;

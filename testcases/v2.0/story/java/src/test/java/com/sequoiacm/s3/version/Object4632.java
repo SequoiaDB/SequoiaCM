@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -65,7 +66,7 @@ public class EnableDir3133 extends TestScmBase {
         Assert.assertEquals( ws.getBatchShardingType(), ScmShardingType.YEAR );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         createFile();
         queryFile();

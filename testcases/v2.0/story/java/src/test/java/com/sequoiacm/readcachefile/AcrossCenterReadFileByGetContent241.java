@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -71,7 +72,7 @@ public class AcrossCenterReadFileByGetContent241 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net", GroupTags.base })
     public void netTest() throws Exception {
         SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
                 branSites.get( 1 ) };
@@ -83,7 +84,7 @@ public class AcrossCenterReadFileByGetContent241 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base })
     public void starTest() throws Exception {
         SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
                 branSites.get( 1 ), rootSite };

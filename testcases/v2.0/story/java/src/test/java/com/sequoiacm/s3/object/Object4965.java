@@ -13,6 +13,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -56,7 +57,7 @@ public class Object4965 extends TestScmBase {
         s3ClientV4.putObject( bucketName, keyName, file );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 * 10 );

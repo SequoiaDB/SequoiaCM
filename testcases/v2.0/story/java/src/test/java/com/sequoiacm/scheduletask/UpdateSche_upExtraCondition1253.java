@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -86,7 +87,7 @@ public class UpdateSche_upExtraCondition1253 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         try {
             // ready scmFile

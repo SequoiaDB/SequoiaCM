@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.directory;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +46,7 @@ public class IsExistDir2254 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         // directory exist
         ScmFactory.Directory.createInstance( ws, dirBasePath );

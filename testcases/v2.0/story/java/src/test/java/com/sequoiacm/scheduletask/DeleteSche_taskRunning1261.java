@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -95,7 +96,7 @@ public class DeleteSche_taskRunning1261 extends TestScmBase {
         ScmScheduleUtils.isRunningOfSche( ssA, scheduleId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         ScmSystem.Schedule.delete( ssA, scheduleId );
 

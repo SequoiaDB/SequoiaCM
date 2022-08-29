@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ListMultipartUploadsRequest;
 import com.amazonaws.services.s3.model.MultipartUploadListing;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -58,7 +59,7 @@ public class MultipartUpload4386 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     public void test_NotSatisfyPrefix() {
         ListMultipartUploadsRequest request = new ListMultipartUploadsRequest(
                 bucketName ).withPrefix( "notExist" ).withKeyMarker( keys[ 0 ] )

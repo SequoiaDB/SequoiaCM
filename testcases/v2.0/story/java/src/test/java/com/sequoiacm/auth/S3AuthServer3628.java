@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -46,7 +47,7 @@ public class S3AuthServer3628 extends TestScmBase {
         sessionUser = TestScmTools.createSession( site, username, password );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 刷新管理员账户
         ScmAuthUtils.createAdminUser( sessionAdmin, wsp.getName(), username1,

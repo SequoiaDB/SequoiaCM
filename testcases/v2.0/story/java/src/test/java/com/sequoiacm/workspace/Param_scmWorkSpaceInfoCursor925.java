@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.workspace;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +43,7 @@ public class Param_scmWorkSpaceInfoCursor925 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testRepeatClosed() {
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         try {
@@ -55,7 +56,7 @@ public class Param_scmWorkSpaceInfoCursor925 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testCloseAfterCloseSS() {
         ScmSession session = null;
         ScmCursor< ScmWorkspaceInfo > cursor = null;

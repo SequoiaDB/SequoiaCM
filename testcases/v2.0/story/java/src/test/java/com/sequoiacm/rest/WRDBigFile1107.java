@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +76,7 @@ public class WRDBigFile1107 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         writeAndCheck();
         readAndCheck();

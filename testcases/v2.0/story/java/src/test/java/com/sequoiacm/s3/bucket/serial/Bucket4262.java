@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,7 +40,7 @@ public class Bucket4262 extends TestScmBase {
         dropBuckets();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 创建多个桶,统计桶数量
         for ( int i = 0; i < baseBucketNum; i++ ) {

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PartListing;
 import com.amazonaws.services.s3.model.PartSummary;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -57,7 +58,7 @@ public class MultipartUpload4373 extends TestScmBase {
 
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     public void testListParts() {
         List< Integer > expPartNumbersList = Arrays.asList( 1, 2, 3 );
         int maxParts = 3;

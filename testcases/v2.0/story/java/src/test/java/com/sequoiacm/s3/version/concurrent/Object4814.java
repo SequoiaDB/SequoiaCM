@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -46,7 +47,7 @@ public class Object4814 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         for ( int i = 0; i < threadNum; i++ ) {

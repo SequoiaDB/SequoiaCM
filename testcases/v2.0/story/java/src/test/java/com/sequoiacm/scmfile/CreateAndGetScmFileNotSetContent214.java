@@ -2,6 +2,7 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,7 +61,7 @@ public class CreateAndGetScmFileNotSetContent214 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         testCreateScmFileNotSetContent();
         testGetScmFile();

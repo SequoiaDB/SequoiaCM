@@ -8,6 +8,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -54,7 +55,7 @@ public class ScmFile4763 extends TestScmBase {
         S3Utils.createFile( scmBucket, fileName, updatedata, author );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmFile file = scmBucket.getNullVersionFile( fileName );
         int currentVersion = -2;

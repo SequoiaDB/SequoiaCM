@@ -13,6 +13,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -65,11 +66,11 @@ public class Object4877 extends TestScmBase {
         bucket.enableVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         te.addWorker( new DeleteFileThread() );
-        te.addWorker( new PutObjectThread());
+        te.addWorker( new PutObjectThread() );
         te.run();
 
         checkFileList();
@@ -89,34 +90,37 @@ public class Object4877 extends TestScmBase {
                 session.close();
             }
 
-            if (s3Client != null) {
+            if ( s3Client != null ) {
                 s3Client.shutdown();
             }
         }
     }
 
     private void checkFileList() {
-        VersionListing versionListing = s3Client.listVersions(bucketName, null);
-        Assert.assertEquals(versionListing.getVersionSummaries().size(), 2);
-        if ( versionListing.getVersionSummaries().get(0).isDeleteMarker()) {
-            Assert.assertFalse(versionListing.getVersionSummaries().get(1).isDeleteMarker());
+        VersionListing versionListing = s3Client.listVersions( bucketName,
+                null );
+        Assert.assertEquals( versionListing.getVersionSummaries().size(), 2 );
+        if ( versionListing.getVersionSummaries().get( 0 ).isDeleteMarker() ) {
+            Assert.assertFalse( versionListing.getVersionSummaries().get( 1 )
+                    .isDeleteMarker() );
         }
-        if ( ! versionListing.getVersionSummaries().get(0).isDeleteMarker()) {
-            Assert.assertTrue(versionListing.getVersionSummaries().get(1).isDeleteMarker());
+        if ( !versionListing.getVersionSummaries().get( 0 ).isDeleteMarker() ) {
+            Assert.assertTrue( versionListing.getVersionSummaries().get( 1 )
+                    .isDeleteMarker() );
         }
     }
 
     private class DeleteFileThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            ScmSession session= null;
+            ScmSession session = null;
             try {
-                session = TestScmTools.createSession(ScmInfo.getSite());
-                ScmBucket bucket = ScmFactory.Bucket.getBucket(session,
-                        bucketName);
-                bucket.deleteFile(keyName, false);
+                session = TestScmTools.createSession( ScmInfo.getSite() );
+                ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                        bucketName );
+                bucket.deleteFile( keyName, false );
             } finally {
-                if (session != null){
+                if ( session != null ) {
                     session.close();
                 }
             }
@@ -126,7 +130,7 @@ public class Object4877 extends TestScmBase {
     private class PutObjectThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            s3Client.putObject( bucketName, keyName, "content4877");
+            s3Client.putObject( bucketName, keyName, "content4877" );
         }
     }
 }

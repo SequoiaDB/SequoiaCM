@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
@@ -62,7 +63,7 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
         VersionUtils.updateContentByStream( workspace, fileId2, updatedata );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException {
         String valid[] = { "id", "data_id", "data_type", "major_version",
                 "minor_version", "size", "create_month", "data_create_time" };

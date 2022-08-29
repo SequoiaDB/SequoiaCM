@@ -7,6 +7,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +48,7 @@ public class Bucket4213 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException {
         // scm api create buckets
         List< String > bucketList = new ArrayList<>();

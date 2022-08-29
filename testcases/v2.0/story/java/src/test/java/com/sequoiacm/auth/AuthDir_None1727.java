@@ -2,6 +2,7 @@ package com.sequoiacm.auth;
 
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -69,7 +70,7 @@ public class AuthDir_None1727 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testListDir() {
         ScmCursor< ScmDirectory > cursor = null;
         try {
@@ -86,7 +87,7 @@ public class AuthDir_None1727 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testListSche() {
         ScmCursor< ScmScheduleBasicInfo > cursor = null;
         try {

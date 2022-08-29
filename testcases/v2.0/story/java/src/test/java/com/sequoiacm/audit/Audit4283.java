@@ -5,6 +5,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -60,7 +61,7 @@ public class Audit4283 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // s3服务配置S3_OBJECT_DML审计类型
         Map< String, String > confMap = new HashMap<>();

@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListMultipartUploadsRequest;
 import com.amazonaws.services.s3.model.MultipartUploadListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,7 +41,7 @@ public class MultipartUpload4389 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     public void uploadParts() {
         MultiValueMap< String, String > expUpload = initPartUpload();
         // list multipartUploads and check list info.

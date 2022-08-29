@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -48,7 +49,7 @@ public class Object4716 extends TestScmBase {
         }
     }
 
-    @Test // bug:3986
+    @Test(groups = { GroupTags.base }) // bug:3986
     private void test() throws Exception {
         int index = 0;
         String keyMarker = objectNames[ index ];

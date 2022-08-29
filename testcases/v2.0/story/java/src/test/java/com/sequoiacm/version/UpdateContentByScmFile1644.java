@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -67,7 +68,7 @@ public class UpdateContentByScmFile1644 extends TestScmBase {
         fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // test a:scmfile outputStream update Content
         updateContentByAllOutputStream();

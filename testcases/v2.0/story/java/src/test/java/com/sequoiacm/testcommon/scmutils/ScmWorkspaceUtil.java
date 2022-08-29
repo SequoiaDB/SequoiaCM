@@ -3,6 +3,7 @@ package com.sequoiacm.testcommon.scmutils;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.core.*;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -10,11 +11,6 @@ import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
 import com.sequoiacm.client.element.bizconf.ScmCephSwiftDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
@@ -124,7 +120,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
         conf.setBatchShardingType( batchShardingType );
         conf.setBatchIdTimePattern( pattern );
         conf.setBatchFileNameUnique( isFileNameUnique );
-        conf.setEnableDirectory(true);
+        conf.setEnableDirectory( true );
         return createWS( session, conf );
     }
 
@@ -214,15 +210,16 @@ public class ScmWorkspaceUtil extends TestScmBase {
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
         ScmFactory.Role.grantPrivilege( session,
                 superuser.getRoles().iterator().next(), rs, privilege );
-
         for ( int i = 0; i < 6; i++ ) {
             Thread.sleep( 10000 );
             try {
                 ScmFactory.File.listInstance(
                         ScmFactory.Workspace.getWorkspace( wsName, session ),
                         ScopeType.SCOPE_ALL, new BasicBSONObject() );
-                ScmFactory.Fulltext.getIndexInfo(
-                        ScmFactory.Workspace.getWorkspace( wsName, session ) );
+                if ( TestScmBase.isfulltextExists ) {
+                    ScmFactory.Fulltext.getIndexInfo( ScmFactory.Workspace
+                            .getWorkspace( wsName, session ) );
+                }
                 return;
             } catch ( ScmException e ) {
                 Assert.assertEquals( e.getError(),

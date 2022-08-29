@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
@@ -64,7 +65,7 @@ public class UpdateFile4986 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, query );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException, IOException {
         // 上传文件，指定计算md5
         ScmFile file = ScmFactory.File.createInstance( ws );

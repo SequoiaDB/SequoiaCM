@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -69,7 +70,7 @@ public class Object4722 extends TestScmBase {
         s3Client.deleteObject( bucketName, objectNames[ 4 ] );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() {
         String prefix = "dir4722/";
         String delimiter = "/";

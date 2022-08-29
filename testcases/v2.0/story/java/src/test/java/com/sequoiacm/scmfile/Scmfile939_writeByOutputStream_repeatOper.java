@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -83,7 +84,7 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
     /*
      * 1）重复执行commit提交；
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testRepeatCommit() throws Exception {
         ScmOutputStream sos = null;
         try {
@@ -134,7 +135,7 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
     /*
      * 2）重复执行cancel取消；
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testRepeatCancel2() throws Exception {
         ScmOutputStream sos = null;
         try {
@@ -182,7 +183,7 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
     /*
      * 3）执行commit后再次执行cancel;
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testRepeatCancel() throws IOException, InterruptedException {
         ScmOutputStream sos = null;
         try {
@@ -218,7 +219,7 @@ public class Scmfile939_writeByOutputStream_repeatOper extends TestScmBase {
     /*
      * 4）执行cancel后再次执行commit;
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testRepeatCommit2() throws Exception {
         ScmOutputStream sos = null;
         try {

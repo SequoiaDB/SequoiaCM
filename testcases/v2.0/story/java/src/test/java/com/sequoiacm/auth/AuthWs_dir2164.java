@@ -3,6 +3,7 @@ package com.sequoiacm.auth;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -115,7 +116,7 @@ public class AuthWs_dir2164 extends TestScmBase {
         ScmAuthUtils.checkPriority( site, NAME, NAME, role, wsp.getName() );
     }
 
-    @Test // jira-316
+    @Test(groups = { GroupTags.base }) // jira-316
     private void test1() throws Exception {
         // operation business
         ScmSession tSS = null;

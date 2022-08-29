@@ -9,6 +9,7 @@ import java.util.List;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -78,7 +79,7 @@ public class ConcurrentTasks3914 extends TestScmBase {
         fileIdList.add( fileId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new ThreadFileMigration( branchSite1 ) );

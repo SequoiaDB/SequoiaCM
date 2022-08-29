@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -87,7 +88,7 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         try {
             AsyncTransferFromSubCenterB asyncTransferBT = new AsyncTransferFromSubCenterB();

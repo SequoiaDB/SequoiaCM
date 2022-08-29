@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +48,7 @@ public class DefineAttr_Param_Class_GetInstance1898 extends TestScmBase {
        Assert.assertEquals( actClass.getName(),classname );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testWsIsNull() throws ScmException {
         // get
         try {
@@ -70,7 +71,7 @@ public class DefineAttr_Param_Class_GetInstance1898 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testIdOrNameIsNull() throws ScmException {
         // get
         try {

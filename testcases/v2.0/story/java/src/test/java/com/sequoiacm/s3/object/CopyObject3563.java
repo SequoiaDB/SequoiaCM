@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,7 +66,7 @@ public class CopyObject3563 extends TestScmBase {
         s3Client.putObject( request );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCopyObject() throws Exception {
         // test a:setMetadataDirective is null
         copyObjectWithMeta( destKeyNameA, null );

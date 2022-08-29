@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -47,7 +48,7 @@ public class Object4809 extends TestScmBase {
         expETags.add( TestTools.getMD5( content.getBytes() ) );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testUpdateObject() throws Exception {
         List< UpdateObjectThread > updateObjects = new ArrayList<>();
         for ( int i = 0; i < defaultNums; i++ ) {

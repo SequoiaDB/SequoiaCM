@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile.concurrent;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -74,7 +75,7 @@ public class DeleteScmFile289 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         try {
             GetInstance getFileInstance = new GetInstance();

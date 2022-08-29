@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -46,7 +47,7 @@ public class TestGetObjectMetadata3339 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws IOException {
         List< String > expkey = new ArrayList<>();
         List< String > actkey = new ArrayList<>();

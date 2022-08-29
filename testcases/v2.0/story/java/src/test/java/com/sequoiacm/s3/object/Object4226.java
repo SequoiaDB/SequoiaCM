@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -67,7 +68,7 @@ public class Object4226 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException, IOException {
         // s3 create bucket
         s3Client.createBucket( bucketName );

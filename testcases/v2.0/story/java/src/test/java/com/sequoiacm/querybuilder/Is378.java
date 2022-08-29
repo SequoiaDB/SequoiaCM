@@ -3,6 +3,7 @@ package com.sequoiacm.querybuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -71,7 +72,7 @@ public class Is378 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testQueryByExistCond() throws Exception {
         try {
             // build condition

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -58,7 +59,7 @@ public class UploadBreakpointFile1374b extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         createBreakpointFile();
         continuesUploadFile();

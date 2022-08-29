@@ -1,5 +1,6 @@
 package com.sequoiacm.rest;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -35,7 +36,7 @@ public class ListNode1217 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         int siteId = ScmInfo.getSite().getSiteId();
         String response = rest.setRequestMethod( HttpMethod.GET )

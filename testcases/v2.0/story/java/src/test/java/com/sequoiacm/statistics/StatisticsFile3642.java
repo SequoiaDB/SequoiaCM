@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -71,7 +72,7 @@ public class StatisticsFile3642 extends TestScmBase {
         ws3 = ScmFactory.Workspace.getWorkspace( ws3Name, session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 初始环境
         keySet.add( "scm.statistics.types" );

@@ -3,6 +3,7 @@ package com.sequoiacm.batch;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.testng.Assert;
@@ -50,7 +51,7 @@ public class DefineAttr_class1936 extends TestScmBase {
                 session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         String attrStr1 = "{name:'attr1936_string', "
                 + "display_name:'dispalyName1936_1', description:'I am a "

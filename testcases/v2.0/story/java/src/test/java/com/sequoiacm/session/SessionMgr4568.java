@@ -6,6 +6,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +32,7 @@ public class SessionMgr4568 extends TestScmBase {
         sessionMgr = TestScmTools.createSessionMgr( ScmInfo.getRootSite() );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         // 获取认证session
         ScmSession auth_session = sessionMgr

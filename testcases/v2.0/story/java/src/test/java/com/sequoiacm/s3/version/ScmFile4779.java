@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

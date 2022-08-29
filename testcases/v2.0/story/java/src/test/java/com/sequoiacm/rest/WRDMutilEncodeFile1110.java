@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -107,7 +108,7 @@ public class WRDMutilEncodeFile1110 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         for ( int i = 0; i < charset.length; i++ ) {
             writeAndCheck( filePaths[ i ] );

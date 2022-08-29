@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +45,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testChinese() throws Exception {
 
         String name = "模型1 1905";
@@ -78,7 +79,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         ScmFactory.Attribute.deleteInstance( ws, attr.getId() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameWithDollar() throws ScmException {
         // create
         String name = "19$05$$";
@@ -103,7 +104,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNamewithDot() throws ScmException {
         String name = "1905_1..90";
         ScmAttribute attr = null;
@@ -132,7 +133,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameWithDot() {
         // create
         try {
@@ -151,7 +152,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameIsDollar() {
         // create
         try {
@@ -170,7 +171,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameWithBlack() throws ScmException {
         String name = "1905_2 90";
         ScmAttribute attr = null;
@@ -195,7 +196,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameWithDiagonal() throws ScmException {
         String name = "1905_3/90";
         ScmAttribute attr = null;
@@ -220,7 +221,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameIsNull() {
         // create
         try {
@@ -239,7 +240,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testNameIsBlackStr() {
         // create
         try {
@@ -258,7 +259,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testDescIsNull() {
         String name = "1905_3/90";
         // create
@@ -279,7 +280,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
 
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testWsIsNull() {
         String name = "1905_5";
         // create
@@ -300,7 +301,7 @@ public class DefineAttr_Param_Attr_CreateInstance1905 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testConfIsNull() {
         // create
         try {

@@ -1,5 +1,6 @@
 package com.sequoiacm.session.seria;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -56,7 +57,7 @@ public class LoginWhenPasswdNotMd5_530 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         try {
             ScmConfigOption scOpt = new ScmConfigOption(

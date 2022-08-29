@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.object.concurrent;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +32,7 @@ public class DeleteSameObject3384 extends TestScmBase {
         s3Client.putObject( bucketName, keyName, content );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( int i = 0; i < 50; i++ ) {

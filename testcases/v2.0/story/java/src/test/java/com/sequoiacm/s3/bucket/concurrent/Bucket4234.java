@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -49,7 +50,7 @@ public class Bucket4234 extends TestScmBase {
         createBuckets( bucketName, 1, 3 );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         ScmListBuckets t1 = new ScmListBuckets();

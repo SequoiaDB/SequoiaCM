@@ -9,6 +9,7 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -63,7 +64,7 @@ public class Object4875 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateObject() throws Exception {
         int versionNum = 10;
         for ( int i = 0; i < versionNum; i++ ) {

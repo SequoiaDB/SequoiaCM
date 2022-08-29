@@ -1,5 +1,6 @@
 package com.sequoiacm.rest;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -41,7 +42,7 @@ public class AuthServer1487 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 1487 create user
         String response = rest.setServerType( "auth-server" )

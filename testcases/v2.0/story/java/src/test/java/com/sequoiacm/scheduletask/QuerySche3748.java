@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
 import com.sequoiacm.client.element.ScmTaskBasicInfo;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -73,7 +74,7 @@ public class QuerySche3748 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "twoSite", "fourSite", "star" })
+    @Test(groups = { "twoSite", "fourSite", "star", GroupTags.base })
     public void test() throws Exception {
         ScmSchedule copySchedule = createCopySchedule( branchSiteSession,
                 branchSite, rootSite, wsp, queryCond );

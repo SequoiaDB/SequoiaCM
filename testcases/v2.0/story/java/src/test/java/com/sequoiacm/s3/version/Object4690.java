@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -62,7 +63,7 @@ public class Object4690 extends TestScmBase {
         expDeleteMarKerList.add( keyNameList.get( 4 ) );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         VersionListing versionList = s3Client.listVersions(
                 new ListVersionsRequest().withBucketName( bucketName ) );

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -100,7 +101,7 @@ public class AcrossCenterReadFileByStream234 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite", "star" }) // bug:315
+    @Test(groups = { "fourSite", "star", GroupTags.base }) // bug:315
     private void test() throws Exception {
         ScmFile file;
         fileId = ScmFileUtils.create( wsA, fileName, filePath );

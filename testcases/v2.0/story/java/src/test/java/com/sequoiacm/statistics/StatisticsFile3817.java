@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -80,7 +81,7 @@ public class StatisticsFile3817 extends TestScmBase {
         deleteFiles();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 设置统计截止时间
         calendar.set( Calendar.DAY_OF_YEAR,

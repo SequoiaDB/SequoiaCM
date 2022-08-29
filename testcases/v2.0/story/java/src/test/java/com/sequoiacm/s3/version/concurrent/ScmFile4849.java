@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -58,7 +59,7 @@ public class ScmFile4849 extends TestScmBase {
         S3Utils.createFile( scmBucket, fileName, updatePath );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateObject() throws Exception {
         String updateTitle = "updateTitle4859";
         String updateAuthor = "updateAuthor4859";

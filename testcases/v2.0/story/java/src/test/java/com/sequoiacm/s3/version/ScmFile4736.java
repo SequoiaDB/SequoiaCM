@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -63,7 +64,7 @@ public class ScmFile4736 extends TestScmBase {
         ScmFactory.Bucket.createBucket( ws, bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
         createScmFile( bucket, filePath, user_meta_value1 );

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -77,7 +78,7 @@ public class CopyObject3568 extends TestScmBase {
     }
 
     // a.setMetadataDirective is "COPY", object A copy to object B
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_A() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName, keyNameA,
                 bucketName, keyNameB );
@@ -89,7 +90,7 @@ public class CopyObject3568 extends TestScmBase {
     }
 
     // b.setMetadataDirective is "REPLACE", object A copy to object B
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_B() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName, keyNameA,
                 bucketName, keyNameB );
@@ -101,7 +102,7 @@ public class CopyObject3568 extends TestScmBase {
     }
 
     // c.setMetadataDirective is "COPY", srcObj and dstObj are objB
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_C() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName, keyNameB,
                 bucketName, keyNameB );
@@ -119,7 +120,7 @@ public class CopyObject3568 extends TestScmBase {
 
     // d.setMetadataDirective is "REPLACE", srcObj and dstObj are objB, and not
     // set metadata
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_D() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName, keyNameB,
                 bucketName, keyNameB );

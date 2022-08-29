@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.workspace.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -37,7 +38,7 @@ public class CreateWorkspace1818 extends TestScmBase {
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
-    @Test(groups = { "one", "twoSite", "fourSite" })
+    @Test
     private void test() throws ScmException, InterruptedException {
         int siteNum = ScmInfo.getSiteNum();
         ScmWorkspaceUtil.createWS( session, wsName, siteNum );

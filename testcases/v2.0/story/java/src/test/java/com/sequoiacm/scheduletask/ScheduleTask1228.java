@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmScheduleBasicInfo;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
@@ -68,7 +69,7 @@ public class ScheduleTask1228 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         // 主站点创建文件
         ScmFileUtils.create( rootSiteWs, filename, filePath );

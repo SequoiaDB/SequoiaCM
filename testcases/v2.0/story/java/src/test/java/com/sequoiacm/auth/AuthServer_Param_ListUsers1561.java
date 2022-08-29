@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -29,7 +30,7 @@ public class AuthServer_Param_ListUsers1561 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testSessionInexist1() {
         ScmSession session = null;
         try {
@@ -45,7 +46,7 @@ public class AuthServer_Param_ListUsers1561 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testSessionInexist2() {
         ScmSession session = null;
         try {

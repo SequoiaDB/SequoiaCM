@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -60,7 +61,7 @@ public class StatisticsFileTraffic2235 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // get file_delta before create file
         HashMap< String, Long > firstmap = StatisticsUtils

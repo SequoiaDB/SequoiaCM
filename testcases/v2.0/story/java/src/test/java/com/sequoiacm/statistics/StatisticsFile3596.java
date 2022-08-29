@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -70,7 +71,7 @@ public class StatisticsFile3596 extends TestScmBase {
         StatisticsUtils.waitStatisticalInfoCount( fileNum );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         calendar.set( Calendar.DAY_OF_YEAR,
                 calendar.get( Calendar.DAY_OF_YEAR ) + 1 );

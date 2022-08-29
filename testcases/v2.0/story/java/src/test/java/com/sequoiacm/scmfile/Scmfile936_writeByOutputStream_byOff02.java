@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -71,7 +72,7 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
     /*
      * 2）off<文件大小,len<文件大小-off；
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testOffLtFileSize01() throws Exception {
         int off = fileSize / 2;
         int len = ( fileSize - off ) - 1;

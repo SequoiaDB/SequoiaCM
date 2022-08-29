@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -48,7 +49,7 @@ public class MultipartUpload4359 extends TestScmBase {
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void abortMultipartUpload() throws Exception {
         File file = new File( filePath );
         String uploadId = PartUploadUtils.initPartUpload( s3Client, bucketName,

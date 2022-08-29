@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -75,7 +76,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
                 session );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
         // 主站点在ws1和ws2下创建文件
         List< ScmId > filelist1 = createFile( rootSiteWs1, 0, taskNum / 2 );

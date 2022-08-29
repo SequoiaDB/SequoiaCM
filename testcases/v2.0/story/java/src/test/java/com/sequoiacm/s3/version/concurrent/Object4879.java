@@ -9,6 +9,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -69,11 +70,11 @@ public class Object4879 extends TestScmBase {
         S3Utils.createFile( bucket, keyName, filePath );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         te.addWorker( new CreateFileThread() );
-        te.addWorker( new DeleteVersionThread());
+        te.addWorker( new DeleteVersionThread() );
         te.run();
 
         checkFileList();
@@ -93,33 +94,40 @@ public class Object4879 extends TestScmBase {
                 session.close();
             }
 
-            if (s3Client != null) {
+            if ( s3Client != null ) {
                 s3Client.shutdown();
             }
         }
     }
 
     private void checkFileList() {
-        VersionListing versionListing = s3Client.listVersions(bucketName, null);
-        Assert.assertEquals(versionListing.getVersionSummaries().size(), 3);
-        Assert.assertEquals(versionListing.getVersionSummaries().get(0).getVersionId(), "4.0");
-        Assert.assertEquals(versionListing.getVersionSummaries().get(1).getVersionId(), "3.0");
-        Assert.assertEquals(versionListing.getVersionSummaries().get(2).getVersionId(), "2.0");
+        VersionListing versionListing = s3Client.listVersions( bucketName,
+                null );
+        Assert.assertEquals( versionListing.getVersionSummaries().size(), 3 );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 0 ).getVersionId(),
+                "4.0" );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 1 ).getVersionId(),
+                "3.0" );
+        Assert.assertEquals(
+                versionListing.getVersionSummaries().get( 2 ).getVersionId(),
+                "2.0" );
     }
 
     private class CreateFileThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            ScmBucket bucket = ScmFactory.Bucket.getBucket(session,
-                        bucketName);
-            S3Utils.createFile(bucket, keyName, updatePath);
+            ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
+                    bucketName );
+            S3Utils.createFile( bucket, keyName, updatePath );
         }
     }
 
     private class DeleteVersionThread extends ResultStore {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
-            s3Client.deleteVersion( bucketName, keyName, "1.0");
+            s3Client.deleteVersion( bucketName, keyName, "1.0" );
         }
     }
 }

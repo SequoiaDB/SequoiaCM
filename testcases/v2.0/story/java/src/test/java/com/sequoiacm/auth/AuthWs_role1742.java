@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -76,7 +77,7 @@ public class AuthWs_role1742 extends TestScmBase {
         this.createUserAndRole();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException, InterruptedException {
         ScmResource resource = ScmResourceFactory
                 .createDirectoryResource( wsp.getName(), DIR_PATH );

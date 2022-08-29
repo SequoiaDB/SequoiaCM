@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -63,7 +64,7 @@ public class ListObject3382 extends TestScmBase {
         expresultList3.add( "dir/" );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testGetObjectList() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         threadExec.addWorker( new ListObject() );

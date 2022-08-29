@@ -3,6 +3,7 @@ package com.sequoiacm.auth;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -111,7 +112,7 @@ public class AuthWs_dir1732 extends TestScmBase {
         this.createUserAndRole();
     }
 
-    @Test() // jira-316
+    @Test(groups = { GroupTags.base }) // jira-316
     private void test() throws Exception {
         ScmFactory.Role.grantPrivilege( session, role, resources.get( 0 ),
                 ScmPrivilegeType.CREATE );

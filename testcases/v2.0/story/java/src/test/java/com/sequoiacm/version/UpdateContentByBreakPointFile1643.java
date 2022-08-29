@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -67,7 +68,7 @@ public class UpdateContentByBreakPointFile1643 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
         updateContentByBreakPointFile();

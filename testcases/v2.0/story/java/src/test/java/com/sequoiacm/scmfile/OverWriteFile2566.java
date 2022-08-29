@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -88,7 +89,7 @@ public class OverWriteFile2566 extends TestScmBase {
         prepareFile();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // create breakpointFile
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

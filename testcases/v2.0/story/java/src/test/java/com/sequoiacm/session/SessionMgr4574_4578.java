@@ -6,6 +6,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +46,7 @@ public class SessionMgr4574_4578 extends TestScmBase {
                 .get();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         try {
             sessionPoolConf.setMaxConnections( -1 );

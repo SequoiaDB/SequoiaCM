@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -49,7 +50,7 @@ public class ScmFile4786 extends TestScmBase {
         S3Utils.createFile( scmBucket, fileName, filedata );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmFile file = scmBucket.getFile( fileName );
         file.delete( true );

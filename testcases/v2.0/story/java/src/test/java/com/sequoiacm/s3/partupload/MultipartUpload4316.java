@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -67,8 +68,7 @@ public class MultipartUpload4316 extends TestScmBase {
         s3Client.createBucket( new CreateBucketRequest( bucketName ) );
     }
 
-    @Test(groups = { "oneSite", "twoSite",
-            "fourSite" }, dataProvider = "fileSizeProvider")
+    @Test(groups = { GroupTags.base }, dataProvider = "fileSizeProvider")
     public void uploadParts( int fileSize, long firstPartSize,
             long eachPartSize ) throws Exception {
         String filePath = createFile( fileSize );

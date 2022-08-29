@@ -7,6 +7,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -60,7 +61,7 @@ public class ScmFile4841 extends TestScmBase {
         S3Utils.createFile( bucket, keyName, filePath );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         for ( int i = 0; i < versionNum; i++ ) {

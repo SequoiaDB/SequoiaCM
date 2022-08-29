@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -72,7 +73,7 @@ public class CopyObject3572 extends TestScmBase {
     }
 
     // a.versionId is history version, but appoint eTag is current version eTag
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_A() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName,
                 srcKeyName, bucketName, dstKeyName );
@@ -85,7 +86,7 @@ public class CopyObject3572 extends TestScmBase {
     }
 
     // b.appoint eTag is history version eTag
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_B() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName,
                 srcKeyName, bucketName, dstKeyName );
@@ -98,7 +99,7 @@ public class CopyObject3572 extends TestScmBase {
     }
 
     // c.appoint eTag is current version eTag
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_C() throws Exception {
         CopyObjectRequest request = new CopyObjectRequest( bucketName,
                 srcKeyName, bucketName, dstKeyName );

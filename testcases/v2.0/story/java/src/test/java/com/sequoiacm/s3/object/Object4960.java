@@ -3,6 +3,7 @@ package com.sequoiacm.s3.object;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -53,7 +54,7 @@ public class Object4960 extends TestScmBase {
 
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 生成删除当前版本的deleteObjectsRequest
         DeleteObjectsRequest deleteRequest = getDeleteRequest( null );

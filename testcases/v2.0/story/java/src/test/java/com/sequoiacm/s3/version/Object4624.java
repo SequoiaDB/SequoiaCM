@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class Object4624 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateObject() throws Exception {
         s3Client.putObject( bucketName, keyName, new File( filePath ) );
         updateObjectWithSameContent();

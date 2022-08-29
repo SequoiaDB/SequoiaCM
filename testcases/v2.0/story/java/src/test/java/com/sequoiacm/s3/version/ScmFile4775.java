@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -58,7 +59,7 @@ public class ScmFile4775 extends TestScmBase {
         scmBucket.suspendVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         int currentVersion = 3;
         scmBucket.deleteFileVersion( fileName, currentVersion, 0 );

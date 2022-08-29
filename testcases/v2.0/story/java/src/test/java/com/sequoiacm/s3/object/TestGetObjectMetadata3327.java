@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +48,7 @@ public class TestGetObjectMetadata3327 extends TestScmBase {
         eTag = result.getETag();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testGetObjectMetadata() throws Exception {
         cal.set( Calendar.YEAR, 2020 );
         Date date1 = cal.getTime();

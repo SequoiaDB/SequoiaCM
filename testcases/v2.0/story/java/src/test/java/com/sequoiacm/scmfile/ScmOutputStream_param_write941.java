@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,7 +61,7 @@ public class ScmOutputStream_param_write941 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testByteIsNull() throws Exception {
         ScmOutputStream sos = null;
         try {
@@ -77,7 +78,7 @@ public class ScmOutputStream_param_write941 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testOffLtZero() throws Exception {
         ScmOutputStream sos = null;
         try {
@@ -94,7 +95,7 @@ public class ScmOutputStream_param_write941 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testLenLtZero() throws Exception {
         ScmOutputStream sos = null;
         try {

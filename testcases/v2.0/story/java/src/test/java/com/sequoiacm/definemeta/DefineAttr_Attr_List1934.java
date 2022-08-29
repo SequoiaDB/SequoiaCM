@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -58,7 +59,7 @@ public class DefineAttr_Attr_List1934 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() {
         try {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),

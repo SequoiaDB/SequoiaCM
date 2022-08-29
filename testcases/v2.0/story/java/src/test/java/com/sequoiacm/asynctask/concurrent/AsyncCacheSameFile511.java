@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,7 +85,7 @@ public class AsyncCacheSameFile511 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         CacheFromSubCenterA cacheThread = new CacheFromSubCenterA();
         cacheThread.start( 100 );

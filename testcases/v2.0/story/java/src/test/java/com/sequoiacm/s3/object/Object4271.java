@@ -8,6 +8,7 @@ import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
@@ -63,7 +64,7 @@ public class Object4271 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         s3Client.createBucket( new CreateBucketRequest( bucketName, wsName ) );
         s3Client.putObject( bucketName, key, new File( filePath ) );

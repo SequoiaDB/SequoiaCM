@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

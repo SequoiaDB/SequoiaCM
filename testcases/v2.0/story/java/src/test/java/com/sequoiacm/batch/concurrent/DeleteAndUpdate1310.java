@@ -1,5 +1,6 @@
 package com.sequoiacm.batch.concurrent;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +48,7 @@ public class DeleteAndUpdate1310 extends TestScmBase {
         batchId = batch.save();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         UpdateThread updateThrd = new UpdateThread();
         DeleteThread deleteThrd = new DeleteThread();

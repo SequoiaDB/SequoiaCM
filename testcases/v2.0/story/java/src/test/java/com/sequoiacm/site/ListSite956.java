@@ -6,6 +6,7 @@ package com.sequoiacm.site;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class ListSite956 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testListSite() throws ScmException {
         listSiteByScm();
         listSiteByDB();

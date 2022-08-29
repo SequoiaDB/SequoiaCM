@@ -9,6 +9,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -74,7 +75,7 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
         scmBucket.deleteFile( fileName3, false );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // test4829:指定当前版本列取文件(匹配author条件)
         List< String > expectFileNames = new LinkedList< String >();

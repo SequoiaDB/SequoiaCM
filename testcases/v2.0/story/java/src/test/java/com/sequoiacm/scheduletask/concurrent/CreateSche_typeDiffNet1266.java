@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -107,7 +108,7 @@ public class CreateSche_typeDiffNet1266 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite", "net" })
+    @Test(groups = { "twoSite", "fourSite", "net", GroupTags.base })
     private void test() {
         try {
             CreateCopeSche copeSche = new CreateCopeSche( wss.get( 0 ) );

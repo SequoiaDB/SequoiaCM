@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -118,7 +119,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
                         ( int ) Math.ceil( expTotalNum / 10 ), expTotalNum } };
     }
 
-    @Test(dataProvider = "dataProvider")
+    @Test(groups = { GroupTags.base }, dataProvider = "dataProvider")
     private void test( BSONObject orderby, long skip, long limit,
             List< ScmWorkspaceInfo > wsList, int expPageSize,
             double expTotalNum ) throws Exception {
@@ -168,7 +169,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testInvalid() throws Exception {
         try {
             ScmFactory.Workspace.listWorkspace( session, new BasicBSONObject(),
@@ -191,7 +192,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
         actSuccessTestCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testInvalidSession() throws Exception {
         try {
             ScmFactory.Workspace.listWorkspace( null, new BasicBSONObject(), -1,

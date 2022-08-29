@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -67,7 +68,7 @@ public class StatisticsFileTraffic2236 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         List< CreateAndReadFile > createAndReadFiles = new ArrayList<>( 20 );
         RefreshAndStatistics refreshAndStatistics = new RefreshAndStatistics();

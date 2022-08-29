@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,7 +66,7 @@ public class CopyObject3574 extends TestScmBase {
         lastModifiedTime = lastModifiedDate.getTime();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCopyObject() throws Exception {
         // test c:the currentVersion of sourceObject has not been modified after
         // the date

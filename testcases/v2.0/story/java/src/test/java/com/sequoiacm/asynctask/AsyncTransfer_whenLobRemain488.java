@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -78,7 +79,7 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
         prepareFiles( sessionA );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         // remain LOB
         TestSdbTools.Lob.putLob( rootSite, ws_T, fileId, filePath );

@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,7 +60,7 @@ public class ScmFile4789 extends TestScmBase {
         VersionUtils.updateContentByStream( ws, fileId, filedata );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // test a：删除当前版本文件
         int currentVersion = 3;

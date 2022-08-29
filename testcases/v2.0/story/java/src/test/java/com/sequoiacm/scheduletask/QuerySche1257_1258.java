@@ -3,6 +3,7 @@ package com.sequoiacm.scheduletask;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -83,7 +84,7 @@ public class QuerySche1257_1258 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test_baseCase() throws Exception {
         ScmCursor< ScmScheduleBasicInfo > cursor = null;
         try {
@@ -113,7 +114,7 @@ public class QuerySche1257_1258 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test_coverAllTaskAttr() throws Exception {
         ScmCursor< ScmScheduleBasicInfo > cursor = null;
         try {
@@ -160,7 +161,7 @@ public class QuerySche1257_1258 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test_returnEmpty() throws Exception {
         BSONObject cond = ScmQueryBuilder.start( "name" ).is( "123" ).get();
         ScmCursor< ScmScheduleBasicInfo > cursor = ScmSystem.Schedule.list( ssA,

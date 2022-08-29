@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class Object5024 extends TestScmBase {
                 BucketVersioningConfiguration.ENABLED );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException, IOException {
         s3Client.putObject( bucketName, objectKey, "test" );
         fileId = S3Utils.queryS3Object( ws, objectKey );

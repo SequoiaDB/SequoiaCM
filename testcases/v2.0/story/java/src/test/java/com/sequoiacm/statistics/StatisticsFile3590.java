@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -80,7 +81,7 @@ public class StatisticsFile3590 extends TestScmBase {
         StatisticsUtils.waitStatisticalInfoCount( fileNum * 2 );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         calendar.set( Calendar.DAY_OF_YEAR,
                 calendar.get( Calendar.DAY_OF_YEAR ) - 1 );

@@ -3,6 +3,7 @@ package com.sequoiacm.rest;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
@@ -63,7 +64,7 @@ public class BreakpointFile1392 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         try {
             BreakpointUtil.createBreakpointFile( ws, filePath, fileName,

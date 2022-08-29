@@ -8,6 +8,7 @@ import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -67,7 +68,7 @@ public class Object4243 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // scm create file
         ScmFile file = createScmFile();

@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
@@ -45,7 +46,7 @@ public class S3AuthServer3626 extends TestScmBase {
                 null );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 计算签名
         String prefix = "prefix";

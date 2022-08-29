@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -84,7 +85,7 @@ public class AsyncTransfer_whenAMExistFile486 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         try {
             ScmFactory.File.asyncTransfer( wsA, fileId,

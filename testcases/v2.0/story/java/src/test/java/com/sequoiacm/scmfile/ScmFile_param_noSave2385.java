@@ -1,5 +1,6 @@
 package com.sequoiacm.scmfile;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class ScmFile_param_noSave2385 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws ScmException {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 session );

@@ -1,5 +1,6 @@
 package com.sequoiacm.session.seria;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +42,7 @@ public class NotAuthLogin318 extends TestScmBase {
         wsp = ScmInfo.getWs();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         ScmSession session = null;
         try {

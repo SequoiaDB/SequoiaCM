@@ -1,5 +1,6 @@
 package com.sequoiacm.rest;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -38,7 +39,7 @@ public class AuthServer2178 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // create user
         rest.setServerType( "auth-server" ).setRequestMethod( HttpMethod.POST )

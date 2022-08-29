@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -51,7 +52,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // a、字母数字字符[0-9a-zA-Z]
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testNormal() throws Exception {
         String delimiter = objectNames[ 5 ];
         VersionListing vsList = s3Client.listVersions( new ListVersionsRequest()

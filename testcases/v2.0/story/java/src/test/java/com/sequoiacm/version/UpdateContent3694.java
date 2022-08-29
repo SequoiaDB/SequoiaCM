@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -49,7 +50,7 @@ public class UpdateContent3694 extends TestScmBase {
                 .getWorkspace( ScmInfo.getWs().getName(), session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException {
         try {
             ScmFile f = ScmFactory.File.createInstance( workspace );

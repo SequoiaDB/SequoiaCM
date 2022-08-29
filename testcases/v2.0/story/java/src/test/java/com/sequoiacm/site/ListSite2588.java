@@ -2,6 +2,7 @@ package com.sequoiacm.site;
 
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +31,7 @@ public class ListSite2588 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testListNodes() throws Exception {
         List< SiteWrapper > siteWrappers = ScmInfo.getAllSites();
         ScmSession session = null;
@@ -53,7 +54,7 @@ public class ListSite2588 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSessionIsNull() throws Exception {
         try {
             ScmSystem.ServiceCenter.getSiteList( null );
@@ -65,7 +66,7 @@ public class ListSite2588 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSessionIsClosed() throws Exception {
         ScmSession session = TestScmTools.createSession( site );
         session.close();

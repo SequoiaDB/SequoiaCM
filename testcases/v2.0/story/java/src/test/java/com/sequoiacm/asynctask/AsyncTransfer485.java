@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -78,7 +79,7 @@ public class AsyncTransfer485 extends TestScmBase {
         fileIds.add( fileId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         // 主站点迁移到分站点
         ScmFactory.File.asyncTransfer( rootSiteWs, fileId,

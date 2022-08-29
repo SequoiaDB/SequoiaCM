@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +54,7 @@ public class DefineAttr_Param_Attr_DeleteInstance1908 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testWsIsNull() {
         // create
         try {
@@ -67,7 +68,7 @@ public class DefineAttr_Param_Attr_DeleteInstance1908 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testFileterIsNull() {
         // create
         try {

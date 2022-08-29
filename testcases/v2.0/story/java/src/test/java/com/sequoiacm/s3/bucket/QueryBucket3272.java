@@ -2,6 +2,7 @@ package com.sequoiacm.s3.bucket;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

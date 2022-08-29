@@ -3,6 +3,7 @@ package com.sequoiacm.s3.object;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +53,7 @@ public class HeadObject3313 extends TestScmBase {
 
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateBucket() throws IOException {
         s3Client.putObject( bucketName, key, new File( filePath1 ) );
         GetObjectMetadataRequest request = new GetObjectMetadataRequest(

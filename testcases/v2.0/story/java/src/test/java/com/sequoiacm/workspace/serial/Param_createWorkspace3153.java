@@ -1,5 +1,6 @@
 package com.sequoiacm.workspace.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class Param_createWorkspace3153 extends TestScmBase {
         session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test1() throws ScmException, InterruptedException {
         String wsName = "3153 !@#$()_test";
         ScmWorkspaceConf conf = new ScmWorkspaceConf();
@@ -58,7 +59,7 @@ public class Param_createWorkspace3153 extends TestScmBase {
         ScmFactory.Workspace.deleteWorkspace( session, wsName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test2() throws ScmException {
         ScmWorkspaceConf conf = new ScmWorkspaceConf();
         conf.setDataLocations(

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -52,7 +53,7 @@ public class Object4683 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
     }
 
-    @Test(dataProvider = "removeProvider")
+    @Test(groups = { GroupTags.base }, dataProvider = "removeProvider")
     public void testGetObjectList( int remove_index ) {
         for ( int i = 1; i <= deleteVersionNum; i++ ) {
             s3Client.deleteObject( bucketName, keyName );
@@ -83,7 +84,7 @@ public class Object4683 extends TestScmBase {
     private void tearDown() {
         try {
             if ( actSuccessTests.get() == generateRemoveIndex().length ) {
-                S3Utils.clearBucket( s3Client, bucketName);
+                S3Utils.clearBucket( s3Client, bucketName );
             }
         } finally {
             if ( s3Client != null ) {

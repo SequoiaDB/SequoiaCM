@@ -61,6 +61,8 @@ public class TestScmBase {
     protected static String zone2;
     protected static String defaultRegion;
 
+    protected static boolean isfulltextExists = false;
+
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
             "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
@@ -137,6 +139,7 @@ public class TestScmBase {
             ScmInfo.refresh( session );
             serviceList = ScmSystem.ServiceCenter.getServiceList( session );
             if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
+                isfulltextExists = true;
                 List< String > wsNames = prepareWs( session );
                 List< WsWrapper > wsps = ScmInfo.getWsList( session );
                 for ( WsWrapper wsp : wsps ) {

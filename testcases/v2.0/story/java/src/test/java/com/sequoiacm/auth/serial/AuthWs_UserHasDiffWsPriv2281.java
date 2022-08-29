@@ -1,5 +1,6 @@
 package com.sequoiacm.auth.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,7 +78,7 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.base })
     private void testCreateDirInWs1() {
         ScmSession session = null;
         try {

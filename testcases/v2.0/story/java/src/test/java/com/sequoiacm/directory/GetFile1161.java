@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -88,7 +89,7 @@ public class GetFile1161 extends TestScmBase {
     }
 
     // bug:251
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testSubFile() throws Exception {
         try {
             ScmDirectory rootDir = ScmFactory.Directory.getInstance( ws, "/" );

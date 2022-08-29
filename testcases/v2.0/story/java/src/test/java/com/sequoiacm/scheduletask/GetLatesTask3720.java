@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -85,7 +86,7 @@ public class GetLatesTask3720 extends TestScmBase {
         fileIds.add( scmId );
     }
 
-    @Test(groups = { "twoSite", "fourSite", "star" })
+    @Test(groups = { "twoSite", "fourSite", "star", GroupTags.base })
     public void test() throws Exception {
         ScmSchedule copySchedule = ScmScheduleUtils.createCopySchedule(
                 branchSiteSession, branchSite, rootSite, wsp, queryCond, region,

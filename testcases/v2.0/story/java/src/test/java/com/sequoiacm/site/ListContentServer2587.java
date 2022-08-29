@@ -3,6 +3,7 @@ package com.sequoiacm.site;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +34,7 @@ public class ListContentServer2587 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testListNodes() throws Exception {
         List< NodeWrapper > nodes = ScmInfo.getAllNodes();
         List< Integer > ports = new ArrayList<>();
@@ -67,7 +68,7 @@ public class ListContentServer2587 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSessionIsNull() throws Exception {
         try {
             ScmSystem.ServiceCenter.getContentServerInstanceList( null );
@@ -79,7 +80,7 @@ public class ListContentServer2587 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSessionIsClosed() throws Exception {
         ScmSession session = TestScmTools.createSession( site );
         session.close();

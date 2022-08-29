@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class GetObject3298 extends TestScmBase {
         s3Client.createBucket( bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         s3Client.putObject( bucketName, objectName, new File( filePath ) );
         s3Client.putObject( bucketName, objectName, new File( updatePath ) );

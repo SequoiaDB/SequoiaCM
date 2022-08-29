@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -110,7 +111,7 @@ public class ListFileInPaDir2592 extends TestScmBase {
                         typeAtr2 } };
     }
 
-    @Test(dataProvider = "dataProvider")
+    @Test(dataProvider = "dataProvider", groups = { GroupTags.base })
     private void test( BSONObject filter, BSONObject orderby, int skip,
             int limit, List< ScmFileBasicInfo > list, String[] sortnameArr,
             boolean[] typeArr ) throws Exception {

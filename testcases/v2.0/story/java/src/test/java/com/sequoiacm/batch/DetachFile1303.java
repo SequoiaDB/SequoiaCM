@@ -2,6 +2,7 @@ package com.sequoiacm.batch;
 
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +52,7 @@ public class DetachFile1303 extends TestScmBase {
         batch.attachFile( fileId );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         batch.detachFile( fileId );

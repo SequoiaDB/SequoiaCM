@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -41,7 +42,7 @@ public class DefineAttr_Param_Attr_ListInstance1907 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testWsIsNull() {
         // create
         try {
@@ -55,7 +56,7 @@ public class DefineAttr_Param_Attr_ListInstance1907 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testFileterIsNull() {
         // create
         try {

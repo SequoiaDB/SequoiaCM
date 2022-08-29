@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -93,7 +94,7 @@ public class Transfer_runningTaskAndReadFileA430 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() {
         try {
             StartTaskFromSubCenterA startTask = new StartTaskFromSubCenterA();

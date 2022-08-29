@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.version;
 
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -51,7 +52,7 @@ public class ScmFile4772A extends TestScmBase {
         scmBucket.deleteFile( fileName, false );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         int currentVersion = 4;
         scmBucket.deleteFileVersion( fileName, currentVersion, 0 );

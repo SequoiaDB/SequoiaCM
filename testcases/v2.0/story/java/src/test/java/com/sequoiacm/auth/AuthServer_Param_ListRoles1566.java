@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class AuthServer_Param_ListRoles1566 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testSSIsNull() throws ScmException {
         try {
             ScmFactory.Role.listRoles( null );
@@ -48,7 +49,7 @@ public class AuthServer_Param_ListRoles1566 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testSSIsClosed() throws ScmException {
         try {
             session.close();

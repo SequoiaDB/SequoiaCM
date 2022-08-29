@@ -3,6 +3,7 @@ package com.sequoiacm.s3.version;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -55,7 +56,7 @@ public class ScmFile4738 extends TestScmBase {
         bucket.suspendVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
 

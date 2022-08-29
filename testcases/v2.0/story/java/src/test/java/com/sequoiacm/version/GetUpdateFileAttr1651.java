@@ -1,6 +1,7 @@
 package com.sequoiacm.version;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -50,7 +51,7 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // write /update the file
         fileId = VersionUtils.createFileByStream( ws, fileName, writeData );

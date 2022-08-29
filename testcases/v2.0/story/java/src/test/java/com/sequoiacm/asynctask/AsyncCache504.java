@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +75,7 @@ public class AsyncCache504 extends TestScmBase {
         fileId = ScmFileUtils.create( wsM, fileName, filePath );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
         // check result

@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.partupload;
 
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -60,7 +61,7 @@ public class MultipartUpload4450 extends TestScmBase {
                 .getObjectMetadata().getContentLength();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 存在等于指定md5的文件
         uploadPartCopy( sourceBucketName, sourceKey, targetBucketName,

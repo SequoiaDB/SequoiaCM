@@ -3,6 +3,7 @@ package com.sequoiacm.batch;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +39,7 @@ public class ListBatch2108 extends TestScmBase {
                 session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         List< ScmCursor< ScmBatchInfo > > list = new ArrayList< ScmCursor< ScmBatchInfo > >();
         for ( int i = 0; i < 10; i++ ) {

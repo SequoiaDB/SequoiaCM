@@ -2,6 +2,7 @@ package com.sequoiacm.auth.concurrent;
 
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,7 +60,7 @@ public class AuthServer_user1554 extends TestScmBase {
         ScmFactory.Role.createRole( session, NAME, "" );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         Random random = new Random();
 

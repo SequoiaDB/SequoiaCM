@@ -13,6 +13,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -38,7 +39,7 @@ public class QueryBucket3273 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         HeadBucketRequest request = new HeadBucketRequest( bucketName );
         // 创建查询

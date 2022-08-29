@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -81,7 +82,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         readFileFromSubCenter( branceSites.get( 1 ) );
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base  })
     private void starTest() throws Exception {
         StartTaskFromSubCenterA( branceSites.get( 1 ) );
         ScmTaskUtils.waitTaskFinish( session, taskId );
@@ -93,7 +94,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net", GroupTags.base  })
     private void netTest() throws Exception {
         StartTaskFromSubCenterA( branceSites.get( 1 ) );
         ScmTaskUtils.waitTaskFinish( session, taskId );

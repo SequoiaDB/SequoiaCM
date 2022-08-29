@@ -5,6 +5,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -60,7 +61,7 @@ public class Object4255_4256 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 创建桶，创建多个文件
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -86,7 +87,7 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
         this.writeFile();
     }
 
-    @Test(groups = { "twoSite", "fourSite", "net" })
+    @Test(groups = { "twoSite", "fourSite", "net", GroupTags.base })
     private void test() throws Exception {
         asyncCache();
         startTransferTask();

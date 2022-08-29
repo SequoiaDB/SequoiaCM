@@ -3,6 +3,7 @@ package com.sequoiacm.s3.object;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +52,7 @@ public class CopyObject3571 extends TestScmBase {
         s3Client.putObject( bucketName, otherKeyName, otherKeyContent );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCopyObject() throws Exception {
         // test b: set Etag no match the etag of srcObject
         copyObjectWithNoMatchEtag();

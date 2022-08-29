@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.util.Date;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +75,7 @@ public class GetScmFileAttriByFieldId131 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testGetScmFileAllAttriByFieldID() {
         try {
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );

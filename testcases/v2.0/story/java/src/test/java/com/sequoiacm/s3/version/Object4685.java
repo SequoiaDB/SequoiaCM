@@ -3,6 +3,7 @@ package com.sequoiacm.s3.version;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,7 +38,7 @@ public class Object4685 extends TestScmBase {
         s3Client.putObject( bucketName, keyName, fileContent );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testGetObjectList() throws Exception {
         PutObjectResult result = null;
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );

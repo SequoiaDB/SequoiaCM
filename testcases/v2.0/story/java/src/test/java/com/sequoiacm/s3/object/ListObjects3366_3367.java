@@ -3,6 +3,7 @@ package com.sequoiacm.s3.object;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +41,7 @@ public class ListObjects3366_3367 extends TestScmBase {
         putObjects();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testListObjects() {
         // test 3366: no match prefix
         String marker = "dir/";

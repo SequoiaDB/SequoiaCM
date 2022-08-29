@@ -6,43 +6,33 @@
     <parameter name="DATADIR" value="/tmp/ci_cm"/>
     <parameter name="NTPSERVER" value="192.168.20.200"/>
     <parameter name="LOCALHOSTNAME" value="localhost"/>
-
     <parameter name="SSHUSER" value="root"/>
     <parameter name="SSHPASSWD" value="jenkins"/>
-
+    <!--  元数据服务SDB  -->
     <parameter name="MAINSDBURL" value="mainSiteHostName:11810"/>
     <parameter name="SDBUSER" value="sdbadmin"/>
     <parameter name="SDBPASSWD" value="sequoiadb"/>
-
-    <!-- 需要屏蔽的独有用例类型，网状模型下指定star，星状模型下指定net -->
-    <parameter name="IGNORE" value="${IGNORE}"/>
+    <!--  SCM配置  -->
+    <parameter name="SITES" value="XXXX"/>
+    <parameter name="RUNBASETEST" value="false"/>
     <parameter name="GATEWAYS" value="GATEWAYURLS"/>
     <parameter name="ROOTSITESVCNAME" value="rootsite"/>
     <parameter name="SCMUSER" value="admin"/>
     <parameter name="SCMPASSWD" value="admin"/>
     <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info"/>
+    <!--  SCM S3配置  -->
     <parameter name="S3ACCESSKEYID" value="S3USER"/>
     <parameter name="S3SECRETKEY" value="S3PASSWORD"/>
     <parameter name="S3WOKERSPACES" value="ws_default"/>
-
+    <!--  LDAP服务用户  -->
     <parameter name="LDAPUSER" value="ldapadmin"/>
     <parameter name="LDAPPASSWD" value="admin"/>
     <listeners>
-        <listener class-name="com.sequoiacm.testcommon.TestScmListener"/>
+        <listener class-name="com.sequoiacm.testcommon.listener.TestScmListener"/>
+        <listener class-name="com.sequoiacm.testcommon.listener.GroupListener"/>
     </listeners>
 
     <test name="parralclass" parallel="classes" thread-count="5">
-        <method-selectors>
-            <method-selector>
-                <script language="beanshell">
-                    <![CDATA[
-               (groups.containsKey("XXXX")&&(!groups.containsKey(testngMethod.getXmlTest().getParameter("IGNORE"))))
-               ||groups.isEmpty();
-               ]]>
-                </script>
-            </method-selector>
-        </method-selectors>
-
         <packages>
             <!-- asynctask -->
             <package name="com.sequoiacm.asynctask"/>

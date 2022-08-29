@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
@@ -92,7 +93,7 @@ public class Transfer_createMultiTasks409 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         startTask();
         waitTaskStop();

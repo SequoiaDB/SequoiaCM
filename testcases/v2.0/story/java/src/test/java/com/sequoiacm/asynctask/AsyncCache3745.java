@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -74,7 +75,7 @@ public class AsyncCache3745 extends TestScmBase {
         fileIds.add( fileId );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         // 主站点缓存
         SiteWrapper[] expSite = { branchSite, rootSite };

@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,7 +85,7 @@ public class StatisticsFile4036 extends TestScmBase {
                 uploadFilesSuccedNums + downloadFilesSuccedNums );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 设置查询截止时间
         calendar.set( Calendar.DAY_OF_YEAR,

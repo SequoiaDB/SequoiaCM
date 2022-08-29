@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.springframework.http.HttpStatus;
@@ -53,7 +54,7 @@ public class S3AuthServer3634 extends TestScmBase {
         signatureClient = signatureClient( accessKeys );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 不清理该用户下会话，刷新accessKey
         testNoCleanSession();

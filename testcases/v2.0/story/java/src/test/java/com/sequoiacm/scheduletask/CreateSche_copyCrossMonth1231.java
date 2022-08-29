@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,7 +85,7 @@ public class CreateSche_copyCrossMonth1231 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" }) // jira-232
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base }) // jira-232
     private void test() throws Exception {
         Calendar cal = Calendar.getInstance();
         String maxStayTime = "" + cal.getActualMaximum( Calendar.DAY_OF_MONTH )

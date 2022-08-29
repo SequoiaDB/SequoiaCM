@@ -2,6 +2,7 @@ package com.sequoiacm.scmfile.concurrent;
 
 import java.io.File;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -73,7 +74,7 @@ public class UpdateWhileQuerying140 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         try {
             UpdateThread updateThd = new UpdateThread();

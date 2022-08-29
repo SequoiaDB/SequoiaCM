@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -67,7 +68,7 @@ public class Cursor1471 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         createBreakpointFile();
         BSONObject condition = new BasicBSONObject();

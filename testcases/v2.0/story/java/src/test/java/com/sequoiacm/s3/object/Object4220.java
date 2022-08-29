@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -52,7 +53,7 @@ public class Object4220 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 创建桶
         ScmFactory.Bucket.createBucket( ws, bucketName );

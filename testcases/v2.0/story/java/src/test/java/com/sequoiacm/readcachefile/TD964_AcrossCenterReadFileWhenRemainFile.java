@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -75,7 +76,7 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net", GroupTags.base })
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
@@ -93,7 +94,7 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base })
     public void startest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );

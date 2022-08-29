@@ -2,6 +2,7 @@ package com.sequoiacm.session.concurrent;
 
 import java.io.File;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +75,7 @@ public class Login227 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         try {
             QueryThread qryThd = new QueryThread();

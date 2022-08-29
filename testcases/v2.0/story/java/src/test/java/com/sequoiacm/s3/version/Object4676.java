@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,7 +40,7 @@ public class Object4676 extends TestScmBase {
         s3Client.deleteObject( bucketName, key );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testDeleteObject() throws Exception {
         s3Client.deleteObject( bucketName, key );
         checkDeleteObjectResult( bucketName, key );

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,7 +68,7 @@ public class CopyObject3562 extends TestScmBase {
                 .getObjectMetadata().getLastModified();
     }
 
-    @Test(dataProvider = "keyNameProvider")
+    @Test(groups = { GroupTags.base }, dataProvider = "keyNameProvider")
     public void testCopyObject( String destKeyName ) throws Exception {
         CopyObjectResult result = s3Client.copyObject( bucketNameA, keyName,
                 bucketNameB, destKeyName );

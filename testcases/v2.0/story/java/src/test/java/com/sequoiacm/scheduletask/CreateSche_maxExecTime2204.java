@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -94,7 +95,7 @@ public class CreateSche_maxExecTime2204 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.base })
     private void test() throws Exception {
         SiteWrapper[] expSites = { rootSite, branSite };
         try {

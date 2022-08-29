@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -67,7 +68,7 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
                 authorName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         VersionUtils.updateContentByStream( ws, fileId2, writedata );
         VersionUtils.updateContentByStream( ws, fileId2, updatedata );

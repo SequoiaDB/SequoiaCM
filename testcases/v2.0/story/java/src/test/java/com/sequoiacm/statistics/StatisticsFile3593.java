@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -97,7 +98,7 @@ public class StatisticsFile3593 extends TestScmBase {
         prepareEnv();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 上传文件
         totalUploadTime += createFileByInputStream();

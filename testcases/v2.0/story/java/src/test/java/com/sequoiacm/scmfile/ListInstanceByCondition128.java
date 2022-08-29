@@ -2,6 +2,7 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -70,7 +71,7 @@ public class ListInstanceByCondition128 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testListInstanceByAllAttributes() {
         String name = fileName + "_0";
         ScmCursor< ScmFileBasicInfo > cursor = null;

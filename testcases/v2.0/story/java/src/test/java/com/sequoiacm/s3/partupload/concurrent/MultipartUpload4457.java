@@ -3,6 +3,7 @@ package com.sequoiacm.s3.partupload.concurrent;
 import java.io.File;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -63,7 +64,7 @@ public class MultipartUpload4457 extends TestScmBase {
                 .getObjectMetadata().getContentLength();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new ThreadUploadPartCopy( sourceBucketName, sourceKey,

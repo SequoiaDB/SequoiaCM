@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,7 +66,7 @@ public class StatisticsFile3595 extends TestScmBase {
         StatisticsUtils.waitStatisticalInfoCount( 1 );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         calendar.set( Calendar.YEAR, calendar.get( Calendar.YEAR ) + 1 );
         endDate = calendar.getTime();

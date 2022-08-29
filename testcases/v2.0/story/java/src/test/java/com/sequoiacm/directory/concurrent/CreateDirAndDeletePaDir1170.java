@@ -3,6 +3,7 @@ package com.sequoiacm.directory.concurrent;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -54,7 +55,7 @@ public class CreateDirAndDeletePaDir1170 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         DeletePaDir dThread = new DeletePaDir();
         CreateDir cThread = new CreateDir();

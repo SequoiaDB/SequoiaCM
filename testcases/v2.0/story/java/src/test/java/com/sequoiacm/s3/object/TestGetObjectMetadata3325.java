@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +41,7 @@ public class TestGetObjectMetadata3325 extends TestScmBase {
         s3Client.putObject( bucketName, keyName, content + "v3" );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testGetObjectMetadata() throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US );

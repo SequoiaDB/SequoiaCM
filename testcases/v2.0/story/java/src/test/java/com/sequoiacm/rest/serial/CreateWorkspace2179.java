@@ -3,6 +3,7 @@ package com.sequoiacm.rest.serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -53,7 +54,7 @@ public class CreateWorkspace2179 extends TestScmBase {
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         int siteNum = ScmInfo.getSiteNum();
         createWorkspace( wsName, siteNum );

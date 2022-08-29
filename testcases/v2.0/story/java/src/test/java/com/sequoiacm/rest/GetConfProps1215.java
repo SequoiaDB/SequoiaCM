@@ -1,5 +1,6 @@
 package com.sequoiacm.rest;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -32,7 +33,7 @@ public class GetConfProps1215 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         String response = rest.setRequestMethod( HttpMethod.GET )
                 .setApi( "conf-properties?keys=scm.rootsite.meta.url,scm"

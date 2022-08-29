@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -82,7 +83,7 @@ public class OverWriteFile2674 extends TestScmBase {
         prepareFileWithBatch();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             String fileName = fileNameBase + "-" + i;

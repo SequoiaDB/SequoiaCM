@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -100,7 +101,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
     }
 
     // bug:SEQUOIACM-194
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base  })
     private void test() {
         try {
             StartTaskFromSubCenterA startTask = new StartTaskFromSubCenterA();

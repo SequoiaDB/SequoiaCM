@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.object.concurrent;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +36,7 @@ public class CreateAndDeleteObject3385 extends TestScmBase {
         s3Client.putObject( bucketName, keyNameBase + 0, content );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateAndDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( int i = 1; i < objectNum; i++ ) {

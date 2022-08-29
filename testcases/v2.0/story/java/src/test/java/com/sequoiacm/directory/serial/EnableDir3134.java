@@ -3,6 +3,7 @@ package com.sequoiacm.directory.serial;
 import java.io.ByteArrayInputStream;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -66,7 +67,7 @@ public class EnableDir3134 extends TestScmBase {
         dirId = scmDirectory.getId();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         createFile();
         queryFile();

@@ -1,5 +1,6 @@
 package com.sequoiacm.rest.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,7 +38,7 @@ public class DeleteWorkspace2181 extends TestScmBase {
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         int siteNum = ScmInfo.getSiteNum();
         ScmWorkspaceUtil.createWS( session, wsName, siteNum );

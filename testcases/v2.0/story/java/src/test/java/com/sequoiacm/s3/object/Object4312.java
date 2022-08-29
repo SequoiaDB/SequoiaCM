@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -77,7 +78,7 @@ public class Object4312 extends TestScmBase {
         S3Utils.clearBucket( rootS3Client, bucketName );
     }
 
-    @Test(groups = "twoSite")
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite, GroupTags.base })
     public void test() throws Exception {
         // 在主站点ws下创建桶，创建文件
         rootS3Client.createBucket( bucketName );

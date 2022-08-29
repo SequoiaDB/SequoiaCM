@@ -2,6 +2,7 @@ package com.sequoiacm.batch.serial;
 
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +58,7 @@ public class Batch3104 extends TestScmBase {
         fileId = file.save();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // 指定id创建批次
         ScmBatch batchB = ScmFactory.Batch.createInstance( ws, batchIdB );

@@ -3,6 +3,7 @@ package com.sequoiacm.asynctask;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -78,7 +79,7 @@ public class AsyncCache_whenLobRemain507 extends TestScmBase {
         TestSdbTools.Lob.putLob( branceSite, ws_T, fileId, filePath );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
         SiteWrapper[] expSiteList = { rootSite, branceSite };

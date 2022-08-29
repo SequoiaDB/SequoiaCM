@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -58,7 +59,7 @@ public class CopyObject3587 extends TestScmBase {
         lastModifiedTime = lastModifiedDate.getTime();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCopyObject() throws Exception {
         String curVersionETag = TestTools
                 .getMD5( curVersionContent.getBytes() );

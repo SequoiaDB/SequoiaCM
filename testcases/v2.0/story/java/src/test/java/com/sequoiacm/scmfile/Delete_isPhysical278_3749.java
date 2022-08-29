@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -65,7 +66,7 @@ public class Delete_isPhysical278_3749 extends TestScmBase {
         fileId = ScmFileUtils.create( ws, fileName, filePath );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         // 校验文件isDelete状态

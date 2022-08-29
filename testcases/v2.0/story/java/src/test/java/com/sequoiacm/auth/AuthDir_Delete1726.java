@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -86,7 +87,7 @@ public class AuthDir_Delete1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testDeleteFile() throws ScmException {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
@@ -112,7 +113,7 @@ public class AuthDir_Delete1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testDeleteScmDir() throws ScmException {
         String dirpath = path + "/" + author + "_" + UUID.randomUUID();
         ScmDirectory expDir = null;

@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTaskBasicInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.statistics.StatisticsFile3858;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.*;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -78,7 +79,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
     }
 
     // 问题单SEQUOIACM-744未修改
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base }, enabled = false)
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         for ( int i = 0; i < threadNums; i++ ) {

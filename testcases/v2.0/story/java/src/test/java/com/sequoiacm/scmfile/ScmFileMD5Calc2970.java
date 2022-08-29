@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -63,7 +64,7 @@ public class ScmFileMD5Calc2970 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         // 创建无md5的文件
         createFile();
@@ -82,7 +83,7 @@ public class ScmFileMD5Calc2970 extends TestScmBase {
         Assert.assertNull( histFile.getMd5(), fileId.get() );
         runSuccess = true;
     }
-    
+
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {

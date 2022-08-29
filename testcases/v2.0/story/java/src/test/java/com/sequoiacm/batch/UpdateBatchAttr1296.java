@@ -1,5 +1,6 @@
 package com.sequoiacm.batch;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +52,7 @@ public class UpdateBatchAttr1296 extends TestScmBase {
                 session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmTags oldTags = new ScmTags();
         oldTags.addTag( "oldTag1296" );

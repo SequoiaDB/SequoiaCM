@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
@@ -64,7 +65,7 @@ public class Bucket4278 extends TestScmBase {
                 bucketName );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 无权限创建
         checkCreateWithNoPrivilege();

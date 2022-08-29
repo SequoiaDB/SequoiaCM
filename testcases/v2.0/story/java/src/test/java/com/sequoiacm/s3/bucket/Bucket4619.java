@@ -2,6 +2,7 @@ package com.sequoiacm.s3.bucket;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -30,7 +31,7 @@ public class Bucket4619 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketNameB );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         s3Client.createBucket( bucketNameA );
         s3Client.createBucket( bucketNameB );

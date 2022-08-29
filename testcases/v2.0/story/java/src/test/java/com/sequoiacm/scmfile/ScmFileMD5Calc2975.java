@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +51,7 @@ public class ScmFileMD5Calc2975 extends TestScmBase {
         new Random(  ).nextBytes( bytes );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test() throws Exception {
         // 创建无md5的断点文件
         ScmBreakpointFile breakpointFile = createBreakpointFile();

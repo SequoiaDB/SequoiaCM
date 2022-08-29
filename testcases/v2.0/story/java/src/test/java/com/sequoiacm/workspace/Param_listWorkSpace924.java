@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.workspace;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,7 +33,7 @@ public class Param_listWorkSpace924 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testSSIsNull() {
         try {
             ScmFactory.Workspace.listWorkspace( null );
@@ -46,7 +47,7 @@ public class Param_listWorkSpace924 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testSSNoExist() {
         ScmSession session;
         try {

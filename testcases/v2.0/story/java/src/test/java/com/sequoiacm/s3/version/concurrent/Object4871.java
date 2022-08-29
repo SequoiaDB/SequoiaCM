@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -62,7 +63,7 @@ public class Object4871 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateObject() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         S3GetObject s3GetObject = new S3GetObject( keyName );

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +65,7 @@ public class UpdateScmFileAttri135 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testUpdateScmFileAttributes() {
         String author = "newAuthor";
         String name = fileName + "_" + UUID.randomUUID();

@@ -7,6 +7,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -45,7 +46,7 @@ public class Audit4298 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 认证服务配置USER_DQL审计类型
         Map< String, String > confMap = new HashMap<>();

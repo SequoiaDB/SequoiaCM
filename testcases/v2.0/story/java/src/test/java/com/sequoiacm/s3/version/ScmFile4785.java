@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -49,7 +50,7 @@ public class ScmFile4785 extends TestScmBase {
         scmBucket.suspendVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         scmBucket.deleteFile( fileName, true );
         checkFileVersion();

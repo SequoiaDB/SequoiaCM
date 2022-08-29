@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -54,7 +55,7 @@ public class Audit2336 extends TestScmBase {
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put(

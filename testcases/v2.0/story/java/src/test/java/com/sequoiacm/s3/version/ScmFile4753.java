@@ -9,6 +9,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
@@ -66,7 +67,7 @@ public class ScmFile4753 extends TestScmBase {
         bucket.suspendVersionControl();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
         S3Utils.createFile( bucket, keyName, filePath );

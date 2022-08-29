@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -45,7 +46,7 @@ public class Audit4289 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         Map< String, String > confMap = new HashMap<>();
         confMap.put( ConfigCommonDefind.scm_audit_userMask, "LOCAL" );

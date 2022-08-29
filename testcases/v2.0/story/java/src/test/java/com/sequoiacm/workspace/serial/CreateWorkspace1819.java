@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.workspace.serial;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +54,7 @@ public class CreateWorkspace1819 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "one", "twoSite", "fourSite" })
+    @Test
     private void test() throws ScmException, InterruptedException {
 
         this.createScmUser();

@@ -6,6 +6,7 @@ package com.sequoiacm.directory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -56,7 +57,7 @@ public class ListAllDir1154 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testCondIsNull() {
         try {
             int i = 0;
@@ -75,7 +76,7 @@ public class ListAllDir1154 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testCondIsBSONObject() {
         try {
             int i = 0;

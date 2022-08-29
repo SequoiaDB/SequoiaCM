@@ -7,6 +7,7 @@ import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -42,7 +43,7 @@ public class S3AuthServer3623 extends TestScmBase {
                 null );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         // 计算签名
         String algorithm = "HmacSHA256";

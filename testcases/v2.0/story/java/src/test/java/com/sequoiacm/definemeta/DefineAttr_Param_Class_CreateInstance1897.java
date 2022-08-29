@@ -1,5 +1,6 @@
 package com.sequoiacm.definemeta;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +45,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testChinese() throws Exception {
         String classname = "模型1";
         String desc = "模型描述";
@@ -68,7 +69,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         ScmFactory.Class.deleteInstance( ws, actClass.getId() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNamewithDot() throws ScmException {
         String classname = "1897_1.90";
         ScmClass expClass = null;
@@ -88,7 +89,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameWithBlack() throws ScmException {
         String classname = "1897_2 90";
         ScmClass expClass = null;
@@ -108,7 +109,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameWithDollar() throws ScmException {
         String classname = "1897_2$90";
         ScmClass expClass = null;
@@ -128,7 +129,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameWithDiagonal() throws ScmException {
         String classname = "1897_3/90";
         ScmClass expClass = null;
@@ -148,7 +149,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameIsDollar() throws ScmException {
         String classname = "$";
         ScmClass expClass = null;
@@ -168,7 +169,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameIsNull() {
         // create
         try {
@@ -182,7 +183,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testNameIsBlackStr() {
         // create
         try {
@@ -196,7 +197,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testDescIsNull() {
         // create
         try {
@@ -211,7 +212,7 @@ public class DefineAttr_Param_Class_CreateInstance1897 extends TestScmBase {
 
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testWsIsNull() {
         // create
         try {

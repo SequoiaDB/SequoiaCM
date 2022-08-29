@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -75,7 +76,7 @@ public class DiffCenterReadFile258 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test(groups = { "fourSite", GroupTags.base })
     private void test() {
         try {
             ReadFileFromMainCenter readFromM = new ReadFileFromMainCenter();

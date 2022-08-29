@@ -3,6 +3,7 @@ package com.sequoiacm.s3.version;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -57,7 +58,7 @@ public class ScmFile4788 extends TestScmBase {
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
         file.deleteVersion();

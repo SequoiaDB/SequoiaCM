@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
@@ -70,7 +71,8 @@ public class AsyncTransfer3743 extends TestScmBase {
         return sites;
     }
 
-    @Test(groups = { "fourSite", "net" }, dataProvider = "DataProvider")
+    @Test(groups = { "fourSite", "net",
+            GroupTags.base  }, dataProvider = "DataProvider")
     public void test( SiteWrapper sourceSite, SiteWrapper targetSite )
             throws Exception {
         ScmFileUtils.cleanFile( wsp, queryCond );

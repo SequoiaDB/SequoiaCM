@@ -3,6 +3,7 @@ package com.sequoiacm.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +40,7 @@ public class UpdateInstancesConf2287 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         List< String > instances = new ArrayList< String >();
         for ( NodeWrapper node : nodeList ) {

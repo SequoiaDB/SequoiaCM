@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -104,7 +105,7 @@ public class OverWriteFile2678 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         String flag1 = fileNamePre + "-flag-1";

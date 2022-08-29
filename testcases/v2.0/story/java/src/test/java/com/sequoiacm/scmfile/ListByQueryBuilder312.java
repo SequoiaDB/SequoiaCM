@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -62,7 +63,7 @@ public class ListByQueryBuilder312 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmCursor< ScmFileBasicInfo > cursor = null;
         try {

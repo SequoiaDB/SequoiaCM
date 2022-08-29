@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -53,7 +54,7 @@ public class ScmFile4835 extends TestScmBase {
         batchId = createBatch();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         String newAuthor = "newscmfile4835";
         String newtitle = "jim4835";

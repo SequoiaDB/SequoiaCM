@@ -12,6 +12,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -72,7 +73,7 @@ public class MultipartUpload4370 extends TestScmBase {
         s3ClientB = S3Utils.buildS3Client( accessKeys[ 0 ], accessKeys[ 1 ] );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     public void testListParts() throws Exception {
         // 用户A分段上传对象
         String uploadId = PartUploadUtils.initPartUpload( s3ClientA, bucketName,

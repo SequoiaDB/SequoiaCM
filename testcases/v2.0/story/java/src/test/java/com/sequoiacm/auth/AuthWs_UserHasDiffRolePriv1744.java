@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -76,7 +77,7 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testWs() throws ScmException {
         ScmSession session = null;
         String fileName = "AuthWs_UserHasDiffRolePriv1744_0";
@@ -99,7 +100,7 @@ public class AuthWs_UserHasDiffRolePriv1744 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testDir() throws ScmException {
         ScmSession session = null;
         String dirpath = "/1744_1/1174_A";

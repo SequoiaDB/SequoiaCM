@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -72,7 +73,7 @@ public class DefineAttr_updateClassAndProperties1838 extends TestScmBase {
         this.readyScmFile();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test_updatePro() throws Exception {
         attrMap.clear();
 

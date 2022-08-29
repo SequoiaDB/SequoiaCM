@@ -3,6 +3,7 @@ package com.sequoiacm.s3.partupload;
 import java.io.File;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +60,7 @@ public class MultipartUpload4445 extends TestScmBase {
                 .getObjectMetadata().getContentLength();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 目标桶名和源桶名不同
         uploadPartCopy( sourceBucketName, sourceKey, targetBucketName,

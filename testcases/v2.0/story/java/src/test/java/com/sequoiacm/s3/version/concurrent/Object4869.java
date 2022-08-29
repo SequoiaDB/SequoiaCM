@@ -8,6 +8,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -64,7 +65,7 @@ public class Object4869 extends TestScmBase {
     }
 
     //SEQUOIACM-1025暂时屏蔽
-    @Test(enabled = false)
+    @Test(groups = { GroupTags.base },enabled = false)
     public void testCreateObject() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         S3CreateObject s3CreateObject = new S3CreateObject( keyName );

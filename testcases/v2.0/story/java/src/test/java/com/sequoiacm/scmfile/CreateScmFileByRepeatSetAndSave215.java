@@ -3,6 +3,7 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -66,7 +67,7 @@ public class CreateScmFileByRepeatSetAndSave215 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() {
         testCreateScmFileByFile();
         testGetScmFileByFile();

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -87,7 +88,7 @@ public class ReadFileByOff248 extends TestScmBase {
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net", GroupTags.base })
     public void nettest() throws Exception {
         SiteWrapper[] expSites = new SiteWrapper[] { branSites.get( 0 ),
                 branSites.get( 1 ) };
@@ -96,7 +97,7 @@ public class ReadFileByOff248 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base })
     public void startest() throws Exception {
         SiteWrapper[] expSites = new SiteWrapper[] { rootSite,
                 branSites.get( 0 ), branSites.get( 1 ) };

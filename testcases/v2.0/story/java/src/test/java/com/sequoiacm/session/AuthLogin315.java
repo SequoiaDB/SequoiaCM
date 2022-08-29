@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -68,7 +69,7 @@ public class AuthLogin315 extends TestScmBase {
         wsp = ScmInfo.getWs();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException, IOException {
         String user = TestScmBase.scmUserName;
         String passwd = TestScmBase.scmPassword;

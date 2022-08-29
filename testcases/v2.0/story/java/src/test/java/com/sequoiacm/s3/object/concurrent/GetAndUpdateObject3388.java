@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +50,7 @@ public class GetAndUpdateObject3388 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void testCreateAndDeleteObject() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( String keyName : keyNameList ) {

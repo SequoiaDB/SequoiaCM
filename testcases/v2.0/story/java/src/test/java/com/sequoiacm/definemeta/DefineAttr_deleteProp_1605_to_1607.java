@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -72,7 +73,7 @@ public class DefineAttr_deleteProp_1605_to_1607 extends TestScmBase {
         this.readyScmFile();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         test_deleteProperties();
         test_deleteProperty();

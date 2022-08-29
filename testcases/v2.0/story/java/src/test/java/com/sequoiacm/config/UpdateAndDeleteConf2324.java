@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +38,7 @@ public class UpdateAndDeleteConf2324 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ScmSession session = null;
         try {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -79,7 +80,7 @@ public class AsyncTransfer3742 extends TestScmBase {
         fileIds.add( fileId );
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net", GroupTags.base })
     private void nettest() throws Exception {
         // 分站点迁移到主站点
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId,
@@ -110,7 +111,7 @@ public class AsyncTransfer3742 extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base })
     private void startest() throws Exception {
         // 分站点迁移到主站点
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId,

@@ -4,6 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -44,7 +45,7 @@ public class GetTask3736 extends TestScmBase {
         session = TestScmTools.createSession( rootSite );
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star", GroupTags.base })
     public void test() throws Exception {
         schedule = ScmScheduleUtils.createSchedule( session, branchSite,
                 rootSite, cleanSite, wsp, fileName );

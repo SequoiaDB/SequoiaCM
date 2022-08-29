@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -60,7 +61,7 @@ public class CountDir2590 extends TestScmBase {
         }
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testAll() throws Exception {
         BSONObject filter = ScmQueryBuilder.start().get();
         long count = ScmFactory.Directory.countInstance( ws, filter );
@@ -68,7 +69,7 @@ public class CountDir2590 extends TestScmBase {
         successCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testZero() throws Exception {
         BSONObject filter = ScmQueryBuilder
                 .start( ScmAttributeName.Directory.NAME )
@@ -78,7 +79,7 @@ public class CountDir2590 extends TestScmBase {
         successCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testPart() throws Exception {
         BSONObject filter = ScmQueryBuilder
                 .start( ScmAttributeName.Directory.NAME ).in( dirNames ).get();
@@ -93,7 +94,7 @@ public class CountDir2590 extends TestScmBase {
         successCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testInvalidWs() throws Exception {
         try {
             ScmFactory.Directory.countInstance( null, new BasicBSONObject() );
@@ -106,7 +107,7 @@ public class CountDir2590 extends TestScmBase {
         successCount.getAndIncrement();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testInvalidBSON() throws Exception {
         try {
             ScmFactory.Directory.countInstance( ws, null );

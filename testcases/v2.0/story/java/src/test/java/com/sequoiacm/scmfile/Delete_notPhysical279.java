@@ -2,6 +2,7 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -68,7 +69,7 @@ public class Delete_notPhysical279 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         try {
             ScmFactory.File.getInstance( ws, fileId ).delete( false );

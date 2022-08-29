@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -66,7 +67,7 @@ public class AuthWs_Dir1738 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testIncludeDirrsInHead() throws ScmException {
         // create dir that it's name contains dirPath's name.
         // eg:"/AuthWs_Dir1738_123" ,/AuthWs_Dir1738"

@@ -1,5 +1,6 @@
 package com.sequoiacm.rest;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -41,7 +42,7 @@ public class CrudDefindMeta2177 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // create class
         JSONObject desc1 = new JSONObject();

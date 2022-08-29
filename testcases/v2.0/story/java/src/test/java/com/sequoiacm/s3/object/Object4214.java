@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,7 +60,7 @@ public class Object4214 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException, IOException {
         // scm create bucket
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );

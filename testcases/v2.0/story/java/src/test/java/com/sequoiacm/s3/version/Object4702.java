@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +55,7 @@ public class Object4702 extends TestScmBase {
     }
 
     // 匹配对象可以一次返回（如小于默认一次返回数1000）
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testRecordsLt1K() throws Exception {
         String prefix = "dirsub";
         int index = 3;

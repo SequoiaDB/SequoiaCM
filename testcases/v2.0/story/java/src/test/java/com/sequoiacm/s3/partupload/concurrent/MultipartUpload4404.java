@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -60,7 +61,7 @@ public class MultipartUpload4404 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     public void uploadParts() throws Exception {
         uploadId = PartUploadUtils.initPartUpload( s3Client, bucketName,
                 keyName );

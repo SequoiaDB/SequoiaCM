@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,7 +56,7 @@ public class Batch3106 extends TestScmBase {
                 { ScmShardingType.QUARTER }, { ScmShardingType.MONTH } };
     }
 
-    @Test(dataProvider = "shardingTypeProvider")
+    @Test(dataProvider = "shardingTypeProvider", groups = { GroupTags.base })
     private void test( ScmShardingType type ) throws Exception {
         // 指定batch_sharding_type为YEAR,设置batch_id_time_regexp、batch_id_time_parttern
         int times = 0;

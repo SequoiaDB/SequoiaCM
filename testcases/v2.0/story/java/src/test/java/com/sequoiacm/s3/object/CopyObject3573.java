@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -67,7 +68,7 @@ public class CopyObject3573 extends TestScmBase {
 
     // a.versionId is history version, but not modified of history version after
     // appoint the date
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_A() throws Exception {
         // get last modified date of the current version object
         Date srcCurLastModDate = getObjLastModDate( srcBucketName, srcKeyName );
@@ -85,7 +86,7 @@ public class CopyObject3573 extends TestScmBase {
     }
 
     // b.modified after appoint the date
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_B() throws Exception {
         // get last modified date of the current version object
         Date srcCurLastModDate = getObjLastModDate( srcBucketName, srcKeyName );
@@ -107,7 +108,7 @@ public class CopyObject3573 extends TestScmBase {
     }
 
     // c.not modified after appoint the date
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testCopyObject_C() throws Exception {
         // get last modified date of the current version object
         Date srcCurLastModDate = getObjLastModDate( srcBucketName, srcKeyName );

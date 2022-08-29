@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -73,8 +74,8 @@ public class MultipartUpload4402 extends TestScmBase {
         // 准备其他分段数据，如指定分段号为2,3,4,5,6，覆盖a:分段长度不同 ，b:分段长度相同
         prepareDiffPartNumberList();
     }
-    
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+
+    @Test(groups = { GroupTags.base })
     public void testUpload() throws Exception {
         uploadId = PartUploadUtils.initPartUpload( s3Client, bucketName,
                 keyName );

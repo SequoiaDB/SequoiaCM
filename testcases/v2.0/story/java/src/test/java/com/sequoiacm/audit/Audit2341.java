@@ -3,6 +3,7 @@ package com.sequoiacm.audit;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -50,7 +51,7 @@ public class Audit2341 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         Map< String, String > confMap = new HashMap< String, String >();
         confMap.put( ConfigCommonDefind.scm_audit_userType

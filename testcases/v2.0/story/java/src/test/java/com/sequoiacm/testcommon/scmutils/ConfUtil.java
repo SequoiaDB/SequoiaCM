@@ -537,10 +537,10 @@ public class ConfUtil extends TestScmBase {
     public static void createUser( WsWrapper wsp, String name,
             ScmUserPasswordType passwordType, ScmPrivilegeType[] privileges )
             throws Exception {
-        SiteWrapper site = ScmInfo.getSite();
+        List< SiteWrapper > branchSites = ScmInfo.getBranchSites();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = TestScmTools.createSession( branchSites.get( 0 ) );
             ScmUser scmUser = null;
             if ( passwordType.equals( ScmUserPasswordType.LDAP ) ) {
                 scmUser = ScmFactory.User.createUser( session, name,
@@ -559,11 +559,15 @@ public class ConfUtil extends TestScmBase {
             modifier.addRole( role );
             modifier.addRole( "ROLE_AUTH_ADMIN" );
             ScmFactory.User.alterUser( session, scmUser, modifier );
-            if ( !passwordType.equals( ScmUserPasswordType.LDAP ) ) {
-                ScmAuthUtils.checkPriority( site, name, name, role, wsp );
-            } else {
-                ScmAuthUtils.checkPriority( site, TestScmBase.ldapUserName,
-                        TestScmBase.ldapPassword, role, wsp );
+            for ( int i = 0; i < branchSites.size(); i++ ) {
+                if ( !passwordType.equals( ScmUserPasswordType.LDAP ) ) {
+                    ScmAuthUtils.checkPriority( branchSites.get( i ), name,
+                            name, role, wsp );
+                } else {
+                    ScmAuthUtils.checkPriority( branchSites.get( i ),
+                            TestScmBase.ldapUserName, TestScmBase.ldapPassword,
+                            role, wsp );
+                }
             }
         } finally {
             if ( session != null ) {

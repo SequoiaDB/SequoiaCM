@@ -3,6 +3,7 @@ package com.sequoiacm.batch.serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +65,7 @@ public class Batch3120 extends TestScmBase {
         prepareFile();
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         ThreadExecutor threadExec = new ThreadExecutor();
         for ( ScmId fileId : fileIdList ) {

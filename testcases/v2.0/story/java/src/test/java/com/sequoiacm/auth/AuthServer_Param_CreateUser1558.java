@@ -10,6 +10,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +45,7 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
                 ScmUserPasswordType.LOCAL, passwd );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testPasswdIsNull() throws ScmException {
         try {
             ScmFactory.User.createUser( session, username,
@@ -57,7 +58,7 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void testPasswdType() throws ScmException {
         try {
             ScmFactory.User.createUser( session, username, null, passwd );
@@ -69,7 +70,7 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test3() throws ScmException {
         String username = " User1558 中文.!@#$*()_+::<>\"test";
         // 创建用户
@@ -92,7 +93,7 @@ public class AuthServer_Param_CreateUser1558 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test
     private void test4() throws ScmException {
         String[] chars = { "/", "%", "\\", ";" };
         for ( String c : chars ) {

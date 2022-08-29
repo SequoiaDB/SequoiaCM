@@ -1,5 +1,6 @@
 package com.sequoiacm.config;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,7 +62,7 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
         createUser();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         ScmSession session = null;
         try {

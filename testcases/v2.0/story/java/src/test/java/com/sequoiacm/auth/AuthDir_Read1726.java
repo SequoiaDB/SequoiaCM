@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -88,7 +89,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testGetDirByPath() {
         String dirpath = path;
         try {
@@ -100,7 +101,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testGetSubDirByCond() {
         String dirpath = path;
         ScmCursor< ScmDirectory > cursor = null;
@@ -119,7 +120,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testGetSubDirByName() {
         String path = basepath + "/1726_A/1726_B";
         String dirName = "1726_C";
@@ -134,7 +135,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testGetFileMetaUnderDir() throws ScmException {
         ScmId fileId = null;
         String fileName = author + "_" + UUID.randomUUID();
@@ -168,7 +169,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testReadFileById() throws Exception {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
@@ -201,7 +202,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testReadFileByPath() throws Exception {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
@@ -235,7 +236,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testReadFileByIdVersion() throws Exception {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
@@ -268,7 +269,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testReadFileByPathVersion() throws Exception {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;
@@ -302,7 +303,7 @@ public class AuthDir_Read1726 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testlistFile() throws Exception {
         String fileName = author + "_" + UUID.randomUUID();
         ScmId fileId = null;

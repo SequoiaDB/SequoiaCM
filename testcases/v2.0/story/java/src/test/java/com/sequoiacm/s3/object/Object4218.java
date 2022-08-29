@@ -14,6 +14,7 @@ import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -67,7 +68,7 @@ public class Object4218 extends TestScmBase {
                 BucketVersioningConfiguration.ENABLED );
     }
 
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         // 创建多个文件
         createFile();
