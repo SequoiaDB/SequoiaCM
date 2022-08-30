@@ -337,7 +337,11 @@ public class ScmAuthUtils extends TestScmBase {
         ScmUser user = createUser( session, username, password );
         ScmRole role = ScmFactory.Role.getRole( session, "ROLE_AUTH_ADMIN" );
         alterUser( session, wsName, user, role, ScmPrivilegeType.ALL );
-        checkPriority( ScmInfo.getSite(), username, password, role, wsName );
+        List< SiteWrapper > allSites = ScmInfo.getAllSites();
+        for ( int i = 0; i < allSites.size(); i++ ) {
+            checkPriority( allSites.get( i ), username, password, role,
+                    wsName );
+        }
     }
 
     /**
