@@ -8,9 +8,18 @@ public class NetUtil {
         if (host1.equals(host2)) {
             return true;
         }
-        String host1Address = InetAddress.getByName(host1).getHostAddress();
-        String host2Address = InetAddress.getByName(host2).getHostAddress();
-        return host1Address.equals(host2Address);
+        InetAddress[] host1InetAddress = InetAddress.getAllByName(host1);
+        InetAddress[] host2InetAddress = InetAddress.getAllByName(host2);
+        for (InetAddress address1 : host1InetAddress) {
+            for (InetAddress address2 : host2InetAddress) {
+                String host1Address = address1.getHostAddress();
+                String host2Address = address2.getHostAddress();
+                if (host1Address.equals(host2Address)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static String getHostAndPort(String url) {

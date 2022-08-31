@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -215,6 +216,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
                     new ScmConfigOption(ScmContentCommandUtil.parseListUrls(gatewayUrl),
                             adminUserInfo.getUsername(), adminUserInfo.getPassword()));
             RestDispatcher.getInstance().createNode(ss, serverRec);
+            addServerIdProp(mg, serverName);
         }
         catch (Exception e) {
             rollBackFile();
@@ -226,6 +228,28 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             SdbHelper.closeCursorAndDb(db);
         }
         System.out.println("Create node success:" + serverName);
+    }
+
+    private void addServerIdProp(ScmMetaMgr mg, String serverName) throws ScmToolsException {
+        int id = mg.getContenserverIdByName(serverName);
+        FileWriter fileWriter = null;
+        BufferedWriter bufferedWriter = null;
+        try {
+            fileWriter = new FileWriter(sysConfPath, true);
+            bufferedWriter = new BufferedWriter(fileWriter, 1024);
+            bufferedWriter.write("\n");
+            bufferedWriter.write(
+                    PropertiesDefine.PROPERTY_SCM_EUREKA_METADATA_CONTENT_SERVER_ID + "=" + id);
+            bufferedWriter.flush();
+        }
+        catch (IOException e) {
+            throw new ScmToolsException(sysConfPath + " " + e.getMessage(),
+                    ScmError.OUTPUT_STREAM_CLOSED.getErrorCode(), e);
+        }
+        finally {
+            ScmContentCommon.closeResource(bufferedWriter);
+            ScmContentCommon.closeResource(fileWriter);
+        }
     }
 
     private void parseCustomProp(CommandLine cl) throws ScmToolsException {
@@ -326,6 +350,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
         writeDefaultConf(ScmContentCommon.SCM_SAMPLE_LOG_CONF_NAME, log4jConfPath, modifier);
     }
 
+    //
     private void writeDefaultConf(String sampleResFile, String outputPath,
             Map<String, String> modifier) throws ScmToolsException {
         InputStream is = ScmCtl.class.getClassLoader().getResourceAsStream(sampleResFile);
