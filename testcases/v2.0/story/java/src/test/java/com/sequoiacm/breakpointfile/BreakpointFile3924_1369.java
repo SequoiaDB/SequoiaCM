@@ -4,9 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import org.bson.BSONObject;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
@@ -15,11 +19,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmChecksumType;
-import com.sequoiacm.client.core.ScmBreakpointFile;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -30,49 +29,56 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:breakpoint continuation file in input stream or file
- * testlink-case:seqDB-1369
- *
- * @author wuyan
- * @Date 2018.05.18
- * @version 1.00
+ * @descreption SCM-3924:以输入流方式断点续传文件（指定文件校验） SCM-1369:以输入流方式断点续传文件（指定文件校验）
+ * @author YiPan
+ * @date 2021/10/28
+ * @updateUser
+ * @updateDate
+ * @updateRemark
+ * @version 1.0
  */
-
-public class UploadBreakpointFile1369 extends TestScmBase {
+public class BreakpointFile3924_1369 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
-    private ScmId fileId = null;
+    private BSONObject query;
 
-    private String fileName = "breakpointfile1369";
+    private String fileName = "file3924";
     private int fileSize = 1024 * 1024 * 60;
     private byte[] data = new byte[ fileSize ];
     private File localPath = null;
+    private boolean runSuccess = false;
 
     @BeforeClass
-    private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
-        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
+    private void setUp() throws ScmException {
+        BreakpointUtil.checkDBDataSource();
+        site = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        query = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
+                .is( fileName ).get();
+        ScmFileUtils.cleanFile( wsp, query );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
-        createBreakpointFile();
-        continuesUploadFile();
+        new Random().nextBytes( data );
+        byte[] uploadFirst = Arrays.copyOfRange( data, 0, fileSize / 2 );
+        createBreakpointFile( uploadFirst );
+        continuesUploadFile( data );
         checkUploadFileData();
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFileUtils.cleanFile( wsp, query );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( session != null ) {
                 session.close();
@@ -80,36 +86,29 @@ public class UploadBreakpointFile1369 extends TestScmBase {
         }
     }
 
-    private void createBreakpointFile() throws ScmException, IOException {
+    private void createBreakpointFile( byte[] datapart ) throws ScmException {
         // create breakpointfile
         ScmChecksumType checksumType = ScmChecksumType.CRC32;
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, checksumType );
-
-        new Random().nextBytes( data );
-        int length = 1024 * 1024 * 60;
-        byte[] datapart = new byte[ length ];
-        System.arraycopy( data, 0, datapart, 0, length );
         breakpointFile.incrementalUpload( new ByteArrayInputStream( datapart ),
                 false );
     }
 
-    private void continuesUploadFile() throws ScmException, IOException {
+    private void continuesUploadFile( byte[] datapart ) throws ScmException {
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
-        breakpointFile.upload( new ByteArrayInputStream( data ) );
+        breakpointFile.upload( new ByteArrayInputStream( datapart ) );
     }
 
     private void checkUploadFileData() throws Exception {
-        // save to file, than down file check the file data
         ScmFile file = ScmFactory.File.createInstance( ws );
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .getInstance( ws, fileName );
         file.setContent( breakpointFile );
         file.setFileName( fileName );
-        fileId = file.save();
+        file.save();
 
-        // down file
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,

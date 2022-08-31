@@ -3,8 +3,6 @@ package com.sequoiacm.breakpointfile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Random;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
@@ -29,30 +27,30 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:mulitple upload an breakpoint file by file
- * testlink-case:SCM-1380
- * 
- * @author wuyan
- * @Date 2018.05.22
- * @version 1.00
+ * @descreption SCM-3938:同一文件多次断点续传 SCM-1380:同一文件多次断点续传
+ * @author YiPan
+ * @date 2021/11/23
+ * @updateUser
+ * @updateDate
+ * @updateRemark
+ * @version 1.0
  */
-
-public class UploadBreakpointFile1380 extends TestScmBase {
+public class BreakpointFile3938_1380 extends TestScmBase {
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private static SiteWrapper site = null;
     private ScmWorkspace ws = null;
     private ScmId fileId = null;
 
-    private String fileName = "breakpointfile1380";
-    private int fileSize = 1024 * 1024 * 5;
+    private String fileName = "file3938";
+    private int fileSize = 1024 * 1024 * 18;
     private File localPath = null;
     private String filePath = null;
+    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+        BreakpointUtil.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -62,25 +60,26 @@ public class UploadBreakpointFile1380 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
 
-        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
+        site = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws Exception {
         ScmBreakpointFile breakpointFile = uploadBreakpointFile();
         checkFileData( breakpointFile );
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( session != null ) {
                 session.close();
@@ -95,7 +94,7 @@ public class UploadBreakpointFile1380 extends TestScmBase {
                 .createInstance( ws, fileName, ScmChecksumType.ADLER32 );
 
         // multiple upload file
-        int[] dataSizes = { 1024 * 50, 1024 * 1024, 1024 * 1024 * 2 };
+        int[] dataSizes = { 1024 * 1024 * 5, 1024 * 1024 * 6, 1024 * 1024 * 7 };
         for ( int i = 0; i < 3; i++ ) {
             InputStream inputStream = new BreakpointStream( filePath,
                     dataSizes[ i ] );

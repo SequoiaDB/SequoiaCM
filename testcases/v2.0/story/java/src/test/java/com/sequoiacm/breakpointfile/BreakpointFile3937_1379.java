@@ -1,11 +1,7 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Random;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
@@ -14,6 +10,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -21,34 +18,39 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiadb.exception.BaseException;
 
 /**
- * @Description BreakPointFile1368.java 创建断点文件，以输入流方式上传数据
- * @author luweikang
- * @date 2018年5月11日
+ * @descreption SCM-3937:断点文件未完成上传，设置为文件的内容 SCM-1379:断点文件未完成上传，设置为文件的内容
+ * @author YiPan
+ * @date 2021/10/29
+ * @updateUser
+ * @updateDate
+ * @updateRemark
+ * @version 1.0
  */
-public class BreakpointFile1368 extends TestScmBase {
+public class BreakpointFile3937_1379 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
 
-    private String fileName = "scmfile1368";
+    private String fileName = "file3937";
     private ScmId fileId = null;
     private int fileSize = 1024 * 1024 * 5;
     private File localPath = null;
     private String filePath = null;
+    private boolean runSuccess = false;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        BreakpointUtil.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -57,27 +59,36 @@ public class BreakpointFile1368 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
 
-        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
+        site = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() throws ScmException, IOException {
-        // 创建断点文件
-        ScmBreakpointFile breakpointFile = this.createBreakpointFile();
-        // 创建scm文件,并将创建的断点文件作为文件的内容
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName, 1024 * 512,
+                ScmChecksumType.CRC32 );
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .getInstance( ws, fileName );
+
+        // 断点文件未上传完毕,转化为SCM文件
         breakpointFile2ScmFile( breakpointFile );
+        // 检查断点文件
+        checkBreakpointFile();
+        // 检查SCM文件
+        checkFile();
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName );
+                TestTools.LocalFile.removeFile( localPath );
+            }
         } finally {
             if ( session != null ) {
                 session.close();
@@ -85,46 +96,33 @@ public class BreakpointFile1368 extends TestScmBase {
         }
     }
 
-    private ScmBreakpointFile createBreakpointFile()
-            throws ScmException, IOException {
-        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
-                .createInstance( ws, fileName );
-        InputStream inputStream = new FileInputStream( filePath );
-        breakpointFile.upload( inputStream );
-        inputStream.close();
-        return breakpointFile;
-
-    }
-
     private void breakpointFile2ScmFile( ScmBreakpointFile breakpointFile )
             throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );
-        file.setContent( breakpointFile );
         file.setFileName( fileName );
         file.setTitle( fileName );
         fileId = file.save();
-
-        // check file's attribute
-        checkFileAttributes( file );
+        file = ScmFactory.File.getInstance( ws, fileId );
+        file.setContent( breakpointFile );
+        try {
+            file.save();
+            Assert.fail( "unCompleted breakpointFile can't be file" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.OPERATION_UNSUPPORTED ) {
+                throw e;
+            }
+        }
     }
 
-    private void checkFileAttributes( ScmFile file ) {
-        try {
-            Assert.assertEquals( file.getWorkspaceName(), wsp.getName() );
-            Assert.assertEquals( file.getFileId(), fileId );
+    private void checkBreakpointFile() throws ScmException {
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .getInstance( ws, fileName );
+        Assert.assertEquals( breakpointFile.isCompleted(), false );
+        Assert.assertEquals( breakpointFile.getUploadSize(), 1024 * 512 );
+    }
 
-            Assert.assertEquals( file.getFileName(), fileName );
-            Assert.assertEquals( file.getAuthor(), "" );
-            Assert.assertEquals( file.getTitle(), fileName );
-            Assert.assertEquals( file.getSize(), fileSize );
-
-            Assert.assertEquals( file.getMinorVersion(), 0 );
-            Assert.assertEquals( file.getMajorVersion(), 1 );
-
-            Assert.assertEquals( file.getUser(), TestScmBase.scmUserName );
-            Assert.assertNotNull( file.getCreateTime().getTime() );
-        } catch ( BaseException e ) {
-            throw e;
-        }
+    private void checkFile() throws ScmException {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        Assert.assertEquals( file.getSize(), 0 );
     }
 }
