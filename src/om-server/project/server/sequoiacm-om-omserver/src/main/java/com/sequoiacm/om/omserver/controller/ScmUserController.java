@@ -31,13 +31,13 @@ public class ScmUserController {
     @Autowired
     private ScmOmPasswordMgr passwordMgr;
 
-    @GetMapping("/users/{user_name}")
+    @GetMapping("/users/{user_name:.+}")
     public OmUserInfo getUserInfo(ScmOmSession session, @PathVariable("user_name") String username)
             throws ScmInternalException, ScmOmServerException {
         return userservice.getUserInfo(session, username);
     }
 
-    @PostMapping("/users/{user_name}")
+    @PostMapping("/users/{user_name:.+}")
     public void createUser(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.USER_TYPE, required = false, defaultValue = "LOCAL") String userType,
             @RequestParam(value = RestParamDefine.PASSWORD, required = false) String password)
@@ -45,13 +45,13 @@ public class ScmUserController {
         userservice.createUser(session, username, userType, passwordMgr.decrypt(password));
     }
 
-    @DeleteMapping("/users/{user_name}")
+    @DeleteMapping("/users/{user_name:.+}")
     public void deleteUser(ScmOmSession session, @PathVariable("user_name") String username)
             throws ScmInternalException, ScmOmServerException {
         userservice.deleteUser(session, username);
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=change_password")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=change_password")
     public void changePassword(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.OLD_PASSWORD, required = false) String oldPassword,
             @RequestParam(value = RestParamDefine.NEW_PASSWORD, required = true) String newPassword,
@@ -61,21 +61,21 @@ public class ScmUserController {
                 passwordMgr.decrypt(newPassword), cleanSessions);
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=grant_role")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=grant_role")
     public void grantRoles(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.ROLES, required = true) List<String> roles)
             throws ScmInternalException, ScmOmServerException {
         userservice.grantRoles(session, username, roles);
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=revoke_role")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=revoke_role")
     public void revokeRoles(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.ROLES, required = true) List<String> roles)
             throws ScmInternalException, ScmOmServerException {
         userservice.revokeRoles(session, username, roles);
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=change_user_type")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=change_user_type")
     public void changeUserType(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.USER_TYPE, required = true) String userType,
             @RequestParam(value = RestParamDefine.NEW_PASSWORD, required = false) String newPassword,
@@ -85,13 +85,13 @@ public class ScmUserController {
                 passwordMgr.decrypt(newPassword));
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=disable")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=disable")
     public void disableUser(ScmOmSession session, @PathVariable("user_name") String username)
             throws ScmInternalException, ScmOmServerException {
         userservice.disableUser(session, username);
     }
 
-    @PutMapping(value = "/users/{user_name}", params = "action=enable")
+    @PutMapping(value = "/users/{user_name:.+}", params = "action=enable")
     public void enableUser(ScmOmSession session, @PathVariable("user_name") String username)
             throws ScmInternalException, ScmOmServerException {
         userservice.enableUser(session, username);

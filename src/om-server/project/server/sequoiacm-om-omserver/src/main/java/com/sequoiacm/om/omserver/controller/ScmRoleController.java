@@ -27,14 +27,14 @@ public class ScmRoleController {
     @Autowired
     private ScmRoleService roleService;
 
-    @GetMapping("/roles/{role_name}")
+    @GetMapping("/roles/{role_name:.+}")
     public OmRoleInfo getRole(ScmOmSession session,
             @PathVariable("role_name") String rolename)
             throws ScmInternalException, ScmOmServerException {
         return roleService.getRole(session, rolename);
     }
 
-    @PostMapping("/roles/{role_name}")
+    @PostMapping("/roles/{role_name:.+}")
     public void createRole(ScmOmSession session,
             @PathVariable("role_name") String rolename,
             @RequestParam(value = RestParamDefine.DESCRIPTION, required = false) String description)
@@ -42,14 +42,14 @@ public class ScmRoleController {
         roleService.createRole(session, rolename, description);
     }
 
-    @DeleteMapping("/roles/{role_name}")
+    @DeleteMapping("/roles/{role_name:.+}")
     public void deleteRole(ScmOmSession session,
             @PathVariable("role_name") String rolename)
             throws ScmInternalException, ScmOmServerException {
         roleService.deleteRole(session, rolename);
     }
 
-    @PutMapping(value = "/roles/{role_name}", params = "action=grant")
+    @PutMapping(value = "/roles/{role_name:.+}", params = "action=grant")
     public void grantPrivilege(ScmOmSession session,
             @PathVariable("role_name") String rolename,
             @RequestParam(value = RestParamDefine.RESOURCE_TYPE, required = true) String resourceType,
@@ -59,7 +59,7 @@ public class ScmRoleController {
         roleService.grantPrivilege(session, rolename, resourceType, resource, privilege);
     }
 
-    @PutMapping(value = "/roles/{role_name}", params = "action=revoke")
+    @PutMapping(value = "/roles/{role_name:.+}", params = "action=revoke")
     public void revokePrivilege(ScmOmSession session,
             @PathVariable("role_name") String rolename,
             @RequestParam(value = RestParamDefine.RESOURCE_TYPE, required = true) String resourceType,

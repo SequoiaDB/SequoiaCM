@@ -45,9 +45,20 @@ service.interceptors.response.use(
     let path = ''
     if(error && error.response) {
       let data = error.response.data
-      error.message = data.message || 'unknown error'
-      code = error.response.status
+      error.message = data.message
       path = data.path
+      if( !data.message ){
+        if( error.response.headers ){
+          let scmError = error.response.headers['x-scm-error']
+          if( scmError ){
+            let errorDetail = JSON.parse(scmError)
+            error.message = errorDetail.message
+            path = errorDetail.path
+          }
+        }
+      }
+      error.message = error.message || 'unknown error'
+      code = error.response.status
     }else {
       error.message = "Cannot connect to server"
     }

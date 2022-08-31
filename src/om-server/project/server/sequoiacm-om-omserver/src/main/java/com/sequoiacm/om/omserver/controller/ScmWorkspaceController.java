@@ -35,7 +35,7 @@ public class ScmWorkspaceController {
     @Autowired
     private ObjectMapper mapper;
 
-    @GetMapping("/workspaces/{workspace_name}")
+    @GetMapping("/workspaces/{workspace_name:.+}")
     public OmWorkspaceInfoWithStatistics getWorkspaceDetailWithStatistics(
             @PathVariable("workspace_name") String workspaceName, ScmOmSession session)
             throws ScmInternalException, ScmOmServerException {
@@ -58,7 +58,7 @@ public class ScmWorkspaceController {
         return service.getUserRelatedWsList(session, filter, orderBy, skip, limit, isStrictMode);
     }
 
-    @RequestMapping(value = "/workspaces/{workspace_name}", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/workspaces/{workspace_name:.+}", method = RequestMethod.HEAD)
     public ResponseEntity<Object> getWorkspaceDetail(
             @PathVariable("workspace_name") String workspaceName, ScmOmSession session)
             throws ScmInternalException, ScmOmServerException, JsonProcessingException {

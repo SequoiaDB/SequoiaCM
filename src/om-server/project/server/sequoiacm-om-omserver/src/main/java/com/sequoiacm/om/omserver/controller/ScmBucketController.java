@@ -46,7 +46,7 @@ public class ScmBucketController {
         return bucketService.getUserAccessibleBuckets(session);
     }
 
-    @RequestMapping(value = "/buckets/{bucket_name}", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/buckets/{bucket_name:.+}", method = RequestMethod.HEAD)
     public ResponseEntity<Object> getBucketDetail(@PathVariable("bucket_name") String bucketName,
             ScmOmSession session)
             throws JsonProcessingException, ScmInternalException, ScmOmServerException {
