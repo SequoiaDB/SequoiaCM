@@ -95,7 +95,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     private void testCreateInHbase() throws Exception {
         ScmId fileId = createFile( ws, name, filePath1 );
         updateFile( ws1, fileId, filePath2 );
@@ -104,7 +104,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
         runSuccess1 = true;
     }
 
-    @Test(groups = { GroupTags.fourSite, GroupTags.net })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     private void testCreateInHdfs() throws Exception {
         ScmId fileId = createFile( ws1, name, filePath1 );
         updateFile( ws, fileId, filePath2 );
