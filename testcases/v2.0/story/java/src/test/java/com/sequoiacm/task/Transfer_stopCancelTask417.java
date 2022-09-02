@@ -50,12 +50,12 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private boolean runSuccess = false;
     private File localPath = null;
     private String filePath = null;
-    private int fileSize = 1024 * 200;
+    private int fileSize = 1024 * 1024;
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
     private ScmId taskId = null;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
-    private int fileNum = 3;
+    private int fileNum = 10;
 
     private String authorName = "StopCancelTask417";
     private BSONObject cond = null;
