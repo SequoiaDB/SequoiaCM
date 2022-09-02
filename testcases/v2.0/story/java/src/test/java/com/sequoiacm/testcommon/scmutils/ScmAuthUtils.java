@@ -501,11 +501,16 @@ public class ScmAuthUtils extends TestScmBase {
         String bucketName = UUID.randomUUID().toString();
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         int times = 0;
+        boolean isBucketExist = false;
         do {
             try {
-                ScmFactory.Bucket.createBucket( ws, bucketName );
-                ScmFactory.Bucket.deleteBucket( session, bucketName );
-                break;
+                if ( !isBucketExist ) {
+                    ScmFactory.Bucket.createBucket( ws, bucketName );
+                    isBucketExist = true;
+                } else {
+                    ScmFactory.Bucket.deleteBucket( session, bucketName );
+                    break;
+                }
             } catch ( ScmException e ) {
                 if ( e.getError().equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
                     Thread.sleep( 500 );
