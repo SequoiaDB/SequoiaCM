@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @descreption SCM-3917:清理任务和跨中心读取文件并发，清理文件读取站点
+ * @descreption SCM-3917:清理任务和跨中心读取文件并发，清理文件跨中心读取站点
  * @author YiPan
  * @date 2021/10/27
  * @updateUser

@@ -85,7 +85,7 @@ public class ConcurrentTasks3907 extends TestScmBase {
         t.run();
 
         // 校验文件元数据
-        SiteWrapper[] expSite;
+        SiteWrapper[] expSite = new SiteWrapper[ 0 ];
         if ( cleanTask.taskInfo.getSuccessCount() == 1
                 && transTask.taskInfo.getSuccessCount() == 1 ) {
             expSite = new SiteWrapper[] { rootSite };
@@ -93,10 +93,8 @@ public class ConcurrentTasks3907 extends TestScmBase {
                 && transTask.taskInfo.getSuccessCount() == 1 ) {
             expSite = new SiteWrapper[] { rootSite, branchSite };
         } else {
-            throw new Exception( "clean task successCount: "
-                    + cleanTask.taskInfo.getSuccessCount()
-                    + ",trans task successCount:"
-                    + transTask.taskInfo.getSuccessCount() );
+            Assert.fail( "clean task:" + cleanTask.taskInfo + ",trans task:"
+                    + transTask.taskInfo );
         }
         ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         runSuccess = true;

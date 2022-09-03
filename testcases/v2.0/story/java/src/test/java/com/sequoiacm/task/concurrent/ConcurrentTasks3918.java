@@ -8,6 +8,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -30,14 +31,15 @@ import java.util.List;
  * @version 1.0
  */
 public class ConcurrentTasks3918 extends TestScmBase {
-    private static final String fileName = "file3917";
+    private static final String fileName = "file3918";
     private static final int fileSize = 1024 * 1024 * 50;
     private SiteWrapper rootSite = null;
-    private SiteWrapper branchSite = null;
+    private SiteWrapper branchSite1 = null;
+    private SiteWrapper branchSite2 = null;
     private ScmSession rootSiteSession = null;
     private ScmWorkspace rootSiteWs = null;
-    private ScmSession branchSiteSession = null;
-    private ScmWorkspace branchSiteWs = null;
+    private ScmSession branchSite1Session = null;
+    private ScmWorkspace branchSite1Ws = null;
     private WsWrapper wsp = null;
     private File localPath = null;
     private String filePath = null;
@@ -45,7 +47,7 @@ public class ConcurrentTasks3918 extends TestScmBase {
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     public void setUp() throws Exception {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -57,47 +59,46 @@ public class ConcurrentTasks3918 extends TestScmBase {
 
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
-        branchSite = ScmInfo.getBranchSite();
+        List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
+        branchSite1 = branchSites.get( 0 );
+        branchSite2 = branchSites.get( 1 );
 
         rootSiteSession = TestScmTools.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        branchSiteSession = TestScmTools.createSession( branchSite );
-        branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
-                branchSiteSession );
-
+        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                branchSite1Session );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
-        // 主站点创建文件
+        // 主站点创建文件,缓存至分站点1
         ScmId fileId = ScmFileUtils.create( rootSiteWs, fileName, filePath );
         fileIds.add( fileId );
+        ScmFactory.File.asyncCache( branchSite1Ws, fileId );
+        ScmTaskUtils.waitAsyncTaskFinished( branchSite1Ws, fileId, 2 );
 
-        // 创建2个并发任务，分站点清理文件，分站点跨中心读
-        CreateCleanTask cleanTask = new CreateCleanTask( rootSite, wsp,
-                fileName );
+        // 创建2个并发任务，分站点1清理文件，分站点2跨中心读
         ThreadExecutor t = new ThreadExecutor();
+        CreateCleanTask cleanTask = new CreateCleanTask( branchSite1, wsp,
+                fileName );
         t.addWorker( cleanTask );
-        t.addWorker( new CacheReadFile( branchSite, wsp, fileId ) );
+        t.addWorker( new CacheReadFile( branchSite2, wsp, fileId ) );
         t.run();
 
         // 校验文件存在站点
-        SiteWrapper[] expSite;
-        if ( cleanTask.taskInfo.getSuccessCount() == 1 ) {
-            expSite = new SiteWrapper[] { branchSite };
-        } else {
-            Assert.assertEquals( cleanTask.taskInfo.getSuccessCount(), 0 );
-            expSite = new SiteWrapper[] { rootSite, branchSite };
-        }
+        Assert.assertEquals( cleanTask.taskInfo.getSuccessCount(), 1,
+                cleanTask.taskInfo.toString() );
+        SiteWrapper[] expSite = new SiteWrapper[] { rootSite, branchSite2 };
         ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     public void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
@@ -106,7 +107,7 @@ public class ConcurrentTasks3918 extends TestScmBase {
             }
         } finally {
             rootSiteSession.close();
-            branchSiteSession.close();
+            branchSite1Session.close();
         }
     }
 
@@ -134,6 +135,7 @@ public class ConcurrentTasks3918 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 ScmId taskId = ScmSystem.Task.startCleanTask( ws, cond,
                         ScmType.ScopeType.SCOPE_CURRENT );
+                ScmTaskUtils.waitTaskFinish( session, taskId );
                 taskInfo = ScmSystem.Task.getTask( session, taskId );
             }
         }

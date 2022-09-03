@@ -91,7 +91,7 @@ public class ConcurrentTasks3899A extends TestScmBase {
         t.addWorker( rootTask );
         t.run();
 
-        // 校验文件元数据,存在一个站点未清理
+        // 校验文件数据
         SiteWrapper[] expSite;
         if ( rootTask.taskInfo.getSuccessCount() == 1 ) {
             expSite = new SiteWrapper[] { branchSite };

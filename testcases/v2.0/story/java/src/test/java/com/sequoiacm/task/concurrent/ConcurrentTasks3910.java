@@ -7,9 +7,9 @@ import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -32,10 +32,11 @@ import java.util.List;
  * @version 1.0
  */
 public class ConcurrentTasks3910 extends TestScmBase {
-    private static final String fileName = "file3910";
+    private static final String fileName = "file3910_";
     private static final String fileAuthor = "author3910";
     private static final int fileSize = 1024 * 1024 * 50;
-    private static final int taskNum = 10;
+    private static
+    int maxTaskNum;
     private File localPath = null;
     private String filePath = null;
     private WsWrapper ws1 = null;
@@ -47,8 +48,9 @@ public class ConcurrentTasks3910 extends TestScmBase {
     private ScmWorkspace rootSiteWs2 = null;
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
+    private static final String clean = "clean";
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     public void setUp() throws IOException, ScmException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
@@ -70,28 +72,44 @@ public class ConcurrentTasks3910 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         session = TestScmTools.createSession( rootSite );
+        int nodeNumOfSite = ScmTaskUtils.getNodeNumOfSite( session,
+                branchSite.getSiteName() );
+        // 默认配置每个节点下最多可执行10个并发调度任务
+        maxTaskNum = nodeNumOfSite * 10;
+
         rootSiteWs1 = ScmFactory.Workspace.getWorkspace( ws1.getName(),
                 session );
         rootSiteWs2 = ScmFactory.Workspace.getWorkspace( ws2.getName(),
                 session );
     }
 
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 主站点在ws1和ws2下创建文件
-        List< ScmId > filelist1 = createFile( rootSiteWs1, 0, taskNum / 2 );
-        List< ScmId > filelist2 = createFile( rootSiteWs2, taskNum / 2,
-                taskNum );
+        List< ScmId > filelist1 = createFile( rootSiteWs1, 0, maxTaskNum / 2 );
+        List< ScmId > filelist2 = createFile( rootSiteWs2, maxTaskNum / 2,
+                maxTaskNum );
+        // 迁移编号为偶数文件至分站点
+        transferFile( session, branchSite, ws1.getName() );
+        transferFile( session, branchSite, ws2.getName() );
 
-        // 执行并发迁移任务
         ThreadExecutor t = new ThreadExecutor();
-        for ( int i = 0; i < taskNum / 2; i++ ) {
-            t.addWorker( new CreateTransferTask( rootSite, branchSite, ws1,
-                    fileName + i ) );
-        }
-        for ( int i = taskNum / 2; i < taskNum; i++ ) {
-            t.addWorker( new CreateTransferTask( rootSite, branchSite, ws2,
-                    fileName + i ) );
+        for ( int i = 0; i < maxTaskNum; i++ ) {
+            WsWrapper wsp;
+            // 根据编号区分文件所属ws
+            if ( i < maxTaskNum / 2 ) {
+                wsp = ws1;
+            } else {
+                wsp = ws2;
+            }
+            // 根据编号奇偶区分文件执行任务类型
+            if ( i % 2 != 0 ) {
+                t.addWorker(
+                        new CreateCleanTask( branchSite, wsp, fileName + i ) );
+            } else {
+                t.addWorker( new CreateTransferTask( rootSite, branchSite, wsp,
+                        fileName + i ) );
+            }
         }
         t.run();
 
@@ -102,7 +120,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     public void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
@@ -119,26 +137,26 @@ public class ConcurrentTasks3910 extends TestScmBase {
         private SiteWrapper sourceSite;
         private SiteWrapper targetSite;
         private WsWrapper wsp;
-        private String filename;
-        private ScmId taskId;
+        private String fileName;
 
         public CreateTransferTask( SiteWrapper sourceSite,
-                SiteWrapper targetSite, WsWrapper wsp, String filename ) {
+                                   SiteWrapper targetSite, WsWrapper wsp, String fileName ) {
             this.sourceSite = sourceSite;
             this.targetSite = targetSite;
             this.wsp = wsp;
-            this.filename = filename;
+            this.fileName = fileName;
         }
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
+            ScmId taskId;
             try ( ScmSession session = TestScmTools
                     .createSession( sourceSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 BSONObject cond = ScmQueryBuilder
                         .start( ScmAttributeName.File.FILE_NAME )
-                        .is( this.filename ).get();
+                        .is( this.fileName ).get();
                 taskId = ScmSystem.Task.startTransferTask( ws, cond,
                         ScmType.ScopeType.SCOPE_CURRENT,
                         targetSite.getSiteName() );
@@ -147,23 +165,69 @@ public class ConcurrentTasks3910 extends TestScmBase {
             ScmTask task = ScmSystem.Task.getTask( session, taskId );
             if ( task
                     .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
-                throw new Exception(
-                        "this task is abort,task id:" + task.getId() );
+                throw new Exception( "this task is abort,taskInfo:" + task );
+            }
+        }
+    }
+
+    private class CreateCleanTask {
+        private SiteWrapper targetSite;
+        private WsWrapper wsp;
+        private String fileName;
+
+        public CreateCleanTask( SiteWrapper targetSite, WsWrapper wsp,
+                                String fileName ) {
+            this.targetSite = targetSite;
+            this.wsp = wsp;
+            this.fileName = fileName;
+        }
+
+        @ExecuteOrder(step = 1)
+        private void run() throws Exception {
+            ScmId taskId;
+            try ( ScmSession session = TestScmTools
+                    .createSession( targetSite )) {
+                ScmWorkspace ws = ScmFactory.Workspace
+                        .getWorkspace( wsp.getName(), session );
+                BSONObject query = ScmQueryBuilder
+                        .start( ScmAttributeName.File.FILE_NAME )
+                        .is( this.fileName ).get();
+                taskId = ScmSystem.Task.startCleanTask( ws, query,
+                        ScmType.ScopeType.SCOPE_CURRENT );
+            }
+            // 校验任务没有被abort
+            ScmTask task = ScmSystem.Task.getTask( session, taskId );
+            if ( task
+                    .getRunningFlag() == CommonDefine.TaskRunningFlag.SCM_TASK_ABORT ) {
+                throw new Exception( "this task is abort,taskInfo:" + task );
             }
         }
     }
 
     private List< ScmId > createFile( ScmWorkspace ws, int startNum,
-            int endNum ) throws ScmException {
+                                      int endNum ) throws ScmException {
         List< ScmId > fileIds = new ArrayList<>();
         for ( int i = startNum; i < endNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + i );
             file.setAuthor( fileAuthor );
             file.setContent( filePath );
+            // 编号为偶数的设置为清理任务使用文件，其余为迁移任务使用
+            if ( i % 2 != 0 ) {
+                file.setTitle( clean );
+            }
             ScmId fileId = file.save();
             fileIds.add( fileId );
         }
         return fileIds;
+    }
+
+    private void transferFile( ScmSession session, SiteWrapper targetSite,
+                               String wsName ) throws ScmException {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
+        BSONObject query = ScmQueryBuilder.start( ScmAttributeName.File.TITLE )
+                .is( clean ).get();
+        ScmSystem.Task.startTransferTask( ws, query,
+                ScmType.ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
     }
 }

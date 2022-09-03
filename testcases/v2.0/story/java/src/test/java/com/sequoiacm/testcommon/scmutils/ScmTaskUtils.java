@@ -6,10 +6,13 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.TestScmBase;
+
+import java.util.List;
 
 public class ScmTaskUtils extends TestScmBase {
     // private static final Logger logger = Logger.getLogger(ScmTaskUtils
@@ -150,4 +153,25 @@ public class ScmTaskUtils extends TestScmBase {
             retryTimes++;
         }
     }
+
+    /**
+     * @descreption get node number of site
+     * @param session
+     * @param siteName
+     * @return
+     * @throws ScmException
+     */
+    public static int getNodeNumOfSite( ScmSession session, String siteName )
+            throws ScmException {
+        List<ScmServiceInstance> contentServerInstanceList = ScmSystem.ServiceCenter
+                .getContentServerInstanceList( session );
+        int nodeNumOfSite = 0;
+        for ( ScmServiceInstance server : contentServerInstanceList ) {
+            if ( server.getServiceName().equals( siteName ) ) {
+                nodeNumOfSite++;
+            }
+        }
+        return nodeNumOfSite;
+    }
+
 }

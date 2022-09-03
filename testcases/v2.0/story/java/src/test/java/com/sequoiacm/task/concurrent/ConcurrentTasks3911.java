@@ -36,7 +36,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
     private static final String fileName = "file3911";
     private static final String fileAuthor = "author3911";
     private static final int fileSize = 1024 * 1024 * 50;
-    private static final int taskNum = 30;
+    private static int taskNum;
     private File localPath = null;
     private String filePath = null;
     private WsWrapper ws1 = null;
@@ -71,6 +71,11 @@ public class ConcurrentTasks3911 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         session = TestScmTools.createSession( rootSite );
+        int nodeNumOfSite = ScmTaskUtils.getNodeNumOfSite( session,
+                branchSite.getSiteName() );
+        // 默认配置每个节点下最多可执行10个并发调度任务
+        taskNum = nodeNumOfSite * 10 + 10;
+
         rootSiteWs1 = ScmFactory.Workspace.getWorkspace( ws1.getName(),
                 session );
         rootSiteWs2 = ScmFactory.Workspace.getWorkspace( ws2.getName(),

@@ -104,8 +104,8 @@ public class ConcurrentTasks3906 extends TestScmBase {
             SiteWrapper[] expSite = { branchSite1 };
             ScmScheduleUtils.checkScmFile( rootSiteWs, fileIds, expSite );
         } else {
-            Assert.fail( "task successCount must equals '0' or '-1', taskInfo="
-                    + transTask.taskInfo.toString() );
+            Assert.fail( "clean task : " + cleanTask.taskInfo + ",trans task :"
+                    + transTask.taskInfo );
         }
         runSuccess = true;
     }
