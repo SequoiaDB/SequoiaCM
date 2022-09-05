@@ -46,7 +46,8 @@ public class Object4808 extends TestScmBase {
         S3Utils.setBucketVersioning( s3Client, bucketName, "Enabled" );
     }
 
-    @Test(groups = { GroupTags.base })
+    //http://jira.web:8080/browse/SEQUOIACM-1007
+    @Test(groups = { GroupTags.base },enabled = false)
     public void test() throws Exception {
         List< CreateObjectThread > createObjects = new ArrayList<>();
         for ( int i = 0; i < defaultNums; i++ ) {
