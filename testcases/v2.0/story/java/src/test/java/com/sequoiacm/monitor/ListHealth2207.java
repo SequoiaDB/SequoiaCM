@@ -26,26 +26,26 @@ public class ListHealth2207 extends TestScmBase {
     private ScmSession session = null;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException {
         site = ScmInfo.getRootSite();
-        try {
-            session = TestScmTools.createSession( site );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        session = TestScmTools.createSession( site );
     }
 
-    @Test(groups = { "fourSite" })
+    @Test
     private void testList() throws Exception {
         ScmCursor< ScmHealth > cursor = null;
         try {
             cursor = ScmSystem.Monitor.listHealth( session, null );
             while ( cursor.hasNext() ) {
-                ScmHealth str = cursor.getNext();
-                Assert.assertEquals( str.getStatus(), "UP" );
-                Assert.assertNotNull( str.getNodeName() );
-                Assert.assertNotNull( str.getServiceName() );
+                ScmHealth healthInfo = cursor.getNext();
+                if ( healthInfo.getStatus().equals( "UP" ) ) {
+                    Assert.assertNotNull( healthInfo.getNodeName() );
+                    Assert.assertNotNull( healthInfo.getServiceName() );
+                } else {
+                    Assert.fail( healthInfo.getStatus() + " "
+                            + healthInfo.getServiceName() + " "
+                            + healthInfo.getNodeName() );
+                }
             }
         } finally {
             if ( cursor != null ) {
@@ -54,18 +54,23 @@ public class ListHealth2207 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    @Test
     private void testGet() throws Exception {
         ScmCursor< ScmHealth > cursor = null;
         try {
             cursor = ScmSystem.Monitor.listHealth( session,
                     site.getSiteServiceName() );
             while ( cursor.hasNext() ) {
-                ScmHealth str = cursor.getNext();
-                Assert.assertEquals( str.getStatus(), "UP" );
-                Assert.assertEquals( str.getServiceName(),
-                        site.getSiteServiceName() );
-                Assert.assertNotNull( str.getNodeName() );
+                ScmHealth healthInfo = cursor.getNext();
+                if ( healthInfo.getStatus().equals( "UP" ) ) {
+                    Assert.assertNotNull( healthInfo.getNodeName() );
+                    Assert.assertEquals( healthInfo.getServiceName(),
+                            site.getSiteServiceName() );
+                } else {
+                    Assert.fail( healthInfo.getStatus() + " "
+                            + healthInfo.getServiceName() + " "
+                            + healthInfo.getNodeName() );
+                }
             }
         } finally {
             if ( cursor != null ) {
