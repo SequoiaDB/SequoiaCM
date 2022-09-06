@@ -20,7 +20,9 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @descreption SCM-3910:创建多个任务并发执行，未超过最大限制
@@ -34,9 +36,8 @@ import java.util.List;
 public class ConcurrentTasks3910 extends TestScmBase {
     private static final String fileName = "file3910_";
     private static final String fileAuthor = "author3910";
-    private static final int fileSize = 1024 * 1024 * 50;
-    private static
-    int maxTaskNum;
+    private static final int fileSize = 1024 * 50;
+    private static int maxTaskNum;
     private File localPath = null;
     private String filePath = null;
     private WsWrapper ws1 = null;
@@ -49,6 +50,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
     private BSONObject queryCond = null;
     private boolean runSuccess = false;
     private static final String clean = "clean";
+    private static final String trans = "trans";
 
     @BeforeClass
     public void setUp() throws IOException, ScmException {
@@ -86,10 +88,11 @@ public class ConcurrentTasks3910 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 主站点在ws1和ws2下创建文件
-        List< ScmId > filelist1 = createFile( rootSiteWs1, 0, maxTaskNum / 2 );
-        List< ScmId > filelist2 = createFile( rootSiteWs2, maxTaskNum / 2,
-                maxTaskNum );
-        // 迁移编号为偶数文件至分站点
+        Map< String, List< ScmId > > ws1file = createFile( rootSiteWs1, 0,
+                maxTaskNum / 2 );
+        Map< String, List< ScmId > > ws2file = createFile( rootSiteWs2,
+                maxTaskNum / 2, maxTaskNum );
+        // 迁移编号为奇数文件至分站点
         transferFile( session, branchSite, ws1.getName() );
         transferFile( session, branchSite, ws2.getName() );
 
@@ -102,7 +105,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
             } else {
                 wsp = ws2;
             }
-            // 根据编号奇偶区分文件执行任务类型
+            // 根据编号奇偶区分文件执行任务类型，奇数编号执行清理，偶数编号执行迁移
             if ( i % 2 != 0 ) {
                 t.addWorker(
                         new CreateCleanTask( branchSite, wsp, fileName + i ) );
@@ -114,9 +117,16 @@ public class ConcurrentTasks3910 extends TestScmBase {
         t.run();
 
         // 校验文件存在站点
-        SiteWrapper[] expSite = { rootSite, branchSite };
-        ScmScheduleUtils.checkScmFile( rootSiteWs1, filelist1, expSite );
-        ScmScheduleUtils.checkScmFile( rootSiteWs2, filelist2, expSite );
+        SiteWrapper[] cleanExpSite = { rootSite };
+        ScmScheduleUtils.checkScmFile( rootSiteWs1, ws1file.get( clean ),
+                cleanExpSite );
+        ScmScheduleUtils.checkScmFile( rootSiteWs2, ws2file.get( clean ),
+                cleanExpSite );
+        SiteWrapper[] transExpSite = { rootSite, branchSite };
+        ScmScheduleUtils.checkScmFile( rootSiteWs1, ws1file.get( trans ),
+                transExpSite );
+        ScmScheduleUtils.checkScmFile( rootSiteWs2, ws2file.get( trans ),
+                transExpSite );
         runSuccess = true;
     }
 
@@ -140,7 +150,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
         private String fileName;
 
         public CreateTransferTask( SiteWrapper sourceSite,
-                                   SiteWrapper targetSite, WsWrapper wsp, String fileName ) {
+                SiteWrapper targetSite, WsWrapper wsp, String fileName ) {
             this.sourceSite = sourceSite;
             this.targetSite = targetSite;
             this.wsp = wsp;
@@ -176,7 +186,7 @@ public class ConcurrentTasks3910 extends TestScmBase {
         private String fileName;
 
         public CreateCleanTask( SiteWrapper targetSite, WsWrapper wsp,
-                                String fileName ) {
+                String fileName ) {
             this.targetSite = targetSite;
             this.wsp = wsp;
             this.fileName = fileName;
@@ -204,30 +214,37 @@ public class ConcurrentTasks3910 extends TestScmBase {
         }
     }
 
-    private List< ScmId > createFile( ScmWorkspace ws, int startNum,
-                                      int endNum ) throws ScmException {
-        List< ScmId > fileIds = new ArrayList<>();
+    private Map< String, List< ScmId > > createFile( ScmWorkspace ws,
+            int startNum, int endNum ) throws ScmException {
+        List< ScmId > cleanFileIds = new ArrayList<>();
+        List< ScmId > transFileIds = new ArrayList<>();
         for ( int i = startNum; i < endNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + i );
             file.setAuthor( fileAuthor );
             file.setContent( filePath );
-            // 编号为偶数的设置为清理任务使用文件，其余为迁移任务使用
+            // 编号为奇数的设置为清理任务使用文件，其余为迁移任务使用
             if ( i % 2 != 0 ) {
                 file.setTitle( clean );
+                cleanFileIds.add( file.save() );
+            } else {
+                file.setTitle( trans );
+                transFileIds.add( file.save() );
             }
-            ScmId fileId = file.save();
-            fileIds.add( fileId );
         }
-        return fileIds;
+        Map< String, List< ScmId > > map = new HashMap<>();
+        map.put( clean, cleanFileIds );
+        map.put( trans, transFileIds );
+        return map;
     }
 
     private void transferFile( ScmSession session, SiteWrapper targetSite,
-                               String wsName ) throws ScmException {
+            String wsName ) throws Exception {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         BSONObject query = ScmQueryBuilder.start( ScmAttributeName.File.TITLE )
                 .is( clean ).get();
-        ScmSystem.Task.startTransferTask( ws, query,
+        ScmId taskId = ScmSystem.Task.startTransferTask( ws, query,
                 ScmType.ScopeType.SCOPE_CURRENT, targetSite.getSiteName() );
+        ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 }
