@@ -23,13 +23,26 @@ class CuratorLockFromReadWrite implements ScmLock {
     @Override
     @SlowLog(operation = "releaseLock")
     public void unlock() {
+        boolean isAcquiredInThisProcess = false;
         try {
             if (this.lock.isAcquiredInThisProcess()) {
+                isAcquiredInThisProcess = true;
                 this.lock.release();
             }
         }
         catch (Exception e) {
-            logger.warn("Fail to relese curator read or write lock!", e);
+            logger.warn("Fail to release curator read or write lock, lockPath={}", lockPath, e);
+        }
+        finally {
+            if (isAcquiredInThisProcess) {
+                try {
+                    CuratorZKCleaner.getInstance().putPath(lockPath);
+                }
+                catch (Exception e) {
+                    logger.warn("Failed to put path into CuratorZKCleaner, lockPath={}", lockPath,
+                            e);
+                }
+            }
         }
     }
 
@@ -40,7 +53,7 @@ class CuratorLockFromReadWrite implements ScmLock {
             this.lock.acquire();
         }
         catch (Exception e) {
-            logger.error("Fail to acquire curator read or write lock!");
+            logger.error("Fail to acquire curator read or write lock, lockPath={}", lockPath);
             throw e;
         }
     }
@@ -52,7 +65,9 @@ class CuratorLockFromReadWrite implements ScmLock {
             return this.lock.acquire(waitTime, unit);
         }
         catch (Exception e) {
-            logger.error("Fail to acquire curator read or write lock within the waitTime!");
+            logger.error(
+                    "Fail to acquire curator read or write lock within the waitTime, lockPath={}",
+                    lockPath);
             throw e;
         }
     }
@@ -64,7 +79,9 @@ class CuratorLockFromReadWrite implements ScmLock {
             return lock.acquire(CuratorLockProperty.TRYLOCK_WAITTIME, TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
-            logger.error("Try to acquire  curator read or write lock faild within the waitTime!");
+            logger.error(
+                    "Try to acquire  curator read or write lock faild within the waitTime, lockPath={}",
+                    lockPath);
             throw e;
         }
     }

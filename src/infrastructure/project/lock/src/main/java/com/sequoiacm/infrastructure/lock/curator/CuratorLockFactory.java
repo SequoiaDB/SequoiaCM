@@ -18,6 +18,9 @@ public class CuratorLockFactory implements LockFactory {
     private boolean enableContainer;
     private ScmTimer t;
 
+    private String zkUrl;
+    private ZkAcl acl;
+
     public CuratorLockFactory(String zkUrl) throws Exception {
         this(zkUrl, new ZkAcl());
     }
@@ -25,9 +28,11 @@ public class CuratorLockFactory implements LockFactory {
     public CuratorLockFactory(String zkUrl, ZkAcl acl) throws Exception {
         // SEQUOIACM-485:enableContainer is false, zk server version below 3.5
         enableContainer = ZKCompaticify.enableContainer(zkUrl);
+        this.zkUrl = zkUrl;
+        this.acl = acl;
         try {
-            logger.info("start init zookeeper client: zkUrl={}, enableContainer={}",
-                    zkUrl, enableContainer);
+            logger.info("start init zookeeper client: zkUrl={}, enableContainer={}", zkUrl,
+                    enableContainer);
             this.client = CuratorLockTools.createClient(zkUrl, enableContainer, acl);
         }
         catch (Exception e) {
@@ -37,6 +42,12 @@ public class CuratorLockFactory implements LockFactory {
             close();
             throw e;
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                close();
+            }
+        }));
     }
 
     @Override
@@ -61,6 +72,16 @@ public class CuratorLockFactory implements LockFactory {
             t.cancel();
         }
         closeClient(client);
+        closeZkCleaner();
+    }
+
+    private void closeZkCleaner() {
+        if (t != null) {
+            t.cancel();
+        }
+        if (CuratorZKCleaner.isInitialized()) {
+            CuratorZKCleaner.getInstance().close();
+        }
     }
 
     private void closeClient(CuratorFramework client) {
@@ -74,9 +95,12 @@ public class CuratorLockFactory implements LockFactory {
         }
     }
 
-
     @Override
-    public void startCleanJob(long period, long maxResidualTime, int maxChildNum, int cleanCount) {
+    public void startCleanJob(long period, long maxResidualTime, int coreCleanThreads,
+            int maxCleanThreads,
+            int cleanQueueSize, int maxBuffer) {
+        CuratorZKCleaner.init(getCuratorClient(), coreCleanThreads, maxCleanThreads,
+                cleanQueueSize);
         if (!enableContainer) {
             if (null != t) {
                 t.cancel();
@@ -84,20 +108,21 @@ public class CuratorLockFactory implements LockFactory {
             }
 
             t = ScmTimerFactory.createScmTimer();
-            CuratorCleanJob task = new CuratorCleanJob(this, maxResidualTime, maxChildNum,
-                    cleanCount, true);
+            CuratorCleanJob task = new CuratorCleanJob(this, maxResidualTime, maxBuffer);
             t.schedule(task, 0, period);
-            logger.info(
-                    "start clean job cleanJobResidualTime={}, maxChildNum={},cleanJobPeriod={}, cleanAllCountPeriod={}",
-                    maxResidualTime, maxChildNum, period, cleanCount);
+            logger.info("start clean job cleanJobResidualTime={}, cleanJobPeriod={}",
+                    maxResidualTime, period);
         }
         else {
             // enableContainer is true, clean only once
             logger.info("clean all old zookeeper node");
-            CuratorCleanJob task = new CuratorCleanJob(this, 0, 0, 0, false);
-            new Thread(task).start();
-
+            CuratorCleanJob task = new CuratorCleanJob(this, 0, maxBuffer);
+            t.schedule(task, 0);
         }
     }
 
+    public CuratorFramework createCleanJobClient(int maxBuffer) throws Exception {
+        System.setProperty("jute.maxbuffer", String.valueOf(maxBuffer));
+        return CuratorLockTools.createClient(zkUrl, enableContainer, acl);
+    }
 }

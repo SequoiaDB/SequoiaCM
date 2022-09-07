@@ -7,7 +7,8 @@ public interface LockFactory {
 
     public abstract void close();
 
-    public abstract void startCleanJob(long period, long maxResidualTime, int maxChildNum,
-            int cleanCount);
+    public abstract void startCleanJob(long period, long maxResidualTime, int coreCleanThreads,
+            int maxCleanThread,
+            int cleanQueueSize, int maxBuffer);
 
 }

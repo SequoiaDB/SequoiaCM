@@ -44,11 +44,12 @@ public class CommonDefine {
         public static final String ZK_URL = "";
         public static final int ZK_LOCK_TIMEOUT = 120 * 1000; // (ms)
         public static final int ZK_CLIENT_TIMEOUT = 120 * 1000; // (ms)
-        public static final long ZK_CLEANJOB_PERIOD = 120L * 1000L; // (ms)
+        public static final long ZK_CLEANJOB_PERIOD = 1000L * 60 * 30; // (ms)
         public static final long ZK_CLEANJOB_RESIDUAL = 180L * 1000L; // (ms)
-        public static final int ZK_CLEANJOB_CHILDNUM_THRESHOLD = 1000;
-        // for every 720 cleanups, clean up all zookeeper nodes
-        public static final int ZK_CLEANJOB_COUNT_THRESHOLD = 12 * 60;
+        public static final int ZK_MAX_CLEAN_THREAD = 6;
+        public static final int ZK_CORE_CLEAN_THREAD = 3;
+        public static final int ZK_CLEAN_QUEUE_SIZE = 10000;
+        public static final int ZK_MAX_BUFFER = 0;
 
         // *********************** jvm ******************************
         public static final String JVM_OPTIONS = "-Xmx1024M -Xms1024M -Xmn256M";

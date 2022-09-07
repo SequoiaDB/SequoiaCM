@@ -21,7 +21,8 @@ public class FakeLockFactory implements LockFactory {
     }
 
     @Override
-    public void startCleanJob(long period, long maxResidualTime, int maxChildNum, int cleanCount) {
+    public void startCleanJob(long period, long maxResidualTime, int coreCleanThreads,
+            int maxCleanThread, int cleanQueueSize, int maxBuffer) {
 
     }
 }

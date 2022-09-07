@@ -342,12 +342,20 @@ public class PropertiesUtils {
         return zkConfig.getCleanJobResidualTime();
     }
 
-    public static int getClenaJobChildThreshold() {
-        return zkConfig.getClenaJobChildThreshold();
+    public static int getMaxCleanThreads() {
+        return zkConfig.getMaxCleanThreads();
     }
 
-    public static int getClenaJobCountThreshold() {
-        return zkConfig.getClenaJobCountThreshold();
+    public static int getCoreCleanThreads() {
+        return zkConfig.getCoreCleanThreads();
+    }
+
+    public static int getCleanQueueSize() {
+        return zkConfig.getCleanQueueSize();
+    }
+
+    public static int getMaxBuffer() {
+        return zkConfig.getMaxBuffer();
     }
 
     // *********************** privilege ******************************

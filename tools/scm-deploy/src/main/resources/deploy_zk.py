@@ -90,8 +90,9 @@ def modify_config(myid, config, zk_cfg):
     #execCMD("mkdir %s" % datalog_dir)
     #update_param("dataLogDir", data_dir, "zoo%d.cfg" % myid)
 
-    execCMD("echo autopurge.snapRetainCount=10 >> " + copy_cfg)
-    execCMD("echo autopurge.purgeInterval=24 >> " + copy_cfg)
+    execCMD("echo autopurge.snapRetainCount=3 >> " + copy_cfg)
+    execCMD("echo autopurge.purgeInterval=1 >> " + copy_cfg)
+    execCMD("echo snapCount=200000 >> " + copy_cfg)
     return True
 
 def deploy_zk(config):

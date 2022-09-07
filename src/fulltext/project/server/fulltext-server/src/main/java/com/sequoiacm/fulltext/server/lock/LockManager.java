@@ -33,9 +33,9 @@ public class LockManager {
                     innerFactory = new CuratorLockFactory(lockConfig.getUrls(),
                             lockConfig.getAcl());
                     innerFactory.startCleanJob(lockConfig.getCleanJobPeriod(),
-                            lockConfig.getCleanJobResidualTime(),
-                            lockConfig.getClenaJobChildThreshold(),
-                            lockConfig.getClenaJobCountThreshold());
+                            lockConfig.getCleanJobResidualTime(), lockConfig.getCoreCleanThreads(),
+                            lockConfig.getMaxCleanThreads(),
+                            lockConfig.getCleanQueueSize(), lockConfig.getMaxBuffer());
                 }
             }
         }

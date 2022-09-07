@@ -7,6 +7,8 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.infrastructure.lock.ScmLockConfig;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
+import com.sequoiacm.infrastructure.lock.curator.CuratorZKCleaner;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
 import com.sequoiacm.sequoiadb.dataopertion.SdbDataOpFactoryImpl;
 import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
@@ -78,6 +80,11 @@ public class FileCleaner {
             lockConf.setUrls(zkUrls);
             lockConf.setDisableJob(true);
             this.lockMgr = new ScmLockManager(lockConf);
+            if (!CuratorZKCleaner.isInitialized()) {
+                CuratorZKCleaner.init(new CuratorLockFactory(zkUrls).getCuratorClient(),
+                        lockConf.getCoreCleanThreads(),
+                        lockConf.getMaxCleanThreads(), lockConf.getCleanQueueSize());
+            }
             this.feignUtil = new ScmFeignUtil();
             final ArrayBlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(queueSize);
             threadPool = new ThreadPoolExecutor(thread, thread, 60000, TimeUnit.MICROSECONDS,

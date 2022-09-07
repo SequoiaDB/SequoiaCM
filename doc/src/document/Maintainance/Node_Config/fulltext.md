@@ -13,8 +13,11 @@ SequoiaCM 配置
 |scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|
 |scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|
 |scm.zookeeper.urls|str|zookeeper服务地址(ip1:port1,ip2:port2)|
-|scm.zookeeper.cleanJobPeriod|num|配置服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
-|scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
+|scm.zookeeper.cleanJobPeriod|num|配置服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒|
+|scm.zookeeper.maxBuffer|num|配置服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节|
+|scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：180000 (3分钟)，单位：毫秒|
+|scm.zookeeper.maxCleanThreads|num|配置服务节点清理残留的zookeeper节点所使用的最大线程数，默认值：6|
+|scm.zookeeper.cleanQueueSize|num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000|
 |scm.fulltext.es.urls|str|elasticsearch 服务地址（http://ip1:port1,http://ip2:port2）|
 |scm.fulltext.es.searchScrollTimeout|num|在elasticsearch 通过游标查询（scroll search）时，游标在 elasticsearch 服务端的超时时间，默认值：180000（3min），单位：ms|
 |scm.fulltext.es.searchScrollSize|num|在elasticsearch 通过游标查询（scroll search）时，每次获取的最大记录数，默认值：1000|

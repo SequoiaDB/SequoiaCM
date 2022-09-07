@@ -27,8 +27,11 @@ SequoiaCM 配置
 |scm.store.sequoiadb.recheckCyclePeriod     |num    |配置服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|
 |scm.store.sequoiadb.validateConnection     |boolean|配置服务节点的sdb连接池是否开启出池检查，默认值：true|
 |scm.zookeeper.urls|str|配置服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|
-|scm.zookeeper.cleanJobPeriod|num|配置服务节点清理zookeeper无效节点的周期，默认值：43200000 (12h)，单位：毫秒|
-|scm.zookeeper.cleanJobResidualTime|num|配置服务节点将清理残留多久的zookeeper节点，默认值：86400000 (24h)，单位：毫秒|
+|scm.zookeeper.cleanJobPeriod                |num|配置服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒                           |
+|scm.zookeeper.maxBuffer                     |num|配置服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节       |
+|scm.zookeeper.cleanJobResidualTime          |num|配置服务节点将清理残留多久的zookeeper节点，默认值：180000 (3分钟)，单位：毫秒                              |
+|scm.zookeeper.maxCleanThreads               |num|配置服务节点清理残留的zookeeper节点所使用的最大线程数，默认值：6                                         |
+|scm.zookeeper.cleanQueueSize                |num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000|
 |scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
 |scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 

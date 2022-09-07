@@ -1,12 +1,13 @@
 package com.sequoiacm.infrastructure.lock.curator;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.KeeperException.NotEmptyException;
 import org.apache.zookeeper.data.Stat;
@@ -15,88 +16,114 @@ import org.slf4j.LoggerFactory;
 
 public class CuratorZKCleaner {
     private static int printCount = 10000;
-    private int innerCounter = 0;
+    private long innerCounter = 0;
     private static final Logger logger = LoggerFactory.getLogger(CuratorZKCleaner.class);
-    // buffer record clean path
-    private CleanPathBuffer cleanPathBuffer;
-    private boolean usePathBuffer = false;
     // clean task is single thread, have no need lock
-    private static CuratorZKCleaner curatorZKCleaner = new CuratorZKCleaner();
+    private static volatile CuratorZKCleaner INSTANCE = null;
 
-    private CuratorZKCleaner() {
+    private final ThreadPoolExecutor cleanThreadPool;
+    private final ErrorLogDecision errorLogDecision;
+    private final CuratorFramework client;
+    private volatile boolean closed = false;
+
+    private CuratorZKCleaner(CuratorFramework curatorFramework, int coreCleanThreads,
+            int maxCleanThreads,
+            int queueSize) {
+        this.client = curatorFramework;
+        this.cleanThreadPool = new ThreadPoolExecutor(coreCleanThreads, maxCleanThreads, 60,
+                TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueSize),
+                Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+        this.errorLogDecision = new ErrorLogDecision(10 * 1000);
+        logger.info("init CuratorZKCleaner,coreCleanThreads={}, maxCleanThreads={}, queueSize={}",
+                coreCleanThreads, maxCleanThreads,
+                queueSize);
     }
+
 
     public static CuratorZKCleaner getInstance() {
-        return curatorZKCleaner;
+        if (INSTANCE == null) {
+            throw new RuntimeException("CuratorZKCleaner is not initialized");
+        }
+        return INSTANCE;
     }
 
-    public void useBufferPath() {
-        cleanPathBuffer = new CleanPathBuffer();
-        usePathBuffer = true;
+    public static boolean isInitialized() {
+        return INSTANCE != null;
+    }
+
+    public static void init(CuratorFramework curatorFramework, int coreCleanThreads,
+            int maxCleanThreads, int queueSize) {
+        if (INSTANCE == null) {
+            synchronized (CuratorZKCleaner.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new CuratorZKCleaner(curatorFramework, coreCleanThreads,
+                            maxCleanThreads, queueSize);
+                }
+            }
+        }
     }
 
     public void putPath(String path) {
-        if (usePathBuffer) {
-            cleanPathBuffer.put(path);
+        if (closed || path == null || path.isEmpty()) {
+            return;
+        }
+        cleanThreadPool.execute(new DeletePathTask(path));
+    }
+
+    private class DeletePathTask implements Runnable {
+
+        private String path;
+
+        public DeletePathTask(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+            deletePathSilence(path);
+        }
+
+        @Override
+        public String toString() {
+            return "DeletePathTask{" + "path='" + path + '\'' + '}';
         }
     }
 
-    public long cleanPathSetNode(CuratorFramework client, int maxChildNum, long maxResidualTime)
-            throws Exception {
-        long count = 0;
-        if (usePathBuffer) {
-            Set<String> cleanPathSet = cleanPathBuffer.getAndClear();
-            try {
-                Iterator<String> it = cleanPathSet.iterator();
-                while (it.hasNext()) {
-                    String path = it.next();
-                    Stat ckStat = CuratorZKBase.exists(client, path);
-                    if (ckStat == null) {
-                        it.remove();
-                    }
-                    else {
-                        count += cleanChildNode(client, ckStat, path, maxChildNum, maxResidualTime);
-                    }
+    private void deletePathSilence(String path) {
+        try {
+            client.delete().forPath(path);
+        }
+        catch (KeeperException.NoNodeException | KeeperException.NotEmptyException ignored) {
+            // NoNodeException: 节点已经被删除了，直接忽略
+            // NotEmptyException: 节点在删除的过程中又进行了加锁，也忽略
+        }
+        catch (Exception e) {
+            ErrorLogDecision.DecideResult result = errorLogDecision.decide(e);
+            if (result.isShouldLog()) {
+                if (result.getIgnoreCount() <= 0) {
+                    logger.warn("failed to delete zk path:{}", path, e);
+                }
+                else {
+                    logger.warn("failed to delete zk path:{}, ignore exception count:{}", path,
+                            result.getIgnoreCount(), e);
                 }
             }
-            finally {
-                cleanPathBuffer.putSet(cleanPathSet);
-            }
         }
-
-        return count;
     }
 
-    private long cleanChildNode(CuratorFramework client, Stat ckStat, String path, int maxChildNum,
-                                long maxResidualTime) throws Exception {
-        if (ckStat.getNumChildren() <= maxChildNum) {
-            return 0;
+    public void close() {
+        if (closed) {
+            return;
         }
-        long ephemeralOwner = ckStat.getEphemeralOwner();
-        if (ephemeralOwner == 0) {
-            List<String> childNodes = null;
-            try {
-                childNodes = CuratorZKBase.getChildren(client, path);
-            }
-            catch (NoNodeException e) {
-                return 0;
-            }
-            int count = 0;
-            for (String childNode : childNodes) {
-                String childParentPath = path + CuratorLockProperty.LOCK_PATH_SEPERATOR + childNode;
-                Stat childStat = CuratorZKBase.exists(client, childParentPath);
-                if (childStat == null) {
-                    continue;
-                }
-                if (childStat.getNumChildren() == 0) {
-                    if (checkDeleteNode(client, childParentPath, maxResidualTime, childStat)) {
-                        count++;
-                    }
-                }
-            }
-            return count;
+        this.closed = true;
+        List<Runnable> tasks = this.cleanThreadPool.shutdownNow();
+        logger.info("CuratorZKCleaner is closed, remain path count:{}", tasks.size());
+        try {
+            this.cleanThreadPool.awaitTermination(10, TimeUnit.SECONDS);
         }
-        return 0;
+        catch (InterruptedException e) {
+            logger.warn("failed to await cleanThreadPool termination", e);
+        }
     }
 
     private boolean checkDeleteNode(CuratorFramework client, String path, long maxResidualTime,
@@ -155,41 +182,75 @@ public class CuratorZKCleaner {
         }
         return count;
     }
+}
 
-    class CleanPathBuffer {
-        private Set<String> pathSet = new HashSet<String>();
-        private ReentrantLock bufferLock = new ReentrantLock();
+class ErrorLogDecision {
 
-        public void put(String parentPath) {
-            bufferLock.lock();
-            try {
-                pathSet.add(parentPath);
+    private long lastExceptionTime;
+
+    private Exception lastException;
+    private Class<? extends Throwable> lastRootExceptionType;
+
+    private final int logInterval;
+
+    private int ignoreCount;
+
+    public ErrorLogDecision(int logInterval) {
+        this.logInterval = logInterval;
+    }
+
+    public synchronized DecideResult decide(Exception e) {
+        DecideResult result = new DecideResult();
+        // 打印日志间隔超过 logInterval，或与上次异常类型不同，都需要打印
+        Class<? extends Throwable> rootExceptionType = findRootExceptionType(e);
+        if (((System.currentTimeMillis() - lastExceptionTime) >= logInterval)
+                || (lastRootExceptionType != null && lastRootExceptionType != rootExceptionType)) {
+            result.setShouldLog(true);
+            result.setIgnoreCount(ignoreCount);
+            ignoreCount = 0;
+        }
+        else {
+            ignoreCount++;
+        }
+        lastException = e;
+        lastRootExceptionType = rootExceptionType;
+        lastExceptionTime = System.currentTimeMillis();
+        return result;
+    }
+
+    private Class<? extends Throwable> findRootExceptionType(Exception e) {
+        int maxFindDepth = 20;
+        Throwable root = e;
+        while (maxFindDepth-- > 0) {
+            if (root.getCause() == null) {
+                return root.getClass();
             }
-            finally {
-                bufferLock.unlock();
+            else {
+                root = root.getCause();
             }
         }
+        return root.getClass();
+    }
 
-        public void putSet(Set<String> pathSet) {
-            bufferLock.lock();
-            try {
-                pathSet.addAll(pathSet);
-            }
-            finally {
-                bufferLock.unlock();
-            }
+    static class DecideResult {
+        private boolean shouldLog;
+        private int ignoreCount;
+
+        public void setShouldLog(boolean shouldLog) {
+            this.shouldLog = shouldLog;
         }
 
-        public Set<String> getAndClear() {
-            bufferLock.lock();
-            try {
-                Set<String> pathBuffer = new HashSet<String>(pathSet);
-                pathSet.clear();
-                return pathBuffer;
-            }
-            finally {
-                bufferLock.unlock();
-            }
+        public void setIgnoreCount(int ignoreCount) {
+            this.ignoreCount = ignoreCount;
+        }
+
+        public boolean isShouldLog() {
+            return shouldLog;
+        }
+
+        public int getIgnoreCount() {
+            return ignoreCount;
         }
     }
+
 }

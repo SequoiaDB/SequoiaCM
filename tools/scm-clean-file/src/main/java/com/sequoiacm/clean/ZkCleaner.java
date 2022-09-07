@@ -1,7 +1,9 @@
 package com.sequoiacm.clean;
 
+import com.sequoiacm.infrastructure.lock.ScmLockConfig;
 import com.sequoiacm.infrastructure.lock.curator.CuratorCleanJob;
 import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
+import com.sequoiacm.infrastructure.lock.curator.CuratorZKCleaner;
 
 public class ZkCleaner {
     private final String zkUrls;
@@ -19,7 +21,14 @@ public class ZkCleaner {
 
     public void cleanZk() throws Exception {
         CuratorLockFactory factory = new CuratorLockFactory(zkUrls);
-        CuratorCleanJob job = new CuratorCleanJob(factory, maxResidualTime, maxChildNum, 0, false);
+        if (!CuratorZKCleaner.isInitialized()) {
+            ScmLockConfig lockConfig = new ScmLockConfig();
+            CuratorZKCleaner.init(factory.getCuratorClient(), lockConfig.getCoreCleanThreads(),
+                    lockConfig.getMaxCleanThreads(),
+                    lockConfig.getCleanQueueSize());
+        }
+        CuratorCleanJob job = new CuratorCleanJob(factory, maxResidualTime,
+                maxBuffer * 1024 * 1024);
         job.run();
     }
 }

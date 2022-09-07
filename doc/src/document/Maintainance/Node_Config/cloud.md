@@ -140,6 +140,11 @@ SequoiaCM 配置
 |scm.statistics.timeGranularity|str|监控服务对网关上报的统计数据的处理粒度，可选值：DAY、HOUR，默认值：DAY，该粒度体现在用户按时间段检索统计数据时，时间段所允许的最大精度|
 |scm.statistics.job.breakpointFileCleanPeriod|num|清理断点文件上传时间临时记录表的周期。默认值：7d（每隔7天清理一次）|
 |scm.statistics.job.breakpointFileStayDays|num|断点文件上传时间记录在数据表中的最大遗留时间（当断点文件上传完成但未转换成普通文件时，表中会临时保存该文件的上传时间）。默认值：10d|
+|scm.zookeeper.cleanJobPeriod                |num|配置服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒                           |
+|scm.zookeeper.maxBuffer                     |num|配置服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节       |
+|scm.zookeeper.cleanJobResidualTime          |num|配置服务节点将清理残留多久的zookeeper节点，默认值：180000 (3分钟)，单位：毫秒                              |
+|scm.zookeeper.maxCleanThreads               |num|配置服务节点清理残留的zookeeper节点所使用的最大线程数，默认值：6                                         |
+|scm.zookeeper.cleanQueueSize                |num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000                                |
 |scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
 |scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|
 

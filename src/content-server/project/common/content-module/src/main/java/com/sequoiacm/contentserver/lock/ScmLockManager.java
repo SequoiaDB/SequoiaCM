@@ -36,8 +36,9 @@ public class ScmLockManager {
                             PropertiesUtils.getZKAcl());
                     innerFactory.startCleanJob(PropertiesUtils.getZKCleanJobPeriod(),
                             PropertiesUtils.getZKCleanJobResidual(),
-                            PropertiesUtils.getClenaJobChildThreshold(),
-                            PropertiesUtils.getClenaJobCountThreshold());
+                            PropertiesUtils.getCoreCleanThreads(),
+                            PropertiesUtils.getMaxCleanThreads(),
+                            PropertiesUtils.getCleanQueueSize(), PropertiesUtils.getMaxBuffer());
                 }
             }
         }

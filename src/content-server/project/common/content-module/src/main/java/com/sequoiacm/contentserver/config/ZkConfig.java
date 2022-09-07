@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import com.sequoiacm.common.CommonDefine;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @ConfigurationProperties(prefix = "scm.zookeeper")
 public class ZkConfig {
@@ -18,9 +20,26 @@ public class ZkConfig {
     private int clientTimeout = CommonDefine.DefaultValue.ZK_CLIENT_TIMEOUT;
     private long cleanJobPeriod = CommonDefine.DefaultValue.ZK_CLEANJOB_PERIOD;
     private long cleanJobResidualTime = CommonDefine.DefaultValue.ZK_CLEANJOB_RESIDUAL;
-    private int clenaJobChildThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_CHILDNUM_THRESHOLD;
-    private int clenaJobCountThreshold = CommonDefine.DefaultValue.ZK_CLEANJOB_COUNT_THRESHOLD;
+    private int maxCleanThreads = CommonDefine.DefaultValue.ZK_MAX_CLEAN_THREAD;
+    private int coreCleanThreads = CommonDefine.DefaultValue.ZK_CORE_CLEAN_THREAD;
+    private int cleanQueueSize = CommonDefine.DefaultValue.ZK_CLEAN_QUEUE_SIZE;
+    private int maxBuffer = CommonDefine.DefaultValue.ZK_MAX_BUFFER;
     private ZkAcl acl = new ZkAcl();
+
+    @PostConstruct
+    public void adjustCoreCleanThreads() {
+        if (coreCleanThreads > maxCleanThreads) {
+            logger.warn(
+                    "coreCleanThreads:{} is greater than maxCleanThreads:{}, update coreCleanThreads to:{}",
+                    coreCleanThreads, maxCleanThreads, maxCleanThreads);
+            coreCleanThreads = maxCleanThreads;
+        }
+        else if (coreCleanThreads < 0) {
+            logger.warn("Invalid coreCleanThreads value: " + coreCleanThreads
+                    + ", set to minimum value: " + 1);
+            coreCleanThreads = 1;
+        }
+    }
 
     public long getCleanJobPeriod() {
         return cleanJobPeriod;
@@ -84,30 +103,53 @@ public class ZkConfig {
         this.lockTimeout = lockTimeout;
     }
 
-    public int getClenaJobChildThreshold() {
-        return clenaJobChildThreshold;
+    public int getMaxCleanThreads() {
+        return maxCleanThreads;
     }
 
-    public void setClenaJobChildThreshold(int clenaJobChildThreshold) {
-        if (clenaJobChildThreshold < 10 || clenaJobChildThreshold > 10000) {
-            logger.warn("Invalid clenaJobChildThreshold value: " + clenaJobChildThreshold
-                    + ", set to default value: " + this.clenaJobChildThreshold);
+    public void setMaxCleanThreads(int maxCleanThreads) {
+        if (maxCleanThreads < 1) {
+            logger.warn("Invalid maxCleanThreads value: " + maxCleanThreads
+                    + ", set to minimum value: " + 1);
+            this.maxCleanThreads = 1;
+        }
+        else if (maxCleanThreads > 30) {
+            logger.warn("Invalid maxCleanThreads value: " + maxCleanThreads
+                    + ", set to maximum value: " + 30);
+            this.maxCleanThreads = 30;
+        }
+        else {
+            this.maxCleanThreads = maxCleanThreads;
+        }
+    }
+
+    public int getCleanQueueSize() {
+        return cleanQueueSize;
+    }
+
+    public void setCleanQueueSize(int cleanQueueSize) {
+        if (cleanQueueSize < 1) {
+            logger.warn("Invalid cleanQueueSize value: " + cleanQueueSize
+                    + ", set to default value: " + this.cleanQueueSize);
             return;
         }
-        this.clenaJobChildThreshold = clenaJobChildThreshold;
+        this.cleanQueueSize = cleanQueueSize;
     }
 
-    public int getClenaJobCountThreshold() {
-        return clenaJobCountThreshold;
+    public int getCoreCleanThreads() {
+        return coreCleanThreads;
     }
 
-    public void setClenaJobCountThreshold(int clenaJobCountThreshold) {
-        if (clenaJobCountThreshold <= 0) {
-            logger.warn("Invalid clenaJobCountThreshold value: " + clenaJobCountThreshold
-                    + ", set to default value: " + this.clenaJobCountThreshold);
-            return;
-        }
-        this.clenaJobCountThreshold = clenaJobCountThreshold;
+    public void setCoreCleanThreads(int coreCleanThreads) {
+        this.coreCleanThreads = coreCleanThreads;
+    }
+
+    public int getMaxBuffer() {
+        return maxBuffer;
+    }
+
+    public void setMaxBuffer(int maxBuffer) {
+        this.maxBuffer = maxBuffer;
     }
 
     public ZkAcl getAcl() {

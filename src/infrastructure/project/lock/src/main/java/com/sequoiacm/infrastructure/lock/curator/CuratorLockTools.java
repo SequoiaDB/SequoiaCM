@@ -16,7 +16,6 @@ import java.util.List;
 
 public class CuratorLockTools {
     private static String rootPath = "/scm/lock";
-    private static CuratorZKCleaner zkCleaner = CuratorZKCleaner.getInstance();
 
     public static CuratorFramework createClient(String connectString, boolean enableContainer,
             ZkAcl acl) throws Exception {
@@ -86,19 +85,18 @@ public class CuratorLockTools {
         if (lastIndex == -1) {
             return rootPath;
         }
-        String parentPath = getAndRecordParentPath(path, lastIndex);
+        String parentPath = getParentPath(path, lastIndex);
         return parentPath + CuratorLockProperty.LOCK_PATH_SEPERATOR + path[lastIndex];
 
     }
 
-    private static String getAndRecordParentPath(String[] path, int lastIndex) {
+    private static String getParentPath(String[] path, int lastIndex) {
         StringBuilder parentPath = new StringBuilder(rootPath);
         for (int i = 0; i < lastIndex; i++) {
             if (path[i] != null && !"".equals(path[i])) {
                 parentPath.append(CuratorLockProperty.LOCK_PATH_SEPERATOR).append(path[i]);
             }
         }
-        zkCleaner.putPath(parentPath.toString());
         return parentPath.toString();
     }
 

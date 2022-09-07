@@ -38,8 +38,10 @@ public class ScmLockManager {
                             lockConfig.getAcl());
                     innerFactory.startCleanJob(lockConfig.getCleanJobPeriod(),
                             lockConfig.getCleanJobResidualTime(),
-                            lockConfig.getClenaJobChildThreshold(),
-                            lockConfig.getClenaJobCountThreshold());
+                            lockConfig.getCoreCleanThreads(),
+                            lockConfig.getMaxCleanThreads(),
+                            lockConfig.getCleanQueueSize(),
+                            lockConfig.getMaxBuffer());
                 }
             }
         }

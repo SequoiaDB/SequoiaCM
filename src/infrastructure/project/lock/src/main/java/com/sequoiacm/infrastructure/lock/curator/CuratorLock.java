@@ -24,14 +24,26 @@ class CuratorLock implements ScmLock {
     @Override
     @SlowLog(operation = "releaseLock")
     public void unlock() {
-
+        boolean isAcquiredInThisProcess = false;
         try {
             if (this.lock.isAcquiredInThisProcess()) {
+                isAcquiredInThisProcess = true;
                 this.lock.release();
             }
         }
         catch (Exception e) {
             logger.warn("Fail to release curator mutex lock:lockPath={}", lockPath, e);
+        }
+        finally {
+            if (isAcquiredInThisProcess) {
+                try {
+                    CuratorZKCleaner.getInstance().putPath(lockPath);
+                }
+                catch (Exception e) {
+                    logger.warn("Failed to put path into CuratorZKCleaner, lockPath={}", lockPath,
+                            e);
+                }
+            }
         }
     }
 
