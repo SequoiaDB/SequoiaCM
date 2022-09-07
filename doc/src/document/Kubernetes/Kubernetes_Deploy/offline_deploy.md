@@ -33,7 +33,7 @@ ssh-copy-id $ips
 tar -xvf kubeasz_offline.tar.gz -C /etc/
 ```
 
-5.配置集群部署规划文件
+4.配置集群部署规划文件
 
 ```
 cp /etc/ansible/example/hosts.multi-node /etc/ansible/hosts  # 拷贝模板文件
@@ -83,12 +83,12 @@ vi /etc/ansible/roles/docker/defaults/main.yml
    
 ```
 
-6.检查离线文件，安装 Docker
+7.检查离线文件，安装 Docker
 
 ```
 cd /etc/ansible && ./tools/easzup -D
 ```
-7.安装 Docker 私人仓库
+8.安装 Docker 私人仓库
 
 ```
 #载入离线仓库镜像
@@ -97,13 +97,13 @@ docker load -i /etc/ansible/down/registry
 docker run -d -v /opt/docker_registry:/var/lib/registry -p 5000:5000 --restart=always registry 
 ```
 
-8.启动 kubeasz 容器
+9.启动 kubeasz 容器
 
 ```
 cd /etc/ansible && ./tools/easzup -S
 ```
 
-9.通过 kubeasz 容器进行 Kubernetes 部署
+10.通过 kubeasz 容器进行 Kubernetes 部署
 
 ```
 #进入容器
@@ -124,7 +124,7 @@ exit
 
 ```
 
-10.查看部署结果
+11.查看部署结果
 
 ```
 # 刷新环境变量

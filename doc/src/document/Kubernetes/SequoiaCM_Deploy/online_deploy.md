@@ -33,18 +33,18 @@ vi ./myValues.yaml
 
 ```
 
-5.执行安装
+4.执行安装
 
 ```
 helm install   ./sequoiacm-3.0.0.tgz -f ./myValues.yaml
 ```
-6.等待所有节点就绪
+5.等待所有节点就绪
 
 ```
 kubectl get pod 
 ```
 
-7.SequoiaCM 以 NodePort 形式对外暴露服务，如下命令查看服务端口
+6.SequoiaCM 以 NodePort 形式对外暴露服务，如下命令查看服务端口
 
 ```
 kubectl get svc
