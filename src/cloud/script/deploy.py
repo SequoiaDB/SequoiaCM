@@ -11,7 +11,6 @@ root_dir = sys.path[0]
 bin_path = root_dir + os.sep + "bin"
 dry_run = False
 clean_systable = False
-node_has_create = False
 
 def command(cmd):
     print(cmd)
@@ -78,28 +77,26 @@ def hostAdaptor(hostname):
         return False
         
 def create_nodes(node_type, auditconf, config):
-    global node_has_create
+    node_has_create = False
     if not isinstance(config, list):
         raise Exception('Invalid node config: %s', str(config))
     if len(config) > 0 and clean_systable:
         clean_system_table(node_type, config[0])
     for ele in config:
-       if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
-           node_has_create = True
-           create_node(node_type, auditconf, ele)
+        if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
+            node_has_create = True
+            create_node(node_type, auditconf, ele)
+    return node_has_create
 
 def deploy_scm(config):
     auditconf = config['audit']
-    if 'serviceCenter' in config:
-        create_nodes('service-center', auditconf, config['serviceCenter'])
-    if 'authServer' in config:
-        create_nodes('auth-server', auditconf, config['authServer'])
-    if 'gateway' in config:
-        create_nodes('gateway', auditconf, config['gateway'])
-    if 'serviceTrace' in config:
-        create_nodes('service-trace', auditconf, config['serviceTrace'])
-    if 'adminServer' in config:
-        create_nodes('admin-server', auditconf, config['adminServer'])
+    nodes=['serviceCenter','authServer','gateway','serviceTrace','adminServer']
+    nodeTypes=['service-center','auth-server','gateway','service-trace','admin-server']
+        for node,nodeType in zip(nodes,nodeTypes):
+            if node in config:
+                if not create_nodes(nodeType, auditconf, config[node]):
+                    print("%s :no node was created!"% node)
+                    sys.exit(-2)
 
 def print_help(name):
     print('usage: %s [option]...' % name)
@@ -153,9 +150,6 @@ def main(argv):
 
     
     deploy_scm(conf)
-    if not node_has_create:
-        print("no node was created!")
-        sys.exit(-2)
     if start:
         start_node()
 

@@ -10,7 +10,6 @@ CONF_CTL = "confctl.sh"
 dry_run = False
 rootDir = sys.path[0]
 BIN_PATH = rootDir + os.sep + "bin"
-node_has_create = False
 
 
 def command(cmd):
@@ -58,11 +57,12 @@ def hostAdaptor(hostname):
         return False
 
 def create_nodes(type, config):
-    global node_has_create
+    node_has_create = False
     for ele in config:
         if "hostname" in ele and hostAdaptor(ele.pop("hostname")) or "hostname" not in ele:
-           node_has_create = True
-           create_node(type, ele)
+            node_has_create = True
+            create_node(type, ele)
+    return node_has_create
 
 
 def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
@@ -72,7 +72,9 @@ def deploy_scm(config, bin_path="." + os.sep + "bin", dryrun=False):
     if bin_path is not None:
         BIN_PATH = bin_path
     if 'config-server' in config:
-        create_nodes('config-server', config['config-server'])
+        if not create_nodes('config-server', config['config-server']):
+            print("no node was created!")
+            sys.exit(-2)
 
 
 def print_help(name):
@@ -120,9 +122,6 @@ def main(argv):
             dryrun = True
     conf = load_config(config)
     deploy_scm(conf, bin_path, dryrun)
-    if not node_has_create:
-        print("no node was created!")
-        sys.exit(-2)
     if start:
         start_node()
 
