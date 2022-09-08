@@ -92,11 +92,11 @@ def deploy_scm(config):
     auditconf = config['audit']
     nodes=['serviceCenter','authServer','gateway','serviceTrace','adminServer']
     nodeTypes=['service-center','auth-server','gateway','service-trace','admin-server']
-        for node,nodeType in zip(nodes,nodeTypes):
-            if node in config:
-                if not create_nodes(nodeType, auditconf, config[node]):
-                    print("%s :no node was created!"% node)
-                    sys.exit(-2)
+    for node, nodeType in zip(nodes, nodeTypes):
+        if node in config:
+            if not create_nodes(nodeType, auditconf, config[node]):
+                print("%s :no node was created!"% node)
+                sys.exit(-2)
 
 def print_help(name):
     print('usage: %s [option]...' % name)
