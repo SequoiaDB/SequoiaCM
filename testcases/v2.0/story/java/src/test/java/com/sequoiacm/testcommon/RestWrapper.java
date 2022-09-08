@@ -137,6 +137,9 @@ public class RestWrapper {
                         + authserver.getPort() + "/api/" + this.getVersion()
                         + "/" + this.api;
             }
+        } else if ( this.serverType.equals( "om-server" ) ) {
+            this.url = "http://" + TestScmBase.omServerUrl
+                    + "/internal/v1/health";
         }
         return this;
     }

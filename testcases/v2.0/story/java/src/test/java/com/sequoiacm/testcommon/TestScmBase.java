@@ -64,13 +64,15 @@ public class TestScmBase {
     protected static String zone2;
     protected static String defaultRegion;
 
+    protected static String omServerUrl;
+
     protected static boolean isfulltextExists = false;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
             "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
             "LDAPPASSWD", "SCMPASSWDPATH", "S3ACCESSKEYID", "S3SECRETKEY",
-            "S3WOKERSPACES" })
+            "S3WOKERSPACES", "OMSERVERURL" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
@@ -79,7 +81,8 @@ public class TestScmBase {
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
             String SCMUSER, String SCMPASSWD, String LDAPUSER,
             String LDAPPASSWD, String SCMPASSWDPATH, String S3ACCESSKEYID,
-            String S3SECRETKEY, String S3WOKERSPACES ) throws Exception {
+            String S3SECRETKEY, String S3WOKERSPACES, String OMSERVERURL )
+            throws Exception {
 
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
@@ -105,6 +108,7 @@ public class TestScmBase {
         s3WorkSpaces = S3WOKERSPACES;
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
+        omServerUrl = OMSERVERURL;
 
         // CI分发到不同机器上执行存在并发问题，需要使用不同的桶名规避
         bucketName = "commbucket" + InetAddress.getLocalHost().getHostAddress();
