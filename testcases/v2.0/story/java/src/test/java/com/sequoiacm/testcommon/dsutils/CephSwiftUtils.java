@@ -29,7 +29,8 @@ public class CephSwiftUtils extends TestScmBase {
         Account account = null;
         String siteDsUrl = site.getDataDsUrl();
         String siteDsUser = site.getDataUser();
-        String siteDsPasswd = site.getDataPasswd();
+        // String siteDsPasswd = site.getDataPasswd();
+        String siteDsPasswd = TestScmBase.CEPHSwift_s3SecretKey;
         try {
             AccountConfig config = new AccountConfig();
             config.setAuthUrl( siteDsUrl );

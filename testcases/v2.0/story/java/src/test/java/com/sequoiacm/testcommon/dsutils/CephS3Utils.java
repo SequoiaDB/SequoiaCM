@@ -44,7 +44,8 @@ public class CephS3Utils extends TestScmBase {
         int siteId = site.getSiteId();
         String siteDsUrl = site.getDataDsUrl();
         String siteDsUser = site.getDataUser();
-        String siteDsPasswd = site.getDataPasswd();
+        // String siteDsPasswd = site.getDataPasswd();
+        String siteDsPasswd = TestScmBase.CEPHS3_s3SecretKey;
         try {
             AWSCredentials awsCredentials = new BasicAWSCredentials( siteDsUser,
                     siteDsPasswd );

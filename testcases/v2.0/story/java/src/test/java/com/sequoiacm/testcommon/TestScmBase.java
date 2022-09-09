@@ -25,6 +25,9 @@ public class TestScmBase {
     protected static final String FULLTEXT_SERVICE_NAME = "fulltext-server";
     protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
     private static final int WS_NUM_PER_POOL = 1;
+    // 为规避直连ceph数据源失败，新增ceph S3和ceph Swift数据源SecretKey参数
+    protected static final String CEPHS3_s3SecretKey = "w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW";
+    protected static final String CEPHSwift_s3SecretKey = "XphCjBUNa8Kr4POSAlFBotXaDZSGAJD7NhNhtcu5";
 
     protected static boolean forceClear;
     protected static String dataDirectory;
