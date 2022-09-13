@@ -81,7 +81,7 @@ def parseConfFile( scriptConfPath ):
     #cf.read(os.path.abspath(os.path.join(sys.path[0], os.pardir,os.pardir))+"/misc/ci/src/conf/test_py.conf")
     global SCM_HOSTINFO, DB_INSTALL_DIR, SCM_INSTALL_DIR, HOSTLIST, SCM_DEPLOY_MODE, TEST_CASE_DIR,TESTCASETYPELIST 
     global EXEC_MODE, HOSTINFOS, HOSTUSERINFOS, HOSTPWDINFOS, TEST_IS_EXEC, MAIN_SITE_HOST, SCM_PORT, SDB_COORD_PORT
-    global CONTROL_HOSTNAME, CONTROL_HOST_USER, CONTROL_HOST_PASSWD, SCMCLOUD_GATEWAYS, SCM_DEPLOY_NET
+    global CONTROL_HOSTNAME, CONTROL_HOST_USER, CONTROL_HOST_PASSWD, SCMCLOUD_GATEWAYS, SCM_DEPLOY_NET，OMSERVERURL
     DB_INSTALL_DIR = cf.get("common", "COMMON_SDB_INSTALL_DIR")
     SCM_INSTALL_DIR = cf.get("common", "COMMON_SCM_INSTALL_DIR")
     SCM_DEPLOY_MODE = cf.get("common", "COMMON_SCM_DEPLOY_MODE")
@@ -244,7 +244,9 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/proxy-serial.xml", "S3PASSWORD", S3_SECRETKEY)
-          
+            if dir == "story":
+                replaceTestngStr(xmlDir+"/proxy-serial.xml", "omServerHostName:port", OMSERVERURL)
+                          
         if os.path.exists(xmlDir+"/testng_env.xml"):
             shutil.copy(xmlDir+"/testng_env.xml",xmlDir+"/proxy_env.xml")
             replaceTestngStr(xmlDir+"/proxy_env.xml", "XXXX", destgroup)
@@ -253,6 +255,9 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/proxy_env.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/proxy_env.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/proxy_env.xml", "S3PASSWORD", S3_SECRETKEY)
+            if dir == "story":
+                replaceTestngStr(xmlDir+"/proxy_env.xml", "omServerHostName:port", OMSERVERURL)
+                
         if os.path.exists(xmlDir+"/testng_env_before.xml"):
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "localhost", mainsitehost)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "mainSiteHostName", mainsitehost)
