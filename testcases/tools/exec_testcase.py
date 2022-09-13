@@ -37,6 +37,7 @@ SCMCLOUD_GATEWAYS = ''
 SCM_DEPLOY_NET = ''
 S3_ACCESSKEY = ''
 S3_SECRETKEY = ''
+OMSERVERURL = ''
    
 def printHelp():
     print ('        --COMMON_SCM_HOSTINFO: all host of scm cluster(host:user:passwd,host2:user:passwd) ,require')
@@ -56,6 +57,7 @@ def printHelp():
     print ('        --TEST_CASE_TYPE: testcase type will be execute(story,tdd)')
     print ('        --SCMCLOUD_GATEWAYS: gatewayurls(hostname1:port1,hostname2:port2)')
     print ('        --SCM_DEPLOY_NET: true/false, true is net')
+    print ('        --OMSERVERURL: omsurl')
     
 
 def displayInfo(msg) :
@@ -103,6 +105,7 @@ def parseConfFile( scriptConfPath ):
     arrHostInfo = SCM_HOSTINFO.split(',')
     parseHostInfo(arrHostInfo)
     SCMCLOUD_GATEWAYS = cf.get("scmcloud", "SCMCLOUD_GATEWAYS")
+    OMSERVERURL = cf.get("om","OMSERVERURL")
     
 def parseParameter( ):
     try:
@@ -221,7 +224,9 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
         replaceTestngStr(xmlDir+"/proxy.xml", "GATEWAYURLS", gatewayurls)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3USER", S3_ACCESSKEY)
         replaceTestngStr(xmlDir+"/proxy.xml", "S3PASSWORD", S3_SECRETKEY)
-
+        if dir == "story":
+            replaceTestngStr(xmlDir+"/proxy.xml", "omServerHostName:port", OMSERVERURL)
+            
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+controlhost+".xml")
         shutil.copy(xmlDir+"/proxy.xml",xmlDir+"/testng_"+mainsitehost+".xml")
         replaceTestngStr(xmlDir+"/testng_"+controlhost+".xml", "localhost", controlhost)
