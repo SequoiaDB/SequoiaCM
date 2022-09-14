@@ -24,7 +24,11 @@
    <parameter name="S3WOKERSPACES" value="ws_default"/>
    
    <parameter name="LDAPUSER" value="ldapadmin" />
-   <parameter name="LDAPPASSWD" value="admin" />   
+   <parameter name="LDAPPASSWD" value="admin" />
+
+   <!--  SCM om服务  -->
+   <parameter name="OMSERVERURL" value="omServerHostName:port"/>
+   
    <listeners> 
           <listener class-name = "com.sequoiacm.testcommon.listener.TestScmListener"/>
    </listeners>
