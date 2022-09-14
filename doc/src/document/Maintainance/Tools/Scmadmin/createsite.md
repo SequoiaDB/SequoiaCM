@@ -43,25 +43,25 @@ createsite 子命令提供创建站点的功能。
 
 ###1.SequoiaDB###
 
-1. 创建主站点，命名为 rootSite，指定元数据存储服务地址为 metaServer1:11810,metaServer2:11810，数据存储服务地址为 dataServer1:11810,dataServer2:11810，数据存储服务类型为 SequoiaDB，用户名为 sdbadmin, 密码文件绝对路径为 /home/scm/myPassword.txt
+1. 创建主站点，命名为 rootSite，指定元数据存储服务地址为 metaServer1:11810,metaServer2:11810，数据存储服务地址为 dataServer1:11810,dataServer2:11810，数据存储服务类型为 SequoiaDB，用户名为 sdbadmin, 密码文件绝对路径为 /home/scmadmin/sdb.passwd
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name rootSite --root --dstype 1 --dsurl dataServer1:11810,dataServer2:11810 --dsuser sdbadmin --dspasswd /home/scm/myPassword.txt --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
+   $ scmadmin.sh createsite --name rootSite --root --dstype 1 --dsurl dataServer1:11810,dataServer2:11810 --dsuser sdbadmin --dspasswd /home/scmadmin/sdb.passwd --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd --gateway server2:8080 --user admin --passwd 
 ```
 
 2. 创建分站点，并命名为 site2，数据存储服务类型不指定则默认为 SequoiaDB，用户名密码均为 sdbadmin
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site2 --dsurl dataServer3:11810,dataServer4:11810 --dsuser sdbadmin --dspasswd /home/scm/myPassword.txt --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server2:8080 --user admin --passwd 
+   $ scmadmin.sh createsite --name site2 --dsurl dataServer3:11810,dataServer4:11810 --dsuser sdbadmin --dspasswd /home/scmadmin/sdb.passwd --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd --gateway server2:8080 --user admin --passwd 
 ```
 
 >  **Note:**
 >
->  * 创建SequoiDB数据源类型站点时，需要指定--dsurl参数，不需要指定--dsconf参数
+>  * 创建SequoiaDB数据源类型站点时，需要指定--dsurl参数，不需要指定--dsconf参数
 >
 >  * 新创建的分站点 site2 的数据存储服务地址 dsurl 为 dataServer3:11810,dataServer4:11810，dsuser 为 sdbadmin，dspassword 为数据源用户密码路径
 >
->  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
+>  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scmadmin/sdb.passwd
 
 ###2.Hbase###
 数据存储服务类型为hbase时，不需要指定dsurl参数，但需要指定dsconf参数，dsconf参数为json格式，具体为连接hbase服务所需配置。建议参数列表如下：
@@ -82,14 +82,14 @@ createsite 子命令提供创建站点的功能。
 创建分站点，并命名为 site3，数据存储服务类型指定为Hbase
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site3 --dstype 2 --dsconf '{"hbase.zookeeper.quorum":"zk1,zk2,zk3", "hbase.client.retries.number":"5", "hbase.client.pause":"50"}' --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt  --gateway server2:8080 --user admin --passwd
+   $ scmadmin.sh createsite --name site3 --dstype 2 --dsconf '{"hbase.zookeeper.quorum":"zk1,zk2,zk3", "hbase.client.retries.number":"5", "hbase.client.pause":"50"}' --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd  --gateway server2:8080 --user admin --passwd
 ```
 
 >  **Note:**
 >
 >  * 创建Hbase类型分站点，名称为site3，数据服务的连接地址为"zk1,zk2,zk3"，客户端重试次数为5，重试等待时间为50ms
 >
->  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810,metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
+>  * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810,metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scmadmin/sdb.passwd
 
 ###3.CephS3###
 
@@ -151,17 +151,19 @@ createsite 子命令提供创建站点的功能。
 
 ####示例####
 
-创建分站点，并命名为 site5，数据存储服务类型指定为Hdfs，dsuser 为sdbadmin
+创建分站点，并命名为 site5，数据存储服务类型指定为Hdfs，dsuser 为 root
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site5 --dstype 5 --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2", "dfs.ha.automatic-failover.enabled.scmserver":"true", "dfs.client.failover.max.attempts":"5", "dfs.client.failover.sleep.base.millis":"100"}' --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt 
+   $ scmadmin.sh createsite --name site5 --dstype 5 --dsuser root --dspasswd sequoiadb --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2", "dfs.ha.automatic-failover.enabled.scmserver":"true", "dfs.client.failover.max.attempts":"5", "dfs.client.failover.sleep.base.millis":"100"}' --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd 
 ```
 
 > **Note:**
->
+> 
+> * dsuser、dspasswd 分别指定 ssh 连接的服务器用户名、密码
+> 
 > * 创建Hdfs类型分站点，名称为site5, hdfs文件系统名称为"hdfs://scmserver"，nameservers为scmserver，namenode列表为nn1、nn2，具体地址为host1:port1、host2:port2，客户端最大失败重试次数为5，重试等待时间为100ms
 >
-> * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810 ，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scm/myPassword.txt
+> * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810 ，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scmadmin/sdb.passwd
 
 
 ###5.Sftp###
@@ -171,7 +173,7 @@ createsite 子命令提供创建站点的功能。
 创建分站点，并命名为 site5，数据存储服务类型指定为 Sftp
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site5 --dstype 8 --dsurl 192.168.1.100:22 --dsuser root --dspasswd secretKeyFilePath --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scm/myPassword.txt --gateway server:8080 --user admin --passwd
+   $ scmadmin.sh createsite --name site5 --dstype 8 --dsurl 192.168.1.100:22 --dsuser root --dspasswd secretKeyFilePath --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd --gateway server:8080 --user admin --passwd
 ```
 
 > **Note:**

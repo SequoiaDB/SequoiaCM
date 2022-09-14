@@ -16,9 +16,17 @@ encrypt 子命令提供加密明文密码的功能。
 生成一个密码的密文字符串
 
    ```lang-javascript
-   $ scmadmin.sh encrypt -u adminUser -p 
+   $ scmadmin.sh encrypt -u adminUser -p
+   password value:
+   adminUser:encryptPassword
+   
+   $ echo "adminUser:encryptPassword" > /home/scmadmin/sdb.passwd
    ```
 
 > **Note:**
->
-> * 数据源相关的密码文件，其内容即为该命令的标准输出
+> 
+> * adminUser 为用户名，encryptPassword 为 encrypt 命令对密码加密后生成的密文字符串
+> 
+> * CephS3 生成密码的密文字符串时，用户名、密码分别为 accesskey、secretkey
+> 
+> * /home/scmadmin/sdb.passwd 为密码文件路径
