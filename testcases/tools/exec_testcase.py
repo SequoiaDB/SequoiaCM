@@ -265,7 +265,8 @@ def divideTestngXml(scmdeploymode, controlhost, mainsitehost):
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "GATEWAYURLS", gatewayurls)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "S3USER", S3_ACCESSKEY)
             replaceTestngStr(xmlDir+"/testng_env_before.xml", "S3PASSWORD", S3_SECRETKEY)
-           
+            if dir == "story":
+                replaceTestngStr(xmlDir+"/testng_env_before.xml", "omServerHostName:port", OMSERVERURL)           
         
         #standalone or control site is main site ,then don't need to divide testng.xml,1 represent standalone
         if (int(scmdeploymode) <= 1) or (controlhost == mainsitehost):
