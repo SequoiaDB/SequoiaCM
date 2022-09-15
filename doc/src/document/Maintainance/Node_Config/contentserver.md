@@ -54,12 +54,14 @@ SequoiaCM 配置
 |scm.cephs3.client.connTTL            |num  |内容服务节点的cephs3连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒 |
 |scm.cephs3.client.maxConns           |num  |内容服务节点允许同时与cephs3打开的最大连接数，默认值：50  |
 |scm.cephs3.client.signerOverride     |str  |cephs3驱动签名配置，默认值：S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
+|scm.cephs3.client.useExpectContinue     |boolean  |cephs3驱动是否使用 epxect continue，默认值：false|
 |scm.cephs3.detectClient.connTimeout  |num  |内容服务节点探测宕机的cephs3是否恢复时，建立连接的超时时长，默认值：5000，单位：毫秒|
 |scm.cephs3.detectClient.socketTimeout|num  |内容服务节点探测宕机的cephs3是否恢复时，socket的连接超时时长，默认值：5000，单位：毫秒
 |scm.cephs3.detectClient.maxErrorRetry|num  |内容服务节点探测宕机的cephs3是否恢复时，请求cephs3的失败重试次数，默认值：1|
 |scm.cephs3.detectClient.connTTL            |num  |内容服务节点探测宕机的cephs3是否恢复时，cephs3连接池内连接的过期时间，默认值：-1（不过期），单位：毫秒 |
 |scm.cephs3.detectClient.maxConns     |num  |内容服务节点探测宕机的cephs3是否恢复时，允许同时与cephs3打开的最大连接数，默认值：1|
 |scm.cephs3.detectClient.signerOverride|str  |内容服务节点探测宕机的cephs3是否恢复时的签名配置，默认值： S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|
+|scm.cephs3.detectClient.useExpectContinue     |boolean  |内容服务节点探测宕机的cephs3是否恢复时是否使用 epxect continue，默认值：false|
 |scm.sftp.connectTimeout       |num  |配置 sftp 站点 ssh 建立连接超时时长，默认值：30000，单位：毫秒|
 |scm.sftp.socketTimeout       |num   |配置 sftp 站点 ssh socket 连接超时时长，默认值：30000，单位：毫秒|
 |scm.sftp.serverAliveInterval |num   |配置 sftp 站点 ssh 连接的心跳保持频率，默认值：2000，单位：毫秒|

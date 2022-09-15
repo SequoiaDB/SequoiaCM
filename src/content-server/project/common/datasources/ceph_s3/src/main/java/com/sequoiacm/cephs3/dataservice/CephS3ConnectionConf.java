@@ -13,6 +13,7 @@ public class CephS3ConnectionConf {
     static final String CONF_KEY_CONN_TTL = "connTTL";
     static final String CONF_KEY_CONN_TIMEOUT = "connTimeout";
     static final String CONF_KEY_MAX_ERROR_RETRY = "maxErrorRetry";
+    static final String CONF_KEY_USE_EXPECT_CONTINUE = "useExpectContinue";
 
     private String s3SignerOverride = DEFAULT_SIGNER_OVERRIDE;
     private int socketTimeout = ClientConfiguration.DEFAULT_SOCKET_TIMEOUT;
@@ -20,6 +21,7 @@ public class CephS3ConnectionConf {
     private long connectionTTL = ClientConfiguration.DEFAULT_CONNECTION_TTL;
     private int connectionTimeout = ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT;
     private int maxErrorRetry = PredefinedRetryPolicies.DEFAULT_MAX_ERROR_RETRY;
+    private boolean useExpectContinue = false;
 
     public CephS3ConnectionConf(Map<String, String> confProp, String prefix) {
         if (confProp.containsKey(prefix + CONF_KEY_SIGNER_OVERRIDE)) {
@@ -60,6 +62,10 @@ public class CephS3ConnectionConf {
                         + " must be greater than 0: " + maxErrorRetry);
             }
         }
+        if (confProp.containsKey(prefix + CONF_KEY_USE_EXPECT_CONTINUE)) {
+            useExpectContinue = Boolean
+                    .parseBoolean(confProp.get(prefix + CONF_KEY_USE_EXPECT_CONTINUE));
+        }
     }
 
     public int getMaxErrorRetry() {
@@ -90,11 +96,16 @@ public class CephS3ConnectionConf {
         return connectionTimeout;
     }
 
+    public boolean isUseExpectContinue() {
+        return useExpectContinue;
+    }
+
     @Override
     public String toString() {
         return "CephS3ConnectionConf{" + "s3SignerOverride='" + s3SignerOverride + '\''
                 + ", socketTimeout=" + socketTimeout + ", maxConnection=" + maxConnection
                 + ", connectionTTL=" + connectionTTL + ", connectionTimeout=" + connectionTimeout
-                + ", maxErrorRetry=" + maxErrorRetry + '}';
+                + ", maxErrorRetry=" + maxErrorRetry + ", useExpectContinue=" + useExpectContinue
+                + '}';
     }
 }

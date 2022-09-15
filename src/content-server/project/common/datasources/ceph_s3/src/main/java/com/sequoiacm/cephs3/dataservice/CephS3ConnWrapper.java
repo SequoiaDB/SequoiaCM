@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -241,5 +242,26 @@ public class CephS3ConnWrapper {
                     + req.getUploadId(), e);
         }
         return ret;
+    }
+
+    public void putObject(String bucketName, String key, InputStream data, int dataLen)
+            throws CephS3Exception {
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentLength(dataLen);
+        try {
+            conn.getAmzClient().putObject(bucketName, key, data, objMeta);
+        }
+        catch (AmazonServiceException e) {
+            checkFatalError(e);
+            throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
+                    "failed to put object:siteId=" + conn.getSiteId() + ", bucket=" + bucketName
+                            + ", key=" + key + ", dataLen=" + dataLen,
+                    e);
+        }
+        catch (Exception e) {
+            checkFatalError(e);
+            throw new CephS3Exception("failed to put object:siteId=" + conn.getSiteId()
+                    + ", bucket=" + bucketName + ", key=" + key + ", dataLen=" + dataLen, e);
+        }
     }
 }

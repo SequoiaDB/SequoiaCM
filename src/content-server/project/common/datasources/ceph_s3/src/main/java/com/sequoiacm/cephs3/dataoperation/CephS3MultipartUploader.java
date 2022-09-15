@@ -13,22 +13,25 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CephS3MultipartUploader {
+public class CephS3MultipartUploader implements CephS3DataUploader {
     private static final Logger logger = LoggerFactory.getLogger(CephS3MultipartUploader.class);
     private static final int PART_SIZE = 5 * 1024 * 1024;
-    private final long writeOffset;
+    private long writeOffset;
+
     private byte[] buffer = null;
     private int bufferOff = 0;
-    private final String bucketName;
-    private final String key;
+
+    private String bucketName;
+    private String key;
     private String uploadId;
     private int writingPartNum = -1;
-    private final CephS3DataService dataService;
+    private CephS3DataService dataService;
     private CephS3ConnWrapper conn;
     private int fileSize;
     private List<PartETag> eTags = new ArrayList<>();
     private ScmPoolWrapper poolWrapper;
     private boolean createBucketIfNotExist = true;
+    private boolean useInnerBuffer;
 
     public CephS3MultipartUploader(ScmService service, String bucketName, String key,
             boolean createBucketIfNotExist) throws CephS3Exception {
@@ -38,6 +41,32 @@ public class CephS3MultipartUploader {
     public CephS3MultipartUploader(ScmService service, String bucketName, String key,
             String uploadId, long writeOffset, boolean createBucketIfNotExist)
             throws CephS3Exception {
+        try {
+            initInstance(service, bucketName, key, uploadId, writeOffset, createBucketIfNotExist,
+                    null, 0);
+        }
+        catch (Exception e) {
+            releaseResource();
+            throw e;
+        }
+    }
+
+    public CephS3MultipartUploader(ScmService service, String bucketName, String key,
+            String uploadId, long writeOffset, boolean createBucketIfNotExist, byte[] dataBuffer,
+            int dataBufferOffset) throws CephS3Exception {
+        try {
+            initInstance(service, bucketName, key, uploadId, writeOffset, createBucketIfNotExist,
+                    dataBuffer, dataBufferOffset);
+        }
+        catch (Exception e) {
+            releaseResource();
+            throw e;
+        }
+    }
+
+    private void initInstance(ScmService service, String bucketName, String key, String uploadId,
+            long writeOffset, boolean createBucketIfNotExist, byte[] dataBuffer,
+            int dataBufferOffset) throws CephS3Exception {
         this.bucketName = bucketName;
         this.key = key;
         this.uploadId = uploadId;
@@ -50,16 +79,40 @@ public class CephS3MultipartUploader {
                     "construct CephS3MultipartUploader failed, cephs3 is down:bucketName="
                             + bucketName + ",key=" + key);
         }
-        try {
-            this.poolWrapper = ScmPoolWrapper.getInstance();
-            this.buffer = poolWrapper.getBytes(PART_SIZE);
+        if (dataBuffer == null) {
+            try {
+                this.poolWrapper = ScmPoolWrapper.getInstance();
+                this.buffer = poolWrapper.getBytes(PART_SIZE);
+            }
+            catch (Exception e) {
+                throw new CephS3Exception(
+                        "failed to acquire buffer: bucket=" + bucketName + ", key=" + key, e);
+            }
+            this.useInnerBuffer = true;
+            this.bufferOff = 0;
+            this.fileSize = 0;
         }
-        catch (Exception e) {
-            throw new CephS3Exception("construct CephS3MultipartUploader failed:bucketName="
-                    + bucketName + ",key=" + key, e);
+        else {
+            this.buffer = dataBuffer;
+            if (buffer.length != PART_SIZE) {
+                throw new CephS3Exception(
+                        "construct CephS3MultipartUploader failed, buffer length is invalid:bucketName="
+                                + bucketName + ",key=" + key + ", bufferLength=" + buffer.length
+                                + ", expectedLength=" + PART_SIZE);
+            }
+            this.bufferOff = dataBufferOffset;
+            if (bufferOff > buffer.length || bufferOff < 0) {
+                throw new CephS3Exception(
+                        "construct CephS3MultipartUploader failed, buffer off is invalid:bucketName="
+                                + bucketName + ",key=" + key + ", bufferOff=" + bufferOff
+                                + ", bufferLength=" + buffer.length);
+            }
+            this.fileSize = bufferOff;
+            this.useInnerBuffer = false;
         }
+
         try {
-            init(bucketName, key, uploadId);
+            initMultipart(bucketName, key, uploadId);
         }
         catch (Exception e) {
             if (e instanceof CephS3Exception) {
@@ -70,17 +123,17 @@ public class CephS3MultipartUploader {
             }
             conn = dataService.releaseAndTryGetAnotherConn(conn);
             if (conn == null) {
-                releaseResource();
                 throw e;
             }
             logger.warn(
                     "write data failed, get another ceph conn to try again: bucketName={}, key={}, conn={}",
                     bucketName, key, conn.getUrl(), e);
-            init(bucketName, key, uploadId);
+            initMultipart(bucketName, key, uploadId);
         }
     }
 
-    private void init(String bucketName, String key, String uploadId) throws CephS3Exception {
+    private void initMultipart(String bucketName, String key, String uploadId)
+            throws CephS3Exception {
         List<PartSummary> parts;
         if (uploadId != null) {
             parts = conn.listPart(bucketName, key, uploadId);
@@ -97,7 +150,7 @@ public class CephS3MultipartUploader {
                 if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
                         && createBucketIfNotExist) {
                     conn.createBucket(bucketName);
-                    init(bucketName, key, null);
+                    initMultipart(bucketName, key, null);
                     return;
                 }
                 else {
@@ -110,6 +163,7 @@ public class CephS3MultipartUploader {
         }
     }
 
+    @Override
     public void write(byte[] content, int offset, int len) throws CephS3Exception {
         try {
             fileSize += len;
@@ -176,6 +230,7 @@ public class CephS3MultipartUploader {
         sendAndClearBuffer();
     }
 
+    @Override
     public void cancel() {
         try {
             conn.abortMultipartUpload(new AbortMultipartUploadRequest(bucketName, key, uploadId));
@@ -186,6 +241,7 @@ public class CephS3MultipartUploader {
         bufferOff = 0;
     }
 
+    @Override
     public void close() throws CephS3Exception {
         if (conn == null) {
             return;
@@ -198,6 +254,7 @@ public class CephS3MultipartUploader {
         }
     }
 
+    @Override
     public void complete() throws CephS3Exception {
         flush();
         if (eTags.size() <= 0) {
@@ -209,10 +266,11 @@ public class CephS3MultipartUploader {
     }
 
     private void releaseResource() {
-        if (buffer != null) {
+        if (useInnerBuffer && buffer != null) {
             poolWrapper.releaseBytes(buffer);
             buffer = null;
         }
+
         eTags = null;
         if (conn != null) {
             dataService.releaseConn(conn);
@@ -220,6 +278,7 @@ public class CephS3MultipartUploader {
         }
     }
 
+    @Override
     public long getFileSize() {
         return fileSize;
     }

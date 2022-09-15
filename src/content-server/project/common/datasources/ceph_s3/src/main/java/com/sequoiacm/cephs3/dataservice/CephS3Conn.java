@@ -36,7 +36,7 @@ public class CephS3Conn {
             conf.setRetryPolicy(new RetryPolicy(PredefinedRetryPolicies.DEFAULT_RETRY_CONDITION,
                     PredefinedRetryPolicies.DEFAULT_BACKOFF_STRATEGY, confProp.getMaxErrorRetry(),
                     true));
-
+            conf.setUseExpectContinue(confProp.isUseExpectContinue());
             conn = new AmazonS3Client(credentials, conf);
             S3ClientOptions op = new S3ClientOptions();
             op.setPathStyleAccess(true);

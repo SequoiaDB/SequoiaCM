@@ -108,6 +108,9 @@ public class ConnectionDeciderImpl implements ConnectionDecider {
 
     @Override
     public void release(CephS3ConnWrapper conn) {
+        if (conn == null) {
+            return;
+        }
         if (!conn.hasFatalError()) {
             return;
         }
