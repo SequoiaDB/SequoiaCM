@@ -66,7 +66,8 @@ public class Object4877 extends TestScmBase {
         bucket.enableVersionControl();
     }
 
-    @Test(groups = { GroupTags.base })
+    // TODO:SEQUOIACM-1007 暂时屏蔽
+    @Test(groups = { GroupTags.base }, enabled = false)
     public void testCreateBucket() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         te.addWorker( new DeleteFileThread() );
