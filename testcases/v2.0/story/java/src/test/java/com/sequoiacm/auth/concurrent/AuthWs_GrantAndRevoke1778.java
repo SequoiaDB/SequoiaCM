@@ -1,5 +1,7 @@
 package com.sequoiacm.auth.concurrent;
 
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,6 +30,9 @@ import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author fanyu
  * @Description:SCM-1778 :: 授权和取消授权并发
@@ -40,6 +45,8 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
     private WsWrapper wsp;
     private ScmSession sessionA;
     private ScmWorkspace wsA;
+    private ScmSession newUserSession;
+    private String subdirName = "1778";
     private String username = "AuthWs_GrantAndRevoke1778";
     private String rolename = "1778_R";
     private String passwd = "1778";
@@ -48,57 +55,31 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
     private String dirpath = "/AuthWs_GrantAndRevoke1778";
     private ScmResource rs;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     private void setUp() throws Exception {
-        try {
-            site = ScmInfo.getRootSite();
-            wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
-            wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-            cleanEnv();
-            prepare();
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        site = ScmInfo.getRootSite();
+        wsp = ScmInfo.getWs();
+        sessionA = TestScmTools.createSession( site );
+        wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
+        cleanEnv();
+        prepare();
+        newUserSession = TestScmTools.createSession( site, username, passwd );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
-        GrantRs gThread = new GrantRs( rs, role );
-        RevokeRs rThread = new RevokeRs( rs, role );
-        gThread.start();
-        rThread.start();
+        ThreadExecutor t = new ThreadExecutor();
+        t.addWorker( new GrantRs( rs, role ) );
+        t.addWorker( new RevokeRs( rs, role ) );
+        t.run();
 
-        boolean g1Flag = gThread.isSuccess();
-        boolean rFlag = rThread.isSuccess();
-
-        Assert.assertEquals( g1Flag, true, gThread.getErrorMsg() );
-        Assert.assertEquals( rFlag, true, rThread.getErrorMsg() );
-
-        ScmCursor< ScmPrivilege > cursor = ScmFactory.Privilege
-                .listPrivilegesByResource( sessionA, rs );
-        while ( cursor.hasNext() ) {
-            System.out.println( "cursor = " + cursor.getNext().toString() );
-        }
-
-        ScmCursor< ScmResource > cursor2 = ScmFactory.Resource
-                .listResourceByWorkspace( sessionA, wsp.getName() );
-        while ( cursor.hasNext() ) {
-            System.out.println( "cursor2 = " + cursor2.getNext().toString() );
-        }
-
-        grantPriAndAttachRole( sessionA, rs, user, role,
-                ScmPrivilegeType.READ );
-        grantPriAndAttachRole( sessionA, rs, user, role,
-                ScmPrivilegeType.CREATE );
-        ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
-        check( dirpath );
+        checkCreateAndRead( newUserSession, subdirName );
+        checkDelete( newUserSession, subdirName );
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
+    @AfterClass
+    private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Role.revokePrivilege( sessionA, role, rs,
@@ -109,12 +90,42 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
                 ScmFactory.User.deleteUser( sessionA, user );
                 ScmFactory.Directory.deleteInstance( wsA, dirpath );
             }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( sessionA != null ) {
                 sessionA.close();
+            }
+            if ( newUserSession != null ) {
+                newUserSession.close();
+            }
+        }
+    }
+
+    private void checkCreateAndRead( ScmSession session, String subname )
+            throws Exception {
+        String subpath = dirpath + "/" + subname + "/";
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
+        int times = 0;
+        while ( true ) {
+            try {
+                ScmDirectory dir = ScmFactory.Directory.getInstance( ws,
+                        dirpath );
+                Assert.assertEquals( dir.getPath(), dirpath + "/" );
+                dir.createSubdirectory( subname );
+                ScmDirectory subdir = ScmFactory.Directory.getInstance( ws,
+                        subpath );
+                Assert.assertEquals( subdir.getName(), subname );
+                break;
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
+                    throw e;
+                } else {
+                    Thread.sleep( 1000 );
+                    times++;
+                    if ( times >= 30 ) {
+                        throw new Exception( "check create and read time out" );
+                    }
+                }
             }
         }
     }
@@ -128,61 +139,48 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
         ScmFactory.User.alterUser( session, user, modifier );
     }
 
-    private void check( String dirpath ) throws ScmException {
-        ScmSession session = null;
-        String subname = "1778";
+    private void checkDelete( ScmSession session, String subname )
+            throws Exception {
         String subpath = dirpath + "/" + subname + "/";
-        ScmWorkspace ws = null;
-        ScmDirectory subdir = null;
-        try {
-            session = TestScmTools.createSession( site, username, passwd );
-            ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
-            ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirpath );
-            Assert.assertEquals( dir.getPath(), dirpath + "/" );
-
-            dir.createSubdirectory( subname );
-
-            subdir = ScmFactory.Directory.getInstance( ws, subpath );
-            Assert.assertEquals( subdir.getName(), subname );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
-
-        try {
-            ScmFactory.Directory.deleteInstance( ws, subpath );
-            Assert.fail( "the user does not have priority to delete subpath = "
-                    + subpath );
-        } catch ( ScmException e ) {
-            if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
-            }
-        } finally {
-            if ( subdir != null ) {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                session );
+        int times = 0;
+        while ( true ) {
+            try {
+                ScmFactory.Directory.deleteInstance( ws, subpath );
+                ScmFactory.Directory.createInstance( ws, subpath );
+                times++;
+                if ( times >= 30 ) {
+                    Thread.sleep( 1000 );
+                    throw new Exception(
+                            "the user does not have priority to delete subpath = "
+                                    + subpath );
+                }
+            } catch ( ScmException e ) {
+                if ( e.getError() == ScmError.OPERATION_UNAUTHORIZED ) {
+                    break;
+                } else {
+                    throw e;
+                }
+            } finally {
                 ScmFactory.Directory.deleteInstance( wsA, subpath );
-            }
-            if ( session != null ) {
-                session.close();
             }
         }
     }
 
-    private void cleanEnv() {
+    private void cleanEnv() throws ScmException {
         try {
             ScmFactory.Role.deleteRole( sessionA, rolename );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
         try {
             ScmFactory.User.deleteUser( sessionA, username );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
 
@@ -190,8 +188,7 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
             ScmFactory.Directory.deleteInstance( wsA, dirpath );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.DIR_NOT_FOUND ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
     }
@@ -209,7 +206,7 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
         ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
     }
 
-    private class GrantRs extends TestThreadBase {
+    private class GrantRs {
         private ScmResource rs;
         private ScmRole role;
 
@@ -219,21 +216,16 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
             this.role = role;
         }
 
-        @Override
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
-            try {
-                grantPriAndAttachRole( sessionA, this.rs, user, this.role,
-                        ScmPrivilegeType.READ );
-                grantPriAndAttachRole( sessionA, this.rs, user, this.role,
-                        ScmPrivilegeType.CREATE );
-            } catch ( ScmException e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
-            }
+            grantPriAndAttachRole( sessionA, this.rs, user, this.role,
+                    ScmPrivilegeType.READ );
+            grantPriAndAttachRole( sessionA, this.rs, user, this.role,
+                    ScmPrivilegeType.CREATE );
         }
     }
 
-    private class RevokeRs extends TestThreadBase {
+    private class RevokeRs {
         private ScmResource rs;
         private ScmRole role;
 
@@ -243,16 +235,10 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
             this.role = role;
         }
 
-        @Override
-        public void exec() throws InterruptedException {
-            try {
-                ScmFactory.Role.revokePrivilege( sessionA, this.role, rs,
-                        ScmPrivilegeType.DELETE );
-                Thread.sleep( 10000 );
-            } catch ( ScmException e ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
-            }
+        @ExecuteOrder(step = 1)
+        public void exec() throws InterruptedException, ScmException {
+            ScmFactory.Role.revokePrivilege( sessionA, this.role, rs,
+                    ScmPrivilegeType.DELETE );
         }
     }
 }
