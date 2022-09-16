@@ -31,24 +31,28 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description BreakpointFile1375.java 不校验文件，断点续传已更新文件
- * @author luweikang
- * @date 2018年5月18日
+ * @description SCM-1375:不校验文件，断点续传已更新文件 SCM-3931:不校验文件，断点续传已更新文件
+ * @author wuyan
+ * @createDate 2018.05.18
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.15
+ * @updateRemark
+ * @version v1.0
  */
-public class BreakpointFile1375 extends TestScmBase {
+public class BreakpointFile1375_3931 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
-
+    private boolean runSuccess = false;
     private String fileName1 = "scmfile1375_1";
     private String fileName2 = "scmfile1375_2";
     private String fileName3 = "scmfile1375_3";
-    private int fileSize = 1024 * 1024;
+    private int fileSize = 1024 * 1024 * 16;
     private File localPath = null;
     private String filePath = null;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass()
     private void setUp() throws IOException, ScmException {
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
@@ -70,21 +74,18 @@ public class BreakpointFile1375 extends TestScmBase {
 
         // 创建断点文件,大小为1024*512
         BreakpointUtil.createBreakpointFile( ws, filePath, fileName1,
-                1024 * 512, ScmChecksumType.NONE );
+                1024 * 1024 * 5, ScmChecksumType.NONE );
         BreakpointUtil.createBreakpointFile( ws, filePath, fileName2,
-                1024 * 512, ScmChecksumType.NONE );
+                1024 * 1024 * 5, ScmChecksumType.NONE );
         BreakpointUtil.createBreakpointFile( ws, filePath, fileName3,
-                1024 * 512, ScmChecksumType.NONE );
+                1024 * 1024 * 5, ScmChecksumType.NONE );
 
         // 更新断点文件,删除部分文件数据
         this.uploadBreakpointFile1();
-
         // 更新断点文件,修改未上传原文件内容
         this.uploadBreakpointFile2();
-
         // 更新断点文件,追加内容到源文件
         this.uploadBreakpointFile3();
-
     }
 
     private void uploadBreakpointFile1() throws IOException, ScmException {
@@ -149,22 +150,22 @@ public class BreakpointFile1375 extends TestScmBase {
         inputStream2.close();
 
         checkBreakpointFile( fileName3, fileSize + 1024 );
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
-        try {
-            ScmFactory.BreakpointFile.deleteInstance( ws, fileName1 );
-            ScmFactory.BreakpointFile.deleteInstance( ws, fileName2 );
-            ScmFactory.BreakpointFile.deleteInstance( ws, fileName3 );
-            TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        } finally {
-            if ( session != null ) {
-                session.close();
+    private void tearDown() throws ScmException {
+        if ( runSuccess || TestScmBase.forceClear ) {
+            try {
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName1 );
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName2 );
+                ScmFactory.BreakpointFile.deleteInstance( ws, fileName3 );
+                TestTools.LocalFile.removeFile( localPath );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
             }
-
         }
     }
 

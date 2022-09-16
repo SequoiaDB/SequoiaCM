@@ -27,20 +27,24 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * test content:delete breakpoint file testlink-case:SCM-1387/1391
- *
+ * @description SCM-1387:删除断点文件，该文件已上传完成 SCM-1391:设置断点文件为文件的内容，执行删除操作
+ *              SCM-3940:删除断点文件，该文件已上传完成 SCM-3944:设置断点文件为文件的内容，执行删除操作
  * @author wuyan
- * @Date 2018.05.11
- * @version 1.00
+ * @createDate 2018.05.11
+ * @updateUser ZhangYanan
+ * @updateDate 2021.10.15
+ * @updateRemark
+ * @version v1.0
  */
 
-public class DeleteBreakpointFile1387_1391 extends TestScmBase {
+public class BreakpointFile1387_1391_3940_3944 extends TestScmBase {
     private static SiteWrapper site = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
     private String fileName = "breakpointfile1387";
     private ScmId fileId = null;
+    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws ScmException {
@@ -57,17 +61,18 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
         createAndDeleteBreakpointFile();
         // testcase1391:delete breakpointfile of had created file
         DeleteBreakPointFileBySetFile();
+        runSuccess = true;
     }
 
     @AfterClass
-    private void tearDown() {
-        try {
-            ScmFactory.File.deleteInstance( ws, fileId, true );
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
-        } finally {
-            if ( session != null ) {
-                session.close();
+    private void tearDown() throws ScmException {
+        if ( runSuccess || TestScmBase.forceClear ) {
+            try {
+                ScmFactory.File.deleteInstance( ws, fileId, true );
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
             }
         }
     }
@@ -76,7 +81,7 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
         // create file
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName );
-        byte[] data = new byte[ 10 ];
+        byte[] data = new byte[ 1024 * 1024 * 5 ];
         new Random().nextBytes( data );
         breakpointFile.upload( new ByteArrayInputStream( data ) );
 
@@ -87,8 +92,7 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getError()
-                        + e.getMessage() );
+                throw e;
             }
         }
     }
@@ -97,7 +101,7 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
         // create file
         ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                 .createInstance( ws, fileName, ScmChecksumType.ADLER32 );
-        byte[] data = new byte[ 10 ];
+        byte[] data = new byte[ 1024 * 1024 * 5 ];
         new Random().nextBytes( data );
         breakpointFile.upload( new ByteArrayInputStream( data ) );
 
@@ -113,8 +117,7 @@ public class DeleteBreakpointFile1387_1391 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.FILE_NOT_FOUND != e.getError() ) {
-                Assert.fail( "expErrorCode:-262  actError:" + e.getErrorCode()
-                        + e.getMessage() );
+                throw e;
             }
         }
     }
