@@ -43,7 +43,7 @@ public class Object4239 extends TestScmBase {
         s3Client.putObject( bucketName, key, "aaa" );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test(groups = { GroupTags.base }, enabled = false)
     public void test() throws Exception {
         ThreadExecutor te = new ThreadExecutor();
         S3UpdateObject t1 = new S3UpdateObject();
