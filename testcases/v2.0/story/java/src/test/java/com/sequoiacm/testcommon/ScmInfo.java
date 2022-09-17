@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.client.common.ScmType;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
@@ -19,6 +20,7 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import org.testng.SkipException;
 
 public class ScmInfo {
     private static final Logger logger = Logger.getLogger( ScmInfo.class );
@@ -87,6 +89,36 @@ public class ScmInfo {
     public static SiteWrapper getSite() {
         SiteWrapper site = siteList.get( random.nextInt( siteList.size() ) );
         return site;
+    }
+
+    /**
+     * get sites by siteType
+     * 
+     * @return
+     */
+    public static List< SiteWrapper > getSitesByType(
+            ScmType.DatasourceType siteType ) {
+        List< SiteWrapper > sites1 = ScmInfo.getAllSites();
+        List< SiteWrapper > sites2 = new ArrayList<>();
+        for ( SiteWrapper tmpsite : sites1 ) {
+            if ( tmpsite.getDataType().equals( siteType ) ) {
+                sites2.add( tmpsite );
+                break;
+            }
+        }
+        if ( sites2.size() == 0 ) {
+            throw new SkipException(
+                    "the site of " + siteType + " is not existed" );
+        }
+        return sites2;
+    }
+
+    /**
+     * get a site by siteType
+     */
+    public static SiteWrapper getSiteByType( ScmType.DatasourceType siteType ) {
+        List< SiteWrapper > sites = ScmInfo.getSitesByType( siteType );
+        return sites.get( new Random().nextInt( sites.size() ) );
     }
 
     public static SiteWrapper getRootSite() {

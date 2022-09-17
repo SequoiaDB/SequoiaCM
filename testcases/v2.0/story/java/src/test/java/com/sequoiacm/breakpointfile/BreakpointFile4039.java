@@ -43,13 +43,11 @@ public class BreakpointFile4039 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
+        site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

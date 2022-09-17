@@ -50,9 +50,7 @@ public class BreakpointFile4046 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
-        site = DBSites.get( new Random().nextInt( DBSites.size() ) );
+        site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
