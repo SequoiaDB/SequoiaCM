@@ -93,24 +93,21 @@ public class DatasourceServiceImpl implements IDatasourceService {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
                 .getWorkspaceInfoCheckLocalSite(workspaceName);
         ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime));
-        ScmDataReader reader = null;
+        ScmDataInfoFetcher fetcher;
         try {
-            reader = ScmDataOpFactoryAssit.getFactory().createReader(
+            fetcher = ScmDataOpFactoryAssit.getFactory().createDataInfoFetcher(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),
-                    "Failed to create data reader", e);
+                    "Failed to create data info fetcher", e);
         }
-        try {
-            long size = reader.getSize();
-            BSONObject retInfo = new BasicBSONObject();
-            retInfo.put(CommonDefine.RestArg.DATASOURCE_DATA_SIZE, size);
-            return retInfo;
-        } finally {
-            reader.close();
-        }
+        long size = fetcher.getDataSize();
+        BSONObject retInfo = new BasicBSONObject();
+        retInfo.put(CommonDefine.RestArg.DATASOURCE_DATA_SIZE, size);
+        return retInfo;
+
     }
 
     @Override

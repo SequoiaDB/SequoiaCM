@@ -28,4 +28,22 @@ public interface ScmDataOpFactory {
 
     ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException;
+
+    default ScmDataInfoFetcher createDataInfoFetcher(int siteId, String wsName,
+            ScmLocation location, ScmService service, ScmDataInfo dataInfo)
+            throws ScmDatasourceException {
+        final ScmDataReader reader = createReader(siteId, wsName, location, service, dataInfo);
+        try {
+            final long size = reader.getSize();
+            return new ScmDataInfoFetcher() {
+                @Override
+                public long getDataSize() {
+                    return size;
+                }
+            };
+        }
+        finally {
+            reader.close();
+        }
+    }
 }

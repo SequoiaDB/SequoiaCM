@@ -119,4 +119,27 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
             throws ScmDatasourceException {
         return new CephS3DataTableDeletor();
     }
+
+    @Override
+    public ScmDataInfoFetcher createDataInfoFetcher(int siteId, String wsName, ScmLocation location,
+            ScmService service, ScmDataInfo dataInfo) throws ScmDatasourceException {
+        try {
+            CephS3DataLocation dataLocation = (CephS3DataLocation) location;
+            return new CephS3DataInfoFetcher(
+                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    service);
+        }
+        catch (CephS3Exception e) {
+            logger.error("build CephS3DataInfoFetcher failed:siteId=" + siteId + ",wsName=" + wsName
+                    + ",fileId=" + dataInfo.getId());
+            throw e;
+        }
+        catch (Exception e) {
+            logger.error("build ceph CephS3DataInfoFetcher failed:siteId=" + siteId + ",wsName="
+                    + wsName + ",fileId=" + dataInfo.getId());
+            throw new CephS3Exception("build CephS3DataInfoFetcher reader failed:siteId=" + siteId
+                    + ",wsName=" + wsName + ",fileId=" + dataInfo.getId(), e);
+        }
+    }
 }

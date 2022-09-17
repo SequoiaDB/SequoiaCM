@@ -157,6 +157,25 @@ public class CephS3ConnWrapper {
         return obj;
     }
 
+    public ObjectMetadata getObjectMeta(String bucket, String key) throws CephS3Exception {
+        try {
+            return conn.getAmzClient().getObjectMetadata(bucket, key);
+        }
+        catch (AmazonServiceException e) {
+            checkFatalError(e);
+            throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
+                    "get object meta failed:siteId=" + conn.getSiteId() + ", bucket=" + bucket
+                            + ", key=" + key,
+                    e);
+        }
+        catch (Exception e) {
+            checkFatalError(e);
+            throw new CephS3Exception("get object meta failed:siteId=" + conn.getSiteId()
+                    + ", bucket=" + bucket + ", key=" + key, e);
+        }
+
+    }
+
     public void abortMultipartUpload(AbortMultipartUploadRequest req) throws CephS3Exception {
         try {
             conn.getAmzClient().abortMultipartUpload(req);
