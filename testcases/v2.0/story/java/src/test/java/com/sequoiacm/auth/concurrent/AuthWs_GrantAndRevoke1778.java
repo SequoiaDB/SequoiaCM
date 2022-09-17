@@ -66,7 +66,7 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
         newUserSession = TestScmTools.createSession( site, username, passwd );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         ThreadExecutor t = new ThreadExecutor();
         t.addWorker( new GrantRs( rs, role ) );
