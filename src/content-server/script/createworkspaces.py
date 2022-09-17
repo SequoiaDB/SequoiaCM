@@ -74,6 +74,9 @@ def create_workspace(ws_conf, url, user, password):
     if 'preferred' in ws_conf:
         preferred = ws_conf['preferred']
         cmd += " --preferred " + preferred
+    if 'site_cache_strategy' in ws_conf:
+        site_cache_strategy = ws_conf['site_cache_strategy']
+        cmd += " --site-cache-strategy " + site_cache_strategy
     
     cmd += ' --user ' + user
     cmd += ' --password ' + password

@@ -3,6 +3,7 @@ package com.sequoiacm.common.mapping;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
@@ -30,6 +31,7 @@ public class ScmWorkspaceObj {
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
     private String preferred;
+    private ScmSiteCacheStrategy siteCacheStrategy;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -79,6 +81,10 @@ public class ScmWorkspaceObj {
             enableDirectory = BsonUtils.getBooleanOrElse(obj,
                     FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false);
             preferred = BsonUtils.getString(obj, FieldName.FIELD_CLWORKSPACE_PREFERRED);
+
+            siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(
+                    BsonUtils.getStringOrElse(obj, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                            ScmSiteCacheStrategy.ALWAYS.name()));
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -181,5 +187,8 @@ public class ScmWorkspaceObj {
 
     public String getPreferred() {
         return preferred;
+    }
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
     }
 }

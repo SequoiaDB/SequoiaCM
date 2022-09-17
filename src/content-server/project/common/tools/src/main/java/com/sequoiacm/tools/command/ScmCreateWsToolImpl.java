@@ -3,6 +3,7 @@ package com.sequoiacm.tools.command;
 import java.util.Map;
 
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -48,6 +49,7 @@ public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_LONG_ENABLE_DIRECTORY = "enable-directory";
     private final String OPT_LONG_PREFERRED = "preferred";
     private final String OPT_SHORT_PREFERRED = "p";
+    private final String OPT_LONG_SITE_CACHE_STRATEGY = "site-cache-strategy";
 
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -95,6 +97,9 @@ public class ScmCreateWsToolImpl extends ScmTool {
                 false, false, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_ENABLE_DIRECTORY, "enable directory feature.",
                 false, false, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_SITE_CACHE_STRATEGY,
+                "workspace site cache strategy, all available strategy: always, never.", false,
+                true, false));
 
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
@@ -138,6 +143,11 @@ public class ScmCreateWsToolImpl extends ScmTool {
 
             if (cl.hasOption(OPT_LONG_PREFERRED)) {
                 conf.setPreferred(cl.getOptionValue(OPT_LONG_PREFERRED));
+            }
+
+            if (cl.hasOption(OPT_LONG_SITE_CACHE_STRATEGY)) {
+                conf.setSiteCacheStrategy(ScmSiteCacheStrategy
+                        .getStrategy(cl.getOptionValue(OPT_LONG_SITE_CACHE_STRATEGY)));
             }
 
             // meta

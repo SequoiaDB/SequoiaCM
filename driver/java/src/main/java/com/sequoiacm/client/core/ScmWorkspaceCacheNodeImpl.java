@@ -4,6 +4,7 @@ import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 
 import java.util.Date;
@@ -155,6 +156,19 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     public void updatePreferred(String preferred) throws ScmException {
         checkScmWorkspace();
         scmWorkspace.updatePreferred(preferred);
+    }
+
+    @Override
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        checkScmWorkspace();
+        return scmWorkspace.getSiteCacheStrategy();
+    }
+
+    @Override
+    public void updateSiteCacheStrategy(ScmSiteCacheStrategy scmSiteCacheStrategy)
+            throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.updateSiteCacheStrategy(scmSiteCacheStrategy);
     }
 
     @Override

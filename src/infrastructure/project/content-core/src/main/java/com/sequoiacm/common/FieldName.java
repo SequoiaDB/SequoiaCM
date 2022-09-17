@@ -65,6 +65,7 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE = "batch_file_name_unique";
     public static final String FIELD_CLWORKSPACE_ENABLE_DIRECTORY = "enable_directory";
     public static final String FIELD_CLWORKSPACE_PREFERRED = "preferred";
+    public static final String FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY = "site_cache_strategy";
     public static final String FIELD_CLWORKSPACE_CONTAINER_PREFIX = "container_prefix"; // only
     public static final String FIELD_CLWORKSPACE_BUCKET_NAME = "bucket_name";           // in
                                                                                         // s3

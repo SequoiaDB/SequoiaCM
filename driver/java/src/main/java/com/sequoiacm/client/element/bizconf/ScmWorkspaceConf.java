@@ -3,6 +3,7 @@ package com.sequoiacm.client.element.bizconf;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -27,6 +28,7 @@ public class ScmWorkspaceConf {
     private boolean batchFileNameUnique;
     private boolean enableDirectory = false;
     private String preferred;
+    private ScmSiteCacheStrategy siteCacheStrategy = ScmSiteCacheStrategy.ALWAYS;
 
     /**
      * Create a empty config instance.
@@ -237,6 +239,9 @@ public class ScmWorkspaceConf {
         if (preferred != null) {
             bson.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
         }
+        bson.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                siteCacheStrategy == null ? ScmSiteCacheStrategy.ALWAYS.name()
+                        : siteCacheStrategy.name());
         return bson;
     }
 
@@ -384,5 +389,29 @@ public class ScmWorkspaceConf {
      */
     public void setPreferred(String preferred) {
         this.preferred = preferred;
+    }
+
+    /**
+     * Set the site cache strategy.
+     * 
+     * @param siteCacheStrategy
+     *            site cache strategy.
+     */
+    public void setSiteCacheStrategy(ScmSiteCacheStrategy siteCacheStrategy)
+            throws ScmInvalidArgumentException {
+        if (siteCacheStrategy == ScmSiteCacheStrategy.UNKNOWN) {
+            throw new ScmInvalidArgumentException(
+                    "site cache strategy is unknown:" + siteCacheStrategy);
+        }
+        this.siteCacheStrategy = siteCacheStrategy;
+    }
+
+    /**
+     * Return the site cache strategy.
+     * 
+     * @return site cache strategy.
+     */
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
     }
 }

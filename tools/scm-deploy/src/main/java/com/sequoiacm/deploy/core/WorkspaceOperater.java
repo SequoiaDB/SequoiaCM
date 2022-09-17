@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -156,6 +157,10 @@ public class WorkspaceOperater {
         conf.setEnableDirectory(BsonUtils.getBooleanOrElse(wsBSON,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
         conf.setPreferred(BsonUtils.getString(wsBSON, FieldName.FIELD_CLWORKSPACE_PREFERRED));
+        ScmSiteCacheStrategy siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(
+                BsonUtils.getStringOrElse(wsBSON, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                        ScmSiteCacheStrategy.ALWAYS.name()));
+        conf.setSiteCacheStrategy(siteCacheStrategy);
 
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace(ss, conf);
         return ws.getName();

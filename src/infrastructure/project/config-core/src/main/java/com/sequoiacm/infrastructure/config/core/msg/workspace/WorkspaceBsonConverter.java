@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.core.msg.workspace;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
@@ -75,6 +76,9 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
 
         wsConfig.setPreferred(BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_PREFERRED));
+        wsConfig.setSiteCacheStrategy(
+                BsonUtils.getStringOrElse(config, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                        ScmSiteCacheStrategy.ALWAYS.name()));
         return wsConfig;
     }
 
@@ -111,6 +115,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 ScmRestArgDefine.WORKSPACE_CONF_REMOVE_DATALOCATION));
         configUpdator.setNewDesc(
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_DESCRIPTION));
+        configUpdator.setNewSiteCacheStrategy(BsonUtils.getString(wsUpdatorObj,
+                ScmRestArgDefine.WORKSPACE_CONF_SITE_CACHE_STRATEGY));
         configUpdator.setExternalData(
                 BsonUtils.getBSON(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA));
         configUpdator.setPreferred(

@@ -14,6 +14,7 @@ createws 子命令提供工作区的创建功能。
 |--batch-id-time-regex|     |批次ID时间信息正则表达式，不指定默认为 null                                       |否      |
 |--batch-id-time-pattern|     |批次ID时间格式，不指定默认为null                                                |否      |
 |--batch-file-name-unique|     |批次内的文件名唯一，不指定默认批次内的文件允许重名                             |否      |
+|--site-cache-strategy|     |工作区文件站点缓存策略，可选值：always，never，不指定默认为 always                |否      |
 |--preferred|-p   |指定工作区的站点选择策略，目前可以指定为工作区下的某个站点名，默认为主站点，该策略目前作用在网关转发 S3 请求上，当 S3 请求需要访问本工作区时，网关将会转发至指定站点的 S3 服务|否      |
 |--url          |     |(gateway)网关地址，eg:'localhost:8080/rootsite',rootsite是站点服务名（小写）            |是      |
 |--user         |     |管理员用户名                                                                            |是      |
@@ -31,6 +32,8 @@ createws 子命令提供工作区的创建功能。
 > * 开/闭目录功能相关说明详见[目录][directory]
 >
 > * 设置批次相关说明详见[批次][batch]
+>
+> * 工作区缓存策略详见[工作区][workspace]
 
 选项 --meta 接受一个 JSON Object 格式的字符串，表示元数据站点，支持的 Key 如下：
 
@@ -179,4 +182,4 @@ sharding 类型说明：
 
 [directory]:Architecture/Business_Concept/directory.md
 [batch]:Architecture/Business_Concept/batch.md
-
+[workspace]:Architecture/Business_Concept/workspace.md

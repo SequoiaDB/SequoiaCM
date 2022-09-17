@@ -14,6 +14,7 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private BSONObject externalData;
     private BSONObject oldWsRecord;
     private String preferred;
+    private String newSiteCacheStrategy;
 
     public WorkspaceUpdator(String wsName) {
         this.wsName = wsName;
@@ -39,6 +40,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
         BasicBSONObject updator = new BasicBSONObject();
         if (newDesc != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_DESCRIPTION, newDesc);
+        }
+        if (newSiteCacheStrategy != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_SITE_CACHE_STRATEGY, newSiteCacheStrategy);
         }
         if (addDataLocation != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_ADD_DATALOCATION, addDataLocation);
@@ -104,5 +108,12 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public String getPreferred() {
         return preferred;
+    }
+    public void setNewSiteCacheStrategy(String newSiteCacheStrategy) {
+        this.newSiteCacheStrategy = newSiteCacheStrategy;
+    }
+
+    public String getNewSiteCacheStrategy() {
+        return newSiteCacheStrategy;
     }
 }

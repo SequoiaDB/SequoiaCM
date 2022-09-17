@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.model;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -11,6 +12,7 @@ public class ClientWorkspaceUpdator {
     private String removeDataLocation;
     private ClientLocationOutline addDataLocation;
     private String preferred;
+    private ScmSiteCacheStrategy siteCacheStrategy;
 
     public ClientWorkspaceUpdator() {
     }
@@ -47,11 +49,20 @@ public class ClientWorkspaceUpdator {
         this.addDataLocation = addDataLocation;
     }
 
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
+    }
+
+    public void setSiteCacheStrategy(ScmSiteCacheStrategy siteCacheStrategy) {
+        this.siteCacheStrategy = siteCacheStrategy;
+    }
+
     @Override
     public String toString() {
         return "ClientWorkspaceUpdator{" + "description='" + description + '\''
                 + ", removeDataLocation='" + removeDataLocation + '\'' + ", addDataLocation="
-                + addDataLocation + ", preferred='" + preferred + '\'' + '}';
+                + addDataLocation + ", preferred='" + preferred + '\'' + ", siteCacheStrategy="
+                + siteCacheStrategy + '}';
     }
 
     public static ClientWorkspaceUpdator fromBSONObject(BSONObject obj)
@@ -60,6 +71,18 @@ public class ClientWorkspaceUpdator {
         ClientWorkspaceUpdator updator = new ClientWorkspaceUpdator();
         String desc = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_DESCRIPTION);
+        String siteCacheStrategyStr = (String) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY);
+        if (siteCacheStrategyStr != null) {
+            ScmSiteCacheStrategy siteCacheStrategyEnum = ScmSiteCacheStrategy
+                    .getStrategy(siteCacheStrategyStr);
+            if (siteCacheStrategyEnum == ScmSiteCacheStrategy.UNKNOWN) {
+                throw new ScmInvalidArgumentException(
+                        "failed to update workspace, invalid site cache strategy:"
+                                + siteCacheStrategyStr);
+            }
+            updator.setSiteCacheStrategy(siteCacheStrategyEnum);
+        }
         updator.setDescription(desc);
         String removeDataLocation = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION);

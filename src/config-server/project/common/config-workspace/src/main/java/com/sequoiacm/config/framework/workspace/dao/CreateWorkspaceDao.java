@@ -200,6 +200,8 @@ public class CreateWorkspaceDao {
         if (wsConfig.getPreferred() != null) {
             wsRecord.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, wsConfig.getPreferred());
         }
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                wsConfig.getSiteCacheStrategy());
         return wsRecord;
     }
 }

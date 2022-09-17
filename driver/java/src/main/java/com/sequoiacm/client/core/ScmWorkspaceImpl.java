@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -40,6 +41,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
     private String preferred;
+    private ScmSiteCacheStrategy siteCacheStrategy;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -85,6 +87,9 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         enableDirectory = BsonUtils.getBooleanOrElse(newWsInfo,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false);
         preferred = BsonUtils.getString(newWsInfo, FieldName.FIELD_CLWORKSPACE_PREFERRED);
+        siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(BsonUtils.getStringOrElse(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                ScmSiteCacheStrategy.ALWAYS.name()));
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -268,5 +273,23 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         BasicBSONObject updater = new BasicBSONObject(
                 CommonDefine.RestArg.WORKSPACE_UPDATOR_PREFERRED, preferred);
         _update(updater);
+    }
+
+    @Override
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
+    }
+
+    @Override
+    public void updateSiteCacheStrategy(ScmSiteCacheStrategy newSiteCacheStrategy)
+            throws ScmException {
+        if (newSiteCacheStrategy == null) {
+            throw new ScmInvalidArgumentException("new site cache strategy is null");
+        }
+
+        BasicBSONObject updator = new BasicBSONObject(
+                CommonDefine.RestArg.WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY,
+                newSiteCacheStrategy.name());
+        _update(updator);
     }
 }

@@ -287,6 +287,7 @@ public class CommonDefine {
         public static final String WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION = "rmove_data_location";
         public static final String WORKSPACE_UPDATOR_DESCRIPTION = "description";
         public static final String WORKSPACE_UPDATOR_PREFERRED = "preferred";
+        public static final String WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY = "site_cache_strategy";
         public static final String WORKSPACE_FILTER = "filter";
         public static final String WORKSPACE_ORDERBY = "orderby";
         public static final String WORKSPACE_SKIP = "skip";

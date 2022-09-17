@@ -17,6 +17,8 @@ conf.setMetaLocation(new ScmSdbMetaLocation("rootSite", "meta_domain"));
 conf.addDataLocation(new ScmSdbDataLocation("rootSite", "data_domain"));
 // 设置开启目录功能
 conf.setEnableDirectory(true);
+// 设置工作区文件站点缓存策略
+conf.setSiteCacheStrategy(ScmSiteCacheStrategy.ALWAYS);
 // 设置批次分区类型
 conf.setBatchShardingType(ScmShardingType.MONTH);
 // 设置批次ID时间正则表达式
@@ -34,6 +36,8 @@ ScmWorkspace workspace = ScmFactory.Workspace.createWorkspace(session, conf);
 >  * 开/闭目录功能相关说明详见[目录][directory]
 >
 >  * 设置批次相关说明详见[批次][batch]
+>
+>  * 工作区缓存策略详见[工作区][workspace]
 
 * 获取工作区
 
@@ -59,3 +63,4 @@ ScmFactory.Workspace.deleteWorkspace(session, "test_ws", true);
 [java_api]:api/java/html/index.html
 [directory]:Architecture/Business_Concept/directory.md
 [batch]:Architecture/Business_Concept/batch.md
+[workspace]:Architecture/Business_Concept/workspace.md

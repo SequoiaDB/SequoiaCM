@@ -3,6 +3,7 @@ package com.sequoiacm.client.core;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
@@ -155,6 +156,24 @@ public abstract class ScmWorkspace {
      *             if error happens.
      */
     public abstract void updatePreferred(String preferred) throws ScmException;
+
+    /**
+     * Returns the site cache strategy.
+     *
+     * @return site cache strategy.
+     */
+    public abstract ScmSiteCacheStrategy getSiteCacheStrategy();
+
+    /**
+     * Updates the site cache strategy of workspace.
+     * 
+     * @param scmSiteCacheStrategy
+     *            site cache strategy
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void updateSiteCacheStrategy(ScmSiteCacheStrategy scmSiteCacheStrategy)
+            throws ScmException;
 
     abstract ScmSession getSession();
 

@@ -3,6 +3,7 @@ package com.sequoiacm.client.element;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.exception.ScmException;
@@ -34,6 +35,7 @@ public class ScmWorkspaceInfo {
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
     private String preferred;
+    private ScmSiteCacheStrategy siteCacheStrategy;
 
     /**
      * Create a instance of ScmWorkspaceInfo.
@@ -65,6 +67,7 @@ public class ScmWorkspaceInfo {
             this.batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
             this.enableDirectory = wsObj.isEnableDirectory();
             this.preferred = wsObj.getPreferred();
+            this.siteCacheStrategy = wsObj.getSiteCacheStrategy();
         }
         catch (ScmMappingException e) {
             throw new ScmInvalidArgumentException(e.getMessage(), e);
@@ -217,7 +220,8 @@ public class ScmWorkspaceInfo {
         sb.append("batchShardingType:" + batchShardingType).append(",");
         sb.append("batchIdTimeRegex:" + batchIdTimeRegex).append(",");
         sb.append("batchIdTimePattern:" + batchIdTimePattern).append(",");
-        sb.append("batchFileNameUnique:" + batchFileNameUnique);
+        sb.append("batchFileNameUnique:" + batchFileNameUnique).append(",");
+        sb.append("siteCacheStrategy:" + siteCacheStrategy);
         return sb.toString();
 
     }
@@ -283,5 +287,14 @@ public class ScmWorkspaceInfo {
      */
     public String getPreferred() {
         return preferred;
+    }
+
+    /**
+     * Return the site cache strategy.
+     *
+     * @return site cache strategy.
+     */
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
     }
 }

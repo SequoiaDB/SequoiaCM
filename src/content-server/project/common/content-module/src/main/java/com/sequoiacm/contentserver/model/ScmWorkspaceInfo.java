@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.model;
 
 import java.util.*;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class ScmWorkspaceInfo {
     private String batchIdTimePattern;
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
+    private ScmSiteCacheStrategy siteCacheStrategy;
 
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
         try {
@@ -95,6 +97,7 @@ public class ScmWorkspaceInfo {
             batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
             enableDirectory = wsObj.isEnableDirectory();
             preferred = wsObj.getPreferred();
+            siteCacheStrategy = wsObj.getSiteCacheStrategy();
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -278,5 +281,9 @@ public class ScmWorkspaceInfo {
 
     public String getPreferred() {
         return preferred;
+    }
+
+    public ScmSiteCacheStrategy getSiteCacheStrategy() {
+        return siteCacheStrategy;
     }
 }

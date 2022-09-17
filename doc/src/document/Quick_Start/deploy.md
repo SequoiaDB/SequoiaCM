@@ -226,6 +226,7 @@
                 "description":"''",
                 "batch_sharding_type": "none",
                 "batch_file_name_unique": false,
+                "site_cache_strategy": "always",
                 "meta":{
                     "site":"rootSite",
                     "domain":"meta_domain",
@@ -255,6 +256,7 @@
     > * data 配置可供工作区存储文件内容数据的站点列表，目前需要强制包含主站点，domain 填写站点数据服务中的域，该域需要用户预先手工创建
     > * 示例创建的工作区禁用了目录功能，如需启用请修改 enable_directory 为 true
     > * preferred 属性表示通过 S3 协议访问该工作区的资源时，网关将会选择指定站点上的 S3 服务进行转发
+    > * site_cache_strategy 配置工作区站点缓存策略，可选值：always、never，always 表示文件数据在站点间流动时总是缓存数据到途经的站点上，never 则表示数据不会缓存到途经的站点上
     
 3. 创建工作区
 

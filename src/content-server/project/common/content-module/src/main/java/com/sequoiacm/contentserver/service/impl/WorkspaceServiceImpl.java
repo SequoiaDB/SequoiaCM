@@ -320,6 +320,8 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 contentModule.getWorkspaceInfoCheckLocalSite(wsName).getBSONObject());
 
         confUpdator.setNewDesc(updator.getDescription());
+        confUpdator.setNewSiteCacheStrategy(updator.getSiteCacheStrategy() == null ? null
+                : updator.getSiteCacheStrategy().name());
 
         BasicBSONList updatedDatalocations = (BasicBSONList) wsInfo.getBSONObject()
                 .get(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION);

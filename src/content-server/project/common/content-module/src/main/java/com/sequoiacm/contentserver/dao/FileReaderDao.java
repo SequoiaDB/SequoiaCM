@@ -4,6 +4,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -50,6 +51,7 @@ public class FileReaderDao {
 
         ScmContentModule contentModule = ScmContentModule.getInstance();
 
+
         ScmDataInfo dataInfo = new ScmDataInfo(fileRecord);
         long size = BsonUtils.getLong(fileRecord, FieldName.FIELD_CLFILE_FILE_SIZE);
         BasicBSONList sites = BsonUtils.getArray(fileRecord, FieldName.FIELD_CLFILE_FILE_SITE_LIST);
@@ -67,6 +69,10 @@ public class FileReaderDao {
         }
 
         isNeedSeek = isNeedSeek(flag);
+        if(!isNeedSeek && wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.NEVER){
+            // 当工作缓存策略为不缓存时，同时客户端不需要 seek，置位 FORCE_NO_CACHE
+            flag |= CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE;
+        }
 
         List<Integer> siteIdList = CommonHelper.getFileLocationIdList(siteList);
         boolean dontCacheLocal = false;

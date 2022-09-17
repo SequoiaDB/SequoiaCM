@@ -46,13 +46,14 @@ public class UpdateWorkspaceDao {
             transaction.begin();
             SysWorkspaceTableDao table = workspaceMetaservice.getSysWorkspaceTable(transaction);
 
-            BSONObject matcher = null;
+            BSONObject wsNameMatcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                    updator.getWsName());
+            BSONObject matcher;
             if (updator.getOldWsRecord() != null) {
                 matcher = updator.getOldWsRecord();
             }
             else {
-                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
-                        updator.getWsName());
+                matcher = wsNameMatcher;
             }
 
             String newDesc = updator.getNewDesc();
@@ -65,8 +66,19 @@ public class UpdateWorkspaceDao {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
-                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
-                        updator.getWsName());
+                matcher = wsNameMatcher;
+            }
+
+            String newSiteCacheStrategy = updator.getNewSiteCacheStrategy();
+            if(newSiteCacheStrategy != null){
+                BasicBSONObject siteCacheStrategyUpdator = new BasicBSONObject(
+                        FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, newSiteCacheStrategy);
+                newWsRecord = table.updateAndCheck(matcher, siteCacheStrategyUpdator);
+                if (newWsRecord == null) {
+                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
+                            "client workspace cache is not latest");
+                }
+                matcher = wsNameMatcher;
             }
 
             if (updator.getPreferred() != null) {
@@ -88,8 +100,7 @@ public class UpdateWorkspaceDao {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
-                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
-                        updator.getWsName());
+                matcher = wsNameMatcher;
             }
 
             BSONObject addDataLocation = updator.getAddDataLocation();
@@ -99,8 +110,7 @@ public class UpdateWorkspaceDao {
                     throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
                             "client workspace cache is not latest");
                 }
-                matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
-                        updator.getWsName());
+                matcher = wsNameMatcher;
             }
 
             BSONObject externalData = updator.getExternalData();

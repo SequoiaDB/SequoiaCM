@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.dao;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
@@ -173,6 +174,17 @@ public class WorkspaceCreator {
 
         wsConfig.setEnableDirectory(BsonUtils.getBooleanOrElse(clientWsConfObj,
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, false));
+        String siteCacheStrategyStr = BsonUtils.getStringOrElse(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
+                ScmSiteCacheStrategy.ALWAYS.name());
+        ScmSiteCacheStrategy siteCacheStrategy = ScmSiteCacheStrategy
+                .getStrategy(siteCacheStrategyStr);
+        if (siteCacheStrategy == ScmSiteCacheStrategy.UNKNOWN) {
+            throw new ScmInvalidArgumentException(
+                    "failed to create workspace, invalid site cache strategy:wsName=" + wsName
+                            + ", strategy=" + siteCacheStrategyStr);
+        }
+        wsConfig.setSiteCacheStrategy(siteCacheStrategyStr);
 
         return wsConfig;
     }

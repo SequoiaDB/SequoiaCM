@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.core.msg.workspace;
 
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -24,6 +25,7 @@ public class WorkspaceConfig implements Config {
     private boolean batchFileNameUnique;
     private boolean enableDirectory = false;
     private String preferred;
+    private String siteCacheStrategy = ScmSiteCacheStrategy.ALWAYS.name();
 
     public WorkspaceConfig() {
     }
@@ -156,6 +158,14 @@ public class WorkspaceConfig implements Config {
         this.preferred = preferred;
     }
 
+    public String getSiteCacheStrategy() {
+        return siteCacheStrategy;
+    }
+
+    public void setSiteCacheStrategy(String siteCacheStrategy) {
+        this.siteCacheStrategy = siteCacheStrategy;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject wsConfigObj = new BasicBSONObject();
@@ -175,6 +185,7 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, batchShardingType);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, siteCacheStrategy);
         return wsConfigObj;
     }
 
