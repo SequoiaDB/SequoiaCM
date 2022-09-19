@@ -28,6 +28,7 @@ public class ScmInputStreamDataReader {
         int size = inputStream.read(buff, offset, len);
         if (size == -1) {
             isEof = true;
+            return -1;
         }
         currentPosition += size;
         return size;
