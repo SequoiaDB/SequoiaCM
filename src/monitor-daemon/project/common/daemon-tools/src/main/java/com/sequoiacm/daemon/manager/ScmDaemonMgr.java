@@ -4,6 +4,7 @@ import com.sequoiacm.daemon.common.CommonUtils;
 import com.sequoiacm.daemon.common.DaemonDefine;
 import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.exec.ScmExecutor;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
@@ -44,9 +45,13 @@ public class ScmDaemonMgr {
             String errorLogPath = daemonHomePath + File.separator + "log" + File.separator + DaemonDefine.ERROR_OUT;
             String jarPath = CommonUtils.getJarPath(ScmDaemonMgr.class);
             String mainMethod = DaemonDefine.MAIN_METHOD;
+            if(ScmCommon.isNeedBackup(errorLogPath)){
+                ScmCommon.backupErrorOut(errorLogPath);
+            }
+            ScmCommon.printStartInfo(errorLogPath);
             String cmd = "export JAVA_HOME=" + javaHome + ";export PATH=$JAVA_HOME/bin:$PATH;cd " + daemonHomePath
                     + ";nohup java -cp " + jarPath + " " + mainMethod + " cron " + "--period "
-                    + period + " > " + errorLogPath + " 2>&1 &";
+                    + period + " >> " + errorLogPath + " 2>&1 &";
             executor.execCmd(cmd);
             logger.info("Start daemon process success,exec cmd:{}", cmd);
             return cmd;

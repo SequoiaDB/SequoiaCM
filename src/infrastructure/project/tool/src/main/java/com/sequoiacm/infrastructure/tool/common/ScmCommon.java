@@ -10,9 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.attribute.UserPrincipal;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.apache.commons.io.IOUtils;
 import org.bson.BSONObject;
@@ -82,6 +84,8 @@ public class ScmCommon {
     private static final RestTemplate restTemplate = new RestTemplate();
 
     private static final Logger logger = LoggerFactory.getLogger(ScmCommon.class);
+
+    public static final long  MAX_ERROR_FILE_SIZE = 104857600 ; //100MB
 
     public static void printVersion() throws ScmToolsException {
         ManifestInfo info;
@@ -210,6 +214,56 @@ public class ScmCommon {
             catch (Exception e) {
                 logger.warn("close inpustream occur error", e);
             }
+        }
+    }
+
+    public static void backupErrorOut(String errorLogPath) throws ScmToolsException{
+        File errorLogFile = new File(errorLogPath);
+        String destLogFileName = errorLogFile.getParent() + File.separator + "error." + 1 + ".out";
+        if (isFileExists(errorLogPath)) {
+            File destLogFile = new File(destLogFileName);
+            if (isFileExists(destLogFileName)) {
+                if (!destLogFile.delete()) {
+                    throw new ScmToolsException("Unable to delete " + destLogFileName,
+                            ScmError.FILE_DELETE_FAILED.getErrorCode());
+                }
+                else {
+                    errorLogFile.renameTo(destLogFile);
+                }
+            }
+            else {
+                errorLogFile.renameTo(destLogFile);
+            }
+        }
+    }
+
+    public static boolean isNeedBackup(String errorLogPath) throws ScmToolsException {
+        if (!isFileExists(errorLogPath)) {
+            return false;
+        }
+        File errorLogFile = new File(errorLogPath);
+        if (errorLogFile.length() < MAX_ERROR_FILE_SIZE) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void printStartInfo(String errorLogPath) throws ScmToolsException {
+        long timeMillis = System.currentTimeMillis();
+        Timestamp timestamp = new Timestamp(timeMillis);
+        String msg = "["+timestamp.toString()+"][com.sequoiacm.infrastructure.tool.common.ScmCommon][INFO ]: starting node";
+        String[] cmd = new String[3];
+        cmd[0] = "/bin/sh";
+        cmd[1] = "-c";
+        cmd[2] = "echo "+ msg +" >> "+ errorLogPath;
+        try {
+            Runtime.getRuntime().exec(cmd);
+        }
+        catch (IOException e) {
+            throw new ScmToolsException("Exec cmd occur io error", ScmBaseExitCode.SHELL_EXEC_ERROR, e);
+        }
+        catch (Exception e) {
+            throw new ScmToolsException("Exec cmd occur error", ScmBaseExitCode.SHELL_EXEC_ERROR, e);
         }
     }
 
