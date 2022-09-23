@@ -6,6 +6,7 @@ import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmWorkspaceBasicInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
+import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfoWithStatistics;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
@@ -25,4 +26,7 @@ public interface ScmWorkspaceService {
             throws ScmInternalException, ScmOmServerException;
 
     public void removeWorkspaceCache(String user);
+
+    void updateWorkspace(ScmOmSession session, String wsName, OmWorkspaceInfo wsInfo)
+            throws ScmOmServerException, ScmInternalException;
 }

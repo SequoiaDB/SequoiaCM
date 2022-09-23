@@ -23,6 +23,9 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
     @JsonProperty("enable_directory")
     private Boolean enableDirectory;
 
+    @JsonProperty("site_cache_strategy")
+    private String siteCacheStrategy;
+
     public String getUpdateUser() {
         return updateUser;
     }
@@ -61,5 +64,13 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
 
     public void setEnableDirectory(Boolean enableDirectory) {
         this.enableDirectory = enableDirectory;
+    }
+
+    public String getSiteCacheStrategy() {
+        return siteCacheStrategy;
+    }
+
+    public void setSiteCacheStrategy(String siteCacheStrategy) {
+        this.siteCacheStrategy = siteCacheStrategy;
     }
 }

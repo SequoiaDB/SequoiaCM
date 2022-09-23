@@ -4,17 +4,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.element.privilege.*;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.om.omserver.module.*;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
-import com.sequoiacm.client.element.bizconf.ScmDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmLocation;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.om.omserver.dao.ScmWorkspaceDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
@@ -102,6 +99,22 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
             throw new ScmInternalException(e.getError(), e.getMessage(), e);
         }
         return workspaces;
+    }
+
+    @Override
+    public void updateWorkspace(ScmOmSession session, String wsName, OmWorkspaceInfo wsInfo)
+            throws ScmInternalException {
+        ScmSession connection = session.getConnection();
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, connection);
+            String siteCacheStrategy = wsInfo.getSiteCacheStrategy();
+            if (siteCacheStrategy != null) {
+                ws.updateSiteCacheStrategy(ScmSiteCacheStrategy.getStrategy(siteCacheStrategy));
+            }
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        }
     }
 
     @Override

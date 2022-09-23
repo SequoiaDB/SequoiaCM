@@ -3,11 +3,13 @@ package com.sequoiacm.om.omserver.controller;
 import java.util.Collections;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,4 +69,10 @@ public class ScmWorkspaceController {
                 .build();
     }
 
+    @PutMapping(value = "/workspaces/{workspace_name}")
+    public void updateWorkspace(ScmOmSession session,
+            @PathVariable("workspace_name") String workSpaceName, OmWorkspaceInfo workspaceInfo)
+            throws ScmInternalException, ScmOmServerException {
+        service.updateWorkspace(session, workSpaceName, workspaceInfo);
+    }
 }

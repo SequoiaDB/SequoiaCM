@@ -47,3 +47,17 @@ export function queryWorkspaceDetail(workspaceName) {
   })
 }
 
+/**
+ * 更新工作区
+ * @param {string} workspaceName 
+ * @param {object} workspace 
+ * @returns 
+ */
+ export function updateWorkspace(workspaceName, workspace) {
+  return request({
+    url: BASE_API+'/workspaces/'+workspaceName,
+    method: 'put',
+    data: workspace
+  })
+}
+

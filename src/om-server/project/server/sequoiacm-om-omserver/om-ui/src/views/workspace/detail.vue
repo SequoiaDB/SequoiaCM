@@ -19,6 +19,41 @@
       </div>
       <el-divider></el-divider>
       <div class="info-container">
+        <div class="title">工作区配置</div>
+        <el-row>
+          <el-col :span="2" style="width:75px;margin-top:8px;font-size: 15px">
+            <el-tooltip effect="light" placement="top-start">
+              <div slot="content" class="tooltip">
+                文件缓存策略控制跨中心读时，文件数据是否缓存在途经的站点上，目前支持如下缓存策略：<br/>
+                  <b>ALWAYS：</b>文件在跨中心读时，文件数据总是会缓存在途经的站点上<br/>
+                  <b>NEVER：</b> 文件在跨中心读时，文件数据不会缓存在途经的站点上
+              </div>
+              <span class="config-key">缓存策略：</span>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="3" style="width:200px;">
+            <span>
+              <el-select 
+                id="select_ws_site_cache_strategy"
+                v-model="cacheStrategy" 
+                size="small" 
+                placeholder="无数据" 
+                filterable
+                @change="changeSiteCacheStrategy"
+                style="width:100%">
+                <el-option
+                  v-for="item in siteCacheStrategies"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </span>
+          </el-col>
+        </el-row>
+      </div>
+      <el-divider></el-divider>
+      <div class="info-container">
         <div class="title">站点信息</div>
         <el-table
           :data="siteList"
@@ -74,12 +109,19 @@
   </div>
 </template>
 <script>
-import {queryWorkspaceDetail} from '@/api/workspace'
+import {queryWorkspaceDetail, updateWorkspace} from '@/api/workspace'
 export default {
   data(){
     return{
       workspaceInfo: {},
       siteList: [],
+      originalCacheStrategy: '',
+      cacheStrategy: '',
+      siteCacheStrategies: [{ 
+        value : 'ALWAYS', label : 'ALWAYS'
+      }, { 
+        value : 'NEVER', label : 'NEVER'
+      }]
     }
   },
   computed:{
@@ -96,6 +138,24 @@ export default {
       if(this.workspaceInfo && this.workspaceInfo.data_locations){
         this.siteList = this.workspaceInfo.data_locations
       }
+      if (this.workspaceInfo.site_cache_strategy) {
+        this.cacheStrategy = this.workspaceInfo.site_cache_strategy
+      }
+      else {
+        this.cacheStrategy = 'ALWAYS'
+      }
+      this.originalCacheStrategy = this.cacheStrategy
+    },
+    changeSiteCacheStrategy() {
+      let ws = {
+        siteCacheStrategy : this.cacheStrategy
+      }
+      updateWorkspace(this.workspaceInfo.name, ws).then(res => {
+        this.originalCacheStrategy = this.cacheStrategy
+        this.$message.success("更新成功，工作区缓存策略调整为 " + this.cacheStrategy)
+      }).catch(() => {
+        this.cacheStrategy = this.originalCacheStrategy
+      })
     }
   },
   created(){
@@ -131,5 +191,9 @@ export default {
   font-size: 14px;
   color: #606266;
 
+}
+.tooltip {
+  font-size: 12px;
+  line-height: 18px;
 }
 </style>

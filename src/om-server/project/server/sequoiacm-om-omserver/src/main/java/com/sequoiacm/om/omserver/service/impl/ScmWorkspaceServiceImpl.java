@@ -79,6 +79,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         wsDetailWithStatistics.setName(wsDetail.getName());
         wsDetailWithStatistics.setUpdateTime(wsDetail.getUpdateTime());
         wsDetailWithStatistics.setUpdateUser(wsDetail.getUpdateUser());
+        wsDetailWithStatistics.setSiteCacheStrategy(wsDetail.getSiteCacheStrategy());
 
         OmFileDeltaStatistics fileDelta = monitorDao.getFileDelta(workspaceName);
         wsDetailWithStatistics.setFileSizeDelta(fileDelta.getSizeDelta());
@@ -211,6 +212,22 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     }
 
     @Override
+    public void updateWorkspace(ScmOmSession session, String workspaceName, OmWorkspaceInfo wsInfo)
+            throws ScmOmServerException, ScmInternalException {
+        String preferSite = siteChooser.getRootSite();
+        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            workspaceDao.updateWorkspace(session, workspaceName, wsInfo);
+            workspacesCache.remove(workspaceName);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
     public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName)
             throws ScmInternalException, ScmOmServerException {
         OmCacheWrapper<OmWorkspaceDetail> cache = workspacesCache.get(workspaceName);
@@ -244,6 +261,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         ret.setEnableDirectory(ws.isEnableDirectory());
         ret.setUpdateTime(ws.getUpdateTime());
         ret.setUpdateUser(ws.getUpdateUser());
+        ret.setSiteCacheStrategy(ws.getSiteCacheStrategy().name());
 
         List<OmWorkspaceDataLocation> retDatalocations = new ArrayList<>();
         for (ScmDataLocation site : ws.getDataLocations()) {

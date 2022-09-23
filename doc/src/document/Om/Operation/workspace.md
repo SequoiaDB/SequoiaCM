@@ -10,10 +10,12 @@
 
 
 ## 查看工作区详情 ##
-在工作区列表界面，点击指定工作区的 查看详情 按钮，查看该工作区的基本信息、站点信息、元数据信息和统计信息。
+在工作区列表界面，点击指定工作区的 查看详情 按钮，查看该工作区的基本信息、配置信息、站点信息、元数据信息和统计信息。
 ![工作区详情][workspace_detail]
 
-
+>  **Note：**
+>
+>  * admin 用户可在此页面调整工作区的站点缓存策略
 
 [workspace_list]:Om/Operation/workspace_list.png
 [workspace_detail]:Om/Operation/workspace_detail.png
