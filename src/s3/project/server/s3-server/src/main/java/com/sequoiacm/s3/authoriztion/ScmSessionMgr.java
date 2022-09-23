@@ -3,10 +3,12 @@ package com.sequoiacm.s3.authoriztion;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,15 +138,32 @@ public class ScmSessionMgr {
         Iterator<Entry<String, ScmSession>> it = sessions.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, ScmSession> entry = it.next();
-            ScmSession session = entry.getValue();
+            ScmSession sessionCache = entry.getValue();
             try {
-                signClient.getUserDetail(session.getSessionId());
+                ScmUser latestUser = signClient.getUserDetail(sessionCache.getSessionId())
+                        .getUser();
+                if (latestUser.isEnabled() && Objects.equals(latestUser.getAccesskey(),
+                        sessionCache.getUser().getAccesskey())) {
+                    // latestUser 是通过过查询 session 信息获得的，其中的 secretkey 已经被抹除（null值）
+                    // 走一次内部接口获得 secretkey 进行比对
+                    String latestSecretKey = signClient
+                            .getSecretKey(sessionCache.getUser().getAccesskey());
+                    if (Objects.equals(latestSecretKey, sessionCache.getSecretkey())) {
+                        continue;
+                    }
+                }
+                logger.warn(
+                        "user has been refreshed, logout session: sessionId={}, latestUserInfo={}, userInfoCache={}",
+                        sessionCache.getSessionId(), latestUser, sessionCache.getUser());
+                logoutSession(sessionCache);
+                it.remove();
             }
             catch (Exception e) {
-                logger.info(
-                        "assume session is not exist in auth-server, remove it from local cache:accessKey={}, sessionId={}",
-                        entry.getKey(), session.getSessionId(), e);
-                logoutSession(session);
+                logger.warn(
+                        "assume session is not exist in auth-server, remove it from local cache:user={}, accessKey={}, sessionId={}",
+                        entry.getValue().getUser().getUsername(), entry.getKey(),
+                        sessionCache.getSessionId(), e);
+                logoutSession(sessionCache);
                 it.remove();
             }
         }
