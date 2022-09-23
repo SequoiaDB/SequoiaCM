@@ -248,7 +248,7 @@ public class TestTools {
         Ssh ssh = null;
         try {
             ssh = new Ssh( host );
-            String cmd = "ntpdate " + TestScmBase.ntpServer;
+            String cmd = "ntpdate -u " + TestScmBase.ntpServer;
 
             // in case of time server not usable, retry in 1 min
             int times = 60;

@@ -1,13 +1,12 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
@@ -31,6 +30,7 @@ import com.sequoiacm.client.exception.ScmException;
 public class StatisticsUtils extends TestScmBase {
     public static final String STATISTICAL_CS = "SCMSYSTEM";
     public static final String STATISTICAL_CL = "STATISTICS_DATA";
+    public static final String STATISTICAL_BREAKPOINT_CL = "STATISTICS_BREAKPOINT_FILE";
     public final static int TIMEOUT = 1000 * 120;
     public final static int INTERVAL = 200;
 
@@ -170,6 +170,9 @@ public class StatisticsUtils extends TestScmBase {
         SiteWrapper site = ScmInfo.getRootSite();
         TestSdbTools.delete( site.getMetaDsUrl(), site.getMetaUser(),
                 site.getMetaPasswd(), STATISTICAL_CS, STATISTICAL_CL,
+                new BasicBSONObject() );
+        TestSdbTools.delete( site.getMetaDsUrl(), site.getMetaUser(),
+                site.getMetaPasswd(), STATISTICAL_CS, STATISTICAL_BREAKPOINT_CL,
                 new BasicBSONObject() );
     }
 
@@ -553,5 +556,53 @@ public class StatisticsUtils extends TestScmBase {
             filePathList.add( filePath );
         }
         return localPath;
+    }
+
+    /**
+     * 创建断点文件
+     *
+     * @param BreakpointFileName
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static long createAndUploadBreakpointFile( String breakpointFileName,
+            ScmWorkspace siteWorkspace, String filePath ) throws Exception {
+        long uploadBeginTime = System.nanoTime();
+        ScmChecksumType checksumType = ScmChecksumType.NONE;
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .createInstance( siteWorkspace, breakpointFileName,
+                        checksumType );
+        FileInputStream fStream = new FileInputStream( filePath );
+        breakpointFile.upload( fStream );
+        long uploadTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
+        return uploadTime;
+    }
+
+    /**
+     * 断点文件转为文件
+     *
+     * @param breakpointFile
+     * @param fileName
+     * @param fileIdList
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static long breakpointFileToFile( String breakpointFileName,
+            ScmWorkspace siteWorkspace, String fileName,
+            List< ScmId > fileIdList ) throws Exception {
+        long uploadBeginTime = System.nanoTime();
+        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
+                .getInstance( siteWorkspace, breakpointFileName );
+        ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
+        file.setFileName( fileName );
+        file.setAuthor( fileName );
+        file.setContent( breakpointFile );
+        fileIdList.add( file.save() );
+        long uploadTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
+        return uploadTime;
     }
 }
