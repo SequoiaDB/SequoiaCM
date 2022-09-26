@@ -64,7 +64,8 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
 
-    @Test(groups = { "fourSite", "net" })
+    // 问题单SEQUOIACM-1072未解决，用例暂时屏蔽
+    @Test(groups = { "fourSite", "net" }, enabled = false)
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );

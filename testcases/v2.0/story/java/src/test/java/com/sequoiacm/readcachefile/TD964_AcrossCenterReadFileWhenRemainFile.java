@@ -76,7 +76,8 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite", "net", GroupTags.base })
+    // 问题单SEQUOIACM-1072未解决，用例暂时屏蔽
+    @Test(groups = { "fourSite", "net", GroupTags.base }, enabled = false)
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );

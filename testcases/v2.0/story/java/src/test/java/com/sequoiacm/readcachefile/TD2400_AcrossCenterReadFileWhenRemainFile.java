@@ -88,7 +88,9 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                         remainFilePathList2.get( 3 ) } };
     }
 
-    @Test(groups = { "fourSite", "star" }, dataProvider = "range-provider")
+    // 问题单SEQUOIACM-1072未解决，用例暂时屏蔽
+    @Test(groups = { "fourSite",
+            "star" }, dataProvider = "range-provider", enabled = false)
     private void test( String remainFilePath1, String remainFilePath2 )
             throws Exception {
         // write from centerA
